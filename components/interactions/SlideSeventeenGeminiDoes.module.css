@@ -1,0 +1,14 @@
+.root{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:18;}
+.glowBand{position:absolute;left:14%;right:16%;top:58%;height:19%;background:radial-gradient(circle at 52% 34%, rgba(12,58,98,.12), transparent 36%), radial-gradient(circle at 57% 64%, rgba(233,202,139,.08), transparent 24%);filter:blur(10px);}
+.marker{position:absolute;width:18px;height:18px;border:1.5px solid rgba(233,202,139,.48);border-radius:999px;animation:pulse 3s ease-out infinite;}
+.m1{left:8.2%;top:21.6%;}.m2{left:8.2%;top:36.7%;animation-delay:.7s;}.m3{left:8.2%;top:51.8%;animation-delay:1.4s;}
+.ribbon{position:absolute;left:18%;top:52%;width:72%;height:22%;opacity:.48;}
+.ribbon path{fill:none;stroke:rgba(180,144,89,.48);stroke-width:2.6;stroke-linecap:round;stroke-dasharray:620;stroke-dashoffset:620;animation:draw 1.8s ease forwards;}
+.ticker{position:absolute;left:18%;right:8%;bottom:10%;height:32px;overflow:hidden;mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent);}
+.track{display:flex;gap:12px;width:max-content;animation:move 24s linear infinite;}
+.chip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;border-radius:999px;background:rgba(4,28,49,.06);border:1px solid rgba(180,144,89,.18);color:rgba(14,63,106,.74);font-size:10px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;}
+.chip b{width:6px;height:6px;border-radius:999px;background:#e9ca8b;display:inline-block;box-shadow:0 0 8px rgba(233,202,139,.45);}
+@keyframes pulse{0%{transform:scale(.8);opacity:.55;}100%{transform:scale(1.5);opacity:0;}}
+@keyframes draw{to{stroke-dashoffset:0;}}
+@keyframes move{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@media (prefers-reduced-motion: reduce){.marker,.track,.ribbon path{animation:none!important;}}

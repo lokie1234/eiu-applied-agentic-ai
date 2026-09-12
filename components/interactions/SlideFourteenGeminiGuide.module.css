@@ -1,0 +1,14 @@
+.root{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:18;}
+.svg{position:absolute;inset:0;overflow:visible;}
+.arrow{fill:none;stroke:url(#g14);stroke-width:3.2;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:draw 1.25s cubic-bezier(.22,1,.36,1) forwards;}
+.signal{fill:#f2ddb1;filter:drop-shadow(0 0 10px rgba(242,221,177,.8));}
+.arrowHead path{fill:#e9ca8b;opacity:.96;filter:drop-shadow(0 0 6px rgba(233,202,139,.55));}
+.hotspot{position:absolute;border-radius:10px;animation:targetPulse 1.9s ease-in-out infinite;}
+.hotspot::before,.hotspot::after{content:"";position:absolute;inset:-8px;border-radius:14px;border:1.4px solid rgba(255,86,86,.38);opacity:.74;animation:ring 1.9s ease-out infinite;}
+.hotspot::after{inset:-14px;animation-delay:.34s;opacity:.45;}
+.signIn{left:3.61015%;top:64.51334%;width:6.51575%;height:3.3552%;}
+.modelCard{left:76.28732%;top:67.86854%;width:15.5561%;height:5.48557%;animation-delay:.32s;}
+@keyframes draw{to{stroke-dashoffset:0;}}
+@keyframes targetPulse{0%,100%{filter:drop-shadow(0 0 0 rgba(255,64,64,.15));opacity:.78;}50%{filter:drop-shadow(0 0 12px rgba(255,64,64,.42));opacity:1;}}
+@keyframes ring{0%{transform:scale(.94);opacity:.74;}100%{transform:scale(1.06);opacity:0;}}
+@media (prefers-reduced-motion: reduce){.arrow,.hotspot,.hotspot::before,.hotspot::after{animation:none!important;}}

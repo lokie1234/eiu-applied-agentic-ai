@@ -1,0 +1,14 @@
+.root{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:18;}
+.grid{position:absolute;inset:0;opacity:.06;background-image:linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);background-size:42px 42px;mask-image:linear-gradient(to bottom, transparent 0%, black 8%, black 88%, transparent 100%);}
+.leftGlow{position:absolute;left:10%;top:12%;width:32%;height:22%;background:radial-gradient(circle at 32% 40%, rgba(233,202,139,.11), transparent 45%);filter:blur(18px);}
+.centerGlow{position:absolute;left:32%;top:31%;width:38%;height:26%;background:radial-gradient(circle, rgba(255,255,255,.08), transparent 58%);filter:blur(20px);}
+.network{position:absolute;right:5%;top:12%;width:22%;height:34%;opacity:.42;animation:float 7s ease-in-out infinite;}
+.rings circle,.links path{fill:none;stroke:rgba(233,202,139,.22);stroke-width:1.7;}
+.nodes circle{fill:#e9ca8b;filter:drop-shadow(0 0 7px rgba(233,202,139,.45));}
+.ticker{position:absolute;left:6%;right:6%;bottom:8%;height:34px;overflow:hidden;mask-image:linear-gradient(90deg,transparent,black 7%,black 93%,transparent);}
+.track{display:flex;gap:12px;width:max-content;animation:move 24s linear infinite;}
+.chip{display:inline-flex;align-items:center;gap:8px;min-height:30px;padding:6px 12px;border-radius:999px;background:rgba(4,28,49,.22);border:1px solid rgba(244,223,176,.12);color:rgba(255,255,255,.74);font-size:10px;font-weight:800;letter-spacing:.055em;text-transform:uppercase;}
+.chip i{width:6px;height:6px;border-radius:999px;background:#e9ca8b;display:inline-block;box-shadow:0 0 8px rgba(233,202,139,.48);}
+@keyframes move{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+@media (prefers-reduced-motion: reduce){.track,.network{animation:none!important;}}

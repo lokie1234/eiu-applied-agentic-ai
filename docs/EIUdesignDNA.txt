@@ -1,0 +1,88 @@
+# EIU BA Hub - Design DNA
+
+## Core palette
+
+| Token | Value | Role |
+|---|---:|---|
+| Navy 950 | `#041C31` | deepest brand/nav/sidebar |
+| Navy 900 | `#082945` | primary dark surface |
+| Navy 800 | `#123F68` | secondary brand blue |
+| Navy 700 | `#18547F` | active/interactive blue |
+| Accent blue | `#2D7FB4` | analytics/data accent |
+| Gold 700 | `#9D7944` | text accent / labels |
+| Gold 600 | `#B39159` | primary gold |
+| Gold 300 | `#E9CA8B` | warm highlight |
+| Gold 200 | `#F4DFB0` | light highlight / CTA |
+| Cream | `#F7F4ED` | warm neutral surface |
+| Cream soft | `#FBFAF7` | light page surface |
+| Text | `#17324A` | primary content text |
+| Muted | `#687987` | supporting text |
+
+## Typography
+
+- Primary family: Inter, with system sans-serif fallback.
+- Strong hierarchy: large navy headings, restrained uppercase gold eyebrows, compact metadata.
+- Production guideline: keep body text >= 14-16 px on user-facing forms and >= 12 px only for secondary metadata.
+
+## Geometry
+
+- Cards: 18-24 px radius; hero surfaces up to 27 px.
+- Buttons: pill/rounded, especially primary CTA.
+- Inputs: 10-13 px radius with clear focus rings.
+- Layout: desktop sidebar + wide content canvas; mobile bottom navigation.
+
+## Surfaces and depth
+
+- Navy gradients rather than flat dark fills.
+- Gold/cream used sparingly for premium emphasis.
+- Soft shadows; avoid dense skeuomorphic depth.
+- Glass/blur effects only on limited surfaces; performance-sensitive pages should favor opaque surfaces.
+
+## Motion
+
+Main easing:
+
+```css
+cubic-bezier(.22,1,.36,1)
+```
+
+Spring accent:
+
+```css
+cubic-bezier(.2,.85,.32,1.22)
+```
+
+Preferred motion:
+
+- 160-300 ms hover/press transitions.
+- subtle translateY/translateX rather than heavy blur.
+- progress growth, pulse, floating analytics cards, SVG line draw.
+- always respect `prefers-reduced-motion`.
+
+Avoid:
+
+- continuous heavy backdrop blur on many surfaces.
+- one IntersectionObserver per small card.
+- large parallax/3D effects on data-heavy screens.
+
+## Login-page analytics identity
+
+The final login scene combines:
+
+- animated bar chart;
+- animated trend line and pulse points;
+- floating KPI cards;
+- subtle data-stream dots;
+- deep navy analytics canvas;
+- warm gold data accents.
+
+The objective is to make the login page immediately communicate Business Analytics without turning it into a decorative landing page.
+
+## Brand behavior principles
+
+1. Professional before decorative.
+2. Data should be visually scannable in <5 seconds.
+3. Gold marks priority, not every action.
+4. Motion explains state and hierarchy; it should not compete with data.
+5. Responsive behavior is part of the design system, not an afterthought.
+6. Sensitive/destructive actions use explicit confirmation and differentiated danger styling.

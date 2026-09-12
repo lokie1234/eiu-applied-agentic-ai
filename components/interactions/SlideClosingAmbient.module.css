@@ -1,0 +1,245 @@
+.root {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.completionAura {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 62%;
+  aspect-ratio: 1.9;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(190, 145, 78, 0.12), rgba(43, 132, 190, 0.05) 48%, transparent 72%);
+  transform: translate(-50%, -50%);
+  animation: breathe 5.8s ease-in-out infinite;
+}
+
+.trace,
+.traceDelay,
+.practiceTrace {
+  fill: none;
+  stroke: rgba(99, 177, 224, 0.34);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 7 11;
+  animation: dataFlow 4.8s linear infinite;
+}
+
+.traceDelay {
+  stroke: rgba(190, 145, 78, 0.4);
+  animation-delay: -2.2s;
+}
+
+.nodeA,
+.nodeB,
+.nodeC,
+.practiceNodeA,
+.practiceNodeB,
+.practiceNodeC {
+  fill: #c09658;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: nodePulse 2.7s ease-in-out infinite;
+}
+
+.nodeB,
+.practiceNodeB { animation-delay: -0.9s; }
+.nodeC,
+.practiceNodeC { animation-delay: -1.8s; }
+
+.spark {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(235, 191, 111, 0.9);
+  box-shadow: 0 0 12px rgba(235, 191, 111, 0.75);
+  animation: drift 5.2s ease-in-out infinite;
+}
+
+.sparkA { left: 11%; top: 22%; }
+.sparkB { right: 13%; bottom: 18%; animation-delay: -1.7s; }
+.sparkC { left: 76%; top: 29%; animation-delay: -3.4s; }
+
+.cornerGold,
+.cornerBlue {
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 92;
+  animation: cornerDraw 4.6s ease-in-out infinite;
+}
+
+.cornerGold { stroke: rgba(177, 134, 78, 0.55); }
+.cornerBlue { stroke: rgba(25, 72, 111, 0.35); animation-delay: -2.3s; }
+
+.horizon {
+  fill: none;
+  stroke: rgba(177, 134, 78, 0.2);
+  stroke-width: 1;
+  stroke-dasharray: 1 12;
+  animation: dataFlow 8s linear infinite;
+}
+
+.orbitRing {
+  fill: none;
+  stroke: rgba(25, 72, 111, 0.14);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 8;
+  transform-origin: 820px 108px;
+  animation: spin 10s linear infinite;
+}
+
+.orbitDot {
+  fill: rgba(177, 134, 78, 0.68);
+  transform-origin: 820px 108px;
+  animation: spin 5s linear infinite;
+}
+
+.whiteShimmer {
+  position: absolute;
+  left: 20%;
+  right: 20%;
+  bottom: 22%;
+  height: 2px;
+  opacity: 0.65;
+  background: linear-gradient(90deg, transparent, rgba(177, 134, 78, 0.6), transparent);
+  transform: scaleX(0.2);
+  animation: shimmerLine 5.4s ease-in-out infinite;
+}
+
+.whiteSparkA { left: 14%; top: 68%; background: rgba(25, 72, 111, 0.55); box-shadow: 0 0 10px rgba(25, 72, 111, 0.35); }
+.whiteSparkB { right: 16%; top: 38%; animation-delay: -2.6s; }
+
+.checkRail,
+.checkRailDelay {
+  fill: none;
+  stroke: rgba(190, 145, 78, 0.2);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 8;
+  animation: dataFlow 5s linear infinite;
+}
+
+.checkRailDelay { animation-delay: -2.5s; }
+
+.checkPulse {
+  fill: none;
+  stroke: rgba(239, 193, 111, 0.72);
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  opacity: 0;
+  animation: checkPulse 2.9s ease-out infinite;
+}
+
+.checkCore {
+  fill: rgba(247, 205, 126, 0.92);
+  stroke: none;
+}
+
+.resultSweep,
+.practiceArc {
+  fill: none;
+  stroke: rgba(87, 164, 211, 0.2);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-dasharray: 110 720;
+  animation: sweep 7s ease-in-out infinite;
+}
+
+.practiceGlow {
+  position: absolute;
+  left: 50%;
+  bottom: -22%;
+  width: 74%;
+  height: 45%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(190, 145, 78, 0.11), transparent 70%);
+  transform: translateX(-50%);
+  animation: breathe 6.4s ease-in-out infinite;
+}
+
+.practiceArc {
+  stroke: rgba(190, 145, 78, 0.3);
+  animation-duration: 7.8s;
+}
+
+.practiceTrace {
+  stroke: rgba(190, 145, 78, 0.34);
+}
+
+.practiceSparkA { left: 10%; bottom: 9%; }
+.practiceSparkB { right: 13%; bottom: 15%; animation-delay: -2.8s; background: rgba(87, 164, 211, 0.85); box-shadow: 0 0 12px rgba(87, 164, 211, 0.6); }
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.35; transform: translate(-50%, -50%) scale(0.94); }
+  50% { opacity: 0.95; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+.practiceGlow {
+  animation-name: practiceBreathe;
+}
+
+@keyframes practiceBreathe {
+  0%, 100% { opacity: 0.4; transform: translateX(-50%) scale(0.95); }
+  50% { opacity: 1; transform: translateX(-50%) scale(1.06); }
+}
+
+@keyframes dataFlow {
+  to { stroke-dashoffset: -72; }
+}
+
+@keyframes nodePulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.72); }
+  50% { opacity: 1; transform: scale(1.25); }
+}
+
+@keyframes drift {
+  0%, 100% { opacity: 0.2; transform: translate3d(0, 8px, 0) scale(0.7); }
+  50% { opacity: 1; transform: translate3d(6px, -9px, 0) scale(1.1); }
+}
+
+@keyframes cornerDraw {
+  0%, 100% { opacity: 0.2; stroke-dashoffset: 92; }
+  45%, 70% { opacity: 0.9; stroke-dashoffset: 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmerLine {
+  0%, 100% { opacity: 0; transform: scaleX(0.15); }
+  38%, 62% { opacity: 0.65; transform: scaleX(1); }
+}
+
+@keyframes checkPulse {
+  0% { opacity: 0; transform: scale(0.6); }
+  18% { opacity: 0.95; }
+  48%, 100% { opacity: 0; transform: scale(1.45); }
+}
+
+@keyframes sweep {
+  0%, 100% { opacity: 0.15; stroke-dashoffset: 0; }
+  50% { opacity: 0.8; stroke-dashoffset: -650; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root * {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

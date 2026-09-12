@@ -1,0 +1,212 @@
+.root {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.gutter {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: max(0px, calc((100% - var(--slide-width)) / 2));
+  overflow: hidden;
+  opacity: 0.78;
+  container-type: inline-size;
+}
+
+.left { left: 0; }
+.right { right: 0; }
+
+.circuit {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.circuitLine,
+.circuitLineSlow {
+  fill: none;
+  stroke: rgba(78, 163, 216, 0.3);
+  stroke-width: 1.4;
+  vector-effect: non-scaling-stroke;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 6 12;
+  animation: sideDataFlow 5s linear infinite;
+}
+
+.circuitLineSlow {
+  stroke: rgba(190, 145, 78, 0.3);
+  animation-duration: 8s;
+  animation-direction: reverse;
+}
+
+.circuitNode,
+.circuitNodeDelay {
+  fill: rgba(96, 185, 235, 0.82);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: sideNodePulse 2.8s ease-in-out infinite;
+}
+
+.circuitNodeDelay {
+  fill: rgba(221, 174, 96, 0.88);
+  animation-delay: -1.4s;
+}
+
+.orbit {
+  fill: none;
+  stroke: rgba(190, 145, 78, 0.26);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 4 8;
+  transform-origin: 58px 236px;
+  animation: sideSpin 12s linear infinite;
+}
+
+.orbitDot {
+  fill: rgba(240, 193, 112, 0.9);
+  transform-origin: 58px 236px;
+  animation: sideSpin 6s linear infinite;
+}
+
+.dataParticle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #71c6f4;
+  box-shadow: 0 0 12px rgba(113, 198, 244, 0.9);
+  animation: particleRise 6s ease-in-out infinite;
+}
+
+.particleA { left: 28%; bottom: 10%; }
+.particleB { right: 18%; bottom: 32%; animation-delay: -3s; background: #ddb06a; }
+.particleC { left: 22%; bottom: 22%; animation-delay: -1.5s; }
+.particleD { right: 26%; bottom: 8%; animation-delay: -4.5s; background: #ddb06a; }
+
+.robotButton {
+  position: absolute;
+  left: 0;
+  z-index: 6;
+  width: 64px;
+  min-height: 70px;
+  padding: 0;
+  border: 0;
+  border-radius: 18px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  pointer-events: auto;
+  transition:
+    left 680ms cubic-bezier(0.2, 0.85, 0.22, 1),
+    top 680ms cubic-bezier(0.2, 0.85, 0.22, 1),
+    transform 180ms ease;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.32));
+}
+
+.robotLeft {
+  left: max(6px, calc((100% - var(--slide-width)) / 4 - 32px));
+}
+
+.robotRight {
+  left: min(calc(100% - 70px), calc(100% - (100% - var(--slide-width)) / 4 - 32px));
+}
+
+.robotButton:hover,
+.robotButton:focus-visible {
+  transform: translateY(-4px) rotate(-3deg);
+}
+
+.robotButton:focus-visible {
+  outline: 2px solid rgba(235, 191, 111, 0.95);
+  outline-offset: 3px;
+}
+
+.robotLabel {
+  display: block;
+  width: max-content;
+  margin: 0 auto 3px;
+  padding: 3px 7px;
+  border: 1px solid rgba(235, 191, 111, 0.45);
+  border-radius: 999px;
+  background: rgba(4, 27, 46, 0.88);
+  color: #f1c577;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  white-space: nowrap;
+  animation: labelBob 2.2s ease-in-out infinite;
+}
+
+.robotFace {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 48px;
+  margin: 0 auto;
+  border: 1px solid rgba(91, 181, 232, 0.46);
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(76, 164, 216, 0.22), transparent 62%),
+    rgba(7, 39, 65, 0.92);
+  font-size: 29px;
+  line-height: 1;
+  box-shadow:
+    inset 0 0 18px rgba(73, 166, 222, 0.12),
+    0 0 18px rgba(46, 145, 202, 0.14);
+  animation: robotIdle 2.7s ease-in-out infinite;
+}
+
+@container (max-width: 72px) {
+  .circuit,
+  .dataParticle { opacity: 0.28; }
+}
+
+@keyframes sideDataFlow {
+  to { stroke-dashoffset: -72; }
+}
+
+@keyframes sideNodePulse {
+  0%, 100% { opacity: 0.25; transform: scale(0.7); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
+@keyframes sideSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes particleRise {
+  0%, 100% { opacity: 0; transform: translate3d(0, 22px, 0) scale(0.65); }
+  42% { opacity: 0.9; }
+  68% { opacity: 0.45; transform: translate3d(9px, -58px, 0) scale(1.1); }
+}
+
+@keyframes labelBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes robotIdle {
+  0%, 100% { transform: rotate(-2deg) translateY(0); }
+  50% { transform: rotate(2deg) translateY(-3px); }
+}
+
+@media (max-width: 1180px) {
+  .robotButton { display: none; }
+}
+
+@media (max-width: 920px) {
+  .root { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root * {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+  }
+}
