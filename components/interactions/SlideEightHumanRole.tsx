@@ -14,10 +14,10 @@ const PDF_WIDTH = 960;
 const PDF_HEIGHT = 540;
 
 const BULLETS: Bullet[] = [
-  { id: "role-1", tone: "left", bulletX: 68, bulletY: 211, lineX: 94, lineY: 227, lineWidth: 128 },
-  { id: "role-2", tone: "right", bulletX: 498, bulletY: 211, lineX: 523, lineY: 227, lineWidth: 78 },
-  { id: "role-3", tone: "left", bulletX: 68, bulletY: 279, lineX: 94, lineY: 295, lineWidth: 120 },
-  { id: "role-4", tone: "right", bulletX: 498, bulletY: 279, lineX: 523, lineY: 295, lineWidth: 118 },
+  { id: "role-1", tone: "left", bulletX: 75.91, bulletY: 210.665, lineX: 94, lineY: 227, lineWidth: 128 },
+  { id: "role-2", tone: "right", bulletX: 504.31, bulletY: 210.665, lineX: 523, lineY: 227, lineWidth: 78 },
+  { id: "role-3", tone: "left", bulletX: 75.91, bulletY: 279.065, lineX: 94, lineY: 295, lineWidth: 120 },
+  { id: "role-4", tone: "right", bulletX: 504.31, bulletY: 279.065, lineX: 523, lineY: 295, lineWidth: 118 },
 ];
 
 function pxPercent(value: number, total: number) {

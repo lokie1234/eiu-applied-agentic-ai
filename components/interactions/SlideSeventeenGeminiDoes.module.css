@@ -1,7 +1,7 @@
 .root{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:18;}
 .glowBand{position:absolute;left:14%;right:16%;top:58%;height:19%;background:radial-gradient(circle at 52% 34%, rgba(12,58,98,.12), transparent 36%), radial-gradient(circle at 57% 64%, rgba(233,202,139,.08), transparent 24%);filter:blur(10px);}
 .marker{position:absolute;width:18px;height:18px;border:1.5px solid rgba(233,202,139,.48);border-radius:999px;animation:pulse 3s ease-out infinite;}
-.m1{left:8.2%;top:21.6%;}.m2{left:8.2%;top:36.7%;animation-delay:.7s;}.m3{left:8.2%;top:51.8%;animation-delay:1.4s;}
+.m1{left:8.27474%;top:24.27241%;}.m2{left:8.27474%;top:36.93907%;animation-delay:.7s;}.m3{left:8.27474%;top:49.60574%;animation-delay:1.4s;}
 .ribbon{position:absolute;left:18%;top:52%;width:72%;height:22%;opacity:.48;}
 .ribbon path{fill:none;stroke:rgba(180,144,89,.48);stroke-width:2.6;stroke-linecap:round;stroke-dasharray:620;stroke-dashoffset:620;animation:draw 1.8s ease forwards;}
 .ticker{position:absolute;left:18%;right:8%;bottom:10%;height:32px;overflow:hidden;mask-image:linear-gradient(90deg,transparent,black 8%,black 92%,transparent);}

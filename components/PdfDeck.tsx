@@ -7,6 +7,8 @@ import type { PDFDocumentProxy } from "pdfjs-dist";
 import DeckSideAmbient from "@/components/DeckSideAmbient";
 import InteractionLayer from "@/components/interactions/InteractionLayer";
 import SlideOneAIHero from "@/components/interactions/SlideOneAIHero";
+import QuizSlide from "@/components/QuizSlide";
+import ShowcaseSlide from "@/components/ShowcaseSlide";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -19,6 +21,7 @@ export default function PdfDeck() {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageInput, setPageInput] = useState("1");
   const [numPages, setNumPages] = useState(0);
+  const [pdfPageCount, setPdfPageCount] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [viewerWidth, setViewerWidth] = useState(0);
   const [pageAspectRatio, setPageAspectRatio] = useState(16 / 9);
@@ -38,6 +41,8 @@ export default function PdfDeck() {
   }, [viewerWidth, zoom]);
 
   const isIntroHeroSlide = pageNumber === 1;
+  const isShowcaseSlide = pageNumber === 38;
+  const isQuizSlide = pdfPageCount > 0 && pageNumber === pdfPageCount + 1;
 
   useEffect(() => {
     pageNumberRef.current = pageNumber;
@@ -94,8 +99,10 @@ export default function PdfDeck() {
   }
 
   async function handlePdfLoaded(pdf: PDFDocumentProxy) {
-    setNumPages(pdf.numPages);
-    numPagesRef.current = pdf.numPages;
+    const totalWithQuiz = pdf.numPages + 1;
+    setPdfPageCount(pdf.numPages);
+    setNumPages(totalWithQuiz);
+    numPagesRef.current = totalWithQuiz;
 
     try {
       const firstPage = await pdf.getPage(1);
@@ -441,23 +448,28 @@ export default function PdfDeck() {
                     aspectRatio: `${pageAspectRatio}`,
                   }}
                 >
-                  <Page
-                    pageNumber={pageNumber}
-                    width={renderWidth}
-                    renderTextLayer={false}
-                    renderAnnotationLayer
-                    loading={
-                      <div className="page-loading-shell">
-                        <div className="loading-spinner" />
-                      </div>
-                    }
-                  />
+                  {isShowcaseSlide ? (
+                    <ShowcaseSlide scale={renderWidth / 960} />
+                  ) : isQuizSlide ? (
+                    <QuizSlide scale={renderWidth / 960} />
+                  ) : (
+                    <>
+                      <Page
+                        pageNumber={pageNumber}
+                        width={renderWidth}
+                        renderTextLayer={false}
+                        renderAnnotationLayer
+                        loading={
+                          <div className="page-loading-shell">
+                            <div className="loading-spinner" />
+                          </div>
+                        }
+                      />
 
-                  {isIntroHeroSlide && <SlideOneAIHero />}
-
-
-                  {/* Interaction engine sạch. Chưa có interaction active. */}
-                  <InteractionLayer pageNumber={pageNumber} />
+                      {isIntroHeroSlide && <SlideOneAIHero />}
+                      <InteractionLayer pageNumber={pageNumber} />
+                    </>
+                  )}
                 </div>
               ) : (
                 <div className="viewer-measuring">

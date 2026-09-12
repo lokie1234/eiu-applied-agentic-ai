@@ -1,0 +1,29 @@
+.root{position:absolute;left:0;top:0;width:960px;height:540px;transform-origin:top left;overflow:hidden;background:linear-gradient(135deg,#082b49 0%,#0d416e 54%,#153f62 100%);color:#fff;font-family:Arial,Helvetica,sans-serif;padding:38px 48px 36px;box-sizing:border-box;border-radius:3px;isolation:isolate}
+.grid{position:absolute;inset:0;z-index:-3;opacity:.13;background-image:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);background-size:38px 38px;mask-image:linear-gradient(90deg,transparent,black 20%,black 80%,transparent)}
+.orbA,.orbB{position:absolute;z-index:-2;border-radius:999px;filter:blur(2px);animation:float 7s ease-in-out infinite}
+.orbA{width:240px;height:240px;right:-62px;top:-90px;border:1px solid rgba(229,199,139,.25);box-shadow:0 0 70px rgba(229,199,139,.12) inset}
+.orbB{width:180px;height:180px;left:-42px;bottom:-75px;border:1px solid rgba(77,155,207,.28);animation-delay:-2.5s}
+.header{height:72px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid rgba(229,199,139,.27)}
+.eyebrow,.resultKicker,.formKicker{display:block;color:#e2c58e;font-size:11px;line-height:1;text-transform:uppercase;letter-spacing:.15em;font-weight:800}
+.header h1{margin:7px 0 0;font-size:32px;line-height:1;font-weight:800;letter-spacing:-.02em}
+.counter{margin-top:10px;padding:8px 14px;border:1px solid rgba(229,199,139,.34);border-radius:999px;background:rgba(2,24,42,.26);font-size:12px;font-weight:800;color:#f2ddb1}
+.quizBody{width:760px;margin:20px auto 0}
+.progress{height:5px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-bottom:18px}
+.progress span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#b49158,#f0d6a3);transition:width .45s ease}
+.questionCard{position:relative;padding:25px 30px 27px;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:rgba(2,24,42,.47);box-shadow:0 18px 54px rgba(0,0,0,.17);backdrop-filter:blur(7px);animation:cardIn .45s ease both}
+.questionNumber{position:absolute;right:25px;top:18px;color:rgba(229,199,139,.25);font-size:48px;line-height:1;font-weight:900}
+.questionCard h2{position:relative;max-width:620px;min-height:46px;margin:0 70px 18px 0;font-size:23px;line-height:1.25;letter-spacing:-.015em}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:11px 13px}
+.option{min-height:54px;display:flex;align-items:center;gap:13px;padding:10px 15px;border:1px solid rgba(255,255,255,.15);border-radius:11px;background:rgba(255,255,255,.055);color:#fff;text-align:left;font-size:14px;font-weight:700;cursor:pointer;transition:transform .18s ease,border-color .18s ease,background .18s ease}
+.option:hover:not(:disabled),.option:focus-visible{transform:translateY(-2px);border-color:rgba(229,199,139,.72);background:rgba(229,199,139,.1);outline:none}
+.option:disabled{cursor:default;opacity:.64}.option.correct{opacity:1;background:rgba(60,180,126,.18);border-color:#5ad49b}.option.wrong{opacity:1;background:rgba(236,100,105,.15);border-color:#ef8387}
+.check{width:20px;height:20px;flex:0 0 20px;display:grid;place-items:center;border:1.5px solid rgba(229,199,139,.65);border-radius:5px;color:#082b49;background:transparent;font-size:13px;font-weight:900}.correct .check{background:#69d8a3;border-color:#69d8a3}.wrong .check{background:#ef8387;border-color:#ef8387}
+.resultGrid{display:grid;grid-template-columns:.86fr 1.14fr;gap:23px;margin-top:23px}
+.resultCard,.formCard{min-height:330px;box-sizing:border-box;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:rgba(2,24,42,.46);box-shadow:0 18px 54px rgba(0,0,0,.16);padding:28px 30px;animation:cardIn .5s ease both}
+.score{display:flex;align-items:flex-end;margin:24px 0 7px}.score strong{font-size:74px;line-height:.78;color:#f0d6a3}.score span{margin-left:8px;color:rgba(255,255,255,.62);font-size:20px;font-weight:800}
+.resultCard h2{margin:17px 0 7px;font-size:24px}.resultCard p{margin:0;color:rgba(255,255,255,.7);font-size:13px;line-height:1.5}
+.retry{margin-top:20px;padding:9px 16px;border:1px solid rgba(229,199,139,.55);border-radius:9px;background:transparent;color:#f0d6a3;font-weight:800;cursor:pointer}
+.formCard{display:flex;flex-direction:column;gap:13px}.formCard label{display:flex;flex-direction:column;gap:6px;color:rgba(255,255,255,.76);font-size:12px;font-weight:700}.formCard input{height:39px;box-sizing:border-box;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.07);color:#fff;padding:0 12px;font:inherit;outline:none}.formCard input:focus{border-color:#e2c58e;box-shadow:0 0 0 3px rgba(226,197,142,.12)}
+.submit{height:42px;margin-top:1px;border:0;border-radius:9px;background:linear-gradient(90deg,#b49158,#e2c58e);color:#082b49;font-size:13px;font-weight:900;cursor:pointer}.submit:disabled{cursor:default;opacity:.68}.message{margin:0;color:#83e0b2;font-size:11px;line-height:1.35}.message.error{color:#ffaaa9}.honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-8px,10px,0)}}
+@media (prefers-reduced-motion:reduce){.orbA,.orbB,.questionCard,.resultCard,.formCard{animation:none!important}.progress span{transition:none}}

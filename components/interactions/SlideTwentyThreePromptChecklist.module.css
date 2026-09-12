@@ -1,7 +1,7 @@
 .root{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:18;}
 .glow{position:absolute;left:8%;right:8%;top:16%;height:60%;background:radial-gradient(circle at 38% 36%, rgba(12,58,98,.09), transparent 28%), radial-gradient(circle at 71% 41%, rgba(180,144,89,.08), transparent 18%);filter:blur(12px);}
 .pulse{position:absolute;width:18px;height:18px;border-radius:999px;border:1.5px solid rgba(233,202,139,.45);animation:pulse 3.1s ease-out infinite;}
-.p1{left:7.6%;top:26.7%;}.p2{left:7.6%;top:43.9%;animation-delay:.4s;}.p3{left:7.6%;top:61.2%;animation-delay:.8s;}.p4{left:50.5%;top:26.7%;animation-delay:1.2s;}.p5{left:50.5%;top:43.9%;animation-delay:1.6s;}.p6{left:50.5%;top:61.2%;animation-delay:2s;}
+.p1{left:7.3125%;top:29.53333%;}.p2{left:7.3125%;top:41.53333%;animation-delay:.4s;}.p3{left:7.3125%;top:53.53333%;animation-delay:.8s;}.p4{left:51.9375%;top:29.53333%;animation-delay:1.2s;}.p5{left:51.9375%;top:41.53333%;animation-delay:1.6s;}.p6{left:51.9375%;top:53.53333%;animation-delay:2s;}
 .wave{position:absolute;left:10%;top:48%;width:80%;height:24%;opacity:.36;}.wave path{fill:none;stroke:rgba(180,144,89,.44);stroke-width:2.5;stroke-dasharray:760;stroke-dashoffset:760;animation:draw 1.8s ease forwards;}
 @keyframes pulse{0%{transform:scale(.76);opacity:.56;}100%{transform:scale(1.45);opacity:0;}}
 @keyframes draw{to{stroke-dashoffset:0;}}

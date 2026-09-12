@@ -8,10 +8,10 @@
 .hotspot{position:absolute;border-radius:10px;animation:targetPulse 1.95s ease-in-out infinite;}
 .hotspot::before,.hotspot::after{content:"";position:absolute;inset:-6px;border-radius:14px;border:1.4px solid rgba(255,86,86,.38);opacity:.76;animation:ring 1.95s ease-out infinite;}
 .hotspot::after{inset:-12px;opacity:.42;animation-delay:.35s;}
-.h1{left:59.94566%;top:17.33341%;width:13.20374%;height:6.11111%;}
-.h2{left:2.4568%;top:50.62688%;width:5.75049%;height:5.37183%;animation-delay:.25s;}
-.h3{left:60.99218%;top:61.25284%;width:10.85876%;height:4.33508%;animation-delay:.5s;}
-.h4{left:21.91514%;top:86.34124%;width:33.64419%;height:10.39807%;animation-delay:.75s;}
+.h1{left:59.79167%;top:17.12963%;width:13.48958%;height:6.48148%;}
+.h2{left:2.34375%;top:50.46296%;width:5.98958%;height:5.74074%;animation-delay:.25s;}
+.h3{left:60.88542%;top:61.01852%;width:11.09375%;height:4.81481%;animation-delay:.5s;}
+.h4{left:21.82292%;top:86.11111%;width:33.85417%;height:10.83333%;animation-delay:.75s;}
 @keyframes draw{to{stroke-dashoffset:0;}}
 @keyframes targetPulse{0%,100%{filter:drop-shadow(0 0 0 rgba(255,64,64,.15));opacity:.75;}50%{filter:drop-shadow(0 0 12px rgba(255,64,64,.42));opacity:1;}}
 @keyframes ring{0%{transform:scale(.95);opacity:.74;}100%{transform:scale(1.05);opacity:0;}}

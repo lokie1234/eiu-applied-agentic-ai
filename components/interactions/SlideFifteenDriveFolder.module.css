@@ -6,9 +6,9 @@
 .hotspot{position:absolute;border-radius:10px;animation:targetPulse 2s ease-in-out infinite;}
 .hotspot::before,.hotspot::after{content:"";position:absolute;inset:-10px;border-radius:14px;border:1.4px solid rgba(255,86,86,.35);opacity:.72;animation:ring 2s ease-out infinite;}
 .hotspot::after{inset:-18px;opacity:.45;animation-delay:.35s;}
-.box1{left:2.27014%;top:27.01334%;width:7.46063%;height:7.16535%;}
-.box2{left:30.87363%;top:31.08523%;width:22.57874%;height:5.93176%;animation-delay:.25s;}
-.box3{left:85.15113%;top:57.74169%;width:6.34843%;height:4.79003%;animation-delay:.5s;}
+.box1{left:2.13542%;top:26.75926%;width:7.70833%;height:7.68519%;}
+.box2{left:30.78125%;top:30.92593%;width:22.76042%;height:6.2963%;animation-delay:.25s;}
+.box3{left:85%;top:57.5%;width:6.61458%;height:5.27778%;animation-delay:.5s;}
 .spark{position:absolute;width:9px;height:9px;border-radius:999px;background:#f5d690;box-shadow:0 0 12px rgba(245,214,144,.75);opacity:.9;animation:blink 1.8s ease-in-out infinite;}
 .spark1{left:17.4%;top:46.6%;}
 .spark2{left:42.0%;top:46.6%;animation-delay:.35s;}
