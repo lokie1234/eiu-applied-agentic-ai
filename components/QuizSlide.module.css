@@ -5,7 +5,8 @@
 .orbB{width:180px;height:180px;left:-42px;bottom:-75px;border:1px solid rgba(77,155,207,.28);animation-delay:-2.5s}
 .header{height:72px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid rgba(229,199,139,.27)}
 .eyebrow,.resultKicker,.formKicker{display:block;color:#e2c58e;font-size:11px;line-height:1;text-transform:uppercase;letter-spacing:.15em;font-weight:800}
-.header h1{margin:7px 0 0;font-size:32px;line-height:1;font-weight:800;letter-spacing:-.02em}
+.header h1{position:relative;display:inline-block;margin:6px 0 0;font-size:41px;line-height:.94;font-weight:900;letter-spacing:-.035em;color:#fff;text-shadow:0 0 18px rgba(240,214,163,.34),0 6px 20px rgba(0,0,0,.24);animation:titleRise .7s cubic-bezier(.2,.8,.2,1) both,titleGlow 3.4s ease-in-out .7s infinite}
+.header h1::after{content:"";position:absolute;left:1px;right:0;bottom:-8px;height:3px;border-radius:999px;background:linear-gradient(90deg,#f0d6a3 0%,rgba(240,214,163,.34) 64%,transparent 100%);transform-origin:left;animation:titleLine .8s cubic-bezier(.2,.8,.2,1) .18s both}
 .counter{margin-top:10px;padding:8px 14px;border:1px solid rgba(229,199,139,.34);border-radius:999px;background:rgba(2,24,42,.26);font-size:12px;font-weight:800;color:#f2ddb1}
 .quizBody{width:760px;margin:20px auto 0}
 .progress{height:5px;background:rgba(255,255,255,.12);border-radius:999px;overflow:hidden;margin-bottom:18px}
@@ -26,4 +27,7 @@
 .formCard{display:flex;flex-direction:column;gap:13px}.formCard label{display:flex;flex-direction:column;gap:6px;color:rgba(255,255,255,.76);font-size:12px;font-weight:700}.formCard input{height:39px;box-sizing:border-box;border:1px solid rgba(255,255,255,.2);border-radius:8px;background:rgba(255,255,255,.07);color:#fff;padding:0 12px;font:inherit;outline:none}.formCard input:focus{border-color:#e2c58e;box-shadow:0 0 0 3px rgba(226,197,142,.12)}
 .submit{height:42px;margin-top:1px;border:0;border-radius:9px;background:linear-gradient(90deg,#b49158,#e2c58e);color:#082b49;font-size:13px;font-weight:900;cursor:pointer}.submit:disabled{cursor:default;opacity:.68}.message{margin:0;color:#83e0b2;font-size:11px;line-height:1.35}.message.error{color:#ffaaa9}.honeypot{position:absolute!important;left:-10000px!important;width:1px!important;height:1px!important;overflow:hidden!important}
 @keyframes cardIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes float{0%,100%{transform:translate3d(0,0,0)}50%{transform:translate3d(-8px,10px,0)}}
-@media (prefers-reduced-motion:reduce){.orbA,.orbB,.questionCard,.resultCard,.formCard{animation:none!important}.progress span{transition:none}}
+@keyframes titleRise{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes titleLine{from{transform:scaleX(0);opacity:0}to{transform:scaleX(1);opacity:1}}
+@keyframes titleGlow{0%,100%{text-shadow:0 0 18px rgba(240,214,163,.25),0 6px 20px rgba(0,0,0,.24)}50%{text-shadow:0 0 28px rgba(240,214,163,.55),0 6px 20px rgba(0,0,0,.24)}}
+@media (prefers-reduced-motion:reduce){.orbA,.orbB,.questionCard,.resultCard,.formCard,.header h1,.header h1::after{animation:none!important}.progress span{transition:none}}

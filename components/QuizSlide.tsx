@@ -17,16 +17,16 @@ type AnswerRecord = {
 };
 
 const QUESTIONS: Question[] = [
-  { question: "Trong khóa học, trí tuệ nhân tạo giúp người học làm gì?", options: ["Biến ý tưởng thành ứng dụng", "Chỉ thay đổi màu sắc", "Chỉ lưu hình ảnh", "Chỉ trình chiếu nội dung"], answer: 0 },
-  { question: "Bảng tính trực tuyến giữ vai trò nào trong ứng dụng?", options: ["Trang trí giao diện", "Lưu trữ dữ liệu", "Kiểm tra mật khẩu", "Phát video"], answer: 1 },
-  { question: "Nền tảng lập trình của Google được dùng để làm gì?", options: ["Tạo và triển khai ứng dụng", "Soạn thảo văn bản", "Vẽ sơ đồ", "Chỉnh sửa hình ảnh"], answer: 0 },
-  { question: "Trước khi tạo mã nguồn, cần làm gì đầu tiên?", options: ["Chọn màu", "Gửi thư", "Đăng tải ứng dụng", "Xác định yêu cầu nghiệp vụ"], answer: 3 },
-  { question: "Dữ liệu đầu vào kém thường tạo ra kết quả như thế nào?", options: ["Hoàn hảo", "Kém chất lượng", "Nhanh hơn", "Không thay đổi"], answer: 1 },
-  { question: "Phần giao diện có nhiệm vụ gì?", options: ["Lưu dữ liệu", "Xử lý quy tắc", "Hiển thị và nhận thao tác", "Kết nối thư điện tử"], answer: 2 },
-  { question: "Một Prompt tốt cần nêu rõ điều gì?", options: ["Chỉ màu sắc", "Mục tiêu và yêu cầu", "Chỉ tên tệp", "Chỉ mật khẩu"], answer: 1 },
-  { question: "Khi chạy ứng dụng lần đầu, người dùng cần làm gì?", options: ["Xóa bảng dữ liệu", "Tắt ổ lưu trữ", "Đổi trình duyệt", "Cấp quyền truy cập"], answer: 3 },
-  { question: "Dấu hiệu gửi dữ liệu thành công là gì?", options: ["Bảng dữ liệu có dòng mới", "Máy tính tự tắt", "Tệp bị xóa", "Địa chỉ đổi màu"], answer: 0 },
-  { question: "Sau khi kiểm thử, bước tiếp theo trong chu trình là gì?", options: ["Xóa ứng dụng", "In tài liệu", "Tiếp tục cải thiện", "Đăng xuất"], answer: 2 },
+  { question: "Sau khóa học, bạn sẽ tạo Web App bằng công cụ nào?", options: ["Gemini", "Google Drive", "Gmail", "QR Code"], answer: 0 },
+  { question: "Google Sheets giữ vai trò nào trong Web App?", options: ["Frontend", "Business Logic", "Database", "Integrations"], answer: 2 },
+  { question: "Theo slide Vai trò của con người, việc nào được nhấn mạnh?", options: ["Hiểu nghiệp vụ", "Viết Framework", "Học thuộc JavaScript", "Quản trị Server"], answer: 0 },
+  { question: "Trong ví dụ nhà hàng, Frontend tương ứng với gì?", options: ["Bếp nấu ăn", "Kho nguyên liệu", "Nhân viên nhận order", "GrabFood"], answer: 2 },
+  { question: "Trong Web App xin nghỉ, Database là gì?", options: ["Form xin nghỉ", "Kiểm tra phép · Gửi duyệt", "Google Sheets", "Gmail · Google Drive"], answer: 2 },
+  { question: "Trong quy trình cơ bản, bước nào đứng ngay sau Google Sheets?", options: ["Gemini", "Google App Script", "Business Web App", "Google Drive"], answer: 1 },
+  { question: "BƯỚC ĐẦU TIÊN không phải Code hay Prompt, mà là gì?", options: ["Yêu cầu nghiệp vụ", "Thiết kế giao diện", "Triển khai", "Kiểm thử"], answer: 0 },
+  { question: "Nội dung nào thuộc nhóm Prompt tốt cần có?", options: ["Mục tiêu · Người dùng · Dữ liệu cần nhập", "HTML · CSS · JavaScript", "Logo · Email · QR Code", "Copy · Paste · Save"], answer: 0 },
+  { question: "Khi Authorize, Google cần xác nhận ứng dụng được phép làm gì?", options: ["Đọc Google Sheets", "Tạo Gems", "Tạo QR Code", "Đổi tên folder"], answer: 0 },
+  { question: "Khi kiểm thử, dấu hiệu nào cho thấy Web App thành công?", options: ["Google Sheets xuất hiện dòng mới", "Code.gs bị xóa", "URL đổi màu", "Gemini tự đóng"], answer: 0 },
 ];
 
 function resultLabel(score: number) {
@@ -132,7 +132,7 @@ export default function QuizSlide({ scale }: Props) {
       <header className={styles.header}>
         <div>
           <span className={styles.eyebrow}>EIU · Ứng dụng trí tuệ nhân tạo tác nhân</span>
-          <h1>Kiểm tra cuối bài</h1>
+          <h1>Quiz time!</h1>
         </div>
         <div className={styles.counter}>{finished ? "Hoàn thành" : `Câu ${index + 1} / ${QUESTIONS.length}`}</div>
       </header>
