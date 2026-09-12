@@ -55,7 +55,7 @@ Trong **Vercel → Settings → Environment Variables**, kiểm tra:
 ACCESS_CODE=9999
 ADMIN_ACCESS_CODE=1103
 ACCESS_SESSION_SECRET=chuỗi-bí-mật-dài-của-bạn
-GOOGLE_APPS_SCRIPT_URL=https://script.google.com/macros/s/AKfycbz1UkivdlTgi9Wxi8CrP8AgzFeqGIxq9CLsPFePt8PxpRdO9f1uPrOOhbPiJVhkA94/exec
+GOOGLE_APPS_SCRIPT_URL=https://script.google.com/macros/s/AKfycbyg7d4m6Ou5EH3KximcaMFHdNM4vvjSPWXUyYhefWTO2w72gpmKkDWrIz1u2biAukVR/exec
 GOOGLE_APPS_SCRIPT_SECRET=CHANGE_ME
 ```
 
