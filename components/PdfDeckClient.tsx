@@ -12,6 +12,8 @@ const PdfDeck = dynamic(() => import("./PdfDeck"), {
   ),
 });
 
-export default function PdfDeckClient() {
-  return <PdfDeck />;
+type Props = { isAdmin: boolean };
+
+export default function PdfDeckClient({ isAdmin }: Props) {
+  return <PdfDeck isAdmin={isAdmin} />;
 }

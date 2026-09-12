@@ -84,6 +84,29 @@ function doPost(e) {
       return output({ success: true, item: item });
     }
 
+    if (data.action === "showcase.delete") {
+      const id = String(data.id || "").trim();
+      if (!id) {
+        return output({ success: false, message: "Thiếu mã bài chia sẻ." });
+      }
+
+      const tab = getSheet("Bài làm chia sẻ", ["Mã", "Thời gian", "Họ và tên", "Liên kết"]);
+      const lock = LockService.getScriptLock();
+      lock.waitLock(10000);
+      try {
+        const lastRow = tab.getLastRow();
+        if (lastRow < 2) return output({ success: true });
+        const cell = tab.getRange(2, 1, lastRow - 1, 1)
+          .createTextFinder(id)
+          .matchEntireCell(true)
+          .findNext();
+        if (cell) tab.deleteRow(cell.getRow());
+      } finally {
+        lock.releaseLock();
+      }
+      return output({ success: true });
+    }
+
     if (data.action === "quiz.submit") {
       const name = String(data.name || "").trim();
       const score = Number(data.score);

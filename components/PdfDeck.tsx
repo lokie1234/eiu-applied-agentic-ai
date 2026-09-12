@@ -17,7 +17,9 @@ pdfjs.GlobalWorkerOptions.workerSrc = new URL(
 
 const PDF_URL = process.env.NEXT_PUBLIC_PDF_URL ?? "";
 
-export default function PdfDeck() {
+type Props = { isAdmin: boolean };
+
+export default function PdfDeck({ isAdmin }: Props) {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageInput, setPageInput] = useState("1");
   const [numPages, setNumPages] = useState(0);
@@ -449,7 +451,7 @@ export default function PdfDeck() {
                   }}
                 >
                   {isShowcaseSlide ? (
-                    <ShowcaseSlide scale={renderWidth / 960} />
+                    <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} />
                   ) : isQuizSlide ? (
                     <QuizSlide scale={renderWidth / 960} />
                   ) : (

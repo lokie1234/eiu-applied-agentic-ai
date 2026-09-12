@@ -119,7 +119,13 @@ export default function QuizSlide({ scale }: Props) {
   }
 
   return (
-    <section className={styles.root} style={{ transform: `scale(${scale})` }} data-interactive="true" aria-label="Bài kiểm tra cuối bài">
+    <section
+      className={styles.root}
+      style={{ transform: `scale(${scale})`, fontFamily: '"Segoe UI", "Noto Sans", Arial, sans-serif' }}
+      lang="vi"
+      data-interactive="true"
+      aria-label="Bài kiểm tra cuối bài"
+    >
       <div className={styles.grid} aria-hidden="true" />
       <div className={styles.orbA} aria-hidden="true" />
       <div className={styles.orbB} aria-hidden="true" />

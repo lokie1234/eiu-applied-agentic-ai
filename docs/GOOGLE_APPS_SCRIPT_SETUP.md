@@ -9,6 +9,11 @@ Apps Script sẽ tự tạo hai trang tính:
 - `Bài làm chia sẻ`: lưu tên và liên kết từ slide 38.
 - `Kết quả bài kiểm tra`: lưu thời gian, họ tên và điểm. Hệ thống không gửi thư điện tử.
 
+Quyền truy cập của website:
+
+- Mã `9999`: người học có thể xem bài, làm kiểm tra và chia sẻ ứng dụng.
+- Mã `1103`: quản trị viên có thêm nút xóa các bài đã chia sẻ tại slide 38.
+
 ## 1. Dán mã vào Apps Script
 
 1. Mở Google Sheet ở đường dẫn trên.
@@ -47,11 +52,14 @@ Không nhấn nút **Chạy** để thử `doGet` hoặc `doPost` trong trình s
 Trong **Vercel → Settings → Environment Variables**, kiểm tra:
 
 ```text
+ACCESS_CODE=9999
+ADMIN_ACCESS_CODE=1103
+ACCESS_SESSION_SECRET=chuỗi-bí-mật-dài-của-bạn
 GOOGLE_APPS_SCRIPT_URL=https://script.google.com/macros/s/AKfycbz1UkivdlTgi9Wxi8CrP8AgzFeqGIxq9CLsPFePt8PxpRdO9f1uPrOOhbPiJVhkA94/exec
 GOOGLE_APPS_SCRIPT_SECRET=CHANGE_ME
 ```
 
-`GOOGLE_APPS_SCRIPT_SECRET` phải giống chính xác `WEBHOOK_SECRET` trong `Code.gs`. Sau khi sửa biến hoặc cập nhật mã nguồn, vào **Deployments** trên Vercel và **Redeploy** bản mới nhất.
+`GOOGLE_APPS_SCRIPT_SECRET` phải giống chính xác `WEBHOOK_SECRET` trong `Code.gs`. `ACCESS_SESSION_SECRET` phải là một chuỗi riêng đủ dài và không chia sẻ cho người học. Sau khi sửa biến hoặc cập nhật mã nguồn, vào **Deployments** trên Vercel và **Redeploy** bản mới nhất.
 
 ## 4. Kiểm tra hoạt động
 
@@ -59,5 +67,7 @@ GOOGLE_APPS_SCRIPT_SECRET=CHANGE_ME
 2. Google Sheet phải xuất hiện trang tính `Bài làm chia sẻ` và có một dòng mới.
 3. Hoàn thành 10 câu hỏi, nhập họ tên rồi gửi kết quả.
 4. Google Sheet phải xuất hiện trang tính `Kết quả bài kiểm tra` với điểm dạng `8/10`.
+5. Mở `/login`, nhập `1103`, đến slide 38 và kiểm tra nút `Xóa` xuất hiện cạnh từng bài.
+6. Mở `/login`, nhập `9999`, đến slide 38 và kiểm tra nút `Xóa` không xuất hiện.
 
 Nếu slide 38 báo Apps Script trả về trang HTML, nguyên nhân là deployment chưa dùng phiên bản mã mới hoặc quyền truy cập chưa đặt thành **Bất kỳ ai**. Thực hiện lại mục 2 rồi redeploy Vercel.
