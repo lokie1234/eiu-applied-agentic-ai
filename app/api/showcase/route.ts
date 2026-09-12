@@ -24,8 +24,14 @@ export async function GET() {
     url.searchParams.set("action", "showcase.list");
     const secret = process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "";
     if (secret) url.searchParams.set("secret", secret);
-    const response = await fetch(url, { cache: "no-store" });
-    const payload = await response.json();
+    const response = await fetch(url, { cache: "no-store", redirect: "follow" });
+    const text = await response.text();
+    let payload: Record<string, unknown>;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      throw new Error("Apps Script đang trả về trang HTML. Hãy triển khai dạng Web app và chọn quyền truy cập Anyone.");
+    }
     if (!response.ok || payload.success === false) throw new Error(String(payload.message ?? "Không thể tải Showcase."));
     const items: ShowcaseItem[] = (Array.isArray(payload.items) ? payload.items : [])
       .map((item: Partial<ShowcaseItem>) => ({
@@ -59,8 +65,15 @@ export async function POST(request: Request) {
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({ action: "showcase.submit", secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "", name, url }),
       cache: "no-store",
+      redirect: "follow",
     });
-    const payload = await response.json();
+    const text = await response.text();
+    let payload: Record<string, unknown>;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      throw new Error("Apps Script đang trả về trang HTML. Hãy triển khai dạng Web app và chọn quyền truy cập Anyone.");
+    }
     if (!response.ok || payload.success === false) throw new Error(String(payload.message ?? "Không thể chia sẻ Web App."));
     const item = payload.item as ShowcaseItem;
     return NextResponse.json({ success: true, item });

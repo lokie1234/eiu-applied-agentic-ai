@@ -17,16 +17,16 @@ type AnswerRecord = {
 };
 
 const QUESTIONS: Question[] = [
-  { question: "Công cụ AI chính trong khóa học là gì?", options: ["Gemini", "Canva", "Excel", "PowerPoint"], answer: 0 },
-  { question: "Google Sheets đóng vai trò gì?", options: ["Frontend", "Database", "Hosting", "Trình duyệt"], answer: 1 },
-  { question: "Web App trong Lab chạy trên nền tảng nào?", options: ["WordPress", "Figma", "Google Apps Script", "PowerPoint"], answer: 2 },
-  { question: "Trước khi viết code, cần làm gì đầu tiên?", options: ["Chọn màu", "Gửi email", "Deploy", "Xác định yêu cầu nghiệp vụ"], answer: 3 },
-  { question: "Garbage In dẫn đến điều gì?", options: ["Perfect Output", "Garbage Out", "No Output", "Faster Code"], answer: 1 },
-  { question: "Phần nào hiển thị giao diện cho người dùng?", options: ["Database", "Business Logic", "Frontend", "Integration"], answer: 2 },
-  { question: "Prompt tốt cần nêu rõ điều gì?", options: ["Chỉ màu sắc", "Mục tiêu và yêu cầu", "Chỉ tên file", "Chỉ mật khẩu"], answer: 1 },
-  { question: "Khi chạy ứng dụng lần đầu cần làm gì?", options: ["Xóa Sheet", "Tắt Drive", "Đổi trình duyệt", "Authorize"], answer: 3 },
-  { question: "Dấu hiệu gửi dữ liệu thành công là gì?", options: ["Sheets xuất hiện dòng mới", "Máy tự tắt", "File biến mất", "URL đổi màu"], answer: 0 },
-  { question: "Chu trình AI gồm Requirement, Generate, Test và gì?", options: ["Delete", "Print", "Improve", "Logout"], answer: 2 },
+  { question: "Trong khóa học, trí tuệ nhân tạo giúp người học làm gì?", options: ["Biến ý tưởng thành ứng dụng", "Chỉ thay đổi màu sắc", "Chỉ lưu hình ảnh", "Chỉ trình chiếu nội dung"], answer: 0 },
+  { question: "Bảng tính trực tuyến giữ vai trò nào trong ứng dụng?", options: ["Trang trí giao diện", "Lưu trữ dữ liệu", "Kiểm tra mật khẩu", "Phát video"], answer: 1 },
+  { question: "Nền tảng lập trình của Google được dùng để làm gì?", options: ["Tạo và triển khai ứng dụng", "Soạn thảo văn bản", "Vẽ sơ đồ", "Chỉnh sửa hình ảnh"], answer: 0 },
+  { question: "Trước khi tạo mã nguồn, cần làm gì đầu tiên?", options: ["Chọn màu", "Gửi thư", "Đăng tải ứng dụng", "Xác định yêu cầu nghiệp vụ"], answer: 3 },
+  { question: "Dữ liệu đầu vào kém thường tạo ra kết quả như thế nào?", options: ["Hoàn hảo", "Kém chất lượng", "Nhanh hơn", "Không thay đổi"], answer: 1 },
+  { question: "Phần giao diện có nhiệm vụ gì?", options: ["Lưu dữ liệu", "Xử lý quy tắc", "Hiển thị và nhận thao tác", "Kết nối thư điện tử"], answer: 2 },
+  { question: "Một Prompt tốt cần nêu rõ điều gì?", options: ["Chỉ màu sắc", "Mục tiêu và yêu cầu", "Chỉ tên tệp", "Chỉ mật khẩu"], answer: 1 },
+  { question: "Khi chạy ứng dụng lần đầu, người dùng cần làm gì?", options: ["Xóa bảng dữ liệu", "Tắt ổ lưu trữ", "Đổi trình duyệt", "Cấp quyền truy cập"], answer: 3 },
+  { question: "Dấu hiệu gửi dữ liệu thành công là gì?", options: ["Bảng dữ liệu có dòng mới", "Máy tính tự tắt", "Tệp bị xóa", "Địa chỉ đổi màu"], answer: 0 },
+  { question: "Sau khi kiểm thử, bước tiếp theo trong chu trình là gì?", options: ["Xóa ứng dụng", "In tài liệu", "Tiếp tục cải thiện", "Đăng xuất"], answer: 2 },
 ];
 
 function resultLabel(score: number) {
@@ -44,7 +44,6 @@ export default function QuizSlide({ scale }: Props) {
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [finished, setFinished] = useState(false);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -93,18 +92,16 @@ export default function QuizSlide({ scale }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name,
-          email,
           website,
           score,
           total: QUESTIONS.length,
-          answers,
           completedAt: new Date().toISOString(),
         }),
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.message || "Không thể gửi kết quả.");
       setStatus("success");
-      setMessage("Đã ghi nhận và gửi kết quả thành công.");
+      setMessage("Đã lưu kết quả vào bảng dữ liệu.");
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Không thể gửi kết quả.");
@@ -122,14 +119,14 @@ export default function QuizSlide({ scale }: Props) {
   }
 
   return (
-    <section className={styles.root} style={{ transform: `scale(${scale})` }} data-interactive="true" aria-label="Quiz time">
+    <section className={styles.root} style={{ transform: `scale(${scale})` }} data-interactive="true" aria-label="Bài kiểm tra cuối bài">
       <div className={styles.grid} aria-hidden="true" />
       <div className={styles.orbA} aria-hidden="true" />
       <div className={styles.orbB} aria-hidden="true" />
       <header className={styles.header}>
         <div>
-          <span className={styles.eyebrow}>EIU · Applied Agentic AI</span>
-          <h1>Quiz time</h1>
+          <span className={styles.eyebrow}>EIU · Ứng dụng trí tuệ nhân tạo tác nhân</span>
+          <h1>Kiểm tra cuối bài</h1>
         </div>
         <div className={styles.counter}>{finished ? "Hoàn thành" : `Câu ${index + 1} / ${QUESTIONS.length}`}</div>
       </header>
@@ -169,14 +166,14 @@ export default function QuizSlide({ scale }: Props) {
             <span className={styles.resultKicker}>Kết quả của bạn</span>
             <div className={styles.score}><strong>{score}</strong><span>/ {QUESTIONS.length}</span></div>
             <h2>{resultLabel(score)}</h2>
-            <p>Bạn đã hoàn thành 10 câu hỏi của phần Applied Agentic AI.</p>
+            <p>Bạn đã hoàn thành 10 câu hỏi của bài học.</p>
             <button type="button" className={styles.retry} onClick={restart}>Làm lại</button>
           </div>
 
           <form className={styles.formCard} onSubmit={submitResult}>
             <span className={styles.formKicker}>Ghi nhận kết quả</span>
+            <p>Nhập họ tên để lưu kết quả vào bảng dữ liệu của lớp.</p>
             <label>Họ và tên<input value={name} onChange={(event) => setName(event.target.value)} maxLength={80} required /></label>
-            <label>Email<input type="email" value={email} onChange={(event) => setEmail(event.target.value)} maxLength={160} required /></label>
             <label className={styles.honeypot} aria-hidden="true">Website<input value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></label>
             <button type="submit" className={styles.submit} disabled={status === "sending" || status === "success"}>
               {status === "sending" ? "Đang gửi..." : status === "success" ? "Đã gửi" : "Gửi kết quả"}
