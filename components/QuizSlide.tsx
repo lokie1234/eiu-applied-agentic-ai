@@ -131,7 +131,7 @@ export default function QuizSlide({ scale }: Props) {
       <div className={styles.orbB} aria-hidden="true" />
       <header className={styles.header}>
         <div>
-          <span className={styles.eyebrow}>EIU · Ứng dụng trí tuệ nhân tạo tác nhân</span>
+          <span className={styles.eyebrow}>EIU - Applied Agentic AI</span>
           <h1>Quiz time!</h1>
         </div>
         <div className={styles.counter}>{finished ? "Hoàn thành" : `Câu ${index + 1} / ${QUESTIONS.length}`}</div>
