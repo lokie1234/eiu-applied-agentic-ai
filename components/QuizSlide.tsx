@@ -134,7 +134,17 @@ export default function QuizSlide({ scale }: Props) {
           <span className={styles.eyebrow}>EIU - Applied Agentic AI</span>
           <h1>Quiz time!</h1>
         </div>
-        <div className={styles.counter}>{finished ? "Hoàn thành" : `Câu ${index + 1} / ${QUESTIONS.length}`}</div>
+        <div className={styles.headerActions}>
+          <a
+            className={styles.downloadButton}
+            href="/downloads/eiu-applied-agentic-ai-section-1-handout.pdf"
+            download="EIU_Applied_Agentic_AI_Section1_Handout.pdf"
+          >
+            <span aria-hidden="true">↓</span>
+            Tải handout
+          </a>
+          <div className={styles.counter}>{finished ? "Hoàn thành" : `Câu ${index + 1} / ${QUESTIONS.length}`}</div>
+        </div>
       </header>
 
       {!finished ? (
