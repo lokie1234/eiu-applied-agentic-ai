@@ -2,7 +2,7 @@ import "server-only";
 import crypto from "node:crypto";
 
 export const ACCESS_COOKIE = "eiu_ai_access";
-export type AccessRole = "user" | "admin";
+export type AccessRole = "section1" | "section2" | "admin";
 
 function getSecret() {
   const secret = process.env.ACCESS_SESSION_SECRET;
@@ -11,7 +11,7 @@ function getSecret() {
 }
 
 function payload(role: AccessRole) {
-  return `eiu-ai-access-${role}-v2`;
+  return `eiu-ai-access-${role}-v3`;
 }
 
 export function createAccessToken(role: AccessRole) {
@@ -29,7 +29,8 @@ function matches(token: string, expected: string) {
 export function getAccessRole(token?: string): AccessRole | null {
   if (!token) return null;
   if (matches(token, createAccessToken("admin"))) return "admin";
-  if (matches(token, createAccessToken("user"))) return "user";
+  if (matches(token, createAccessToken("section2"))) return "section2";
+  if (matches(token, createAccessToken("section1"))) return "section1";
   return null;
 }
 

@@ -1,0 +1,18 @@
+.frame {
+  position: relative;
+  z-index: 3;
+  flex: none;
+  overflow: hidden;
+  border-radius: 4px;
+  background: #fff;
+  box-shadow: 0 22px 64px rgba(0,0,0,.4);
+}
+
+.canvas {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 960px;
+  height: 540px;
+  transform-origin: top left;
+}

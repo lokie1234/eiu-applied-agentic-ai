@@ -1,9 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 
 export default function LoginForm() {
+  const router = useRouter();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -33,7 +35,8 @@ export default function LoginForm() {
         return;
       }
 
-      window.location.href = "/";
+      router.replace("/");
+      router.refresh();
     } catch {
       setError("Không thể kết nối tới server.");
       setLoading(false);
@@ -69,7 +72,7 @@ export default function LoginForm() {
               Turn ideas into
               <span>working solutions.</span>
             </h1>
-            <p>An interactive learning experience for Applied Agentic AI.</p>
+            <p>Two interactive sections for Applied Agentic AI.</p>
           </div>
 
           <div className="analytics-scene" aria-hidden="true">
@@ -120,7 +123,7 @@ export default function LoginForm() {
 
           <div className="login-visual-footer">
             <span>EIU</span>
-            <span>Applied Agentic AI · Section 1</span>
+            <span>Applied Agentic AI · Sections 1 &amp; 2</span>
           </div>
         </section>
 
@@ -143,7 +146,7 @@ export default function LoginForm() {
             <div className="login-access-eyebrow">SESSION ACCESS</div>
             <h2>Welcome to<br />Applied Agentic AI</h2>
             <p className="login-access-description">
-              Enter your access code to continue to the interactive presentation.
+              Enter your access code to open the assigned learning section.
             </p>
 
             <form onSubmit={handleSubmit} className="login-form">

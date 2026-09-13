@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import PdfDeckClient from "@/components/PdfDeckClient";
+import LessonPortal from "@/components/LessonPortal";
 import { ACCESS_COOKIE, getAccessRole } from "@/lib/access";
 
 export default async function HomePage() {
@@ -9,5 +9,5 @@ export default async function HomePage() {
 
   const role = getAccessRole(token);
   if (!role) redirect("/login");
-  return <PdfDeckClient isAdmin={role === "admin"} />;
+  return <LessonPortal role={role} />;
 }

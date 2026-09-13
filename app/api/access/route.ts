@@ -5,19 +5,23 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const code = String(body.code ?? "").trim();
-    const accessCode = String(process.env.ACCESS_CODE ?? "").trim();
+    const sectionOneAccessCode = String(
+      process.env.SECTION_1_ACCESS_CODE ?? process.env.ACCESS_CODE ?? ""
+    ).trim();
+    const sectionTwoAccessCode = String(process.env.SECTION_2_ACCESS_CODE ?? "").trim();
     const adminAccessCode = String(process.env.ADMIN_ACCESS_CODE ?? "").trim();
 
-    if (!accessCode) {
+    if (!sectionOneAccessCode) {
       return NextResponse.json(
-        { success: false, message: "Mã truy cập người học chưa được cấu hình trên Vercel." },
+        { success: false, message: "Mã truy cập Section 1 chưa được cấu hình trên Vercel." },
         { status: 500 }
       );
     }
 
     let role: AccessRole | null = null;
     if (adminAccessCode && code === adminAccessCode) role = "admin";
-    else if (code === accessCode) role = "user";
+    else if (sectionTwoAccessCode && code === sectionTwoAccessCode) role = "section2";
+    else if (code === sectionOneAccessCode) role = "section1";
 
     if (!role) {
       return NextResponse.json(
