@@ -1,9 +1,0 @@
-.root{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:18;}
-.band{position:absolute;left:10%;right:10%;top:22%;height:44%;background:radial-gradient(circle at 36% 48%, rgba(12,58,98,.08), transparent 35%), radial-gradient(circle at 68% 50%, rgba(180,144,89,.08), transparent 18%);filter:blur(12px);}
-.dotPulse{position:absolute;width:18px;height:18px;border-radius:999px;border:1.5px solid rgba(233,202,139,.45);animation:pulse 3.2s ease-out infinite;}
-.d1{left:7.8%;top:37%;}.d2{left:7.8%;top:48.4%;animation-delay:.35s;}.d3{left:7.8%;top:59.8%;animation-delay:.7s;}.d4{left:50.5%;top:37%;animation-delay:1.05s;}.d5{left:50.5%;top:48.4%;animation-delay:1.4s;}.d6{left:50.5%;top:59.8%;animation-delay:1.75s;}
-.connector{position:absolute;left:10%;right:10%;top:28%;width:80%;height:38%;opacity:.34;}
-.connector path{fill:none;stroke:rgba(180,144,89,.42);stroke-width:2.4;stroke-dasharray:780;stroke-dashoffset:780;animation:draw 1.8s ease forwards;}
-@keyframes pulse{0%{transform:scale(.76);opacity:.54;}100%{transform:scale(1.45);opacity:0;}}
-@keyframes draw{to{stroke-dashoffset:0;}}
-@media (prefers-reduced-motion: reduce){.dotPulse,.connector path{animation:none!important;}}
