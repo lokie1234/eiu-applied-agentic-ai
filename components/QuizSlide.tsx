@@ -47,6 +47,9 @@ export default function QuizSlide({ scale }: Props) {
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [quizUnlocked, setQuizUnlocked] = useState(false);
+  const [quizCode, setQuizCode] = useState("");
+  const [quizError, setQuizError] = useState("");
   const timerRef = useRef<number | null>(null);
 
   useEffect(() => () => {
@@ -77,6 +80,18 @@ export default function QuizSlide({ scale }: Props) {
       }
       timerRef.current = null;
     }, 620);
+  }
+
+  async function unlockQuiz(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setQuizError("");
+    const response = await fetch("/api/quiz-access", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: quizCode }),
+    });
+    if (response.ok) setQuizUnlocked(true);
+    else setQuizError("Mã truy cập Quiz không đúng.");
   }
 
   async function submitResult(event: FormEvent<HTMLFormElement>) {
@@ -147,7 +162,16 @@ export default function QuizSlide({ scale }: Props) {
         </div>
       </header>
 
-      {!finished ? (
+      {!quizUnlocked ? (
+        <div className={styles.questionCard}>
+          <h2>Nhập mã để mở Quiz</h2>
+          <form onSubmit={unlockQuiz}>
+            <input value={quizCode} onChange={(e) => setQuizCode(e.target.value)} placeholder="Mã truy cập" />
+            <button type="submit" className={styles.retry}>Bắt đầu Quiz</button>
+          </form>
+          {quizError && <p>{quizError}</p>}
+        </div>
+      ) : !finished ? (
         <div className={styles.quizBody}>
           <div className={styles.progress} aria-hidden="true">
             <span style={{ width: `${((index + (selected === null ? 0 : 1)) / QUESTIONS.length) * 100}%` }} />

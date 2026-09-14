@@ -7,12 +7,41 @@ function output(data) {
 }
 
 function allowed(secret) {
-  return !WEBHOOK_SECRET || String(secret || "") === WEBHOOK_SECRET;
+  const expected = String(WEBHOOK_SECRET || "").trim();
+  return !expected || expected === "CHANGE_ME" || String(secret || "") === expected;
 }
 
 function safeCell(value) {
   const text = String(value || "").trim();
   return /^[=+\-@]/.test(text) ? "'" + text : text;
+}
+
+function requestData(e) {
+  const params = e && e.parameter ? e.parameter : {};
+  const raw = e && e.postData ? String(e.postData.contents || "").trim() : "";
+  if (!raw) return params;
+
+  try {
+    return Object.assign({}, params, JSON.parse(raw));
+  } catch (error) {
+    return params;
+  }
+}
+
+function normalizeSection(value) {
+  const section = String(value || "").trim();
+  return section === "section1" || section === "section2" ? section : "";
+}
+
+function terminationKey(section) {
+  return "EIU_TERMINATION_TOKEN_" + section.toUpperCase();
+}
+
+function currentTerminationToken(section) {
+  return (
+    PropertiesService.getScriptProperties().getProperty(terminationKey(section)) ||
+    "initial"
+  );
 }
 
 function getSheet(name, headers) {
@@ -31,21 +60,46 @@ function doGet(e) {
     if (!allowed(params.secret)) {
       return output({ success: false, message: "Không có quyền truy cập." });
     }
+
+    if (params.action === "section.status") {
+      const section = normalizeSection(params.section);
+      if (!section) {
+        return output({ success: false, message: "Section không hợp lệ." });
+      }
+      return output({
+        success: true,
+        section: section,
+        token: currentTerminationToken(section),
+      });
+    }
+
     if (params.action !== "showcase.list") {
       return output({ success: false, message: "Yêu cầu không hợp lệ." });
     }
 
-    const tab = getSheet("Bài làm chia sẻ", ["Mã", "Thời gian", "Họ và tên", "Liên kết"]);
+    const tab = getSheet("Bài làm chia sẻ", [
+      "Mã",
+      "Thời gian",
+      "Họ và tên",
+      "Liên kết",
+    ]);
     const lastRow = tab.getLastRow();
-    const rows = lastRow < 2 ? [] : tab.getRange(2, 1, lastRow - 1, 4).getDisplayValues();
-    const items = rows.slice(-50).reverse().map(function (row) {
-      return {
-        id: String(row[0]),
-        sharedAt: String(row[1]),
-        name: String(row[2]),
-        url: String(row[3])
-      };
-    });
+    const rows =
+      lastRow < 2
+        ? []
+        : tab.getRange(2, 1, lastRow - 1, 4).getDisplayValues();
+    const items = rows
+      .slice(-50)
+      .reverse()
+      .map(function (row) {
+        return {
+          id: String(row[0]),
+          sharedAt: String(row[1]),
+          name: String(row[2]),
+          url: String(row[3]),
+        };
+      });
+
     return output({ success: true, items: items });
   } catch (error) {
     return output({ success: false, message: String(error) });
@@ -54,10 +108,23 @@ function doGet(e) {
 
 function doPost(e) {
   try {
-    const raw = e && e.postData ? e.postData.contents : "{}";
-    const data = JSON.parse(raw || "{}");
+    const data = requestData(e);
     if (!allowed(data.secret)) {
       return output({ success: false, message: "Không có quyền truy cập." });
+    }
+
+    if (data.action === "section.terminate") {
+      const section = normalizeSection(data.section);
+      if (!section) {
+        return output({ success: false, message: "Section không hợp lệ." });
+      }
+
+      const token = new Date().getTime() + "-" + Utilities.getUuid();
+      PropertiesService.getScriptProperties().setProperty(
+        terminationKey(section),
+        token,
+      );
+      return output({ success: true, section: section, token: token });
     }
 
     if (data.action === "showcase.submit") {
@@ -71,13 +138,23 @@ function doPost(e) {
         id: Utilities.getUuid(),
         sharedAt: new Date().toISOString(),
         name: name,
-        url: url
+        url: url,
       };
-      const tab = getSheet("Bài làm chia sẻ", ["Mã", "Thời gian", "Họ và tên", "Liên kết"]);
+      const tab = getSheet("Bài làm chia sẻ", [
+        "Mã",
+        "Thời gian",
+        "Họ và tên",
+        "Liên kết",
+      ]);
       const lock = LockService.getScriptLock();
       lock.waitLock(10000);
       try {
-        tab.appendRow([item.id, item.sharedAt, safeCell(item.name), safeCell(item.url)]);
+        tab.appendRow([
+          item.id,
+          item.sharedAt,
+          safeCell(item.name),
+          safeCell(item.url),
+        ]);
       } finally {
         lock.releaseLock();
       }
@@ -90,13 +167,19 @@ function doPost(e) {
         return output({ success: false, message: "Thiếu mã bài chia sẻ." });
       }
 
-      const tab = getSheet("Bài làm chia sẻ", ["Mã", "Thời gian", "Họ và tên", "Liên kết"]);
+      const tab = getSheet("Bài làm chia sẻ", [
+        "Mã",
+        "Thời gian",
+        "Họ và tên",
+        "Liên kết",
+      ]);
       const lock = LockService.getScriptLock();
       lock.waitLock(10000);
       try {
         const lastRow = tab.getLastRow();
         if (lastRow < 2) return output({ success: true });
-        const cell = tab.getRange(2, 1, lastRow - 1, 1)
+        const cell = tab
+          .getRange(2, 1, lastRow - 1, 1)
           .createTextFinder(id)
           .matchEntireCell(true)
           .findNext();
@@ -111,12 +194,22 @@ function doPost(e) {
       const name = String(data.name || "").trim();
       const score = Number(data.score);
       const total = Number(data.total);
-      if (!name || !Number.isInteger(score) || total !== 10 || score < 0 || score > total) {
+      if (
+        !name ||
+        !Number.isInteger(score) ||
+        total !== 10 ||
+        score < 0 ||
+        score > total
+      ) {
         return output({ success: false, message: "Kết quả không hợp lệ." });
       }
 
       const completedAt = String(data.completedAt || new Date().toISOString());
-      const tab = getSheet("Kết quả bài kiểm tra", ["Thời gian", "Họ và tên", "Kết quả"]);
+      const tab = getSheet("Kết quả bài kiểm tra", [
+        "Thời gian",
+        "Họ và tên",
+        "Kết quả",
+      ]);
       const lock = LockService.getScriptLock();
       lock.waitLock(10000);
       try {

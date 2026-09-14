@@ -8,7 +8,9 @@ export async function POST(request: Request) {
     const sectionOneAccessCode = String(
       process.env.SECTION_1_ACCESS_CODE ?? process.env.ACCESS_CODE ?? ""
     ).trim();
+    // Section routing: 8888 => Section 2
     const sectionTwoAccessCode = String(process.env.SECTION_2_ACCESS_CODE ?? "").trim();
+    // Admin: 1103 => choose Section 1 or Section 2
     const adminAccessCode = String(process.env.ADMIN_ACCESS_CODE ?? "").trim();
 
     if (!sectionOneAccessCode) {
