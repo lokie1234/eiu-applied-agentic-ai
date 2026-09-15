@@ -16,7 +16,9 @@ type AnswerRecord = {
   isCorrect: boolean;
 };
 
-const QUESTIONS: Question[] = [
+type QuizVariant = "section1" | "section2";
+
+const SECTION_ONE_QUESTIONS: Question[] = [
   { question: "Sau khóa học, bạn sẽ tạo Web App bằng công cụ nào?", options: ["Gemini", "Google Drive", "Gmail", "QR Code"], answer: 0 },
   { question: "Google Sheets giữ vai trò nào trong Web App?", options: ["Frontend", "Business Logic", "Database", "Integrations"], answer: 2 },
   { question: "Theo slide Vai trò của con người, việc nào được nhấn mạnh?", options: ["Hiểu nghiệp vụ", "Viết Framework", "Học thuộc JavaScript", "Quản trị Server"], answer: 0 },
@@ -29,6 +31,19 @@ const QUESTIONS: Question[] = [
   { question: "Khi kiểm thử, dấu hiệu nào cho thấy Web App thành công?", options: ["Google Sheets xuất hiện dòng mới", "Code.gs bị xóa", "URL đổi màu", "Gemini tự đóng"], answer: 0 },
 ];
 
+const SECTION_TWO_QUESTIONS: Question[] = [
+  { question: "AI Business Framework dùng để làm gì?", options: ["Chuẩn hóa các nguyên tắc dùng chung khi AI xây ứng dụng", "Thay Google Sheets bằng Excel", "Tạo tài khoản Gemini", "Lưu mật khẩu người dùng"], answer: 0 },
+  { question: "Trong Section 2, phần nào thay đổi nhiều nhất giữa các ứng dụng?", options: ["Requirement của từng bài toán", "Quy tắc kiểm thử", "Tiêu chuẩn triển khai", "Nguyên tắc giao diện chung"], answer: 0 },
+  { question: "Gem trong Gemini được mô tả đúng nhất là gì?", options: ["Một Gemini được tùy chỉnh bằng hướng dẫn và ngữ cảnh lặp lại", "Một file JavaScript", "Một plugin trình duyệt", "Một cơ sở dữ liệu"], answer: 0 },
+  { question: "Bên trong một Gem gồm bốn phần nào?", options: ["Name · Instructions · Knowledge · Preview", "HTML · CSS · JS · SQL", "Drive · Sheets · Gmail · Calendar", "Form · Button · Table · Chart"], answer: 0 },
+  { question: "Công thức Instructions cho Gem trong bài là gì?", options: ["Persona + Task + Context + Format", "Prompt + Code + Deploy + Test", "Name + Email + URL + Sheet", "Frontend + Backend + API + Server"], answer: 0 },
+  { question: "Bước 1 của Lab 2 yêu cầu làm gì?", options: ["Phân tích hai ứng dụng và tách Framework", "Tạo ngay một Gem trống", "Chia sẻ link trước khi kiểm thử", "Xóa source code cũ"], answer: 0 },
+  { question: "Knowledge trong Gem có vai trò gì?", options: ["Chứa tài liệu tham chiếu để Gemini áp dụng Framework", "Lưu điểm Quiz", "Thay thế hoàn toàn Instructions", "Chỉ dùng để lưu hình nền"], answer: 0 },
+  { question: "Preview được dùng ở bước nào?", options: ["Kiểm thử Gem bằng một Requirement mới trước khi lưu", "Đổi tên Google Sheet", "Tạo mật khẩu admin", "Xuất PDF tự động"], answer: 0 },
+  { question: "Nội dung nào thuộc lõi có thể tái sử dụng?", options: ["Kiến trúc, UI, quy tắc code, database, kiểm thử và triển khai", "Tên người dùng của từng dự án", "Một yêu cầu nghiệp vụ duy nhất", "Ngày tạo của từng ứng dụng"], answer: 0 },
+  { question: "Thông điệp cuối của Section 2 là gì?", options: ["Xây 01 AI Business Framework để AI có thể tạo nhiều ứng dụng theo cùng tiêu chuẩn", "Mỗi ứng dụng phải có một framework hoàn toàn khác", "Không cần kiểm thử khi dùng Gem", "Chỉ dùng Gem cho một dự án"], answer: 0 },
+];
+
 function resultLabel(score: number) {
   if (score >= 9) return "Xuất sắc";
   if (score >= 7) return "Hoàn thành tốt";
@@ -36,9 +51,17 @@ function resultLabel(score: number) {
   return "Nên xem lại bài";
 }
 
-type Props = { scale: number };
+type Props = { scale: number; variant?: QuizVariant };
 
-export default function QuizSlide({ scale }: Props) {
+export default function QuizSlide({ scale, variant = "section1" }: Props) {
+  const questions = variant === "section2" ? SECTION_TWO_QUESTIONS : SECTION_ONE_QUESTIONS;
+  const handoutHref = variant === "section2"
+    ? "/downloads/eiu-applied-agentic-ai-section-2-handout.pdf"
+    : "/downloads/eiu-applied-agentic-ai-section-1-handout.pdf";
+  const handoutName = variant === "section2"
+    ? "EIU_Applied_Agentic_AI_Section2_Handout.pdf"
+    : "EIU_Applied_Agentic_AI_Section1_Handout.pdf";
+
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
@@ -57,7 +80,7 @@ export default function QuizSlide({ scale }: Props) {
   }, []);
 
   const score = answers.filter((item) => item.isCorrect).length;
-  const current = QUESTIONS[index];
+  const current = questions[index];
 
   function chooseAnswer(optionIndex: number) {
     if (selected !== null || finished) return;
@@ -72,7 +95,7 @@ export default function QuizSlide({ scale }: Props) {
     setAnswers((items) => [...items, record]);
 
     timerRef.current = window.setTimeout(() => {
-      if (index === QUESTIONS.length - 1) {
+      if (index === questions.length - 1) {
         setFinished(true);
       } else {
         setIndex((value) => value + 1);
@@ -106,10 +129,11 @@ export default function QuizSlide({ scale }: Props) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          section: variant,
           name,
           website,
           score,
-          total: QUESTIONS.length,
+          total: questions.length,
           completedAt: new Date().toISOString(),
         }),
       });
@@ -139,26 +163,26 @@ export default function QuizSlide({ scale }: Props) {
       style={{ transform: `scale(${scale})`, fontFamily: '"Segoe UI", "Noto Sans", Arial, sans-serif' }}
       lang="vi"
       data-interactive="true"
-      aria-label="Bài kiểm tra cuối bài"
+      aria-label={`Bài kiểm tra cuối ${variant === "section2" ? "Section 2" : "Section 1"}`}
     >
       <div className={styles.grid} aria-hidden="true" />
       <div className={styles.orbA} aria-hidden="true" />
       <div className={styles.orbB} aria-hidden="true" />
       <header className={styles.header}>
         <div>
-          <span className={styles.eyebrow}>EIU - Applied Agentic AI</span>
+          <span className={styles.eyebrow}>EIU - Applied Agentic AI · {variant === "section2" ? "Section 2" : "Section 1"}</span>
           <h1>Quiz time!</h1>
         </div>
         <div className={styles.headerActions}>
           <a
             className={styles.downloadButton}
-            href="/downloads/eiu-applied-agentic-ai-section-1-handout.pdf"
-            download="EIU_Applied_Agentic_AI_Section1_Handout.pdf"
+            href={handoutHref}
+            download={handoutName}
           >
             <span aria-hidden="true">↓</span>
             Tải handout
           </a>
-          <div className={styles.counter}>{finished ? "Hoàn thành" : `Câu ${index + 1} / ${QUESTIONS.length}`}</div>
+          <div className={styles.counter}>{finished ? "Hoàn thành" : `Câu ${index + 1} / ${questions.length}`}</div>
         </div>
       </header>
 
@@ -174,7 +198,7 @@ export default function QuizSlide({ scale }: Props) {
       ) : !finished ? (
         <div className={styles.quizBody}>
           <div className={styles.progress} aria-hidden="true">
-            <span style={{ width: `${((index + (selected === null ? 0 : 1)) / QUESTIONS.length) * 100}%` }} />
+            <span style={{ width: `${((index + (selected === null ? 0 : 1)) / questions.length) * 100}%` }} />
           </div>
           <div className={styles.questionCard}>
             <span className={styles.questionNumber}>{String(index + 1).padStart(2, "0")}</span>
@@ -204,9 +228,9 @@ export default function QuizSlide({ scale }: Props) {
         <div className={styles.resultGrid}>
           <div className={styles.resultCard} aria-live="polite">
             <span className={styles.resultKicker}>Kết quả của bạn</span>
-            <div className={styles.score}><strong>{score}</strong><span>/ {QUESTIONS.length}</span></div>
+            <div className={styles.score}><strong>{score}</strong><span>/ {questions.length}</span></div>
             <h2>{resultLabel(score)}</h2>
-            <p>Bạn đã hoàn thành 10 câu hỏi của bài học.</p>
+            <p>Bạn đã hoàn thành 10 câu hỏi của {variant === "section2" ? "Section 2" : "Section 1"}.</p>
             <button type="button" className={styles.retry} onClick={restart}>Làm lại</button>
           </div>
 

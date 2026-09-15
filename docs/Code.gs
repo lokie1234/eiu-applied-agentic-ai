@@ -33,6 +33,14 @@ function normalizeSection(value) {
   return section === "section1" || section === "section2" ? section : "";
 }
 
+function showcaseSheetName(section) {
+  return section === "section2" ? "Bài làm chia sẻ - Section 2" : "Bài làm chia sẻ";
+}
+
+function quizSheetName(section) {
+  return section === "section2" ? "Kết quả bài kiểm tra - Section 2" : "Kết quả bài kiểm tra";
+}
+
 function terminationKey(section) {
   return "EIU_TERMINATION_TOKEN_" + section.toUpperCase();
 }
@@ -102,7 +110,8 @@ function doGet(e) {
       return output({ success: false, message: "Yêu cầu không hợp lệ." });
     }
 
-    const tab = getSheet("Bài làm chia sẻ", [
+    const showcaseSection = normalizeSection(params.section) || "section1";
+    const tab = getSheet(showcaseSheetName(showcaseSection), [
       "Mã",
       "Thời gian",
       "Họ và tên",
@@ -186,6 +195,34 @@ function doPost(e) {
       return output({ success: true, item: ideaItem });
     }
 
+    if (data.action === "idea.delete") {
+      const id = String(data.id || "").trim();
+      if (!id) {
+        return output({ success: false, message: "Thiếu mã ý tưởng." });
+      }
+
+      const ideaTab = getSheet("Ý tưởng người học", [
+        "Mã",
+        "Thời gian",
+        "Ý tưởng",
+      ]);
+      const ideaLock = LockService.getScriptLock();
+      ideaLock.waitLock(10000);
+      try {
+        const lastRow = ideaTab.getLastRow();
+        if (lastRow < 2) return output({ success: true });
+        const cell = ideaTab
+          .getRange(2, 1, lastRow - 1, 1)
+          .createTextFinder(id)
+          .matchEntireCell(true)
+          .findNext();
+        if (cell) ideaTab.deleteRow(cell.getRow());
+      } finally {
+        ideaLock.releaseLock();
+      }
+      return output({ success: true });
+    }
+
     if (data.action === "showcase.submit") {
       const name = String(data.name || "").trim();
       const url = String(data.url || "").trim();
@@ -199,7 +236,8 @@ function doPost(e) {
         name: name,
         url: url,
       };
-      const tab = getSheet("Bài làm chia sẻ", [
+      const showcaseSection = normalizeSection(data.section) || "section1";
+      const tab = getSheet(showcaseSheetName(showcaseSection), [
         "Mã",
         "Thời gian",
         "Họ và tên",
@@ -226,7 +264,8 @@ function doPost(e) {
         return output({ success: false, message: "Thiếu mã bài chia sẻ." });
       }
 
-      const tab = getSheet("Bài làm chia sẻ", [
+      const showcaseSection = normalizeSection(data.section) || "section1";
+      const tab = getSheet(showcaseSheetName(showcaseSection), [
         "Mã",
         "Thời gian",
         "Họ và tên",
@@ -264,7 +303,8 @@ function doPost(e) {
       }
 
       const completedAt = String(data.completedAt || new Date().toISOString());
-      const tab = getSheet("Kết quả bài kiểm tra", [
+      const quizSection = normalizeSection(data.section) || "section1";
+      const tab = getSheet(quizSheetName(quizSection), [
         "Thời gian",
         "Họ và tên",
         "Kết quả",

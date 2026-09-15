@@ -198,6 +198,7 @@ function IdeaResults() {
   const [items, setItems] = useState<IdeaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [deletingId, setDeletingId] = useState("");
 
   const loadIdeas = useCallback(async () => {
     try {
@@ -225,6 +226,33 @@ function IdeaResults() {
     };
   }, [loadIdeas]);
 
+  async function deleteIdea(item: IdeaItem) {
+    if (deletingId) return;
+    if (!window.confirm(`Xóa ý tưởng “${item.idea}”?`)) return;
+
+    setDeletingId(item.id);
+    setError("");
+    try {
+      const response = await fetch("/api/ideas", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: item.id }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as { message?: string };
+      if (!response.ok) throw new Error(payload.message || "Không thể xóa ý tưởng.");
+      setItems((current) => current.filter((entry) => entry.id !== item.id));
+    } catch (deleteError) {
+      setError(deleteError instanceof Error ? deleteError.message : "Không thể xóa ý tưởng.");
+    } finally {
+      setDeletingId("");
+    }
+  }
+
+  function ideaWidth(value: string) {
+    const length = Array.from(value.trim()).length;
+    return Math.min(360, Math.max(150, 118 + length * 5.2));
+  }
+
   return (
     <section className={`${styles.root} ${styles.resultsSlide}`}>
       <Ambient strong />
@@ -251,15 +279,34 @@ function IdeaResults() {
           <div className={styles.resultsEmpty}>Chưa có ý tưởng nào được gửi.</div>
         ) : (
           items.map((item, index) => (
-            <article key={item.id} style={{ "--delay": `${index * 70}ms` } as CSSProperties}>
-              <span>{String(index + 1).padStart(2, "0")}</span>
+            <article
+              key={item.id}
+              style={{
+                "--delay": `${index * 70}ms`,
+                "--float-delay": `${-(index % 5) * 0.55}s`,
+                "--idea-width": `${ideaWidth(item.idea)}px`,
+              } as CSSProperties}
+            >
+              <div className={styles.resultCardTop}>
+                <span>{String(index + 1).padStart(2, "0")}</span>
+                <button
+                  type="button"
+                  className={styles.resultDelete}
+                  onClick={() => void deleteIdea(item)}
+                  disabled={Boolean(deletingId)}
+                  data-interactive="true"
+                  aria-label={`Xóa ý tưởng ${item.idea}`}
+                  title="Xóa ý tưởng"
+                >
+                  {deletingId === item.id ? "…" : "×"}
+                </button>
+              </div>
               <p>{item.idea}</p>
               <small>{formatSubmittedTime(item.submittedAt)}</small>
             </article>
           ))
         )}
       </div>
-      <p className={styles.resultsNote}>Danh sách tự cập nhật mỗi 4 giây · Chỉ hiển thị trong phiên admin 1103</p>
     </section>
   );
 }
@@ -274,43 +321,66 @@ function DeploymentSlide() {
   return (
     <section className={`${styles.root} ${styles.deploymentSlide}`}>
       <Ambient strong />
-      <SlideHeading eyebrow="THỰC HÀNH TRIỂN KHAI">
-        Tiến hành triển khai web app tương tự “Phần mềm quản lý nghỉ phép” và sao chép URL liên kết
-      </SlideHeading>
+      <header className={styles.stepHeading}>
+        <div className={styles.stepBadge} aria-hidden="true" />
+        <h1>Bước 1 -</h1>
+        <div className={styles.geminiWordmark} aria-label="Gemini">
+          <i />
+          <span>Gemini</span>
+        </div>
+      </header>
 
-      <div className={styles.deployFlow}>
-        <article className={styles.deployStep}>
-          <span>01</span>
-          <div className={styles.deployIcon} aria-hidden="true"><i /><i /><i /></div>
-          <strong>Triển khai web app</strong>
+      <div className={styles.geminiGuideLayout}>
+        <article className={styles.geminiMenuShot}>
+          <div className={styles.menuCard} aria-hidden="true">
+            <div className={styles.menuItem}>About Gemini</div>
+            <div className={styles.menuItem}>Get Gemini App</div>
+            <div className={styles.menuItem}>Pricing</div>
+            <div className={styles.menuItem}>For Business</div>
+            <div className={`${styles.menuItem} ${styles.menuItemHighlight}`}>Sign in</div>
+            <div className={styles.menuGear}>⚙</div>
+          </div>
         </article>
 
-        <div className={styles.flowArrow} aria-hidden="true"><i />→</div>
+        <div className={styles.geminiGuideConnector} aria-hidden="true">
+          <span />
+          <i>▶</i>
+        </div>
 
-        <article className={styles.deployStep}>
-          <span>02</span>
-          <div className={styles.browserMock} aria-hidden="true">
-            <div><i /><i /><i /></div>
-            <strong>Phần mềm quản lý nghỉ phép</strong>
-            <small>WEB APP · LIVE</small>
+        <article className={styles.geminiAppShot}>
+          <div className={styles.appFrame} aria-hidden="true">
+            <div className={styles.appHeadline}>Hi Lâm Trường, what&apos;s the plan?</div>
+            <div className={styles.appComposer}>
+              <span>＋</span>
+              <b>Ask Gemini</b>
+              <em>Pro ▾</em>
+              <strong>🎙</strong>
+            </div>
+            <div className={styles.modelDropdown}>
+              <div className={styles.modelOption}>
+                <div>
+                  <b>3.6 Flash</b>
+                  <span>All-around help</span>
+                </div>
+                <small>New</small>
+              </div>
+              <div className={styles.modelOption}>
+                <div>
+                  <b>3.6 Thinking</b>
+                  <span>Solves complex problems</span>
+                </div>
+              </div>
+              <div className={`${styles.modelOption} ${styles.modelOptionHighlight}`}>
+                <div>
+                  <b>3.6 Thinking</b>
+                  <span>Advanced reasoning</span>
+                </div>
+                <small>✓</small>
+              </div>
+            </div>
           </div>
-          <strong>Kiểm tra ứng dụng</strong>
-        </article>
-
-        <div className={styles.flowArrow} aria-hidden="true"><i />→</div>
-
-        <article className={styles.deployStep}>
-          <span>03</span>
-          <div className={styles.urlMock} aria-hidden="true">
-            <small>WEB APP URL</small>
-            <p>https://script.google.com/…/exec</p>
-            <i>✓</i>
-          </div>
-          <strong>Sao chép URL liên kết</strong>
         </article>
       </div>
-
-      <div className={styles.deploySignal} aria-hidden="true"><span /><span /><span /></div>
     </section>
   );
 }

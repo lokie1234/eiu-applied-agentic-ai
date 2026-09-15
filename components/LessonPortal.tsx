@@ -250,7 +250,7 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
             <button type="button" onClick={() => setAdminSection("section2")}>
               <span>SECTION 2</span>
               <strong>Từ Prompt đến AI Business Framework</strong>
-              <small>38 slide · HTML/CSS/React</small>
+              <small>39 slide · HTML/CSS/React</small>
               <i>→</i>
             </button>
           </div>
@@ -277,7 +277,7 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
         onSignOut={signOut}
       >
         {section === "section2" ? (
-          <SectionTwoDeck />
+          <SectionTwoDeck isAdmin={role === "admin"} />
         ) : (
           <SectionOneDeck isAdmin={role === "admin"} />
         )}

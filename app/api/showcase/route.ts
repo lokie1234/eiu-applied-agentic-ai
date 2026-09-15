@@ -3,9 +3,14 @@ import { NextResponse } from "next/server";
 import { ACCESS_COOKIE, getAccessRole } from "@/lib/access";
 
 type ShowcaseItem = { id: string; name: string; url: string; sharedAt: string };
+type ShowcaseSection = "section1" | "section2";
 
 function webhookUrl() {
   return process.env.GOOGLE_APPS_SCRIPT_URL?.trim() ?? "";
+}
+
+function normalizeSection(value: unknown): ShowcaseSection {
+  return String(value ?? "").trim() === "section2" ? "section2" : "section1";
 }
 
 async function readAppsScriptJson(response: Response) {
@@ -30,12 +35,27 @@ function validAppsScriptUrl(value: string) {
   }
 }
 
-export async function GET() {
+function validSectionTwoUrl(value: string) {
   try {
+    const parsed = new URL(value);
+    return parsed.protocol === "https:" && Boolean(parsed.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function validShareUrl(value: string, section: ShowcaseSection) {
+  return section === "section2" ? validSectionTwoUrl(value) : validAppsScriptUrl(value);
+}
+
+export async function GET(request: Request) {
+  try {
+    const section = normalizeSection(new URL(request.url).searchParams.get("section"));
     const endpoint = webhookUrl();
     if (!endpoint) return NextResponse.json({ success: false, message: "Chưa cấu hình GOOGLE_APPS_SCRIPT_URL trên Vercel." }, { status: 503 });
     const url = new URL(endpoint);
     url.searchParams.set("action", "showcase.list");
+    url.searchParams.set("section", section);
     const secret = process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "";
     if (secret) url.searchParams.set("secret", secret);
     const response = await fetch(url, { cache: "no-store", redirect: "follow" });
@@ -48,7 +68,7 @@ export async function GET() {
         url: String(item.url ?? "").trim().slice(0, 500),
         sharedAt: String(item.sharedAt ?? ""),
       }))
-      .filter((item: ShowcaseItem) => item.id && item.name && validAppsScriptUrl(item.url))
+      .filter((item: ShowcaseItem) => item.id && item.name && validShareUrl(item.url, section))
       .slice(0, 50);
     return NextResponse.json({ success: true, items }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
@@ -60,18 +80,26 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
+    const section = normalizeSection(body.section);
     const name = String(body.name ?? "").trim();
     const url = String(body.url ?? "").trim();
     const endpoint = webhookUrl();
     if (body.website) return NextResponse.json({ success: true });
     if (!name || name.length > 80) return NextResponse.json({ success: false, message: "Vui lòng nhập tên hợp lệ." }, { status: 400 });
-    if (url.length > 500 || !validAppsScriptUrl(url)) return NextResponse.json({ success: false, message: "Liên kết phải là ứng dụng Google Apps Script hợp lệ." }, { status: 400 });
+    if (url.length > 500 || !validShareUrl(url, section)) {
+      return NextResponse.json({
+        success: false,
+        message: section === "section2"
+          ? "Liên kết bài làm phải là URL HTTPS hợp lệ."
+          : "Liên kết phải là ứng dụng Google Apps Script hợp lệ.",
+      }, { status: 400 });
+    }
     if (!endpoint) return NextResponse.json({ success: false, message: "Chưa cấu hình GOOGLE_APPS_SCRIPT_URL trên Vercel." }, { status: 503 });
 
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "showcase.submit", secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "", name, url }),
+      body: JSON.stringify({ action: "showcase.submit", secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "", section, name, url }),
       cache: "no-store",
       redirect: "follow",
     });
@@ -94,6 +122,7 @@ export async function DELETE(request: Request) {
     }
 
     const body = await request.json();
+    const section = normalizeSection(body.section);
     const id = String(body.id ?? "").trim();
     const endpoint = webhookUrl();
     if (!id || id.length > 100) {
@@ -106,7 +135,7 @@ export async function DELETE(request: Request) {
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "showcase.delete", secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "", id }),
+      body: JSON.stringify({ action: "showcase.delete", secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "", section, id }),
       cache: "no-store",
       redirect: "follow",
     });

@@ -140,3 +140,58 @@ export async function POST(request: Request) {
     );
   }
 }
+
+export async function DELETE(request: Request) {
+  try {
+    if ((await currentRole()) !== "admin") {
+      return NextResponse.json(
+        { success: false, message: "Chỉ admin mới có quyền xóa ý tưởng." },
+        { status: 403 },
+      );
+    }
+
+    const body = await request.json();
+    const id = String(body.id ?? "").trim();
+    if (!id || id.length > 100) {
+      return NextResponse.json(
+        { success: false, message: "Mã ý tưởng không hợp lệ." },
+        { status: 400 },
+      );
+    }
+
+    const endpoint = webhookUrl();
+    if (!endpoint) {
+      return NextResponse.json(
+        { success: false, message: "Chưa cấu hình GOOGLE_APPS_SCRIPT_URL trên Vercel." },
+        { status: 503 },
+      );
+    }
+
+    const upstream = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify({
+        action: "idea.delete",
+        secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "",
+        id,
+      }),
+      cache: "no-store",
+      redirect: "follow",
+    });
+    const payload = await readAppsScriptJson(upstream);
+    if (!upstream.ok || payload.success !== true) {
+      throw new Error(String(payload.message ?? "Không thể xóa ý tưởng."));
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error("Idea delete error:", error);
+    return NextResponse.json(
+      {
+        success: false,
+        message: error instanceof Error ? error.message : "Không thể xóa ý tưởng.",
+      },
+      { status: 502 },
+    );
+  }
+}

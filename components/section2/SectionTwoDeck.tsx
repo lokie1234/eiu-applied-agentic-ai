@@ -3,14 +3,16 @@
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DeckSideAmbient from "@/components/DeckSideAmbient";
+import QuizSlide from "@/components/QuizSlide";
+import ShowcaseSlide from "@/components/ShowcaseSlide";
 import SectionTwoSlide from "./SectionTwoSlide";
 import styles from "./SectionTwoDeck.module.css";
 
-const TOTAL_SLIDES = 38;
+const TOTAL_SLIDES = 39;
 const SLIDE_WIDTH = 960;
 const SLIDE_HEIGHT = 540;
 
-export default function SectionTwoDeck({ onChooseSection }: { onChooseSection?: () => void }) {
+export default function SectionTwoDeck({ onChooseSection, isAdmin = false }: { onChooseSection?: () => void; isAdmin?: boolean }) {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageInput, setPageInput] = useState("1");
   const [zoom, setZoom] = useState(1);
@@ -202,12 +204,18 @@ export default function SectionTwoDeck({ onChooseSection }: { onChooseSection?: 
               className={styles.frame}
               style={{ width: renderWidth, height: renderWidth * (SLIDE_HEIGHT / SLIDE_WIDTH) }}
             >
-              <div
-                className={styles.canvas}
-                style={{ transform: `scale(${renderWidth / SLIDE_WIDTH})` }}
-              >
-                <SectionTwoSlide pageNumber={pageNumber} />
-              </div>
+              {pageNumber === 38 ? (
+                <ShowcaseSlide scale={renderWidth / SLIDE_WIDTH} isAdmin={isAdmin} section="section2" />
+              ) : pageNumber === 39 ? (
+                <QuizSlide scale={renderWidth / SLIDE_WIDTH} variant="section2" />
+              ) : (
+                <div
+                  className={styles.canvas}
+                  style={{ transform: `scale(${renderWidth / SLIDE_WIDTH})` }}
+                >
+                  <SectionTwoSlide pageNumber={pageNumber} />
+                </div>
+              )}
             </div>
           ) : (
             <div className="viewer-measuring"><div className="loading-spinner" /></div>

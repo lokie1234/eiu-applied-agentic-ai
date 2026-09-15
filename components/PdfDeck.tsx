@@ -12,7 +12,7 @@ import ShowcaseSlide from "@/components/ShowcaseSlide";
 import SectionOneHtmlSlide, {
   type SectionOneHtmlKind,
 } from "@/components/section1/SectionOneHtmlSlide";
-
+import SectionOneSlide14 from "@/components/section1/SectionOneSlide14";
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
   import.meta.url
@@ -24,6 +24,7 @@ type Props = { isAdmin: boolean };
 
 type DeckItem =
   | { kind: "pdf"; pdfPage: number }
+  | { kind: "slide14"; slide: "gemini-model" }
   | { kind: "html"; slide: SectionOneHtmlKind }
   | { kind: "showcase" }
   | { kind: "quiz" };
@@ -34,10 +35,17 @@ function buildDeckItems(pdfPageCount: number, isAdmin: boolean): DeckItem[] {
   const items: DeckItem[] = [];
 
   for (let pdfPage = 1; pdfPage <= pdfPageCount; pdfPage += 1) {
-    if (pdfPage === 3) items.push({ kind: "html", slide: "slide3" });
-    else if (pdfPage === 4) items.push({ kind: "html", slide: "slide4" });
-    else if (pdfPage === 38) items.push({ kind: "showcase" });
-    else items.push({ kind: "pdf", pdfPage });
+    if (pdfPage === 3) {
+      items.push({ kind: "html", slide: "slide3" });
+    } else if (pdfPage === 4) {
+      items.push({ kind: "html", slide: "slide4" });
+    } else if (pdfPage === 14) {
+      items.push({ kind: "slide14", slide: "gemini-model" });
+    } else if (pdfPage === 38) {
+      items.push({ kind: "showcase" });
+    } else {
+      items.push({ kind: "pdf", pdfPage });
+    }
 
     // This live-response page exists only in the admin 1103 deck.
     if (pdfPage === 4 && isAdmin) {
@@ -480,7 +488,9 @@ export default function PdfDeck({ isAdmin }: Props) {
                     aspectRatio: `${pageAspectRatio}`,
                   }}
                 >
-                  {currentItem?.kind === "showcase" ? (
+                  {currentItem?.kind === "slide14" ? (
+                    <SectionOneSlide14 scale={renderWidth / 960} />
+                  ) : currentItem?.kind === "showcase" ? (
                     <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} />
                   ) : currentItem?.kind === "quiz" ? (
                     <QuizSlide scale={renderWidth / 960} />

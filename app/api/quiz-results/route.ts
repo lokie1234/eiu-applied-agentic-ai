@@ -7,6 +7,7 @@ export async function POST(request: Request) {
     const score = Number(body.score);
     const total = Number(body.total);
     const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.trim();
+    const section = String(body.section ?? "section1") === "section2" ? "section2" : "section1";
 
     if (body.website) return NextResponse.json({ success: true });
     if (!name || name.length > 80) {
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
       body: JSON.stringify({
         action: "quiz.submit",
         secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "",
+        section,
         name,
         score,
         total,

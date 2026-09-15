@@ -1,0 +1,260 @@
+==============================================================================
+APP 02 SOURCE BUNDLE — Leave Management Web App
+==============================================================================
+Purpose: Reference source for Gemini to compare two internal business web apps
+and extract a reusable AI Business Framework / Gemini Gem.
+
+IMPORTANT READING RULES
+- Treat every FILE START / FILE END block as one original project file.
+- Analyze architecture, UI patterns, data model, validation, workflow, dashboard,
+  Google Apps Script integration, Google Sheets usage, and deployment patterns.
+- Do not merge this app with the other app. Compare them only after reading both.
+- This bundle contains source text only; there are no binary assets or secrets.
+
+FILE MANIFEST
+- Code.gs (1,809 bytes)
+- Index.html (7,328 bytes)
+
+==============================================================================
+FILE START: Code.gs
+==============================================================================
+const SHEET_NAME = 'Quản lý nghỉ phép';
+
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Index')
+      .setTitle('Demo Quản Lý Nghỉ Phép')
+      .addMetaTag('viewport', 'width=device-width, initial-scale=1');
+}
+
+// Hàm khởi tạo Sheet và lấy Sheet active
+function setupSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+    sheet.appendRow(['ID', 'Họ tên', 'Từ ngày', 'Đến ngày', 'Lý do', 'Trạng thái', 'Thời gian gửi']);
+    sheet.getRange("A1:G1").setFontWeight("bold");
+  }
+  return sheet;
+}
+
+// Lưu đơn mới
+function submitLeave(data) {
+  const sheet = setupSheet();
+  const id = 'NP-' + new Date().getTime();
+  const timestamp = new Date().toLocaleString('vi-VN');
+  sheet.appendRow([id, data.name, data.startDate, data.endDate, data.reason, 'Chờ duyệt', timestamp]);
+  return true;
+}
+
+// Lấy danh sách đơn
+function getLeaves() {
+  const sheet = setupSheet();
+  const data = sheet.getDataRange().getDisplayValues();
+  if (data.length <= 1) return [];
+  
+  let result = [];
+  const headers = data[0];
+  // Duyệt từ dưới lên để đơn mới nhất hiển thị trước
+  for (let i = data.length - 1; i >= 1; i--) {
+    let obj = { row: i + 1 }; // Lưu lại số thứ tự dòng để dễ update
+    headers.forEach((h, index) => obj[h] = data[i][index]);
+    result.push(obj);
+  }
+  return result;
+}
+
+// Cập nhật trạng thái
+function updateStatus(row, newStatus) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+  sheet.getRange(row, 6).setValue(newStatus); // Cột F (cột số 6) là Trạng thái
+  return true;
+}
+
+==============================================================================
+FILE END: Code.gs
+==============================================================================
+
+==============================================================================
+FILE START: Index.html
+==============================================================================
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <base target="_top">
+  <!-- Dùng Bootstrap để làm UI responsive cực nhanh -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background-color: #f4f6f9; }
+    .card { border-radius: 10px; border: none; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    .table-responsive { white-space: nowrap; }
+  </style>
+</head>
+<body>
+  <div class="container mt-4 mb-5">
+    <h3 class="text-center text-primary mb-4 fw-bold">HỆ THỐNG NGHỈ PHÉP (DEMO)</h3>
+    
+    <!-- Menu Tabs -->
+    <ul class="nav nav-pills mb-4 justify-content-center" id="pills-tab" role="tablist">
+      <li class="nav-item">
+        <button class="nav-link active" data-bs-toggle="pill" data-bs-target="#form-tab">Gửi Đơn</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#list-tab" onclick="loadData()">Quản Lý & Danh Sách</button>
+      </li>
+      <li class="nav-item">
+        <button class="nav-link" data-bs-toggle="pill" data-bs-target="#dashboard-tab" onclick="loadData()">Dashboard</button>
+      </li>
+    </ul>
+
+    <div class="tab-content">
+      
+      <!-- Tab 1: Form Nhân Viên -->
+      <div class="tab-pane fade show active" id="form-tab">
+        <div class="card p-4 mx-auto" style="max-width: 600px;">
+          <form id="leaveForm" onsubmit="handleFormSubmit(event)">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Họ tên nhân viên</label>
+              <input type="text" name="name" class="form-control" required>
+            </div>
+            <div class="row">
+              <div class="col-sm-6 mb-3">
+                <label class="form-label fw-bold">Từ ngày</label>
+                <input type="date" name="startDate" class="form-control" required>
+              </div>
+              <div class="col-sm-6 mb-3">
+                <label class="form-label fw-bold">Đến ngày</label>
+                <input type="date" name="endDate" class="form-control" required>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label fw-bold">Lý do nghỉ</label>
+              <textarea name="reason" class="form-control" rows="3" required></textarea>
+            </div>
+            <button type="submit" id="btnSubmit" class="btn btn-primary w-100 fw-bold">Gửi Đơn Nghỉ Phép</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Tab 2: Danh sách & Quản lý duyệt -->
+      <div class="tab-pane fade" id="list-tab">
+        <div class="card p-3 table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Họ tên</th>
+                <th>Thời gian</th>
+                <th>Lý do</th>
+                <th>Trạng thái</th>
+                <th>Thao tác (Quản lý)</th>
+              </tr>
+            </thead>
+            <tbody id="tableBody">
+              <tr><td colspan="5" class="text-center text-muted">Đang tải dữ liệu...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab 3: Dashboard Thống Kê -->
+      <div class="tab-pane fade" id="dashboard-tab">
+        <div class="row text-center" id="dashboardStats">
+          <div class="col-12 text-muted">Đang tải dữ liệu...</div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Xử lý gửi form
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('btnSubmit');
+      btn.disabled = true; btn.innerText = 'Đang gửi...';
+      
+      const form = e.target;
+      const data = {
+        name: form.name.value,
+        startDate: form.startDate.value,
+        endDate: form.endDate.value,
+        reason: form.reason.value
+      };
+      
+      google.script.run.withSuccessHandler(() => {
+        alert('Đã gửi đơn nghỉ phép thành công!');
+        form.reset();
+        btn.disabled = false; btn.innerText = 'Gửi Đơn Nghỉ Phép';
+      }).submitLeave(data);
+    }
+
+    // Tải dữ liệu từ Google Sheets
+    function loadData() {
+      document.getElementById('tableBody').innerHTML = '<tr><td colspan="5" class="text-center">Đang tải...</td></tr>';
+      google.script.run.withSuccessHandler(renderData).getLeaves();
+    }
+
+    // Hiển thị dữ liệu ra Bảng và Dashboard
+    function renderData(data) {
+      let html = '';
+      let total = data.length, pending = 0, approved = 0;
+
+      data.forEach(item => {
+        // Đếm số lượng cho dashboard
+        if(item['Trạng thái'] === 'Chờ duyệt') pending++;
+        if(item['Trạng thái'] === 'Đã duyệt') approved++;
+
+        // Render Table
+        let badgeColor = item['Trạng thái'] === 'Chờ duyệt' ? 'bg-warning text-dark' : (item['Trạng thái'] === 'Đã duyệt' ? 'bg-success' : 'bg-danger');
+        
+        let buttons = item['Trạng thái'] === 'Chờ duyệt' ? 
+          `<button class="btn btn-sm btn-success me-1" onclick="updateStatus(${item.row}, 'Đã duyệt', this)">Duyệt</button>
+           <button class="btn btn-sm btn-outline-danger" onclick="updateStatus(${item.row}, 'Từ chối', this)">Từ chối</button>` : `<span class="text-muted small">Đã xử lý</span>`;
+
+        html += `
+          <tr>
+            <td class="fw-bold">${item['Họ tên']}</td>
+            <td>${item['Từ ngày']} <br>đến ${item['Đến ngày']}</td>
+            <td>${item['Lý do']}</td>
+            <td><span class="badge ${badgeColor}">${item['Trạng thái']}</span></td>
+            <td>${buttons}</td>
+          </tr>
+        `;
+      });
+      document.getElementById('tableBody').innerHTML = html || '<tr><td colspan="5" class="text-center">Chưa có đơn nào</td></tr>';
+
+      // Render Dashboard
+      document.getElementById('dashboardStats').innerHTML = `
+        <div class="col-md-4 mb-3">
+          <div class="card bg-primary text-white p-4 h-100 shadow-sm">
+            <h1 class="display-4 fw-bold">${total}</h1><h5>Tổng Đơn Nhận</h5>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card bg-warning text-dark p-4 h-100 shadow-sm">
+            <h1 class="display-4 fw-bold">${pending}</h1><h5>Đang Chờ Duyệt</h5>
+          </div>
+        </div>
+        <div class="col-md-4 mb-3">
+          <div class="card bg-success text-white p-4 h-100 shadow-sm">
+            <h1 class="display-4 fw-bold">${approved}</h1><h5>Đã Được Duyệt</h5>
+          </div>
+        </div>
+      `;
+    }
+
+    // Hàm gọi cập nhật trạng thái khi nhấn nút Duyệt/Từ chối
+    function updateStatus(row, status, btnElement) {
+      btnElement.disabled = true;
+      btnElement.innerText = "...";
+      google.script.run.withSuccessHandler(() => loadData()).updateStatus(row, status);
+    }
+  </script>
+</body>
+</html>
+
+==============================================================================
+FILE END: Index.html
+==============================================================================

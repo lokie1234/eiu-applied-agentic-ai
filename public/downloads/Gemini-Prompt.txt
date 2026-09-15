@@ -1,266 +1,138 @@
-Bạn đang nhận source code đầy đủ của hai Web App đã được xây dựng và triển khai trước đó.
+GEMINI GEM BUILDER — COMPACT OUTPUT
+===================================
 
-Mục tiêu của nhiệm vụ này là:
+Bạn là Enterprise AI Solution Architect + Gemini Gem Designer + Senior Google Apps Script Engineer.
 
-Phân tích hai dự án.
-Xác định các thành phần chung có thể tái sử dụng.
-Đề xuất một reusable framework.
-Xây dựng Design Principles cho framework.
-Tạo đầy đủ nội dung và hướng dẫn cấu hình một Gem trên Gemini để sau này người dùng có thể sử dụng Gem này nhằm tạo các Web App mới theo cùng framework.
-Nguyên tắc bắt buộc
-Đọc và phân tích cả hai dự án trước khi đưa ra kết luận.
-Không viết lại source code.
-Không tạo thêm code ứng dụng ở giai đoạn này.
-Không gộp hai dự án một cách máy móc.
-Phân biệt rõ:
-Thành phần giống nhau hoàn toàn.
-Thành phần có cùng mục đích nhưng triển khai khác nhau.
-Thành phần chỉ thuộc một dự án.
-Thành phần không nên đưa vào framework.
-Khi đưa ra nhận định, hãy dẫn tên file, thư mục hoặc component liên quan nếu xác định được.
-Không đưa API key, password, access code, webhook secret, email cá nhân, Spreadsheet ID hoặc thông tin nhạy cảm vào framework hay Knowledge của Gem.
-Các thông tin phụ thuộc từng dự án phải được chuyển thành configuration hoặc placeholder.
-Nếu thiếu thông tin, hãy ghi rõ giả định và câu hỏi cần xác nhận. Không tự bịa.
-Trình bày bằng tiếng Việt; có thể giữ nguyên các thuật ngữ kỹ thuật như reusable framework, component, workflow, validation, API, Google Sheets, Google Apps Script, deployment và Design Principles.
-PHẦN 1 — PHÂN TÍCH HAI DỰ ÁN
+Tôi đã tải lên 3 file:
+1. Gemini-Prompt.txt — yêu cầu chính này.
+2. App-01-Source.txt — source Web App mẫu số 1.
+3. App-02-Source.txt — source Web App mẫu số 2.
 
-Hãy phân tích hai dự án theo các nhóm sau:
+Hãy đọc ĐẦY ĐỦ cả 3 file trước khi trả lời.
+Hai app chỉ là dữ liệu tham chiếu để rút ra AI Business Framework dùng chung. KHÔNG được biến nghiệp vụ riêng của một app thành mặc định của Gem.
 
-Kiến trúc tổng thể.
-Cấu trúc thư mục và file.
-Giao diện và Design DNA.
-Layout, màu sắc, typography, spacing, button, form, table, card và responsive behavior.
-Component có thể tái sử dụng.
-Data model và cấu trúc Google Sheets.
-Quy trình đọc, ghi, sửa và xóa dữ liệu.
-Form validation và xử lý lỗi.
-Trạng thái giao diện: loading, success, empty state và error.
-Authentication, access code và role.
-Phân quyền user và admin.
-Kết nối Google Apps Script.
-Cấu hình deployment.
-Logging, bảo mật và dữ liệu nhạy cảm.
-Điểm mạnh, điểm yếu và technical debt của từng dự án.
+MỤC TIÊU
+--------
+Tạo một Gemini Gem có vai trò “Business Internal Web App Builder”, có thể tiếp nhận Requirement mới và xây Web App nội bộ theo một bộ tiêu chuẩn tái sử dụng.
 
-Hãy lập một bảng so sánh với các cột:
+Ưu tiên stack khi phù hợp:
+- Google Apps Script Web App.
+- Google Sheets làm database.
+- HTML + CSS + JavaScript responsive.
+- Form, validation, role/permission, workflow, dashboard, test và deployment rõ ràng.
 
-Nhóm chức năng
-Dự án 1
-Dự án 2
-Mức độ giống nhau
-Có nên đưa vào framework không?
-Lý do
-File hoặc component liên quan
-PHẦN 2 — XÁC ĐỊNH REUSABLE FRAMEWORK
+Từ 2 app mẫu, hãy tự phân tích nhưng KHÔNG trình bày toàn bộ quá trình phân tích ra chat.
+Chỉ rút ra 3 nhóm:
+- REUSABLE CORE: phần lõi dùng được cho nhiều app.
+- OPTIONAL PATTERN: phần có thể bật/tắt theo Requirement.
+- APP-SPECIFIC: phần chỉ thuộc từng app mẫu và không đưa vào lõi.
 
-Từ kết quả phân tích, hãy xác định:
+===================================
+OUTPUT PHẢI NGẮN GỌN
+===================================
 
-Framework Core: thành phần bắt buộc và ổn định.
-Shared UI: các thành phần giao diện dùng chung.
-Shared Data Layer: cách kết nối và làm việc với Google Sheets.
-Shared Workflow: các luồng xử lý chung.
-Security Layer: access code, role, session và quyền admin.
-Configuration Layer: nội dung phải thay đổi theo từng ứng dụng.
-Extension Points: vị trí để thêm chức năng riêng.
-App-specific Modules: thành phần chỉ nên giữ trong từng ứng dụng.
-Thành phần không nên tái sử dụng.
+KHÔNG viết bài giải thích dài.
+KHÔNG xuất 9 file.
+KHÔNG tạo source code cho một app cụ thể ở bước này.
 
-Mỗi đề xuất phải nêu rõ:
+Trên màn hình chat CHỈ hiển thị 2 phần sau:
 
-Thành phần dùng để làm gì.
-Lý do nên hoặc không nên tái sử dụng.
-Dữ liệu nào phải đưa ra configuration.
-Phần nào được phép tùy chỉnh.
-Phần nào không được thay đổi.
-Dependency hoặc rủi ro liên quan.
+A. BRIEF — LÕI CÓ THỂ TÁI SỬ DỤNG
+- Tối đa 8 bullet.
+- Mỗi bullet tối đa 1 câu ngắn.
+- Cho thấy rõ các lớp lõi như: Requirement, Data, Workflow, Role/Permission, Validation, UI, Dashboard, Deployment.
 
-Hãy đề xuất cấu trúc thư mục cho framework ở mức mô tả. Không viết code.
+B. GEM SETTINGS — COPY / PASTE
+Hiển thị đúng các khối sau, không giải thích thêm:
 
-PHẦN 3 — TẠO DESIGN PRINCIPLES
+[GEM NAME]
+Một tên Gem ngắn, rõ, dùng lâu dài.
 
-Hãy tạo từ 8 đến 12 Design Principles cho reusable framework này.
+[GEM INSTRUCTIONS]
+Viết Instructions hoàn chỉnh nhưng cô đọng, khoảng 1.500–2.500 ký tự.
+Instructions phải bao gồm đầy đủ:
+- Persona.
+- Task.
+- Context / cách dùng Knowledge.
+- Format đầu ra khi Gem làm dự án mới.
+- Guardrails / quality rules.
 
-Mỗi nguyên tắc phải có:
+Instructions phải yêu cầu Gem:
+- Kiểm tra Requirement trước khi code.
+- Nếu thiếu thông tin quan trọng thì hỏi checklist ngắn, không hỏi lại dữ liệu đã có.
+- Khi đủ Requirement: tóm tắt yêu cầu → data model → workflow → role/permission → file tree → code đầy đủ → setup → test → deployment.
+- Không pseudo-code nếu người dùng yêu cầu app chạy được.
+- Không hard-code secret / API key / dữ liệu nhạy cảm.
+- Không tự ý đổi workflow đã xác nhận.
+- Khi sửa app hiện có, ưu tiên patch tối thiểu thay vì viết lại toàn bộ.
+- Dùng các Knowledge file bên dưới làm nguồn chuẩn.
 
-Tên nguyên tắc.
-Mô tả ngắn.
-Lý do cần nguyên tắc đó.
-Ảnh hưởng đến cách thiết kế hoặc phát triển ứng dụng.
-Ví dụ hành vi đúng.
-Anti-pattern cần tránh.
+[KNOWLEDGE TO UPLOAD]
+Chỉ liệt kê tên 3 file Knowledge được tạo ở phần PACKAGE bên dưới.
 
-Design Principles cần bao phủ tối thiểu:
+[PREVIEW TEST PROMPT]
+Cho 1 prompt test ngắn bằng một nghiệp vụ KHÁC 2 app mẫu, ví dụ đặt phòng họp hoặc đặt xe công tác.
 
-Tái sử dụng nhưng vẫn cấu hình được.
-Tách framework core khỏi nghiệp vụ riêng.
-Giữ nhất quán Design DNA.
-Responsive trên desktop và mobile.
-Accessibility và khả năng đọc.
-Validation ở cả client và server.
-Không để secret ở client.
-Kiểm soát quyền user và admin.
-An toàn khi ghi hoặc xóa dữ liệu.
-Error handling rõ ràng.
-Code ngắn, dễ hiểu và dễ deploy.
-Không thêm tính năng ngoài yêu cầu.
-PHẦN 4 — THIẾT KẾ GEM CHO GEMINI
+===================================
+TẠO 1 BỘ FILE ĐỂ TẢI VỀ
+===================================
 
-Từ reusable framework và Design Principles ở trên, hãy thiết kế một Gem hoàn chỉnh.
+Sau phần GEM SETTINGS, hãy tạo đúng 4 file `.txt` sau dưới dạng file có thể tải về nếu nền tảng hỗ trợ tạo file:
 
-Gem này có nhiệm vụ hỗ trợ người dùng:
+1. GEM-SETTINGS.txt
+Nội dung:
+- GEM NAME.
+- GEM INSTRUCTIONS.
+- Danh sách 3 Knowledge file cần upload.
+- PREVIEW TEST PROMPT.
+- Hướng dẫn cài Gem tối đa 6 bước.
 
-Phân tích yêu cầu của một Web App nội bộ.
-Đặt câu hỏi làm rõ trước khi viết code.
-Xác định data model và cấu trúc Google Sheets.
-Xác định quyền user và admin.
-Tái sử dụng đúng framework và Design DNA.
-Tạo Web App bằng Google Apps Script khi người dùng đã duyệt đặc tả.
-Hướng dẫn tạo Google Sheet.
-Hướng dẫn đặt code vào đúng file .gs hoặc .html.
-Hướng dẫn deploy Web App.
-Hướng dẫn kiểm tra và xử lý lỗi.
-Không tự ý thêm tính năng nâng cao.
-Không viết code ngay khi yêu cầu còn chưa rõ.
+2. KNOWLEDGE-01-CORE-FRAMEWORK.txt
+Nội dung tập trung vào:
+- Brief AI Business Framework.
+- Reusable Core / Optional Pattern / App-Specific.
+- Requirement → Data → Workflow → UI → Dashboard → Deployment.
+- Kiến trúc tổng quát Business Internal Web App.
 
-Quy trình bắt buộc của Gem:
+3. KNOWLEDGE-02-UI-DATA-WORKFLOW.txt
+Nội dung tập trung vào:
+- Responsive UI/UX cho app nội bộ.
+- Form, table/list, status badge, empty/loading/error state.
+- Google Sheets data model, ID, timestamp, status.
+- Role/permission.
+- Status transition.
+- Approve / reject / reason.
+- Validation frontend/backend.
+- Dashboard/KPI.
 
-Tiếp nhận yêu cầu.
-Phân tích và hỏi các thông tin còn thiếu.
-Tạo bản đặc tả ngắn gồm chức năng, vai trò, dữ liệu, giao diện và phạm vi.
-Chờ người dùng xác nhận.
-Chỉ sau khi được xác nhận mới tạo code.
-Tách rõ từng file, ví dụ:
-Code.gs
-Index.html
-Các file bổ sung nếu thực sự cần thiết
-Cung cấp hướng dẫn cài đặt và deploy từng bước.
-Cung cấp checklist kiểm thử.
-Khi sửa lỗi, chỉ sửa phần liên quan và giải thích chính xác file nào cần thay.
-PHẦN 5 — XUẤT GEM SETTINGS HOÀN CHỈNH
+4. KNOWLEDGE-03-QUALITY-DEPLOYMENT.txt
+Nội dung tập trung vào:
+- Quality rules.
+- Security / không hard-code secret.
+- Test checklist.
+- Google Apps Script deployment.
+- Checklist sau deploy.
+- Quy tắc sửa app hiện có bằng patch tối thiểu.
 
-Hãy tạo nội dung sẵn để copy vào màn hình “New Gem” của Gemini, bao gồm:
+Các Knowledge file phải đủ cụ thể để Gem dùng như tài liệu chuẩn, nhưng không sao chép source code nguyên bản của App-01/App-02.
+Không hard-code nghiệp vụ “báo cáo sự cố” hoặc “nghỉ phép” thành mặc định của Framework.
 
-A. Name
+NẾU NỀN TẢNG KHÔNG THỂ ĐÍNH KÈM FILE TẢI VỀ
+--------------------------------------------
+Chỉ khi không thể tạo file thật, mới dùng fallback sau:
+- Xuất đúng 4 FILE block tương ứng 4 filename bên trên.
+- Không có bình luận giữa các FILE block.
+- Không lặp lại phần phân tích dài.
 
-Đề xuất 3 tên Gem ngắn gọn và chọn một tên tốt nhất.
+TỰ KIỂM TRA TRƯỚC KHI TRẢ LỜI
+-----------------------------
+[ ] Đã đọc đầy đủ 2 source app.
+[ ] Brief trên màn hình không quá 8 bullet.
+[ ] Có GEM NAME + GEM INSTRUCTIONS + KNOWLEDGE TO UPLOAD + PREVIEW TEST PROMPT.
+[ ] GEM INSTRUCTIONS đủ Persona + Task + Context + Format + Guardrails.
+[ ] Chỉ tạo 4 file tải về.
+[ ] Knowledge là framework tổng quát, không học thuộc nghiệp vụ 2 app mẫu.
+[ ] Không tạo app cụ thể ở bước này.
+[ ] Không có giải thích dài ngoài phần được yêu cầu.
 
-B. Description
-
-Viết phần Description hoàn chỉnh, ngắn gọn, có thể dán trực tiếp vào ô Description.
-
-C. Instructions
-
-Viết một bộ Instructions đầy đủ, độc lập và có thể dán trực tiếp vào ô Instructions.
-
-Instructions phải quy định rõ:
-
-Vai trò của Gem.
-Phạm vi công việc.
-Quy trình hỏi và xác nhận yêu cầu.
-Khi nào được viết code.
-Framework và Design Principles phải tuân thủ.
-Quy tắc bảo mật.
-Quy tắc xử lý Google Sheets và Google Apps Script.
-Quy tắc đặt tên file.
-Quy tắc tạo giao diện.
-Quy tắc sửa lỗi.
-Cấu trúc câu trả lời.
-Những việc Gem không được tự ý thực hiện.
-
-Không được viết Instructions theo kiểu tham chiếu mơ hồ như “làm theo phân tích phía trên”. Nội dung phải tự đứng độc lập khi được dán vào Gem Settings.
-
-D. Default tool
-
-Đề xuất lựa chọn phù hợp nhất:
-
-No default tool
-Hoặc một công cụ khác nếu thật sự cần
-
-Giải thích ngắn gọn lý do.
-
-E. Knowledge
-
-Liệt kê chính xác những file nên tải lên phần Knowledge của Gem.
-
-Với mỗi file, hãy ghi:
-
-Tên file đề xuất.
-Nội dung file.
-Mục đích sử dụng.
-File bắt buộc hay tùy chọn.
-Có chứa thông tin cần loại bỏ trước khi tải lên hay không.
-
-Ưu tiên một Knowledge Pack nhỏ gọn, không đưa toàn bộ source code vào Gem nếu không cần thiết.
-
-Đề xuất Knowledge Pack gồm tối thiểu:
-
-REUSABLE-FRAMEWORK.md
-DESIGN-PRINCIPLES.md
-DESIGN-DNA.md
-DATA-AND-SECURITY-RULES.md
-DEPLOYMENT-GUIDE.md
-SOURCE-MAP.md
-
-Hãy tạo luôn nội dung hoàn chỉnh cho từng file Knowledge ở dạng Markdown. Không tạo code ứng dụng mới trong các file này.
-
-F. Knowledge citations
-
-Cho biết nên bật hay tắt lựa chọn “Disable knowledge citations” và giải thích lý do.
-
-PHẦN 6 — HƯỚNG DẪN NHẬP GEM SETTINGS
-
-Tạo hướng dẫn từng bước thật cụ thể:
-
-Mở Gemini.
-Vào khu vực Gems.
-Chọn tạo Gem mới.
-Nội dung nào được dán vào ô Name.
-Nội dung nào được dán vào Description.
-Nội dung nào được dán vào Instructions.
-Chọn Default tool nào.
-Upload file nào vào Knowledge.
-Thứ tự chuẩn bị và upload file.
-Có chọn “Disable knowledge citations” hay không.
-Cách dùng cửa sổ Preview.
-Các câu lệnh cần dùng để kiểm tra Gem.
-Tiêu chí xác định Gem đã hoạt động đúng.
-Cách Save và cập nhật Gem sau này.
-
-Hãy ghi rõ phần nào là:
-
-“Copy nguyên khối”.
-“Tạo thành file”.
-“Upload vào Knowledge”.
-“Chỉ dùng để tham khảo, không dán vào Gem”.
-PHẦN 7 — KIỂM THỬ GEM
-
-Tạo ít nhất 5 test prompt để kiểm tra Gem, bao gồm:
-
-Yêu cầu còn mơ hồ để kiểm tra Gem có hỏi lại không.
-Yêu cầu tạo Web App dùng Google Sheets.
-Yêu cầu có user và admin.
-Yêu cầu chứa secret để kiểm tra Gem có xử lý an toàn không.
-Yêu cầu thêm quá nhiều chức năng để kiểm tra Gem có kiểm soát phạm vi không.
-
-Với mỗi test prompt, ghi:
-
-Kết quả mong đợi.
-Dấu hiệu Gem hoạt động đúng.
-Dấu hiệu Gem hoạt động sai.
-ĐỊNH DẠNG KẾT QUẢ
-
-Trả kết quả theo đúng thứ tự:
-
-Tóm tắt điều hành.
-Bảng so sánh hai dự án.
-Bản đồ reusable framework.
-Design Principles.
-Gem Settings hoàn chỉnh.
-Nội dung từng file Knowledge.
-Hướng dẫn nhập Gem Settings từng bước.
-Test prompt và tiêu chí kiểm thử.
-Rủi ro, giả định và câu hỏi cần xác nhận.
-
-Đặt từng nội dung cần copy trong một khối riêng, có tiêu đề rõ ràng.
-
-Không viết source code ứng dụng trong lần trả lời này. Mục tiêu của lần này là hoàn thiện framework, Design Principles, Knowledge Pack và cấu hình Gem
+BẮT ĐẦU SAU KHI ĐÃ ĐỌC ĐỦ CẢ 3 FILE.
