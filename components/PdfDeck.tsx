@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import DeckSideAmbient from "@/components/DeckSideAmbient";
@@ -9,6 +9,9 @@ import InteractionLayer from "@/components/interactions/InteractionLayer";
 import SlideOneAIHero from "@/components/interactions/SlideOneAIHero";
 import QuizSlide from "@/components/QuizSlide";
 import ShowcaseSlide from "@/components/ShowcaseSlide";
+import SectionOneHtmlSlide, {
+  type SectionOneHtmlKind,
+} from "@/components/section1/SectionOneHtmlSlide";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -19,10 +22,41 @@ const PDF_URL = process.env.NEXT_PUBLIC_PDF_URL ?? "";
 
 type Props = { isAdmin: boolean };
 
+type DeckItem =
+  | { kind: "pdf"; pdfPage: number }
+  | { kind: "html"; slide: SectionOneHtmlKind }
+  | { kind: "showcase" }
+  | { kind: "quiz" };
+
+function buildDeckItems(pdfPageCount: number, isAdmin: boolean): DeckItem[] {
+  if (pdfPageCount <= 0) return [];
+
+  const items: DeckItem[] = [];
+
+  for (let pdfPage = 1; pdfPage <= pdfPageCount; pdfPage += 1) {
+    if (pdfPage === 3) items.push({ kind: "html", slide: "slide3" });
+    else if (pdfPage === 4) items.push({ kind: "html", slide: "slide4" });
+    else if (pdfPage === 38) items.push({ kind: "showcase" });
+    else items.push({ kind: "pdf", pdfPage });
+
+    // This live-response page exists only in the admin 1103 deck.
+    if (pdfPage === 4 && isAdmin) {
+      items.push({ kind: "html", slide: "idea-results" });
+    }
+
+    // Shared HTML page inserted between original PDF pages 34 and 35.
+    if (pdfPage === 34) {
+      items.push({ kind: "html", slide: "deployment" });
+    }
+  }
+
+  items.push({ kind: "quiz" });
+  return items;
+}
+
 export default function PdfDeck({ isAdmin }: Props) {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageInput, setPageInput] = useState("1");
-  const [numPages, setNumPages] = useState(0);
   const [pdfPageCount, setPdfPageCount] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [viewerWidth, setViewerWidth] = useState(0);
@@ -42,20 +76,19 @@ export default function PdfDeck({ isAdmin }: Props) {
     return Math.round(viewerWidth * zoom);
   }, [viewerWidth, zoom]);
 
-  const isIntroHeroSlide = pageNumber === 1;
-  const isShowcaseSlide = pageNumber === 38;
-  const isQuizSlide = pdfPageCount > 0 && pageNumber === pdfPageCount + 1;
-
-  useEffect(() => {
-    pageNumberRef.current = pageNumber;
-    setPageInput(String(pageNumber));
-  }, [pageNumber]);
+  const deckItems = useMemo(
+    () => buildDeckItems(pdfPageCount, isAdmin),
+    [pdfPageCount, isAdmin],
+  );
+  const numPages = deckItems.length;
+  const currentItem = deckItems[pageNumber - 1];
+  const isIntroHeroSlide = currentItem?.kind === "pdf" && currentItem.pdfPage === 1;
 
   useEffect(() => {
     numPagesRef.current = numPages;
   }, [numPages]);
 
-  function goToPage(page: number) {
+  const goToPage = useCallback((page: number) => {
     const total = numPagesRef.current;
     if (total <= 0) return;
 
@@ -63,19 +96,19 @@ export default function PdfDeck({ isAdmin }: Props) {
     pageNumberRef.current = safePage;
     setPageNumber(safePage);
     setPageInput(String(safePage));
-  }
+  }, []);
 
-  function nextPage() {
+  const nextPage = useCallback(() => {
     if (pageNumberRef.current < numPagesRef.current) {
       goToPage(pageNumberRef.current + 1);
     }
-  }
+  }, [goToPage]);
 
-  function previousPage() {
+  const previousPage = useCallback(() => {
     if (pageNumberRef.current > 1) {
       goToPage(pageNumberRef.current - 1);
     }
-  }
+  }, [goToPage]);
 
   function commitPageInput() {
     const value = Number(pageInput);
@@ -101,10 +134,7 @@ export default function PdfDeck({ isAdmin }: Props) {
   }
 
   async function handlePdfLoaded(pdf: PDFDocumentProxy) {
-    const totalWithQuiz = pdf.numPages + 1;
     setPdfPageCount(pdf.numPages);
-    setNumPages(totalWithQuiz);
-    numPagesRef.current = totalWithQuiz;
 
     try {
       const firstPage = await pdf.getPage(1);
@@ -154,7 +184,7 @@ export default function PdfDeck({ isAdmin }: Props) {
 
     window.addEventListener("keydown", handleKeyboard);
     return () => window.removeEventListener("keydown", handleKeyboard);
-  }, []);
+  }, [goToPage, nextPage, previousPage]);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -235,7 +265,7 @@ export default function PdfDeck({ isAdmin }: Props) {
         window.clearTimeout(wheelResetTimerRef.current);
       }
     };
-  }, []);
+  }, [goToPage]);
 
   useEffect(() => {
     const stage = stageRef.current;
@@ -450,14 +480,20 @@ export default function PdfDeck({ isAdmin }: Props) {
                     aspectRatio: `${pageAspectRatio}`,
                   }}
                 >
-                  {isShowcaseSlide ? (
+                  {currentItem?.kind === "showcase" ? (
                     <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} />
-                  ) : isQuizSlide ? (
+                  ) : currentItem?.kind === "quiz" ? (
                     <QuizSlide scale={renderWidth / 960} />
-                  ) : (
+                  ) : currentItem?.kind === "html" ? (
+                    <SectionOneHtmlSlide
+                      kind={currentItem.slide}
+                      scale={renderWidth / 960}
+                      isAdmin={isAdmin}
+                    />
+                  ) : currentItem?.kind === "pdf" ? (
                     <>
                       <Page
-                        pageNumber={pageNumber}
+                        pageNumber={currentItem.pdfPage}
                         width={renderWidth}
                         renderTextLayer={false}
                         renderAnnotationLayer
@@ -469,8 +505,12 @@ export default function PdfDeck({ isAdmin }: Props) {
                       />
 
                       {isIntroHeroSlide && <SlideOneAIHero />}
-                      <InteractionLayer pageNumber={pageNumber} />
+                      <InteractionLayer pageNumber={currentItem.pdfPage} />
                     </>
+                  ) : (
+                    <div className="page-loading-shell">
+                      <div className="loading-spinner" />
+                    </div>
                   )}
                 </div>
               ) : (

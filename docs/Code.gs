@@ -73,6 +73,31 @@ function doGet(e) {
       });
     }
 
+    if (params.action === "idea.list") {
+      const ideaTab = getSheet("Ý tưởng người học", [
+        "Mã",
+        "Thời gian",
+        "Ý tưởng",
+      ]);
+      const ideaLastRow = ideaTab.getLastRow();
+      const ideaRows =
+        ideaLastRow < 2
+          ? []
+          : ideaTab.getRange(2, 1, ideaLastRow - 1, 3).getDisplayValues();
+      const ideas = ideaRows
+        .slice(-30)
+        .reverse()
+        .map(function (row) {
+          return {
+            id: String(row[0]),
+            submittedAt: String(row[1]),
+            idea: String(row[2]),
+          };
+        });
+
+      return output({ success: true, items: ideas });
+    }
+
     if (params.action !== "showcase.list") {
       return output({ success: false, message: "Yêu cầu không hợp lệ." });
     }
@@ -125,6 +150,40 @@ function doPost(e) {
         token,
       );
       return output({ success: true, section: section, token: token });
+    }
+
+    if (data.action === "idea.submit") {
+      const idea = String(data.idea || "").trim();
+      if (!idea || idea.length > 500) {
+        return output({
+          success: false,
+          message: "Ý tưởng phải có nội dung và không vượt quá 500 ký tự.",
+        });
+      }
+
+      const ideaItem = {
+        id: Utilities.getUuid(),
+        submittedAt: new Date().toISOString(),
+        idea: idea,
+      };
+      const ideaTab = getSheet("Ý tưởng người học", [
+        "Mã",
+        "Thời gian",
+        "Ý tưởng",
+      ]);
+      const ideaLock = LockService.getScriptLock();
+      ideaLock.waitLock(10000);
+      try {
+        ideaTab.appendRow([
+          ideaItem.id,
+          ideaItem.submittedAt,
+          safeCell(ideaItem.idea),
+        ]);
+      } finally {
+        ideaLock.releaseLock();
+      }
+
+      return output({ success: true, item: ideaItem });
     }
 
     if (data.action === "showcase.submit") {

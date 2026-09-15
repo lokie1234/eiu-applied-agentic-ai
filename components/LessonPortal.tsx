@@ -244,7 +244,7 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
             <button type="button" onClick={() => setAdminSection("section1")}>
               <span>SECTION 1</span>
               <strong>Từ Prompt đến Web App</strong>
-              <small>39 slide · PDF + interaction</small>
+              <small>41 slide · PDF + HTML interactive</small>
               <i>→</i>
             </button>
             <button type="button" onClick={() => setAdminSection("section2")}>
