@@ -30,6 +30,7 @@
     linear-gradient(90deg, rgba(8, 41, 69, .04) 1px, transparent 1px);
   background-size: 42px 42px;
   pointer-events: none;
+  animation: gridDrift14 16s ease-in-out infinite alternate;
 }
 
 .trace {
@@ -42,6 +43,7 @@
   border-radius: 50%;
   transform: rotate(-8deg);
   pointer-events: none;
+  animation: traceFloat14 12s ease-in-out infinite alternate;
 }
 
 .header {
@@ -88,8 +90,14 @@
   pointer-events: none;
 }
 
-.loginWindow { width: 345px; }
-.modelWindow { width: 376px; }
+.loginWindow {
+  width: 345px;
+  animation: windowFloatA 7s ease-in-out infinite alternate;
+}
+.modelWindow {
+  width: 376px;
+  animation: windowFloatB 7.5s ease-in-out 0.8s infinite alternate;
+}
 
 .browserBar {
   height: 42px;
@@ -204,8 +212,10 @@
 }
 
 .arrow strong {
+  display: inline-block;
   font-size: 42px;
   color: #b79a5b;
+  animation: gentleArrowDrift14 2.2s ease-in-out infinite alternate;
 }
 
 .arrow span {
@@ -272,6 +282,7 @@
   border: 2px solid #2d7fb4;
   background: #eef6fc;
   box-shadow: 0 8px 20px rgba(45, 127, 180, .12);
+  animation: activeModelGlow14 3.2s ease-in-out infinite alternate;
 }
 
 .active label {
@@ -284,4 +295,46 @@
   color: #f4dfb0;
   font-size: 7px;
   font-weight: 800;
+}
+
+@keyframes gridDrift14 {
+  from { transform: translate3d(0, 0, 0); opacity: .32; }
+  to { transform: translate3d(6px, 4px, 0); opacity: .46; }
+}
+
+@keyframes traceFloat14 {
+  0% { transform: rotate(-8deg) scale(1); }
+  50% { transform: rotate(-7deg) scale(1.02); }
+  100% { transform: rotate(-8deg) scale(1); }
+}
+
+@keyframes windowFloatA {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-3.5px); }
+}
+
+@keyframes windowFloatB {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(3.5px); }
+}
+
+@keyframes gentleArrowDrift14 {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(5px); }
+}
+
+@keyframes activeModelGlow14 {
+  0% { box-shadow: 0 8px 20px rgba(45, 127, 180, 0.12); }
+  100% { box-shadow: 0 10px 24px rgba(45, 127, 180, 0.22), 0 0 14px rgba(45, 127, 180, 0.14); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid,
+  .trace,
+  .loginWindow,
+  .modelWindow,
+  .arrow strong,
+  .active {
+    animation: none !important;
+  }
 }
