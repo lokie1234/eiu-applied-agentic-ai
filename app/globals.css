@@ -4319,3 +4319,42 @@ button, a { -webkit-tap-highlight-color: transparent; }
     animation: none !important;
   }
 }
+
+/* Section 1 native HTML transition layer */
+.section-one-slide-transition {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform-origin: 50% 50%;
+  animation: sectionOneSlideEnter 680ms cubic-bezier(.16, 1, .3, 1) both;
+}
+.section-one-slide-transition::after {
+  position: absolute;
+  inset: -35% -20%;
+  z-index: 50;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 38%, rgba(233,202,139,.18) 49%, rgba(255,255,255,.22) 50%, transparent 62%);
+  transform: translateX(-70%) rotate(-4deg);
+  animation: sectionOneSlideSweep 820ms cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes sectionOneSlideEnter {
+  0% { opacity: 0; transform: perspective(1200px) translateY(22px) scale(.975) rotateX(2.4deg); filter: blur(9px) saturate(.86); }
+  55% { opacity: 1; }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes sectionOneSlideSweep {
+  0% { opacity: 0; transform: translateX(-70%) rotate(-4deg); }
+  32% { opacity: .9; }
+  100% { opacity: 0; transform: translateX(72%) rotate(-4deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-one-slide-transition,
+  .section-one-slide-transition::after { animation: none !important; }
+}
+
+
+/* Section 1 lightweight transition override */
+.section-one-slide-transition{animation:sectionOneLiteEnter 240ms ease-out both!important;filter:none!important}
+.section-one-slide-transition::after{display:none!important;animation:none!important}
+@keyframes sectionOneLiteEnter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}

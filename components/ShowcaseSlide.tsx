@@ -32,6 +32,7 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
   const [message, setMessage] = useState("");
   const [deletingId, setDeletingId] = useState("");
+  const [clearingAll, setClearingAll] = useState(false);
 
   const loadItems = useCallback(async () => {
     try {
@@ -106,6 +107,31 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
     }
   }
 
+  async function clearAllItems() {
+    if (!isAdmin || clearingAll || deletingId || items.length === 0) return;
+    if (!window.confirm(`Xóa toàn bộ ${items.length} ${section === "section2" ? "bài làm" : "ứng dụng"} đã chia sẻ? Thao tác này không thể hoàn tác.`)) return;
+
+    setClearingAll(true);
+    setStatus("idle");
+    setMessage("");
+    try {
+      const response = await fetch("/api/showcase", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, all: true }),
+      });
+      const payload = await readJson(response);
+      if (!response.ok) throw new Error(payload.message || "Không thể xóa toàn bộ danh sách.");
+      setItems([]);
+      setMessage("Đã xóa toàn bộ danh sách.");
+    } catch (error) {
+      setStatus("error");
+      setMessage(error instanceof Error ? error.message : "Không thể xóa toàn bộ danh sách.");
+    } finally {
+      setClearingAll(false);
+    }
+  }
+
   const isSectionTwo = section === "section2";
   const boardTitle = isSectionTwo ? "Không gian chia sẻ bài làm - Section 2" : "Không gian chia sẻ ứng dụng";
   const itemLabel = isSectionTwo ? "bài làm" : "ứng dụng";
@@ -124,7 +150,22 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
       </header>
       <div className={styles.columns}>
         <section className={styles.board}>
-          <div className={styles.panelHead}><div><span>Đã chia sẻ</span><strong>{items.length} {itemLabel}</strong></div><button type="button" onClick={() => void loadItems()} aria-label="Tải lại danh sách">↻</button></div>
+          <div className={styles.panelHead}>
+            <div><span>Đã chia sẻ</span><strong>{items.length} {itemLabel}</strong></div>
+            <div className={styles.adminBoardActions}>
+              {isAdmin && (
+                <button
+                  type="button"
+                  className={styles.clearAll}
+                  onClick={() => void clearAllItems()}
+                  disabled={clearingAll || Boolean(deletingId) || items.length === 0}
+                >
+                  {clearingAll ? "Đang xóa…" : "Xóa hết"}
+                </button>
+              )}
+              <button type="button" onClick={() => void loadItems()} aria-label="Tải lại danh sách">↻</button>
+            </div>
+          </div>
           <div className={styles.list} aria-live="polite">
             {loading ? <div className={styles.empty}>Đang tải danh sách...</div> : items.length === 0 ? <div className={styles.empty}>{isSectionTwo ? "Chưa có bài làm nào. Hãy là người đầu tiên chia sẻ!" : "Chưa có ứng dụng nào. Hãy là người đầu tiên chia sẻ!"}</div> : items.map((item, index) => (
               <article className={styles.item} key={item.id}>

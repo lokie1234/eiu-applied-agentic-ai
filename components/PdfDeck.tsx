@@ -2,39 +2,30 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
-import type { PDFDocumentProxy } from "pdfjs-dist";
-import DeckSideAmbient from "@/components/DeckSideAmbient";
-import InteractionLayer from "@/components/interactions/InteractionLayer";
-import SlideOneAIHero from "@/components/interactions/SlideOneAIHero";
 import QuizSlide from "@/components/QuizSlide";
 import ShowcaseSlide from "@/components/ShowcaseSlide";
-import SectionOneHtmlSlide, {
-  type SectionOneHtmlKind,
-} from "@/components/section1/SectionOneHtmlSlide";
+import SectionOneHtmlSlide, { type SectionOneHtmlKind } from "@/components/section1/SectionOneHtmlSlide";
+import SectionOneNativeSlide from "@/components/section1/SectionOneNativeSlide";
 import SectionOneSlide14 from "@/components/section1/SectionOneSlide14";
-pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url
-).toString();
 
-const PDF_URL = process.env.NEXT_PUBLIC_PDF_URL ?? "";
+const SECTION_ONE_PAGE_COUNT = 38;
+const SLIDE_WIDTH = 960;
+const SLIDE_HEIGHT = 540;
+const SLIDE_ASPECT_RATIO = SLIDE_WIDTH / SLIDE_HEIGHT;
 
 type Props = { isAdmin: boolean };
 
 type DeckItem =
-  | { kind: "pdf"; pdfPage: number }
+  | { kind: "native"; pdfPage: number }
   | { kind: "slide14"; slide: "gemini-model" }
   | { kind: "html"; slide: SectionOneHtmlKind }
   | { kind: "showcase" }
   | { kind: "quiz" };
 
-function buildDeckItems(pdfPageCount: number, isAdmin: boolean): DeckItem[] {
-  if (pdfPageCount <= 0) return [];
-
+function buildDeckItems(isAdmin: boolean): DeckItem[] {
   const items: DeckItem[] = [];
 
-  for (let pdfPage = 1; pdfPage <= pdfPageCount; pdfPage += 1) {
+  for (let pdfPage = 1; pdfPage <= SECTION_ONE_PAGE_COUNT; pdfPage += 1) {
     if (pdfPage === 3) {
       items.push({ kind: "html", slide: "slide3" });
     } else if (pdfPage === 4) {
@@ -44,15 +35,13 @@ function buildDeckItems(pdfPageCount: number, isAdmin: boolean): DeckItem[] {
     } else if (pdfPage === 38) {
       items.push({ kind: "showcase" });
     } else {
-      items.push({ kind: "pdf", pdfPage });
+      items.push({ kind: "native", pdfPage });
     }
 
-    // This live-response page exists only in the admin 1103 deck.
     if (pdfPage === 4 && isAdmin) {
       items.push({ kind: "html", slide: "idea-results" });
     }
 
-    // Shared HTML page inserted between original PDF pages 34 and 35.
     if (pdfPage === 34) {
       items.push({ kind: "html", slide: "deployment" });
     }
@@ -65,11 +54,8 @@ function buildDeckItems(pdfPageCount: number, isAdmin: boolean): DeckItem[] {
 export default function PdfDeck({ isAdmin }: Props) {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageInput, setPageInput] = useState("1");
-  const [pdfPageCount, setPdfPageCount] = useState(0);
   const [zoom, setZoom] = useState(1);
   const [viewerWidth, setViewerWidth] = useState(0);
-  const [pageAspectRatio, setPageAspectRatio] = useState(16 / 9);
-  const [pdfError, setPdfError] = useState("");
 
   const stageRef = useRef<HTMLDivElement | null>(null);
   const pageNumberRef = useRef(1);
@@ -84,13 +70,9 @@ export default function PdfDeck({ isAdmin }: Props) {
     return Math.round(viewerWidth * zoom);
   }, [viewerWidth, zoom]);
 
-  const deckItems = useMemo(
-    () => buildDeckItems(pdfPageCount, isAdmin),
-    [pdfPageCount, isAdmin],
-  );
+  const deckItems = useMemo(() => buildDeckItems(isAdmin), [isAdmin]);
   const numPages = deckItems.length;
   const currentItem = deckItems[pageNumber - 1];
-  const isIntroHeroSlide = currentItem?.kind === "pdf" && currentItem.pdfPage === 1;
 
   useEffect(() => {
     numPagesRef.current = numPages;
@@ -99,7 +81,6 @@ export default function PdfDeck({ isAdmin }: Props) {
   const goToPage = useCallback((page: number) => {
     const total = numPagesRef.current;
     if (total <= 0) return;
-
     const safePage = Math.min(Math.max(Math.round(page), 1), total);
     pageNumberRef.current = safePage;
     setPageNumber(safePage);
@@ -120,12 +101,10 @@ export default function PdfDeck({ isAdmin }: Props) {
 
   function commitPageInput() {
     const value = Number(pageInput);
-
     if (!Number.isFinite(value)) {
       setPageInput(String(pageNumberRef.current));
       return;
     }
-
     goToPage(value);
   }
 
@@ -141,28 +120,10 @@ export default function PdfDeck({ isAdmin }: Props) {
     setZoom(1);
   }
 
-  async function handlePdfLoaded(pdf: PDFDocumentProxy) {
-    setPdfPageCount(pdf.numPages);
-
-    try {
-      const firstPage = await pdf.getPage(1);
-      const viewport = firstPage.getViewport({ scale: 1 });
-
-      if (viewport.height > 0) {
-        setPageAspectRatio(viewport.width / viewport.height);
-      }
-    } catch (error) {
-      console.error("Cannot detect PDF ratio:", error);
-    }
-  }
-
   useEffect(() => {
     function handleKeyboard(event: KeyboardEvent) {
       const target = event.target as HTMLElement;
-
-      if (target.closest("input, textarea, select, [data-interactive='true']")) {
-        return;
-      }
+      if (target.closest("input, textarea, select, button, a, [data-interactive='true']")) return;
 
       switch (event.key) {
         case "ArrowRight":
@@ -171,18 +132,15 @@ export default function PdfDeck({ isAdmin }: Props) {
           event.preventDefault();
           nextPage();
           break;
-
         case "ArrowLeft":
         case "PageUp":
           event.preventDefault();
           previousPage();
           break;
-
         case "Home":
           event.preventDefault();
           goToPage(1);
           break;
-
         case "End":
           event.preventDefault();
           goToPage(numPagesRef.current);
@@ -204,32 +162,21 @@ export default function PdfDeck({ isAdmin }: Props) {
 
     function handleWheel(event: WheelEvent) {
       const target = event.target as HTMLElement | null;
-
-      if (target?.closest("input, textarea, select, [data-interactive='true']")) {
-        return;
-      }
-
+      if (target?.closest("input, textarea, select, button, a, [data-interactive='true']")) return;
       if (Math.abs(event.deltaX) > Math.abs(event.deltaY)) return;
       if (Math.abs(event.deltaY) < 0.5) return;
 
       event.preventDefault();
-
       const direction = event.deltaY < 0 ? -1 : 1;
 
-      if (
-        wheelDirectionRef.current !== 0 &&
-        wheelDirectionRef.current !== direction
-      ) {
+      if (wheelDirectionRef.current !== 0 && wheelDirectionRef.current !== direction) {
         wheelAccumulatorRef.current = 0;
       }
 
       wheelDirectionRef.current = direction;
       wheelAccumulatorRef.current += event.deltaY;
 
-      if (wheelResetTimerRef.current !== null) {
-        window.clearTimeout(wheelResetTimerRef.current);
-      }
-
+      if (wheelResetTimerRef.current !== null) window.clearTimeout(wheelResetTimerRef.current);
       wheelResetTimerRef.current = window.setTimeout(() => {
         wheelAccumulatorRef.current = 0;
         wheelDirectionRef.current = 0;
@@ -237,27 +184,16 @@ export default function PdfDeck({ isAdmin }: Props) {
       }, WHEEL_IDLE_RESET);
 
       if (Math.abs(wheelAccumulatorRef.current) < WHEEL_THRESHOLD) return;
-
       const now = performance.now();
       if (now - lastWheelNavigationRef.current < WHEEL_COOLDOWN) return;
 
       const current = pageNumberRef.current;
       let targetPage = current;
-
-      // Giữ đúng interaction đã test: cuộn lên = slide tiếp,
-      // cuộn xuống = slide trước.
-      if (
-        wheelAccumulatorRef.current < 0 &&
-        current < numPagesRef.current
-      ) {
-        targetPage = current + 1;
-      } else if (wheelAccumulatorRef.current > 0 && current > 1) {
-        targetPage = current - 1;
-      }
+      if (wheelAccumulatorRef.current < 0 && current < numPagesRef.current) targetPage = current + 1;
+      else if (wheelAccumulatorRef.current > 0 && current > 1) targetPage = current - 1;
 
       wheelAccumulatorRef.current = 0;
       wheelDirectionRef.current = 0;
-
       if (targetPage === current) return;
 
       lastWheelNavigationRef.current = now;
@@ -265,80 +201,60 @@ export default function PdfDeck({ isAdmin }: Props) {
     }
 
     stage.addEventListener("wheel", handleWheel, { passive: false });
-
     return () => {
       stage.removeEventListener("wheel", handleWheel);
-
-      if (wheelResetTimerRef.current !== null) {
-        window.clearTimeout(wheelResetTimerRef.current);
-      }
+      if (wheelResetTimerRef.current !== null) window.clearTimeout(wheelResetTimerRef.current);
     };
   }, [goToPage]);
 
   useEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
-
     let frameId: number | null = null;
 
     function updateSize() {
       if (!stageRef.current) return;
-
-      if (frameId !== null) {
-        cancelAnimationFrame(frameId);
-      }
-
+      if (frameId !== null) cancelAnimationFrame(frameId);
       frameId = requestAnimationFrame(() => {
         const currentStage = stageRef.current;
         if (!currentStage) return;
-
         const availableWidth = Math.max(currentStage.clientWidth - 18, 280);
         const availableHeight = Math.max(currentStage.clientHeight - 18, 180);
-        const widthFromHeight = availableHeight * pageAspectRatio;
-        const width = Math.max(
-          280,
-          Math.min(availableWidth, widthFromHeight, 1920)
-        );
-
-        setViewerWidth(width);
+        const widthFromHeight = availableHeight * SLIDE_ASPECT_RATIO;
+        setViewerWidth(Math.max(280, Math.min(availableWidth, widthFromHeight, 1920)));
       });
     }
 
     updateSize();
-
     const observer = new ResizeObserver(updateSize);
     observer.observe(stage);
-
     return () => {
       observer.disconnect();
-
-      if (frameId !== null) {
-        cancelAnimationFrame(frameId);
-      }
+      if (frameId !== null) cancelAnimationFrame(frameId);
     };
-  }, [pageAspectRatio]);
+  }, []);
 
   async function toggleFullscreen() {
     try {
-      if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
-      } else {
-        await document.exitFullscreen();
-      }
+      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+      else await document.exitFullscreen();
     } catch (error) {
       console.error("Fullscreen error:", error);
     }
   }
 
-  if (!PDF_URL) {
-    return (
-      <main className="fatal-error">
-        <div>
-          <h2>PDF URL chưa được cấu hình</h2>
-          <p>Kiểm tra NEXT_PUBLIC_PDF_URL trong Environment Variables.</p>
-        </div>
-      </main>
-    );
+  function renderCurrentSlide() {
+    if (!currentItem) return <div className="page-loading-shell"><div className="loading-spinner" /></div>;
+    const scale = renderWidth / SLIDE_WIDTH;
+
+    if (currentItem.kind === "slide14") return <SectionOneSlide14 scale={scale} />;
+    if (currentItem.kind === "showcase") return <ShowcaseSlide scale={scale} isAdmin={isAdmin} />;
+    if (currentItem.kind === "quiz") return <QuizSlide scale={scale} />;
+    if (currentItem.kind === "html") {
+      return <SectionOneHtmlSlide kind={currentItem.slide} scale={scale} isAdmin={isAdmin} />;
+    }
+
+    return <SectionOneNativeSlide page={currentItem.pdfPage} scale={scale} />;
   }
 
   return (
@@ -346,194 +262,48 @@ export default function PdfDeck({ isAdmin }: Props) {
       <header className="deck-header">
         <div className="deck-brand">
           <div className="header-logo-window">
-            <Image
-              src="/branding/EIU-logo-white.png"
-              alt="EIU"
-              width={2048}
-              height={2048}
-              priority
-              unoptimized
-              className="eiu-original-logo"
-            />
+            <Image src="/branding/EIU-logo-white.png" alt="EIU" width={2048} height={2048} priority unoptimized className="eiu-original-logo" />
           </div>
-
           <div className="deck-brand-line" />
-
-          <div className="deck-brand-copy">
-            <strong>Applied Agentic AI</strong>
-            <span>Interactive Learning Deck</span>
-          </div>
+          <div className="deck-brand-copy"><strong>Applied Agentic AI</strong><span>Interactive Learning Deck</span></div>
         </div>
 
         <nav className="header-navigation" aria-label="Slide navigation">
-          <button
-            type="button"
-            className="header-nav-button"
-            onClick={previousPage}
-            disabled={pageNumber <= 1}
-            title="Previous slide"
-          >
-            <span className="header-nav-icon">←</span>
-            <span className="header-nav-text">Previous</span>
-          </button>
-
+          <button type="button" className="header-nav-button" onClick={previousPage} disabled={pageNumber <= 1} title="Previous slide"><span className="header-nav-icon">←</span><span className="header-nav-text">Previous</span></button>
           <div className="header-slide-jump">
-            <input
-              type="number"
-              min={1}
-              max={numPages || 1}
-              value={pageInput}
-              aria-label="Go to slide"
-              onChange={(event) => setPageInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                  commitPageInput();
-                }
-
-                if (event.key === "Escape") {
-                  setPageInput(String(pageNumberRef.current));
-                }
-              }}
-              onFocus={(event) => event.currentTarget.select()}
-              onBlur={() => setPageInput(String(pageNumberRef.current))}
-            />
-
-            <span className="header-slide-divider">/</span>
-            <span className="header-slide-total">{numPages || "—"}</span>
-            <span className="header-enter-hint">ENTER ↵</span>
+            <input type="number" min={1} max={numPages || 1} value={pageInput} aria-label="Go to slide" onChange={(event) => setPageInput(event.target.value)} onKeyDown={(event) => {
+              if (event.key === "Enter") { event.preventDefault(); commitPageInput(); }
+              if (event.key === "Escape") setPageInput(String(pageNumberRef.current));
+            }} onFocus={(event) => event.currentTarget.select()} onBlur={() => setPageInput(String(pageNumberRef.current))} />
+            <span className="header-slide-divider">/</span><span className="header-slide-total">{numPages}</span><span className="header-enter-hint">ENTER ↵</span>
           </div>
-
-          <button
-            type="button"
-            className="header-nav-button header-nav-button-next"
-            onClick={nextPage}
-            disabled={numPages === 0 || pageNumber >= numPages}
-            title="Next slide"
-          >
-            <span className="header-nav-text">Next</span>
-            <span className="header-nav-icon">→</span>
-          </button>
+          <button type="button" className="header-nav-button header-nav-button-next" onClick={nextPage} disabled={pageNumber >= numPages} title="Next slide"><span className="header-nav-text">Next</span><span className="header-nav-icon">→</span></button>
         </nav>
 
         <div className="header-controls">
-          <button type="button" onClick={zoomOut} title="Zoom out">
-            −
-          </button>
-
-          <button
-            type="button"
-            className="zoom-label"
-            onClick={resetZoom}
-            title="Reset zoom"
-          >
-            {Math.round(zoom * 100)}%
-          </button>
-
-          <button type="button" onClick={zoomIn} title="Zoom in">
-            +
-          </button>
-
-          <button
-            type="button"
-            className="fullscreen-button"
-            onClick={toggleFullscreen}
-          >
-            <span>⛶</span>
-            <span className="fullscreen-label">Fullscreen</span>
-          </button>
+          <button type="button" onClick={zoomOut} title="Zoom out">−</button>
+          <button type="button" className="zoom-label" onClick={resetZoom} title="Reset zoom">{Math.round(zoom * 100)}%</button>
+          <button type="button" onClick={zoomIn} title="Zoom in">+</button>
+          <button type="button" className="fullscreen-button" onClick={toggleFullscreen}><span>⛶</span><span className="fullscreen-label">Fullscreen</span></button>
         </div>
       </header>
 
-      <div className="deck-progress-line" aria-hidden="true">
-        <div
-          className="deck-progress-value"
-          style={{
-            width: numPages > 0 ? `${(pageNumber / numPages) * 100}%` : "0%",
-          }}
-        />
-      </div>
+      <div className="deck-progress-line" aria-hidden="true"><div className="deck-progress-value" style={{ width: `${(pageNumber / numPages) * 100}%` }} /></div>
 
       <div className="deck-body">
         <main className="slide-stage" ref={stageRef}>
           <div className="stage-data-grid" />
-          {renderWidth > 0 && <DeckSideAmbient slideWidth={renderWidth} />}
-
-          {pdfError ? (
-            <div className="pdf-error">
-              <div className="pdf-error-symbol">!</div>
-              <h2>Cannot load PDF</h2>
-              <p>{pdfError}</p>
+          {renderWidth > 0 ? (
+            <div className="slide-frame" style={{ width: `${renderWidth}px`, aspectRatio: `${SLIDE_ASPECT_RATIO}` }}>
+              <div key={`${pageNumber}-${currentItem?.kind ?? "empty"}`} className="section-one-slide-transition">
+                {renderCurrentSlide()}
+              </div>
             </div>
           ) : (
-            <Document
-              file={PDF_URL}
-              onLoadSuccess={handlePdfLoaded}
-              onLoadError={(error) => setPdfError(error.message)}
-              externalLinkTarget="_blank"
-              externalLinkRel="noopener noreferrer"
-              loading={
-                <div className="pdf-loading">
-                  <div className="loading-spinner" />
-                  <strong>Loading presentation</strong>
-                  <span>Preparing your deck...</span>
-                </div>
-              }
-            >
-              {renderWidth > 0 ? (
-                <div
-                  className={isIntroHeroSlide ? "slide-frame slide-frame-hero" : "slide-frame"}
-                  style={{
-                    width: `${renderWidth}px`,
-                    aspectRatio: `${pageAspectRatio}`,
-                  }}
-                >
-                  {currentItem?.kind === "slide14" ? (
-                    <SectionOneSlide14 scale={renderWidth / 960} />
-                  ) : currentItem?.kind === "showcase" ? (
-                    <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} />
-                  ) : currentItem?.kind === "quiz" ? (
-                    <QuizSlide scale={renderWidth / 960} />
-                  ) : currentItem?.kind === "html" ? (
-                    <SectionOneHtmlSlide
-                      kind={currentItem.slide}
-                      scale={renderWidth / 960}
-                      isAdmin={isAdmin}
-                    />
-                  ) : currentItem?.kind === "pdf" ? (
-                    <>
-                      <Page
-                        pageNumber={currentItem.pdfPage}
-                        width={renderWidth}
-                        renderTextLayer={false}
-                        renderAnnotationLayer
-                        loading={
-                          <div className="page-loading-shell">
-                            <div className="loading-spinner" />
-                          </div>
-                        }
-                      />
-
-                      {isIntroHeroSlide && <SlideOneAIHero />}
-                      <InteractionLayer pageNumber={currentItem.pdfPage} />
-                    </>
-                  ) : (
-                    <div className="page-loading-shell">
-                      <div className="loading-spinner" />
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div className="viewer-measuring">
-                  <div className="loading-spinner" />
-                </div>
-              )}
-            </Document>
+            <div className="viewer-measuring"><div className="loading-spinner" /></div>
           )}
         </main>
       </div>
-
-
     </div>
   );
 }

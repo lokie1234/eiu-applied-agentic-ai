@@ -28,6 +28,16 @@ type Props = {
   isAdmin: boolean;
 };
 
+const DNA_REPLAY_PROMPT = [
+  "Tạo Web App demo quản lý nghỉ phép chạy trên Google Apps Script, lưu dữ liệu bằng Google Sheets.",
+  "Giao diện responsive, dùng tốt trên desktop và mobile, thiết kế theo design DNA đã tải lên.",
+  "Nhân viên nhập họ tên, ngày bắt đầu, ngày kết thúc, lý do nghỉ và gửi đơn.",
+  "Hiển thị danh sách đơn nghỉ phép với 3 trạng thái: Chờ duyệt / Đã duyệt / Từ chối.",
+  "Quản lý có nút Duyệt hoặc Từ chối ngay trên bảng.",
+  "Dashboard hiển thị Tổng đơn, đơn chờ duyệt và đơn đã duyệt.",
+  "Ưu tiên code ngắn, dễ hiểu, ít file, dễ deploy."
+].join("\n");
+
 function Ambient({ strong = false }: { strong?: boolean }) {
   return (
     <div
@@ -199,6 +209,7 @@ function IdeaResults() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deletingId, setDeletingId] = useState("");
+  const [clearingAll, setClearingAll] = useState(false);
 
   const loadIdeas = useCallback(async () => {
     try {
@@ -248,6 +259,28 @@ function IdeaResults() {
     }
   }
 
+  async function clearAllIdeas() {
+    if (clearingAll || deletingId || items.length === 0) return;
+    if (!window.confirm(`Xóa toàn bộ ${items.length} ý tưởng? Thao tác này không thể hoàn tác.`)) return;
+
+    setClearingAll(true);
+    setError("");
+    try {
+      const response = await fetch("/api/ideas", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ all: true }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as { message?: string };
+      if (!response.ok) throw new Error(payload.message || "Không thể xóa toàn bộ ý tưởng.");
+      setItems([]);
+    } catch (clearError) {
+      setError(clearError instanceof Error ? clearError.message : "Không thể xóa toàn bộ ý tưởng.");
+    } finally {
+      setClearingAll(false);
+    }
+  }
+
   function ideaWidth(value: string) {
     const length = Array.from(value.trim()).length;
     return Math.min(360, Math.max(150, 118 + length * 5.2));
@@ -261,12 +294,23 @@ function IdeaResults() {
           <span>ADMIN · LIVE RESPONSE</span>
           <h1>Ý tưởng từ lớp học</h1>
         </div>
-        <div className={styles.liveStatus}>
-          <i />
-          {items.length} ý tưởng
-          <button type="button" onClick={() => void loadIdeas()} data-interactive="true" aria-label="Tải lại ý tưởng">
-            ↻
+        <div className={styles.resultsActions}>
+          <button
+            type="button"
+            className={styles.clearAllButton}
+            onClick={() => void clearAllIdeas()}
+            disabled={clearingAll || Boolean(deletingId) || items.length === 0}
+            data-interactive="true"
+          >
+            {clearingAll ? "Đang xóa…" : "Xóa hết"}
           </button>
+          <div className={styles.liveStatus}>
+            <i />
+            {items.length} ý tưởng
+            <button type="button" onClick={() => void loadIdeas()} data-interactive="true" aria-label="Tải lại ý tưởng">
+              ↻
+            </button>
+          </div>
         </div>
       </header>
 
@@ -318,68 +362,53 @@ function formatSubmittedTime(value: string) {
 }
 
 function DeploymentSlide() {
+  const [copied, setCopied] = useState(false);
+
+  async function copyPrompt() {
+    try {
+      await navigator.clipboard.writeText(DNA_REPLAY_PROMPT);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1600);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  const steps = [
+    { n: "01", title: "Sao chép Prompt", body: "Dùng lại yêu cầu nghiệp vụ vừa hoàn thiện." },
+    { n: "02", title: "Tải Design DNA", body: "Upload design-dna.txt vào Gemini cùng Prompt." },
+    { n: "03", title: "Thực hiện lại các bước", body: "Lặp lại quy trình ban đầu với cùng bài toán." },
+    { n: "04", title: "So sánh trải nghiệm", body: "Quan sát sự khác biệt về giao diện và tính nhất quán." },
+  ];
+
   return (
-    <section className={`${styles.root} ${styles.deploymentSlide}`}>
+    <section className={`${styles.root} ${styles.dnaExperienceSlide}`}>
       <Ambient strong />
-      <header className={styles.stepHeading}>
-        <div className={styles.stepBadge} aria-hidden="true" />
-        <h1>Bước 1 -</h1>
-        <div className={styles.geminiWordmark} aria-label="Gemini">
-          <i />
-          <span>Gemini</span>
-        </div>
+      <header className={styles.dnaExperienceHeading}>
+        <span>TRẢI NGHIỆM LẦN 2 · DESIGN DNA</span>
+        <h1>Thực hiện lại — lần này có Design DNA</h1>
+        <p>Giữ nguyên bài toán, thêm Prompt + design-dna.txt rồi lặp lại các bước ban đầu để cảm nhận sự khác biệt.</p>
       </header>
 
-      <div className={styles.geminiGuideLayout}>
-        <article className={styles.geminiMenuShot}>
-          <div className={styles.menuCard} aria-hidden="true">
-            <div className={styles.menuItem}>About Gemini</div>
-            <div className={styles.menuItem}>Get Gemini App</div>
-            <div className={styles.menuItem}>Pricing</div>
-            <div className={styles.menuItem}>For Business</div>
-            <div className={`${styles.menuItem} ${styles.menuItemHighlight}`}>Sign in</div>
-            <div className={styles.menuGear}>⚙</div>
-          </div>
-        </article>
+      <div className={styles.dnaExperienceActions} data-interactive="true">
+        <button type="button" onClick={() => void copyPrompt()} className={styles.dnaCopyButton}>
+          {copied ? "✓ Đã sao chép prompt" : "⧉ Sao chép prompt"}
+        </button>
+        <a href="/downloads/design-dna.txt" download className={styles.dnaDownloadButton}>
+          ↓ Tải DNA design
+        </a>
+      </div>
 
-        <div className={styles.geminiGuideConnector} aria-hidden="true">
-          <span />
-          <i>▶</i>
-        </div>
-
-        <article className={styles.geminiAppShot}>
-          <div className={styles.appFrame} aria-hidden="true">
-            <div className={styles.appHeadline}>Hi Lâm Trường, what&apos;s the plan?</div>
-            <div className={styles.appComposer}>
-              <span>＋</span>
-              <b>Ask Gemini</b>
-              <em>Pro ▾</em>
-              <strong>🎙</strong>
+      <div className={styles.dnaExperienceSteps}>
+        {steps.map((step, index) => (
+          <article key={step.n} style={{ "--delay": `${index * 110}ms` } as CSSProperties}>
+            <span>{step.n}</span>
+            <div>
+              <strong>{step.title}</strong>
+              <small>{step.body}</small>
             </div>
-            <div className={styles.modelDropdown}>
-              <div className={styles.modelOption}>
-                <div>
-                  <b>3.6 Flash</b>
-                  <span>All-around help</span>
-                </div>
-                <small>New</small>
-              </div>
-              <div className={styles.modelOption}>
-                <div>
-                  <b>3.6 Thinking</b>
-                  <span>Solves complex problems</span>
-                </div>
-              </div>
-              <div className={`${styles.modelOption} ${styles.modelOptionHighlight}`}>
-                <div>
-                  <b>3.6 Thinking</b>
-                  <span>Advanced reasoning</span>
-                </div>
-                <small>✓</small>
-              </div>
-            </div>
-          </div>
-        </article>
+          </article>
+        ))}
       </div>
     </section>
   );

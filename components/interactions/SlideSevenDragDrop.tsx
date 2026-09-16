@@ -18,7 +18,7 @@ const PDF_HEIGHT = 540;
 
   Exact box rectangles extracted from the PDF:
   Row 1:
-  - Bài toán kinh doanh: x 50.40 → 243.54, y 172.80 → 244.80
+  - Vấn đề doanh nghiệp: x 50.40 → 243.54, y 172.80 → 244.80
   - Phân tích yêu cầu:  x 272.34 → 465.48, y 172.80 → 244.80
   - Thiết kế:           x 494.28 → 687.42, y 172.80 → 244.80
   - Phát triển:         x 716.22 → 909.36, y 172.80 → 244.80
@@ -32,7 +32,7 @@ const PDF_HEIGHT = 540;
 const STAGES: Stage[] = [
   {
     id: "business",
-    label: "Bài toán kinh doanh",
+    label: "Vấn đề doanh nghiệp",
     tone: "beige",
     fixed: true,
     area: { x: 50.4, y: 172.8, width: 193.14, height: 72 },

@@ -3360,3 +3360,126 @@
 }
 
 .motionPage33 .gemSetupCallout { animation: sectionTwoStrongReveal .78s cubic-bezier(.16,.82,.22,1) .28s both; }
+
+/* Slide 34 · exact mapping from generated files to Gemini Gem settings. */
+.gemFieldGuide {
+  position: relative;
+  z-index: 5;
+  margin: 6px 28px 0;
+}
+
+.gemFieldGuideIntro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
+  border: 1px solid rgba(167, 137, 88, .18);
+  border-radius: 14px;
+  background: rgba(247, 243, 234, .9);
+}
+
+.gemFieldGuideIntro .miniTitle {
+  flex: 0 0 auto;
+  margin: 0;
+}
+
+.gemFieldGuideIntro p {
+  margin: 0;
+  color: #4d5f72;
+  font-size: 12px;
+  line-height: 1.4;
+  font-weight: 650;
+  text-align: right;
+}
+
+.gemFieldGuideGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 14px;
+}
+
+.gemFieldGuideGrid article {
+  min-height: 112px;
+  padding: 14px 15px;
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: 38px 1fr;
+  gap: 11px;
+  border: 1px solid rgba(21, 64, 106, .12);
+  border-radius: 15px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 12px 30px rgba(13,52,87,.08);
+}
+
+.gemFieldGuideGrid article > span {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 850;
+}
+
+.gemFieldGuideGrid article > div {
+  min-width: 0;
+}
+
+.gemFieldGuideGrid b {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.gemFieldGuideGrid code {
+  display: block;
+  margin-top: 3px;
+  padding: 4px 7px;
+  overflow: hidden;
+  border: 1px solid rgba(21,64,106,.1);
+  border-radius: 7px;
+  background: #f2f5f8;
+  color: #294864;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gemFieldGuideGrid small {
+  display: block;
+  margin-top: 6px;
+  color: #69798a;
+  font-size: 9px;
+  line-height: 1.32;
+}
+
+.gemKnowledgeMap {
+  min-height: 148px !important;
+}
+
+.gemKnowledgeMap code {
+  font-size: 7.8px;
+}
+
+.motionPage34 .gemFieldGuideIntro,
+.motionPage34 .gemFieldGuideGrid article {
+  animation: sectionTwoStrongReveal .72s cubic-bezier(.16,.82,.22,1) both;
+}
+
+.motionPage34 .gemFieldGuideGrid article:nth-child(1) { animation-delay: .12s; }
+.motionPage34 .gemFieldGuideGrid article:nth-child(2) { animation-delay: .22s; }
+.motionPage34 .gemFieldGuideGrid article:nth-child(3) { animation-delay: .32s; }
+.motionPage34 .gemFieldGuideGrid article:nth-child(4) { animation-delay: .42s; }
+
+.motionPage30 .quote p {
+  font-size: 11.5px;
+  line-height: 1.38;
+  padding-right: 100px;
+}

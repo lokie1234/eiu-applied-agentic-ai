@@ -151,8 +151,9 @@ export async function DELETE(request: Request) {
     }
 
     const body = await request.json();
+    const clearAll = body.all === true;
     const id = String(body.id ?? "").trim();
-    if (!id || id.length > 100) {
+    if (!clearAll && (!id || id.length > 100)) {
       return NextResponse.json(
         { success: false, message: "Mã ý tưởng không hợp lệ." },
         { status: 400 },
@@ -167,23 +168,53 @@ export async function DELETE(request: Request) {
       );
     }
 
-    const upstream = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        action: "idea.delete",
-        secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "",
-        id,
-      }),
-      cache: "no-store",
-      redirect: "follow",
-    });
-    const payload = await readAppsScriptJson(upstream);
-    if (!upstream.ok || payload.success !== true) {
-      throw new Error(String(payload.message ?? "Không thể xóa ý tưởng."));
+    const secret = process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "";
+
+    async function deleteOne(targetId: string) {
+      const upstream = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "idea.delete", secret, id: targetId }),
+        cache: "no-store",
+        redirect: "follow",
+      });
+      const payload = await readAppsScriptJson(upstream);
+      if (!upstream.ok || payload.success !== true) {
+        throw new Error(String(payload.message ?? "Không thể xóa ý tưởng."));
+      }
     }
 
-    return NextResponse.json({ success: true });
+    if (!clearAll) {
+      await deleteOne(id);
+      return NextResponse.json({ success: true });
+    }
+
+    // Apps Script hiện tại chỉ trả tối đa 30 ý tưởng/lần. Lặp list → delete
+    // để nút "Xóa hết" hoạt động mà KHÔNG cần sửa/redeploy Code.gs.
+    let deleted = 0;
+    for (let pass = 0; pass < 100; pass += 1) {
+      const listUrl = new URL(endpoint);
+      listUrl.searchParams.set("action", "idea.list");
+      if (secret) listUrl.searchParams.set("secret", secret);
+
+      const listResponse = await fetch(listUrl, { cache: "no-store", redirect: "follow" });
+      const listPayload = await readAppsScriptJson(listResponse);
+      if (!listResponse.ok || listPayload.success !== true) {
+        throw new Error(String(listPayload.message ?? "Không thể tải danh sách ý tưởng để xóa."));
+      }
+
+      const ids = (Array.isArray(listPayload.items) ? listPayload.items : [])
+        .map((item: { id?: unknown }) => String(item?.id ?? "").trim())
+        .filter((value: string) => value && value.length <= 100);
+
+      if (ids.length === 0) break;
+      for (const targetId of ids) {
+        await deleteOne(targetId);
+        deleted += 1;
+      }
+    }
+
+    return NextResponse.json({ success: true, deleted });
   } catch (error) {
     console.error("Idea delete error:", error);
     return NextResponse.json(

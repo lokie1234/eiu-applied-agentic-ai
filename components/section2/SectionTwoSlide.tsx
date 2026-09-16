@@ -8,8 +8,10 @@ type Props = { pageNumber: number };
 
 type MotionPage = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37;
 
-const requirementPrompt = `Hãy đọc đầy đủ 3 file tôi vừa tải lên: Gemini-Prompt.txt, App-01-Source.txt và App-02-Source.txt.
-Thực hiện đúng Gemini-Prompt.txt: chỉ hiển thị brief lõi tái sử dụng + các nội dung cần copy/paste vào Gem Settings; phần framework chi tiết hãy tạo thành bộ 4 file .txt để tải về và upload vào Knowledge. Không giải thích dài và chưa tạo app cụ thể.`;
+const requirementPrompt = `Hãy đọc đầy đủ Gemini-Prompt.txt, App-01-Source.txt và App-02-Source.txt.
+Thực hiện đúng Gemini-Prompt.txt và tạo đúng 7 file: 01_GEM_NAME.txt, 02_GEM_INSTRUCTIONS.txt, 03_KNOWLEDGE_AI_FRAMEWORK.txt, 04_KNOWLEDGE_UI_UX_STANDARD.txt, 05_KNOWLEDGE_WORKFLOW_PATTERN.txt, 06_KNOWLEDGE_GAS_SHEETS_PATTERN.txt, 07_TEST_CASES.txt.
+Name dùng file 01; Instructions dùng file 02; Knowledge upload file 03–06; Preview dùng file 07.
+Trên chat chỉ hiển thị brief lõi tái sử dụng + mapping file → Gem Settings. Không giải thích dài và chưa tạo app cụ thể.`;
 
 const LAB_DOWNLOADS = [
   { href: "/downloads/Gemini-Prompt.txt", name: "Gemini-Prompt.txt" },
@@ -139,10 +141,8 @@ function SectionTwoMotion({ pageNumber }: { pageNumber: MotionPage }) {
     );
   }
 
-  const strongMotion = pageNumber !== 1;
-
   return (
-    <div className={`${styles.ambientMotion} ${strongMotion ? styles.strongAmbientMotion : ""}`} aria-hidden="true">
+    <div className={`${styles.ambientMotion} ${styles.strongAmbientMotion}`} aria-hidden="true">
       <div className={styles.ambientGlow} />
       <div className={styles.ambientSweep} />
       <svg className={styles.ambientPath} viewBox="0 0 960 540" preserveAspectRatio="none">
@@ -418,7 +418,8 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
       return;
     }
 
-    if (!demoForm.severity) {
+    const severity = demoForm.severity;
+    if (!severity) {
       setDemoFormMessage("Vui lòng chọn Mức độ trước khi Submit.");
       return;
     }
@@ -431,7 +432,7 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
       department: demoForm.department.trim(),
       location: demoForm.location.trim(),
       issue: demoForm.issue.trim(),
-      severity: demoForm.severity,
+      severity,
       submittedAt: getDemoTimestamp(),
       status: "Đã nộp",
     }]);
@@ -775,7 +776,15 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
     case 33:
       return <Shell motion={33}><Title>Bước 2 - Tạo Gem trong Gemini</Title><div className={styles.gemSetupLayout}><div className={styles.tallScreenshot}><Image src="/section2/gemini-step-002.png" alt="Các trường cài đặt New Gem" fill sizes="420px" /></div><div className={styles.gemSetupCallout}><MiniTitle>GEM SETTINGS</MiniTitle><p>Tiến hành điền và upload các trường dữ liệu cần thiết từ hướng dẫn của Gemini.</p><div><span>01</span><strong>Name</strong></div><div><span>02</span><strong>Instructions</strong></div><div><span>03</span><strong>Knowledge files</strong></div></div></div></Shell>;
     case 34:
-      return <Shell motion={34}><Title>Bước 3 - Xem trước và kiểm thử</Title><div className={styles.previewLayout}><div className={styles.previewShot}><Image src="/section2/gemini-step-003.png" alt="Cửa sổ Preview của Gem" fill sizes="360px" /></div><div><div className={styles.navyCard}><p>Chạy thử một Requirement mới. Kiểm tra Gem có hỏi đủ thông tin trước khi tạo code hay không.</p></div><Quote><p>Tạo cho tôi một App báo cáo nội bộ.</p></Quote></div></div></Shell>;
+      return <Shell motion={34}><Title>Bước 2 · Điền Gem Settings</Title><div className={styles.gemFieldGuide}>
+        <div className={styles.gemFieldGuideIntro}><MiniTitle>SET CỨNG TÊN FILE</MiniTitle><p>Điền đúng từng trường bằng bộ file Gemini đã tạo. Không đổi tên file để tránh nhầm khi thực hành.</p></div>
+        <div className={styles.gemFieldGuideGrid}>
+          <article><span>01</span><div><b>Name</b><code>01_GEM_NAME.txt</code><small>Copy toàn bộ nội dung file → paste vào trường Name.</small></div></article>
+          <article><span>02</span><div><b>Instructions</b><code>02_GEM_INSTRUCTIONS.txt</code><small>Copy toàn bộ nội dung file → paste vào Instructions.</small></div></article>
+          <article className={styles.gemKnowledgeMap}><span>03–06</span><div><b>Knowledge</b><code>03_KNOWLEDGE_AI_FRAMEWORK.txt</code><code>04_KNOWLEDGE_UI_UX_STANDARD.txt</code><code>05_KNOWLEDGE_WORKFLOW_PATTERN.txt</code><code>06_KNOWLEDGE_GAS_SHEETS_PATTERN.txt</code><small>Upload cả 4 file vào khu vực Knowledge.</small></div></article>
+          <article><span>07</span><div><b>Preview</b><code>07_TEST_CASES.txt</code><small>Mở file và chạy từng test case trong Preview trước khi Save.</small></div></article>
+        </div>
+      </div></Shell>;
     case 35:
       return <Shell motion={35}><Title>Bước 4 - Lưu và chia sẻ</Title><div className={styles.saveFlow}>{[["SAVE","Lưu Gem sau khi Preview"],["SHARE","Chia sẻ Viewer hoặc Editor"],["USE","Mở New Chat và thử yêu cầu mới"]].map(([head,body], index) => <div className={index === 1 ? styles.navyCard : ""} key={head}><strong className={styles.saveFlowLabel}>{head}</strong><p>{body}</p>{index < 2 && <span>→</span>}</div>)}</div></Shell>;
     case 36:

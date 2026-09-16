@@ -204,18 +204,20 @@ export default function SectionTwoDeck({ onChooseSection, isAdmin = false }: { o
               className={styles.frame}
               style={{ width: renderWidth, height: renderWidth * (SLIDE_HEIGHT / SLIDE_WIDTH) }}
             >
-              {pageNumber === 38 ? (
-                <ShowcaseSlide scale={renderWidth / SLIDE_WIDTH} isAdmin={isAdmin} section="section2" />
-              ) : pageNumber === 39 ? (
-                <QuizSlide scale={renderWidth / SLIDE_WIDTH} variant="section2" />
-              ) : (
-                <div
-                  className={styles.canvas}
-                  style={{ transform: `scale(${renderWidth / SLIDE_WIDTH})` }}
-                >
-                  <SectionTwoSlide pageNumber={pageNumber} />
-                </div>
-              )}
+              <div key={`section2-${pageNumber}`} className={styles.slideTransition}>
+                {pageNumber === 38 ? (
+                  <ShowcaseSlide scale={renderWidth / SLIDE_WIDTH} isAdmin={isAdmin} section="section2" />
+                ) : pageNumber === 39 ? (
+                  <QuizSlide scale={renderWidth / SLIDE_WIDTH} variant="section2" />
+                ) : (
+                  <div
+                    className={styles.canvas}
+                    style={{ transform: `scale(${renderWidth / SLIDE_WIDTH})` }}
+                  >
+                    <SectionTwoSlide pageNumber={pageNumber} />
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
             <div className="viewer-measuring"><div className="loading-spinner" /></div>

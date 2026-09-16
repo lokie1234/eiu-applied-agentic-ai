@@ -1050,3 +1050,208 @@
 }
 
 @keyframes floatSoft { 50% { transform: translateY(-4px); } }
+
+.resultsActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.clearAllButton {
+  height: 38px;
+  padding: 0 16px;
+  border: 1px solid rgba(168,71,71,.28);
+  border-radius: 999px;
+  color: #a84747;
+  background: rgba(255,255,255,.9);
+  font: inherit;
+  font-size: 11px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(168,71,71,.08);
+  transition: transform .18s ease, color .18s ease, background .18s ease, opacity .18s ease;
+}
+
+.clearAllButton:hover:not(:disabled),
+.clearAllButton:focus-visible {
+  color: #fff;
+  background: #a84747;
+  outline: none;
+  transform: translateY(-1px);
+}
+
+.clearAllButton:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+/* === ROUND 9 · Design DNA replay slide === */
+.dnaExperienceSlide {
+  padding: 42px 58px 36px;
+}
+
+.dnaExperienceSlide .grid {
+  animation: dnaReplayGrid 12s ease-in-out infinite alternate;
+}
+
+.dnaExperienceSlide .ambient svg path {
+  stroke-dasharray: 13 18;
+  animation: dnaReplayTrace 13s linear infinite;
+}
+
+.dnaExperienceSlide .glow {
+  animation: dnaReplayGlow 8s ease-in-out infinite alternate;
+}
+
+.dnaExperienceHeading {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+}
+
+.dnaExperienceHeading > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--gold-600);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .2em;
+}
+
+.dnaExperienceHeading > span::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: var(--gold-600);
+}
+
+.dnaExperienceHeading h1 {
+  margin: 12px 0 0;
+  color: var(--navy-900);
+  font-size: 39px;
+  line-height: 1.04;
+  letter-spacing: -.045em;
+}
+
+.dnaExperienceHeading p {
+  margin: 12px 0 0;
+  max-width: 760px;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.dnaExperienceActions {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.dnaExperienceActions button,
+.dnaExperienceActions a {
+  min-width: 190px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  border-radius: 13px;
+  font-size: 14px;
+  font-weight: 850;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(4,28,49,.1);
+  animation: dnaReplayButtonFloat 4.8s ease-in-out infinite;
+}
+
+.dnaCopyButton {
+  border: 1px solid var(--navy-900);
+  background: var(--navy-900);
+  color: #fff;
+}
+
+.dnaDownloadButton {
+  border: 1px solid rgba(181,145,84,.34);
+  background: #f8f1e4;
+  color: var(--navy-900);
+  animation-delay: -.85s !important;
+}
+
+.dnaExperienceSteps {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.dnaExperienceSteps article {
+  min-height: 142px;
+  padding: 18px 16px;
+  box-sizing: border-box;
+  border-radius: 20px;
+  background: rgba(255,255,255,.92);
+  border: 1px solid rgba(23,50,74,.1);
+  box-shadow: 0 14px 32px rgba(4,28,49,.075);
+  opacity: 0;
+  transform: translateY(16px);
+  animation: dnaReplayCardIn .55s ease forwards, dnaReplayCardFloat 6s ease-in-out infinite;
+  animation-delay: var(--delay), calc(1.25s + var(--delay));
+}
+
+.dnaExperienceSteps article > span {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--navy-900);
+  color: var(--gold-300);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.dnaExperienceSteps article strong,
+.dnaExperienceSteps article small {
+  display: block;
+}
+
+.dnaExperienceSteps article strong {
+  margin-top: 15px;
+  color: var(--navy-900);
+  font-size: 17px;
+}
+
+.dnaExperienceSteps article small {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+@keyframes dnaReplayGrid {
+  from { transform: translate3d(0,0,0); opacity: .38; }
+  to { transform: translate3d(8px,5px,0); opacity: .58; }
+}
+
+@keyframes dnaReplayTrace { to { stroke-dashoffset: -170; } }
+@keyframes dnaReplayGlow { 50% { transform: translate(18px,-9px) scale(1.05); } }
+@keyframes dnaReplayButtonFloat { 50% { transform: translateY(-4px); box-shadow: 0 15px 30px rgba(4,28,49,.13); } }
+@keyframes dnaReplayCardIn { to { opacity: 1; transform: translateY(0); } }
+@keyframes dnaReplayCardFloat { 50% { translate: 0 -4px; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .dnaExperienceSlide .grid,
+  .dnaExperienceSlide .ambient svg path,
+  .dnaExperienceSlide .glow,
+  .dnaExperienceActions button,
+  .dnaExperienceActions a,
+  .dnaExperienceSteps article {
+    animation: none !important;
+  }
+}

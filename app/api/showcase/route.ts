@@ -123,25 +123,64 @@ export async function DELETE(request: Request) {
 
     const body = await request.json();
     const section = normalizeSection(body.section);
+    const clearAll = body.all === true;
     const id = String(body.id ?? "").trim();
     const endpoint = webhookUrl();
-    if (!id || id.length > 100) {
+    if (!clearAll && (!id || id.length > 100)) {
       return NextResponse.json({ success: false, message: "Mã bài chia sẻ không hợp lệ." }, { status: 400 });
     }
     if (!endpoint) {
       return NextResponse.json({ success: false, message: "Chưa cấu hình GOOGLE_APPS_SCRIPT_URL trên Vercel." }, { status: 503 });
     }
 
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "showcase.delete", secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "", section, id }),
-      cache: "no-store",
-      redirect: "follow",
-    });
-    const payload = await readAppsScriptJson(response);
-    if (!response.ok || payload.success !== true) throw new Error(String(payload.message ?? "Không thể xóa bài chia sẻ."));
-    return NextResponse.json({ success: true });
+    const secret = process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "";
+
+    async function deleteOne(targetId: string) {
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({ action: "showcase.delete", secret, section, id: targetId }),
+        cache: "no-store",
+        redirect: "follow",
+      });
+      const payload = await readAppsScriptJson(response);
+      if (!response.ok || payload.success !== true) {
+        throw new Error(String(payload.message ?? "Không thể xóa bài chia sẻ."));
+      }
+    }
+
+    if (!clearAll) {
+      await deleteOne(id);
+      return NextResponse.json({ success: true });
+    }
+
+    // Apps Script hiện tại trả tối đa 50 bài/lần. Lặp list → delete để xóa
+    // toàn bộ dữ liệu của đúng section mà không cần sửa/redeploy Code.gs.
+    let deleted = 0;
+    for (let pass = 0; pass < 100; pass += 1) {
+      const listUrl = new URL(endpoint);
+      listUrl.searchParams.set("action", "showcase.list");
+      listUrl.searchParams.set("section", section);
+      if (secret) listUrl.searchParams.set("secret", secret);
+
+      const listResponse = await fetch(listUrl, { cache: "no-store", redirect: "follow" });
+      const listPayload = await readAppsScriptJson(listResponse);
+      if (!listResponse.ok || listPayload.success !== true) {
+        throw new Error(String(listPayload.message ?? "Không thể tải danh sách bài chia sẻ để xóa."));
+      }
+
+      const ids = (Array.isArray(listPayload.items) ? listPayload.items : [])
+        .map((item: { id?: unknown }) => String(item?.id ?? "").trim())
+        .filter((value: string) => value && value.length <= 100);
+
+      if (ids.length === 0) break;
+      for (const targetId of ids) {
+        await deleteOne(targetId);
+        deleted += 1;
+      }
+    }
+
+    return NextResponse.json({ success: true, deleted });
   } catch (error) {
     console.error("Showcase DELETE error:", error);
     return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Không thể xóa bài chia sẻ." }, { status: 500 });

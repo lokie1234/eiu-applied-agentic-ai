@@ -16,3 +16,35 @@
   height: 540px;
   transform-origin: top left;
 }
+
+/* EIU cinematic transition for Section 2, including showcase + quiz. */
+.slideTransition {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  transform-origin: 50% 50%;
+  animation: sectionTwoEnter 680ms cubic-bezier(.16,1,.3,1) both;
+}
+.slideTransition::after {
+  content: "";
+  position: absolute;
+  inset: -35% -20%;
+  z-index: 80;
+  pointer-events: none;
+  background: linear-gradient(112deg, transparent 38%, rgba(233,202,139,.18) 48%, rgba(255,255,255,.22) 50%, transparent 62%);
+  transform: translateX(-72%) rotate(-4deg);
+  animation: sectionTwoSweep 820ms cubic-bezier(.2,.8,.2,1) both;
+}
+@keyframes sectionTwoEnter {
+  0% { opacity: 0; transform: perspective(1200px) translateY(22px) scale(.975) rotateX(2.2deg); filter: blur(8px) saturate(.86); }
+  55% { opacity: 1; }
+  100% { opacity: 1; transform: none; filter: none; }
+}
+@keyframes sectionTwoSweep {
+  0% { opacity: 0; transform: translateX(-72%) rotate(-4deg); }
+  30% { opacity: .88; }
+  100% { opacity: 0; transform: translateX(72%) rotate(-4deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .slideTransition, .slideTransition::after { animation: none !important; }
+}
