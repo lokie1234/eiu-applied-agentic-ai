@@ -792,7 +792,7 @@ function NativeSlides({ page }: { page: number }) {
         return (
           <Shell title="Sao chép mã nguồn" eyebrow="COPY · PASTE · SAVE" className={`${styles.softMotionSlide} ${styles.tieredFlowSlide}`}>
             <TieredFlow items={["Gemini", "Copy", "Apps Script", "Paste", "Save"]} />
-            <div className={styles.warningNote}><strong>Lưu ý:</strong> Xóa nội dung mặc định trong Code.gs</div>
+            <div className={styles.warningNote}><strong>Lưu ý:</strong> Xóa nội dung mặc định trong Code.gs và các file .html khi vừa tạo</div>
           </Shell>
         );
       case 28:
@@ -828,7 +828,7 @@ function NativeSlides({ page }: { page: number }) {
       case 31:
         return (
           <Shell title="Kiểm thử" eyebrow="TEST THE FIRST VERSION" className={`${styles.softMotionSlide} ${styles.testSlide}`}>
-            <Flow items={["Ctrl + Shift + N", "Mở URL", "Nhập dữ liệu", "Submit", "Kiểm tra Sheets"]} singleRow inline testLayout />
+            <Flow items={["Ctrl Shift N", "Mở URL", "Nhập dữ liệu", "Submit", "Kiểm tra Sheets"]} singleRow inline testLayout />
             <div className={`${styles.successNote} ${styles.testSuccessNote}`}><i aria-hidden="true">✓</i><strong>(Quản lý nghỉ phép)</strong><span>Nếu xuất hiện dòng mới: Thành công.</span></div>
           </Shell>
         );
