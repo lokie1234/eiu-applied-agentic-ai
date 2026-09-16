@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import styles from "./SectionOneNativeSlide.module.css";
 
@@ -203,20 +204,47 @@ function Flow({
   compact = false,
   singleRow = false,
   inline = false,
+  testLayout = false,
 }: {
   items: string[];
   compact?: boolean;
   singleRow?: boolean;
   inline?: boolean;
+  testLayout?: boolean;
 }) {
+  const testFlex = [1.34, .82, .98, .78, 1.08];
+  const testWidths = [196, 124, 135, 118, 158];
+
   return (
     <div className={`${styles.flow} ${compact ? styles.flowCompact : ""} ${singleRow ? styles.flowSingleRow : ""} ${inline ? styles.flowInline : ""}`}>
       {items.map((item, index) => (
-        <div className={styles.flowStep} key={`${item}-${index}`} style={{ "--delay": `${index * 100}ms` } as CSSProperties}>
-          <div><span>{index + 1}</span><strong>{item}</strong></div>
+        <div className={styles.flowStep} key={`${item}-${index}`} style={{ "--delay": `${index * 100}ms`, ...(testLayout ? { flex: testFlex[index] } : {}) } as CSSProperties}>
+          <div style={testLayout ? { width: testWidths[index] } : undefined}><span>{index + 1}</span><strong>{item}</strong></div>
           {index < items.length - 1 && <i>→</i>}
         </div>
       ))}
+    </div>
+  );
+}
+
+function TieredFlow({ items }: { items: string[] }) {
+  const firstRow = items.slice(0, 2);
+  const secondRow = items.slice(2);
+
+  function renderRow(row: string[], offset: number) {
+    return row.map((item, index) => (
+      <div className={styles.tieredStep} key={`${item}-${offset + index}`} style={{ "--delay": `${(offset + index) * 90}ms` } as CSSProperties}>
+        <div><span>{offset + index + 1}</span><strong>{item}</strong></div>
+        {index < row.length - 1 && <i aria-hidden="true">→</i>}
+      </div>
+    ));
+  }
+
+  return (
+    <div className={styles.tieredFlow}>
+      <div className={styles.tieredRow}>{renderRow(firstRow, 0)}</div>
+      <div className={styles.tieredDown} aria-hidden="true"><span>↓</span></div>
+      <div className={`${styles.tieredRow} ${styles.tieredRowWide}`}>{renderRow(secondRow, 2)}</div>
     </div>
   );
 }
@@ -288,10 +316,31 @@ function CenteredTiles({ items, columns = 3 }: { items: string[]; columns?: 2 | 
   );
 }
 
-function MockWindow({ title, children, accent = "navy" }: { title: string; children: ReactNode; accent?: "navy" | "green" | "gold" }) {
+type AppIconName = "drive" | "sheets" | "apps-script" | "gemini" | "google";
+
+const APP_ICON_PATHS: Record<AppIconName, string> = {
+  drive: "/branding/apps/google-drive.svg",
+  sheets: "/branding/apps/google-sheets.svg",
+  "apps-script": "/branding/apps/google-apps-script.svg",
+  gemini: "/branding/apps/google-gemini.svg",
+  google: "/branding/apps/google-g.svg",
+};
+
+function AppIcon({ app, label }: { app: AppIconName; label: string }) {
+  return (
+    <span className={styles.appIcon}>
+      <Image src={APP_ICON_PATHS[app]} alt={label} width={24} height={24} />
+    </span>
+  );
+}
+
+function MockWindow({ title, children, accent = "navy", icon }: { title: string; children: ReactNode; accent?: "navy" | "green" | "gold"; icon?: ReactNode }) {
   return (
     <article className={`${styles.mockWindow} ${styles[`mock_${accent}`]}`}>
-      <div className={styles.mockTop}><span /><span /><span /><strong>{title}</strong></div>
+      <div className={styles.mockTop}>
+        <span className={styles.mockTraffic} /><span className={styles.mockTraffic} /><span className={styles.mockTraffic} />
+        <div className={styles.mockTitle}>{icon}<strong>{title}</strong></div>
+      </div>
       <div className={styles.mockBody}>{children}</div>
     </article>
   );
@@ -606,22 +655,55 @@ function NativeSlides({ page }: { page: number }) {
         );
       case 15:
         return (
-          <Shell title="Bước 2 - Google Drive" eyebrow="CHUẨN BỊ THƯ MỤC LÀM VIỆC">
-            <div className={styles.setupLayout}>
-              <MockWindow title="Google Drive"><div className={styles.driveMenu}><b>＋ New</b><span>New folder</span><span>File upload</span><span>Folder upload</span></div></MockWindow>
+          <Shell title="Bước 2 - Google Drive" eyebrow="CHUẨN BỊ THƯ MỤC LÀM VIỆC" className={styles.realisticAppSlide}>
+            <div className={`${styles.setupLayout} ${styles.driveExampleLayout}`}>
+              <MockWindow title="Google Drive" icon={<AppIcon app="drive" label="Google Drive" />}>
+                <div className={styles.driveWorkspace}>
+                  <aside>
+                    <b>＋ New</b>
+                    <span>▱ My Drive</span>
+                    <span>⌁ Shared with me</span>
+                    <span>☆ Starred</span>
+                  </aside>
+                  <section>
+                    <div className={styles.driveBreadcrumb}>My Drive <span>›</span> Applied Agentic AI</div>
+                    <div className={styles.driveFolderPreview}><i>▰</i><div><strong>Applied Agentic AI</strong><small>Folder · Just now</small></div></div>
+                    <div className={styles.driveMenu}><b>＋ New</b><span>New folder</span><span>File upload</span><span>Folder upload</span></div>
+                  </section>
+                </div>
+              </MockWindow>
               <div className={styles.setupArrow}>→</div>
-              <MockWindow title="New folder" accent="gold"><label>Folder name</label><div className={styles.inputMock}>Applied Agentic AI</div><button>Create</button></MockWindow>
+              <MockWindow title="New folder" accent="gold" icon={<AppIcon app="drive" label="Google Drive" />}>
+                <div className={styles.folderDialog}>
+                  <span className={styles.dialogLabel}>CREATE A FOLDER</span>
+                  <label>Folder name</label>
+                  <div className={styles.inputMock}>Applied Agentic AI</div>
+                  <div className={styles.dialogActions}><span>Cancel</span><button>Create</button></div>
+                </div>
+              </MockWindow>
             </div>
             <div className={styles.instructionNote}><strong>Tạo folder tên: Applied Agentic AI</strong><span>Tất cả tài liệu sẽ được lưu trong thư mục này</span></div>
           </Shell>
         );
       case 16:
         return (
-          <Shell title="Bước 3 - Google Sheets" eyebrow="TẠO DATABASE">
-            <div className={styles.threeStepMock}>
-              <MockWindow title="Applied Agentic AI"><b>＋ New</b><span className={styles.pathMock}>My Drive › Applied Agentic AI</span></MockWindow>
-              <MockWindow title="Google Sheets" accent="green"><span>Blank spreadsheet</span><strong>→</strong><span>Google Sheets</span></MockWindow>
-              <MockWindow title="Spreadsheet" accent="green"><div className={styles.inputMock}>Quản lý nghỉ phép</div><div className={styles.sheetGridMock} /></MockWindow>
+          <Shell title="Bước 3 - Google Sheets" eyebrow="TẠO DATABASE" className={styles.realisticAppSlide}>
+            <div className={`${styles.threeStepMock} ${styles.sheetsExampleFlow}`}>
+              <MockWindow title="Applied Agentic AI" icon={<AppIcon app="drive" label="Google Drive" />}>
+                <div className={styles.driveMiniToolbar}><b>＋ New</b><span>▦</span><span>☷</span></div>
+                <span className={styles.pathMock}>My Drive › Applied Agentic AI</span>
+                <div className={styles.driveEmptyState}><i>▰</i><span>Thư mục làm việc</span></div>
+              </MockWindow>
+              <MockWindow title="Google Sheets" accent="green" icon={<AppIcon app="sheets" label="Google Sheets" />}>
+                <div className={styles.sheetCreateCard}><AppIcon app="sheets" label="Google Sheets" /><strong>Blank spreadsheet</strong><span>→ Google Sheets</span></div>
+              </MockWindow>
+              <MockWindow title="Quản lý nghỉ phép" accent="green" icon={<AppIcon app="sheets" label="Google Sheets" />}>
+                <div className={styles.sheetToolbar}><span>File</span><span>Edit</span><span>View</span><span>Insert</span><b>Share</b></div>
+                <div className={styles.sheetNameField}>Quản lý nghỉ phép</div>
+                <div className={styles.sheetGridMock}>
+                  <span>Họ tên</span><span>Ngày bắt đầu</span><span>Trạng thái</span>
+                </div>
+              </MockWindow>
             </div>
           </Shell>
         );
@@ -666,7 +748,7 @@ function NativeSlides({ page }: { page: number }) {
         );
       case 23:
         return (
-          <Shell title="Prompt tốt cần có" eyebrow="PROMPT CHECKLIST" className={styles.softMotionSlide}>
+          <Shell title="Prompt tốt cần có" eyebrow="PROMPT CHECKLIST" className={`${styles.softMotionSlide} ${styles.promptChecklistSlide}`}>
             <CenteredTiles items={["Mục tiêu", "Người dùng", "Dữ liệu cần nhập", "Quy trình", "Báo cáo", "Công nghệ yêu cầu"]} />
           </Shell>
         );
@@ -678,44 +760,61 @@ function NativeSlides({ page }: { page: number }) {
         );
       case 25:
         return (
-          <Shell title="Bước 3 - Apps Script" eyebrow="MỞ TRÌNH SOẠN THẢO">
-            <div className={styles.appScriptLayout}>
-              <MockWindow title="Quản lý nghỉ phép" accent="green"><div className={styles.menuBarMock}>File · Edit · View · Insert · Format · Data · Tools · <b>Extensions</b></div><div className={styles.dropdownMock}><span>Add-ons</span><span>Macros</span><strong>Apps Script</strong></div></MockWindow>
+          <Shell title="Bước 3 - Apps Script" eyebrow="MỞ TRÌNH SOẠN THẢO" className={styles.realisticAppSlide}>
+            <div className={`${styles.appScriptLayout} ${styles.appsScriptExampleLayout}`}>
+              <MockWindow title="Quản lý nghỉ phép" accent="green" icon={<AppIcon app="sheets" label="Google Sheets" />}>
+                <div className={styles.sheetToolbar}><span>File</span><span>Edit</span><span>View</span><span>Insert</span><span>Format</span><span>Data</span><b>Extensions</b></div>
+                <div className={styles.sheetPreviewRows}><i /><i /><i /><i /><i /><i /></div>
+                <div className={styles.dropdownMock}><span>Add-ons</span><span>Macros</span><strong><AppIcon app="apps-script" label="Apps Script" /> Apps Script</strong></div>
+              </MockWindow>
               <div className={styles.setupArrow}>→</div>
-              <MockWindow title="Apps Script" accent="gold"><div className={styles.scriptSidebar}><span>Files</span><strong>Code.gs</strong><span>Libraries</span><span>Services</span></div><div className={styles.codeMock}>function doGet() {'{'}<br />&nbsp;&nbsp;...<br />{'}'}</div></MockWindow>
+              <MockWindow title="Apps Script" accent="gold" icon={<AppIcon app="apps-script" label="Google Apps Script" />}>
+                <div className={styles.scriptToolbar}><strong>Quản lý nghỉ phép</strong><span>Undo</span><span>Redo</span><button>Deploy</button></div>
+                <div className={styles.scriptEditor}>
+                  <div className={styles.scriptSidebar}><span>Files</span><strong>Code.gs</strong><span>Libraries</span><span>Services</span></div>
+                  <div className={styles.codeMock}><span>1</span> function doGet() {'{'}<br /><span>2</span>&nbsp;&nbsp;return HtmlService...<br /><span>3</span> {'}'}</div>
+                </div>
+              </MockWindow>
             </div>
           </Shell>
         );
       case 26:
         return (
-          <Shell title="Tạo các file theo đúng hướng dẫn của Gemini" eyebrow="FILE STRUCTURE">
+          <Shell title="Tạo các file theo đúng hướng dẫn của Gemini" eyebrow="FILE STRUCTURE" className={styles.fileStructureSlide}>
             <div className={styles.filesLayout}>
               <div className={styles.fileList}>{["Code.gs (mặc định)", "JavaScript.html", "Style.html", "Index.html"].map((f, i) => <div key={f} style={{ "--delay": `${i * 95}ms` } as CSSProperties}><span>{f.endsWith(".html") ? "HTML" : "GS"}</span><strong>{f}</strong></div>)}</div>
-              <MockWindow title="Files"><div className={styles.plusMock}>＋</div><div className={styles.dropdownMock}><span>Script</span><strong>HTML</strong></div></MockWindow>
+              <MockWindow title="Files" icon={<AppIcon app="apps-script" label="Google Apps Script" />}><div className={styles.plusMock}>＋</div><div className={styles.dropdownMock}><span>Script</span><strong>HTML</strong></div></MockWindow>
             </div>
             <div className={styles.warningNote}><strong>Lưu ý:</strong> Tên phải được nhập đúng như hướng dẫn, có phân biệt chữ hoa và chữ thường.</div>
           </Shell>
         );
       case 27:
         return (
-          <Shell title="Sao chép mã nguồn" eyebrow="COPY · PASTE · SAVE">
-            <Flow items={["Gemini", "Copy", "Apps Script", "Paste", "Save"]} compact />
+          <Shell title="Sao chép mã nguồn" eyebrow="COPY · PASTE · SAVE" className={`${styles.softMotionSlide} ${styles.tieredFlowSlide}`}>
+            <TieredFlow items={["Gemini", "Copy", "Apps Script", "Paste", "Save"]} />
             <div className={styles.warningNote}><strong>Lưu ý:</strong> Xóa nội dung mặc định trong Code.gs</div>
           </Shell>
         );
       case 28:
         return (
-          <Shell title="Triển khai phần mềm" eyebrow="DEPLOY WEB APP" className={styles.softMotionSlide}>
-            <Flow items={["Deploy", "New deployment", "Select type", "Web app", "Deploy"]} singleRow inline />
+          <Shell title="Triển khai phần mềm" eyebrow="DEPLOY WEB APP" className={`${styles.softMotionSlide} ${styles.tieredFlowSlide}`}>
+            <TieredFlow items={["Deploy", "New deployment", "Select type", "Web app", "Deploy"]} />
           </Shell>
         );
       case 29:
         return (
-          <Shell title="Chạy lần đầu" eyebrow="AUTHORIZE & OPEN URL">
-            <div className={styles.firstRunGrid}>
-              <MockWindow title="Authorization" accent="gold"><p>The web app requires you to authorise access to your data.</p><button>Authorise access</button></MockWindow>
-              <MockWindow title="Google hasn't verified this app"><span>Advanced</span><strong>Go to Quản lý nghỉ phép (unsafe)</strong></MockWindow>
-              <MockWindow title="Manage deployments" accent="green"><span>Deployment successfully updated.</span><label>Web app URL</label><div className={styles.urlMock}>https://script.google.com/macros/s/.../exec</div></MockWindow>
+          <Shell title="Chạy lần đầu" eyebrow="AUTHORIZE & OPEN URL" className={styles.realisticAppSlide}>
+            <div className={`${styles.firstRunGrid} ${styles.firstRunRealistic}`}>
+              <MockWindow title="Authorization" accent="gold" icon={<AppIcon app="google" label="Google" />}>
+                <div className={styles.googleAccountRow}><AppIcon app="google" label="Google" /><div><b>Choose an account</b><span>to continue to Quản lý nghỉ phép</span></div></div>
+                <p>The web app requires you to authorise access to your data.</p><button>Authorise access</button>
+              </MockWindow>
+              <MockWindow title="Google hasn't verified this app" icon={<AppIcon app="google" label="Google" />}>
+                <div className={styles.securityVisual}>!</div><span>Advanced</span><strong>Go to Quản lý nghỉ phép (unsafe)</strong>
+              </MockWindow>
+              <MockWindow title="Manage deployments" accent="green" icon={<AppIcon app="apps-script" label="Google Apps Script" />}>
+                <div className={styles.deploymentSuccess}>✓ <span>Deployment successfully updated.</span></div><label>Web app URL</label><div className={styles.urlMock}>https://script.google.com/macros/s/.../exec</div>
+              </MockWindow>
             </div>
           </Shell>
         );
@@ -728,9 +827,9 @@ function NativeSlides({ page }: { page: number }) {
         );
       case 31:
         return (
-          <Shell title="Kiểm thử" eyebrow="TEST THE FIRST VERSION" className={styles.softMotionSlide}>
-            <Flow items={["Ctrl + Shift + N", "Mở URL", "Nhập dữ liệu", "Submit", "Kiểm tra Sheets"]} singleRow inline />
-            <div className={styles.successNote}><strong>(Quản lý nghỉ phép)</strong><span>Nếu xuất hiện dòng mới: Thành công.</span></div>
+          <Shell title="Kiểm thử" eyebrow="TEST THE FIRST VERSION" className={`${styles.softMotionSlide} ${styles.testSlide}`}>
+            <Flow items={["Ctrl + Shift + N", "Mở URL", "Nhập dữ liệu", "Submit", "Kiểm tra Sheets"]} singleRow inline testLayout />
+            <div className={`${styles.successNote} ${styles.testSuccessNote}`}><i aria-hidden="true">✓</i><strong>(Quản lý nghỉ phép)</strong><span>Nếu xuất hiện dòng mới: Thành công.</span></div>
           </Shell>
         );
       case 32:
@@ -750,7 +849,7 @@ function NativeSlides({ page }: { page: number }) {
       case 34:
         return (
           <Shell title="Ví dụ Prompt" eyebrow="PROMPT + DESIGN DNA" className={styles.softMotionSlide}>
-            <PromptPanel dna showCopy showDnaDownload />
+            <PromptPanel dna />
           </Shell>
         );
       case 35:
