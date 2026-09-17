@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>EIU Section 1 Handout - Applied Agentic AI</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+    @page {
+      size: A4 portrait;
+      margin: 0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 210mm;
+      height: 297mm;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #ffffff;
+      color: #17324a;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      padding: 9mm 10mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #041c31 0%, #082945 60%, #123f68 100%);
+      border-radius: 12px;
+      padding: 16px 20px;
+      color: #ffffff;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(179, 145, 89, 0.45);
+      box-shadow: 0 4px 14px rgba(4, 28, 49, 0.15);
+    }
+
+    .header::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 180px;
+      height: 100%;
+      background: radial-gradient(circle at 100% 0%, rgba(179, 145, 89, 0.25) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .header-kicker {
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      color: #e9ca8b;
+      text-transform: uppercase;
+      background: rgba(179, 145, 89, 0.2);
+      padding: 3.5px 9px;
+      border-radius: 5px;
+      border: 1px solid rgba(233, 202, 139, 0.35);
+    }
+
+    .header-logo {
+      height: 32px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      color: #ffffff;
+      margin-bottom: 4px;
+    }
+
+    .header-subtitle {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: #e9ca8b;
+      line-height: 1.3;
+    }
+
+    /* CORE MINDSET CALLOUT */
+    .mindset-card {
+      background: #fbfaf7;
+      border: 1.2px solid rgba(179, 145, 89, 0.4);
+      border-left: 4.5px solid #b39159;
+      border-radius: 8px;
+      padding: 8px 12px;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .mindset-tag {
+      font-size: 8.5px;
+      font-weight: 900;
+      color: #ffffff;
+      background: #082945;
+      padding: 3px 7px;
+      border-radius: 4px;
+      white-space: nowrap;
+      letter-spacing: 0.06em;
+    }
+
+    .mindset-body {
+      font-size: 9.5px;
+      line-height: 1.35;
+      color: #17324a;
+    }
+
+    .mindset-body strong {
+      color: #082945;
+      font-weight: 800;
+    }
+
+    /* LAB 1 MAP - 4 PHASES */
+    .lab-map-wrap {
+      margin-top: 6px;
+    }
+
+    .section-title {
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #9d7944;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(179, 145, 89, 0.25);
+    }
+
+    .lab-map {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+
+    .map-step {
+      background: #fbfaf7;
+      border: 1px solid rgba(8, 41, 69, 0.1);
+      border-radius: 7px;
+      padding: 6px 8px;
+      position: relative;
+    }
+
+    .map-step.active {
+      border-color: rgba(179, 145, 89, 0.6);
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(8, 41, 69, 0.04);
+    }
+
+    .map-step-num {
+      font-size: 8px;
+      font-weight: 900;
+      color: #b39159;
+      margin-bottom: 2px;
+    }
+
+    .map-step h4 {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #082945;
+      margin-bottom: 2px;
+      line-height: 1.2;
+    }
+
+    .map-step p {
+      font-size: 8.2px;
+      color: #687987;
+      line-height: 1.3;
+    }
+
+    /* MAIN 2-COLUMN GRID */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1.18fr 0.82fr;
+      gap: 10px;
+      margin-top: 6px;
+      flex: 1;
+    }
+
+    /* LEFT: 8 STEPS */
+    .steps-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4.5px;
+      flex: 1;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 8px;
+      padding: 5px 8px;
+      background: #ffffff;
+      border: 1px solid rgba(8, 41, 69, 0.08);
+      border-radius: 6px;
+      align-items: flex-start;
+    }
+
+    .step-badge {
+      width: 20px;
+      height: 20px;
+      flex: 0 0 20px;
+      background: #082945;
+      color: #e9ca8b;
+      font-size: 9px;
+      font-weight: 900;
+      display: grid;
+      place-items: center;
+      border-radius: 5px;
+      margin-top: 1px;
+    }
+
+    .step-text {
+      flex: 1;
+    }
+
+    .step-text h5 {
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #082945;
+      margin-bottom: 1px;
+      line-height: 1.2;
+    }
+
+    .step-text p {
+      font-size: 8px;
+      color: #687987;
+      line-height: 1.3;
+    }
+
+    .step-text p strong {
+      color: #17324a;
+    }
+
+    .step-text p em {
+      color: #9d7944;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    /* RIGHT: ARCHITECTURE & STANDARDS */
+    .side-column {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .side-box {
+      background: #fbfaf7;
+      border: 1px solid rgba(8, 41, 69, 0.09);
+      border-radius: 7px;
+      padding: 7px 9px;
+    }
+
+    .side-box h4 {
+      font-size: 9px;
+      font-weight: 900;
+      color: #082945;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .side-box h4 span {
+      font-size: 7.5px;
+      color: #b39159;
+      font-weight: 700;
+    }
+
+    /* ARCHITECTURE 4 ROWS */
+    .arch-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3.5px;
+    }
+
+    .arch-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #ffffff;
+      border: 1px solid rgba(8, 41, 69, 0.06);
+      padding: 3.5px 7px;
+      border-radius: 4px;
+      font-size: 8.2px;
+    }
+
+    .arch-name {
+      font-weight: 800;
+      color: #082945;
+    }
+
+    .arch-desc {
+      color: #687987;
+      font-size: 7.8px;
+    }
+
+    /* ITERATIVE LOOP */
+    .loop-flow {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 3px;
+      margin: 4px 0 2px;
+    }
+
+    .loop-node {
+      background: #082945;
+      color: #ffffff;
+      padding: 3.5px 4px;
+      border-radius: 5px;
+      text-align: center;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .loop-node.gold {
+      background: #b39159;
+      color: #041c31;
+    }
+
+    .loop-node-num {
+      font-size: 7px;
+      font-weight: 900;
+      opacity: 0.85;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .loop-node-name {
+      font-size: 7.8px;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    .loop-arrow {
+      color: #b39159;
+      font-size: 8px;
+      font-weight: 900;
+      flex: 0 0 auto;
+    }
+
+    /* PROMPT FORMULA */
+    .formula-tag {
+      background: rgba(179, 145, 89, 0.12);
+      border: 1px solid rgba(179, 145, 89, 0.3);
+      padding: 4px 7px;
+      border-radius: 5px;
+      font-size: 8px;
+      color: #17324a;
+      line-height: 1.35;
+      margin-top: 2px;
+    }
+
+    .formula-tag strong {
+      color: #082945;
+    }
+
+    /* DELIVERABLES CHECKLIST */
+    .deliver-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3.5px;
+    }
+
+    .deliver-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 7.8px;
+      font-weight: 700;
+      color: #17324a;
+      background: #ffffff;
+      padding: 3px 5px;
+      border-radius: 4px;
+      border: 1px solid rgba(8, 41, 69, 0.05);
+    }
+
+    .deliver-check {
+      color: #b39159;
+      font-weight: 900;
+      font-size: 8.5px;
+    }
+
+    /* KEY TAKEAWAY FOOTER BANNER */
+    .takeaway-banner {
+      background: linear-gradient(135deg, #082945 0%, #041c31 100%);
+      border: 1.2px solid rgba(179, 145, 89, 0.4);
+      border-radius: 8px;
+      padding: 8px 14px;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #ffffff;
+    }
+
+    .takeaway-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .takeaway-badge {
+      font-size: 8px;
+      font-weight: 900;
+      color: #041c31;
+      background: #e9ca8b;
+      padding: 2.5px 6px;
+      border-radius: 4px;
+      letter-spacing: 0.08em;
+      white-space: nowrap;
+    }
+
+    .takeaway-quote {
+      font-size: 10px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.01em;
+    }
+
+    .takeaway-quote strong {
+      color: #e9ca8b;
+    }
+
+    /* FOOTER */
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      padding-top: 3px;
+      border-top: 1px solid rgba(8, 41, 69, 0.1);
+      font-size: 7.5px;
+      font-weight: 600;
+      color: #687987;
+    }
+
+    .footer-gold {
+      color: #b39159;
+      font-weight: 800;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-top">
+      <span class="header-kicker">EIU BA HUB · SECTION 1 HANDOUT</span>
+      <img class="header-logo" src="data:image/png;base64,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" alt="EIU Logo" />
+    </div>
+    <h1>Applied Agentic AI for Business</h1>
+    <div class="header-subtitle">Từ yêu cầu nghiệp vụ đến Business Web App hoàn chỉnh bằng Gemini</div>
+  </header>
+
+  <!-- CORE MINDSET CALLOUT -->
+  <div class="mindset-card">
+    <span class="mindset-tag">TƯ DUY CỐT LÕI</span>
+    <div class="mindset-body">
+      <strong>Hiểu nghiệp vụ → Mô tả yêu cầu → Kiểm thử → Ra quyết định</strong><br/>
+      Đây không phải khóa học lập trình. AI là trợ thủ viết code và dựng giao diện; con người làm chủ bài toán kinh doanh và kiểm soát chất lượng giải pháp.
+    </div>
+  </div>
+
+  <!-- LAB 1 FLOW MAP -->
+  <div class="lab-map-wrap">
+    <div class="section-title">BẢN ĐỒ THỰC HÀNH LAB 1 · 4 CHẶNG TRIỂN KHAI</div>
+    <div class="lab-map">
+      <div class="map-step">
+        <div class="map-step-num">CHẶNG 01</div>
+        <h4>1. Nghiệp vụ</h4>
+        <p>Ai dùng? Nhập gì? Ai phê duyệt? Cần báo cáo thống kê gì?</p>
+      </div>
+      <div class="map-step">
+        <div class="map-step-num">CHẶNG 02</div>
+        <h4>2. Prompt + Gemini</h4>
+        <p>5 thành phần nghiệp vụ + đính kèm file design-dna.txt</p>
+      </div>
+      <div class="map-step">
+        <div class="map-step-num">CHẶNG 03</div>
+        <h4>3. Sheets + Apps Script</h4>
+        <p>Cơ sở dữ liệu Sheets + 4 file mã nguồn trong Script Editor</p>
+      </div>
+      <div class="map-step active">
+        <div class="map-step-num">CHẶNG 04</div>
+        <h4>4. Deploy & Kiểm thử</h4>
+        <p>New deployment > Anyone > URL /exec & test ghi dòng mới</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN 2-COLUMN GRID -->
+  <div class="main-grid">
+
+    <!-- LEFT COLUMN: 8 STEPS -->
+    <div class="steps-column">
+      <div class="section-title">QUY TRÌNH 8 BƯỚC THỰC CHIẾN TỪ IDEA ĐẾN WEB APP</div>
+      <div class="steps-list">
+
+        <div class="step-item">
+          <div class="step-badge">01</div>
+          <div class="step-text">
+            <h5>Xác định bài toán & người dùng</h5>
+            <p>Chốt rõ: <strong>Ai sử dụng?</strong> Dữ liệu đầu vào gồm những trường nào? Luồng duyệt ra sao và người quản lý cần xem bảng dữ liệu nào?</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-badge">02</div>
+          <div class="step-text">
+            <h5>Chuẩn bị Google Drive & Google Sheets</h5>
+            <p>Tạo thư mục <em>Applied Agentic AI</em> trên Drive. Tạo 1 Google Sheet làm <strong>Database trung tâm</strong> để lưu trữ toàn bộ dữ liệu ứng dụng.</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-badge">03</div>
+          <div class="step-text">
+            <h5>Thiết kế cấu trúc bảng dữ liệu (Schema)</h5>
+            <p>Đặt tên các cột rõ ràng: <strong>Họ tên, Ngày bắt đầu, Ngày kết thúc, Lý do, Trạng thái (Chờ duyệt/Đã duyệt/Từ chối), Timestamp</strong>.</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-badge">04</div>
+          <div class="step-text">
+            <h5>Viết Prompt chuẩn 5 thành phần</h5>
+            <p>Cấu trúc: <strong>Mục tiêu</strong> + <strong>Người dùng</strong> + <strong>Dữ liệu</strong> + <strong>Quy trình</strong> + <strong>Công nghệ yêu cầu</strong> (Google Apps Script + HTML/CSS/JS).</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-badge">05</div>
+          <div class="step-text">
+            <h5>Đính kèm EIU Design DNA (design-dna.txt)</h5>
+            <p>Tải file <em>design-dna.txt</em> và gửi kèm Prompt để Gemini tự động thiết kế giao diện chuẩn <strong>Navy #082945 & Gold #B39159</strong>, responsive và sang trọng.</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-badge">06</div>
+          <div class="step-text">
+            <h5>Tạo cấu trúc 4 file trong Apps Script</h5>
+            <p>Mở Extensions > Apps Script. Tạo đủ 4 file: <strong>Code.gs</strong> (Backend), <strong>JavaScript.html</strong>, <strong>Style.html</strong> và <strong>Index.html</strong> (Frontend).</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-badge">07</div>
+          <div class="step-text">
+            <h5>Lưu ý tạo file & xóa sạch code mặc định</h5>
+            <p><strong>Bắt buộc:</strong> Tên file phân biệt hoa/thường (<em>Case-sensitive</em>). Phải <strong>xóa sạch nội dung mặc định</strong> trong file vừa tạo trước khi dán code mới.</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-badge">08</div>
+          <div class="step-text">
+            <h5>Triển khai (Deploy) & Kiểm thử</h5>
+            <p>Chọn <em>Deploy > New deployment > Web app</em>. Cấu hình <strong>Who has access: Anyone</strong>. Sao chép URL kết thúc bằng <strong>/exec</strong> và nhập form thử nghiệm.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: ARCHITECTURE & EIU STANDARDS -->
+    <div class="side-column">
+
+      <!-- ARCHITECTURE -->
+      <div class="side-box">
+        <h4>4 THÀNH PHẦN PHẦN MỀM <span>KIẾN TRÚC</span></h4>
+        <div class="arch-list">
+          <div class="arch-row">
+            <div><span class="arch-name">Frontend</span> <span class="arch-desc">(Giao diện)</span></div>
+            <strong>Index.html / Style.html</strong>
+          </div>
+          <div class="arch-row">
+            <div><span class="arch-name">Business Logic</span> <span class="arch-desc">(Xử lý)</span></div>
+            <strong>Code.gs / Quy tắc duyệt</strong>
+          </div>
+          <div class="arch-row">
+            <div><span class="arch-name">Database</span> <span class="arch-desc">(Lưu trữ)</span></div>
+            <strong>Google Sheets</strong>
+          </div>
+          <div class="arch-row">
+            <div><span class="arch-name">Integrations</span> <span class="arch-desc">(Mở rộng)</span></div>
+            <strong>Gmail / Google Drive</strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- ITERATIVE DEVELOPMENT -->
+      <div class="side-box">
+        <h4>VÒNG LẶP CẢI TIẾN AI <span>ITERATIVE</span></h4>
+        <div class="loop-flow">
+          <div class="loop-node">
+            <span class="loop-node-num">01</span>
+            <strong class="loop-node-name">Requirement</strong>
+          </div>
+          <span class="loop-arrow">→</span>
+          <div class="loop-node gold">
+            <span class="loop-node-num">02</span>
+            <strong class="loop-node-name">Generate</strong>
+          </div>
+          <span class="loop-arrow">→</span>
+          <div class="loop-node">
+            <span class="loop-node-num">03</span>
+            <strong class="loop-node-name">Test</strong>
+          </div>
+          <span class="loop-arrow">→</span>
+          <div class="loop-node gold">
+            <span class="loop-node-num">04</span>
+            <strong class="loop-node-name">Improve</strong>
+          </div>
+        </div>
+        <p style="font-size: 7.6px; color: #687987; line-height: 1.3; margin-top: 4px;">
+          Luôn bắt đầu từ phiên bản tối giản (MVP). Chạy thử, phát hiện lỗi rồi mới yêu cầu Gemini hoàn thiện từng tính năng.
+        </p>
+      </div>
+
+      <!-- PROMPT FORMULA -->
+      <div class="side-box">
+        <h4>CÔNG THỨC PROMPT CHUẨN <span>EIU DNA</span></h4>
+        <div class="formula-tag">
+          <strong>Mục tiêu</strong> + <strong>Người dùng</strong> + <strong>Dữ liệu</strong> + <strong>Quy trình duyệt</strong> + <strong>Design DNA</strong>
+        </div>
+        <p style="font-size: 7.5px; color: #687987; line-height: 1.3; margin-top: 3px;">
+          Đính kèm file <em>design-dna.txt</em> để AI áp dụng bảng màu Navy 900, viền EIU Gold và typography Inter.
+        </p>
+      </div>
+
+      <!-- DELIVERABLES -->
+      <div class="side-box">
+        <h4>KẾT QUẢ LAB 1 THU ĐƯỢC <span>DELIVERABLES</span></h4>
+        <div class="deliver-grid">
+          <div class="deliver-item"><span class="deliver-check">✓</span> Business Web App</div>
+          <div class="deliver-item"><span class="deliver-check">✓</span> Google Sheets Database</div>
+          <div class="deliver-item"><span class="deliver-check">✓</span> Dashboard chuẩn EIU</div>
+          <div class="deliver-item"><span class="deliver-check">✓</span> URL Web App chia sẻ</div>
+          <div class="deliver-item"><span class="deliver-check">✓</span> Source Code hoàn chỉnh</div>
+          <div class="deliver-item"><span class="deliver-check">✓</span> Kỹ năng làm chủ AI</div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- KEY TAKEAWAY FOOTER BANNER -->
+  <div class="takeaway-banner">
+    <div class="takeaway-left">
+      <span class="takeaway-badge">ĐIỀU QUAN TRỌNG NHẤT</span>
+      <span class="takeaway-quote">Không phải Prompt. Không phải Code. Mà là <strong>khả năng mô tả đúng bài toán</strong>.</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div>EIU BA Hub — Applied Agentic AI | Section 1</div>
+    <div class="footer-gold">ONE-PAGE HANDOUT · EIU DESIGN DNA COMPLIANT</div>
+  </footer>
+
+</body>
+</html>

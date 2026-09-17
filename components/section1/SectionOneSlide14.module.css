@@ -90,6 +90,8 @@
   pointer-events: none;
 }
 
+.loginWindow { width: 345px; }
+.modelWindow { width: 376px; }
 .loginWindow {
   width: 345px;
   animation: windowFloatA 7s ease-in-out infinite alternate;

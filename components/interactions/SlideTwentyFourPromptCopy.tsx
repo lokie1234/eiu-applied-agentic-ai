@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import styles from "./SlideTwentyFourPromptCopy.module.css";
 
 const PROMPT_TEXT = [
-  "Tạo Web App demo quản lý nghỉ phép chạy trên Google Apps Script, lưu dữ liệu bằng Google Sheets",
+  "Tạo Web App demo quản lý nghỉ phép chạy trên Google Apps Script (chỉ cần 2 file code.gs và Index.html), lưu dữ liệu bằng Google Sheets",
   "Giao diện đơn giản, responsive, dùng tốt trên desktop và mobile",
   "● Nhân viên nhập: Họ tên, ngày bắt đầu, ngày kết thúc, lý do nghỉ và gửi đơn.",
   "● Hiển thị danh sách tất cả đơn nghỉ phép trong một bảng.",

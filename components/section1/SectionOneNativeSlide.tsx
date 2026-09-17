@@ -18,7 +18,7 @@ type Card = {
 
 const OUTCOMES = [
   "Tạo Web App bằng Gemini",
-  "Deploy lên Google Apps Script",
+  "Quy trình triển khai lên Google Apps Script",
   "Google Sheets làm Database",
   "Chia sẻ ứng dụng cho cả công ty",
   "Google Drive lưu trữ file",
@@ -120,7 +120,7 @@ const BUSINESS_MAP = [
 ];
 
 const PROMPT_LINES = [
-  "Tạo Web App demo quản lý nghỉ phép chạy trên Google Apps Script, lưu dữ liệu bằng Google Sheets",
+  "Tạo Web App demo quản lý nghỉ phép chạy trên Google Apps Script (chỉ cần 2 file code.gs và Index.html), lưu dữ liệu bằng Google Sheets",
   "Giao diện đơn giản, responsive, dùng tốt trên desktop và mobile",
   "Nhân viên nhập: Họ tên, ngày bắt đầu, ngày kết thúc, lý do nghỉ và gửi đơn.",
   "Hiển thị danh sách tất cả đơn nghỉ phép trong một bảng.",
@@ -134,7 +134,7 @@ const PROMPT_LINES = [
 
 const PROMPT_DNA_LINES = [
   PROMPT_LINES[0],
-  "Giao diện đơn giản, responsive, dùng tốt trên desktop và mobile, thiết kế theo design DNA đã tải lên",
+  "Giao diện đơn giản, responsive, dùng tốt trên desktop và mobile (chỉ cần 2 file code.gs và Index.html), thiết kế theo design DNA đã tải lên",
   ...PROMPT_LINES.slice(2),
 ];
 
@@ -277,7 +277,17 @@ function PromptPanel({
         <div className={styles.quoteMark}>“</div>
         <div className={styles.promptCopy}>
           <p className={styles.promptLead}>{lines[0]}</p>
-          <p>{lines[1]}</p>
+          {dna ? (
+            <div className={styles.promptDnaHighlightBox}>
+              <span className={styles.promptDnaBadge}>✦ DESIGN DNA HIGHLIGHT</span>
+              <p className={styles.promptDnaText}>
+                Giao diện đơn giản, responsive, dùng tốt trên desktop và mobile,{" "}
+                <strong className={styles.promptDnaKeyword}>thiết kế theo design DNA đã tải lên</strong>
+              </p>
+            </div>
+          ) : (
+            <p>{lines[1]}</p>
+          )}
           <ul>
             {lines.slice(2, 7).map((line) => <li key={line}>{line}</li>)}
           </ul>
@@ -447,7 +457,7 @@ function NativeSlides({ page }: { page: number }) {
 
     const allCompleted = DRAG_TARGETS.every((entry) => nextPlacements[entry.key] === entry.correct);
     if (allCompleted) {
-      showToast("Chúc mừng!", "Bạn đã hoàn thành đúng toàn bộ quy trình 8 bước.", "success", 2000);
+      showToast("Chúc mừng!", "Bạn đã hoàn thành đúng toàn bộ quy trình.", "success", 2000);
     } else {
       showToast("Đúng rồi", `“${item}” đã vào đúng vị trí.`, "success", 1000);
     }
@@ -518,7 +528,7 @@ function NativeSlides({ page }: { page: number }) {
         );
       case 7:
         return (
-          <Shell title="Quy trình phát triển phần mềm" eyebrow="KÉO THẢ HOÀN THIỆN QUY TRÌNH 8 BƯỚC">
+          <Shell title="Quy trình phát triển phần mềm" eyebrow="KÉO THẢ HOÀN THIỆN QUY TRÌNH">
             <div className={styles.lifecycleExercise}>
               <div className={styles.lifecycleFloatBank}>
                 {availableItems.map((item, index) => (
@@ -626,7 +636,7 @@ function NativeSlides({ page }: { page: number }) {
         );
       case 11:
         return (
-          <Shell title="Chuyển sang doanh nghiệp" eyebrow="" className={styles.noEyebrow}>
+          <Shell title="Ví dụ cụ thể" eyebrow="" className={styles.noEyebrow}>
             <RevealAnswerGrid items={BUSINESS_MAP} revealed={businessRevealed} onReveal={revealBusiness} />
           </Shell>
         );
@@ -781,18 +791,34 @@ function NativeSlides({ page }: { page: number }) {
       case 26:
         return (
           <Shell title="Tạo các file theo đúng hướng dẫn của Gemini" eyebrow="FILE STRUCTURE" className={styles.fileStructureSlide}>
-            <div className={styles.filesLayout}>
-              <div className={styles.fileList}>{["Code.gs (mặc định)", "JavaScript.html", "Style.html", "Index.html"].map((f, i) => <div key={f} style={{ "--delay": `${i * 95}ms` } as CSSProperties}><span>{f.endsWith(".html") ? "HTML" : "GS"}</span><strong>{f}</strong></div>)}</div>
-              <MockWindow title="Files" icon={<AppIcon app="apps-script" label="Google Apps Script" />}><div className={styles.plusMock}>＋</div><div className={styles.dropdownMock}><span>Script</span><strong>HTML</strong></div></MockWindow>
+            <div className={styles.fileStructureBody}>
+              <div className={styles.filesLayoutInner}>
+                <div className={styles.fileList}>{["Code.gs (mặc định)", "JavaScript.html", "Style.html", "Index.html"].map((f, i) => <div key={f} style={{ "--delay": `${i * 95}ms` } as CSSProperties}><span>{f.endsWith(".html") ? "HTML" : "GS"}</span><strong>{f}</strong></div>)}</div>
+                <MockWindow title="Files" icon={<AppIcon app="apps-script" label="Google Apps Script" />}><div className={styles.plusMock}>＋</div><div className={styles.dropdownMock}><span>Script</span><strong>HTML</strong></div></MockWindow>
+              </div>
+              <div className={styles.mergedWarningBox}>
+                <div className={styles.mergedWarningHeading}>
+                  <span className={styles.mergedWarningBadge}>LƯU Ý QUAN TRỌNG</span>
+                  <strong>HƯỚNG DẪN TẠO VÀ CHUẨN BỊ FILE</strong>
+                </div>
+                <div className={styles.mergedWarningList}>
+                  <div className={styles.mergedWarningItem}>
+                    <span className={styles.mergedWarningDot}>1</span>
+                    <p><strong>Tên file:</strong> Phải nhập đúng chính xác như hướng dẫn, <em>có phân biệt chữ hoa và chữ thường</em> (Case-sensitive).</p>
+                  </div>
+                  <div className={styles.mergedWarningItem}>
+                    <span className={styles.mergedWarningDot}>2</span>
+                    <p><strong>Xóa code cũ:</strong> <em>Xóa sạch toàn bộ nội dung mặc định</em> trong <code>Code.gs</code> và các file <code>.html</code> ngay khi vừa tạo trước khi dán mã nguồn.</p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className={styles.warningNote}><strong>Lưu ý:</strong> Tên phải được nhập đúng như hướng dẫn, có phân biệt chữ hoa và chữ thường.</div>
           </Shell>
         );
       case 27:
         return (
           <Shell title="Sao chép mã nguồn" eyebrow="COPY · PASTE · SAVE" className={`${styles.softMotionSlide} ${styles.tieredFlowSlide}`}>
             <TieredFlow items={["Gemini", "Copy", "Apps Script", "Paste", "Save"]} />
-            <div className={styles.warningNote}><strong>Lưu ý:</strong> Xóa nội dung mặc định trong Code.gs và các file .html khi vừa tạo</div>
           </Shell>
         );
       case 28:

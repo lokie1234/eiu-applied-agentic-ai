@@ -55,6 +55,8 @@
   stroke-dasharray: 10 12;
 }
 
+.traceOne { stroke: rgba(179, 145, 89, 0.2); }
+.traceTwo { stroke: rgba(86, 144, 191, 0.14); }
 .traceOne {
   stroke: rgba(179, 145, 89, 0.2);
   animation: round9Trace 18s linear infinite;
@@ -100,6 +102,9 @@
   box-shadow: 0 0 0 4px rgba(233, 202, 139, 0.28);
 }
 
+.nodeA { right: 116px; top: 98px; }
+.nodeB { left: 112px; bottom: 84px; }
+.nodeC { right: 294px; bottom: 182px; width: 8px; height: 8px; }
 .nodeA {
   right: 116px;
   top: 98px;
@@ -267,6 +272,8 @@
   box-shadow: 0 10px 28px rgba(8, 41, 69, 0.06);
   opacity: 0;
   transform: translateY(12px);
+  animation: softUp 0.46s ease forwards;
+  animation-delay: var(--delay);
   animation: softUp 0.46s ease forwards, gentleTileFloat 6s ease-in-out infinite alternate;
   animation-delay: var(--delay), calc(0.8s + var(--delay));
 }
@@ -311,6 +318,8 @@
   box-shadow: 0 10px 26px rgba(8, 41, 69, 0.06);
   opacity: 0;
   transform: translateY(12px);
+  animation: softUp 0.45s ease forwards;
+  animation-delay: var(--delay);
   animation: softUp 0.45s ease forwards, gentleTileFloat 6.5s ease-in-out infinite alternate;
   animation-delay: var(--delay), calc(0.9s + var(--delay));
   cursor: pointer;
@@ -558,6 +567,8 @@
   box-shadow: 0 10px 28px rgba(8,41,69,0.06);
   opacity: 0;
   transform: translateY(14px);
+  animation: softUp 0.45s ease forwards;
+  animation-delay: var(--delay);
   animation: softUp 0.45s ease forwards, gentleTileFloat 6s ease-in-out infinite alternate;
   animation-delay: var(--delay), calc(0.8s + var(--delay));
 }
@@ -603,6 +614,8 @@
   text-align: left;
   opacity: 0;
   transform: translateY(14px);
+  animation: softUp 0.46s ease forwards;
+  animation-delay: var(--delay);
   animation: softUp 0.46s ease forwards, gentleTileFloat 7s ease-in-out infinite alternate;
   animation-delay: var(--delay), calc(1s + var(--delay));
   cursor: pointer;
@@ -1088,6 +1101,7 @@
 .dropdownMock strong { color: #1e6cb0; }
 .inputMock { padding: 10px 12px; border: 2px solid #277ac0; border-radius: 10px; background: #fff; color: #243f57; font-weight: 700; }
 .mockBody button { margin-top: 13px; padding: 9px 15px; border: 0; border-radius: 9px; background: #18547f; color: #fff; font-weight: 800; }
+.setupArrow { color: var(--gold); text-align: center; font-size: 38px; }
 .setupArrow {
   color: var(--gold);
   text-align: center;
@@ -1174,6 +1188,8 @@
   box-shadow: 0 10px 25px rgba(8,41,69,0.07);
   opacity: 0;
   transform: translateY(12px);
+  animation: softUp 0.46s ease forwards;
+  animation-delay: var(--delay);
   animation: softUp 0.46s ease forwards, gentleTileFloat 6s ease-in-out infinite alternate;
   animation-delay: var(--delay), calc(0.8s + var(--delay));
 }
@@ -1281,6 +1297,7 @@
   gap: 18px;
 }
 
+.questionGrid article,
 .questionGrid article {
   min-height: 96px;
   display: flex;
@@ -2918,10 +2935,10 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 320px;
-  height: 320px;
+  width: 340px;
+  height: 340px;
   transform: translate(-50%, -50%);
-  border: 2px dashed rgba(179, 145, 89, 0.38);
+  border: 2px dashed rgba(179, 145, 89, 0.45);
   border-radius: 50%;
   box-shadow: 0 0 32px rgba(233, 202, 139, 0.12), inset 0 0 36px rgba(8, 41, 69, 0.03);
   pointer-events: none;
@@ -2931,29 +2948,31 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: 320px;
-  height: 320px;
+  width: 340px;
+  height: 340px;
+  margin: 0;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  animation: round9OrbitSpin 22s linear infinite;
+  animation: round9OrbitSpin 24s linear infinite;
   pointer-events: none;
 }
 
 .loopOrbitRing article {
   position: absolute;
-  width: 148px;
-  height: 62px;
+  width: 172px;
+  height: 64px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 14px;
+  gap: 8px;
+  padding: 0 12px;
   box-sizing: border-box;
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.98);
   border: 1px solid rgba(8, 41, 69, 0.12);
   box-shadow: 0 12px 30px rgba(8, 41, 69, 0.1);
-  animation: round9OrbitCounter 22s linear infinite;
+  animation: round9OrbitCounter 24s linear infinite;
   pointer-events: auto;
+  overflow: hidden;
 }
 
 .loopOrbitRing article:nth-child(1) { left: 50%; top: 0; }
@@ -2962,9 +2981,9 @@
 .loopOrbitRing article:nth-child(4) { left: 0; top: 50%; }
 
 .loopOrbitRing article span {
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
   display: grid;
   place-items: center;
   border-radius: 11px;
@@ -2976,14 +2995,65 @@
 
 .loopOrbitRing article strong {
   color: var(--navy);
-  font-size: 16px;
+  font-size: 13.5px;
+  font-weight: 800;
   white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+/* Slide 35 - Design DNA Highlight */
+.promptDnaHighlightBox {
+  margin: 10px 0;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: linear-gradient(90deg, rgba(179, 145, 89, 0.16), rgba(8, 41, 69, 0.05));
+  border: 1.5px solid rgba(179, 145, 89, 0.6);
+  border-left: 5px solid #b39159;
+  box-shadow: 0 6px 20px rgba(179, 145, 89, 0.12);
+  animation: promptDnaGlow 2.5s ease-in-out infinite alternate;
+}
+
+.promptDnaBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  color: #fff;
+  background: linear-gradient(135deg, #082945, #18547f);
+  padding: 3px 9px;
+  border-radius: 6px;
+  margin-bottom: 6px;
+  box-shadow: 0 2px 8px rgba(8, 41, 69, 0.2);
+}
+
+.promptDnaText {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--navy);
+}
+
+.promptDnaKeyword {
+  color: #946922;
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: #b39159;
+}
+
+@keyframes promptDnaGlow {
+  0% { box-shadow: 0 4px 16px rgba(179, 145, 89, 0.1); border-color: rgba(179, 145, 89, 0.5); }
+  100% { box-shadow: 0 8px 24px rgba(179, 145, 89, 0.25); border-color: rgba(179, 145, 89, 0.9); }
 }
 
 .loopOrbitCenter {
   position: absolute;
   left: 50%;
   top: 50%;
+  width: 112px;
+  height: 112px;
   width: 106px;
   height: 106px;
   transform: translate(-50%, -50%);
@@ -2994,17 +3064,21 @@
   border-radius: 50%;
   background: linear-gradient(145deg, #082945, #18547f);
   color: #fff;
+  box-shadow: 0 0 0 16px rgba(8,41,69,.05), 0 18px 42px rgba(8,41,69,.18);
+  animation: round9CenterPulse 2.8s ease-in-out infinite;
   box-shadow: 0 0 0 15px rgba(8, 41, 69, 0.05), 0 18px 40px rgba(8, 41, 69, 0.18);
   animation: round9CenterPulse 3.2s ease-in-out infinite;
 }
 
 .loopOrbitCenter b {
   color: var(--gold2);
+  font-size: 34px;
   font-size: 32px;
   line-height: 1;
 }
 
 .loopOrbitCenter small {
+  margin-top: 7px;
   margin-top: 6px;
   color: #d7e5ef;
   font-size: 9px;
@@ -3024,6 +3098,8 @@
 @keyframes round9Arrow { 50% { transform: translateX(4px); opacity: .58; } }
 @keyframes round9TileFloat { 50% { translate: 0 -4px; } }
 @keyframes round9ActionFloat { 50% { transform: translateY(-4px); box-shadow: 0 15px 30px rgba(8,41,69,.13); } }
+@keyframes round9OrbitSpin { to { transform: rotate(360deg); } }
+@keyframes round9OrbitCounter { to { transform: rotate(-360deg); } }
 @keyframes round9OrbitSpin {
   from { transform: translate(-50%, -50%) rotate(0deg); }
   to { transform: translate(-50%, -50%) rotate(360deg); }
@@ -3076,41 +3152,152 @@
 
 /* Patch: slides 14–35 — compact flows and product-realistic examples. */
 .flowImpactSlide .flowSingleRow {
-  left: 24px;
-  right: 24px;
-  top: 130px;
-  gap: 7px;
+  left: 14px !important;
+  right: 14px !important;
+  top: 125px !important;
+  gap: 8px !important;
+  justify-content: center !important;
+  flex-wrap: nowrap !important;
 }
 
 .flowImpactSlide .flowSingleRow .flowStep {
-  min-width: 0;
-  gap: 7px;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  max-width: 220px !important;
+  gap: 6px !important;
 }
 
 .flowImpactSlide .flowSingleRow .flowStep > div {
-  width: 168px !important;
-  height: 70px !important;
-  min-height: 70px !important;
-  padding: 0 12px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  height: 72px !important;
+  min-height: 72px !important;
+  padding: 0 10px !important;
   display: flex !important;
-  align-items: center;
-  gap: 9px;
-  box-sizing: border-box;
+  align-items: center !important;
+  gap: 8px !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
 }
 
 .flowImpactSlide .flowSingleRow .flowStep span {
-  width: 30px;
-  height: 30px;
-  flex: 0 0 30px;
+  width: 28px !important;
+  height: 28px !important;
+  flex: 0 0 28px !important;
+  font-size: 12px !important;
+  border-radius: 9px !important;
 }
 
 .flowImpactSlide .flowSingleRow .flowStep strong {
-  font-size: 13px;
-  line-height: 1;
-  white-space: nowrap;
+  font-size: 12px !important;
+  line-height: 1.25 !important;
+  white-space: normal !important;
+  word-break: normal !important;
+  text-wrap: balance !important;
+  text-align: left !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
 }
 
-.flowImpactSlide .flowSingleRow .flowStep i { font-size: 22px; }
+.flowImpactSlide .flowSingleRow .flowStep i {
+  font-size: 18px !important;
+  flex: 0 0 auto !important;
+}
+
+/* Slide 26 - Merged prominent warning box */
+.mergedWarningBox {
+  margin-top: 14px;
+  padding: 12px 18px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid rgba(194, 90, 77, 0.28);
+  border-left: 5px solid #c25a4d;
+  box-shadow: 0 8px 24px rgba(8, 41, 69, 0.08);
+}
+
+.mergedWarningHeading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.mergedWarningBadge {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .06em;
+  color: #c25a4d;
+  background: rgba(194, 90, 77, 0.1);
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(194, 90, 77, 0.2);
+}
+
+.mergedWarningHeading strong {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--navy);
+  letter-spacing: .02em;
+}
+
+.mergedWarningList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mergedWarningItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--navy);
+}
+
+.mergedWarningDot {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #c25a4d;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  margin-top: 1px;
+}
+
+.mergedWarningItem p {
+  margin: 0;
+}
+
+.mergedWarningItem strong {
+  color: #a8382b;
+  font-weight: 800;
+}
+
+.mergedWarningItem em {
+  font-style: normal;
+  font-weight: 700;
+  color: var(--navy);
+  background: rgba(179, 145, 89, 0.16);
+  padding: 1px 4px;
+  border-radius: 4px;
+}
+
+.mergedWarningItem code {
+  font-family: monospace;
+  font-size: 11.5px;
+  font-weight: 700;
+  background: rgba(8, 41, 69, 0.08);
+  color: var(--navy);
+  padding: 1px 5px;
+  border-radius: 4px;
+}
 
 .realisticAppSlide .mockWindow {
   min-width: 0;
@@ -3405,6 +3592,61 @@
   top: 44px;
   gap: 30px;
 }
+
+/* Slide 26: flex-column body with files + warning in flow (no absolute overlap) */
+.fileStructureBody {
+  position: absolute;
+  left: 34px;
+  right: 34px;
+  top: 44px;
+  bottom: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filesLayoutInner {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 30px;
+}
+
+.fileStructureBody .fileList {
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.fileStructureBody .fileList > div {
+  min-width: 0;
+  min-height: 76px;
+  padding: 0 14px;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.fileStructureBody .fileList span {
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  font-size: 9px;
+}
+
+.fileStructureBody .fileList strong {
+  min-width: 0;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.fileStructureBody .mockWindow {
+  min-width: 0;
+  height: 166px;
+}
+
+.fileStructureBody .mockBody { padding: 14px; }
+.fileStructureBody .plusMock { width: 34px; height: 34px; }
+.fileStructureBody .dropdownMock { font-size: 11px; }
+
 .fileStructureSlide .fileList {
   min-width: 0;
   grid-template-columns: repeat(2,minmax(0,1fr));
@@ -3586,6 +3828,7 @@
   .tieredStep,
   .tieredDown span,
   .testSuccessNote i,
+  .testSuccessNote span {
   .testSuccessNote span,
   .outcomesGrid > div,
   .ideaCard,

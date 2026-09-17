@@ -26,6 +26,10 @@ function buildDeckItems(isAdmin: boolean): DeckItem[] {
   const items: DeckItem[] = [];
 
   for (let pdfPage = 1; pdfPage <= SECTION_ONE_PAGE_COUNT; pdfPage += 1) {
+    if (pdfPage === 10) {
+      continue;
+    }
+
     if (pdfPage === 3) {
       items.push({ kind: "html", slide: "slide3" });
     } else if (pdfPage === 4) {
@@ -34,6 +38,7 @@ function buildDeckItems(isAdmin: boolean): DeckItem[] {
       items.push({ kind: "slide14", slide: "gemini-model" });
     } else if (pdfPage === 38) {
       items.push({ kind: "showcase" });
+      items.push({ kind: "html", slide: "realtime-dashboard" });
     } else {
       items.push({ kind: "native", pdfPage });
     }
@@ -44,6 +49,10 @@ function buildDeckItems(isAdmin: boolean): DeckItem[] {
 
     if (pdfPage === 34) {
       items.push({ kind: "html", slide: "deployment" });
+    }
+
+    if (pdfPage === 37) {
+      items.push({ kind: "html", slide: "apply-idea" });
     }
   }
 

@@ -14,7 +14,9 @@ export type SectionOneHtmlKind =
   | "slide3"
   | "slide4"
   | "idea-results"
-  | "deployment";
+  | "deployment"
+  | "apply-idea"
+  | "realtime-dashboard";
 
 type IdeaItem = {
   id: string;
@@ -414,6 +416,262 @@ function DeploymentSlide() {
   );
 }
 
+function ApplyIdeaSlide() {
+  const steps = [
+    {
+      num: "01",
+      badge: "ĐỀ BÀI NGHIỆP VỤ",
+      title: "Lấy lại Idea ban đầu",
+      desc: "Sử dụng bài toán bạn đã chọn ở đầu buổi (Xin nghỉ phép, Đặt xe, Báo cáo sự cố, Quản lý tài sản...) làm yêu cầu đầu vào.",
+      meta: [
+        { label: "Đầu vào", value: "Ý tưởng kinh doanh cá nhân" },
+        { label: "Mục tiêu", value: "Xác định rõ User & Dữ liệu cần lưu" },
+      ],
+    },
+    {
+      num: "02",
+      badge: "CHUẨN HÓA VỚI AI",
+      title: "Prompt chuẩn + Design DNA",
+      desc: "Mô tả 5 yếu tố cốt lõi (Mục tiêu, User, Dữ liệu, Quy trình, Báo cáo) và đính kèm file design-dna.txt để Gemini sinh UI chuẩn EIU.",
+      meta: [
+        { label: "Prompt", value: "Cấu trúc 5 thành phần chuẩn" },
+        { label: "Giao diện", value: "Tải & đính kèm design-dna.txt" },
+      ],
+    },
+    {
+      num: "03",
+      badge: "TRIỂN KHAI & XUẤT BẢN",
+      title: "Deploy Apps Script & Lên bảng",
+      desc: "Dán mã nguồn vào Google Apps Script, Deploy với quyền Anyone, lấy link Web App /exec và sẵn sàng chia sẻ lên bảng Showcase.",
+      meta: [
+        { label: "Triển khai", value: "Who has access: Anyone" },
+        { label: "Đầu ra", value: "Đường link Web App /exec" },
+      ],
+    },
+  ];
+
+  return (
+    <section className={`${styles.root} ${styles.applyIdeaSlide}`}>
+      <Ambient strong />
+      <header className={styles.applyIdeaHeading}>
+        <div className={styles.applyIdeaKicker}>
+          <span>THỰC HÀNH TỰ DO</span>
+          <i>EIU · APPLIED AGENTIC AI</i>
+        </div>
+        <h1>Tự áp dụng với Idea ban đầu của bạn</h1>
+        <p>Vận dụng toàn bộ quy trình AI và Design DNA vừa học để hiện thực hóa bài toán kinh doanh của riêng bạn.</p>
+      </header>
+
+      <div className={styles.applyIdeaGrid}>
+        {steps.map((step, idx) => (
+          <article
+            key={step.num}
+            className={styles.applyIdeaCard}
+            style={{ "--delay": `${idx * 110}ms` } as CSSProperties}
+          >
+            <div className={styles.applyIdeaCardTop}>
+              <span className={styles.applyIdeaNumBadge}>{step.num}</span>
+              <span className={styles.applyIdeaCategoryBadge}>{step.badge}</span>
+            </div>
+            <h3 className={styles.applyIdeaTitle}>{step.title}</h3>
+            <p className={styles.applyIdeaDesc}>{step.desc}</p>
+            <div className={styles.applyIdeaMetaList}>
+              {step.meta.map((m) => (
+                <div key={m.label} className={styles.applyIdeaMetaRow}>
+                  <span className={styles.applyIdeaMetaLabel}>{m.label}:</span>
+                  <strong className={styles.applyIdeaMetaVal}>{m.value}</strong>
+                </div>
+              ))}
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className={styles.applyIdeaFooter}>
+        <div className={styles.applyIdeaBanner}>
+          <span className={styles.applyIdeaBannerTag}>SẴN SÀNG CHO SHOWCASE</span>
+          <span className={styles.applyIdeaBannerText}>
+            Sau khi hoàn thiện Web App, lấy URL kết thúc bằng <code>/exec</code> và chuyển sang slide tiếp theo để đưa bài làm của bạn lên bảng chia sẻ chung!
+          </span>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const SALES_DASHBOARD_PROMPT = `Tôi có một Google Sheet chứa dữ liệu bán hàng trong sheet "Sales" với các cột:
+
+- Date: ngày bán hàng
+- Product: tên sản phẩm
+- Department: phòng ban
+- Amount: doanh thu
+
+Hãy tạo cho tôi một Google Apps Script Web App Dashboard chỉ sử dụng 2 file:
+
+1. Code.gs
+2. Index.html
+
+Không tạo thêm file khác.
+
+Yêu cầu:
+
+1. Code.gs:
+- Kết nối với Google Sheet hiện tại bằng SpreadsheetApp.getActiveSpreadsheet()
+- Đọc dữ liệu từ sheet "Sales"
+- Trả dữ liệu sang giao diện bằng google.script.run
+- Tự động xử lý dữ liệu:
+  + Tổng doanh thu
+  + Tổng số đơn hàng
+  + Doanh thu trung bình
+  + Sản phẩm bán nhiều nhất theo doanh thu
+  + Phòng ban có doanh thu cao nhất
+  + Doanh thu theo từng tháng
+  + Doanh thu theo phòng ban
+- Viết code đơn giản, dễ hiểu, có chú thích từng phần.
+
+2. Index.html:
+Tạo giao diện Dashboard hiện đại, responsive.
+
+Bố cục:
+
+Phần trên:
+- Tiêu đề: "Sales Dashboard 2025"
+
+Khu vực KPI Card:
+- Tổng doanh thu
+- Số đơn hàng
+- Doanh thu trung bình
+- Top sản phẩm
+
+Biểu đồ:
+- Biểu đồ đường (Line Chart):
+  Doanh thu theo tháng
+
+- Biểu đồ cột (Bar Chart):
+  Doanh thu theo phòng ban
+
+- Biểu đồ tròn (Pie Chart):
+  Tỷ trọng doanh thu theo phòng ban
+
+Bảng dữ liệu:
+- Hiển thị danh sách sản phẩm
+- Có tìm kiếm theo tên sản phẩm
+
+Yêu cầu kỹ thuật:
+- Sử dụng HTML + CSS + JavaScript trong cùng file Index.html
+- Sử dụng Google Charts hoặc thư viện miễn phí qua CDN
+- Không dùng framework phức tạp
+- Không dùng Firebase hoặc database ngoài
+- Không tạo file JSON
+- Giao diện đẹp, màu sắc hiện đại giống dashboard doanh nghiệp
+- Có loading khi đang lấy dữ liệu
+- Code hoàn chỉnh có thể copy trực tiếp vào Apps Script và Deploy thành Web App
+
+Hãy trả về đầy đủ:
+1. Code.gs
+2. Index.html
+
+Chỉ tập trung vào dashboard bán hàng, không thêm chức năng đăng nhập hoặc phân quyền.`;
+
+function RealtimeDashboardSlide() {
+  const [copied, setCopied] = useState(false);
+
+  async function copyPrompt() {
+    try {
+      await navigator.clipboard.writeText(SALES_DASHBOARD_PROMPT);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2400);
+    } catch {
+      setCopied(false);
+    }
+  }
+
+  return (
+    <section className={`${styles.root} ${styles.realtimeDashboardSlide}`}>
+      <Ambient strong />
+      <header className={styles.dashboardHeader}>
+        <div className={styles.dashboardKicker}>
+          <span>DEMO MỞ RỘNG</span>
+          <i>EIU · APPLIED AGENTIC AI</i>
+        </div>
+        <h1>Demo dashboard thay đổi theo dữ liệu real time</h1>
+        <p>Kết nối Google Sheets với Web App Dashboard tương tác đa chiều, tự động cập nhật biểu đồ và chỉ số KPI theo dữ liệu bán hàng thời gian thực.</p>
+      </header>
+
+      {/* 2 PROMINENT BUTTONS BAR */}
+      <div className={styles.prominentActionBar}>
+        <a
+          href="/downloads/Sales-Data-2025.xlsx"
+          download="Sales-Data-2025.xlsx"
+          className={styles.actionBtnDownload}
+        >
+          <span className={styles.actionBtnIcon}>↓</span>
+          <span>Tải Sale data (.xlsx)</span>
+        </a>
+
+        <button
+          type="button"
+          onClick={() => void copyPrompt()}
+          className={`${styles.actionBtnCopy} ${copied ? styles.actionBtnCopied : ""}`}
+        >
+          <span className={styles.actionBtnIcon}>{copied ? "✓" : "⧉"}</span>
+          <span>{copied ? "Đã sao chép prompt!" : "Copy prompt"}</span>
+        </button>
+      </div>
+
+      {/* CONTENT GRID */}
+      <div className={styles.dashboardContentGrid}>
+        {/* LEFT: ARCHITECTURE & SPECS */}
+        <div className={styles.dashboardLeftCol}>
+          <div className={styles.dashboardSpecCard}>
+            <div className={styles.dashboardCardHeader}>
+              <span className={styles.specBadge}>DỮ LIỆU NGUỒN</span>
+              <h4>Sheet &quot;Sales&quot; · 50 dòng</h4>
+            </div>
+            <div className={styles.dataColumnsList}>
+              <div className={styles.colTag}><code>Date</code> Ngày bán</div>
+              <div className={styles.colTag}><code>Product</code> Tên SP</div>
+              <div className={styles.colTag}><code>Department</code> Phòng ban</div>
+              <div className={styles.colTag}><code>Amount</code> Doanh thu</div>
+            </div>
+          </div>
+
+          <div className={styles.dashboardSpecCard}>
+            <div className={styles.dashboardCardHeader}>
+              <span className={styles.specBadge}>KIẾN TRÚC 2 FILE</span>
+              <h4>Google Apps Script</h4>
+            </div>
+            <ul className={styles.fileListCompact}>
+              <li>
+                <strong>1. Code.gs:</strong> <code>getActiveSpreadsheet()</code> đọc Sheet &quot;Sales&quot;, tính KPI, doanh thu theo tháng và phòng ban.
+              </li>
+              <li>
+                <strong>2. Index.html:</strong> Giao diện Sales Dashboard 2025, Google Charts (Line, Bar, Pie) và bảng tìm kiếm sản phẩm.
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        {/* RIGHT: PROMPT PREVIEW CARD */}
+        <div className={styles.dashboardRightCol}>
+          <div className={styles.promptPreviewCard}>
+            <div className={styles.promptPreviewHeader}>
+              <div className={styles.promptHeaderTitle}>
+                <span className={styles.promptDot} />
+                <strong>Prompt mẫu gửi Gemini</strong>
+              </div>
+              <span className={styles.promptWordCount}>50 dòng dữ liệu · Google Charts CDN</span>
+            </div>
+            <div className={styles.promptScrollBox}>
+              <pre>{SALES_DASHBOARD_PROMPT}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function SectionOneHtmlSlide({ kind, scale, isAdmin }: Props) {
   return (
     <div
@@ -425,6 +683,8 @@ export default function SectionOneHtmlSlide({ kind, scale, isAdmin }: Props) {
       {kind === "slide4" && <SlideFour isAdmin={isAdmin} />}
       {kind === "idea-results" && <IdeaResults />}
       {kind === "deployment" && <DeploymentSlide />}
+      {kind === "apply-idea" && <ApplyIdeaSlide />}
+      {kind === "realtime-dashboard" && <RealtimeDashboardSlide />}
     </div>
   );
 }
