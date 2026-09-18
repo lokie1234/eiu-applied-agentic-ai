@@ -793,7 +793,24 @@ function NativeSlides({ page }: { page: number }) {
           <Shell title="Tạo các file theo đúng hướng dẫn của Gemini" eyebrow="FILE STRUCTURE" className={styles.fileStructureSlide}>
             <div className={styles.fileStructureBody}>
               <div className={styles.filesLayoutInner}>
+<<<<<<< HEAD
                 <div className={styles.fileList}>{["Code.gs (mặc định)", "JavaScript.html", "Style.html", "Index.html"].map((f, i) => <div key={f} style={{ "--delay": `${i * 95}ms` } as CSSProperties}><span>{f.endsWith(".html") ? "HTML" : "GS"}</span><strong>{f}</strong></div>)}</div>
+=======
+                <div className={styles.fileList}>
+                  {[
+                    { name: "Code.gs (mặc định)", ext: "GS", desc: "Tập lệnh máy chủ (Server-side)" },
+                    { name: "Index.html", ext: "HTML", desc: "Giao diện Web App (HTML · CSS · JS)" },
+                  ].map((f, i) => (
+                    <div key={f.name} style={{ "--delay": `${i * 95}ms` } as CSSProperties}>
+                      <span>{f.ext}</span>
+                      <div className={styles.fileMeta}>
+                        <strong>{f.name}</strong>
+                        <small>{f.desc}</small>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+>>>>>>> e91eb51 (Initial commit)
                 <MockWindow title="Files" icon={<AppIcon app="apps-script" label="Google Apps Script" />}><div className={styles.plusMock}>＋</div><div className={styles.dropdownMock}><span>Script</span><strong>HTML</strong></div></MockWindow>
               </div>
               <div className={styles.mergedWarningBox}>
@@ -808,7 +825,11 @@ function NativeSlides({ page }: { page: number }) {
                   </div>
                   <div className={styles.mergedWarningItem}>
                     <span className={styles.mergedWarningDot}>2</span>
+<<<<<<< HEAD
                     <p><strong>Xóa code cũ:</strong> <em>Xóa sạch toàn bộ nội dung mặc định</em> trong <code>Code.gs</code> và các file <code>.html</code> ngay khi vừa tạo trước khi dán mã nguồn.</p>
+=======
+                    <p><strong>Xóa code cũ:</strong> <em>Xóa sạch toàn bộ nội dung mặc định</em> trong <code>Code.gs</code> và file <code>Index.html</code> ngay khi vừa tạo trước khi dán mã nguồn.</p>
+>>>>>>> e91eb51 (Initial commit)
                   </div>
                 </div>
               </div>

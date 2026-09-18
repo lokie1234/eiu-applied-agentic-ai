@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { ACCESS_COOKIE, getAccessRole } from "@/lib/access";
 import { callAppsScript } from "@/lib/googleAppsScript";
+import { recordPresence } from "@/lib/presence";
 
 type SectionId = "section1" | "section2";
 
@@ -24,7 +25,10 @@ export async function GET(request: Request) {
       );
     }
 
-    const section = new URL(request.url).searchParams.get("section") ?? "";
+    const url = new URL(request.url);
+    const section = url.searchParams.get("section") ?? "";
+    const clientId = url.searchParams.get("clientId");
+
     if (!validSection(section)) {
       return NextResponse.json(
         { success: false, message: "Section không hợp lệ." },
@@ -36,6 +40,10 @@ export async function GET(request: Request) {
         { success: false, message: "Không có quyền truy cập Section này." },
         { status: 403 },
       );
+    }
+
+    if (clientId) {
+      recordPresence(clientId, section);
     }
 
     const payload = await callAppsScript(
