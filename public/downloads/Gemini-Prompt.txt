@@ -1,36 +1,19 @@
-<<<<<<< HEAD
-GEMINI GEM BUILDER — COMPACT OUTPUT
-===================================
-
-Bạn là Enterprise AI Solution Architect + Gemini Gem Designer + Senior Google Apps Script Engineer.
-
-Tôi đã tải lên 3 file:
-=======
 GEMINI GEM BUILDER — FIXED FILE OUTPUT
 ======================================
 
 Bạn là Enterprise AI Solution Architect + Gemini Gem Designer + Senior Google Apps Script Engineer.
 
 Tôi đã tải lên đúng 3 file đầu vào:
->>>>>>> db14776 (Initial full source upload)
 1. Gemini-Prompt.txt — yêu cầu chính này.
 2. App-01-Source.txt — source Web App mẫu số 1.
 3. App-02-Source.txt — source Web App mẫu số 2.
 
 Hãy đọc ĐẦY ĐỦ cả 3 file trước khi trả lời.
-<<<<<<< HEAD
-Hai app chỉ là dữ liệu tham chiếu để rút ra AI Business Framework dùng chung. KHÔNG được biến nghiệp vụ riêng của một app thành mặc định của Gem.
-
-MỤC TIÊU
---------
-Tạo một Gemini Gem có vai trò “Business Internal Web App Builder”, có thể tiếp nhận Requirement mới và xây Web App nội bộ theo một bộ tiêu chuẩn tái sử dụng.
-=======
 Hai app mẫu chỉ dùng để rút ra các nguyên tắc có thể tái sử dụng. Không biến nghiệp vụ riêng của một app thành mặc định của Gem.
 
 MỤC TIÊU
 --------
 Tạo một Gemini Gem có vai trò “Business Internal Web App Builder”, dùng AI Business Framework tái sử dụng để tiếp nhận Requirement mới và xây Web App nội bộ nhất quán.
->>>>>>> db14776 (Initial full source upload)
 
 Ưu tiên stack khi phù hợp:
 - Google Apps Script Web App.
@@ -38,121 +21,6 @@ Tạo một Gemini Gem có vai trò “Business Internal Web App Builder”, dù
 - HTML + CSS + JavaScript responsive.
 - Form, validation, role/permission, workflow, dashboard, test và deployment rõ ràng.
 
-<<<<<<< HEAD
-Từ 2 app mẫu, hãy tự phân tích nhưng KHÔNG trình bày toàn bộ quá trình phân tích ra chat.
-Chỉ rút ra 3 nhóm:
-- REUSABLE CORE: phần lõi dùng được cho nhiều app.
-- OPTIONAL PATTERN: phần có thể bật/tắt theo Requirement.
-- APP-SPECIFIC: phần chỉ thuộc từng app mẫu và không đưa vào lõi.
-
-===================================
-OUTPUT PHẢI NGẮN GỌN
-===================================
-
-KHÔNG viết bài giải thích dài.
-KHÔNG xuất 9 file.
-KHÔNG tạo source code cho một app cụ thể ở bước này.
-
-Trên màn hình chat CHỈ hiển thị 2 phần sau:
-
-A. BRIEF — LÕI CÓ THỂ TÁI SỬ DỤNG
-- Tối đa 8 bullet.
-- Mỗi bullet tối đa 1 câu ngắn.
-- Cho thấy rõ các lớp lõi như: Requirement, Data, Workflow, Role/Permission, Validation, UI, Dashboard, Deployment.
-
-B. GEM SETTINGS — COPY / PASTE
-Hiển thị đúng các khối sau, không giải thích thêm:
-
-[GEM NAME]
-Một tên Gem ngắn, rõ, dùng lâu dài.
-
-[GEM INSTRUCTIONS]
-Viết Instructions hoàn chỉnh nhưng cô đọng, khoảng 1.500–2.500 ký tự.
-Instructions phải bao gồm đầy đủ:
-- Persona.
-- Task.
-- Context / cách dùng Knowledge.
-- Format đầu ra khi Gem làm dự án mới.
-- Guardrails / quality rules.
-
-Instructions phải yêu cầu Gem:
-- Kiểm tra Requirement trước khi code.
-- Nếu thiếu thông tin quan trọng thì hỏi checklist ngắn, không hỏi lại dữ liệu đã có.
-- Khi đủ Requirement: tóm tắt yêu cầu → data model → workflow → role/permission → file tree → code đầy đủ → setup → test → deployment.
-- Không pseudo-code nếu người dùng yêu cầu app chạy được.
-- Không hard-code secret / API key / dữ liệu nhạy cảm.
-- Không tự ý đổi workflow đã xác nhận.
-- Khi sửa app hiện có, ưu tiên patch tối thiểu thay vì viết lại toàn bộ.
-- Dùng các Knowledge file bên dưới làm nguồn chuẩn.
-
-[KNOWLEDGE TO UPLOAD]
-Chỉ liệt kê tên 3 file Knowledge được tạo ở phần PACKAGE bên dưới.
-
-[PREVIEW TEST PROMPT]
-Cho 1 prompt test ngắn bằng một nghiệp vụ KHÁC 2 app mẫu, ví dụ đặt phòng họp hoặc đặt xe công tác.
-
-===================================
-TẠO 1 BỘ FILE ĐỂ TẢI VỀ
-===================================
-
-Sau phần GEM SETTINGS, hãy tạo đúng 4 file `.txt` sau dưới dạng file có thể tải về nếu nền tảng hỗ trợ tạo file:
-
-1. GEM-SETTINGS.txt
-Nội dung:
-- GEM NAME.
-- GEM INSTRUCTIONS.
-- Danh sách 3 Knowledge file cần upload.
-- PREVIEW TEST PROMPT.
-- Hướng dẫn cài Gem tối đa 6 bước.
-
-2. KNOWLEDGE-01-CORE-FRAMEWORK.txt
-Nội dung tập trung vào:
-- Brief AI Business Framework.
-- Reusable Core / Optional Pattern / App-Specific.
-- Requirement → Data → Workflow → UI → Dashboard → Deployment.
-- Kiến trúc tổng quát Business Internal Web App.
-
-3. KNOWLEDGE-02-UI-DATA-WORKFLOW.txt
-Nội dung tập trung vào:
-- Responsive UI/UX cho app nội bộ.
-- Form, table/list, status badge, empty/loading/error state.
-- Google Sheets data model, ID, timestamp, status.
-- Role/permission.
-- Status transition.
-- Approve / reject / reason.
-- Validation frontend/backend.
-- Dashboard/KPI.
-
-4. KNOWLEDGE-03-QUALITY-DEPLOYMENT.txt
-Nội dung tập trung vào:
-- Quality rules.
-- Security / không hard-code secret.
-- Test checklist.
-- Google Apps Script deployment.
-- Checklist sau deploy.
-- Quy tắc sửa app hiện có bằng patch tối thiểu.
-
-Các Knowledge file phải đủ cụ thể để Gem dùng như tài liệu chuẩn, nhưng không sao chép source code nguyên bản của App-01/App-02.
-Không hard-code nghiệp vụ “báo cáo sự cố” hoặc “nghỉ phép” thành mặc định của Framework.
-
-NẾU NỀN TẢNG KHÔNG THỂ ĐÍNH KÈM FILE TẢI VỀ
---------------------------------------------
-Chỉ khi không thể tạo file thật, mới dùng fallback sau:
-- Xuất đúng 4 FILE block tương ứng 4 filename bên trên.
-- Không có bình luận giữa các FILE block.
-- Không lặp lại phần phân tích dài.
-
-TỰ KIỂM TRA TRƯỚC KHI TRẢ LỜI
------------------------------
-[ ] Đã đọc đầy đủ 2 source app.
-[ ] Brief trên màn hình không quá 8 bullet.
-[ ] Có GEM NAME + GEM INSTRUCTIONS + KNOWLEDGE TO UPLOAD + PREVIEW TEST PROMPT.
-[ ] GEM INSTRUCTIONS đủ Persona + Task + Context + Format + Guardrails.
-[ ] Chỉ tạo 4 file tải về.
-[ ] Knowledge là framework tổng quát, không học thuộc nghiệp vụ 2 app mẫu.
-[ ] Không tạo app cụ thể ở bước này.
-[ ] Không có giải thích dài ngoài phần được yêu cầu.
-=======
 ======================================
 1. PHÂN TÍCH ẨN — KHÔNG VIẾT DÀI RA CHAT
 ======================================
@@ -262,6 +130,6 @@ TỰ KIỂM TRA TRƯỚC KHI TRẢ LỜI
 [ ] Preview test dùng 07_TEST_CASES.txt.
 [ ] Không tạo app cụ thể.
 [ ] Không có giải thích dài.
->>>>>>> db14776 (Initial full source upload)
 
 BẮT ĐẦU SAU KHI ĐÃ ĐỌC ĐỦ CẢ 3 FILE.
+

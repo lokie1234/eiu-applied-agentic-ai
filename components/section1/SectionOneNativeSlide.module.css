@@ -3613,30 +3613,12 @@
 
 .fileStructureBody .fileList {
   min-width: 0;
-<<<<<<< HEAD
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-=======
   grid-template-columns: 1fr;
   gap: 14px;
->>>>>>> e91eb51 (Initial commit)
 }
 
 .fileStructureBody .fileList > div {
   min-width: 0;
-<<<<<<< HEAD
-  min-height: 76px;
-  padding: 0 14px;
-  gap: 10px;
-  box-sizing: border-box;
-}
-
-.fileStructureBody .fileList span {
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  font-size: 9px;
-=======
   min-height: 84px;
   height: 84px;
   padding: 0 22px;
@@ -3669,14 +3651,10 @@
   flex-direction: column;
   gap: 4px;
   min-width: 0;
->>>>>>> e91eb51 (Initial commit)
 }
 
 .fileStructureBody .fileList strong {
   min-width: 0;
-<<<<<<< HEAD
-  font-size: 12px;
-=======
   font-size: 17px;
   font-weight: 750;
   color: var(--navy);
@@ -3688,17 +3666,12 @@
   font-size: 12px;
   color: rgba(8, 41, 69, 0.65);
   font-weight: 550;
->>>>>>> e91eb51 (Initial commit)
   white-space: nowrap;
 }
 
 .fileStructureBody .mockWindow {
   min-width: 0;
-<<<<<<< HEAD
-  height: 166px;
-=======
   height: 182px;
->>>>>>> e91eb51 (Initial commit)
 }
 
 .fileStructureBody .mockBody { padding: 14px; }
@@ -3707,35 +3680,12 @@
 
 .fileStructureSlide .fileList {
   min-width: 0;
-<<<<<<< HEAD
-  grid-template-columns: repeat(2,minmax(0,1fr));
-  gap: 12px;
-=======
   grid-template-columns: 1fr;
   gap: 14px;
->>>>>>> e91eb51 (Initial commit)
 }
 .fileStructureSlide .fileList > div {
   min-width: 0;
   min-height: 84px;
-<<<<<<< HEAD
-  padding: 0 14px;
-  gap: 10px;
-  box-sizing: border-box;
-}
-.fileStructureSlide .fileList span {
-  width: 38px;
-  height: 38px;
-  flex: 0 0 38px;
-  font-size: 9px;
-}
-.fileStructureSlide .fileList strong {
-  min-width: 0;
-  font-size: 12px;
-  white-space: nowrap;
-}
-.fileStructureSlide .mockWindow { min-width: 0; height: 184px; }
-=======
   height: 84px;
   padding: 0 22px;
   gap: 18px;
@@ -3781,7 +3731,6 @@
   white-space: nowrap;
 }
 .fileStructureSlide .mockWindow { min-width: 0; height: 182px; }
->>>>>>> e91eb51 (Initial commit)
 .fileStructureSlide .mockBody { padding: 14px; }
 .fileStructureSlide .plusMock { width: 34px; height: 34px; }
 .fileStructureSlide .dropdownMock { font-size: 11px; }
