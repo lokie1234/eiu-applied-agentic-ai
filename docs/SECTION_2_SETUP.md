@@ -32,6 +32,8 @@ Bộ biến đầy đủ nên có:
 ACCESS_CODE=9999
 SECTION_2_ACCESS_CODE=8888
 ADMIN_ACCESS_CODE=1103
+QUIZ_ACCESS_CODE=7879
+QUIZ_SECTION_2_ACCESS_CODE=7979
 ACCESS_SESSION_SECRET=mot-chuoi-bi-mat-dai-va-ngau-nhien
 NEXT_PUBLIC_PDF_URL=url-pdf-section-1
 GOOGLE_APPS_SCRIPT_URL=url-exec-cua-google-apps-script
@@ -107,4 +109,3 @@ git add .
 git commit -m "Add interactive Section 2 and access roles"
 git push origin main
 ```
-

@@ -4,6 +4,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const name = String(body.name ?? "").trim();
+    const email = String(body.email ?? "").trim().toLowerCase();
     const score = Number(body.score);
     const total = Number(body.total);
     const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.trim();
@@ -12,6 +13,9 @@ export async function POST(request: Request) {
     if (body.website) return NextResponse.json({ success: true });
     if (!name || name.length > 80) {
       return NextResponse.json({ success: false, message: "Họ tên không hợp lệ." }, { status: 400 });
+    }
+    if (email.length > 100 || !/^[a-z0-9._%+-]+@eiu\.edu\.vn$/i.test(email)) {
+      return NextResponse.json({ success: false, message: "Email EIU không hợp lệ." }, { status: 400 });
     }
     if (!Number.isInteger(score) || !Number.isInteger(total) || total !== 10 || score < 0 || score > total) {
       return NextResponse.json({ success: false, message: "Kết quả bài kiểm tra không hợp lệ." }, { status: 400 });
@@ -28,6 +32,7 @@ export async function POST(request: Request) {
         secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "",
         section,
         name,
+        email,
         score,
         total,
         completedAt: String(body.completedAt ?? new Date().toISOString()),

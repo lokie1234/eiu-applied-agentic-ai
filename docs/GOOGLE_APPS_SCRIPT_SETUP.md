@@ -65,7 +65,8 @@ GOOGLE_APPS_SCRIPT_SECRET=CHANGE_ME
 
 1. Mở slide 38, nhập tên và một liên kết ứng dụng hợp lệ rồi chia sẻ.
 2. Google Sheet phải xuất hiện trang tính `Bài làm chia sẻ` và có một dòng mới.
-3. Hoàn thành 10 câu hỏi, nhập họ tên rồi gửi kết quả.
+3. Hoàn thành 10 câu hỏi, nhập họ tên và email EIU rồi gửi kết quả.
+4. Kết quả tiếp tục được ghi vào các trang tính cũ; cột `Email` được chèn trước cột `Kết quả` và dữ liệu điểm cũ được giữ nguyên.
 4. Google Sheet phải xuất hiện trang tính `Kết quả bài kiểm tra` với điểm dạng `8/10`.
 5. Mở `/login`, nhập `1103`, đến slide 38 và kiểm tra nút `Xóa` xuất hiện cạnh từng bài.
 6. Mở `/login`, nhập `9999`, đến slide 38 và kiểm tra nút `Xóa` không xuất hiện.

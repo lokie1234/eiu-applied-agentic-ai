@@ -41,6 +41,26 @@ function quizSheetName(section) {
   return section === "section2" ? "Kết quả bài kiểm tra - Section 2" : "Kết quả bài kiểm tra";
 }
 
+function getQuizSheet(section) {
+  const headers = ["Thời gian", "Họ và tên", "Email", "Kết quả"];
+  const file = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const tab = file.getSheetByName(quizSheetName(section)) || file.insertSheet(quizSheetName(section));
+
+  if (tab.getLastRow() === 0) {
+    tab.appendRow(headers);
+  } else {
+    const thirdHeader = String(tab.getRange(1, 3).getDisplayValue() || "").trim();
+    if (thirdHeader === "Kết quả" || tab.getLastColumn() < headers.length) {
+      // Giữ nguyên dữ liệu cũ: chèn cột Email trước cột Kết quả hiện tại.
+      tab.insertColumnAfter(2);
+    }
+    tab.getRange(1, 1, 1, headers.length).setValues([headers]);
+  }
+
+  tab.setFrozenRows(1);
+  return tab;
+}
+
 function terminationKey(section) {
   return "EIU_TERMINATION_TOKEN_" + section.toUpperCase();
 }
@@ -290,10 +310,12 @@ function doPost(e) {
 
     if (data.action === "quiz.submit") {
       const name = String(data.name || "").trim();
+      const email = String(data.email || "").trim().toLowerCase();
       const score = Number(data.score);
       const total = Number(data.total);
       if (
         !name ||
+        !/^[a-z0-9._%+-]+@eiu\.edu\.vn$/i.test(email) ||
         !Number.isInteger(score) ||
         total !== 10 ||
         score < 0 ||
@@ -304,15 +326,11 @@ function doPost(e) {
 
       const completedAt = String(data.completedAt || new Date().toISOString());
       const quizSection = normalizeSection(data.section) || "section1";
-      const tab = getSheet(quizSheetName(quizSection), [
-        "Thời gian",
-        "Họ và tên",
-        "Kết quả",
-      ]);
+      const tab = getQuizSheet(quizSection);
       const lock = LockService.getScriptLock();
       lock.waitLock(10000);
       try {
-        tab.appendRow([completedAt, safeCell(name), score + "/" + total]);
+        tab.appendRow([completedAt, safeCell(name), safeCell(email), score + "/" + total]);
       } finally {
         lock.releaseLock();
       }

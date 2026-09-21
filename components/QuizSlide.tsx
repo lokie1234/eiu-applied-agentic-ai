@@ -67,6 +67,7 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [finished, setFinished] = useState(false);
   const [name, setName] = useState("");
+  const [emailLocalPart, setEmailLocalPart] = useState("");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -111,7 +112,7 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
     const response = await fetch("/api/quiz-access", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: quizCode }),
+      body: JSON.stringify({ code: quizCode, section: variant }),
     });
     if (response.ok) setQuizUnlocked(true);
     else setQuizError("Mã truy cập Quiz không đúng.");
@@ -131,6 +132,7 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
         body: JSON.stringify({
           section: variant,
           name,
+          email: `${emailLocalPart.trim()}@eiu.edu.vn`,
           website,
           score,
           total: questions.length,
@@ -236,8 +238,9 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
 
           <form className={styles.formCard} onSubmit={submitResult}>
             <span className={styles.formKicker}>Ghi nhận kết quả</span>
-            <p>Nhập họ tên để lưu kết quả vào bảng dữ liệu của lớp.</p>
+            <p>Nhập họ tên và email EIU để lưu kết quả vào bảng dữ liệu của lớp.</p>
             <label>Họ và tên<input value={name} onChange={(event) => setName(event.target.value)} maxLength={80} required /></label>
+            <label>Email EIU<div className={styles.emailField}><input value={emailLocalPart} onChange={(event) => setEmailLocalPart(event.target.value.replace(/@.*$/, ""))} maxLength={64} pattern="[A-Za-z0-9._%+\-]+" autoComplete="email" aria-label="Tên tài khoản email EIU" required /><span>@eiu.edu.vn</span></div></label>
             <label className={styles.honeypot} aria-hidden="true">Website<input value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></label>
             <button type="submit" className={styles.submit} disabled={status === "sending" || status === "success"}>
               {status === "sending" ? "Đang gửi..." : status === "success" ? "Đã gửi" : "Gửi kết quả"}
