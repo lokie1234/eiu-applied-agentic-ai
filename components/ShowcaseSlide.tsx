@@ -193,9 +193,9 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
         <form className={styles.form} onSubmit={shareApp}>
           <span className={styles.formKicker}>Chia sẻ bài làm</span>
           <h2 style={{ whiteSpace: "nowrap", fontSize: "23px", lineHeight: 1.16, letterSpacing: "-.02em" }}>Đưa bài làm của bạn lên bảng</h2>
-          <p>{isSectionTwo ? "Dán liên kết Gem hoặc bài làm đã hoàn thiện để cả lớp cùng xem." : "Dán liên kết ứng dụng đã triển khai từ nền tảng lập trình của Google."}</p>
+          <p>{isSectionTwo ? "Dán liên kết bài làm đã hoàn thiện để cả lớp cùng xem." : "Dán liên kết ứng dụng đã triển khai từ nền tảng lập trình của Google."}</p>
           <label>Tên của bạn<input value={name} onChange={(event) => setName(event.target.value)} maxLength={80} placeholder="Nguyễn Văn A" required /></label>
-          <label>{isSectionTwo ? "Liên kết Gem / bài làm" : "Liên kết ứng dụng"}<input type="url" value={url} onChange={(event) => setUrl(event.target.value)} maxLength={500} placeholder={isSectionTwo ? "https://gemini.google.com/gem/..." : "https://script.google.com/macros/s/.../exec"} required /></label>
+          <label>{isSectionTwo ? "Liên kết bài làm" : "Liên kết ứng dụng"}<input type="url" value={url} onChange={(event) => setUrl(event.target.value)} maxLength={500} placeholder={isSectionTwo ? "https://..." : "https://script.google.com/macros/s/.../exec"} required /></label>
           <label className={styles.honeypot} aria-hidden="true">Trang web<input value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></label>
           <button type="submit" disabled={status === "sending"}>{status === "sending" ? "Đang chia sẻ..." : isSectionTwo ? "Chia sẻ bài làm" : "Chia sẻ ứng dụng"}</button>
           {message && <div className={`${styles.message} ${status === "error" ? styles.error : ""}`} role="status">{message}</div>}

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
@@ -32,10 +33,10 @@ const htmlContent = `<!DOCTYPE html>
       color: #17324a;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
-      padding: 9mm 10mm;
+      padding: 8mm 10mm 7mm;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
     }
 
     /* HEADER */
@@ -189,7 +190,7 @@ const htmlContent = `<!DOCTYPE html>
     }
 
     .map-step h4 {
-      font-size: 10.5px;
+      font-size: 11px;
       font-weight: 800;
       color: #082945;
       margin-bottom: 2px;
@@ -197,7 +198,7 @@ const htmlContent = `<!DOCTYPE html>
     }
 
     .map-step p {
-      font-size: 8.2px;
+      font-size: 8.8px;
       color: #687987;
       line-height: 1.3;
     }
@@ -209,38 +210,41 @@ const htmlContent = `<!DOCTYPE html>
       gap: 10px;
       margin-top: 6px;
       flex: 1;
+      min-height: 0;
     }
 
     /* LEFT: 8 STEPS */
     .steps-column {
       display: flex;
       flex-direction: column;
+      min-height: 0;
     }
 
     .steps-list {
-      display: flex;
-      flex-direction: column;
-      gap: 4.5px;
+      display: grid;
+      grid-template-rows: repeat(8, minmax(0, 1fr));
+      gap: 5px;
       flex: 1;
+      min-height: 0;
     }
 
     .step-item {
       display: flex;
       gap: 8px;
-      padding: 5px 8px;
+      padding: 7px 9px;
       background: #ffffff;
       border: 1px solid rgba(8, 41, 69, 0.08);
       border-radius: 6px;
-      align-items: flex-start;
+      align-items: center;
     }
 
     .step-badge {
-      width: 20px;
-      height: 20px;
-      flex: 0 0 20px;
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
       background: #082945;
       color: #e9ca8b;
-      font-size: 9px;
+      font-size: 9.5px;
       font-weight: 900;
       display: grid;
       place-items: center;
@@ -253,7 +257,7 @@ const htmlContent = `<!DOCTYPE html>
     }
 
     .step-text h5 {
-      font-size: 9.5px;
+      font-size: 11.2px;
       font-weight: 800;
       color: #082945;
       margin-bottom: 1px;
@@ -261,7 +265,7 @@ const htmlContent = `<!DOCTYPE html>
     }
 
     .step-text p {
-      font-size: 8px;
+      font-size: 9.5px;
       color: #687987;
       line-height: 1.3;
     }
@@ -278,20 +282,24 @@ const htmlContent = `<!DOCTYPE html>
 
     /* RIGHT: ARCHITECTURE & STANDARDS */
     .side-column {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
+      display: grid;
+      grid-template-rows: repeat(4, minmax(0, 1fr));
+      gap: 7px;
+      min-height: 0;
     }
 
     .side-box {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       background: #fbfaf7;
       border: 1px solid rgba(8, 41, 69, 0.09);
       border-radius: 7px;
-      padding: 7px 9px;
+      padding: 10px 11px;
     }
 
     .side-box h4 {
-      font-size: 9px;
+      font-size: 10.2px;
       font-weight: 900;
       color: #082945;
       letter-spacing: 0.06em;
@@ -323,7 +331,7 @@ const htmlContent = `<!DOCTYPE html>
       border: 1px solid rgba(8, 41, 69, 0.06);
       padding: 3.5px 7px;
       border-radius: 4px;
-      font-size: 8.2px;
+      font-size: 9px;
     }
 
     .arch-name {
@@ -333,7 +341,7 @@ const htmlContent = `<!DOCTYPE html>
 
     .arch-desc {
       color: #687987;
-      font-size: 7.8px;
+      font-size: 8.5px;
     }
 
     /* ITERATIVE LOOP */
@@ -372,7 +380,7 @@ const htmlContent = `<!DOCTYPE html>
     }
 
     .loop-node-name {
-      font-size: 7.8px;
+      font-size: 8.5px;
       font-weight: 800;
       line-height: 1;
       white-space: nowrap;
@@ -391,7 +399,7 @@ const htmlContent = `<!DOCTYPE html>
       border: 1px solid rgba(179, 145, 89, 0.3);
       padding: 4px 7px;
       border-radius: 5px;
-      font-size: 8px;
+      font-size: 9px;
       color: #17324a;
       line-height: 1.35;
       margin-top: 2px;
@@ -412,7 +420,7 @@ const htmlContent = `<!DOCTYPE html>
       display: flex;
       align-items: center;
       gap: 4px;
-      font-size: 7.8px;
+      font-size: 8.5px;
       font-weight: 700;
       color: #17324a;
       background: #ffffff;
@@ -424,7 +432,12 @@ const htmlContent = `<!DOCTYPE html>
     .deliver-check {
       color: #b39159;
       font-weight: 900;
-      font-size: 8.5px;
+      font-size: 9px;
+    }
+
+    .side-box > p {
+      font-size: 8.8px !important;
+      line-height: 1.38 !important;
     }
 
     /* KEY TAKEAWAY FOOTER BANNER */

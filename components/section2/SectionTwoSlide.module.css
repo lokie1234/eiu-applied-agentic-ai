@@ -4109,7 +4109,7 @@
 }
 
 .acceptanceHeader .title { margin: 12px 0 0; }
-.acceptanceHeader > p { max-width: 315px; margin: 0 0 4px; color: #687987; font-size: 13px; line-height: 1.45; text-align: right; }
+.acceptanceHeader > p { max-width: none; margin: 0 0 4px; color: #687987; font-size: 13px; line-height: 1.45; text-align: right; white-space: nowrap; }
 
 .acceptanceGrid {
   position: relative;
