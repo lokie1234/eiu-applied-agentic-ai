@@ -6,12 +6,10 @@ import styles from "./SectionTwoSlide.module.css";
 
 type Props = { pageNumber: number };
 
-type MotionPage = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37;
+type MotionPage = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38;
 
-const requirementPrompt = `Hãy đọc đầy đủ Gemini-Prompt.txt, App-01-Source.txt và App-02-Source.txt.
-Thực hiện đúng Gemini-Prompt.txt và tạo đúng 7 file: 01_GEM_NAME.txt, 02_GEM_INSTRUCTIONS.txt, 03_KNOWLEDGE_AI_FRAMEWORK.txt, 04_KNOWLEDGE_UI_UX_STANDARD.txt, 05_KNOWLEDGE_WORKFLOW_PATTERN.txt, 06_KNOWLEDGE_GAS_SHEETS_PATTERN.txt, 07_TEST_CASES.txt.
-Name dùng file 01; Instructions dùng file 02; Knowledge upload file 03–06; Preview dùng file 07.
-Trên chat chỉ hiển thị brief lõi tái sử dụng + mapping file → Gem Settings. Không giải thích dài và chưa tạo app cụ thể.`;
+const requirementPrompt = `Đọc cả 3 file đính kèm, phân tích 2 app mẫu và xuất kết quả theo đúng quy định trong Gemini-Prompt.txt, tuyệt đối không yêu cầu kết nối Workspace.
+`;
 
 const LAB_DOWNLOADS = [
   { href: "/downloads/Gemini-Prompt.txt", name: "Gemini-Prompt.txt" },
@@ -45,16 +43,14 @@ const DATA_EXAMPLES: Record<(typeof DATA_ITEMS)[number], { value: string; multil
 
 const REPORT_ITEMS = ["Tổng số sự cố", "Theo mức độ", "Theo phòng ban", "Theo trạng thái", "Theo thời gian", "Thời gian xử lý"] as const;
 
-const REPORT_EXAMPLES: Record<(typeof REPORT_ITEMS)[number], { value: string; note: string; bars: readonly number[] }> = {
-  "Tổng số sự cố": { value: "128", note: "+12 trong tháng này", bars: [38, 52, 47, 69, 76] },
-  "Theo mức độ": { value: "12", note: "sự cố nghiêm trọng", bars: [72, 48, 28, 19, 12] },
-  "Theo phòng ban": { value: "36", note: "cao nhất: Vận hành", bars: [32, 58, 43, 76, 51] },
-  "Theo trạng thái": { value: "84%", note: "đã xử lý", bars: [24, 36, 53, 68, 84] },
-  "Theo thời gian": { value: "+18%", note: "so với tháng trước", bars: [31, 39, 45, 57, 73] },
-  "Thời gian xử lý": { value: "4,2 giờ", note: "trung bình mỗi sự cố", bars: [78, 63, 55, 47, 39] },
+const REPORT_EXAMPLES: Record<(typeof REPORT_ITEMS)[number], { value: string; note: string; bars: readonly number[]; chart: "kpi" | "donut" | "horizontal" | "status" | "line" | "gauge" }> = {
+  "Tổng số sự cố": { value: "128", note: "+12 trong tháng này", bars: [38, 52, 47, 69, 76], chart: "kpi" },
+  "Theo mức độ": { value: "12", note: "sự cố nghiêm trọng", bars: [72, 48, 28, 19, 12], chart: "donut" },
+  "Theo phòng ban": { value: "36", note: "cao nhất: Vận hành", bars: [32, 58, 43, 76, 51], chart: "horizontal" },
+  "Theo trạng thái": { value: "84%", note: "đã xử lý", bars: [24, 36, 53, 68, 84], chart: "status" },
+  "Theo thời gian": { value: "+18%", note: "so với tháng trước", bars: [31, 39, 45, 57, 73], chart: "line" },
+  "Thời gian xử lý": { value: "4,2 giờ", note: "trung bình mỗi sự cố", bars: [78, 63, 55, 47, 39], chart: "gauge" },
 };
-
-type CoreGroup = "common" | "specific";
 
 const CORE_ITEMS = [
   { id: "form", label: "Form", group: "common" },
@@ -137,6 +133,33 @@ function SectionTwoMotion({ pageNumber }: { pageNumber: MotionPage }) {
         <div className={`${styles.heroOrbitDot} ${styles.heroOrbitDotA}`} />
         <div className={`${styles.heroOrbitDot} ${styles.heroOrbitDotB}`} />
         <div className={styles.heroTitleSweep} />
+        <div className={styles.heroEnergyArc} />
+        <div className={styles.heroSignalField}>
+          {Array.from({ length: 8 }, (_, index) => <span key={index} />)}
+        </div>
+        <svg className={styles.heroNeuralField} viewBox="0 0 960 540" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="sectionTwoNeuralSignal" x1="0%" y1="100%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#2d7fb4" stopOpacity="0" />
+              <stop offset="45%" stopColor="#2d7fb4" stopOpacity=".7" />
+              <stop offset="72%" stopColor="#e9ca8b" stopOpacity=".9" />
+              <stop offset="100%" stopColor="#f4dfb0" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          <g className={styles.heroNeuralPaths}>
+            <path d="M-24 438 C110 352 188 438 308 374 S510 270 636 322 S802 230 990 128" />
+            <path d="M-30 112 C96 168 150 102 268 142 S438 226 548 154 S756 68 990 84" />
+            <path d="M78 560 C118 466 84 382 178 326 S294 230 260 112 S342 10 418 -30" />
+          </g>
+          <g className={styles.heroNeuralNodes}>
+            <circle cx="111" cy="383" r="4" /><circle cx="308" cy="374" r="5" />
+            <circle cx="548" cy="154" r="4" /><circle cx="756" cy="72" r="5" />
+            <circle cx="178" cy="326" r="5" /><circle cx="260" cy="112" r="4" />
+          </g>
+        </svg>
+        <div className={styles.heroDataRain}>
+          {Array.from({ length: 7 }, (_, index) => <span key={index} />)}
+        </div>
       </div>
     );
   }
@@ -202,12 +225,11 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
   const [showDataCongrats, setShowDataCongrats] = useState(false);
   const [activeReportItems, setActiveReportItems] = useState<string[]>([]);
   const [showReportCongrats, setShowReportCongrats] = useState(false);
+  const [revealedUsers, setRevealedUsers] = useState<string[]>([]);
   const [coreCommonItems, setCoreCommonItems] = useState<string[]>([]);
   const [coreSpecificItems, setCoreSpecificItems] = useState<string[]>([]);
-  const [selectedCoreItem, setSelectedCoreItem] = useState<string | null>(null);
-  const [rejectedCoreItem, setRejectedCoreItem] = useState<string | null>(null);
-  const [coreFeedback, setCoreFeedback] = useState<WorkflowFeedback | null>(null);
-  const [showCoreCongrats, setShowCoreCongrats] = useState(false);
+  const [sortingCoreItem, setSortingCoreItem] = useState<string | null>(null);
+  const [coreAutoSorting, setCoreAutoSorting] = useState(false);
   const [demoForm, setDemoForm] = useState<{
     reporter: string;
     department: string;
@@ -228,18 +250,14 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
   const feedbackTimerRef = useRef<number | null>(null);
   const rejectedTimerRef = useRef<number | null>(null);
   const congratsTimerRef = useRef<number | null>(null);
-  const coreFeedbackTimerRef = useRef<number | null>(null);
-  const coreRejectedTimerRef = useRef<number | null>(null);
-  const coreCongratsTimerRef = useRef<number | null>(null);
+  const coreSortTimersRef = useRef<number[]>([]);
 
   useEffect(() => {
     return () => {
       if (feedbackTimerRef.current !== null) window.clearTimeout(feedbackTimerRef.current);
       if (rejectedTimerRef.current !== null) window.clearTimeout(rejectedTimerRef.current);
       if (congratsTimerRef.current !== null) window.clearTimeout(congratsTimerRef.current);
-      if (coreFeedbackTimerRef.current !== null) window.clearTimeout(coreFeedbackTimerRef.current);
-      if (coreRejectedTimerRef.current !== null) window.clearTimeout(coreRejectedTimerRef.current);
-      if (coreCongratsTimerRef.current !== null) window.clearTimeout(coreCongratsTimerRef.current);
+      coreSortTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     };
   }, []);
 
@@ -342,63 +360,29 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
       : [...current, item]);
   }
 
-  function showTemporaryCoreFeedback(feedback: WorkflowFeedback) {
-    setCoreFeedback(feedback);
+  function startCoreAutoSort() {
+    if (coreAutoSorting || coreComplete) return;
 
-    if (coreFeedbackTimerRef.current !== null) window.clearTimeout(coreFeedbackTimerRef.current);
-    coreFeedbackTimerRef.current = window.setTimeout(() => {
-      setCoreFeedback(null);
-      coreFeedbackTimerRef.current = null;
-    }, 1150);
-  }
+    setCoreAutoSorting(true);
+    setCoreCommonItems([]);
+    setCoreSpecificItems([]);
+    coreSortTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    coreSortTimersRef.current = [];
 
-  function placeCoreItem(itemId: string, targetGroup: CoreGroup) {
-    if (coreCommonItems.includes(itemId) || coreSpecificItems.includes(itemId)) return;
+    CORE_POOL_ORDER.forEach((itemId, index) => {
+      const item = CORE_ITEMS.find((entry) => entry.id === itemId)!;
+      const launchTimer = window.setTimeout(() => setSortingCoreItem(itemId), index * 620);
+      const landTimer = window.setTimeout(() => {
+        if (item.group === "common") setCoreCommonItems((current) => [...current, itemId]);
+        else setCoreSpecificItems((current) => [...current, itemId]);
+        setSortingCoreItem(null);
 
-    const item = CORE_ITEMS.find((entry) => entry.id === itemId);
-    if (!item) return;
-
-    if (item.group !== targetGroup) {
-      setSelectedCoreItem(null);
-      setRejectedCoreItem(itemId);
-      showTemporaryCoreFeedback({
-        type: "wrong",
-        title: "Chưa đúng nhóm",
-        message: "Thẻ đã quay về vị trí cũ. Hãy thử nhóm còn lại.",
-      });
-
-      if (coreRejectedTimerRef.current !== null) window.clearTimeout(coreRejectedTimerRef.current);
-      coreRejectedTimerRef.current = window.setTimeout(() => {
-        setRejectedCoreItem(null);
-        coreRejectedTimerRef.current = null;
-      }, 720);
-      return;
-    }
-
-    const nextCommon = targetGroup === "common" ? [...coreCommonItems, itemId] : coreCommonItems;
-    const nextSpecific = targetGroup === "specific" ? [...coreSpecificItems, itemId] : coreSpecificItems;
-    setCoreCommonItems(nextCommon);
-    setCoreSpecificItems(nextSpecific);
-    setSelectedCoreItem(null);
-    showTemporaryCoreFeedback({
-      type: "correct",
-      title: "Chính xác",
-      message: `${item.label} đã được xếp vào đúng nhóm.`,
+        if (index === CORE_POOL_ORDER.length - 1) {
+          setCoreAutoSorting(false);
+        }
+      }, index * 620 + 520);
+      coreSortTimersRef.current.push(launchTimer, landTimer);
     });
-
-    if (nextCommon.length + nextSpecific.length === CORE_ITEMS.length) {
-      if (coreCongratsTimerRef.current !== null) window.clearTimeout(coreCongratsTimerRef.current);
-      coreCongratsTimerRef.current = window.setTimeout(() => {
-        setCoreFeedback(null);
-        setShowCoreCongrats(true);
-        coreCongratsTimerRef.current = null;
-      }, 850);
-    }
-  }
-
-  function handleCoreDrop(event: DragEvent<HTMLButtonElement>, targetGroup: CoreGroup) {
-    event.preventDefault();
-    placeCoreItem(event.dataTransfer.getData("text/plain"), targetGroup);
   }
 
   function getDemoTimestamp() {
@@ -477,7 +461,10 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
 
   switch (pageNumber) {
     case 1:
-      return <Shell dark motion={1}><div className={styles.cover}><h1>Từ thiết kế Prompt<br />đến AI Business Framework</h1><div className={styles.goldRule} /></div></Shell>;
+      return <Shell dark motion={1}><div className={styles.cover}><h1 className={styles.coverTitle}>
+        <span className={styles.coverPromptLine}>Từ thiết kế <strong>Prompt</strong></span>
+        <span className={styles.coverFrameworkLine}>đến <strong>AI Business Framework</strong></span>
+      </h1><div className={styles.goldRule} /></div></Shell>;
     case 2:
       return <Shell motion={2}>
         <div className={styles.sectionCompare}>
@@ -489,10 +476,10 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
       </Shell>;
     case 3:
       return <Shell motion={3}><Title>Sau Section 2, bạn sẽ làm được</Title><div className={styles.outcomeGrid}>
-        {["Viết Requirement có cấu trúc và có thể kiểm thử", "Phân biệt phần dùng chung và phần riêng của từng ứng dụng", "Xây AI Business Framework cho doanh nghiệp", "Đóng gói Framework thành Gem trong Gemini"].map((item, index) => <div key={item}><b>0{index + 1}</b><span>{item}</span></div>)}
+        {["Viết những yêu cầu có cấu trúc và có thể kiểm thử", "Phân biệt thành phần chung và thành phần đặc thù của từng ứng dụng", "Xây AI Business Framework cho doanh nghiệp", "Đóng gói Framework thành Gem trong Gemini"].map((item, index) => <div key={item}><b>0{index + 1}</b><span>{item}</span></div>)}
       </div></Shell>;
     case 4:
-      return <Shell dark motion={4}><div className={styles.centerStatement}><h2>Đa số trường hợp, AI không làm sai.</h2><p>AI chỉ làm đúng theo yêu cầu mà bạn mô tả.</p></div></Shell>;
+      return <Shell dark motion={4}><div className={styles.centerStatement}><h2>AI phần lớn không làm sai.</h2><p>AI chỉ làm đúng theo yêu cầu mà bạn mô tả.</p></div></Shell>;
     case 5:
       return <Shell motion={5}><Title>Sai lầm phổ biến</Title><div className={styles.mistakeLayout}><div className={styles.mistakeBox}>“Tạo giúp tôi một app quản lý.”</div><div className={styles.questionPanel}><p className={styles.leadSmall}>AI sẽ phải tự đoán:</p><div className={styles.questionGrid}>{["Quản lý cái gì?", "Có quy trình gì?", "Ai dùng?", "Lưu dữ liệu ở đâu?"].map(item => <span key={item}>{item}</span>)}</div></div></div></Shell>;
     case 6:
@@ -500,14 +487,17 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
         <div><h2>Prompt</h2><p>Chỉ là cách diễn đạt.</p></div><div className={styles.navyCard}><h2>Yêu cầu</h2><p>Mới là điều quyết định chất lượng ứng dụng.</p></div>
       </div></Shell>;
     case 7:
-      return <Shell dark motion={7}><div className={styles.centerStatement}><h2>Đừng bắt đầu bằng “Tạo Web App”.</h2><p>Hãy bắt đầu bằng:</p><strong>“Doanh nghiệp đang gặp vấn đề gì?”</strong></div></Shell>;
+      return <Shell />;
     case 8:
-      return <Shell motion={8}><Title>Ví dụ mới: Báo cáo sự cố</Title><div className={styles.exampleColumns}>
+      return <Shell motion={8}><Title>Ví dụ: Báo cáo sự cố</Title><div className={styles.exampleColumns}>
         <div><MiniTitle>✕ &nbsp; Chưa rõ</MiniTitle><p>“Tạo app báo cáo sự cố.”</p></div>
         <div className={styles.navyCard}><MiniTitle>✓ &nbsp; Rõ ràng</MiniTitle><p>“Nhân viên đang báo cáo sự cố qua Zalo. Bộ phận an toàn khó theo dõi mức độ và tiến độ xử lý. Cần một Web App tập trung.”</p></div>
       </div></Shell>;
     case 9:
-      return <Shell motion={9}><Title>Users</Title><p className={styles.subtitle}>Xác định: Ai sử dụng? Ai ra quyết định?</p><ul className={styles.goldBullets}>{["Nhân viên", "Bộ phận giám sát an toàn", "Quản lý", "Ban giám đốc"].map(item => <li key={item}>{item}</li>)}</ul></Shell>;
+      return <Shell motion={9}><Title>Users</Title><p className={styles.subtitle}>Xác định: Ai sử dụng? Ai ra quyết định?</p><div className={styles.userRevealGrid}>{["Nhân viên", "Bộ phận giám sát an toàn", "Quản lý", "Ban giám đốc"].map((item, index) => {
+        const isRevealed = revealedUsers.includes(item);
+        return <button type="button" className={isRevealed ? styles.userRevealActive : ""} aria-pressed={isRevealed} onClick={() => setRevealedUsers((current) => current.includes(item) ? current : [...current, item])} key={item}><i>{String(index + 1).padStart(2, "0")}</i><span>{isRevealed ? item : "Nhấn để hiển thị"}</span><b aria-hidden="true">{isRevealed ? "✓" : "+"}</b></button>;
+      })}</div></Shell>;
     case 10:
       return <Shell motion={10}><div className={`${styles.workflowChallenge} ${workflowComplete ? styles.workflowChallengeComplete : ""}`} data-interactive="true">
         <div className={styles.workflowChallengeHead}>
@@ -627,7 +617,7 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
         {["Không gửi khi thiếu mô tả hoặc mức độ", "Sự cố nghiêm trọng phải ưu tiên xử lý", "Chỉ người được giao hoặc quản trị viên được cập nhật", "Mỗi lần đổi trạng thái phải lưu thời gian"].map((item, index) => <div key={item}><b>0{index + 1}</b><span>{item}</span></div>)}
       </div></Shell>;
     case 13:
-      return <Shell motion={13}><Title>Tiêu chí chấp nhận</Title><p className={styles.subtitle}>Mỗi tiêu chí phải kiểm tra được bằng một hành động cụ thể.</p><ul className={styles.checkList}>{["Không thể nộp form nếu thiếu Mức độ", "Sau khi nộp, Google Sheets xuất hiện dòng mới", "Sự cố mức Nghiêm trọng hiển thị ở đầu danh sách", "Dashboard cập nhật sau khi tải lại dữ liệu"].map(item => <li key={item}>●<span>{item}</span></li>)}</ul></Shell>;
+      return <Shell motion={13}><div className={styles.acceptanceHeader}><div><MiniTitle>ACCEPTANCE CRITERIA</MiniTitle><Title>Tiêu chí chấp nhận</Title></div><p>Mỗi tiêu chí phải kiểm tra được bằng một hành động cụ thể.</p></div><div className={styles.acceptanceGrid}>{["Không thể nộp form nếu thiếu Mức độ", "Sau khi nộp, Google Sheets xuất hiện dòng mới", "Sự cố mức Nghiêm trọng hiển thị ở đầu danh sách", "Dashboard cập nhật sau khi tải lại dữ liệu"].map((item, index) => <article key={item}><span>0{index + 1}</span><div><small>TEST CASE</small><strong>{item}</strong></div><i aria-hidden="true">✓</i></article>)}</div></Shell>;
     case 14:
       return <Shell motion={14}><div className={styles.guidedInteraction} data-interactive="true">
         <div className={styles.interactionHeading}>
@@ -647,7 +637,7 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
           <div className={styles.dashboardPreviewGrid} data-count={selectedReportItems.length}>
             {selectedReportItems.map((item) => {
               const example = REPORT_EXAMPLES[item];
-              return <article key={item}><span>{item}</span><strong>{example.value}</strong><small>{example.note}</small><div aria-hidden="true">{example.bars.map((height, index) => <i key={`${item}-${index}`} style={{ height: `${height}%` }} />)}</div></article>;
+              return <article className={styles[`dashboardChart${example.chart[0].toUpperCase()}${example.chart.slice(1)}`]} key={item}><span>{item}</span><strong>{example.value}</strong><small>{example.note}</small><div className={styles.dashboardChart} aria-hidden="true">{example.chart === "line" ? <svg viewBox="0 0 100 48"><polyline points={example.bars.map((height, index) => `${index * 25},${48 - height * .45}`).join(" ")} />{example.bars.map((height, index) => <circle key={`${item}-${index}`} cx={index * 25} cy={48 - height * .45} r="2.8" />)}</svg> : example.bars.map((height, index) => <i key={`${item}-${index}`} style={{ "--chart-level": `${height}%` } as CSSProperties} />)}</div></article>;
             })}
           </div>
           <footer><p>Dashboard đang hiển thị <strong>{selectedReportItems.length}</strong> chỉ số đã chọn.</p><button type="button" onClick={() => setShowReportCongrats(false)}>Quay lại chỉnh sửa</button></footer>
@@ -704,7 +694,7 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
           <section className={`${styles.demoPanel} ${styles.demoDashboardPanel}`}>
             <header><b>05</b><div><MiniTitle>DASHBOARD</MiniTitle><strong>Theo dõi trạng thái tức thời</strong></div></header>
             <div className={styles.demoMetrics}><article><span>Đã nộp</span><strong>{submittedCount}</strong><i style={{ "--metric-level": `${Math.min(100, submittedCount * 24)}%` } as CSSProperties} /></article><article><span>Đã duyệt</span><strong>{approvedCount}</strong><i style={{ "--metric-level": `${demoRows.length ? Math.round((approvedCount / demoRows.length) * 100) : 0}%` } as CSSProperties} /></article><article><span>Không duyệt</span><strong>{rejectedCount}</strong><i style={{ "--metric-level": `${demoRows.length ? Math.round((rejectedCount / demoRows.length) * 100) : 0}%` } as CSSProperties} /></article><article><span>Đã hoàn thành</span><strong>{completedCount}</strong><i style={{ "--metric-level": `${demoRows.length ? Math.round((completedCount / demoRows.length) * 100) : 0}%` } as CSSProperties} /></article></div>
-            <p>Tổng hồ sơ: <strong>{demoRows.length}</strong> · Cập nhật theo workflow Slide 15.</p>
+            <p>Tổng hồ sơ: <strong>{demoRows.length}</strong> </p>
           </section>
         </div>
       </div></Shell>;
@@ -714,34 +704,32 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
     case 18:
       return <Shell motion={18}><div className={`${styles.coreChallenge} ${coreComplete ? styles.coreChallengeComplete : ""}`} data-interactive="true">
         <div className={styles.coreChallengeHead}>
-          <Title>Lõi chung và Đặc thù theo ứng dụng</Title>
-          <p>{coreComplete ? "Đã phân loại đúng 10/10 thành phần." : "Kéo từng thẻ vào đúng nhóm."}</p>
+          <Title>Lõi chung và đặc thù theo ứng dụng</Title>
+          {!coreComplete && <div><button type="button" disabled={coreAutoSorting} onClick={startCoreAutoSort}>{coreAutoSorting ? "Đang phân loại…" : "Bắt đầu phân loại"}</button></div>}
         </div>
         <div className={styles.coreTargets}>
           {(["common", "specific"] as const).map((group) => {
             const placedIds = group === "common" ? coreCommonItems : coreSpecificItems;
-            return <button type="button" className={`${styles.coreTarget} ${group === "common" ? styles.coreTargetCommon : styles.coreTargetSpecific}`} key={group} aria-label={`Nhóm ${group === "common" ? "dùng chung" : "thay đổi theo ứng dụng"}`} onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = "move"; }} onDrop={(event) => handleCoreDrop(event, group)} onClick={() => { if (selectedCoreItem) placeCoreItem(selectedCoreItem, group); }}>
+            return <section className={`${styles.coreTarget} ${group === "common" ? styles.coreTargetCommon : styles.coreTargetSpecific}`} key={group} aria-label={`Nhóm ${group === "common" ? "dùng chung" : "thay đổi theo ứng dụng"}`}>
               <span className={styles.coreTargetLabel}>{group === "common" ? "DÙNG CHUNG" : "THAY ĐỔI THEO APP"}</span>
-              <span className={styles.coreTargetSlots}>{placedIds.length === 0 ? <em>Thả thẻ vào đây</em> : placedIds.map((id) => { const item = CORE_ITEMS.find((entry) => entry.id === id)!; return <span key={id}>{item.label}<i aria-hidden="true">✓</i></span>; })}</span>
-            </button>;
+              <span className={styles.coreTargetSlots}>{placedIds.length === 0 ? <em>Đang chờ phân loại</em> : placedIds.map((id) => { const item = CORE_ITEMS.find((entry) => entry.id === id)!; return <span key={id}>{item.label}<i aria-hidden="true">✓</i></span>; })}</span>
+            </section>;
           })}
         </div>
         {!coreComplete && <div className={styles.corePool} aria-label="Các thành phần cần phân loại">
           {CORE_POOL_ORDER.map((itemId, index) => {
             const item = CORE_ITEMS.find((entry) => entry.id === itemId)!;
             if (coreCommonItems.includes(itemId) || coreSpecificItems.includes(itemId)) return null;
-            return <button type="button" draggable key={item.id} className={`${styles.coreCard} ${styles[`coreCard${index + 1}`]} ${selectedCoreItem === item.id ? styles.coreCardSelected : ""} ${rejectedCoreItem === item.id ? styles.coreCardRejected : ""}`} aria-pressed={selectedCoreItem === item.id} onClick={() => setSelectedCoreItem((current) => current === item.id ? null : item.id)} onDragStart={(event) => { event.dataTransfer.effectAllowed = "move"; event.dataTransfer.setData("text/plain", item.id); setSelectedCoreItem(item.id); }} onDragEnd={() => setSelectedCoreItem(null)}><span aria-hidden="true">⋮⋮</span><strong>{item.label}</strong></button>;
+            return <div key={item.id} className={`${styles.coreCard} ${styles[`coreCard${index + 1}`]} ${sortingCoreItem === item.id ? (item.group === "common" ? styles.coreCardSortingCommon : styles.coreCardSortingSpecific) : ""}`}><span aria-hidden="true">◆</span><strong>{item.label}</strong></div>;
           })}
         </div>}
-        {coreFeedback && <div className={`${styles.workflowFeedback} ${styles.coreFeedback} ${coreFeedback.type === "correct" ? styles.workflowFeedbackCorrect : styles.workflowFeedbackWrong}`} role="status"><span aria-hidden="true">{coreFeedback.type === "correct" ? "✓" : "↺"}</span><div><strong>{coreFeedback.title}</strong><p>{coreFeedback.message}</p></div></div>}
-        {showCoreCongrats && <div className={styles.interactionCongratsBackdrop}><section className={`${styles.interactionCongrats} ${styles.coreCongrats}`} role="dialog" aria-modal="true" aria-label="Hoàn thành phân loại"><MiniTitle>HOÀN THÀNH PHÂN LOẠI</MiniTitle><h2>Chúc mừng!</h2><p>Bạn đã tách chính xác phần lõi dùng chung và phần đặc thù theo ứng dụng.</p><button type="button" onClick={() => setShowCoreCongrats(false)}>Xem kết quả đúng</button></section></div>}
       </div></Shell>;
     case 19:
       return <Shell motion={19}><div className={styles.frameworkHero}><span>Framework</span><div className={styles.goldRule} /><h1>AI Business Framework</h1><p>Một bộ quy tắc để AI luôn xây ứng dụng theo cùng một tiêu chuẩn.</p></div></Shell>;
     case 20:
       return <Shell motion={20}><Title>Lõi có thể tái sử dụng</Title><p className={styles.subtitle}>Khi tách được phần dùng chung, AI không cần bắt đầu từ một trang trắng.</p><div className={styles.coreFlow}>{["Kiến trúc hệ thống", "Tiêu chuẩn giao diện người dùng", "Quy tắc viết code", "Quy tắc thiết kế cơ sở dữ liệu", "Kiểm thử", "Triển khai"].map((item, index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}>{item}</div>)}</div></Shell>;
     case 21:
-      return <Shell dark motion={21}><div className={styles.gemDefinition}><MiniTitle>GEMINI GEMS</MiniTitle><Title>Gem là gì?</Title><p>Một phiên bản Gemini được tùy chỉnh để luôn làm theo các hướng dẫn và ngữ cảnh lặp lại.</p><em>Các nền tảng AI khác cũng có khái niệm tương tự, dù tên gọi khác nhau.</em></div></Shell>;
+      return <Shell dark motion={21}><div className={styles.gemDefinition}><MiniTitle>GEMINI GEMS</MiniTitle><Title>Gem là gì?</Title><p>Một phiên bản Gemini được tùy chỉnh để làm theo các hướng dẫn, ngữ cảnh lặp lại.</p><em>Các nền tảng AI khác cũng có khái niệm tương tự, dù tên gọi khác nhau.</em></div></Shell>;
     case 22:
       return <Shell motion={22}><div className={styles.centerLight}><MiniTitle>GEM THỰC CHẤT LÀ GÌ?</MiniTitle><p>Không phải Code. Không phải Plugin.</p><h2>Mà là một bộ hướng dẫn để AI luôn làm đúng.</h2></div></Shell>;
     case 23:
@@ -755,7 +743,7 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
     case 25:
       return <Shell motion={25}><Title>Công thức Instructions cho Gem</Title><div className={styles.formula}>{["Persona", "Task", "Context", "Format"].map((item, index) => <div key={item} className={index % 2 === 0 ? styles.navyTile : ""}>{item}{index < 3 && <span>+</span>}</div>)}</div><div className={styles.frameworkBar}>+ AI Business Framework</div></Shell>;
     case 26:
-      return <Shell motion={26}><Title>Ví dụ: Business Internal Web App Builder</Title><div className={styles.builderExample}><p>Yêu cầu mới: <strong>“Tạo hệ thống đặt phòng họp.”</strong></p><span>Gem tự áp dụng các tiêu chuẩn đã lưu:</span><div>{["Responsive UI", "Google Sheets Database", "Google Apps Script", "Validation", "Dashboard", "Deployment Guide"].map(item => <b key={item}>● {item}</b>)}</div></div></Shell>;
+      return <Shell motion={26}><div className={styles.builderHeader}><MiniTitle>EIU · AI BUSINESS FRAMEWORK</MiniTitle><Title>Business Internal Web App Builder</Title></div><div className={styles.builderExample}><section><span>REQUIREMENT MỚI</span><p>“Tạo hệ thống đặt phòng họp.”</p><i aria-hidden="true">→</i></section><div><small>GEM TỰ ÁP DỤNG TIÊU CHUẨN</small><div>{["Responsive UI", "Google Sheets Database", "Google Apps Script", "Validation", "Dashboard", "Deployment Guide"].map((item, index) => <b key={item}><span>0{index + 1}</span>{item}<i aria-hidden="true">✓</i></b>)}</div></div></div></Shell>;
     case 27:
       return <Shell dark motion={27}><div className={styles.requirementTransition}><MiniTitle>Phần thay đổi chính</MiniTitle><h1>Requirement</h1><p>Framework giữ tiêu chuẩn chung. Ngoại lệ phải được mô tả rõ trong từng yêu cầu.</p></div></Shell>;
     case 28:
@@ -764,33 +752,33 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
       return <Shell motion={29}><Title>Lộ trình</Title><div className={`${styles.roadmap} ${styles.spiralRoadmap}`}>
         <svg className={styles.spiralTrack} viewBox="0 0 856 350" aria-hidden="true"><path d="M96 176 C96 45 760 42 760 180 C760 310 188 314 188 198 C188 108 650 108 650 193 C650 261 310 263 310 204 C310 157 544 157 544 203 C544 234 406 235 406 205" /></svg>
         <div className={styles.roadmapSpinner}>
-          {["Phân tích 2 apps - Tách Framework", "Cài đặt Gem", "Xem trước - Kiểm thử", "Lưu & Chia sẻ"].map((item, index) => <div className={styles.roadmapOrbitCard} key={item}><b>{index + 1}</b><span>{item}</span></div>)}
+          {["Phân tích app, tách Framework, tạo Gem", "Cài đặt Gem", "Kiểm tra", "Lưu & Chia sẻ"].map((item, index) => <div className={styles.roadmapOrbitCard} key={item}><b>{index + 1}</b><span>{item}</span></div>)}
         </div>
       </div></Shell>;
     case 30:
-      return <Shell motion={30}><Title>Bước 1 · Phân tích, tách Framework, tạo Gem</Title><p className={styles.subtitle}>Bỏ source code của 2 app đã tạo vào Gemini, rồi yêu cầu:</p><Quote><p>{requirementPrompt}</p><button type="button" data-interactive="true" onClick={copyPrompt}>{copied ? "Đã copy" : "Copy Prompt"}</button></Quote><button type="button" data-interactive="true" className={styles.labFilesDownload} onClick={downloadLabFiles}><span aria-hidden="true">↓</span><span><strong>Tải bộ 3 file thực hành</strong><small>Gemini-Prompt.txt · App-01-Source.txt · App-02-Source.txt</small></span></button></Shell>;
+      return <Shell motion={30}><Title>Bước 1 · Phân tích, tách Framework, tạo Gem</Title><p className={styles.subtitle}>Bỏ bộ 3 file thực hành đã tạo sẵn vào Gemini, rồi yêu cầu:</p><Quote><p>{requirementPrompt}</p><button type="button" data-interactive="true" onClick={copyPrompt}>{copied ? "Đã copy" : "Copy Prompt"}</button></Quote><button type="button" data-interactive="true" className={styles.labFilesDownload} onClick={downloadLabFiles}><span aria-hidden="true">↓</span><span><strong>Tải bộ 3 file thực hành</strong><small>Gemini-Prompt.txt · App-01-Source.txt · App-02-Source.txt</small></span></button></Shell>;
     case 31:
       return <Shell motion={31}><Title>Ví dụ - Nguyên tắc thiết kế</Title><div className={styles.principles}>{["Responsive", "Có Dashboard", "Có giao diện dùng được cho điện thoại", "Kèm theo hướng dẫn", "Sử dụng Google Sheets", "Tách riêng HTML / CSS / JS"].map(item => <span key={item}>▪ {item}</span>)}</div><p className={styles.bottomNote}>...và các nguyên tắc riêng của doanh nghiệp bạn.</p></Shell>;
     case 32:
-      return <Shell motion={32}><Title>Bước 2 - Tạo Gem trong Gemini</Title><div className={styles.screenshotPair}><div><Image src="/section2/gemini-step-001.png" alt="Mở mục Gems trong Gemini" fill sizes="240px" /><span className={`${styles.gemHighlight} ${styles.gemHighlightMenu}`} aria-hidden="true" /></div><div><Image src="/section2/gemini-step-000.png" alt="Gem manager và nút New Gem" fill sizes="650px" /><span className={`${styles.gemHighlight} ${styles.gemHighlightNew}`} aria-hidden="true" /></div></div></Shell>;
+      return <Shell motion={32}><Title>Bước 2 · Cài đặt Gem</Title><div className={styles.screenshotPair}><div><Image src="/section2/gemini-step-001.png" alt="Mở mục Gems trong Gemini" fill sizes="240px" /><span className={`${styles.gemHighlight} ${styles.gemHighlightMenu}`} aria-hidden="true" /></div><div><Image src="/section2/gemini-step-000.png" alt="Gem manager và nút New Gem" fill sizes="650px" /><span className={`${styles.gemHighlight} ${styles.gemHighlightNew}`} aria-hidden="true" /></div></div></Shell>;
     case 33:
-      return <Shell motion={33}><Title>Bước 2 - Tạo Gem trong Gemini</Title><div className={styles.gemSetupLayout}><div className={styles.tallScreenshot}><Image src="/section2/gemini-step-002.png" alt="Các trường cài đặt New Gem" fill sizes="420px" /></div><div className={styles.gemSetupCallout}><MiniTitle>GEM SETTINGS</MiniTitle><p>Tiến hành điền và upload các trường dữ liệu cần thiết từ hướng dẫn của Gemini.</p><div><span>01</span><strong>Name</strong></div><div><span>02</span><strong>Instructions</strong></div><div><span>03</span><strong>Knowledge files</strong></div></div></div></Shell>;
+      return <Shell motion={33}><Title>Bước 2 · Cài đặt Gem</Title><div className={styles.gemSetupLayout}><div className={styles.tallScreenshot}><Image src="/section2/gemini-step-002.png" alt="Các trường cài đặt New Gem" fill sizes="420px" /></div><div className={styles.gemSetupCallout}><MiniTitle>GEM SETTINGS</MiniTitle><p>Tiến hành điền và upload các trường dữ liệu cần thiết từ hướng dẫn của Gemini.</p><div><span>01</span><strong>Name</strong></div><div><span>02</span><strong>Instructions</strong></div><div><span>03</span><strong>Knowledge files</strong></div></div></div></Shell>;
     case 34:
-      return <Shell motion={34}><Title>Bước 2 · Điền Gem Settings</Title><div className={styles.gemFieldGuide}>
-        <div className={styles.gemFieldGuideIntro}><MiniTitle>SET CỨNG TÊN FILE</MiniTitle><p>Điền đúng từng trường bằng bộ file Gemini đã tạo. Không đổi tên file để tránh nhầm khi thực hành.</p></div>
-        <div className={styles.gemFieldGuideGrid}>
-          <article><span>01</span><div><b>Name</b><code>01_GEM_NAME.txt</code><small>Copy toàn bộ nội dung file → paste vào trường Name.</small></div></article>
-          <article><span>02</span><div><b>Instructions</b><code>02_GEM_INSTRUCTIONS.txt</code><small>Copy toàn bộ nội dung file → paste vào Instructions.</small></div></article>
-          <article className={styles.gemKnowledgeMap}><span>03–06</span><div><b>Knowledge</b><code>03_KNOWLEDGE_AI_FRAMEWORK.txt</code><code>04_KNOWLEDGE_UI_UX_STANDARD.txt</code><code>05_KNOWLEDGE_WORKFLOW_PATTERN.txt</code><code>06_KNOWLEDGE_GAS_SHEETS_PATTERN.txt</code><small>Upload cả 4 file vào khu vực Knowledge.</small></div></article>
-          <article><span>07</span><div><b>Preview</b><code>07_TEST_CASES.txt</code><small>Mở file và chạy từng test case trong Preview trước khi Save.</small></div></article>
-        </div>
-      </div></Shell>;
+      return <Shell motion={34}><Title>Tiến hành thử nghiệm với 1 prompt rút gọn</Title><p className={styles.condensedPromptLead}>Tạo app để...</p><div className={`${styles.practiceList} ${styles.condensedPromptPractice}`}>{["Đặt xe công tác", "Đặt phòng họp", "Báo cáo sự cố", "Xin nghỉ phép", "Quản lý tài sản", "Đề xuất mua hàng", "Onboarding nhân sự", "Phê duyệt chi phí", "Theo dõi công việc"].map((item,index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</div>)}</div></Shell>;
     case 35:
-      return <Shell motion={35}><Title>Bước 4 - Lưu và chia sẻ</Title><div className={styles.saveFlow}>{[["SAVE","Lưu Gem sau khi Preview"],["SHARE","Chia sẻ Viewer hoặc Editor"],["USE","Mở New Chat và thử yêu cầu mới"]].map(([head,body], index) => <div className={index === 1 ? styles.navyCard : ""} key={head}><strong className={styles.saveFlowLabel}>{head}</strong><p>{body}</p>{index < 2 && <span>→</span>}</div>)}</div></Shell>;
-    case 36:
-      return <Shell motion={36}><Title>Thực hành với Gem vừa tạo</Title><div className={styles.practiceList}>{["Đặt xe công tác", "Đặt phòng họp", "Báo cáo sự cố", "Xin nghỉ phép", "Quản lý tài sản", "Đề xuất mua hàng", "Onboarding nhân sự", "Phê duyệt chi phí", "Theo dõi công việc"].map((item,index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</div>)}</div></Shell>;
+      return <Shell motion={35}><Title>Bước 4 - Lưu và chia sẻ</Title><div className={styles.saveFlow}>{[["SAVE","Lưu Gem sau khi kiểm tra"],["SHARE","Chia sẻ Viewer hoặc Editor"],["USE","Mở New Chat và thử yêu cầu mới"]].map(([head,body], index) => <div className={index === 1 ? styles.navyCard : ""} key={head}><strong className={styles.saveFlowLabel}>{head}</strong><p>{body}</p>{index < 2 && <span>→</span>}</div>)}</div></Shell>;
     case 37:
       return <Shell dark motion={37}><div className={styles.finalMessage}><MiniTitle>Thông điệp cuối cùng</MiniTitle><p>Đừng xây <strong>100 ứng dụng.</strong></p><h1>Hãy xây 01 AI Business Framework</h1><div className={styles.goldRule} /><p>để AI có thể tạo 100 ứng dụng<br />theo tiêu chuẩn của doanh nghiệp.</p></div></Shell>;
+    case 38:
+      return <Shell motion={38}><div className={styles.completeGemBrief}>
+        <div className={styles.completeGemIntro}><MiniTitle>THỰC HÀNH NÂNG CAO</MiniTitle><Title>Tạo một bộ Gem hoàn chỉnh</Title><p>Từ một Web App đầy đủ chức năng đã được phân tích sẵn — không còn dừng ở mức demo.</p></div>
+        <div className={styles.completeGemFlow}>
+          <article><span>01</span><strong>Web App hoàn chỉnh</strong><p>Đầy đủ chức năng, function và quy trình vận hành.</p></article>
+          <article><span>02</span><strong>Gem đã chuẩn hóa</strong><p>Tích hợp bước đặt câu hỏi làm rõ trước khi bắt đầu tạo code.</p></article>
+          <article><span>03</span><strong>Tự tạo Gem</strong><p>Thông tin Gem và tài nguyên thực hành sẽ được cập nhật sau.</p></article>
+        </div>
+        <div className={styles.completeGemShare}><span>→</span><p>Hoàn thành Gem và chia sẻ kết quả lên không gian <strong>Slide 37</strong>.</p></div>
+      </div></Shell>;
     default:
       return <Shell />;
   }

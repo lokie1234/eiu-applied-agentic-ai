@@ -8,7 +8,7 @@ import ShowcaseSlide from "@/components/ShowcaseSlide";
 import SectionTwoSlide from "./SectionTwoSlide";
 import styles from "./SectionTwoDeck.module.css";
 
-const TOTAL_SLIDES = 39;
+const TOTAL_SLIDES = 38;
 const SLIDE_WIDTH = 960;
 const SLIDE_HEIGHT = 540;
 
@@ -26,6 +26,13 @@ export default function SectionTwoDeck({ onChooseSection, isAdmin = false }: { o
     () => (viewerWidth > 0 ? Math.round(viewerWidth * zoom) : 0),
     [viewerWidth, zoom]
   );
+  const contentPageNumber = pageNumber < 7
+    ? pageNumber
+    : pageNumber <= 34
+      ? pageNumber + 1
+      : pageNumber === 35
+        ? 37
+        : 38;
 
   const goToPage = useCallback((page: number) => {
     const safePage = Math.min(Math.max(Math.round(page), 1), TOTAL_SLIDES);
@@ -205,16 +212,16 @@ export default function SectionTwoDeck({ onChooseSection, isAdmin = false }: { o
               style={{ width: renderWidth, height: renderWidth * (SLIDE_HEIGHT / SLIDE_WIDTH) }}
             >
               <div key={`section2-${pageNumber}`} className={styles.slideTransition}>
-                {pageNumber === 38 ? (
+                {pageNumber === 37 ? (
                   <ShowcaseSlide scale={renderWidth / SLIDE_WIDTH} isAdmin={isAdmin} section="section2" />
-                ) : pageNumber === 39 ? (
+                ) : pageNumber === 38 ? (
                   <QuizSlide scale={renderWidth / SLIDE_WIDTH} variant="section2" />
                 ) : (
                   <div
                     className={styles.canvas}
                     style={{ transform: `scale(${renderWidth / SLIDE_WIDTH})` }}
                   >
-                    <SectionTwoSlide pageNumber={pageNumber} />
+                    <SectionTwoSlide pageNumber={contentPageNumber} />
                   </div>
                 )}
               </div>

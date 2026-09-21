@@ -443,7 +443,7 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
           <div className={styles.heading}>
             <span>CHỌN NỘI DUNG</span>
             <h1>Bạn muốn mở Section nào?</h1>
-            <p>Mã quản trị 1103 có thể xem và chuyển đổi giữa cả hai phần học.</p>
+            <p>Chuyển đổi giữa cả hai phần học.</p>
           </div>
 
           <div className={styles.cards}>
@@ -460,7 +460,7 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
             <button type="button" onClick={() => setAdminSection("section2")}>
               <span>SECTION 2</span>
               <strong>Từ Prompt đến AI Business Framework</strong>
-              <small>39 slide · HTML/CSS/React</small>
+              <small>38 slide · HTML/CSS/React</small>
               <div className={styles.cardLiveUsers}>
                 <span className={styles.liveDot} />
                 <span>{presenceCounts.section2} users đang học</span>
