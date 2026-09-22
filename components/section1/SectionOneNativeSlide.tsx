@@ -60,26 +60,6 @@ const SOFTWARE_STAGES = [
   "Cải tiến",
 ] as const;
 
-const HINT_STAGES = new Set(["Vấn đề doanh nghiệp", "Phát triển", "Triển khai"]);
-const DRAG_ITEMS = ["Phân tích yêu cầu", "Thiết kế", "Kiểm thử", "Thu thập phản hồi", "Cải tiến"] as const;
-const DRAG_TARGETS = [
-  { key: "analysis", index: 1, correct: "Phân tích yêu cầu" },
-  { key: "design", index: 2, correct: "Thiết kế" },
-  { key: "test", index: 4, correct: "Kiểm thử" },
-  { key: "feedback", index: 6, correct: "Thu thập phản hồi" },
-  { key: "improve", index: 7, correct: "Cải tiến" },
-] as const;
-
-type DragTargetKey = (typeof DRAG_TARGETS)[number]["key"];
-
-type ToastState = {
-  id: number;
-  title: string;
-  body: string;
-  tone: "success" | "warning";
-  duration: number;
-};
-
 const ARCHITECTURE_CONTENT = {
   Frontend: {
     meta: "Giao diện · Trải nghiệm",
@@ -418,9 +398,8 @@ function NativeSlides({ page }: { page: number }) {
   const [selectedArchitecture, setSelectedArchitecture] = useState<ArchitectureKey>("Frontend");
   const [restaurantRevealed, setRestaurantRevealed] = useState([false, false, false, false]);
   const [businessRevealed, setBusinessRevealed] = useState([false, false, false, false]);
-  const [placements, setPlacements] = useState<Record<DragTargetKey, string | null>>({ analysis: null, design: null, test: null, feedback: null, improve: null });
-  const [availableItems, setAvailableItems] = useState<string[]>([...DRAG_ITEMS]);
-  const [toast, setToast] = useState<ToastState | null>(null);
+  const [revealedStageCount, setRevealedStageCount] = useState(0);
+  const [isRevealingStages, setIsRevealingStages] = useState(false);
 
   function revealRestaurant(index: number) {
     setRestaurantRevealed((current) => current.map((item, itemIndex) => (itemIndex === index ? true : item)));
@@ -430,38 +409,17 @@ function NativeSlides({ page }: { page: number }) {
     setBusinessRevealed((current) => current.map((item, itemIndex) => (itemIndex === index ? true : item)));
   }
 
-  function showToast(title: string, body: string, tone: "success" | "warning", duration: number) {
-    setToast({ id: Date.now(), title, body, tone, duration });
-  }
-
   useEffect(() => {
-    if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), toast.duration);
+    if (!isRevealingStages || revealedStageCount >= SOFTWARE_STAGES.length) return;
+
+    const timer = window.setTimeout(() => {
+      const next = Math.min(revealedStageCount + 1, SOFTWARE_STAGES.length);
+      setRevealedStageCount(next);
+      if (next === SOFTWARE_STAGES.length) setIsRevealingStages(false);
+    }, revealedStageCount === 0 ? 120 : 320);
+
     return () => window.clearTimeout(timer);
-  }, [toast]);
-
-  function handleDrop(targetKey: DragTargetKey, item: string) {
-    const target = DRAG_TARGETS.find((entry) => entry.key === targetKey);
-    if (!target) return;
-
-    if (target.correct !== item) {
-      showToast("Chưa đúng", `“${item}” chưa đúng vị trí.`, "warning", 1000);
-      return;
-    }
-
-    if (placements[targetKey] === item) return;
-
-    const nextPlacements = { ...placements, [targetKey]: item };
-    setPlacements(nextPlacements);
-    setAvailableItems((current) => current.filter((entry) => entry !== item));
-
-    const allCompleted = DRAG_TARGETS.every((entry) => nextPlacements[entry.key] === entry.correct);
-    if (allCompleted) {
-      showToast("Chúc mừng!", "Bạn đã hoàn thành đúng toàn bộ quy trình.", "success", 2000);
-    } else {
-      showToast("Đúng rồi", `“${item}” đã vào đúng vị trí.`, "success", 1000);
-    }
-  }
+  }, [isRevealingStages, revealedStageCount]);
 
   function renderPage() {
     switch (page) {
@@ -528,52 +486,37 @@ function NativeSlides({ page }: { page: number }) {
         );
       case 7:
         return (
-          <Shell title="Quy trình phát triển phần mềm" eyebrow="KÉO THẢ HOÀN THIỆN QUY TRÌNH">
-            <div className={styles.lifecycleExercise}>
-              <div className={styles.lifecycleFloatBank}>
-                {availableItems.map((item, index) => (
-                  <div
-                    key={item}
-                    className={styles.lifecycleFloatItem}
-                    style={{ "--float-delay": `${index * 120}ms` } as CSSProperties}
-                    draggable
-                    onDragStart={(event) => event.dataTransfer.setData("text/plain", item)}
-                    data-interactive="true"
-                  >
-                    {item}
-                  </div>
-                ))}
+          <Shell title="Quy trình phát triển phần mềm" eyebrow="8 BƯỚC TỪ VẤN ĐỀ ĐẾN CẢI TIẾN">
+            <div className={styles.lifecycleRevealExercise}>
+              <div className={styles.lifecycleRevealControls}>
+                <button
+                  type="button"
+                  className={styles.lifecycleRevealButton}
+                  onClick={() => setIsRevealingStages(true)}
+                  disabled={isRevealingStages || revealedStageCount === SOFTWARE_STAGES.length}
+                  data-interactive="true"
+                  aria-live="polite"
+                >
+                  {revealedStageCount === SOFTWARE_STAGES.length
+                    ? "Đã hiện đầy đủ 8 bước"
+                    : isRevealingStages
+                      ? `Đang hiển thị ${revealedStageCount}/8`
+                      : "Hiển thị 8 bước"}
+                </button>
               </div>
 
-              <div className={styles.lifecycleTimeline}>
+              <div className={styles.lifecycleRevealTimeline} aria-label="8 bước của quy trình phát triển phần mềm">
                 {SOFTWARE_STAGES.map((stage, index) => {
-                  if (HINT_STAGES.has(stage)) {
-                    return (
-                      <div key={stage} className={styles.lifecycleHintSlot}>
-                        <span>{index + 1}</span>
-                        <strong>{stage}</strong>
-                      </div>
-                    );
-                  }
-
-                  const target = DRAG_TARGETS.find((entry) => entry.index === index);
-                  if (!target) return null;
+                  const isRevealed = index < revealedStageCount;
 
                   return (
-                    <div
+                    <article
                       key={stage}
-                      className={`${styles.lifecycleSlot} ${placements[target.key] ? styles.lifecycleSlotFilled : ""}`}
-                      onDragOver={(event) => event.preventDefault()}
-                      onDrop={(event) => {
-                        event.preventDefault();
-                        const item = event.dataTransfer.getData("text/plain");
-                        if (item) handleDrop(target.key, item);
-                      }}
-                      data-interactive="true"
+                      className={`${styles.lifecycleRevealCard} ${isRevealed ? styles.lifecycleRevealCardVisible : ""}`}
                     >
                       <span>{index + 1}</span>
-                      <strong>{placements[target.key] ?? "Thả vào đây"}</strong>
-                    </div>
+                      <strong aria-hidden={!isRevealed}>{stage}</strong>
+                    </article>
                   );
                 })}
               </div>
@@ -938,13 +881,6 @@ function NativeSlides({ page }: { page: number }) {
             ))}
           </div>
         </PopupModal>
-      )}
-
-      {toast && (
-        <div key={toast.id} className={`${styles.toastNotice} ${toast.tone === "success" ? styles.toastSuccess : styles.toastWarning}`} data-interactive="true">
-          <strong>{toast.title}</strong>
-          <span>{toast.body}</span>
-        </div>
       )}
     </>
   );

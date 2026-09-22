@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type CSSProperties, type DragEvent, type FormEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import styles from "./SectionTwoSlide.module.css";
 
 type Props = { pageNumber: number };
@@ -26,8 +26,6 @@ const WORKFLOW_STEPS = [
   { id: "close", label: "Đóng sự cố" },
 ] as const;
 
-const WORKFLOW_POOL_ORDER = ["assign", "classify", "confirm", "approve", "report", "close"] as const;
-
 const DATA_ITEMS = ["Người báo cáo", "Phòng ban", "Thời gian", "Địa điểm", "Mô tả", "Mức độ", "Người xử lý", "Trạng thái"] as const;
 
 const DATA_EXAMPLES: Record<(typeof DATA_ITEMS)[number], { value: string; multiline?: boolean }> = {
@@ -42,6 +40,8 @@ const DATA_EXAMPLES: Record<(typeof DATA_ITEMS)[number], { value: string; multil
 };
 
 const REPORT_ITEMS = ["Tổng số sự cố", "Theo mức độ", "Theo phòng ban", "Theo trạng thái", "Theo thời gian", "Thời gian xử lý"] as const;
+
+const USER_ITEMS = ["Nhân viên", "Bộ phận giám sát an toàn", "Quản lý", "Ban giám đốc"] as const;
 
 const REPORT_EXAMPLES: Record<(typeof REPORT_ITEMS)[number], { value: string; note: string; bars: readonly number[]; chart: "kpi" | "donut" | "horizontal" | "status" | "line" | "gauge" }> = {
   "Tổng số sự cố": { value: "128", note: "+12 trong tháng này", bars: [38, 52, 47, 69, 76], chart: "kpi" },
@@ -66,12 +66,6 @@ const CORE_ITEMS = [
 ] as const;
 
 const CORE_POOL_ORDER = ["permissions", "workflow", "fields", "dashboard", "integration", "form", "rules", "deployment", "validation", "report"] as const;
-
-type WorkflowFeedback = {
-  type: "correct" | "wrong";
-  title: string;
-  message: string;
-};
 
 type DemoSeverity = "bình thường" | "ưu tiên";
 type DemoStatus = "Đã nộp" | "Đã duyệt" | "Không duyệt" | "Đã hoàn thành";
@@ -212,20 +206,38 @@ function Quote({ children, navy = false }: { children: ReactNode; navy?: boolean
   return <div className={`${styles.quote} ${navy ? styles.quoteNavy : ""}`}><span>“</span>{children}</div>;
 }
 
+function useSequentialReveal(total: number) {
+  const [revealedCount, setRevealedCount] = useState(0);
+  const [isRevealing, setIsRevealing] = useState(false);
+
+  useEffect(() => {
+    if (!isRevealing || revealedCount >= total) return;
+
+    const timer = window.setTimeout(() => {
+      const next = Math.min(revealedCount + 1, total);
+      setRevealedCount(next);
+      if (next === total) setIsRevealing(false);
+    }, revealedCount === 0 ? 120 : 320);
+
+    return () => window.clearTimeout(timer);
+  }, [isRevealing, revealedCount, total]);
+
+  return {
+    revealedCount,
+    isRevealing,
+    isComplete: revealedCount === total,
+    start: () => setIsRevealing(true),
+  };
+}
+
 export default function SectionTwoSlide({ pageNumber }: Props) {
   const [copied, setCopied] = useState(false);
-  const [workflowSlots, setWorkflowSlots] = useState<Array<string | null>>(
-    () => Array(WORKFLOW_STEPS.length).fill(null)
-  );
-  const [selectedWorkflow, setSelectedWorkflow] = useState<string | null>(null);
-  const [rejectedWorkflow, setRejectedWorkflow] = useState<string | null>(null);
-  const [workflowFeedback, setWorkflowFeedback] = useState<WorkflowFeedback | null>(null);
-  const [showWorkflowCongrats, setShowWorkflowCongrats] = useState(false);
   const [activeDataItems, setActiveDataItems] = useState<string[]>([]);
   const [showDataCongrats, setShowDataCongrats] = useState(false);
   const [activeReportItems, setActiveReportItems] = useState<string[]>([]);
   const [showReportCongrats, setShowReportCongrats] = useState(false);
-  const [revealedUsers, setRevealedUsers] = useState<string[]>([]);
+  const usersReveal = useSequentialReveal(USER_ITEMS.length);
+  const workflowReveal = useSequentialReveal(WORKFLOW_STEPS.length);
   const [coreCommonItems, setCoreCommonItems] = useState<string[]>([]);
   const [coreSpecificItems, setCoreSpecificItems] = useState<string[]>([]);
   const [sortingCoreItem, setSortingCoreItem] = useState<string | null>(null);
@@ -247,16 +259,10 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
   const [demoFormMessage, setDemoFormMessage] = useState<string | null>(null);
   const [managerNotes, setManagerNotes] = useState<Record<string, string>>({});
   const demoSequenceRef = useRef(1);
-  const feedbackTimerRef = useRef<number | null>(null);
-  const rejectedTimerRef = useRef<number | null>(null);
-  const congratsTimerRef = useRef<number | null>(null);
   const coreSortTimersRef = useRef<number[]>([]);
 
   useEffect(() => {
     return () => {
-      if (feedbackTimerRef.current !== null) window.clearTimeout(feedbackTimerRef.current);
-      if (rejectedTimerRef.current !== null) window.clearTimeout(rejectedTimerRef.current);
-      if (congratsTimerRef.current !== null) window.clearTimeout(congratsTimerRef.current);
       coreSortTimersRef.current.forEach((timer) => window.clearTimeout(timer));
     };
   }, []);
@@ -278,74 +284,6 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
         link.remove();
       }, index * 180);
     });
-  }
-
-  function showTemporaryWorkflowFeedback(feedback: WorkflowFeedback) {
-    setWorkflowFeedback(feedback);
-
-    if (feedbackTimerRef.current !== null) {
-      window.clearTimeout(feedbackTimerRef.current);
-    }
-
-    feedbackTimerRef.current = window.setTimeout(() => {
-      setWorkflowFeedback(null);
-      feedbackTimerRef.current = null;
-    }, 1150);
-  }
-
-  function placeWorkflowStep(stepId: string, slotIndex: number) {
-    if (workflowSlots.includes(stepId) || workflowSlots[slotIndex]) return;
-
-    const step = WORKFLOW_STEPS.find((item) => item.id === stepId);
-    if (!step) return;
-
-    if (WORKFLOW_STEPS[slotIndex].id !== stepId) {
-      setSelectedWorkflow(null);
-      setRejectedWorkflow(stepId);
-      showTemporaryWorkflowFeedback({
-        type: "wrong",
-        title: "Chưa đúng",
-        message: "Khung đã quay về vị trí cũ. Hãy thử một thứ tự khác.",
-      });
-
-      if (rejectedTimerRef.current !== null) {
-        window.clearTimeout(rejectedTimerRef.current);
-      }
-
-      rejectedTimerRef.current = window.setTimeout(() => {
-        setRejectedWorkflow(null);
-        rejectedTimerRef.current = null;
-      }, 720);
-      return;
-    }
-
-    const nextSlots = [...workflowSlots];
-    nextSlots[slotIndex] = stepId;
-    setWorkflowSlots(nextSlots);
-    setSelectedWorkflow(null);
-    showTemporaryWorkflowFeedback({
-      type: "correct",
-      title: "Chính xác",
-      message: `${step.label} ở đúng vị trí số ${slotIndex + 1}.`,
-    });
-
-    if (nextSlots.every(Boolean)) {
-      if (congratsTimerRef.current !== null) {
-        window.clearTimeout(congratsTimerRef.current);
-      }
-
-      congratsTimerRef.current = window.setTimeout(() => {
-        setWorkflowFeedback(null);
-        setShowWorkflowCongrats(true);
-        congratsTimerRef.current = null;
-      }, 850);
-    }
-  }
-
-  function handleWorkflowDrop(event: DragEvent<HTMLButtonElement>, slotIndex: number) {
-    event.preventDefault();
-    const stepId = event.dataTransfer.getData("text/plain");
-    placeWorkflowStep(stepId, slotIndex);
   }
 
   function activateDataItem(item: string) {
@@ -454,7 +392,6 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
       : row));
   }
 
-  const workflowComplete = workflowSlots.every(Boolean);
   const coreComplete = coreCommonItems.length + coreSpecificItems.length === CORE_ITEMS.length;
   const selectedDataItems = DATA_ITEMS.filter((item) => activeDataItems.includes(item));
   const selectedReportItems = REPORT_ITEMS.filter((item) => activeReportItems.includes(item));
@@ -487,107 +424,39 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
         <div><h2>Prompt</h2><p>Chỉ là cách diễn đạt.</p></div><div className={styles.navyCard}><h2>Yêu cầu</h2><p>Mới là điều quyết định chất lượng ứng dụng.</p></div>
       </div></Shell>;
     case 7:
-      return <Shell />;
-    case 8:
-      return <Shell motion={8}><Title>Ví dụ: Báo cáo sự cố</Title><div className={styles.exampleColumns}>
-        <div><MiniTitle>✕ &nbsp; Chưa rõ</MiniTitle><p>“Tạo app báo cáo sự cố.”</p></div>
-        <div className={styles.navyCard}><MiniTitle>✓ &nbsp; Rõ ràng</MiniTitle><p>“Nhân viên đang báo cáo sự cố qua Zalo. Bộ phận an toàn khó theo dõi mức độ và tiến độ xử lý. Cần một Web App tập trung.”</p></div>
+      return <Shell motion={9}><Title>Users</Title><p className={styles.subtitle}>Xác định: Ai sử dụng? Ai ra quyết định?</p><div className={styles.sectionRevealBar}>
+        <button type="button" className={styles.sectionRevealButton} onClick={usersReveal.start} disabled={usersReveal.isRevealing || usersReveal.isComplete} data-interactive="true" aria-live="polite">
+          {usersReveal.isComplete ? "Đã hiện đầy đủ 4 users" : usersReveal.isRevealing ? `Đang hiển thị ${usersReveal.revealedCount}/4` : "Hiển thị users"}
+        </button>
+      </div><div className={styles.userSequentialGrid} aria-label="Các nhóm người dùng">
+        {USER_ITEMS.map((item, index) => {
+          const isRevealed = index < usersReveal.revealedCount;
+          return <article className={isRevealed ? styles.userSequentialCardVisible : ""} key={item}><i>{String(index + 1).padStart(2, "0")}</i><span aria-hidden={!isRevealed}>{item}</span><b aria-hidden="true">{isRevealed ? "✓" : ""}</b></article>;
+        })}
       </div></Shell>;
-    case 9:
-      return <Shell motion={9}><Title>Users</Title><p className={styles.subtitle}>Xác định: Ai sử dụng? Ai ra quyết định?</p><div className={styles.userRevealGrid}>{["Nhân viên", "Bộ phận giám sát an toàn", "Quản lý", "Ban giám đốc"].map((item, index) => {
-        const isRevealed = revealedUsers.includes(item);
-        return <button type="button" className={isRevealed ? styles.userRevealActive : ""} aria-pressed={isRevealed} onClick={() => setRevealedUsers((current) => current.includes(item) ? current : [...current, item])} key={item}><i>{String(index + 1).padStart(2, "0")}</i><span>{isRevealed ? item : "Nhấn để hiển thị"}</span><b aria-hidden="true">{isRevealed ? "✓" : "+"}</b></button>;
-      })}</div></Shell>;
-    case 10:
-      return <Shell motion={10}><div className={`${styles.workflowChallenge} ${workflowComplete ? styles.workflowChallengeComplete : ""}`} data-interactive="true">
-        <div className={styles.workflowChallengeHead}>
+    case 8:
+      return <Shell motion={10}><div className={styles.workflowSequential} data-interactive="true">
+        <div className={styles.workflowSequentialHead}>
           <Title>Quy trình làm việc</Title>
-          <p>{workflowComplete ? "Đã hoàn thành đúng toàn bộ quy trình." : "Kéo 6 khung vào đúng thứ tự quy trình."}</p>
+          <p>Hiển thị lần lượt 6 bước theo đúng thứ tự xử lý sự cố.</p>
         </div>
-
-        <div className={`${styles.workflowTargets} ${workflowComplete ? styles.workflowTargetsComplete : ""}`} aria-label="Thứ tự quy trình">
+        <div className={styles.sectionRevealBar}>
+          <button type="button" className={styles.sectionRevealButton} onClick={workflowReveal.start} disabled={workflowReveal.isRevealing || workflowReveal.isComplete} aria-live="polite">
+            {workflowReveal.isComplete ? "Đã hiện đầy đủ 6 bước" : workflowReveal.isRevealing ? `Đang hiển thị ${workflowReveal.revealedCount}/6` : "Hiển thị quy trình"}
+          </button>
+        </div>
+        <div className={styles.workflowSequentialGrid} aria-label="6 bước của quy trình làm việc">
           {WORKFLOW_STEPS.map((step, index) => {
-            const placedId = workflowSlots[index];
-            const placedStep = WORKFLOW_STEPS.find((item) => item.id === placedId);
-
-            return (
-              <button
-                type="button"
-                className={`${styles.workflowTarget} ${placedStep ? styles.workflowTargetComplete : ""}`}
-                key={step.id}
-                aria-label={placedStep ? `Vị trí ${index + 1}: ${placedStep.label}` : `Thả bước thứ ${index + 1} vào đây`}
-                onDragOver={(event) => {
-                  if (!placedStep) {
-                    event.preventDefault();
-                    event.dataTransfer.dropEffect = "move";
-                  }
-                }}
-                onDrop={(event) => handleWorkflowDrop(event, index)}
-                onClick={() => {
-                  if (selectedWorkflow && !placedStep) placeWorkflowStep(selectedWorkflow, index);
-                }}
-              >
-                <span className={styles.workflowTargetNumber}>{String(index + 1).padStart(2, "0")}</span>
-                {placedStep ? (
-                  <><strong>{placedStep.label}</strong><i aria-hidden="true">✓</i></>
-                ) : (
-                  <span className={styles.workflowTargetPlaceholder}>Thả vào đây</span>
-                )}
-              </button>
-            );
+            const isRevealed = index < workflowReveal.revealedCount;
+            return <article className={isRevealed ? styles.workflowSequentialCardVisible : ""} key={step.id}>
+              <span>{String(index + 1).padStart(2, "0")}</span>
+              <strong aria-hidden={!isRevealed}>{step.label}</strong>
+              <i aria-hidden="true">{isRevealed ? "✓" : ""}</i>
+            </article>;
           })}
         </div>
-
-        {!workflowComplete && (
-          <div className={styles.workflowPool} aria-label="Các bước chưa sắp xếp">
-            {WORKFLOW_POOL_ORDER.map((stepId, index) => {
-              const step = WORKFLOW_STEPS.find((item) => item.id === stepId)!;
-              const isPlaced = workflowSlots.includes(stepId);
-              if (isPlaced) return null;
-
-              return (
-                <button
-                  type="button"
-                  draggable
-                  key={step.id}
-                  className={`${styles.workflowCard} ${styles[`workflowCard${index + 1}`]} ${selectedWorkflow === step.id ? styles.workflowCardSelected : ""} ${rejectedWorkflow === step.id ? styles.workflowCardRejected : ""}`}
-                  aria-pressed={selectedWorkflow === step.id}
-                  onClick={() => setSelectedWorkflow((current) => current === step.id ? null : step.id)}
-                  onDragStart={(event) => {
-                    event.dataTransfer.effectAllowed = "move";
-                    event.dataTransfer.setData("text/plain", step.id);
-                    setSelectedWorkflow(step.id);
-                  }}
-                  onDragEnd={() => setSelectedWorkflow(null)}
-                >
-                  <span className={styles.workflowGrip} aria-hidden="true">⋮⋮</span>
-                  <strong>{step.label}</strong>
-                </button>
-              );
-            })}
-          </div>
-        )}
-
-        {workflowFeedback && (
-          <div className={`${styles.workflowFeedback} ${workflowFeedback.type === "correct" ? styles.workflowFeedbackCorrect : styles.workflowFeedbackWrong}`} role="status">
-            <span aria-hidden="true">{workflowFeedback.type === "correct" ? "✓" : "↺"}</span>
-            <div><strong>{workflowFeedback.title}</strong><p>{workflowFeedback.message}</p></div>
-          </div>
-        )}
-
-        {showWorkflowCongrats && (
-          <div className={styles.workflowCongratsBackdrop}>
-            <section className={styles.workflowCongrats} role="dialog" aria-modal="true" aria-label="Hoàn thành quy trình">
-              <div className={styles.workflowCongratsIcon} aria-hidden="true">✓</div>
-              <MiniTitle>HOÀN THÀNH THỬ THÁCH</MiniTitle>
-              <h2>Chúc mừng!</h2>
-              <p>Bạn đã sắp xếp đúng toàn bộ quy trình làm việc.</p>
-              <button type="button" onClick={() => setShowWorkflowCongrats(false)}>Xem thứ tự đúng</button>
-            </section>
-          </div>
-        )}
       </div></Shell>;
-    case 11:
+    case 9:
       return <Shell motion={11}><div className={styles.guidedInteraction} data-interactive="true">
         <div className={styles.interactionHeading}>
           <div><Title>Dữ liệu</Title><p>Chọn các trường cần có, sau đó xem form được tạo theo lựa chọn.</p></div>
@@ -612,13 +481,13 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
           <footer><p>Form linh hoạt gồm <strong>{selectedDataItems.length}</strong> trường đã chọn.</p><button type="button" onClick={() => setShowDataCongrats(false)}>Quay lại chỉnh sửa</button></footer>
         </section></div>}
       </div></Shell>;
-    case 12:
+    case 10:
       return <Shell motion={12}><Title>Quy tắc nghiệp vụ</Title><div className={styles.ruleGrid}>
         {["Không gửi khi thiếu mô tả hoặc mức độ", "Sự cố nghiêm trọng phải ưu tiên xử lý", "Chỉ người được giao hoặc quản trị viên được cập nhật", "Mỗi lần đổi trạng thái phải lưu thời gian"].map((item, index) => <div key={item}><b>0{index + 1}</b><span>{item}</span></div>)}
       </div></Shell>;
-    case 13:
+    case 11:
       return <Shell motion={13}><div className={styles.acceptanceHeader}><div><MiniTitle>ACCEPTANCE CRITERIA</MiniTitle><Title>Tiêu chí chấp nhận</Title></div><p>Mỗi tiêu chí phải kiểm tra được bằng một hành động cụ thể.</p></div><div className={styles.acceptanceGrid}>{["Không thể nộp form nếu thiếu Mức độ", "Sau khi nộp, Google Sheets xuất hiện dòng mới", "Sự cố mức Nghiêm trọng hiển thị ở đầu danh sách", "Dashboard cập nhật sau khi tải lại dữ liệu"].map((item, index) => <article key={item}><span>0{index + 1}</span><div><small>TEST CASE</small><strong>{item}</strong></div><i aria-hidden="true">✓</i></article>)}</div></Shell>;
-    case 14:
+    case 12:
       return <Shell motion={14}><div className={styles.guidedInteraction} data-interactive="true">
         <div className={styles.interactionHeading}>
           <div><Title>Báo cáo</Title><p>Chọn các chỉ số cần theo dõi, sau đó dựng Dashboard trực quan.</p></div>
@@ -643,7 +512,7 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
           <footer><p>Dashboard đang hiển thị <strong>{selectedReportItems.length}</strong> chỉ số đã chọn.</p><button type="button" onClick={() => setShowReportCongrats(false)}>Quay lại chỉnh sửa</button></footer>
         </section></div>}
       </div></Shell>;
-    case 15:
+    case 13:
       return <Shell motion={15}><Title>Tổng hợp các yêu cầu</Title><div className={styles.requirementSummary}><strong>Ví dụ:</strong><p>Tạo một Web App báo cáo sự cố nội bộ đơn giản, giao diện responsive và dễ sử dụng.</p><ul>
         <li>Người dùng gồm: Nhân viên, Quản lý và Bộ phận an toàn.</li>
         <li>Nhân viên có thể báo cáo sự cố với: Người báo cáo, Phòng ban, Thời gian, Địa điểm, Mô tả và Mức độ.</li>
@@ -653,7 +522,7 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
         <li>Dashboard hiển thị tổng số sự cố, theo mức độ, phòng ban, trạng thái và thời gian xử lý.</li>
         <li>Dùng Google Apps Script + Google Sheets; ưu tiên code tối giản cho app demo nội bộ.</li>
       </ul></div></Shell>;
-    case 16: {
+    case 14: {
       const submittedCount = demoRows.length;
       const approvedCount = demoRows.filter((row) => row.status === "Đã duyệt" || row.status === "Đã hoàn thành").length;
       const rejectedCount = demoRows.filter((row) => row.status === "Không duyệt").length;
@@ -661,7 +530,7 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
       const managerQueue = demoRows.filter((row) => row.status === "Đã nộp");
       const safetyQueue = demoRows.filter((row) => row.status === "Đã duyệt");
       return <Shell motion={16}><div className={styles.workflowDemo} data-interactive="true">
-        <div className={styles.workflowDemoHead}><Title>Demo ứng dụng bám sát Requirement</Title><p>Nhân viên gửi form → Quản lý duyệt / không duyệt → Bộ phận an toàn hoàn thành → Excel + Dashboard cập nhật ngay</p></div>
+        <div className={styles.workflowDemoHead}><Title>Demo </Title><p>Nhân viên gửi form → Quản lý duyệt / không duyệt → Bộ phận an toàn hoàn thành → Excel + Dashboard cập nhật ngay</p></div>
         <div className={styles.workflowDemoGrid}>
           <section className={`${styles.demoPanel} ${styles.demoFormPanel}`}>
             <header><b>01</b><div><MiniTitle>NHÂN VIÊN</MiniTitle><strong>Gửi báo cáo sự cố</strong></div></header>
@@ -699,12 +568,12 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
         </div>
       </div></Shell>;
     }
-    case 17:
+    case 15:
       return <Shell motion={17}><div className={styles.frameworkQuestion}><MiniTitle>AI BUSINESS FRAMEWORK</MiniTitle><Title>Tại sao phải làm lại từ đầu?</Title><p>Lần sau xây ứng dụng mới, bạn có muốn viết lại toàn bộ Prompt?</p></div></Shell>;
-    case 18:
+    case 16:
       return <Shell motion={18}><div className={`${styles.coreChallenge} ${coreComplete ? styles.coreChallengeComplete : ""}`} data-interactive="true">
         <div className={styles.coreChallengeHead}>
-          <Title>Lõi chung và đặc thù theo ứng dụng</Title>
+          <Title>Phần chung và phần đặc thù theo ứng dụng</Title>
           {!coreComplete && <div><button type="button" disabled={coreAutoSorting} onClick={startCoreAutoSort}>{coreAutoSorting ? "Đang phân loại…" : "Bắt đầu phân loại"}</button></div>}
         </div>
         <div className={styles.coreTargets}>
@@ -724,52 +593,52 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
           })}
         </div>}
       </div></Shell>;
-    case 19:
+    case 17:
       return <Shell motion={19}><div className={styles.frameworkHero}><span>Framework</span><div className={styles.goldRule} /><h1>AI Business Framework</h1><p>Một bộ quy tắc để AI luôn xây ứng dụng theo cùng một tiêu chuẩn.</p></div></Shell>;
-    case 20:
+    case 18:
       return <Shell motion={20}><Title>Lõi có thể tái sử dụng</Title><p className={styles.subtitle}>Khi tách được phần dùng chung, AI không cần bắt đầu từ một trang trắng.</p><div className={styles.coreFlow}>{["Kiến trúc hệ thống", "Tiêu chuẩn giao diện người dùng", "Quy tắc viết code", "Quy tắc thiết kế cơ sở dữ liệu", "Kiểm thử", "Triển khai"].map((item, index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}>{item}</div>)}</div></Shell>;
-    case 21:
+    case 19:
       return <Shell dark motion={21}><div className={styles.gemDefinition}><MiniTitle>GEMINI GEMS</MiniTitle><Title>Gem là gì?</Title><p>Một phiên bản Gemini được tùy chỉnh để làm theo các hướng dẫn, ngữ cảnh lặp lại.</p><em>Các nền tảng AI khác cũng có khái niệm tương tự, dù tên gọi khác nhau.</em></div></Shell>;
-    case 22:
+    case 20:
       return <Shell motion={22}><div className={styles.centerLight}><MiniTitle>GEM THỰC CHẤT LÀ GÌ?</MiniTitle><p>Không phải Code. Không phải Plugin.</p><h2>Mà là một bộ hướng dẫn để AI luôn làm đúng.</h2></div></Shell>;
-    case 23:
+    case 21:
       return <Shell motion={23}><Title>Framework và Gem</Title><div className={styles.frameworkGem}>
         <div><MiniTitle>AI BUSINESS FRAMEWORK</MiniTitle><h2>Nội dung tiêu chuẩn</h2><p>Kiến trúc hệ thống, giao diện người dùng (UI), mã nguồn, cơ sở dữ liệu, bảo mật, kiểm thử và quy trình triển khai vận hành.</p></div>
         <div className={styles.arrowLarge}>→</div>
         <div className={styles.navyCard}><MiniTitle>GEM</MiniTitle><h2>Cách đóng gói</h2><p>Instructions và Knowledge định hướng Gemini áp dụng chính xác Framework khi tiếp nhận yêu cầu dự án mới.</p></div>
       </div></Shell>;
-    case 24:
+    case 22:
       return <Shell motion={24}><Title>Bên trong một Gem</Title><div className={styles.gemGrid}>{[["NAME","Tên và mục đích"],["INSTRUCTIONS","Vai trò và quy tắc"],["KNOWLEDGE","Tài liệu tham chiếu"],["PREVIEW","Kiểm thử trước khi lưu"]].map(([head,body], index) => <div className={index === 1 ? styles.navyCard : ""} key={head}><MiniTitle>{head}</MiniTitle><strong>{body}</strong></div>)}</div></Shell>;
-    case 25:
+    case 23:
       return <Shell motion={25}><Title>Công thức Instructions cho Gem</Title><div className={styles.formula}>{["Persona", "Task", "Context", "Format"].map((item, index) => <div key={item} className={index % 2 === 0 ? styles.navyTile : ""}>{item}{index < 3 && <span>+</span>}</div>)}</div><div className={styles.frameworkBar}>+ AI Business Framework</div></Shell>;
-    case 26:
+    case 24:
       return <Shell motion={26}><div className={styles.builderHeader}><MiniTitle>EIU · AI BUSINESS FRAMEWORK</MiniTitle><Title>Business Internal Web App Builder</Title></div><div className={styles.builderExample}><section><span>REQUIREMENT MỚI</span><p>“Tạo hệ thống đặt phòng họp.”</p><i aria-hidden="true">→</i></section><div><small>GEM TỰ ÁP DỤNG TIÊU CHUẨN</small><div>{["Responsive UI", "Google Sheets Database", "Google Apps Script", "Validation", "Dashboard", "Deployment Guide"].map((item, index) => <b key={item}><span>0{index + 1}</span>{item}<i aria-hidden="true">✓</i></b>)}</div></div></div></Shell>;
-    case 27:
+    case 25:
       return <Shell dark motion={27}><div className={styles.requirementTransition}><MiniTitle>Phần thay đổi chính</MiniTitle><h1>Requirement</h1><p>Framework giữ tiêu chuẩn chung. Ngoại lệ phải được mô tả rõ trong từng yêu cầu.</p></div></Shell>;
-    case 28:
+    case 26:
       return <Shell dark motion={28}><div className={styles.labCover}><MiniTitle>GEMINI GEMS</MiniTitle><h1>Lab 2</h1><p>Xây một Gem áp dụng AI Business Framework của doanh nghiệp.</p></div></Shell>;
-    case 29:
+    case 27:
       return <Shell motion={29}><Title>Lộ trình</Title><div className={`${styles.roadmap} ${styles.spiralRoadmap}`}>
         <svg className={styles.spiralTrack} viewBox="0 0 856 350" aria-hidden="true"><path d="M96 176 C96 45 760 42 760 180 C760 310 188 314 188 198 C188 108 650 108 650 193 C650 261 310 263 310 204 C310 157 544 157 544 203 C544 234 406 235 406 205" /></svg>
         <div className={styles.roadmapSpinner}>
           {["Phân tích app, tách Framework, tạo Gem", "Cài đặt Gem", "Kiểm tra", "Lưu & Chia sẻ"].map((item, index) => <div className={styles.roadmapOrbitCard} key={item}><b>{index + 1}</b><span>{item}</span></div>)}
         </div>
       </div></Shell>;
-    case 30:
+    case 28:
       return <Shell motion={30}><Title>Bước 1 · Phân tích, tách Framework, tạo Gem</Title><p className={styles.subtitle}>Bỏ bộ 3 file thực hành đã tạo sẵn vào Gemini, rồi yêu cầu:</p><Quote><p>{requirementPrompt}</p><button type="button" data-interactive="true" onClick={copyPrompt}>{copied ? "Đã copy" : "Copy Prompt"}</button></Quote><button type="button" data-interactive="true" className={styles.labFilesDownload} onClick={downloadLabFiles}><span aria-hidden="true">↓</span><span><strong>Tải bộ 3 file thực hành</strong><small>Gemini-Prompt.txt · App-01-Source.txt · App-02-Source.txt</small></span></button></Shell>;
-    case 31:
+    case 29:
       return <Shell motion={31}><Title>Ví dụ - Nguyên tắc thiết kế</Title><div className={styles.principles}>{["Responsive", "Có Dashboard", "Có giao diện dùng được cho điện thoại", "Kèm theo hướng dẫn", "Sử dụng Google Sheets", "Tách riêng HTML / CSS / JS"].map(item => <span key={item}>▪ {item}</span>)}</div><p className={styles.bottomNote}>...và các nguyên tắc riêng của doanh nghiệp bạn.</p></Shell>;
-    case 32:
+    case 30:
       return <Shell motion={32}><Title>Bước 2 · Cài đặt Gem</Title><div className={styles.screenshotPair}><div><Image src="/section2/gemini-step-001.png" alt="Mở mục Gems trong Gemini" fill sizes="240px" /><span className={`${styles.gemHighlight} ${styles.gemHighlightMenu}`} aria-hidden="true" /></div><div><Image src="/section2/gemini-step-000.png" alt="Gem manager và nút New Gem" fill sizes="650px" /><span className={`${styles.gemHighlight} ${styles.gemHighlightNew}`} aria-hidden="true" /></div></div></Shell>;
-    case 33:
+    case 31:
       return <Shell motion={33}><Title>Bước 2 · Cài đặt Gem</Title><div className={styles.gemSetupLayout}><div className={styles.tallScreenshot}><Image src="/section2/gemini-step-002.png" alt="Các trường cài đặt New Gem" fill sizes="420px" /></div><div className={styles.gemSetupCallout}><MiniTitle>GEM SETTINGS</MiniTitle><p>Tiến hành điền và upload các trường dữ liệu cần thiết từ hướng dẫn của Gemini.</p><div><span>01</span><strong>Name</strong></div><div><span>02</span><strong>Instructions</strong></div><div><span>03</span><strong>Knowledge files</strong></div></div></div></Shell>;
-    case 34:
+    case 32:
       return <Shell motion={34}><Title>Tiến hành thử nghiệm với 1 prompt rút gọn</Title><p className={styles.condensedPromptLead}>Tạo app để...</p><div className={`${styles.practiceList} ${styles.condensedPromptPractice}`}>{["Đặt xe công tác", "Đặt phòng họp", "Báo cáo sự cố", "Xin nghỉ phép", "Quản lý tài sản", "Đề xuất mua hàng", "Onboarding nhân sự", "Phê duyệt chi phí", "Theo dõi công việc"].map((item,index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</div>)}</div></Shell>;
-    case 35:
+    case 33:
       return <Shell motion={35}><Title>Bước 4 - Lưu và chia sẻ</Title><div className={styles.saveFlow}>{[["SAVE","Lưu Gem sau khi kiểm tra"],["SHARE","Chia sẻ Viewer hoặc Editor"],["USE","Mở New Chat và thử yêu cầu mới"]].map(([head,body], index) => <div className={index === 1 ? styles.navyCard : ""} key={head}><strong className={styles.saveFlowLabel}>{head}</strong><p>{body}</p>{index < 2 && <span>→</span>}</div>)}</div></Shell>;
-    case 37:
-      return <Shell dark motion={37}><div className={styles.finalMessage}><MiniTitle>Thông điệp cuối cùng</MiniTitle><p>Đừng xây <strong>100 ứng dụng.</strong></p><h1>Hãy xây 01 AI Business Framework</h1><div className={styles.goldRule} /><p>để AI có thể tạo 100 ứng dụng<br />theo tiêu chuẩn của doanh nghiệp.</p></div></Shell>;
-    case 38:
+    case 34:
+      return <Shell dark motion={37}><div className={styles.finalMessage}><MiniTitle>Thông điệp</MiniTitle><p>Đừng xây <strong>100 ứng dụng.</strong></p><h1>Hãy xây 01 AI Business Framework</h1><div className={styles.goldRule} /><p>để AI có thể tạo 100 ứng dụng<br />theo tiêu chuẩn của doanh nghiệp.</p></div></Shell>;
+    case 35:
       return <Shell motion={38}><div className={styles.completeGemBrief}>
         <div className={styles.completeGemIntro}><MiniTitle>THỰC HÀNH NÂNG CAO</MiniTitle><Title>Tạo một bộ Gem hoàn chỉnh</Title><p>Từ một Web App đầy đủ chức năng đã được phân tích sẵn — không còn dừng ở mức demo.</p></div>
         <div className={styles.completeGemFlow}>

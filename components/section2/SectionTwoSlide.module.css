@@ -186,11 +186,6 @@
 .navyCard h2, .navyCard p, .navyCard strong { color: #fff !important; }
 .navyCard .miniTitle { color: #e8cd99; }
 
-.exampleColumns { position: relative; z-index: 2; margin: 45px 30px 0; display: grid; grid-template-columns: .9fr 1.1fr; gap: 22px; }
-.exampleColumns > div { min-height: 260px; padding: 30px 31px; border-radius: 8px; background: var(--beige); }
-.exampleColumns p { margin: 34px 0 0; font-size: 20px; line-height: 1.48; font-weight: 650; }
-.exampleColumns .navyCard p { font-size: 17px; font-weight: 500; }
-
 .goldBullets { position: relative; z-index: 2; margin: 38px 0 0 40px; padding: 0; list-style: none; display: grid; gap: 28px; }
 .goldBullets li { color: #353535; font-size: var(--type-card-title); }
 .goldBullets li::before { content: "▪"; margin-right: 18px; color: var(--gold); }
@@ -1334,7 +1329,6 @@
 .motionPage7 .centerStatement p,
 .motionPage7 .centerStatement strong,
 .motionPage8 .title,
-.motionPage8 .exampleColumns > div,
 .motionPage9 .title,
 .motionPage9 .subtitle,
 .motionPage9 .goldBullets li,
@@ -1426,9 +1420,6 @@
 
 .motionPage7 .centerStatement p { animation-delay: .22s; }
 .motionPage7 .centerStatement strong { animation-delay: .43s; }
-
-.motionPage8 .exampleColumns > div:first-child { animation-delay: .16s; }
-.motionPage8 .exampleColumns > div:last-child { animation-delay: .38s; }
 
 .motionPage9 .subtitle { animation-delay: .12s; }
 .motionPage9 .goldBullets li:nth-child(1) { animation-delay: .22s; }
@@ -1821,36 +1812,6 @@
 .motionPage8 .title {
   margin-bottom: 0;
   font-size: 33px;
-}
-
-.motionPage8 .exampleColumns {
-  margin: 36px 18px 0;
-  grid-template-columns: .82fr 1.18fr;
-  gap: 24px;
-}
-
-.motionPage8 .exampleColumns > div {
-  min-height: 340px;
-  padding: 39px 38px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  border: 1px solid rgba(21, 64, 106, .09);
-  border-radius: 20px;
-  box-shadow: 0 20px 50px rgba(13, 52, 87, .1);
-}
-
-.motionPage8 .exampleColumns .miniTitle { font-size: 14px; }
-
-.motionPage8 .exampleColumns p {
-  margin-top: 34px;
-  font-size: calc(var(--type-large-body) + 3px);
-  line-height: 1.48;
-}
-
-.motionPage8 .exampleColumns .navyCard p {
-  font-size: var(--type-large-body);
-  line-height: 1.52;
 }
 
 .motionPage9 .title { margin-bottom: 22px; }
@@ -3747,7 +3708,6 @@
   .motionPage7 .centerStatement p,
   .motionPage7 .centerStatement strong,
   .motionPage8 .title,
-  .motionPage8 .exampleColumns > div,
   .motionPage9 .title,
   .motionPage9 .subtitle,
   .motionPage9 .goldBullets li,
@@ -4350,4 +4310,232 @@
   .motionPage28 .labCover::before,
   .motionPage28 .labCover::after,
   .motionPage28 .labCover h1 { animation: none !important; }
+}
+
+/* Section 2 · Slides 8–9: one-button sequential reveal. */
+.sectionRevealBar {
+  position: absolute;
+  top: 33px;
+  right: 70px;
+  z-index: 5;
+}
+
+.sectionRevealButton {
+  min-width: 202px;
+  min-height: 42px;
+  padding: 9px 20px;
+  border: 1px solid rgba(233, 202, 139, .72);
+  border-radius: 13px;
+  background: linear-gradient(135deg, #15406a, #0d3457);
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 10px 25px rgba(13, 52, 87, .18);
+  transition: transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+}
+
+.sectionRevealButton:hover:not(:disabled),
+.sectionRevealButton:focus-visible:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px rgba(13, 52, 87, .24);
+}
+
+.sectionRevealButton:disabled {
+  cursor: default;
+  opacity: .82;
+}
+
+.userSequentialGrid {
+  position: relative;
+  z-index: 3;
+  margin: 42px 26px 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 22px;
+}
+
+.userSequentialGrid article {
+  position: relative;
+  min-width: 0;
+  min-height: 126px;
+  padding: 28px 54px 24px 74px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(21, 64, 106, .12);
+  border-radius: 20px;
+  background: linear-gradient(145deg, #fbfaf7, #f0eadf);
+  box-shadow: 0 16px 42px rgba(13, 52, 87, .1);
+  color: #687987;
+  transition: border-color .35s ease, background .35s ease, box-shadow .35s ease;
+}
+
+.userSequentialGrid i {
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  background: rgba(21, 64, 106, .1);
+  color: rgba(21, 64, 106, .56);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 900;
+  letter-spacing: .08em;
+  transform: translateY(-50%);
+}
+
+.userSequentialGrid span {
+  min-width: 0;
+  font-size: 17px;
+  font-weight: 760;
+  line-height: 1.28;
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.userSequentialGrid b {
+  position: absolute;
+  right: 18px;
+  top: 16px;
+  color: #e9ca8b;
+  font-size: 18px;
+}
+
+.userSequentialGrid .userSequentialCardVisible {
+  border-color: rgba(233, 202, 139, .3);
+  background: linear-gradient(145deg, #123f68, #082945);
+  color: #fff;
+  box-shadow: 0 20px 48px rgba(13, 52, 87, .16);
+}
+
+.userSequentialCardVisible i {
+  background: #e9ca8b;
+  color: var(--navy-deep);
+}
+
+.userSequentialCardVisible span {
+  animation: sectionTwoSequentialContentIn .48s cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+.workflowSequential {
+  position: relative;
+  z-index: 3;
+  height: 100%;
+}
+
+.workflowSequentialHead {
+  margin: 0 30px;
+}
+
+.workflowSequentialHead .title {
+  margin: 0;
+}
+
+.workflowSequentialHead > p {
+  margin: 10px 0 0;
+  color: #68798a;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.workflowSequentialGrid {
+  margin: 28px 12px 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, 136px);
+  gap: 14px 16px;
+}
+
+.workflowSequentialGrid article {
+  position: relative;
+  min-width: 0;
+  padding: 22px 42px 20px 72px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  border: 1px solid rgba(21, 64, 106, .12);
+  border-radius: 20px;
+  background: linear-gradient(145deg, #fbfaf7, #f0eadf);
+  box-shadow: 0 14px 36px rgba(13, 52, 87, .08);
+  color: #687987;
+  transition: border-color .35s ease, background .35s ease, box-shadow .35s ease;
+}
+
+.workflowSequentialGrid article > span {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(21, 64, 106, .1);
+  color: rgba(21, 64, 106, .56);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .08em;
+  transform: translateY(-50%);
+}
+
+.workflowSequentialGrid strong {
+  min-width: 0;
+  font-size: 16px;
+  line-height: 1.25;
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.workflowSequentialGrid i {
+  position: absolute;
+  right: 16px;
+  top: 14px;
+  color: #e9ca8b;
+  font-size: 17px;
+  font-style: normal;
+  font-weight: 900;
+}
+
+.workflowSequentialGrid .workflowSequentialCardVisible {
+  border-color: rgba(233, 202, 139, .3);
+  background: linear-gradient(145deg, #123f68, #082945);
+  color: #fff;
+  box-shadow: 0 19px 44px rgba(13, 52, 87, .15);
+}
+
+.workflowSequentialCardVisible > span {
+  background: #e9ca8b !important;
+  color: var(--navy-deep) !important;
+}
+
+.workflowSequentialCardVisible strong {
+  animation: sectionTwoSequentialContentIn .48s cubic-bezier(.22, 1, .36, 1) forwards;
+}
+
+@keyframes sectionTwoSequentialContentIn {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sectionRevealButton,
+  .userSequentialGrid article,
+  .userSequentialCardVisible span,
+  .workflowSequentialGrid article,
+  .workflowSequentialCardVisible strong {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .userSequentialCardVisible span,
+  .workflowSequentialCardVisible strong {
+    opacity: 1;
+    transform: none;
+  }
 }

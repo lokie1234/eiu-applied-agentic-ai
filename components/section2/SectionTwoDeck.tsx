@@ -8,7 +8,11 @@ import ShowcaseSlide from "@/components/ShowcaseSlide";
 import SectionTwoSlide from "./SectionTwoSlide";
 import styles from "./SectionTwoDeck.module.css";
 
-const TOTAL_SLIDES = 38;
+const CONTENT_SLIDES = 35;
+const SHOWCASE_SLIDE = 36;
+const QUIZ_SLIDE = 37;
+const TOTAL_SLIDES = QUIZ_SLIDE;
+// Keep navigation and SectionTwoSlide cases strictly 1:1. Do not add page offsets.
 const SLIDE_WIDTH = 960;
 const SLIDE_HEIGHT = 540;
 
@@ -26,14 +30,6 @@ export default function SectionTwoDeck({ onChooseSection, isAdmin = false }: { o
     () => (viewerWidth > 0 ? Math.round(viewerWidth * zoom) : 0),
     [viewerWidth, zoom]
   );
-  const contentPageNumber = pageNumber < 7
-    ? pageNumber
-    : pageNumber <= 34
-      ? pageNumber + 1
-      : pageNumber === 35
-        ? 37
-        : 38;
-
   const goToPage = useCallback((page: number) => {
     const safePage = Math.min(Math.max(Math.round(page), 1), TOTAL_SLIDES);
     pageRef.current = safePage;
@@ -212,18 +208,18 @@ export default function SectionTwoDeck({ onChooseSection, isAdmin = false }: { o
               style={{ width: renderWidth, height: renderWidth * (SLIDE_HEIGHT / SLIDE_WIDTH) }}
             >
               <div key={`section2-${pageNumber}`} className={styles.slideTransition}>
-                {pageNumber === 37 ? (
+                {pageNumber === SHOWCASE_SLIDE ? (
                   <ShowcaseSlide scale={renderWidth / SLIDE_WIDTH} isAdmin={isAdmin} section="section2" />
-                ) : pageNumber === 38 ? (
+                ) : pageNumber === QUIZ_SLIDE ? (
                   <QuizSlide scale={renderWidth / SLIDE_WIDTH} variant="section2" />
-                ) : (
+                ) : pageNumber <= CONTENT_SLIDES ? (
                   <div
                     className={styles.canvas}
                     style={{ transform: `scale(${renderWidth / SLIDE_WIDTH})` }}
                   >
-                    <SectionTwoSlide pageNumber={contentPageNumber} />
+                    <SectionTwoSlide pageNumber={pageNumber} />
                   </div>
-                )}
+                ) : null}
               </div>
             </div>
           ) : (

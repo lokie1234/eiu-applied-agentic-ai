@@ -38,7 +38,7 @@ OPTIONAL PATTERN: Mẫu có thể bật/tắt theo Requirement.
 
 APP-SPECIFIC: Phần chỉ thuộc từng app mẫu, không đưa vào mặc định của Gem.
 
-Trên chat chỉ hiển thị một BRIEF tối đa 8 bullet về lõi có thể tái sử dụng, ví dụ:
+Trên chat chỉ hiển thị một BRIEF tối đa 8 bullet về phần có thể tái sử dụng, ví dụ:
 Requirement → Data → Workflow → Role/Permission → Validation → UI → Dashboard → Deployment.
 Mỗi bullet tối đa 1 câu ngắn.
 
@@ -80,7 +80,7 @@ Phần 4: KNOWLEDGE_GAS_SHEETS_PATTERN (Tiêu chuẩn GAS + Google Sheets, data 
 
 Chat chỉ hiển thị theo cấu trúc:
 
-A. BRIEF — LÕI CÓ THỂ TÁI SỬ DỤNG
+A. BRIEF — PHẦN CÓ THỂ TÁI SỬ DỤNG
 
 Tối đa 8 bullet ngắn gọn.
 
