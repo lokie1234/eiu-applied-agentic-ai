@@ -1,56 +1,79 @@
 import { NextResponse } from "next/server";
+import { currentRole } from "@/lib/currentRole";
+import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+
+type SectionId = "section1" | "section2";
+type AnswerRecord = {
+  question: string;
+  selected: string;
+  correct: string;
+  isCorrect: boolean;
+};
+
+function normalizeAnswers(value: unknown): AnswerRecord[] | null {
+  if (!Array.isArray(value) || value.length !== 10) return null;
+  const answers = value.map((entry) => {
+    const record = entry as Partial<AnswerRecord>;
+    return {
+      question: String(record.question ?? "").trim().slice(0, 500),
+      selected: String(record.selected ?? "").trim().slice(0, 300),
+      correct: String(record.correct ?? "").trim().slice(0, 300),
+      isCorrect: record.isCorrect === true,
+    };
+  });
+  return answers.every((answer) => answer.question && answer.selected && answer.correct)
+    ? answers
+    : null;
+}
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const name = String(body.name ?? "").trim();
-    const email = String(body.email ?? "").trim().toLowerCase();
+    const section: SectionId = body.section === "section2" ? "section2" : "section1";
+    const role = await currentRole();
+    if (role !== "admin" && role !== section) {
+      return NextResponse.json({ success: false, message: "Không có quyền gửi kết quả cho Section này." }, { status: 403 });
+    }
+
     const score = Number(body.score);
     const total = Number(body.total);
-    const webhookUrl = process.env.GOOGLE_APPS_SCRIPT_URL?.trim();
-    const section = String(body.section ?? "section1") === "section2" ? "section2" : "section1";
+    const answers = normalizeAnswers(body.answers);
 
     if (body.website) return NextResponse.json({ success: true });
-    if (!name || name.length > 80) {
-      return NextResponse.json({ success: false, message: "Họ tên không hợp lệ." }, { status: 400 });
-    }
-    if (email.length > 100 || !/^[a-z0-9._%+-]+@eiu\.edu\.vn$/i.test(email)) {
-      return NextResponse.json({ success: false, message: "Email EIU không hợp lệ." }, { status: 400 });
+    const profile = await currentLearnerProfile();
+    if (!profile || profile.section !== section) {
+      return NextResponse.json(
+        { success: false, message: "Vui lòng hoàn tất thông tin học viên trước khi gửi kết quả." },
+        { status: 403 },
+      );
     }
     if (!Number.isInteger(score) || !Number.isInteger(total) || total !== 10 || score < 0 || score > total) {
       return NextResponse.json({ success: false, message: "Kết quả bài kiểm tra không hợp lệ." }, { status: 400 });
     }
-    if (!webhookUrl) {
-      return NextResponse.json({ success: false, message: "Chưa cấu hình GOOGLE_APPS_SCRIPT_URL trên Vercel." }, { status: 503 });
+    if (!answers || answers.filter((answer) => answer.isCorrect).length !== score) {
+      return NextResponse.json({ success: false, message: "Chi tiết câu trả lời không hợp lệ." }, { status: 400 });
     }
 
-    const upstream = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        action: "quiz.submit",
-        secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "",
-        section,
-        name,
-        email,
-        score,
-        total,
-        completedAt: String(body.completedAt ?? new Date().toISOString()),
-      }),
-      cache: "no-store",
-      redirect: "follow",
+    const requestedAt = new Date(String(body.completedAt ?? ""));
+    const completedAt = Number.isNaN(requestedAt.getTime()) ? new Date().toISOString() : requestedAt.toISOString();
+    const { error } = await getSupabaseAdmin().from("quiz_results").insert({
+      section,
+      name: profile.name,
+      email: profile.email,
+      score,
+      total,
+      answers,
+      completed_at: completedAt,
     });
-    const text = await upstream.text();
-    let payload: Record<string, unknown>;
-    try {
-      payload = JSON.parse(text);
-    } catch {
-      throw new Error("Apps Script đang trả về trang HTML. Hãy triển khai dạng Web app và chọn quyền truy cập Anyone.");
-    }
-    if (!upstream.ok || payload.success !== true) throw new Error(String(payload.message ?? "Apps Script không phản hồi thành công."));
+    if (error) throw error;
+
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Quiz result API error:", error);
-    return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Không thể gửi kết quả." }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error instanceof Error ? error.message : "Không thể gửi kết quả." },
+      { status: 500 },
+    );
   }
 }

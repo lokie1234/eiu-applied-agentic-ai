@@ -2,8 +2,10 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { type ReactNode, useEffect, useRef, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import type { AccessRole } from "@/lib/access";
+import type { LearnerProfile } from "@/lib/learnerProfileTypes";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import styles from "./LessonPortal.module.css";
 
 const SectionOneDeck = dynamic(() => import("./PdfDeck"), { ssr: false });
@@ -11,11 +13,28 @@ const SectionTwoDeck = dynamic(() => import("./section2/SectionTwoDeck"), { ssr:
 
 type SectionId = "section1" | "section2";
 type TerminateStatus = "idle" | "sending" | "success" | "error";
+type ReportStatus = "idle" | "exporting" | "error";
 
 interface PresenceCounts {
   section1: number;
   section2: number;
   total: number;
+}
+
+function getTodayDateString(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function formatVNDate(dateStr: string): string {
+  const parts = dateStr.split("-");
+  if (parts.length === 3) {
+    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+  }
+  return dateStr;
 }
 
 function getOrCreateClientId(): string {
@@ -40,97 +59,49 @@ function ActiveUsersTaskbarWidget({
   currentSection?: SectionId | null;
 }) {
   const prevCountsRef = useRef<PresenceCounts>(counts);
-  const [s1Pulse, setS1Pulse] = useState(false);
-  const [s2Pulse, setS2Pulse] = useState(false);
-  const [containerPulse, setContainerPulse] = useState(false);
+  const [pulse, setPulse] = useState(false);
 
   useEffect(() => {
     const prev = prevCountsRef.current;
-    let s1Changed = false;
-    let s2Changed = false;
-
-    if (prev.section1 !== counts.section1) {
-      s1Changed = true;
-      setS1Pulse(true);
-      const timer = setTimeout(() => setS1Pulse(false), 750);
-      return () => clearTimeout(timer);
+    if (
+      prev.section1 !== counts.section1 ||
+      prev.section2 !== counts.section2 ||
+      prev.total !== counts.total
+    ) {
+      prevCountsRef.current = counts;
+      setPulse(true);
+      const timer = window.setTimeout(() => setPulse(false), 800);
+      return () => window.clearTimeout(timer);
     }
-
-    if (prev.section2 !== counts.section2) {
-      s2Changed = true;
-      setS2Pulse(true);
-      const timer = setTimeout(() => setS2Pulse(false), 750);
-      return () => clearTimeout(timer);
-    }
-
-    if (s1Changed || s2Changed || prev.total !== counts.total) {
-      setContainerPulse(true);
-      const timer = setTimeout(() => setContainerPulse(false), 750);
-      return () => clearTimeout(timer);
-    }
-
-    prevCountsRef.current = counts;
   }, [counts]);
 
-  useEffect(() => {
-    prevCountsRef.current = counts;
-  }, [counts]);
+  const activeCount =
+    currentSection === "section1"
+      ? counts.section1
+      : currentSection === "section2"
+        ? counts.section2
+        : counts.total;
+
+  const sectionLabel =
+    currentSection === "section1"
+      ? "S1"
+      : currentSection === "section2"
+        ? "S2"
+        : "Online";
 
   return (
     <div
-      className={`${styles.activeUsersWidget} ${containerPulse ? styles.widgetPulsing : ""}`}
-      title={`Section 1: ${counts.section1} người • Section 2: ${counts.section2} người • Tổng: ${counts.total} người đang online`}
-      aria-label="Số lượng người dùng đang truy cập"
+      className={`${styles.activeUsersWidget} ${pulse ? styles.activeUsersPulse : ""}`}
+      title={`${counts.total} users online (${counts.section1} Section 1, ${counts.section2} Section 2)`}
+      aria-label="Số người đang học"
     >
-      <span className={styles.liveIndicator}>
-        <span className={styles.liveDot} />
-        <span className={styles.liveText}>USERS</span>
-      </span>
-
-      <div className={styles.trackerChips}>
-        <div
-          className={`${styles.sectionChip} ${currentSection === "section1" ? styles.chipCurrent : ""}`}
-        >
-          <span className={styles.chipLabel}>S1:</span>
-          <strong
-            className={`${styles.chipValue} ${s1Pulse ? styles.valuePulse : ""}`}
-          >
-            {counts.section1}
-          </strong>
-        </div>
-
-        <span className={styles.chipDivider}>•</span>
-
-        <div
-          className={`${styles.sectionChip} ${currentSection === "section2" ? styles.chipCurrent : ""}`}
-        >
-          <span className={styles.chipLabel}>S2:</span>
-          <strong
-            className={`${styles.chipValue} ${s2Pulse ? styles.valuePulse : ""}`}
-          >
-            {counts.section2}
-          </strong>
-        </div>
-
-        <div className={styles.totalChip}>
-          <span className={styles.chipLabel}>Tổng:</span>
-          <strong className={styles.chipValue}>{counts.total}</strong>
-        </div>
-      </div>
+      <span className={styles.livePulseDot} aria-hidden="true" />
+      <span className={styles.activeUsersLabel}>{sectionLabel}</span>
+      <strong className={styles.activeUsersNumber}>{activeCount}</strong>
+      <span className={styles.totalChip}>/{counts.total}</span>
     </div>
   );
 }
-
-type DeckShellProps = {
-  children: ReactNode;
-  isAdmin: boolean;
-  presenceCounts?: PresenceCounts;
-  currentSection?: SectionId | null;
-  statusNotice?: string;
-  onChooseSection?: () => void;
-  onOpenTerminate?: () => void;
-  onSignOut: () => void;
-};
 
 function DeckShell({
   children,
@@ -141,24 +112,30 @@ function DeckShell({
   onChooseSection,
   onOpenTerminate,
   onSignOut,
-}: DeckShellProps) {
+}: {
+  children: ReactNode;
+  isAdmin: boolean;
+  presenceCounts: PresenceCounts;
+  currentSection?: SectionId | null;
+  statusNotice?: string;
+  onChooseSection?: () => void;
+  onOpenTerminate?: () => void;
+  onSignOut: () => void;
+}) {
   return (
-    <div className={styles.lessonShell}>
-      <div className={styles.deckViewport}>{children}</div>
+    <div className={styles.deckViewport}>
+      <div className={styles.deckContent}>{children}</div>
 
-      <aside className={styles.actionBar} aria-label="Session controls">
-        <div className={styles.actionBarIdentity} aria-live="polite">
-          <span>EIU · APPLIED AGENTIC AI</span>
-          <strong>
-            {statusNotice || (isAdmin ? "Admin mode" : "Learning session")}
-          </strong>
-        </div>
+      <aside className={styles.deckTaskbar} aria-label="Quick actions">
+        <ActiveUsersTaskbarWidget
+          counts={presenceCounts}
+          currentSection={currentSection}
+        />
 
-        {isAdmin && presenceCounts && (
-          <ActiveUsersTaskbarWidget
-            counts={presenceCounts}
-            currentSection={currentSection}
-          />
+        {statusNotice && (
+          <p className={styles.statusNotice} role="status">
+            {statusNotice}
+          </p>
         )}
 
         <div className={styles.actionBarButtons}>
@@ -195,12 +172,28 @@ function DeckShell({
   );
 }
 
-export default function LessonPortal({ role }: { role: AccessRole }) {
+export default function LessonPortal({
+  role,
+  initialProfile,
+}: {
+  role: AccessRole;
+  initialProfile: LearnerProfile | null;
+}) {
   const [adminSection, setAdminSection] = useState<SectionId | null>(null);
   const [showTerminate, setShowTerminate] = useState(false);
   const [terminateStatus, setTerminateStatus] =
     useState<TerminateStatus>("idle");
   const [terminateNotice, setTerminateNotice] = useState("");
+  const [reportStatus, setReportStatus] = useState<ReportStatus>("idle");
+  const [reportNotice, setReportNotice] = useState("");
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportRange, setExportRange] = useState<"today" | "custom" | "all">("today");
+  const [exportCustomDate, setExportCustomDate] = useState(() => getTodayDateString());
+  const [learnerProfile, setLearnerProfile] = useState<LearnerProfile | null>(initialProfile);
+  const [profileName, setProfileName] = useState("");
+  const [profileEmailLocalPart, setProfileEmailLocalPart] = useState("");
+  const [profileStatus, setProfileStatus] = useState<"idle" | "saving" | "error">("idle");
+  const [profileError, setProfileError] = useState("");
   const section = role === "admin" ? adminSection : role;
 
   const [presenceCounts, setPresenceCounts] = useState<PresenceCounts>({
@@ -209,11 +202,13 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
     total: 0,
   });
 
-  // Admin polling for live user counts
+  // Presence is refreshed by Supabase Realtime signals, with a slow fallback
+  // for expired tabs that cannot send a pagehide beacon.
   useEffect(() => {
     if (role !== "admin") return;
 
     let disposed = false;
+    let refreshTimer: number | undefined;
 
     async function fetchCounts() {
       if (disposed) return;
@@ -233,17 +228,27 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
     }
 
     void fetchCounts();
-    const interval = setInterval(() => void fetchCounts(), 2500);
+    const supabase = getSupabaseBrowserClient();
+    const channel = supabase
+      ?.channel("eiu:presence")
+      .on("broadcast", { event: "presence_changed" }, () => {
+        window.clearTimeout(refreshTimer);
+        refreshTimer = window.setTimeout(() => void fetchCounts(), 150);
+      })
+      .subscribe();
+    const interval = window.setInterval(() => void fetchCounts(), 15_000);
 
     return () => {
       disposed = true;
-      clearInterval(interval);
+      window.clearTimeout(refreshTimer);
+      window.clearInterval(interval);
+      if (supabase && channel) void supabase.removeChannel(channel);
     };
   }, [role]);
 
   // Learner heartbeat tracking
   useEffect(() => {
-    if (role === "admin") return;
+    if (role === "admin" || !learnerProfile) return;
 
     const clientId = getOrCreateClientId();
     let disposed = false;
@@ -258,7 +263,7 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
     }
 
     void sendHeartbeat();
-    const heartbeatTimer = setInterval(() => void sendHeartbeat(), 3500);
+    const heartbeatTimer = window.setInterval(() => void sendHeartbeat(), 10_000);
 
     const onLeave = () => {
       if (navigator.sendBeacon) {
@@ -279,7 +284,51 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
       window.removeEventListener("beforeunload", onLeave);
       onLeave();
     };
-  }, [role]);
+  }, [role, learnerProfile]);
+
+  async function exportReport() {
+    if (role !== "admin" || reportStatus === "exporting") return;
+    setReportStatus("exporting");
+    setReportNotice("");
+
+    const todayStr = getTodayDateString();
+    let dateParam = "all";
+    if (exportRange === "today") {
+      dateParam = todayStr;
+    } else if (exportRange === "custom") {
+      dateParam = exportCustomDate || todayStr;
+    }
+
+    const tzOffset = new Date().getTimezoneOffset();
+
+    try {
+      const response = await fetch(
+        `/api/admin/report?date=${encodeURIComponent(dateParam)}&tzOffset=${encodeURIComponent(tzOffset)}`,
+        { cache: "no-store" }
+      );
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => ({}))) as { message?: string };
+        throw new Error(payload.message || "Không thể xuất report.");
+      }
+
+      const disposition = response.headers.get("content-disposition") ?? "";
+      const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1]
+        ?? `eiu-interactive-report-${dateParam}.xlsx`;
+      const url = URL.createObjectURL(await response.blob());
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      setReportStatus("idle");
+      setShowExportModal(false);
+    } catch (error) {
+      setReportStatus("error");
+      setReportNotice(error instanceof Error ? error.message : "Không thể xuất report.");
+    }
+  }
 
   async function signOut() {
     if (role !== "admin") {
@@ -306,110 +355,120 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
       const response = await fetch("/api/section-control", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ section }),
+        body: JSON.stringify({ action: "terminate", section }),
       });
-      const payload = (await response.json().catch(() => ({}))) as {
-        message?: string;
-      };
 
+      const payload = (await response.json()) as { message?: string };
       if (!response.ok) {
-        throw new Error(payload.message || "Không thể kết thúc Section.");
+        throw new Error(payload.message || "Failed to terminate section.");
       }
 
-      setShowTerminate(false);
       setTerminateStatus("success");
       setTerminateNotice(
-        `Đã gửi lệnh kết thúc ${section === "section1" ? "Section 1" : "Section 2"}.`,
+        `${section === "section1" ? "Section 1" : "Section 2"} has been terminated. Users are being redirected.`
       );
+      setShowTerminate(false);
     } catch (error) {
       setTerminateStatus("error");
       setTerminateNotice(
-        error instanceof Error ? error.message : "Không thể kết thúc Section.",
+        error instanceof Error ? error.message : "Failed to terminate section."
       );
     }
   }
 
-  useEffect(() => {
-    const onPageShow = () => {
-      const storedRole = localStorage.getItem("eiu-role");
-      if (storedRole && storedRole !== role) {
-        localStorage.removeItem("eiu-role");
+  async function saveLearnerProfile(event: FormEvent) {
+    event.preventDefault();
+    if (profileStatus === "saving") return;
+    setProfileStatus("saving");
+    setProfileError("");
+
+    try {
+      const response = await fetch("/api/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: profileName,
+          email: `${profileEmailLocalPart.trim()}@eiu.edu.vn`,
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.message || "Không thể lưu thông tin.");
       }
-    };
 
-    window.addEventListener("pageshow", onPageShow);
-    return () => window.removeEventListener("pageshow", onPageShow);
-  }, [role]);
+      setLearnerProfile(payload.profile);
+      setProfileStatus("idle");
+    } catch (error) {
+      setProfileStatus("error");
+      setProfileError(error instanceof Error ? error.message : "Không thể lưu thông tin.");
+    }
+  }
 
+  // Admin section termination polling listener
   useEffect(() => {
     if (role === "admin") return;
 
     let disposed = false;
-    let checking = false;
-    let baselineToken: string | null = null;
-    const clientId = getOrCreateClientId();
-
-    async function forceUserLogout() {
-      await fetch("/api/signout", { method: "POST" }).catch(() => undefined);
-      localStorage.clear();
-      sessionStorage.clear();
-      window.location.replace("/login?reason=terminated");
-    }
+    let initialToken: string | null = null;
+    let isInitialized = false;
 
     async function checkTermination() {
-      if (disposed || checking) return;
-      checking = true;
-
+      if (disposed) return;
       try {
-        const response = await fetch(
-          `/api/section-control?section=${encodeURIComponent(role)}&clientId=${encodeURIComponent(clientId)}`,
-          { cache: "no-store" },
-        );
-
-        if (response.status === 401) {
-          disposed = true;
-          await forceUserLogout();
-          return;
-        }
-
+        const response = await fetch(`/api/section-control?section=${role}`, {
+          cache: "no-store",
+        });
         if (!response.ok) return;
 
         const payload = (await response.json()) as {
           success?: boolean;
-          token?: string;
+          terminationToken?: string;
         };
-        if (payload.success !== true || !payload.token) return;
 
-        if (baselineToken === null) {
-          baselineToken = payload.token;
-          return;
-        }
-
-        if (payload.token !== baselineToken) {
-          disposed = true;
-          await forceUserLogout();
+        if (payload.success) {
+          const currentToken = payload.terminationToken ?? null;
+          if (!isInitialized) {
+            initialToken = currentToken;
+            isInitialized = true;
+          } else if (currentToken && currentToken !== initialToken) {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.replace("/login");
+          }
         }
       } catch {
-        // A temporary connection failure must not unexpectedly sign the user out.
-      } finally {
-        checking = false;
+        // Ignore network glitches
       }
     }
 
+    void checkTermination();
+    const supabase = getSupabaseBrowserClient();
+    const channel = supabase
+      ?.channel("eiu:section_control")
+      .on("broadcast", { event: "section_terminated" }, (payload) => {
+        const targetSection = (payload.payload as { section?: string })?.section;
+        if (targetSection === role) {
+          localStorage.clear();
+          sessionStorage.clear();
+          window.location.replace("/login");
+        }
+      })
+      .subscribe();
+
+    const timer = window.setInterval(() => void checkTermination(), 30_000);
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") void checkTermination();
     };
-
-    void checkTermination();
-    const timer = window.setInterval(() => void checkTermination(), 2000);
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       disposed = true;
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisibilityChange);
+      if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [role]);
+  }, [role, learnerProfile]);
 
   if (role === "admin" && !section) {
     return (
@@ -417,6 +476,17 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
         <div className={styles.grid} aria-hidden="true" />
 
         <div className={styles.selectorActions}>
+          <button
+            type="button"
+            className={styles.reportButton}
+            onClick={() => {
+              setReportNotice("");
+              setShowExportModal(true);
+            }}
+            disabled={reportStatus === "exporting"}
+          >
+            {reportStatus === "exporting" ? "Đang xuất…" : "Xuất report Excel"}
+          </button>
           <button type="button" onClick={signOut}>
             Sign out
           </button>
@@ -444,6 +514,9 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
             <span>CHỌN NỘI DUNG</span>
             <h1>Bạn muốn mở Section nào?</h1>
             <p>Chuyển đổi giữa cả hai phần học.</p>
+            {reportStatus === "error" && reportNotice && (
+              <p className={styles.reportError} role="alert">{reportNotice}</p>
+            )}
           </div>
 
           <div className={styles.cards}>
@@ -469,6 +542,120 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
             </button>
           </div>
         </section>
+
+        {showExportModal && (
+          <div
+            className={styles.modalLayer}
+            role="presentation"
+            onMouseDown={(event) => {
+              if (event.currentTarget === event.target && reportStatus !== "exporting") {
+                setShowExportModal(false);
+              }
+            }}
+          >
+            <section
+              className={styles.modal}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="export-report-title"
+            >
+              <span>BÁO CÁO THỐNG KÊ</span>
+              <h2 id="export-report-title">Xuất báo cáo Excel</h2>
+              <p>
+                Chọn phạm vi thời gian để lọc danh sách học viên đăng nhập và tương tác trong buổi học.
+              </p>
+
+              <div className={styles.exportOptions}>
+                <label
+                  className={`${styles.exportOption} ${
+                    exportRange === "today" ? styles.exportOptionActive : ""
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="exportRange"
+                    value="today"
+                    checked={exportRange === "today"}
+                    onChange={() => setExportRange("today")}
+                  />
+                  <div className={styles.exportOptionContent}>
+                    <strong>Hôm nay ({formatVNDate(getTodayDateString())})</strong>
+                    <small>Chỉ xuất học viên &amp; dữ liệu tham gia trong ngày hôm nay</small>
+                  </div>
+                </label>
+
+                <label
+                  className={`${styles.exportOption} ${
+                    exportRange === "custom" ? styles.exportOptionActive : ""
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="exportRange"
+                    value="custom"
+                    checked={exportRange === "custom"}
+                    onChange={() => setExportRange("custom")}
+                  />
+                  <div className={styles.exportOptionContent}>
+                    <strong>Theo ngày cụ thể</strong>
+                    <small>Chọn ngày tổ chức lớp học bạn muốn xuất dữ liệu</small>
+                    {exportRange === "custom" && (
+                      <input
+                        type="date"
+                        className={styles.exportDateInput}
+                        value={exportCustomDate}
+                        onChange={(e) => setExportCustomDate(e.target.value)}
+                      />
+                    )}
+                  </div>
+                </label>
+
+                <label
+                  className={`${styles.exportOption} ${
+                    exportRange === "all" ? styles.exportOptionActive : ""
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="exportRange"
+                    value="all"
+                    checked={exportRange === "all"}
+                    onChange={() => setExportRange("all")}
+                  />
+                  <div className={styles.exportOptionContent}>
+                    <strong>Tất cả thời gian</strong>
+                    <small>Xuất toàn bộ lịch sử học viên từ trước đến nay</small>
+                  </div>
+                </label>
+              </div>
+
+              {reportStatus === "error" && reportNotice && (
+                <p className={styles.reportError} role="alert">
+                  {reportNotice}
+                </p>
+              )}
+
+              <div className={styles.modalActions}>
+                <button
+                  type="button"
+                  className={styles.cancelButton}
+                  onClick={() => setShowExportModal(false)}
+                  disabled={reportStatus === "exporting"}
+                >
+                  Đóng
+                </button>
+                <button
+                  type="button"
+                  className={styles.confirmReportButton}
+                  onClick={() => void exportReport()}
+                  disabled={reportStatus === "exporting"}
+                >
+                  {reportStatus === "exporting" ? "Đang xuất file…" : "Tải file Excel"}
+                </button>
+              </div>
+            </section>
+          </div>
+        )}
       </main>
     );
   }
@@ -546,6 +733,74 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
               </button>
             </div>
           </section>
+        </div>
+      )}
+
+      {role !== "admin" && !learnerProfile && (
+        <div className={styles.profileModalLayer} role="presentation">
+          <form
+            className={styles.profileModal}
+            onSubmit={saveLearnerProfile}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="learner-profile-title"
+          >
+            <span className={styles.profileEyebrow}>
+              {role === "section1" ? "SECTION 1" : "SECTION 2"} · THÔNG TIN HỌC VIÊN
+            </span>
+            <h2 id="learner-profile-title">Chào mừng bạn đến lớp học</h2>
+            <p>
+              Nhập thông tin một lần để hệ thống tự ghi nhận cho ý tưởng, bài làm,
+              quiz và feedback trong suốt phiên học.
+            </p>
+
+            <label className={styles.profileField}>
+              <span>Họ và tên</span>
+              <input
+                value={profileName}
+                onChange={(event) => {
+                  setProfileName(event.target.value);
+                  setProfileError("");
+                }}
+                maxLength={80}
+                autoComplete="name"
+                placeholder="Nguyễn Văn A"
+                autoFocus
+                required
+              />
+            </label>
+
+            <label className={styles.profileField}>
+              <span>Email EIU</span>
+              <div className={styles.profileEmailField}>
+                <input
+                  value={profileEmailLocalPart}
+                  onChange={(event) => {
+                    setProfileEmailLocalPart(event.target.value.replace(/@.*$/, ""));
+                    setProfileError("");
+                  }}
+                  maxLength={64}
+                  pattern="[A-Za-z0-9._%+\-]+"
+                  autoComplete="email"
+                  aria-label="Tên tài khoản email EIU"
+                  placeholder="student.id"
+                  required
+                />
+                <strong>@eiu.edu.vn</strong>
+              </div>
+            </label>
+
+            {profileError && <p className={styles.profileError} role="alert">{profileError}</p>}
+
+            <div className={styles.profileActions}>
+              <button type="button" className={styles.profileSignOut} onClick={() => void signOut()}>
+                Đăng xuất
+              </button>
+              <button type="submit" className={styles.profileSubmit} disabled={profileStatus === "saving"}>
+                {profileStatus === "saving" ? "Đang lưu…" : "Bắt đầu học"}
+              </button>
+            </div>
+          </form>
         </div>
       )}
     </>

@@ -7,8 +7,8 @@ Patch này được tạo trên **working tree source đã gửi ngày 2026-09-1
 1. Backup project hiện tại nếu cần.
 2. Giải nén ZIP vào **root folder của project**.
 3. Chọn **Replace / Overwrite** các file trùng tên.
-4. Vì patch có cập nhật `docs/Code.gs`, hãy copy nội dung file này vào Google Apps Script đang dùng và **Deploy > Manage deployments > Edit > New version > Deploy** để backend nhận các action mới.
-5. Chạy/deploy Next.js như flow hiện tại của project.
+4. Chạy migration `supabase/migrations/202609230001_interactive_backend.sql` trong Supabase SQL Editor.
+5. Cấu hình ba biến Supabase theo `docs/SUPABASE_SETUP.md`, sau đó chạy/deploy Next.js như flow hiện tại của project.
 
 ## Những thay đổi chính
 
@@ -17,7 +17,7 @@ Patch này được tạo trên **working tree source đã gửi ngày 2026-09-1
 - Idea card co giãn theo độ dài nội dung thay vì kích thước đồng nhất.
 - Idea card có chuyển động lơ lửng nhẹ.
 - Admin có nút xóa từng idea.
-- Thêm API DELETE `/api/ideas` và action `idea.delete` trong Google Apps Script.
+- Thêm API DELETE `/api/ideas`; dữ liệu được lưu trong Supabase Postgres.
 
 ### Section 2
 - Slide 29: vòng quay chạy đúng 1 vòng rồi dừng; khung/text được nới và bỏ xuống dòng cứng.
@@ -30,13 +30,13 @@ Patch này được tạo trên **working tree source đã gửi ngày 2026-09-1
 - Slide 39 mới: Quiz Time 10 câu theo nội dung Section 2 + nút tải handout.
 - Section 2 hiện có tổng cộng **39 slide**.
 
-## Dữ liệu Google Sheet
+## Dữ liệu Supabase
 
-Patch giữ nguyên dữ liệu Section 1 và tách dữ liệu mới của Section 2:
+Các luồng tương tác được tách theo cột `section`:
 
-- Showcase Section 1: `Bài làm chia sẻ` (giữ nguyên)
-- Showcase Section 2: `Bài làm chia sẻ - Section 2` (tự tạo khi dùng)
-- Quiz Section 2: `Kết quả bài kiểm tra - Section 2` (tự tạo khi dùng)
+- Showcase: bảng `showcase_items`
+- Quiz: bảng `quiz_results`, bao gồm điểm và chi tiết từng câu trả lời
+- Feedback: bảng `feedback`
 
 ## File handout mới
 

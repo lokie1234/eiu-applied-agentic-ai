@@ -1,41 +1,27 @@
-import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { ACCESS_COOKIE, getAccessRole } from "@/lib/access";
+import { currentRole } from "@/lib/currentRole";
+import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 
-type ShowcaseItem = { id: string; name: string; url: string; sharedAt: string };
 type ShowcaseSection = "section1" | "section2";
-
-function webhookUrl() {
-  return process.env.GOOGLE_APPS_SCRIPT_URL?.trim() ?? "";
-}
+type ShowcaseRow = { id: string; name: string; url: string; shared_at: string };
 
 function normalizeSection(value: unknown): ShowcaseSection {
   return String(value ?? "").trim() === "section2" ? "section2" : "section1";
-}
-
-async function readAppsScriptJson(response: Response) {
-  const text = await response.text();
-  try {
-    return JSON.parse(text) as Record<string, unknown>;
-  } catch {
-    const isHtml = /^\s*</.test(text);
-    throw new Error(isHtml
-      ? "Apps Script đang trả về trang HTML. Hãy triển khai phiên bản mới và chọn quyền truy cập Bất kỳ ai."
-      : "Apps Script trả về dữ liệu không hợp lệ.");
-  }
 }
 
 function validAppsScriptUrl(value: string) {
   try {
     const parsed = new URL(value);
     const host = parsed.hostname.toLowerCase();
-    return parsed.protocol === "https:" && (host === "script.google.com" || host.endsWith(".googleusercontent.com"));
+    return parsed.protocol === "https:" &&
+      (host === "script.google.com" || host.endsWith(".googleusercontent.com"));
   } catch {
     return false;
   }
 }
 
-function validSectionTwoUrl(value: string) {
+function validHttpsUrl(value: string) {
   try {
     const parsed = new URL(value);
     return parsed.protocol === "https:" && Boolean(parsed.hostname);
@@ -45,35 +31,43 @@ function validSectionTwoUrl(value: string) {
 }
 
 function validShareUrl(value: string, section: ShowcaseSection) {
-  return section === "section2" ? validSectionTwoUrl(value) : validAppsScriptUrl(value);
+  return section === "section2" ? validHttpsUrl(value) : validAppsScriptUrl(value);
+}
+
+function toItem(row: ShowcaseRow) {
+  return { id: row.id, name: row.name, url: row.url, sharedAt: row.shared_at };
+}
+
+async function canAccess(section: ShowcaseSection) {
+  const role = await currentRole();
+  return role === "admin" || role === section;
 }
 
 export async function GET(request: Request) {
   try {
     const section = normalizeSection(new URL(request.url).searchParams.get("section"));
-    const endpoint = webhookUrl();
-    if (!endpoint) return NextResponse.json({ success: false, message: "Chưa cấu hình GOOGLE_APPS_SCRIPT_URL trên Vercel." }, { status: 503 });
-    const url = new URL(endpoint);
-    url.searchParams.set("action", "showcase.list");
-    url.searchParams.set("section", section);
-    const secret = process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "";
-    if (secret) url.searchParams.set("secret", secret);
-    const response = await fetch(url, { cache: "no-store", redirect: "follow" });
-    const payload = await readAppsScriptJson(response);
-    if (!response.ok || payload.success === false) throw new Error(String(payload.message ?? "Không thể tải danh sách."));
-    const items: ShowcaseItem[] = (Array.isArray(payload.items) ? payload.items : [])
-      .map((item: Partial<ShowcaseItem>) => ({
-        id: String(item.id ?? ""),
-        name: String(item.name ?? "").trim().slice(0, 80),
-        url: String(item.url ?? "").trim().slice(0, 500),
-        sharedAt: String(item.sharedAt ?? ""),
-      }))
-      .filter((item: ShowcaseItem) => item.id && item.name && validShareUrl(item.url, section))
-      .slice(0, 50);
-    return NextResponse.json({ success: true, items }, { headers: { "Cache-Control": "no-store" } });
+    if (!(await canAccess(section))) {
+      return NextResponse.json({ success: false, message: "Không có quyền truy cập Section này." }, { status: 403 });
+    }
+
+    const { data, error } = await getSupabaseAdmin()
+      .from("showcase_items")
+      .select("id, name, url, shared_at")
+      .eq("section", section)
+      .order("shared_at", { ascending: false })
+      .limit(50);
+    if (error) throw error;
+
+    return NextResponse.json(
+      { success: true, items: (data as ShowcaseRow[]).map(toItem) },
+      { headers: { "Cache-Control": "no-store, max-age=0" } },
+    );
   } catch (error) {
     console.error("Showcase GET error:", error);
-    return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Không thể tải danh sách." }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error instanceof Error ? error.message : "Không thể tải danh sách." },
+      { status: 500 },
+    );
   }
 }
 
@@ -81,11 +75,19 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const section = normalizeSection(body.section);
-    const name = String(body.name ?? "").trim();
+    if (!(await canAccess(section))) {
+      return NextResponse.json({ success: false, message: "Không có quyền gửi bài vào Section này." }, { status: 403 });
+    }
+
     const url = String(body.url ?? "").trim();
-    const endpoint = webhookUrl();
     if (body.website) return NextResponse.json({ success: true });
-    if (!name || name.length > 80) return NextResponse.json({ success: false, message: "Vui lòng nhập tên hợp lệ." }, { status: 400 });
+    const profile = await currentLearnerProfile();
+    if (!profile || profile.section !== section) {
+      return NextResponse.json(
+        { success: false, message: "Vui lòng hoàn tất thông tin học viên trước khi chia sẻ." },
+        { status: 403 },
+      );
+    }
     if (url.length > 500 || !validShareUrl(url, section)) {
       return NextResponse.json({
         success: false,
@@ -94,30 +96,27 @@ export async function POST(request: Request) {
           : "Liên kết phải là ứng dụng Google Apps Script hợp lệ.",
       }, { status: 400 });
     }
-    if (!endpoint) return NextResponse.json({ success: false, message: "Chưa cấu hình GOOGLE_APPS_SCRIPT_URL trên Vercel." }, { status: 503 });
 
-    const response = await fetch(endpoint, {
-      method: "POST",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ action: "showcase.submit", secret: process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "", section, name, url }),
-      cache: "no-store",
-      redirect: "follow",
-    });
-    const payload = await readAppsScriptJson(response);
-    if (!response.ok || payload.success === false) throw new Error(String(payload.message ?? "Không thể chia sẻ ứng dụng."));
-    const item = payload.item as ShowcaseItem;
-    return NextResponse.json({ success: true, item });
+    const { data, error } = await getSupabaseAdmin()
+      .from("showcase_items")
+      .insert({ section, name: profile.name, email: profile.email, url })
+      .select("id, name, url, shared_at")
+      .single();
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, item: toItem(data as ShowcaseRow) });
   } catch (error) {
     console.error("Showcase POST error:", error);
-    return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Không thể chia sẻ ứng dụng." }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error instanceof Error ? error.message : "Không thể chia sẻ bài làm." },
+      { status: 500 },
+    );
   }
 }
 
 export async function DELETE(request: Request) {
   try {
-    const cookieStore = await cookies();
-    const role = getAccessRole(cookieStore.get(ACCESS_COOKIE)?.value);
-    if (role !== "admin") {
+    if ((await currentRole()) !== "admin") {
       return NextResponse.json({ success: false, message: "Chỉ quản trị viên mới có quyền xóa." }, { status: 403 });
     }
 
@@ -125,64 +124,21 @@ export async function DELETE(request: Request) {
     const section = normalizeSection(body.section);
     const clearAll = body.all === true;
     const id = String(body.id ?? "").trim();
-    const endpoint = webhookUrl();
     if (!clearAll && (!id || id.length > 100)) {
       return NextResponse.json({ success: false, message: "Mã bài chia sẻ không hợp lệ." }, { status: 400 });
     }
-    if (!endpoint) {
-      return NextResponse.json({ success: false, message: "Chưa cấu hình GOOGLE_APPS_SCRIPT_URL trên Vercel." }, { status: 503 });
-    }
 
-    const secret = process.env.GOOGLE_APPS_SCRIPT_SECRET ?? "";
+    let query = getSupabaseAdmin().from("showcase_items").delete().eq("section", section);
+    if (!clearAll) query = query.eq("id", id);
+    const { error } = await query;
+    if (error) throw error;
 
-    async function deleteOne(targetId: string) {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify({ action: "showcase.delete", secret, section, id: targetId }),
-        cache: "no-store",
-        redirect: "follow",
-      });
-      const payload = await readAppsScriptJson(response);
-      if (!response.ok || payload.success !== true) {
-        throw new Error(String(payload.message ?? "Không thể xóa bài chia sẻ."));
-      }
-    }
-
-    if (!clearAll) {
-      await deleteOne(id);
-      return NextResponse.json({ success: true });
-    }
-
-    // Apps Script hiện tại trả tối đa 50 bài/lần. Lặp list → delete để xóa
-    // toàn bộ dữ liệu của đúng section mà không cần sửa/redeploy Code.gs.
-    let deleted = 0;
-    for (let pass = 0; pass < 100; pass += 1) {
-      const listUrl = new URL(endpoint);
-      listUrl.searchParams.set("action", "showcase.list");
-      listUrl.searchParams.set("section", section);
-      if (secret) listUrl.searchParams.set("secret", secret);
-
-      const listResponse = await fetch(listUrl, { cache: "no-store", redirect: "follow" });
-      const listPayload = await readAppsScriptJson(listResponse);
-      if (!listResponse.ok || listPayload.success !== true) {
-        throw new Error(String(listPayload.message ?? "Không thể tải danh sách bài chia sẻ để xóa."));
-      }
-
-      const ids = (Array.isArray(listPayload.items) ? listPayload.items : [])
-        .map((item: { id?: unknown }) => String(item?.id ?? "").trim())
-        .filter((value: string) => value && value.length <= 100);
-
-      if (ids.length === 0) break;
-      for (const targetId of ids) {
-        await deleteOne(targetId);
-        deleted += 1;
-      }
-    }
-
-    return NextResponse.json({ success: true, deleted });
+    return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Showcase DELETE error:", error);
-    return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Không thể xóa bài chia sẻ." }, { status: 500 });
+    return NextResponse.json(
+      { success: false, message: error instanceof Error ? error.message : "Không thể xóa bài chia sẻ." },
+      { status: 500 },
+    );
   }
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ACCESS_COOKIE, createAccessToken, type AccessRole } from "@/lib/access";
+import { LEARNER_PROFILE_COOKIE } from "@/lib/learnerProfile";
 
 export async function POST(request: Request) {
   try {
@@ -41,6 +42,16 @@ export async function POST(request: Request) {
       sameSite: "lax",
       path: "/",
       maxAge: role === "admin" ? 60 * 60 * 12 : 60 * 60 * 24 * 400,
+    });
+    response.cookies.set({
+      name: LEARNER_PROFILE_COOKIE,
+      value: "",
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 0,
+      expires: new Date(0),
     });
 
     return response;

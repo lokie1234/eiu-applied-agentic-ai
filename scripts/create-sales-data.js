@@ -1,6 +1,7 @@
-const fs = require('fs');
-const path = require('path');
-const XLSX = require('xlsx');
+async function main() {
+const fs = await import('node:fs');
+const path = await import('node:path');
+const { default: ExcelJS } = await import('exceljs');
 
 const rawCsv = `Date,Product,Department,Amount
 2025-01-05,Laptop Dell XPS 13,Kinh Doanh,25000000
@@ -60,7 +61,6 @@ console.log('Saved CSV to', destCsv);
 
 // Parse and write XLSX with sheet name "Sales"
 const rows = rawCsv.trim().split('\n').map(r => r.split(','));
-const header = rows[0];
 const data = rows.slice(1).map(r => ({
   Date: r[0],
   Product: r[1],
@@ -68,11 +68,24 @@ const data = rows.slice(1).map(r => ({
   Amount: Number(r[3]),
 }));
 
-const ws = XLSX.utils.json_to_sheet(data);
-const wb = XLSX.utils.book_new();
-XLSX.utils.book_append_sheet(wb, ws, 'Sales');
+const workbook = new ExcelJS.Workbook();
+const worksheet = workbook.addWorksheet('Sales');
+worksheet.columns = [
+  { header: 'Date', key: 'Date', width: 14 },
+  { header: 'Product', key: 'Product', width: 34 },
+  { header: 'Department', key: 'Department', width: 18 },
+  { header: 'Amount', key: 'Amount', width: 16 },
+];
+worksheet.addRows(data);
 
 const destXlsx = path.join(__dirname, '../public/downloads/Sales-Data-2025.xlsx');
-XLSX.writeFile(wb, destXlsx);
+await workbook.xlsx.writeFile(destXlsx);
 console.log('Saved XLSX to', destXlsx);
+
+}
+
+void main().catch((error) => {
+  console.error(error);
+  process.exitCode = 1;
+});
 

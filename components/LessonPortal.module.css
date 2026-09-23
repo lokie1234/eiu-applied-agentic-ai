@@ -173,6 +173,9 @@
   right: 24px;
   top: 22px;
   z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 9px;
 }
 
 .selectorActions button,
@@ -198,6 +201,181 @@
   transform: translateY(-2px);
   border-color: rgba(233, 202, 139, 0.68);
   background: #123f68;
+}
+
+.selectorActions .reportButton {
+  border-color: rgba(74, 222, 128, 0.5);
+  background: #166534;
+  color: #ecfdf5;
+}
+
+.selectorActions .reportButton:hover {
+  border-color: rgba(134, 239, 172, 0.8);
+  background: #15803d;
+}
+
+.selectorActions button:disabled {
+  cursor: wait;
+  opacity: 0.7;
+  transform: none;
+}
+
+.reportError {
+  margin-top: 10px !important;
+  color: #fca5a5 !important;
+  font-weight: 700;
+}
+
+.profileModalLayer {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(45, 127, 180, 0.26), transparent 34%),
+    rgba(4, 22, 39, 0.86);
+  backdrop-filter: blur(12px);
+}
+
+.profileModal {
+  width: min(480px, 100%);
+  padding: 34px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  border: 1px solid rgba(233, 202, 139, 0.3);
+  border-radius: 24px;
+  background: linear-gradient(150deg, #f9f7f1, #f2eee5);
+  color: #17324a;
+  box-shadow: 0 34px 100px rgba(0, 0, 0, 0.42);
+  animation: modalEnter 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.profileEyebrow {
+  color: #9d7944;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.15em;
+}
+
+.profileModal h2 {
+  margin: -4px 0 -8px;
+  color: #082945;
+  font-size: 30px;
+  line-height: 1.08;
+  letter-spacing: -0.035em;
+}
+
+.profileModal > p {
+  margin: 0;
+  color: #607486;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.profileField {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.profileField > span {
+  color: #274861;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.profileField > input,
+.profileEmailField {
+  height: 46px;
+  box-sizing: border-box;
+  border: 1px solid rgba(23, 50, 74, 0.18);
+  border-radius: 11px;
+  background: white;
+  box-shadow: 0 5px 18px rgba(8, 41, 69, 0.05);
+}
+
+.profileField > input,
+.profileEmailField input {
+  padding: 0 13px;
+  color: #17324a;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+}
+
+.profileField > input:focus,
+.profileEmailField:focus-within {
+  border-color: #9d7944;
+  box-shadow: 0 0 0 3px rgba(157, 121, 68, 0.12);
+}
+
+.profileEmailField {
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.profileEmailField input {
+  min-width: 0;
+  height: 100%;
+  flex: 1;
+  border: 0;
+  background: transparent;
+}
+
+.profileEmailField strong {
+  height: 100%;
+  padding: 0 13px;
+  display: flex;
+  align-items: center;
+  border-left: 1px solid rgba(157, 121, 68, 0.16);
+  background: rgba(233, 202, 139, 0.18);
+  color: #816234;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.profileError {
+  margin: -5px 0 0 !important;
+  color: #b42318 !important;
+  font-size: 12px !important;
+  font-weight: 700;
+}
+
+.profileActions {
+  margin-top: 4px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.profileActions button {
+  height: 43px;
+  padding: 0 20px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.profileSignOut {
+  border: 1px solid rgba(23, 50, 74, 0.18);
+  background: transparent;
+  color: #52697b;
+}
+
+.profileSubmit {
+  border: 1px solid #082945;
+  background: #082945;
+  color: #f4dfb0;
+}
+
+.profileSubmit:disabled {
+  cursor: wait;
+  opacity: 0.68;
 }
 
 /*
@@ -627,4 +805,94 @@
     animation: none;
     transition: none;
   }
+}
+
+
+.confirmReportButton {
+  border: 1px solid #9d7944;
+  background: #082945;
+  color: #f4dfb0;
+}
+
+.confirmReportButton:hover:not(:disabled) {
+  background: #0d3457;
+}
+
+.confirmReportButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.exportOptions {
+  margin: 18px 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exportOption {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(23, 50, 74, 0.14);
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.exportOption:hover {
+  border-color: rgba(157, 121, 68, 0.5);
+  background: #fdfaf3;
+}
+
+.exportOptionActive {
+  border-color: #9d7944;
+  background: #fdfaf3;
+  box-shadow: 0 0 0 1px #9d7944;
+}
+
+.exportOption input[type="radio"] {
+  margin-top: 3px;
+  accent-color: #082945;
+  cursor: pointer;
+}
+
+.exportOptionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.exportOptionContent strong {
+  font-size: 14px;
+  color: #082945;
+}
+
+.exportOptionContent small {
+  font-size: 12px;
+  color: #687987;
+  line-height: 1.35;
+}
+
+.exportDateInput {
+  margin-top: 8px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(23, 50, 74, 0.2);
+  font-size: 13px;
+  font-family: inherit;
+  color: #082945;
+  background: #fff;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.exportDateInput:focus {
+  border-color: #9d7944;
+  box-shadow: 0 0 0 2px rgba(157, 121, 68, 0.2);
 }

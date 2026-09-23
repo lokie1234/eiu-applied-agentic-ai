@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   type CSSProperties,
   type FormEvent,
@@ -8,6 +9,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import styles from "./SectionOneHtmlSlide.module.css";
 
 export type SectionOneHtmlKind =
@@ -232,10 +234,16 @@ function IdeaResults() {
 
   useEffect(() => {
     const firstLoad = window.setTimeout(() => void loadIdeas(), 0);
-    const timer = window.setInterval(() => void loadIdeas(), 4000);
+    const supabase = getSupabaseBrowserClient();
+    const channel = supabase
+      ?.channel("eiu:ideas")
+      .on("broadcast", { event: "ideas_changed" }, () => void loadIdeas())
+      .subscribe();
+    const fallbackTimer = window.setInterval(() => void loadIdeas(), 60_000);
     return () => {
       window.clearTimeout(firstLoad);
-      window.clearInterval(timer);
+      window.clearInterval(fallbackTimer);
+      if (supabase && channel) void supabase.removeChannel(channel);
     };
   }, [loadIdeas]);
 
@@ -649,6 +657,34 @@ function RealtimeDashboardSlide() {
                 <strong>2. Index.html:</strong> Giao diện Sales Dashboard 2025, Google Charts (Line, Bar, Pie) và bảng tìm kiếm sản phẩm.
               </li>
             </ul>
+          </div>
+
+          {/* FLOATING DEMO LINKS */}
+          <div className={styles.demoDock} data-interactive="true">
+            <a
+              href="https://docs.google.com/spreadsheets/d/1j44K3vgiSHrIjPA5l6vYtJ6LzIqzVQok3oLzpWwwGgQ/edit?gid=1319602846#gid=1319602846"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.demoLink} ${styles.demoLinkSheets}`}
+            >
+              <svg className={styles.demoLinkLogo} viewBox="0 0 48 48" aria-hidden="true"><path fill="#43a047" d="M37 45H11a4 4 0 01-4-4V7a4 4 0 014-4h17.586a2 2 0 011.414.586L39.414 13A2 2 0 0140 14.414V41a4 4 0 01-3 3.874V45z"/><path fill="#c8e6c9" d="M40 14.414V15H30.5a1.5 1.5 0 01-1.5-1.5V4h.586a2 2 0 011.414.586L39.414 13A2 2 0 0140 14.414z"/><path fill="#fff" d="M30 22H18v14h12V22zm-8 12h-2v-2h2v2zm0-4h-2v-2h2v2zm0-4h-2v-2h2v2zm6 8h-4v-2h4v2zm0-4h-4v-2h4v2zm0-4h-4v-2h4v2z"/></svg>
+              <span>Spreadsheet dữ liệu</span>
+            </a>
+            <a
+              href="https://script.google.com/macros/s/AKfycbz43PTfDZrLjIPF9ozsvOxfHdsvyWie2wD7984Fwtbz1xS-Q0a33J94loSFjcAltLGd/exec"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.demoLink} ${styles.demoLinkAppsScript}`}
+            >
+              <Image
+                src="/branding/apps/google-apps-script.svg"
+                alt=""
+                width={22}
+                height={22}
+                className={styles.demoLinkLogo}
+              />
+              <span>Web App</span>
+            </a>
           </div>
         </div>
 

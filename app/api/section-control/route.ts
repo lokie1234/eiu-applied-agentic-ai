@@ -1,8 +1,7 @@
-import { cookies } from "next/headers";
+import crypto from "node:crypto";
 import { NextResponse } from "next/server";
-import { ACCESS_COOKIE, getAccessRole } from "@/lib/access";
-import { callAppsScript } from "@/lib/googleAppsScript";
-import { recordPresence } from "@/lib/presence";
+import { currentRole } from "@/lib/currentRole";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 type SectionId = "section1" | "section2";
 
@@ -10,112 +9,80 @@ function validSection(value: string): value is SectionId {
   return value === "section1" || value === "section2";
 }
 
-async function currentRole() {
-  const cookieStore = await cookies();
-  return getAccessRole(cookieStore.get(ACCESS_COOKIE)?.value);
+async function readOrCreateToken(section: SectionId) {
+  const supabase = getSupabaseAdmin();
+  const { data, error } = await supabase
+    .from("section_state")
+    .select("termination_token")
+    .eq("section", section)
+    .maybeSingle();
+  if (error) throw error;
+  if (data?.termination_token) return String(data.termination_token);
+
+  const token = crypto.randomUUID();
+  const { data: created, error: createError } = await supabase
+    .from("section_state")
+    .upsert({ section, termination_token: token }, { onConflict: "section" })
+    .select("termination_token")
+    .single();
+  if (createError) throw createError;
+  return String(created.termination_token);
 }
 
 export async function GET(request: Request) {
   try {
     const role = await currentRole();
     if (!role) {
-      return NextResponse.json(
-        { success: false, message: "Phiên đăng nhập đã hết hạn." },
-        { status: 401 },
-      );
+      return NextResponse.json({ success: false, message: "Phiên đăng nhập đã hết hạn." }, { status: 401 });
     }
 
-    const url = new URL(request.url);
-    const section = url.searchParams.get("section") ?? "";
-    const clientId = url.searchParams.get("clientId");
-
+    const section = new URL(request.url).searchParams.get("section") ?? "";
     if (!validSection(section)) {
-      return NextResponse.json(
-        { success: false, message: "Section không hợp lệ." },
-        { status: 400 },
-      );
+      return NextResponse.json({ success: false, message: "Section không hợp lệ." }, { status: 400 });
     }
     if (role !== "admin" && role !== section) {
-      return NextResponse.json(
-        { success: false, message: "Không có quyền truy cập Section này." },
-        { status: 403 },
-      );
+      return NextResponse.json({ success: false, message: "Không có quyền truy cập Section này." }, { status: 403 });
     }
 
-    if (clientId) {
-      recordPresence(clientId, section);
-    }
-
-    const payload = await callAppsScript(
-      "section.status",
-      { section },
-      "GET",
-    );
-    if (payload.success !== true || !payload.token) {
-      throw new Error(
-        String(payload.message ?? "Không thể kiểm tra trạng thái Section."),
-      );
-    }
-
+    const token = await readOrCreateToken(section);
     return NextResponse.json(
-      { success: true, section, token: String(payload.token) },
+      { success: true, section, token },
       { headers: { "Cache-Control": "no-store, max-age=0" } },
     );
   } catch (error) {
     console.error("Section status error:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message:
-          error instanceof Error
-            ? error.message
-            : "Không thể kiểm tra trạng thái Section.",
-      },
-      { status: 502 },
+      { success: false, message: error instanceof Error ? error.message : "Không thể kiểm tra trạng thái Section." },
+      { status: 500 },
     );
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const role = await currentRole();
-    if (role !== "admin") {
-      return NextResponse.json(
-        { success: false, message: "Chỉ admin mới có quyền terminate." },
-        { status: 403 },
-      );
+    if ((await currentRole()) !== "admin") {
+      return NextResponse.json({ success: false, message: "Chỉ admin mới có quyền terminate." }, { status: 403 });
     }
 
     const body = await request.json();
     const section = String(body.section ?? "");
     if (!validSection(section)) {
-      return NextResponse.json(
-        { success: false, message: "Section không hợp lệ." },
-        { status: 400 },
-      );
+      return NextResponse.json({ success: false, message: "Section không hợp lệ." }, { status: 400 });
     }
 
-    const payload = await callAppsScript("section.terminate", { section });
-    if (payload.success !== true || !payload.token) {
-      throw new Error(
-        String(payload.message ?? "Không thể kết thúc Section."),
-      );
-    }
+    const token = crypto.randomUUID();
+    const { error } = await getSupabaseAdmin().from("section_state").upsert(
+      { section, termination_token: token, updated_at: new Date().toISOString() },
+      { onConflict: "section" },
+    );
+    if (error) throw error;
 
-    return NextResponse.json({
-      success: true,
-      section,
-      token: String(payload.token),
-    });
+    return NextResponse.json({ success: true, section, token });
   } catch (error) {
     console.error("Section terminate error:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message:
-          error instanceof Error ? error.message : "Không thể kết thúc Section.",
-      },
-      { status: 502 },
+      { success: false, message: error instanceof Error ? error.message : "Không thể kết thúc Section." },
+      { status: 500 },
     );
   }
 }

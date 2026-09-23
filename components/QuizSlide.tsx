@@ -66,13 +66,9 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [finished, setFinished] = useState(false);
-  const [name, setName] = useState("");
-  const [emailLocalPart, setEmailLocalPart] = useState("");
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
-  const [submittedEmail, setSubmittedEmail] = useState("");
-  const [submittedName, setSubmittedName] = useState("");
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
@@ -132,27 +128,21 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
     setStatus("sending");
     setMessage("");
 
-    const fullEmail = `${emailLocalPart.trim()}@eiu.edu.vn`;
-    const fullName = name.trim();
-
     try {
       const response = await fetch("/api/quiz-results", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           section: variant,
-          name: fullName,
-          email: fullEmail,
           website,
           score,
           total: questions.length,
+          answers,
           completedAt: new Date().toISOString(),
         }),
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.message || "Không thể gửi kết quả.");
-      setSubmittedEmail(fullEmail);
-      setSubmittedName(fullName);
       setStatus("success");
       setMessage("Đã lưu kết quả vào bảng dữ liệu.");
       // Tự động chuyển sang cửa sổ gửi feedback sau khi gửi kết quả
@@ -171,16 +161,11 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
     setFeedbackMessage("");
 
     try {
-      const emailToUse = submittedEmail || `${emailLocalPart.trim()}@eiu.edu.vn`;
-      const nameToUse = submittedName || name.trim();
-
       const response = await fetch("/api/quiz-feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           section: variant,
-          name: nameToUse,
-          email: emailToUse,
           feedback: feedbackText.trim(),
           submittedAt: new Date().toISOString(),
         }),
@@ -212,8 +197,6 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
     setFeedbackStatus("idle");
     setFeedbackMessage("");
     setFeedbackSubmitted(false);
-    setSubmittedEmail("");
-    setSubmittedName("");
   }
 
   return (
@@ -298,8 +281,7 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
               <span className={styles.formKicker}>Ghi nhận kết quả</span>
               <h3>Đã lưu kết quả bài kiểm tra!</h3>
               <div className={styles.submittedInfo}>
-                <div><span>Họ và tên:</span> <strong>{submittedName || name}</strong></div>
-                <div><span>Email EIU:</span> <strong>{submittedEmail || `${emailLocalPart}@eiu.edu.vn`}</strong></div>
+                <div><span>Học viên:</span> <strong>Đã nhận từ phiên đăng nhập</strong></div>
                 <div><span>Điểm số:</span> <strong>{score} / {questions.length}</strong></div>
               </div>
               <p className={styles.submittedNotice}>
@@ -318,9 +300,8 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
           ) : (
             <form className={styles.formCard} onSubmit={submitResult}>
               <span className={styles.formKicker}>Ghi nhận kết quả</span>
-              <p>Nhập họ tên và email EIU để lưu kết quả vào bảng dữ liệu của lớp.</p>
-              <label>Họ và tên<input value={name} onChange={(event) => setName(event.target.value)} maxLength={80} required /></label>
-              <label>Email EIU<div className={styles.emailField}><input value={emailLocalPart} onChange={(event) => setEmailLocalPart(event.target.value.replace(/@.*$/, ""))} maxLength={64} pattern="[A-Za-z0-9._%+\-]+" autoComplete="email" aria-label="Tên tài khoản email EIU" required /><span>@eiu.edu.vn</span></div></label>
+              <h3>Thông tin học viên đã sẵn sàng</h3>
+              <p>Họ tên và email EIU được tự động lấy từ phiên đăng nhập. Bạn chỉ cần xác nhận để lưu điểm.</p>
               <label className={styles.honeypot} aria-hidden="true">Website<input value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></label>
               <button type="submit" className={styles.submit} disabled={status === "sending"}>
                 {status === "sending" ? "Đang gửi..." : "Gửi kết quả"}
@@ -344,7 +325,7 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
                 <span className={styles.eyebrow}>
                   Góp ý & Phản hồi · {variant === "section2" ? "Section 2" : "Section 1"}
                 </span>
-                <h2 id="feedback-title">Gửi feedback bài học (ẩn danh)</h2>
+                <h2 id="feedback-title">Gửi feedback bài học</h2>
               </div>
               <button
                 type="button"

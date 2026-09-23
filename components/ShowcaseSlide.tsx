@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import styles from "./ShowcaseSlide.module.css";
 
 type ShowcaseItem = {
@@ -25,7 +26,6 @@ async function readJson(response: Response) {
 
 export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: Props) {
   const [items, setItems] = useState<ShowcaseItem[]>([]);
-  const [name, setName] = useState("");
   const [url, setUrl] = useState("");
   const [website, setWebsite] = useState("");
   const [loading, setLoading] = useState(true);
@@ -52,8 +52,18 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
 
   useEffect(() => {
     const timer = window.setTimeout(() => void loadItems(), 0);
-    return () => window.clearTimeout(timer);
-  }, [loadItems]);
+    const supabase = getSupabaseBrowserClient();
+    const channel = supabase
+      ?.channel(`eiu:showcase:${section}`)
+      .on("broadcast", { event: "showcase_changed" }, () => void loadItems())
+      .subscribe();
+    const fallbackTimer = window.setInterval(() => void loadItems(), 60_000);
+    return () => {
+      window.clearTimeout(timer);
+      window.clearInterval(fallbackTimer);
+      if (supabase && channel) void supabase.removeChannel(channel);
+    };
+  }, [loadItems, section]);
 
   async function shareApp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -65,14 +75,13 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
       const response = await fetch("/api/showcase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ section, name, url, website }),
+        body: JSON.stringify({ section, url, website }),
       });
       const payload = await readJson(response);
       if (!response.ok) throw new Error(payload.message || "Không thể chia sẻ liên kết.");
       if (!payload.item) throw new Error("Máy chủ không trả về bài làm vừa chia sẻ.");
       const sharedItem = payload.item;
       setItems((current) => [sharedItem, ...current.filter((item) => item.id !== sharedItem.id)]);
-      setName("");
       setUrl("");
       setStatus("idle");
       setMessage(section === "section2" ? "Đã chia sẻ bài làm thành công." : "Đã chia sẻ ứng dụng thành công.");
@@ -194,7 +203,7 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
           <span className={styles.formKicker}>Chia sẻ bài làm</span>
           <h2 style={{ whiteSpace: "nowrap", fontSize: "23px", lineHeight: 1.16, letterSpacing: "-.02em" }}>Đưa bài làm của bạn lên bảng</h2>
           <p>{isSectionTwo ? "Dán liên kết bài làm đã hoàn thiện để cả lớp cùng xem." : "Dán liên kết ứng dụng đã triển khai từ nền tảng lập trình của Google."}</p>
-          <label>Tên của bạn<input value={name} onChange={(event) => setName(event.target.value)} maxLength={80} placeholder="Nguyễn Văn A" required /></label>
+          <p>Họ tên và email được tự động lấy từ thông tin bạn đã nhập khi đăng nhập.</p>
           <label>{isSectionTwo ? "Liên kết bài làm" : "Liên kết ứng dụng"}<input type="url" value={url} onChange={(event) => setUrl(event.target.value)} maxLength={500} placeholder={isSectionTwo ? "https://..." : "https://script.google.com/macros/s/.../exec"} required /></label>
           <label className={styles.honeypot} aria-hidden="true">Trang web<input value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></label>
           <button type="submit" disabled={status === "sending"}>{status === "sending" ? "Đang chia sẻ..." : isSectionTwo ? "Chia sẻ bài làm" : "Chia sẻ ứng dụng"}</button>

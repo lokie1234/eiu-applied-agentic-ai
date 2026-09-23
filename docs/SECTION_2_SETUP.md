@@ -36,8 +36,9 @@ QUIZ_ACCESS_CODE=7879
 QUIZ_SECTION_2_ACCESS_CODE=7979
 ACCESS_SESSION_SECRET=mot-chuoi-bi-mat-dai-va-ngau-nhien
 NEXT_PUBLIC_PDF_URL=url-pdf-section-1
-GOOGLE_APPS_SCRIPT_URL=url-exec-cua-google-apps-script
-GOOGLE_APPS_SCRIPT_SECRET=gia-tri-giong-WEBHOOK_SECRET
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+SUPABASE_SECRET_KEY=sb_secret_...
 ```
 
 `NEXT_PUBLIC_PDF_URL` chỉ còn phục vụ Section 1. Section 2 không cần URL PDF hoặc biến môi trường riêng.

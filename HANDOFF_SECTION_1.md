@@ -61,22 +61,16 @@ Người học nhập:
 - Tên.
 - URL Web App Google Apps Script kết thúc bằng `/exec`.
 
-Sau khi chia sẻ, dữ liệu xuất hiện trong tab `Bài làm chia sẻ` của Google Sheet. Admin đăng nhập bằng `1103` nhìn thấy nút `Xóa`.
+Sau khi chia sẻ, dữ liệu được lưu trong bảng `showcase_items` của Supabase. Admin đăng nhập bằng `1103` nhìn thấy nút `Xóa`.
 
 Luồng xóa:
 
 1. `ShowcaseSlide.tsx` gửi `DELETE /api/showcase` cùng `id`.
 2. `app/api/showcase/route.ts` xác minh cookie phải có role `admin`.
-3. Route gửi action `showcase.delete` đến Apps Script.
-4. `docs/Code.gs` tìm UUID ở cột `Mã` và xóa đúng dòng.
+3. Route dùng Supabase secret key ở phía server để xóa đúng UUID.
+4. Trigger Realtime phát tín hiệu để các màn hình đang mở tự tải lại danh sách.
 
-Nếu nút xóa xuất hiện nhưng xóa thất bại, kiểm tra theo thứ tự:
-
-1. Apps Script đã chứa nhánh `showcase.delete` trong `docs/Code.gs`.
-2. Apps Script đã deploy bằng **Phiên bản mới**.
-3. Quyền Web App là **Bất kỳ ai**.
-4. `GOOGLE_APPS_SCRIPT_SECRET` trên Vercel giống chính xác `WEBHOOK_SECRET` trong `Code.gs`.
-5. Vercel đã redeploy sau khi đổi biến môi trường.
+Nếu nút xóa xuất hiện nhưng xóa thất bại, kiểm tra migration Supabase đã chạy, ba biến môi trường Supabase đã có trên Vercel và deployment đã được redeploy.
 
 ## 6. Slide 39 — Quiz
 
@@ -93,7 +87,7 @@ Sau câu 10:
 
 - Công bố điểm.
 - Người học nhập họ tên.
-- Website ghi kết quả vào tab `Kết quả bài kiểm tra`.
+- Website ghi kết quả vào bảng `quiz_results` của Supabase.
 - Không yêu cầu email.
 - Không gửi email.
 
@@ -103,24 +97,11 @@ File chính:
 - `components/QuizSlide.module.css`
 - `app/api/quiz-results/route.ts`
 
-## 7. Google Sheet và Apps Script
+## 7. Supabase backend
 
-Google Sheet đích:
+Toàn bộ dữ liệu interactive được lưu trong Supabase Postgres qua Next.js API routes. Google Sheets không còn nằm trong luồng ghi dữ liệu; admin xuất file Excel từ màn hình chọn Section khi cần báo cáo.
 
-`https://docs.google.com/spreadsheets/d/1j44K3vgiSHrIjPA5l6vYtJ6LzIqzVQok3oLzpWwwGgQ/edit`
-
-Apps Script Web App hiện dùng:
-
-`https://script.google.com/macros/s/AKfycbyg7d4m6Ou5EH3KximcaMFHdNM4vvjSPWXUyYhefWTO2w72gpmKkDWrIz1u2biAukVR/exec`
-
-Apps Script chỉ cần **một file `Code.gs`**, không cần file HTML.
-
-Mã chuẩn nằm tại `docs/Code.gs`. Mã sẽ tự tạo hai tab:
-
-- `Bài làm chia sẻ`: Mã, Thời gian, Họ và tên, Liên kết.
-- `Kết quả bài kiểm tra`: Thời gian, Họ và tên, Kết quả.
-
-Hướng dẫn deploy chi tiết nằm trong `docs/GOOGLE_APPS_SCRIPT_SETUP.md`.
+Schema và trigger Realtime nằm tại `supabase/migrations/202609230001_interactive_backend.sql`. Hướng dẫn cấu hình nằm tại `docs/SUPABASE_SETUP.md`.
 
 ## 8. Environment Variables
 
@@ -132,8 +113,9 @@ SECTION_2_ACCESS_CODE=8888
 ADMIN_ACCESS_CODE=1103
 ACCESS_SESSION_SECRET=mot-chuoi-bi-mat-dai
 NEXT_PUBLIC_PDF_URL=url-pdf-section-1
-GOOGLE_APPS_SCRIPT_URL=https://script.google.com/macros/s/AKfycbyg7d4m6Ou5EH3KximcaMFHdNM4vvjSPWXUyYhefWTO2w72gpmKkDWrIz1u2biAukVR/exec
-GOOGLE_APPS_SCRIPT_SECRET=gia-tri-giong-WEBHOOK_SECRET
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
+SUPABASE_SECRET_KEY=sb_secret_...
 ```
 
 Không đưa secret thật vào source hoặc chat. Không commit `.env.local`.
@@ -191,7 +173,8 @@ Checklist trước khi deploy:
 - `9999` không có nút xóa.
 - `1103` có nút xóa và xóa được.
 - Slide 38 thêm link mới và tải lại vẫn còn dữ liệu.
-- Slide 39 đủ 10 câu, tiêu đề đúng và ghi điểm vào Sheet.
+- Slide 39 đủ 10 câu, tiêu đề đúng và ghi điểm vào Supabase.
+- Admin xuất được report Excel gồm Ideas, Showcase, Quiz, Feedback và Presence.
 - Không có chức năng gửi email.
 - Nút tải design DNA tải được `public/downloads/design-dna.txt`.
 - Build production thành công.
