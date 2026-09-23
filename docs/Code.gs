@@ -41,6 +41,22 @@ function quizSheetName(section) {
   return section === "section2" ? "Kết quả bài kiểm tra - Section 2" : "Kết quả bài kiểm tra";
 }
 
+function feedbackSheetName(section) {
+  return section === "section2" ? "Ý kiến phản hồi - Section 2" : "Ý kiến phản hồi";
+}
+
+function getFeedbackSheet(section) {
+  const headers = ["Thời gian", "Section", "Họ và tên", "Email", "Nội dung phản hồi"];
+  const file = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const tabName = feedbackSheetName(section);
+  const tab = file.getSheetByName(tabName) || file.insertSheet(tabName);
+  if (tab.getLastRow() === 0) {
+    tab.appendRow(headers);
+    tab.setFrozenRows(1);
+  }
+  return tab;
+}
+
 function getQuizSheet(section) {
   const headers = ["Thời gian", "Họ và tên", "Email", "Kết quả"];
   const file = SpreadsheetApp.openById(SPREADSHEET_ID);
@@ -331,6 +347,30 @@ function doPost(e) {
       lock.waitLock(10000);
       try {
         tab.appendRow([completedAt, safeCell(name), safeCell(email), score + "/" + total]);
+      } finally {
+        lock.releaseLock();
+      }
+      return output({ success: true });
+    }
+
+    if (data.action === "feedback.submit") {
+      const name = String(data.name || "").trim();
+      const email = String(data.email || "").trim().toLowerCase();
+      const feedback = String(data.feedback || "").trim();
+      const feedbackSection = normalizeSection(data.section) || "section1";
+      if (!feedback || feedback.length > 2000) {
+        return output({ success: false, message: "Nội dung phản hồi không hợp lệ." });
+      }
+      if (!email || !/^[a-z0-9._%+-]+@eiu\.edu\.vn$/i.test(email)) {
+        return output({ success: false, message: "Email EIU không hợp lệ." });
+      }
+
+      const submittedAt = String(data.submittedAt || new Date().toISOString());
+      const tab = getFeedbackSheet(feedbackSection);
+      const lock = LockService.getScriptLock();
+      lock.waitLock(10000);
+      try {
+        tab.appendRow([submittedAt, feedbackSection, safeCell(name), safeCell(email), safeCell(feedback)]);
       } finally {
         lock.releaseLock();
       }

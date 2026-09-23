@@ -1468,20 +1468,26 @@
 .realtimeDashboardSlide {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 26px 40px;
+  justify-content: flex-start;
+  padding: 20px 36px 18px 36px;
+  gap: 8px;
+  box-sizing: border-box;
+  height: 540px;
+  max-height: 540px;
+  overflow: hidden;
 }
 
 .dashboardHeader {
   position: relative;
   z-index: 2;
+  flex-shrink: 0;
 }
 
 .dashboardKicker {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 4px;
+  gap: 10px;
+  margin-bottom: 3px;
 }
 
 .dashboardKicker span {
@@ -1490,7 +1496,7 @@
   letter-spacing: .08em;
   color: #8c6d32;
   background: rgba(179,145,89,.14);
-  padding: 3px 9px;
+  padding: 2.5px 8px;
   border-radius: 999px;
   border: 1px solid rgba(179,145,89,.35);
 }
@@ -1507,16 +1513,16 @@
 .dashboardHeader h1 {
   margin: 0;
   color: var(--navy-900);
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 900;
-  line-height: 1.15;
-  letter-spacing: -.03em;
+  line-height: 1.18;
+  letter-spacing: -.02em;
 }
 
 .dashboardHeader p {
   margin: 3px 0 0;
   color: var(--muted);
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.35;
 }
 
@@ -1524,55 +1530,56 @@
 .prominentActionBar {
   position: relative;
   z-index: 2;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 14px;
-  margin: 10px 0;
+  gap: 12px;
+  margin: 1px 0;
 }
 
 .actionBtnDownload {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 18px;
-  border-radius: 12px;
+  gap: 7px;
+  padding: 7px 16px;
+  border-radius: 10px;
   background: linear-gradient(135deg, #082945 0%, #123f68 100%);
   color: #ffffff !important;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 800;
   text-decoration: none;
   border: 1.5px solid rgba(179, 145, 89, 0.5);
-  box-shadow: 0 6px 18px rgba(8, 41, 69, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 14px rgba(8, 41, 69, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transition: all 0.2s cubic-bezier(.22,1,.36,1);
   cursor: pointer;
 }
 
 .actionBtnDownload:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1.5px);
   border-color: #b39159;
-  box-shadow: 0 10px 24px rgba(8, 41, 69, 0.25);
+  box-shadow: 0 6px 18px rgba(8, 41, 69, 0.22);
   background: linear-gradient(135deg, #0a3357 0%, #18547f 100%);
 }
 
 .actionBtnCopy {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 9px 20px;
-  border-radius: 12px;
+  gap: 7px;
+  padding: 7px 18px;
+  border-radius: 10px;
   background: linear-gradient(135deg, #b39159 0%, #d4b06d 100%);
   color: #082945;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 900;
   border: 1.5px solid rgba(255, 255, 255, 0.6);
-  box-shadow: 0 6px 18px rgba(179, 145, 89, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 14px rgba(179, 145, 89, 0.24), inset 0 1px 0 rgba(255, 255, 255, 0.4);
   transition: all 0.2s cubic-bezier(.22,1,.36,1);
   cursor: pointer;
 }
 
 .actionBtnCopy:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(179, 145, 89, 0.4);
+  transform: translateY(-1.5px);
+  box-shadow: 0 6px 18px rgba(179, 145, 89, 0.35);
   background: linear-gradient(135deg, #be9d65 0%, #e2be7e 100%);
 }
 
@@ -1580,11 +1587,11 @@
   background: #2a7c4f !important;
   color: #ffffff !important;
   border-color: #4fb67a !important;
-  box-shadow: 0 6px 18px rgba(42, 124, 79, 0.3) !important;
+  box-shadow: 0 4px 14px rgba(42, 124, 79, 0.25) !important;
 }
 
 .actionBtnIcon {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 900;
 }
 
@@ -1596,27 +1603,47 @@
   grid-template-columns: 1fr 1.25fr;
   gap: 14px;
   flex: 1;
+  min-height: 0;
+  height: 376px;
+  max-height: 376px;
+  box-sizing: border-box;
 }
 
 .dashboardLeftCol {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  height: 100%;
+  min-height: 0;
 }
 
 .dashboardSpecCard {
-  background: rgba(255, 255, 255, 0.98);
+  background: rgba(255, 255, 255, 0.96);
   border: 1px solid rgba(8, 41, 69, 0.1);
-  border-radius: 14px;
-  padding: 12px 14px;
-  box-shadow: 0 6px 18px rgba(8, 41, 69, 0.05);
+  border-radius: 12px;
+  padding: 11px 13px;
+  box-shadow: 0 4px 14px rgba(8, 41, 69, 0.04);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  box-sizing: border-box;
+}
+
+.dashboardLeftCol > .dashboardSpecCard:first-child {
+  flex: 0 0 auto;
+}
+
+.dashboardLeftCol > .dashboardSpecCard:last-child {
+  flex: 1;
+  min-height: 0;
 }
 
 .dashboardCardHeader {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
+  flex-shrink: 0;
 }
 
 .specBadge {
@@ -1624,15 +1651,15 @@
   font-weight: 900;
   letter-spacing: .06em;
   color: #8c6d32;
-  background: rgba(179, 145, 89, 0.12);
-  border: 1px solid rgba(179, 145, 89, 0.25);
+  background: rgba(179, 145, 89, 0.14);
+  border: 1px solid rgba(179, 145, 89, 0.3);
   padding: 2.5px 7px;
   border-radius: 5px;
 }
 
 .dashboardCardHeader h4 {
   margin: 0;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--navy-900);
 }
@@ -1646,23 +1673,24 @@
 .colTag {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 10.5px;
+  gap: 7px;
+  font-size: 11px;
+  font-weight: 600;
   color: var(--navy-900);
-  background: #fbfaf7;
-  padding: 4px 7px;
-  border-radius: 6px;
-  border: 1px solid rgba(8, 41, 69, 0.06);
+  background: #f8fafc;
+  padding: 6.5px 9px;
+  border-radius: 7px;
+  border: 1px solid rgba(8, 41, 69, 0.08);
 }
 
 .colTag code {
-  font-family: monospace;
+  font-family: Consolas, Monaco, "Courier New", monospace;
   font-size: 10px;
   font-weight: 700;
-  color: #b39159;
-  background: rgba(8, 41, 69, 0.07);
-  padding: 1px 4px;
-  border-radius: 3px;
+  color: #8c6d32;
+  background: rgba(179, 145, 89, 0.16);
+  padding: 1.5px 5px;
+  border-radius: 4px;
 }
 
 .fileListCompact {
@@ -1671,10 +1699,19 @@
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
+  flex: 1;
+  justify-content: flex-start;
+}
+
+.fileListCompact li {
+  padding: 9px 11px;
+  background: #f8fafc;
+  border: 1px solid rgba(8, 41, 69, 0.08);
+  border-radius: 8px;
   font-size: 10.5px;
-  line-height: 1.35;
-  color: var(--muted);
+  line-height: 1.45;
+  color: #2e445b;
 }
 
 .fileListCompact strong {
@@ -1683,37 +1720,42 @@
 }
 
 .fileListCompact code {
-  font-family: monospace;
-  font-size: 10px;
+  font-family: Consolas, Monaco, "Courier New", monospace;
+  font-size: 9.5px;
   color: #082945;
-  background: rgba(179, 145, 89, 0.14);
-  padding: 1px 4px;
-  border-radius: 3px;
+  background: rgba(179, 145, 89, 0.18);
+  padding: 1.5px 5px;
+  border-radius: 4px;
 }
 
 /* RIGHT COLUMN: PROMPT PREVIEW */
 .dashboardRightCol {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0;
 }
 
 .promptPreviewCard {
   background: #041c31;
   border: 1px solid rgba(179, 145, 89, 0.3);
-  border-radius: 14px;
-  box-shadow: 0 10px 28px rgba(4, 28, 49, 0.22);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(4, 28, 49, 0.2);
   display: flex;
   flex-direction: column;
-  height: 245px;
+  height: 100%;
+  max-height: 100%;
+  min-height: 0;
   overflow: hidden;
 }
 
 .promptPreviewHeader {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 7px 12px;
-  background: rgba(255, 255, 255, 0.04);
+  padding: 8px 13px;
+  background: rgba(255, 255, 255, 0.05);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
@@ -1735,15 +1777,33 @@
 }
 
 .promptWordCount {
-  font-size: 9px;
+  font-size: 9.5px;
   color: #e9ca8b;
   font-weight: 600;
 }
 
 .promptScrollBox {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
-  padding: 8px 12px;
+  padding: 10px 13px;
+}
+
+.promptScrollBox::-webkit-scrollbar {
+  width: 5px;
+}
+
+.promptScrollBox::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.promptScrollBox::-webkit-scrollbar-thumb {
+  background: rgba(179, 145, 89, 0.4);
+  border-radius: 4px;
+}
+
+.promptScrollBox::-webkit-scrollbar-thumb:hover {
+  background: rgba(179, 145, 89, 0.7);
 }
 
 .promptScrollBox pre {

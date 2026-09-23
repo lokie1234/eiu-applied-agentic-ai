@@ -4,10 +4,11 @@ Dữ liệu được ghi trực tiếp vào Google Sheet:
 
 `https://docs.google.com/spreadsheets/d/1j44K3vgiSHrIjPA5l6vYtJ6LzIqzVQok3oLzpWwwGgQ/edit`
 
-Apps Script sẽ tự tạo hai trang tính:
+Apps Script sẽ tự tạo các trang tính:
 
-- `Bài làm chia sẻ`: lưu tên và liên kết từ slide 38.
-- `Kết quả bài kiểm tra`: lưu thời gian, họ tên và điểm. Hệ thống không gửi thư điện tử.
+- `Bài làm chia sẻ` (và `Bài làm chia sẻ - Section 2`): lưu tên và liên kết sản phẩm.
+- `Kết quả bài kiểm tra` (và `Kết quả bài kiểm tra - Section 2`): lưu thời gian, họ tên, email và điểm số.
+- `Ý kiến phản hồi` (và `Ý kiến phản hồi - Section 2`): lưu thời gian, section, họ tên, email và nội dung phản hồi của người học.
 
 Quyền truy cập của website:
 

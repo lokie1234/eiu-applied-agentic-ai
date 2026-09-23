@@ -36,3 +36,34 @@
 @keyframes titleLine{from{transform:scaleX(0);opacity:0}to{transform:scaleX(1);opacity:1}}
 @keyframes titleGlow{0%,100%{text-shadow:0 0 18px rgba(240,214,163,.25),0 6px 20px rgba(0,0,0,.24)}50%{text-shadow:0 0 28px rgba(240,214,163,.55),0 6px 20px rgba(0,0,0,.24)}}
 @media (prefers-reduced-motion:reduce){.orbA,.orbB,.questionCard,.resultCard,.formCard,.header h1,.header h1::after{animation:none!important}.progress span,.downloadButton{transition:none}}
+
+/* Feedback modal overlay & window */
+.modalOverlay{position:absolute;inset:0;background:rgba(2,14,28,.82);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;z-index:50;animation:fadeIn .25s ease both}
+.feedbackModal{width:560px;box-sizing:border-box;padding:26px 30px;border-radius:18px;background:rgba(8,38,66,.96);border:1px solid rgba(229,199,139,.4);box-shadow:0 24px 64px rgba(0,0,0,.5);animation:modalPop .3s cubic-bezier(.2,.8,.2,1) both}
+.feedbackHeader{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px}
+.feedbackHeader h2{margin:6px 0 0;font-size:22px;color:#fff;letter-spacing:-.015em}
+.closeBtn{background:transparent;border:0;color:rgba(255,255,255,.6);font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px;transition:color .18s ease,background .18s ease}
+.closeBtn:hover{color:#fff;background:rgba(255,255,255,.1)}
+.feedbackSub{margin:0 0 16px;color:rgba(255,255,255,.75);font-size:12.5px;line-height:1.45}
+.feedbackForm{display:flex;flex-direction:column;gap:13px}
+.feedbackTextarea{width:100%;min-height:105px;box-sizing:border-box;border:1px solid rgba(255,255,255,.2);border-radius:10px;background:rgba(255,255,255,.07);color:#fff;padding:12px 14px;font-family:inherit;font-size:13.5px;line-height:1.5;resize:none;outline:none;transition:border-color .18s ease,box-shadow .18s ease}
+.feedbackTextarea:focus{border-color:#e2c58e;box-shadow:0 0 0 3px rgba(226,197,142,.15)}
+.feedbackActions{display:flex;align-items:center;gap:12px;margin-top:2px}
+.submitFeedbackBtn{flex:1;height:42px;border:0;border-radius:9px;background:linear-gradient(90deg,#b49158,#e2c58e);color:#082b49;font-size:13px;font-weight:900;cursor:pointer;transition:transform .18s ease,opacity .18s ease}
+.submitFeedbackBtn:hover:not(:disabled){transform:translateY(-1px);filter:brightness(1.05)}
+.submitFeedbackBtn:disabled{cursor:default;opacity:.65}
+.skipBtn{height:42px;padding:0 18px;border:1px solid rgba(255,255,255,.2);border-radius:9px;background:transparent;color:rgba(255,255,255,.75);font-size:12.5px;font-weight:700;cursor:pointer;transition:background .18s ease,color .18s ease}
+.skipBtn:hover{background:rgba(255,255,255,.08);color:#fff}
+
+/* Submitted card in result grid */
+.submittedCard{min-height:330px;box-sizing:border-box;border:1px solid rgba(255,255,255,.16);border-radius:18px;background:rgba(2,24,42,.46);box-shadow:0 18px 54px rgba(0,0,0,.16);padding:28px 30px;display:flex;flex-direction:column;gap:12px;animation:cardIn .5s ease both}
+.submittedCard h3{margin:0;font-size:19px;color:#fff}
+.submittedInfo{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);font-size:12px;color:rgba(255,255,255,.8)}
+.submittedInfo div{display:flex;justify-content:space-between}
+.submittedInfo strong{color:#f0d6a3;font-weight:700}
+.submittedNotice{margin:2px 0 0;color:#83e0b2;font-size:12px;line-height:1.4}
+.openFeedbackBtn{height:40px;margin-top:auto;border:1px solid rgba(229,199,139,.45);border-radius:9px;background:rgba(229,199,139,.12);color:#f0d6a3;font-size:12.5px;font-weight:800;cursor:pointer;transition:background .18s ease,transform .18s ease}
+.openFeedbackBtn:hover{background:rgba(229,199,139,.22);transform:translateY(-1px)}
+
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes modalPop{from{opacity:0;transform:scale(.92) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}

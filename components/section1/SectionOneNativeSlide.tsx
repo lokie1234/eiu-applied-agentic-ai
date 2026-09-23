@@ -7,6 +7,7 @@ import styles from "./SectionOneNativeSlide.module.css";
 type Props = {
   page: number;
   scale: number;
+  isFinalState?: boolean;
 };
 
 type Card = {
@@ -393,12 +394,12 @@ function RevealAnswerGrid({ items, revealed, onReveal }: { items: { title: strin
   );
 }
 
-function NativeSlides({ page }: { page: number }) {
+function NativeSlides({ page, isFinalState = false }: { page: number; isFinalState?: boolean }) {
   const [selectedIdea, setSelectedIdea] = useState<string | null>(null);
   const [selectedArchitecture, setSelectedArchitecture] = useState<ArchitectureKey>("Frontend");
-  const [restaurantRevealed, setRestaurantRevealed] = useState([false, false, false, false]);
-  const [businessRevealed, setBusinessRevealed] = useState([false, false, false, false]);
-  const [revealedStageCount, setRevealedStageCount] = useState(0);
+  const [restaurantRevealed, setRestaurantRevealed] = useState(isFinalState ? [true, true, true, true] : [false, false, false, false]);
+  const [businessRevealed, setBusinessRevealed] = useState(isFinalState ? [true, true, true, true] : [false, false, false, false]);
+  const [revealedStageCount, setRevealedStageCount] = useState(isFinalState ? SOFTWARE_STAGES.length : 0);
   const [isRevealingStages, setIsRevealingStages] = useState(false);
 
   function revealRestaurant(index: number) {
@@ -886,10 +887,10 @@ function NativeSlides({ page }: { page: number }) {
   );
 }
 
-export default function SectionOneNativeSlide({ page, scale }: Props) {
+export default function SectionOneNativeSlide({ page, scale, isFinalState = false }: Props) {
   return (
     <div className={styles.scaledCanvas} style={{ transform: `scale(${scale})` }}>
-      <NativeSlides page={page} />
+      <NativeSlides page={page} isFinalState={isFinalState} />
     </div>
   );
 }

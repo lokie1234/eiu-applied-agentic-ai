@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import styles from "./SectionTwoSlide.module.css";
 
-type Props = { pageNumber: number };
+type Props = { pageNumber: number; isFinalState?: boolean };
 
 type MotionPage = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 24 | 25 | 26 | 27 | 28 | 29 | 30 | 31 | 32 | 33 | 34 | 35 | 36 | 37 | 38;
 
@@ -206,8 +206,8 @@ function Quote({ children, navy = false }: { children: ReactNode; navy?: boolean
   return <div className={`${styles.quote} ${navy ? styles.quoteNavy : ""}`}><span>“</span>{children}</div>;
 }
 
-function useSequentialReveal(total: number) {
-  const [revealedCount, setRevealedCount] = useState(0);
+function useSequentialReveal(total: number, initialFull = false) {
+  const [revealedCount, setRevealedCount] = useState(initialFull ? total : 0);
   const [isRevealing, setIsRevealing] = useState(false);
 
   useEffect(() => {
@@ -230,16 +230,20 @@ function useSequentialReveal(total: number) {
   };
 }
 
-export default function SectionTwoSlide({ pageNumber }: Props) {
+export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Props) {
   const [copied, setCopied] = useState(false);
-  const [activeDataItems, setActiveDataItems] = useState<string[]>([]);
+  const [activeDataItems, setActiveDataItems] = useState<string[]>(isFinalState ? [...DATA_ITEMS] : []);
   const [showDataCongrats, setShowDataCongrats] = useState(false);
-  const [activeReportItems, setActiveReportItems] = useState<string[]>([]);
+  const [activeReportItems, setActiveReportItems] = useState<string[]>(isFinalState ? [...REPORT_ITEMS] : []);
   const [showReportCongrats, setShowReportCongrats] = useState(false);
-  const usersReveal = useSequentialReveal(USER_ITEMS.length);
-  const workflowReveal = useSequentialReveal(WORKFLOW_STEPS.length);
-  const [coreCommonItems, setCoreCommonItems] = useState<string[]>([]);
-  const [coreSpecificItems, setCoreSpecificItems] = useState<string[]>([]);
+  const usersReveal = useSequentialReveal(USER_ITEMS.length, isFinalState);
+  const workflowReveal = useSequentialReveal(WORKFLOW_STEPS.length, isFinalState);
+  const [coreCommonItems, setCoreCommonItems] = useState<string[]>(
+    isFinalState ? CORE_ITEMS.filter((item) => item.group === "common").map((item) => item.id) : []
+  );
+  const [coreSpecificItems, setCoreSpecificItems] = useState<string[]>(
+    isFinalState ? CORE_ITEMS.filter((item) => item.group === "specific").map((item) => item.id) : []
+  );
   const [sortingCoreItem, setSortingCoreItem] = useState<string | null>(null);
   const [coreAutoSorting, setCoreAutoSorting] = useState(false);
   const [demoForm, setDemoForm] = useState<{
@@ -255,7 +259,44 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
     issue: "Sàn trơn gần lối đi chính",
     severity: "",
   });
-  const [demoRows, setDemoRows] = useState<DemoRow[]>([]);
+  const [demoRows, setDemoRows] = useState<DemoRow[]>(
+    isFinalState
+      ? [
+          {
+            id: "SC-001",
+            reporter: "Nguyễn Minh Anh",
+            department: "Phòng Vận hành",
+            location: "Khu vực kho A",
+            issue: "Sàn trơn gần lối đi chính, có nguy cơ gây trượt ngã.",
+            severity: "ưu tiên",
+            submittedAt: "14/09 · 09:30",
+            status: "Đã duyệt",
+            managerActionAt: "14/09 · 10:15",
+          },
+          {
+            id: "SC-002",
+            reporter: "Trần Quốc Bảo",
+            department: "Phòng Kỹ thuật",
+            location: "Tầng 2 - Phòng Server",
+            issue: "Điều hòa rò rỉ nước ngưng tụ trên trần.",
+            severity: "bình thường",
+            submittedAt: "14/09 · 11:20",
+            status: "Đã hoàn thành",
+            completedAt: "14/09 · 14:00",
+          },
+          {
+            id: "SC-003",
+            reporter: "Lê Hoàng Yến",
+            department: "Phòng Hành chính",
+            location: "Sảnh B",
+            issue: "Đèn chiếu sáng khu vực hành lang bị chập chờn.",
+            severity: "bình thường",
+            submittedAt: "14/09 · 13:45",
+            status: "Đã nộp",
+          },
+        ]
+      : []
+  );
   const [demoFormMessage, setDemoFormMessage] = useState<string | null>(null);
   const [managerNotes, setManagerNotes] = useState<Record<string, string>>({});
   const demoSequenceRef = useRef(1);
@@ -639,15 +680,138 @@ export default function SectionTwoSlide({ pageNumber }: Props) {
     case 34:
       return <Shell dark motion={37}><div className={styles.finalMessage}><MiniTitle>Thông điệp</MiniTitle><p>Đừng xây <strong>100 ứng dụng.</strong></p><h1>Hãy xây 01 AI Business Framework</h1><div className={styles.goldRule} /><p>để AI có thể tạo 100 ứng dụng<br />theo tiêu chuẩn của doanh nghiệp.</p></div></Shell>;
     case 35:
-      return <Shell motion={38}><div className={styles.completeGemBrief}>
-        <div className={styles.completeGemIntro}><MiniTitle>THỰC HÀNH NÂNG CAO</MiniTitle><Title>Tạo một bộ Gem hoàn chỉnh</Title><p>Từ một Web App đầy đủ chức năng đã được phân tích sẵn — không còn dừng ở mức demo.</p></div>
-        <div className={styles.completeGemFlow}>
-          <article><span>01</span><strong>Web App hoàn chỉnh</strong><p>Đầy đủ chức năng, function và quy trình vận hành.</p></article>
-          <article><span>02</span><strong>Gem đã chuẩn hóa</strong><p>Tích hợp bước đặt câu hỏi làm rõ trước khi bắt đầu tạo code.</p></article>
-          <article><span>03</span><strong>Tự tạo Gem</strong><p>Thông tin Gem và tài nguyên thực hành sẽ được cập nhật sau.</p></article>
-        </div>
-        <div className={styles.completeGemShare}><span>→</span><p>Hoàn thành Gem và chia sẻ kết quả lên không gian <strong>Slide 37</strong>.</p></div>
-      </div></Shell>;
+      return (
+        <Shell motion={38}>
+          <div className={styles.optimizedGemSlide}>
+            <header className={styles.optimizedGemHeader}>
+              <div className={styles.optimizedGemTitleGroup}>
+                <MiniTitle>THỰC HÀNH NÂNG CAO · GEMINI GEMS</MiniTitle>
+                <h1 className={styles.optimizedGemTitle}>Thực hành nâng cao với bộ Gem đã tối ưu hóa</h1>
+                <p className={styles.optimizedGemSubtitle}>
+                  Khung ứng dụng doanh nghiệp chuẩn hóa — từ phỏng vấn nghiệp vụ đến mã nguồn hoàn chỉnh.
+                </p>
+              </div>
+
+              <div className={styles.gemDownloadGroup}>
+                <a
+                  href="/downloads/Gem-Config-WebApp-Builder.txt"
+                  download="Gem-Config-WebApp-Builder.txt"
+                  className={styles.gemDownloadBtnConfig}
+                  data-interactive="true"
+                  title="Tải tệp Gem Instructions (Config)"
+                >
+                  <span className={styles.gemBtnIcon} aria-hidden="true">↓</span>
+                  <span className={styles.gemBtnText}>
+                    <strong>Tải CONFIG</strong>
+                    <small>Instructions & Rules</small>
+                  </span>
+                </a>
+
+                <a
+                  href="/downloads/Gem-Knowledge-WebApp-Builder.txt"
+                  download="Gem-Knowledge-WebApp-Builder.txt"
+                  className={styles.gemDownloadBtnKnowledge}
+                  data-interactive="true"
+                  title="Tải tệp Gem Knowledge chuẩn"
+                >
+                  <span className={styles.gemBtnIcon} aria-hidden="true">↓</span>
+                  <span className={styles.gemBtnText}>
+                    <strong>Tải KNOWLEDGE</strong>
+                    <small>Tài liệu chuẩn & UI DNA</small>
+                  </span>
+                </a>
+              </div>
+            </header>
+
+            <div className={styles.optimizedGemGrid}>
+              <article className={styles.optimizedGemCard}>
+                <div className={styles.optimizedCardHead}>
+                  <span className={styles.optimizedCardNum}>01</span>
+                  <div>
+                    <span className={styles.optimizedCardTag}>CHUẨN SẢN PHẨM</span>
+                    <h2>Web App chạy thật 100%</h2>
+                  </div>
+                </div>
+                <ul className={styles.optimizedCardList}>
+                  <li>
+                    <span className={styles.cardBulletCheck}>✓</span>
+                    <p><strong>Xây dựng web app chạy thật:</strong> Không phải bản demo hay dữ liệu giả, đầy đủ quy trình vận hành thực tế.</p>
+                  </li>
+                  <li>
+                    <span className={styles.cardBulletCheck}>✓</span>
+                    <p><strong>Hạ tầng Google Workspace:</strong> Phát triển trên Google Apps Script, Google Sheets và Google Drive.</p>
+                  </li>
+                </ul>
+              </article>
+
+              <article className={styles.optimizedGemCard}>
+                <div className={styles.optimizedCardHead}>
+                  <span className={styles.optimizedCardNum}>02</span>
+                  <div>
+                    <span className={styles.optimizedCardTag}>BẢO MẬT & THƯƠNG HIỆU</span>
+                    <h2>Đăng nhập & EIU DNA</h2>
+                  </div>
+                </div>
+                <ul className={styles.optimizedCardList}>
+                  <li>
+                    <span className={styles.cardBulletCheck}>✓</span>
+                    <p><strong>Xác thực & phân quyền:</strong> Có màn hình đăng nhập, xác thực tài khoản và phân quyền Admin/User rõ ràng.</p>
+                  </li>
+                  <li>
+                    <span className={styles.cardBulletCheck}>✓</span>
+                    <p><strong>Đồng bộ EIU Design DNA:</strong> Áp dụng chuẩn màu sắc Navy/Gold/Cream và tích hợp logo EIU chính thức.</p>
+                  </li>
+                </ul>
+              </article>
+
+              <article className={styles.optimizedGemCard}>
+                <div className={styles.optimizedCardHead}>
+                  <span className={styles.optimizedCardNum}>03</span>
+                  <div>
+                    <span className={styles.optimizedCardTag}>TRẢI NGHIỆM ĐỐI THOẠI</span>
+                    <h2>Phỏng vấn thông minh</h2>
+                  </div>
+                </div>
+                <ul className={styles.optimizedCardList}>
+                  <li>
+                    <span className={styles.cardBulletCheck}>✓</span>
+                    <p><strong>Thu thập từng câu một:</strong> Phỏng vấn tuần tự, giúp người dùng dễ theo dõi và hoàn thiện ứng dụng.</p>
+                  </li>
+                  <li>
+                    <span className={styles.cardBulletCheck}>✓</span>
+                    <p><strong>Ghi nhớ toàn bộ yêu cầu:</strong> Ghi nhớ các yêu cầu đã trả lời, không hỏi lại hoặc làm thay đổi tiến trình.</p>
+                  </li>
+                </ul>
+              </article>
+
+              <article className={styles.optimizedGemCard}>
+                <div className={styles.optimizedCardHead}>
+                  <span className={styles.optimizedCardNum}>04</span>
+                  <div>
+                    <span className={styles.optimizedCardTag}>ĐẦU RA CHUẨN HÓA</span>
+                    <h2>Kiểm tra & Bàn giao 2 tệp</h2>
+                  </div>
+                </div>
+                <ul className={styles.optimizedCardList}>
+                  <li>
+                    <span className={styles.cardBulletCheck}>✓</span>
+                    <p><strong>Bảo mật & Audit Log:</strong> Tích hợp kiểm tra cấu hình, bảo mật phía máy chủ và nhật ký hoạt động.</p>
+                  </li>
+                  <li>
+                    <span className={styles.cardBulletCheck}>✓</span>
+                    <p><strong>Đầu ra luôn chỉ gồm 2 tệp:</strong> Mã nguồn hoàn chỉnh gồm <code>Code.gs</code> và <code>Index.html</code>, sẵn sàng triển khai.</p>
+                  </li>
+                </ul>
+              </article>
+            </div>
+
+            <footer className={styles.optimizedGemFooter}>
+              <span className={styles.optimizedFooterBadge}>HƯỚNG DẪN</span>
+              <p>Tải 2 file trên: Nạp nội dung <strong>CONFIG</strong> vào Instructions và upload file <strong>KNOWLEDGE</strong> vào Gem Manager.</p>
+            </footer>
+          </div>
+        </Shell>
+      );
     default:
       return <Shell />;
   }

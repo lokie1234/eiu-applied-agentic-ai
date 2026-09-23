@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "generate-slides": "node scripts/generate-slides-pdf.js"
   },
   "dependencies": {
     "next": "16.3.4",

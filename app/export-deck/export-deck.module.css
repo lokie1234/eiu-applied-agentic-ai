@@ -1,0 +1,155 @@
+.exportContainer {
+  min-height: 100vh;
+  background: #0b1522;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 0 60px;
+}
+
+.topBar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  height: 56px;
+  background: rgba(11, 21, 34, 0.94);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(179, 145, 89, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  gap: 16px;
+}
+
+.topBarTitle {
+  font-size: 16px;
+  font-weight: 700;
+  color: #f7f4ed;
+  letter-spacing: 0.04em;
+}
+
+.topBarCount {
+  font-size: 13px;
+  font-weight: 600;
+  color: #b39159;
+  background: rgba(179, 145, 89, 0.12);
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(179, 145, 89, 0.25);
+}
+
+.sectionSwitch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  padding: 4px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.switchLink {
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #a4b3c4;
+  border-radius: 7px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.switchLink:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.switchLinkActive {
+  background: #123f68;
+  color: #e9ca8b;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.printButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: 999px;
+  border: 1px solid rgba(233, 202, 139, 0.4);
+  background: linear-gradient(135deg, #123f68, #0d3457);
+  color: #e9ca8b;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.printButton:hover {
+  background: linear-gradient(135deg, #18547f, #123f68);
+  border-color: #e9ca8b;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.deckPages {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  margin-top: 32px;
+}
+
+.slidePrintPage {
+  width: 960px;
+  height: 540px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.4);
+  border-radius: 8px;
+  background: #fff;
+}
+
+@media print {
+  @page {
+    size: 960px 540px;
+    margin: 0;
+  }
+
+  html, body {
+    background: #fff !important;
+    color: #000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .noPrint {
+    display: none !important;
+  }
+
+  .exportContainer {
+    background: #fff !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .deckPages {
+    margin: 0 !important;
+    gap: 0 !important;
+  }
+
+  .slidePrintPage {
+    width: 960px !important;
+    height: 540px !important;
+    page-break-after: always !important;
+    break-after: page !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+  }
+}
+

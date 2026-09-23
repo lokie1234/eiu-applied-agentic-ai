@@ -40,7 +40,7 @@ const SECTION_TWO_QUESTIONS: Question[] = [
   { question: "Bước 1 của Lab 2 yêu cầu làm gì?", options: ["Phân tích hai ứng dụng và tách Framework", "Tạo ngay một Gem trống", "Chia sẻ link trước khi kiểm thử", "Xóa source code cũ"], answer: 0 },
   { question: "Knowledge trong Gem có vai trò gì?", options: ["Chứa tài liệu tham chiếu để Gemini áp dụng Framework", "Lưu điểm Quiz", "Thay thế hoàn toàn Instructions", "Chỉ dùng để lưu hình nền"], answer: 0 },
   { question: "Preview được dùng ở bước nào?", options: ["Kiểm thử Gem bằng một Requirement mới trước khi lưu", "Đổi tên Google Sheet", "Tạo mật khẩu admin", "Xuất PDF tự động"], answer: 0 },
-  { question: "Nội dung nào thuộc lõi có thể tái sử dụng?", options: ["Kiến trúc, UI, quy tắc code, database, kiểm thử và triển khai", "Tên người dùng của từng dự án", "Một yêu cầu nghiệp vụ duy nhất", "Ngày tạo của từng ứng dụng"], answer: 0 },
+  { question: "Nội dung nào thuộc phần có thể tái sử dụng?", options: ["Kiến trúc, UI, quy tắc code, database, kiểm thử và triển khai", "Tên người dùng của từng dự án", "Một yêu cầu nghiệp vụ duy nhất", "Ngày tạo của từng ứng dụng"], answer: 0 },
   { question: "Thông điệp cuối của Section 2 là gì?", options: ["Xây 01 AI Business Framework để AI có thể tạo nhiều ứng dụng theo cùng tiêu chuẩn", "Mỗi ứng dụng phải có một framework hoàn toàn khác", "Không cần kiểm thử khi dùng Gem", "Chỉ dùng Gem cho một dự án"], answer: 0 },
 ];
 
@@ -71,6 +71,13 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
   const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [submittedEmail, setSubmittedEmail] = useState("");
+  const [submittedName, setSubmittedName] = useState("");
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackText, setFeedbackText] = useState("");
+  const [feedbackStatus, setFeedbackStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [feedbackMessage, setFeedbackMessage] = useState("");
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
   const [quizUnlocked, setQuizUnlocked] = useState(false);
   const [quizCode, setQuizCode] = useState("");
   const [quizError, setQuizError] = useState("");
@@ -125,14 +132,17 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
     setStatus("sending");
     setMessage("");
 
+    const fullEmail = `${emailLocalPart.trim()}@eiu.edu.vn`;
+    const fullName = name.trim();
+
     try {
       const response = await fetch("/api/quiz-results", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           section: variant,
-          name,
-          email: `${emailLocalPart.trim()}@eiu.edu.vn`,
+          name: fullName,
+          email: fullEmail,
           website,
           score,
           total: questions.length,
@@ -141,11 +151,51 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.message || "Không thể gửi kết quả.");
+      setSubmittedEmail(fullEmail);
+      setSubmittedName(fullName);
       setStatus("success");
       setMessage("Đã lưu kết quả vào bảng dữ liệu.");
+      // Tự động chuyển sang cửa sổ gửi feedback sau khi gửi kết quả
+      setShowFeedbackModal(true);
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Không thể gửi kết quả.");
+    }
+  }
+
+  async function submitFeedback(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (feedbackStatus === "sending" || !feedbackText.trim()) return;
+
+    setFeedbackStatus("sending");
+    setFeedbackMessage("");
+
+    try {
+      const emailToUse = submittedEmail || `${emailLocalPart.trim()}@eiu.edu.vn`;
+      const nameToUse = submittedName || name.trim();
+
+      const response = await fetch("/api/quiz-feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          section: variant,
+          name: nameToUse,
+          email: emailToUse,
+          feedback: feedbackText.trim(),
+          submittedAt: new Date().toISOString(),
+        }),
+      });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.message || "Không thể gửi phản hồi.");
+      setFeedbackStatus("success");
+      setFeedbackSubmitted(true);
+      setFeedbackMessage("Cảm ơn bạn đã gửi ý kiến đóng góp!");
+      setTimeout(() => {
+        setShowFeedbackModal(false);
+      }, 1500);
+    } catch (error) {
+      setFeedbackStatus("error");
+      setFeedbackMessage(error instanceof Error ? error.message : "Không thể gửi phản hồi.");
     }
   }
 
@@ -157,6 +207,13 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
     setFinished(false);
     setStatus("idle");
     setMessage("");
+    setShowFeedbackModal(false);
+    setFeedbackText("");
+    setFeedbackStatus("idle");
+    setFeedbackMessage("");
+    setFeedbackSubmitted(false);
+    setSubmittedEmail("");
+    setSubmittedName("");
   }
 
   return (
@@ -236,17 +293,109 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
             <button type="button" className={styles.retry} onClick={restart}>Làm lại</button>
           </div>
 
-          <form className={styles.formCard} onSubmit={submitResult}>
-            <span className={styles.formKicker}>Ghi nhận kết quả</span>
-            <p>Nhập họ tên và email EIU để lưu kết quả vào bảng dữ liệu của lớp.</p>
-            <label>Họ và tên<input value={name} onChange={(event) => setName(event.target.value)} maxLength={80} required /></label>
-            <label>Email EIU<div className={styles.emailField}><input value={emailLocalPart} onChange={(event) => setEmailLocalPart(event.target.value.replace(/@.*$/, ""))} maxLength={64} pattern="[A-Za-z0-9._%+\-]+" autoComplete="email" aria-label="Tên tài khoản email EIU" required /><span>@eiu.edu.vn</span></div></label>
-            <label className={styles.honeypot} aria-hidden="true">Website<input value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></label>
-            <button type="submit" className={styles.submit} disabled={status === "sending" || status === "success"}>
-              {status === "sending" ? "Đang gửi..." : status === "success" ? "Đã gửi" : "Gửi kết quả"}
-            </button>
-            {message && <p className={`${styles.message} ${status === "error" ? styles.error : ""}`} role="status">{message}</p>}
-          </form>
+          {status === "success" ? (
+            <div className={styles.submittedCard} aria-live="polite">
+              <span className={styles.formKicker}>Ghi nhận kết quả</span>
+              <h3>Đã lưu kết quả bài kiểm tra!</h3>
+              <div className={styles.submittedInfo}>
+                <div><span>Họ và tên:</span> <strong>{submittedName || name}</strong></div>
+                <div><span>Email EIU:</span> <strong>{submittedEmail || `${emailLocalPart}@eiu.edu.vn`}</strong></div>
+                <div><span>Điểm số:</span> <strong>{score} / {questions.length}</strong></div>
+              </div>
+              <p className={styles.submittedNotice}>
+                {feedbackSubmitted
+                  ? "✓ Cảm ơn bạn đã gửi ý kiến đóng góp cho bài học!"
+                  : "Kết quả đã lưu. Bạn có thể mở lại cửa sổ để gửi phản hồi."}
+              </p>
+              <button
+                type="button"
+                className={styles.openFeedbackBtn}
+                onClick={() => setShowFeedbackModal(true)}
+              >
+                {feedbackSubmitted ? "Gửi thêm phản hồi" : "Mở cửa sổ gửi feedback"}
+              </button>
+            </div>
+          ) : (
+            <form className={styles.formCard} onSubmit={submitResult}>
+              <span className={styles.formKicker}>Ghi nhận kết quả</span>
+              <p>Nhập họ tên và email EIU để lưu kết quả vào bảng dữ liệu của lớp.</p>
+              <label>Họ và tên<input value={name} onChange={(event) => setName(event.target.value)} maxLength={80} required /></label>
+              <label>Email EIU<div className={styles.emailField}><input value={emailLocalPart} onChange={(event) => setEmailLocalPart(event.target.value.replace(/@.*$/, ""))} maxLength={64} pattern="[A-Za-z0-9._%+\-]+" autoComplete="email" aria-label="Tên tài khoản email EIU" required /><span>@eiu.edu.vn</span></div></label>
+              <label className={styles.honeypot} aria-hidden="true">Website<input value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></label>
+              <button type="submit" className={styles.submit} disabled={status === "sending"}>
+                {status === "sending" ? "Đang gửi..." : "Gửi kết quả"}
+              </button>
+              {message && <p className={`${styles.message} ${status === "error" ? styles.error : ""}`} role="status">{message}</p>}
+            </form>
+          )}
+        </div>
+      )}
+
+      {showFeedbackModal && (
+        <div
+          className={styles.modalOverlay}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="feedback-title"
+        >
+          <div className={styles.feedbackModal}>
+            <div className={styles.feedbackHeader}>
+              <div>
+                <span className={styles.eyebrow}>
+                  Góp ý & Phản hồi · {variant === "section2" ? "Section 2" : "Section 1"}
+                </span>
+                <h2 id="feedback-title">Gửi feedback bài học (ẩn danh)</h2>
+              </div>
+              <button
+                type="button"
+                className={styles.closeBtn}
+                onClick={() => setShowFeedbackModal(false)}
+                aria-label="Đóng cửa sổ feedback"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className={styles.feedbackSub}>
+              Ý kiến của bạn giúp ban tổ chức hoàn thiện và nâng cao chất lượng khóa học.
+            </p>
+
+            <form className={styles.feedbackForm} onSubmit={submitFeedback}>
+              <textarea
+                className={styles.feedbackTextarea}
+                value={feedbackText}
+                onChange={(e) => setFeedbackText(e.target.value)}
+                placeholder="Nhập ý kiến đóng góp, phản hồi hoặc cảm nghĩ của bạn tại đây..."
+                rows={4}
+                maxLength={2000}
+                required
+                autoFocus
+              />
+
+              <div className={styles.feedbackActions}>
+                <button
+                  type="submit"
+                  className={styles.submitFeedbackBtn}
+                  disabled={feedbackStatus === "sending" || feedbackStatus === "success"}
+                >
+                  {feedbackStatus === "sending" ? "Đang gửi..." : feedbackStatus === "success" ? "Đã gửi feedback" : "Gửi feedback"}
+                </button>
+                <button
+                  type="button"
+                  className={styles.skipBtn}
+                  onClick={() => setShowFeedbackModal(false)}
+                >
+                  {feedbackStatus === "success" ? "Đóng" : "Bỏ qua"}
+                </button>
+              </div>
+
+              {feedbackMessage && (
+                <p className={`${styles.message} ${feedbackStatus === "error" ? styles.error : ""}`} role="status">
+                  {feedbackMessage}
+                </p>
+              )}
+            </form>
+          </div>
         </div>
       )}
     </section>
