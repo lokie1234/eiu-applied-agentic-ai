@@ -850,3 +850,106 @@
   border-color: #9d7944;
   box-shadow: 0 0 0 2px rgba(157, 121, 68, 0.2);
 }
+
+/* ==========================================================================
+   Admin Reset Data Button & Modal
+   ========================================================================== */
+.selectorActions .resetDataButton {
+  border: 1px solid rgba(239, 68, 68, 0.65);
+  background: #991b1b;
+  color: #fee2e2;
+  box-shadow: 0 4px 14px rgba(153, 27, 27, 0.28);
+}
+
+.selectorActions .resetDataButton:hover {
+  border-color: rgba(248, 113, 113, 0.95);
+  background: #b91c1c;
+  color: #ffffff;
+  box-shadow: 0 6px 18px rgba(185, 28, 28, 0.4);
+}
+
+.dangerEyebrow {
+  color: #dc2626 !important;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.15em;
+}
+
+.dangerWarningBox {
+  margin: 14px 0 16px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #991b1b;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.dangerWarningBox strong {
+  display: block;
+  font-weight: 800;
+  margin-bottom: 3px;
+}
+
+.resetPasswordField {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin: 14px 0 6px;
+}
+
+.resetPasswordField > span {
+  color: #274861;
+  font-size: 12.5px;
+  font-weight: 800;
+}
+
+.resetPasswordInput {
+  height: 44px;
+  padding: 0 14px;
+  border: 1px solid rgba(23, 50, 74, 0.22);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  color: #17324a;
+  background: #fff;
+  outline: none;
+  box-sizing: border-box;
+  width: 100%;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.resetPasswordInput:focus {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.18);
+}
+
+.resetErrorNotice {
+  margin: 8px 0 0;
+  color: #b91c1c;
+  font-size: 12.5px;
+  font-weight: 750;
+}
+
+.resetSuccessNotice {
+  margin: 8px 0 0;
+  color: #15803d;
+  font-size: 12.5px;
+  font-weight: 750;
+}
+
+.confirmResetButton {
+  border: 1px solid #b91c1c;
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.confirmResetButton:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.confirmResetButton:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}

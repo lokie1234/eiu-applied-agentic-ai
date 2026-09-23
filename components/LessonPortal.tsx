@@ -193,6 +193,10 @@ export default function LessonPortal({
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportRange, setExportRange] = useState<"today" | "custom" | "all">("today");
   const [exportCustomDate, setExportCustomDate] = useState(() => getTodayDateString());
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetPassword, setResetPassword] = useState("");
+  const [resetStatus, setResetStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
+  const [resetNotice, setResetNotice] = useState("");
   const [learnerProfile, setLearnerProfile] = useState<LearnerProfile | null>(initialProfile);
   const [profileName, setProfileName] = useState("");
   const [profileEmailLocalPart, setProfileEmailLocalPart] = useState("");
@@ -349,6 +353,49 @@ export default function LessonPortal({
     window.location.replace("/login");
   }
 
+  async function resetAllData(event: FormEvent) {
+    event.preventDefault();
+    if (role !== "admin" || resetStatus === "sending") return;
+
+    if (!resetPassword.trim()) {
+      setResetStatus("error");
+      setResetNotice("Vui lòng nhập mật khẩu xác nhận.");
+      return;
+    }
+
+    setResetStatus("sending");
+    setResetNotice("");
+
+    try {
+      const response = await fetch("/api/admin/reset", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: resetPassword.trim() }),
+      });
+
+      const payload = (await response.json().catch(() => ({}))) as {
+        success?: boolean;
+        message?: string;
+      };
+
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.message || "Mật khẩu xác thực không đúng.");
+      }
+
+      setResetStatus("success");
+      setResetNotice("Đã xóa sạch toàn bộ dữ liệu trên Supabase thành công!");
+      setResetPassword("");
+      setTimeout(() => {
+        setShowResetModal(false);
+        setResetStatus("idle");
+        setResetNotice("");
+      }, 1600);
+    } catch (error) {
+      setResetStatus("error");
+      setResetNotice(error instanceof Error ? error.message : "Lỗi khi reset dữ liệu.");
+    }
+  }
+
   async function terminateSection() {
     if (role !== "admin" || !section || terminateStatus === "sending") return;
 
@@ -490,6 +537,18 @@ export default function LessonPortal({
             disabled={reportStatus === "exporting"}
           >
             {reportStatus === "exporting" ? "Đang xuất…" : "Xuất report Excel"}
+          </button>
+          <button
+            type="button"
+            className={styles.resetDataButton}
+            onClick={() => {
+              setResetPassword("");
+              setResetStatus("idle");
+              setResetNotice("");
+              setShowResetModal(true);
+            }}
+          >
+            Reset dữ liệu
           </button>
           <button type="button" onClick={signOut}>
             Sign out
@@ -658,6 +717,80 @@ export default function LessonPortal({
                 </button>
               </div>
             </section>
+          </div>
+        )}
+
+        {showResetModal && (
+          <div
+            className={styles.modalLayer}
+            role="presentation"
+            onMouseDown={(event) => {
+              if (event.currentTarget === event.target && resetStatus !== "sending") {
+                setShowResetModal(false);
+              }
+            }}
+          >
+            <form
+              className={styles.modal}
+              onSubmit={resetAllData}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="reset-modal-title"
+            >
+              <span className={styles.dangerEyebrow}>NGUY HIỂM · THAO TÁC QUẢN TRỊ</span>
+              <h2 id="reset-modal-title">Reset toàn bộ dữ liệu?</h2>
+
+              <div className={styles.dangerWarningBox}>
+                <strong>Cảnh báo không thể hoàn tác:</strong>
+                Thao tác này sẽ xóa vĩnh viễn toàn bộ dữ liệu trên Supabase bao gồm: Hồ sơ học viên, Ý tưởng, Showcase, Kết quả Quiz, Feedback và các phiên đăng nhập.
+              </div>
+
+              <label className={styles.resetPasswordField}>
+                <span>Nhập mật khẩu xác thực để tiếp tục</span>
+                <input
+                  type="password"
+                  className={styles.resetPasswordInput}
+                  value={resetPassword}
+                  onChange={(e) => {
+                    setResetPassword(e.target.value);
+                    if (resetStatus === "error") setResetNotice("");
+                  }}
+                  placeholder="Nhập mật khẩu admin..."
+                  autoFocus
+                  required
+                />
+              </label>
+
+              {resetStatus === "error" && resetNotice && (
+                <p className={styles.resetErrorNotice} role="alert">
+                  {resetNotice}
+                </p>
+              )}
+
+              {resetStatus === "success" && resetNotice && (
+                <p className={styles.resetSuccessNotice} role="status">
+                  ✓ {resetNotice}
+                </p>
+              )}
+
+              <div className={styles.modalActions}>
+                <button
+                  type="button"
+                  className={styles.cancelButton}
+                  onClick={() => setShowResetModal(false)}
+                  disabled={resetStatus === "sending"}
+                >
+                  Hủy
+                </button>
+                <button
+                  type="submit"
+                  className={styles.confirmResetButton}
+                  disabled={resetStatus === "sending" || resetStatus === "success"}
+                >
+                  {resetStatus === "sending" ? "Đang xóa dữ liệu…" : "Xác nhận xóa hết"}
+                </button>
+              </div>
+            </form>
           </div>
         )}
       </main>
