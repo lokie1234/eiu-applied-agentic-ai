@@ -58,23 +58,6 @@ function ActiveUsersTaskbarWidget({
   counts: PresenceCounts;
   currentSection?: SectionId | null;
 }) {
-  const prevCountsRef = useRef<PresenceCounts>(counts);
-  const [pulse, setPulse] = useState(false);
-
-  useEffect(() => {
-    const prev = prevCountsRef.current;
-    if (
-      prev.section1 !== counts.section1 ||
-      prev.section2 !== counts.section2 ||
-      prev.total !== counts.total
-    ) {
-      prevCountsRef.current = counts;
-      setPulse(true);
-      const timer = window.setTimeout(() => setPulse(false), 800);
-      return () => window.clearTimeout(timer);
-    }
-  }, [counts]);
-
   const activeCount =
     currentSection === "section1"
       ? counts.section1
@@ -82,23 +65,41 @@ function ActiveUsersTaskbarWidget({
         ? counts.section2
         : counts.total;
 
+  const prevCountRef = useRef<number>(activeCount);
+  const [isChanging, setIsChanging] = useState(false);
+
+  useEffect(() => {
+    if (prevCountRef.current !== activeCount) {
+      prevCountRef.current = activeCount;
+      setIsChanging(true);
+      const timer = window.setTimeout(() => setIsChanging(false), 700);
+      return () => window.clearTimeout(timer);
+    }
+  }, [activeCount]);
+
   const sectionLabel =
     currentSection === "section1"
-      ? "S1"
+      ? "Section 1"
       : currentSection === "section2"
-        ? "S2"
+        ? "Section 2"
         : "Online";
 
   return (
     <div
-      className={`${styles.activeUsersWidget} ${pulse ? styles.activeUsersPulse : ""}`}
-      title={`${counts.total} users online (${counts.section1} Section 1, ${counts.section2} Section 2)`}
-      aria-label="Số người đang học"
+      className={`${styles.activeUsersWidget} ${isChanging ? styles.widgetPulsing : ""}`}
+      title={`${activeCount} người đang học ${sectionLabel}`}
+      aria-label={`Số người đang học ${sectionLabel}`}
     >
-      <span className={styles.livePulseDot} aria-hidden="true" />
-      <span className={styles.activeUsersLabel}>{sectionLabel}</span>
-      <strong className={styles.activeUsersNumber}>{activeCount}</strong>
-      <span className={styles.totalChip}>/{counts.total}</span>
+      <span className={styles.liveDot} aria-hidden="true" />
+      <span className={styles.liveSectionLabel}>{sectionLabel}</span>
+      <span className={styles.liveUsersDivider}>·</span>
+      <strong
+        key={activeCount}
+        className={`${styles.activeUsersCount} ${isChanging ? styles.countPopAnim : ""}`}
+      >
+        {activeCount}
+      </strong>
+      <span className={styles.liveUsersUnit}>users</span>
     </div>
   );
 }
