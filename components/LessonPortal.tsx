@@ -123,19 +123,22 @@ function DeckShell({
   onSignOut: () => void;
 }) {
   return (
-    <div className={styles.deckViewport}>
-      <div className={styles.deckContent}>{children}</div>
+    <div className={styles.lessonShell}>
+      <div className={styles.deckViewport}>{children}</div>
 
-      <aside className={styles.deckTaskbar} aria-label="Quick actions">
-        <ActiveUsersTaskbarWidget
-          counts={presenceCounts}
-          currentSection={currentSection}
-        />
+      <aside className={styles.actionBar} aria-label="Session controls">
+        <div className={styles.actionBarIdentity} aria-live="polite">
+          <span>EIU · APPLIED AGENTIC AI</span>
+          <strong>
+            {statusNotice || (isAdmin ? "Admin mode" : "Learning session")}
+          </strong>
+        </div>
 
-        {statusNotice && (
-          <p className={styles.statusNotice} role="status">
-            {statusNotice}
-          </p>
+        {isAdmin && presenceCounts && (
+          <ActiveUsersTaskbarWidget
+            counts={presenceCounts}
+            currentSection={currentSection}
+          />
         )}
 
         <div className={styles.actionBarButtons}>
