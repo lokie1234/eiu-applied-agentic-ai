@@ -3,7 +3,7 @@
 ## Phạm vi bản patch
 
 - Section 1 được giữ nguyên: PDF 38 trang, Showcase ở slide 38 và Quiz ở slide 39.
-- Section 2 gồm 38 slide được tái tạo bằng HTML, CSS và React theo kích thước gốc `960 × 540`.
+- Section 2 gồm 36 slide được tái tạo bằng HTML, CSS và React theo kích thước gốc `960 × 540`.
 - Section 2 không tải hoặc hiển thị PDF.
 - Các ảnh giao diện Gemini ở slide 32-34 được tách thành asset riêng; nội dung, tiêu đề, thẻ, quy trình và sơ đồ còn lại là thành phần HTML/CSS.
 - Slide 38 của Section 2 tải file `Xay-dung-web-app-noi-bo.skill` từ thư mục `public/downloads`.
@@ -69,7 +69,7 @@ Nếu trình duyệt giữ cookie cũ, mở `/login` hoặc xóa cookie `eiu_ai_
 - `8888`: vào thẳng Section 2 và không thể mở Section 1.
 - `1103`: nhìn thấy hai thẻ chọn Section; trong Section 1 vẫn có quyền xóa link Showcase.
 - Admin có nút `Sections` trên thanh trên cùng để quay lại màn hình chọn.
-- Section 2 có 38 slide và không gọi `NEXT_PUBLIC_PDF_URL`.
+- Section 2 có 36 slide và không gọi `NEXT_PUBLIC_PDF_URL`.
 - Slide 32-34 hiển thị ảnh hướng dẫn Gemini.
 - Slide 38 tải được file skill.
 
@@ -97,7 +97,7 @@ Khi thêm animation:
 
 1. Giữ canvas `960 × 540`.
 2. Tạo class riêng theo số slide, ví dụ `.slide30PromptPulse`.
-3. Không thay đổi văn bản hoặc thứ tự 38 slide.
+3. Không thay đổi văn bản hoặc thứ tự 36 slide.
 4. Decorative animation phải dùng `pointer-events: none`.
 5. Tôn trọng `prefers-reduced-motion`.
 6. Chạy lại `npm run build` trước khi deploy.

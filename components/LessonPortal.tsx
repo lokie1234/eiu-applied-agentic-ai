@@ -460,7 +460,7 @@ export default function LessonPortal({ role }: { role: AccessRole }) {
             <button type="button" onClick={() => setAdminSection("section2")}>
               <span>SECTION 2</span>
               <strong>Từ Prompt đến AI Business Framework</strong>
-              <small>38 slide · HTML/CSS/React</small>
+              <small>36 slide · HTML/CSS/React</small>
               <div className={styles.cardLiveUsers}>
                 <span className={styles.liveDot} />
                 <span>{presenceCounts.section2} users đang học</span>

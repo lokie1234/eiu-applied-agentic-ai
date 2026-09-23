@@ -230,6 +230,11 @@ function useSequentialReveal(total: number, initialFull = false) {
   };
 }
 
+function openWorkshopWorkspace() {
+  window.open("https://gemini.google.com/", "_blank", "noopener,noreferrer");
+  window.open("https://drive.google.com/", "_blank", "noopener,noreferrer");
+}
+
 export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Props) {
   const [copied, setCopied] = useState(false);
   const [activeDataItems, setActiveDataItems] = useState<string[]>(isFinalState ? [...DATA_ITEMS] : []);
@@ -439,10 +444,30 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
 
   switch (pageNumber) {
     case 1:
-      return <Shell dark motion={1}><div className={styles.cover}><h1 className={styles.coverTitle}>
-        <span className={styles.coverPromptLine}>Từ thiết kế <strong>Prompt</strong></span>
-        <span className={styles.coverFrameworkLine}>đến <strong>AI Business Framework</strong></span>
-      </h1><div className={styles.goldRule} /></div></Shell>;
+      return (
+        <Shell dark motion={1}>
+          <div className={styles.cover}>
+            <h1 className={styles.coverTitle}>
+              <span className={styles.coverPromptLine}>Từ thiết kế <strong>Prompt</strong></span>
+              <span className={styles.coverFrameworkLine}>đến <strong>AI Business Framework</strong></span>
+            </h1>
+            <div className={styles.goldRule} />
+            <button
+              type="button"
+              className={styles.heroRunButton}
+              onClick={openWorkshopWorkspace}
+              data-interactive="true"
+              title="Mở Google Gemini và Google Drive"
+            >
+              <span className={styles.heroRunIcon} aria-hidden="true">▶</span>
+              <span className={styles.heroRunText}>
+                <strong>RUN</strong>
+                <small>Mở Gemini &amp; Google Drive</small>
+              </span>
+            </button>
+          </div>
+        </Shell>
+      );
     case 2:
       return <Shell motion={2}>
         <div className={styles.sectionCompare}>
