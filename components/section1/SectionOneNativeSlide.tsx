@@ -424,7 +424,6 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
 
   function openWorkshopWorkspace() {
     window.open("https://gemini.google.com/", "_blank", "noopener,noreferrer");
-    window.open("https://drive.google.com/", "_blank", "noopener,noreferrer");
   }
 
   function renderPage() {
@@ -437,19 +436,6 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
               <h1>Applied Agentic AI<br /><em>for Business</em></h1>
               <h2>Xây dựng Business Web Apps với AI</h2>
               <p>Khóa học thực hành 6 giờ · Từ ý tưởng → Web App hoàn chỉnh bằng AI</p>
-              <button
-                type="button"
-                className={styles.heroRunButton}
-                onClick={openWorkshopWorkspace}
-                data-interactive="true"
-                title="Mở Google Gemini và Google Drive"
-              >
-                <span className={styles.heroRunIcon} aria-hidden="true">▶</span>
-                <span className={styles.heroRunText}>
-                  <strong>RUN</strong>
-                  <small>Mở Gemini &amp; Google Drive</small>
-                </span>
-              </button>
             </div>
             <div className={styles.heroCore} aria-hidden="true">
               <span>AI</span>
@@ -457,6 +443,23 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
               <i />
             </div>
             <div className={styles.heroLight} aria-hidden="true" />
+            <div className={styles.heroRunDock}>
+              <a
+                href="https://drive.google.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.heroRunButton}
+                onClick={openWorkshopWorkspace}
+                data-interactive="true"
+                title="Nhấn để mở đồng thời Google Gemini và Google Drive"
+              >
+                <span className={styles.heroRunIcon} aria-hidden="true">▶</span>
+                <span className={styles.heroRunText}>
+                  <strong>RUN</strong>
+                  <small>Mở Gemini &amp; Google Drive</small>
+                </span>
+              </a>
+            </div>
           </Shell>
         );
       case 2:

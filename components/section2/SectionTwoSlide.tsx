@@ -232,7 +232,6 @@ function useSequentialReveal(total: number, initialFull = false) {
 
 function openWorkshopWorkspace() {
   window.open("https://gemini.google.com/", "_blank", "noopener,noreferrer");
-  window.open("https://drive.google.com/", "_blank", "noopener,noreferrer");
 }
 
 export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Props) {
@@ -452,19 +451,23 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
               <span className={styles.coverFrameworkLine}>đến <strong>AI Business Framework</strong></span>
             </h1>
             <div className={styles.goldRule} />
-            <button
-              type="button"
+          </div>
+          <div className={styles.heroRunDock}>
+            <a
+              href="https://drive.google.com/"
+              target="_blank"
+              rel="noopener noreferrer"
               className={styles.heroRunButton}
               onClick={openWorkshopWorkspace}
               data-interactive="true"
-              title="Mở Google Gemini và Google Drive"
+              title="Nhấn để mở đồng thời Google Gemini và Google Drive"
             >
               <span className={styles.heroRunIcon} aria-hidden="true">▶</span>
               <span className={styles.heroRunText}>
                 <strong>RUN</strong>
                 <small>Mở Gemini &amp; Google Drive</small>
               </span>
-            </button>
+            </a>
           </div>
         </Shell>
       );
