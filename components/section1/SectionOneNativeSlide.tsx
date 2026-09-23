@@ -424,6 +424,7 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
 
   function openWorkshopWorkspace() {
     window.open("https://gemini.google.com/", "_blank", "noopener,noreferrer");
+    window.open("https://drive.google.com/", "_blank", "noopener,noreferrer");
   }
 
   function renderPage() {
@@ -444,10 +445,8 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
             </div>
             <div className={styles.heroLight} aria-hidden="true" />
             <div className={styles.heroRunDock}>
-              <a
-                href="https://drive.google.com/"
-                target="_blank"
-                rel="noopener noreferrer"
+              <button
+                type="button"
                 className={styles.heroRunButton}
                 onClick={openWorkshopWorkspace}
                 data-interactive="true"
@@ -458,7 +457,7 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
                   <strong>RUN</strong>
                   <small>Mở Gemini &amp; Google Drive</small>
                 </span>
-              </a>
+              </button>
             </div>
           </Shell>
         );

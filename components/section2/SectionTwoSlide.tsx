@@ -232,6 +232,7 @@ function useSequentialReveal(total: number, initialFull = false) {
 
 function openWorkshopWorkspace() {
   window.open("https://gemini.google.com/", "_blank", "noopener,noreferrer");
+  window.open("https://drive.google.com/", "_blank", "noopener,noreferrer");
 }
 
 export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Props) {
@@ -453,10 +454,8 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
             <div className={styles.goldRule} />
           </div>
           <div className={styles.heroRunDock}>
-            <a
-              href="https://drive.google.com/"
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
               className={styles.heroRunButton}
               onClick={openWorkshopWorkspace}
               data-interactive="true"
@@ -467,7 +466,7 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
                 <strong>RUN</strong>
                 <small>Mở Gemini &amp; Google Drive</small>
               </span>
-            </a>
+            </button>
           </div>
         </Shell>
       );
