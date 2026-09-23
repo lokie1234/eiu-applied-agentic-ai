@@ -2,8 +2,10 @@
 
 import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import DeckSideAmbient from "@/components/DeckSideAmbient";
 import QuizSlide from "@/components/QuizSlide";
 import ShowcaseSlide from "@/components/ShowcaseSlide";
+import WorkshopLaunchButton from "@/components/WorkshopLaunchButton";
 import SectionOneHtmlSlide, { type SectionOneHtmlKind } from "@/components/section1/SectionOneHtmlSlide";
 import SectionOneNativeSlide from "@/components/section1/SectionOneNativeSlide";
 import SectionOneSlide14 from "@/components/section1/SectionOneSlide14";
@@ -302,12 +304,16 @@ export default function PdfDeck({ isAdmin }: Props) {
       <div className="deck-body">
         <main className="slide-stage" ref={stageRef}>
           <div className="stage-data-grid" />
+          {renderWidth > 0 && <DeckSideAmbient slideWidth={renderWidth} />}
           {renderWidth > 0 ? (
-            <div className="slide-frame" style={{ width: `${renderWidth}px`, aspectRatio: `${SLIDE_ASPECT_RATIO}` }}>
-              <div key={`${pageNumber}-${currentItem?.kind ?? "empty"}`} className="section-one-slide-transition">
-                {renderCurrentSlide()}
+            <>
+              <div className="slide-frame" style={{ width: `${renderWidth}px`, aspectRatio: `${SLIDE_ASPECT_RATIO}` }}>
+                <div key={`${pageNumber}-${currentItem?.kind ?? "empty"}`} className="section-one-slide-transition">
+                  {renderCurrentSlide()}
+                </div>
               </div>
-            </div>
+              <WorkshopLaunchButton slideWidth={renderWidth} showDemoApp />
+            </>
           ) : (
             <div className="viewer-measuring"><div className="loading-spinner" /></div>
           )}

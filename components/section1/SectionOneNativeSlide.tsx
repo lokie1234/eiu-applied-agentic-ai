@@ -422,11 +422,6 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
     return () => window.clearTimeout(timer);
   }, [isRevealingStages, revealedStageCount]);
 
-  function openWorkshopWorkspace() {
-    window.open("https://gemini.google.com/", "_blank", "noopener,noreferrer");
-    window.open("https://drive.google.com/", "_blank", "noopener,noreferrer");
-  }
-
   function renderPage() {
     switch (page) {
       case 1:
@@ -444,21 +439,6 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
               <i />
             </div>
             <div className={styles.heroLight} aria-hidden="true" />
-            <div className={styles.heroRunDock}>
-              <button
-                type="button"
-                className={styles.heroRunButton}
-                onClick={openWorkshopWorkspace}
-                data-interactive="true"
-                title="Nhấn để mở đồng thời Google Gemini và Google Drive"
-              >
-                <span className={styles.heroRunIcon} aria-hidden="true">▶</span>
-                <span className={styles.heroRunText}>
-                  <strong>RUN</strong>
-                  <small>Mở Gemini &amp; Google Drive</small>
-                </span>
-              </button>
-            </div>
           </Shell>
         );
       case 2:

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DeckSideAmbient from "@/components/DeckSideAmbient";
 import QuizSlide from "@/components/QuizSlide";
+import WorkshopLaunchButton from "@/components/WorkshopLaunchButton";
 import SectionTwoSlide from "./SectionTwoSlide";
 import styles from "./SectionTwoDeck.module.css";
 
@@ -201,23 +202,26 @@ export default function SectionTwoDeck({ onChooseSection }: { onChooseSection?: 
           <div className="stage-data-grid" />
           {renderWidth > 0 && <DeckSideAmbient slideWidth={renderWidth} />}
           {renderWidth > 0 ? (
-            <div
-              className={styles.frame}
-              style={{ width: renderWidth, height: renderWidth * (SLIDE_HEIGHT / SLIDE_WIDTH) }}
-            >
-              <div key={`section2-${pageNumber}`} className={styles.slideTransition}>
-                {pageNumber === QUIZ_SLIDE ? (
-                  <QuizSlide scale={renderWidth / SLIDE_WIDTH} variant="section2" />
-                ) : pageNumber <= CONTENT_SLIDES ? (
-                  <div
-                    className={styles.canvas}
-                    style={{ transform: `scale(${renderWidth / SLIDE_WIDTH})` }}
-                  >
-                    <SectionTwoSlide pageNumber={pageNumber} />
-                  </div>
-                ) : null}
+            <>
+              <div
+                className={styles.frame}
+                style={{ width: renderWidth, height: renderWidth * (SLIDE_HEIGHT / SLIDE_WIDTH) }}
+              >
+                <div key={`section2-${pageNumber}`} className={styles.slideTransition}>
+                  {pageNumber === QUIZ_SLIDE ? (
+                    <QuizSlide scale={renderWidth / SLIDE_WIDTH} variant="section2" />
+                  ) : pageNumber <= CONTENT_SLIDES ? (
+                    <div
+                      className={styles.canvas}
+                      style={{ transform: `scale(${renderWidth / SLIDE_WIDTH})` }}
+                    >
+                      <SectionTwoSlide pageNumber={pageNumber} />
+                    </div>
+                  ) : null}
+                </div>
               </div>
-            </div>
+              <WorkshopLaunchButton slideWidth={renderWidth} />
+            </>
           ) : (
             <div className="viewer-measuring"><div className="loading-spinner" /></div>
           )}
