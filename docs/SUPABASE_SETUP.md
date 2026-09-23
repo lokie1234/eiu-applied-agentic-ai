@@ -10,6 +10,16 @@ Trong Supabase Dashboard, mở **SQL Editor**, tạo query mới và chạy toà
 
 Migration tạo các bảng `ideas`, `showcase_items`, `quiz_results`, `feedback`, `section_state`, `presence_sessions`, bật RLS và cài trigger Realtime.
 
+Nếu project Supabase đã chạy migration gốc trước ngày 23/09/2026, chạy thêm file nâng cấp:
+
+`supabase/migrations/202609230002_quiz_control.sql`
+
+Sau đó chạy:
+
+`supabase/migrations/202609230003_terminate_slide_session.sql`
+
+Hai migration bổ sung trạng thái đóng/mở Quiz, tín hiệu Realtime và mốc phiên dùng để làm trống dữ liệu hiển thị trên slide khi terminate mà không xóa dữ liệu Supabase.
+
 Trong **Realtime Settings**, giữ **Allow public access to channels** ở trạng thái bật. Các public channel trong project này chỉ mang tín hiệu “dữ liệu đã đổi”; payload không chứa quiz, email hay feedback. Dữ liệu thật vẫn chỉ được trả qua API có kiểm tra role.
 
 ## 2. Cấu hình local và Vercel
@@ -32,8 +42,10 @@ Sau khi cập nhật biến môi trường, redeploy Vercel.
 
 1. Đăng nhập Section 1 và gửi một ý tưởng.
 2. Mở admin ở tab khác; dashboard ý tưởng phải tự cập nhật mà không chờ polling 4 giây.
-3. Từ admin, terminate Section đang mở; learner phải trở về trang đăng nhập.
-4. Ở màn hình admin chọn Section, bấm **Xuất report Excel** và kiểm tra các sheet Tổng quan, Ý tưởng, Showcase, Quiz, Quiz answers, Feedback, Presence.
+3. Từ admin, terminate Section đang mở; learner phải trở về trang đăng nhập, Quiz phải đóng và dữ liệu interactive/ý tưởng/Shared Space cũ không còn xuất hiện trên slide.
+4. Mở slide Quiz ở admin và learner; learner phải thấy màn hình chờ cho đến khi admin xác nhận **Mở Quiz!!!!**.
+5. Hoàn thành Quiz bằng learner; tên học viên phải tự xuất hiện trên màn hình admin.
+6. Ở màn hình admin chọn Section, bấm **Xuất report Excel** và kiểm tra các sheet Tổng quan, Ý tưởng, Showcase, Quiz, Quiz answers, Feedback, Presence.
 
 ## 4. Dữ liệu cũ
 

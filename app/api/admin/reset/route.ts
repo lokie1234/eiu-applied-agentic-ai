@@ -28,16 +28,25 @@ export async function POST(request: Request) {
     const supabase = getSupabaseAdmin();
 
     // Delete all records from all interactive tables
-    const [r1, r2, r3, r4, r5, r6] = await Promise.all([
+    const [r1, r2, r3, r4, r5, r6, r7] = await Promise.all([
       supabase.from("learner_profiles").delete().neq("email", ""),
       supabase.from("ideas").delete().neq("id", ""),
       supabase.from("showcase_items").delete().neq("id", ""),
       supabase.from("quiz_results").delete().neq("id", ""),
       supabase.from("feedback").delete().neq("id", ""),
       supabase.from("presence_sessions").delete().neq("client_id", ""),
+      supabase
+        .from("section_state")
+        .update({
+          quiz_open: false,
+          quiz_opened_at: null,
+          session_started_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+        .in("section", ["section1", "section2"]),
     ]);
 
-    const errors = [r1.error, r2.error, r3.error, r4.error, r5.error, r6.error].filter(Boolean);
+    const errors = [r1.error, r2.error, r3.error, r4.error, r5.error, r6.error, r7.error].filter(Boolean);
     if (errors.length > 0) {
       console.error("Reset data errors:", errors);
       throw new Error(errors[0]?.message || "Lỗi khi xóa dữ liệu trên Supabase.");

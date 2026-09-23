@@ -41,6 +41,9 @@ create table if not exists public.feedback (
 create table if not exists public.section_state (
   section text primary key check (section in ('section1', 'section2')),
   termination_token text not null default gen_random_uuid()::text,
+  quiz_open boolean not null default false,
+  quiz_opened_at timestamptz,
+  session_started_at timestamptz not null default '1970-01-01 00:00:00+00',
   updated_at timestamptz not null default now()
 );
 
@@ -112,9 +115,30 @@ begin
   elsif tg_table_name = 'showcase_items' then
     topic_name := 'eiu:showcase:' || section_name;
     event_name := 'showcase_changed';
+  elsif tg_table_name = 'quiz_results' then
+    topic_name := 'eiu:quiz:' || section_name;
+    event_name := 'quiz_results_changed';
   elsif tg_table_name = 'section_state' then
-    topic_name := 'eiu:section:' || section_name;
-    event_name := 'section_terminated';
+    if tg_op = 'UPDATE' and old.termination_token is distinct from new.termination_token then
+      perform realtime.send(
+        jsonb_build_object('section', section_name),
+        'section_terminated',
+        'eiu:section:' || section_name,
+        false
+      );
+    end if;
+    if tg_op = 'UPDATE' and (
+      old.quiz_open is distinct from new.quiz_open
+      or old.quiz_opened_at is distinct from new.quiz_opened_at
+    ) then
+      perform realtime.send(
+        jsonb_build_object('section', section_name),
+        'quiz_state_changed',
+        'eiu:quiz:' || section_name,
+        false
+      );
+    end if;
+    if tg_op = 'DELETE' then return old; else return new; end if;
   elsif tg_table_name = 'presence_sessions' then
     if tg_op = 'UPDATE' and old.left_at is not distinct from new.left_at then
       return new;
@@ -146,6 +170,11 @@ for each row execute function public.eiu_broadcast_change();
 drop trigger if exists showcase_realtime_signal on public.showcase_items;
 create trigger showcase_realtime_signal
 after insert or update or delete on public.showcase_items
+for each row execute function public.eiu_broadcast_change();
+
+drop trigger if exists quiz_results_realtime_signal on public.quiz_results;
+create trigger quiz_results_realtime_signal
+after insert or update or delete on public.quiz_results
 for each row execute function public.eiu_broadcast_change();
 
 drop trigger if exists section_realtime_signal on public.section_state;

@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import styles from "./QuizSlide.module.css";
 
 type Question = {
@@ -17,6 +18,11 @@ type AnswerRecord = {
 };
 
 type QuizVariant = "section1" | "section2";
+
+type CompletedLearner = {
+  name: string;
+  completedAt: string;
+};
 
 const SECTION_ONE_QUESTIONS: Question[] = [
   { question: "Sau khóa học, bạn sẽ tạo Web App bằng công cụ nào?", options: ["Gemini", "Google Drive", "Gmail", "QR Code"], answer: 0 },
@@ -51,9 +57,9 @@ function resultLabel(score: number) {
   return "Nên xem lại bài";
 }
 
-type Props = { scale: number; variant?: QuizVariant };
+type Props = { scale: number; variant?: QuizVariant; isAdmin?: boolean };
 
-export default function QuizSlide({ scale, variant = "section1" }: Props) {
+export default function QuizSlide({ scale, variant = "section1", isAdmin = false }: Props) {
   const questions = variant === "section2" ? SECTION_TWO_QUESTIONS : SECTION_ONE_QUESTIONS;
   const handoutHref = variant === "section2"
     ? "/downloads/eiu-applied-agentic-ai-section-2-handout.pdf"
@@ -66,22 +72,68 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<AnswerRecord[]>([]);
   const [finished, setFinished] = useState(false);
-  const [website, setWebsite] = useState("");
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
+  const [feedbackCountdown, setFeedbackCountdown] = useState(5);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [feedbackMessage, setFeedbackMessage] = useState("");
   const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
-  const [quizUnlocked, setQuizUnlocked] = useState(false);
-  const [quizCode, setQuizCode] = useState("");
-  const [quizError, setQuizError] = useState("");
+  const [quizOpen, setQuizOpen] = useState(false);
+  const [quizStateStatus, setQuizStateStatus] = useState<"loading" | "ready" | "error">("loading");
+  const [completedLearners, setCompletedLearners] = useState<CompletedLearner[]>([]);
+  const [showOpenConfirm, setShowOpenConfirm] = useState(false);
+  const [openStatus, setOpenStatus] = useState<"idle" | "sending" | "error">("idle");
+  const [openMessage, setOpenMessage] = useState("");
   const timerRef = useRef<number | null>(null);
+  const autoSubmitStartedRef = useRef(false);
 
   useEffect(() => () => {
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
   }, []);
+
+  const loadQuizState = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/quiz-control?section=${variant}`, { cache: "no-store" });
+      const payload = (await response.json().catch(() => ({}))) as {
+        isOpen?: boolean;
+        completedLearners?: CompletedLearner[];
+        message?: string;
+      };
+      if (!response.ok) throw new Error(payload.message || "Không thể tải trạng thái Quiz.");
+
+      setQuizOpen(payload.isOpen === true);
+      if (isAdmin) setCompletedLearners(payload.completedLearners ?? []);
+      setQuizStateStatus("ready");
+    } catch {
+      setQuizStateStatus("error");
+    }
+  }, [isAdmin, variant]);
+
+  useEffect(() => {
+    let refreshTimer: number | undefined;
+    const refresh = () => {
+      window.clearTimeout(refreshTimer);
+      refreshTimer = window.setTimeout(() => void loadQuizState(), 120);
+    };
+
+    const initialTimer = window.setTimeout(() => void loadQuizState(), 0);
+    const supabase = getSupabaseBrowserClient();
+    const channel = supabase
+      ?.channel(`eiu:quiz:${variant}`)
+      .on("broadcast", { event: "quiz_state_changed" }, refresh)
+      .on("broadcast", { event: "quiz_results_changed" }, refresh)
+      .subscribe();
+    const fallbackTimer = window.setInterval(() => void loadQuizState(), 8_000);
+
+    return () => {
+      window.clearTimeout(initialTimer);
+      window.clearTimeout(refreshTimer);
+      window.clearInterval(fallbackTimer);
+      if (supabase && channel) void supabase.removeChannel(channel);
+    };
+  }, [loadQuizState, variant]);
 
   const score = answers.filter((item) => item.isCorrect).length;
   const current = questions[index];
@@ -109,22 +161,33 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
     }, 620);
   }
 
-  async function unlockQuiz(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setQuizError("");
-    const response = await fetch("/api/quiz-access", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ code: quizCode, section: variant }),
-    });
-    if (response.ok) setQuizUnlocked(true);
-    else setQuizError("Mã truy cập Quiz không đúng.");
+  async function openQuiz() {
+    if (!isAdmin || openStatus === "sending") return;
+    setOpenStatus("sending");
+    setOpenMessage("");
+
+    try {
+      const response = await fetch("/api/quiz-control", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section: variant }),
+      });
+      const payload = (await response.json().catch(() => ({}))) as { message?: string };
+      if (!response.ok) throw new Error(payload.message || "Không thể mở Quiz.");
+
+      setQuizOpen(true);
+      setCompletedLearners([]);
+      setQuizStateStatus("ready");
+      setShowOpenConfirm(false);
+      setOpenStatus("idle");
+      await loadQuizState();
+    } catch (error) {
+      setOpenStatus("error");
+      setOpenMessage(error instanceof Error ? error.message : "Không thể mở Quiz.");
+    }
   }
 
-  async function submitResult(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (status === "sending") return;
-
+  const submitResult = useCallback(async () => {
     setStatus("sending");
     setMessage("");
 
@@ -134,7 +197,6 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           section: variant,
-          website,
           score,
           total: questions.length,
           answers,
@@ -144,14 +206,34 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.message || "Không thể gửi kết quả.");
       setStatus("success");
-      setMessage("Đã lưu kết quả vào bảng dữ liệu.");
-      // Tự động chuyển sang cửa sổ gửi feedback sau khi gửi kết quả
-      setShowFeedbackModal(true);
+      setMessage("Kết quả đã được ghi nhận.");
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Không thể gửi kết quả.");
     }
-  }
+  }, [answers, questions.length, score, variant]);
+
+  useEffect(() => {
+    if (isAdmin || !finished || autoSubmitStartedRef.current) return;
+    autoSubmitStartedRef.current = true;
+    void submitResult();
+  }, [finished, isAdmin, submitResult]);
+
+  useEffect(() => {
+    if (status !== "success") return;
+
+    let remaining = 5;
+    const countdownTimer = window.setInterval(() => {
+      remaining -= 1;
+      setFeedbackCountdown(remaining);
+      if (remaining === 0) {
+        window.clearInterval(countdownTimer);
+        setShowFeedbackModal(true);
+      }
+    }, 1000);
+
+    return () => window.clearInterval(countdownTimer);
+  }, [status]);
 
   async function submitFeedback(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -190,8 +272,10 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
     setSelected(null);
     setAnswers([]);
     setFinished(false);
+    autoSubmitStartedRef.current = false;
     setStatus("idle");
     setMessage("");
+    setFeedbackCountdown(5);
     setShowFeedbackModal(false);
     setFeedbackText("");
     setFeedbackStatus("idle");
@@ -199,13 +283,147 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
     setFeedbackSubmitted(false);
   }
 
+  const sectionLabel = variant === "section2" ? "Section 2" : "Section 1";
+  const rootStyle = {
+    transform: `scale(${scale})`,
+    fontFamily: '"Segoe UI", "Noto Sans", Arial, sans-serif',
+  };
+
+  if (isAdmin) {
+    return (
+      <section
+        className={styles.root}
+        style={rootStyle}
+        lang="vi"
+        data-interactive="true"
+        aria-label={`Điều khiển Quiz ${sectionLabel}`}
+      >
+        <div className={styles.grid} aria-hidden="true" />
+        <div className={styles.orbA} aria-hidden="true" />
+        <div className={styles.orbB} aria-hidden="true" />
+
+        {!quizOpen ? (
+          <div className={styles.adminLaunchStage}>
+            <span className={styles.adminKicker}>ADMIN CONTROL · {sectionLabel}</span>
+            <h1>Quiz chưa được mở</h1>
+            <p>Học viên đang chờ tại màn hình Quiz time.</p>
+
+            {quizStateStatus === "error" ? (
+              <button type="button" className={styles.stateRetryButton} onClick={() => void loadQuizState()}>
+                Thử tải lại trạng thái
+              </button>
+            ) : (
+              <button
+                type="button"
+                className={styles.openQuizButton}
+                onClick={() => {
+                  setOpenStatus("idle");
+                  setOpenMessage("");
+                  setShowOpenConfirm(true);
+                }}
+                disabled={quizStateStatus === "loading"}
+              >
+                {quizStateStatus === "loading" ? "Đang kiểm tra..." : "Mở Quiz!!!!"}
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className={styles.adminResultsStage}>
+            <div className={styles.adminResultsHeading}>
+              <span className={styles.adminKicker}>QUIZ ĐANG MỞ · {sectionLabel}</span>
+              <h1>Học viên đã hoàn thành</h1>
+              <p>Danh sách được cập nhật tự động khi học viên nộp bài.</p>
+            </div>
+
+            {completedLearners.length > 0 ? (
+              <div className={styles.completedCloud} aria-live="polite">
+                {completedLearners.map((learner) => (
+                  <div className={styles.learnerBubble} key={`${learner.name}-${learner.completedAt}`}>
+                    <span className={styles.learnerCheck} aria-hidden="true">✓</span>
+                    <strong>{learner.name}</strong>
+                    <small>Đã hoàn thành</small>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className={styles.adminEmptyState} aria-live="polite">
+                <span aria-hidden="true">···</span>
+                <p>Đang chờ học viên đầu tiên hoàn thành.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {showOpenConfirm && (
+          <div className={styles.modalOverlay} role="presentation">
+            <section
+              className={styles.openConfirmModal}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="open-quiz-title"
+            >
+              <span className={styles.adminKicker}>XÁC NHẬN MỞ QUIZ</span>
+              <h2 id="open-quiz-title">Mở Quiz cho toàn bộ học viên?</h2>
+              <p>Sau khi xác nhận, màn hình chờ của học viên sẽ tự động chuyển sang câu hỏi đầu tiên.</p>
+              {openStatus === "error" && openMessage && <p className={styles.openError} role="alert">{openMessage}</p>}
+              <div className={styles.openConfirmActions}>
+                <button
+                  type="button"
+                  className={styles.cancelOpenButton}
+                  onClick={() => setShowOpenConfirm(false)}
+                  disabled={openStatus === "sending"}
+                >
+                  Hủy
+                </button>
+                <button
+                  type="button"
+                  className={styles.confirmOpenButton}
+                  onClick={() => void openQuiz()}
+                  disabled={openStatus === "sending"}
+                >
+                  {openStatus === "sending" ? "Đang mở Quiz..." : "Đồng ý mở Quiz"}
+                </button>
+              </div>
+            </section>
+          </div>
+        )}
+      </section>
+    );
+  }
+
+  if (!quizOpen) {
+    return (
+      <section
+        className={styles.root}
+        style={rootStyle}
+        lang="vi"
+        data-interactive="true"
+        aria-label={`Màn hình chờ Quiz ${sectionLabel}`}
+      >
+        <div className={styles.grid} aria-hidden="true" />
+        <div className={styles.orbA} aria-hidden="true" />
+        <div className={styles.orbB} aria-hidden="true" />
+        <div className={styles.waitingStage} aria-live="polite">
+          <span className={styles.waitingKicker}>EIU · APPLIED AGENTIC AI · {sectionLabel}</span>
+          <h1>Quiz time!</h1>
+          <p>
+            {quizStateStatus === "error"
+              ? "Đang kết nối lại để kiểm tra trạng thái Quiz..."
+              : "Vui lòng chờ Quiz được mở khóa"}
+          </p>
+          <div className={styles.waitingDots} aria-hidden="true"><i /><i /><i /></div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section
       className={styles.root}
-      style={{ transform: `scale(${scale})`, fontFamily: '"Segoe UI", "Noto Sans", Arial, sans-serif' }}
+      style={rootStyle}
       lang="vi"
       data-interactive="true"
-      aria-label={`Bài kiểm tra cuối ${variant === "section2" ? "Section 2" : "Section 1"}`}
+      aria-label={`Bài kiểm tra cuối ${sectionLabel}`}
     >
       <div className={styles.grid} aria-hidden="true" />
       <div className={styles.orbA} aria-hidden="true" />
@@ -228,16 +446,7 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
         </div>
       </header>
 
-      {!quizUnlocked ? (
-        <div className={styles.questionCard}>
-          <h2>Nhập mã để mở Quiz</h2>
-          <form onSubmit={unlockQuiz}>
-            <input value={quizCode} onChange={(e) => setQuizCode(e.target.value)} placeholder="Mã truy cập" />
-            <button type="submit" className={styles.retry}>Bắt đầu Quiz</button>
-          </form>
-          {quizError && <p>{quizError}</p>}
-        </div>
-      ) : !finished ? (
+      {!finished ? (
         <div className={styles.quizBody}>
           <div className={styles.progress} aria-hidden="true">
             <span style={{ width: `${((index + (selected === null ? 0 : 1)) / questions.length) * 100}%` }} />
@@ -273,13 +482,20 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
             <div className={styles.score}><strong>{score}</strong><span>/ {questions.length}</span></div>
             <h2>{resultLabel(score)}</h2>
             <p>Bạn đã hoàn thành 10 câu hỏi của {variant === "section2" ? "Section 2" : "Section 1"}.</p>
-            <button type="button" className={styles.retry} onClick={restart}>Làm lại</button>
+            <button
+              type="button"
+              className={styles.retry}
+              onClick={restart}
+              disabled={status === "idle" || status === "sending" || (status === "success" && feedbackCountdown > 0)}
+            >
+              Làm lại
+            </button>
           </div>
 
           {status === "success" ? (
             <div className={styles.submittedCard} aria-live="polite">
               <span className={styles.formKicker}>Ghi nhận kết quả</span>
-              <h3>Đã lưu kết quả bài kiểm tra!</h3>
+              <h3>Kết quả đã được ghi nhận.</h3>
               <div className={styles.submittedInfo}>
                 <div><span>Học viên:</span> <strong>Đã nhận từ phiên đăng nhập</strong></div>
                 <div><span>Điểm số:</span> <strong>{score} / {questions.length}</strong></div>
@@ -287,27 +503,35 @@ export default function QuizSlide({ scale, variant = "section1" }: Props) {
               <p className={styles.submittedNotice}>
                 {feedbackSubmitted
                   ? "✓ Cảm ơn bạn đã gửi ý kiến đóng góp cho bài học!"
-                  : "Kết quả đã lưu. Bạn có thể mở lại cửa sổ để gửi phản hồi."}
+                  : feedbackCountdown > 0
+                    ? `Tự động chuyển sang màn hình feedback sau ${feedbackCountdown} giây.`
+                    : "Đang chuyển sang màn hình feedback..."}
               </p>
-              <button
-                type="button"
-                className={styles.openFeedbackBtn}
-                onClick={() => setShowFeedbackModal(true)}
-              >
-                {feedbackSubmitted ? "Gửi thêm phản hồi" : "Mở cửa sổ gửi feedback"}
-              </button>
+              {feedbackCountdown === 0 && !showFeedbackModal && !feedbackSubmitted && (
+                <button
+                  type="button"
+                  className={styles.openFeedbackBtn}
+                  onClick={() => setShowFeedbackModal(true)}
+                >
+                  Mở lại màn hình feedback
+                </button>
+              )}
             </div>
           ) : (
-            <form className={styles.formCard} onSubmit={submitResult}>
+            <div className={styles.formCard} aria-live="polite">
               <span className={styles.formKicker}>Ghi nhận kết quả</span>
-              <h3>Thông tin học viên đã sẵn sàng</h3>
-              <p>Họ tên và email EIU được tự động lấy từ phiên đăng nhập. Bạn chỉ cần xác nhận để lưu điểm.</p>
-              <label className={styles.honeypot} aria-hidden="true">Website<input value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></label>
-              <button type="submit" className={styles.submit} disabled={status === "sending"}>
-                {status === "sending" ? "Đang gửi..." : "Gửi kết quả"}
-              </button>
-              {message && <p className={`${styles.message} ${status === "error" ? styles.error : ""}`} role="status">{message}</p>}
-            </form>
+              <h3>{status === "error" ? "Chưa thể ghi nhận kết quả" : "Đang ghi nhận kết quả..."}</h3>
+              <p>
+                {status === "error"
+                  ? message
+                  : "Kết quả đang được tự động gửi và lưu vào hệ thống."}
+              </p>
+              {status === "error" && (
+                <button type="button" className={styles.submit} onClick={() => void submitResult()}>
+                  Thử lại
+                </button>
+              )}
+            </div>
           )}
         </div>
       )}

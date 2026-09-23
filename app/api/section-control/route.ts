@@ -46,7 +46,7 @@ export async function GET(request: Request) {
 
     const token = await readOrCreateToken(section);
     return NextResponse.json(
-      { success: true, section, token },
+      { success: true, section, token, terminationToken: token },
       { headers: { "Cache-Control": "no-store, max-age=0" } },
     );
   } catch (error) {
@@ -71,13 +71,21 @@ export async function POST(request: Request) {
     }
 
     const token = crypto.randomUUID();
+    const sessionStartedAt = new Date().toISOString();
     const { error } = await getSupabaseAdmin().from("section_state").upsert(
-      { section, termination_token: token, updated_at: new Date().toISOString() },
+      {
+        section,
+        termination_token: token,
+        session_started_at: sessionStartedAt,
+        quiz_open: false,
+        quiz_opened_at: null,
+        updated_at: sessionStartedAt,
+      },
       { onConflict: "section" },
     );
     if (error) throw error;
 
-    return NextResponse.json({ success: true, section, token });
+    return NextResponse.json({ success: true, section, token, sessionStartedAt });
   } catch (error) {
     console.error("Section terminate error:", error);
     return NextResponse.json(

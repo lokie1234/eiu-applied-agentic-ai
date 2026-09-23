@@ -15,7 +15,7 @@ const TOTAL_SLIDES = QUIZ_SLIDE;
 const SLIDE_WIDTH = 960;
 const SLIDE_HEIGHT = 540;
 
-export default function SectionTwoDeck({ onChooseSection }: { onChooseSection?: () => void; isAdmin?: boolean }) {
+export default function SectionTwoDeck({ onChooseSection, isAdmin = false }: { onChooseSection?: () => void; isAdmin?: boolean }) {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageInput, setPageInput] = useState("1");
   const [zoom, setZoom] = useState(1);
@@ -209,7 +209,7 @@ export default function SectionTwoDeck({ onChooseSection }: { onChooseSection?: 
               >
                 <div key={`section2-${pageNumber}`} className={styles.slideTransition}>
                   {pageNumber === QUIZ_SLIDE ? (
-                    <QuizSlide scale={renderWidth / SLIDE_WIDTH} variant="section2" />
+                    <QuizSlide scale={renderWidth / SLIDE_WIDTH} variant="section2" isAdmin={isAdmin} />
                   ) : pageNumber <= CONTENT_SLIDES ? (
                     <div
                       className={styles.canvas}

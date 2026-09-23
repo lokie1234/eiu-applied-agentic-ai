@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentRole } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
+import { getSectionSessionStartedAt } from "@/lib/sectionSession";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 type ShowcaseSection = "section1" | "section2";
@@ -50,10 +51,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, message: "Không có quyền truy cập Section này." }, { status: 403 });
     }
 
+    const sessionStartedAt = await getSectionSessionStartedAt(section);
     const { data, error } = await getSupabaseAdmin()
       .from("showcase_items")
       .select("id, name, url, shared_at")
       .eq("section", section)
+      .gte("shared_at", sessionStartedAt)
       .order("shared_at", { ascending: false })
       .limit(50);
     if (error) throw error;

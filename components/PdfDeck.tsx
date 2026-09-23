@@ -260,7 +260,7 @@ export default function PdfDeck({ isAdmin }: Props) {
 
     if (currentItem.kind === "slide14") return <SectionOneSlide14 scale={scale} />;
     if (currentItem.kind === "showcase") return <ShowcaseSlide scale={scale} isAdmin={isAdmin} />;
-    if (currentItem.kind === "quiz") return <QuizSlide scale={scale} />;
+    if (currentItem.kind === "quiz") return <QuizSlide scale={scale} isAdmin={isAdmin} />;
     if (currentItem.kind === "html") {
       return <SectionOneHtmlSlide kind={currentItem.slide} scale={scale} isAdmin={isAdmin} />;
     }

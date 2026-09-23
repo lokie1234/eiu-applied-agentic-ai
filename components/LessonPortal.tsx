@@ -202,6 +202,7 @@ export default function LessonPortal({
   const [profileEmailLocalPart, setProfileEmailLocalPart] = useState("");
   const [profileStatus, setProfileStatus] = useState<"idle" | "saving" | "error">("idle");
   const [profileError, setProfileError] = useState("");
+  const [deckSessionKey, setDeckSessionKey] = useState(0);
   const section = role === "admin" ? adminSection : role;
 
   const [presenceCounts, setPresenceCounts] = useState<PresenceCounts>({
@@ -416,8 +417,9 @@ export default function LessonPortal({
 
       setTerminateStatus("success");
       setTerminateNotice(
-        `${section === "section1" ? "Section 1" : "Section 2"} has been terminated. Users are being redirected.`
+        `${section === "section1" ? "Section 1" : "Section 2"} đã kết thúc. Dữ liệu trên slide đã được làm mới và users đang được chuyển về đăng nhập.`
       );
+      setDeckSessionKey((current) => current + 1);
       setShowTerminate(false);
     } catch (error) {
       setTerminateStatus("error");
@@ -496,7 +498,7 @@ export default function LessonPortal({
     void checkTermination();
     const supabase = getSupabaseBrowserClient();
     const channel = supabase
-      ?.channel("eiu:section_control")
+      ?.channel(`eiu:section:${role}`)
       .on("broadcast", { event: "section_terminated" }, (payload) => {
         const targetSection = (payload.payload as { section?: string })?.section;
         if (targetSection === role) {
@@ -817,9 +819,9 @@ export default function LessonPortal({
         onSignOut={signOut}
       >
         {section === "section2" ? (
-          <SectionTwoDeck isAdmin={role === "admin"} />
+          <SectionTwoDeck key={`${section}-${deckSessionKey}`} isAdmin={role === "admin"} />
         ) : (
-          <SectionOneDeck isAdmin={role === "admin"} />
+          <SectionOneDeck key={`${section}-${deckSessionKey}`} isAdmin={role === "admin"} />
         )}
       </DeckShell>
 
@@ -846,7 +848,6 @@ export default function LessonPortal({
             <h2 id="terminate-title">Terminate current section?</h2>
             <p>
               Users đang truy cập Section này sẽ được đưa về màn hình đăng nhập.
-              Admin vẫn ở lại để tiếp tục kiểm tra.
             </p>
             {terminateStatus === "error" && terminateNotice && (
               <p role="alert">{terminateNotice}</p>

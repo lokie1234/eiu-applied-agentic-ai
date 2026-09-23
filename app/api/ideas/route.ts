@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentRole } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
+import { getSectionSessionStartedAt } from "@/lib/sectionSession";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 type IdeaRow = { id: string; idea: string; submitted_at: string };
@@ -18,10 +19,12 @@ export async function GET() {
       );
     }
 
+    const sessionStartedAt = await getSectionSessionStartedAt("section1");
     const { data, error } = await getSupabaseAdmin()
       .from("ideas")
       .select("id, idea, submitted_at")
       .eq("section", "section1")
+      .gte("submitted_at", sessionStartedAt)
       .order("submitted_at", { ascending: false })
       .limit(30);
     if (error) throw error;
