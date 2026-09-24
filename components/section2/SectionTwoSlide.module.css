@@ -3398,6 +3398,7 @@
 .optimizedGemTitleGroup {
   flex: 1;
   min-width: 0;
+  padding-left: 30px;
 }
 
 .optimizedGemTitleGroup .miniTitle {
