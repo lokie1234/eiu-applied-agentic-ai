@@ -666,7 +666,7 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
     case 17:
       return <Shell motion={19}><div className={styles.frameworkHero}><span>Framework</span><div className={styles.goldRule} /><h1>AI Business Framework</h1><p>Một bộ quy tắc để AI luôn xây ứng dụng theo cùng một tiêu chuẩn.</p></div></Shell>;
     case 18:
-      return <Shell motion={20}><Title>Lõi có thể tái sử dụng</Title><p className={styles.subtitle}>Khi tách được phần dùng chung, AI không cần bắt đầu từ một trang trắng.</p><div className={styles.coreFlow}>{["Kiến trúc hệ thống", "Tiêu chuẩn giao diện người dùng", "Quy tắc viết code", "Quy tắc thiết kế cơ sở dữ liệu", "Kiểm thử", "Triển khai"].map((item, index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}>{item}</div>)}</div></Shell>;
+      return <Shell motion={20}><Title>Phần có thể tái sử dụng</Title><p className={styles.subtitle}>Khi tách được phần dùng chung, AI không cần bắt đầu từ một trang trắng.</p><div className={styles.coreFlow}>{["Kiến trúc hệ thống", "Tiêu chuẩn giao diện người dùng", "Quy tắc viết code", "Quy tắc thiết kế cơ sở dữ liệu", "Kiểm thử", "Triển khai"].map((item, index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}>{item}</div>)}</div></Shell>;
     case 19:
       return <Shell dark motion={21}><div className={styles.gemDefinition}><MiniTitle>GEMINI GEMS</MiniTitle><Title>Gem là gì?</Title><p>Một phiên bản Gemini được tùy chỉnh để làm theo các hướng dẫn, ngữ cảnh lặp lại.</p><em>Các nền tảng AI khác cũng có khái niệm tương tự, dù tên gọi khác nhau.</em></div></Shell>;
     case 20:
