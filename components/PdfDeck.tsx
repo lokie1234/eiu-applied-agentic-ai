@@ -134,17 +134,20 @@ export default function PdfDeck({ isAdmin }: Props) {
   useEffect(() => {
     function handleKeyboard(event: KeyboardEvent) {
       const target = event.target as HTMLElement;
-      if (target.closest("input, textarea, select, button, a, [data-interactive='true']")) return;
+      if (target.closest("input, textarea, select, [contenteditable='true']")) return;
+      if (event.key === " " && target.closest("button, a, [data-interactive='true']")) return;
 
       switch (event.key) {
         case "ArrowRight":
-        case "PageDown":
+        case "ArrowUp":
+        case "PageUp":
         case " ":
           event.preventDefault();
           nextPage();
           break;
         case "ArrowLeft":
-        case "PageUp":
+        case "ArrowDown":
+        case "PageDown":
           event.preventDefault();
           previousPage();
           break;

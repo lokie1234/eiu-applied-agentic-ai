@@ -53,12 +53,13 @@ export default function SectionTwoDeck({ onChooseSection, isAdmin = false }: { o
   useEffect(() => {
     function handleKeyboard(event: KeyboardEvent) {
       const target = event.target as HTMLElement;
-      if (target.closest("input, textarea, select, button, a, [data-interactive='true']")) return;
+      if (target.closest("input, textarea, select, [contenteditable='true']")) return;
+      if (event.key === " " && target.closest("button, a, [data-interactive='true']")) return;
 
-      if (["ArrowRight", "PageDown", " "].includes(event.key)) {
+      if (["ArrowRight", "ArrowUp", "PageUp", " "].includes(event.key)) {
         event.preventDefault();
         nextPage();
-      } else if (["ArrowLeft", "PageUp"].includes(event.key)) {
+      } else if (["ArrowLeft", "ArrowDown", "PageDown"].includes(event.key)) {
         event.preventDefault();
         previousPage();
       } else if (event.key === "Home") {

@@ -310,18 +310,19 @@
 }
 
 .demoFormPanel form {
-  margin-top: 7px;
+  margin-top: 5px;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 5px 8px;
+  gap: 3px 8px;
 }
 
 .demoFormPanel label {
   min-width: 0;
   display: grid;
-  gap: 3px;
+  gap: 2px;
   color: #607184;
   font-size: 8px;
+  line-height: 1.1;
   font-weight: 760;
 }
 
@@ -352,7 +353,7 @@
 
 .demoFormPanel input,
 .demoFormPanel select {
-  height: 25px;
+  height: 24px;
 }
 
 .demoApprovalList textarea {
@@ -407,8 +408,9 @@
 }
 
 .demoHint {
-  margin: 5px 0 0;
+  margin: 3px 0 0;
   font-size: 7.5px;
+  line-height: 1.2;
   font-weight: 700;
 }
 
