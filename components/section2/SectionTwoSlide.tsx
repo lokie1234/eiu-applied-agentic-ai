@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
+import { SLIDE_STORAGE_KEYS, getSlideStorage, setSlideStorage } from "@/lib/slideStorage";
 import styles from "./SectionTwoSlide.module.css";
 
 type Props = { pageNumber: number; isFinalState?: boolean };
@@ -206,8 +207,17 @@ function Quote({ children, navy = false }: { children: ReactNode; navy?: boolean
   return <div className={`${styles.quote} ${navy ? styles.quoteNavy : ""}`}><span>“</span>{children}</div>;
 }
 
-function useSequentialReveal(total: number, initialFull = false) {
-  const [revealedCount, setRevealedCount] = useState(initialFull ? total : 0);
+function useSequentialReveal(total: number, initialFull = false, storageKey?: string) {
+  const [revealedCount, setRevealedCount] = useState(() => {
+    if (initialFull) return total;
+    if (storageKey) {
+      const saved = getSlideStorage(storageKey);
+      if (saved === "complete" || saved === "true" || Number(saved) >= total) {
+        return total;
+      }
+    }
+    return 0;
+  });
   const [isRevealing, setIsRevealing] = useState(false);
 
   useEffect(() => {
@@ -226,7 +236,12 @@ function useSequentialReveal(total: number, initialFull = false) {
     revealedCount,
     isRevealing,
     isComplete: revealedCount === total,
-    start: () => setIsRevealing(true),
+    start: () => {
+      if (storageKey) {
+        setSlideStorage(storageKey, "complete");
+      }
+      setIsRevealing(true);
+    },
   };
 }
 
@@ -236,14 +251,20 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
   const [showDataCongrats, setShowDataCongrats] = useState(false);
   const [activeReportItems, setActiveReportItems] = useState<string[]>(isFinalState ? [...REPORT_ITEMS] : []);
   const [showReportCongrats, setShowReportCongrats] = useState(false);
-  const usersReveal = useSequentialReveal(USER_ITEMS.length, isFinalState);
-  const workflowReveal = useSequentialReveal(WORKFLOW_STEPS.length, isFinalState);
-  const [coreCommonItems, setCoreCommonItems] = useState<string[]>(
-    isFinalState ? CORE_ITEMS.filter((item) => item.group === "common").map((item) => item.id) : []
-  );
-  const [coreSpecificItems, setCoreSpecificItems] = useState<string[]>(
-    isFinalState ? CORE_ITEMS.filter((item) => item.group === "specific").map((item) => item.id) : []
-  );
+  const usersReveal = useSequentialReveal(USER_ITEMS.length, isFinalState, SLIDE_STORAGE_KEYS.s2_users);
+  const workflowReveal = useSequentialReveal(WORKFLOW_STEPS.length, isFinalState, SLIDE_STORAGE_KEYS.s2_workflow);
+  const [coreCommonItems, setCoreCommonItems] = useState<string[]>(() => {
+    if (isFinalState || getSlideStorage(SLIDE_STORAGE_KEYS.s2_core) === "true") {
+      return CORE_ITEMS.filter((item) => item.group === "common").map((item) => item.id);
+    }
+    return [];
+  });
+  const [coreSpecificItems, setCoreSpecificItems] = useState<string[]>(() => {
+    if (isFinalState || getSlideStorage(SLIDE_STORAGE_KEYS.s2_core) === "true") {
+      return CORE_ITEMS.filter((item) => item.group === "specific").map((item) => item.id);
+    }
+    return [];
+  });
   const [sortingCoreItem, setSortingCoreItem] = useState<string | null>(null);
   const [coreAutoSorting, setCoreAutoSorting] = useState(false);
   const [demoForm, setDemoForm] = useState<{
@@ -342,6 +363,7 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
   function startCoreAutoSort() {
     if (coreAutoSorting || coreComplete) return;
 
+    setSlideStorage(SLIDE_STORAGE_KEYS.s2_core, "true");
     setCoreAutoSorting(true);
     setCoreCommonItems([]);
     setCoreSpecificItems([]);

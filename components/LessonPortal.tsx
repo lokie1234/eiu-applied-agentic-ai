@@ -6,6 +6,7 @@ import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "rea
 import type { AccessRole } from "@/lib/access";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { clearSlideInteractionStorage } from "@/lib/slideStorage";
 import styles from "./LessonPortal.module.css";
 
 const SectionOneDeck = dynamic(() => import("./PdfDeck"), { ssr: false });
@@ -385,6 +386,7 @@ export default function LessonPortal({
 
       setResetStatus("success");
       setResetNotice("Đã xóa sạch toàn bộ dữ liệu trên Supabase thành công!");
+      clearSlideInteractionStorage();
       setResetPassword("");
       setTimeout(() => {
         setShowResetModal(false);
@@ -419,6 +421,7 @@ export default function LessonPortal({
       setTerminateNotice(
         `${section === "section1" ? "Section 1" : "Section 2"} đã kết thúc. Dữ liệu trên slide đã được làm mới và users đang được chuyển về đăng nhập.`
       );
+      clearSlideInteractionStorage(section);
       setDeckSessionKey((current) => current + 1);
       setShowTerminate(false);
     } catch (error) {

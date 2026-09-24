@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { SLIDE_STORAGE_KEYS, getSlideStorage, setSlideStorage } from "@/lib/slideStorage";
 import styles from "./SectionOneNativeSlide.module.css";
 
 type Props = {
@@ -397,17 +398,57 @@ function RevealAnswerGrid({ items, revealed, onReveal }: { items: { title: strin
 function NativeSlides({ page, isFinalState = false }: { page: number; isFinalState?: boolean }) {
   const [selectedIdea, setSelectedIdea] = useState<string | null>(null);
   const [selectedArchitecture, setSelectedArchitecture] = useState<ArchitectureKey>("Frontend");
-  const [restaurantRevealed, setRestaurantRevealed] = useState(isFinalState ? [true, true, true, true] : [false, false, false, false]);
-  const [businessRevealed, setBusinessRevealed] = useState(isFinalState ? [true, true, true, true] : [false, false, false, false]);
-  const [revealedStageCount, setRevealedStageCount] = useState(isFinalState ? SOFTWARE_STAGES.length : 0);
+  const [restaurantRevealed, setRestaurantRevealed] = useState<boolean[]>(() => {
+    if (isFinalState) return [true, true, true, true];
+    const saved = getSlideStorage(SLIDE_STORAGE_KEYS.s1_restaurant);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {}
+    }
+    return [false, false, false, false];
+  });
+  const [businessRevealed, setBusinessRevealed] = useState<boolean[]>(() => {
+    if (isFinalState) return [true, true, true, true];
+    const saved = getSlideStorage(SLIDE_STORAGE_KEYS.s1_business);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {}
+    }
+    return [false, false, false, false];
+  });
+  const [revealedStageCount, setRevealedStageCount] = useState(() => {
+    if (isFinalState) return SOFTWARE_STAGES.length;
+    const saved = getSlideStorage(SLIDE_STORAGE_KEYS.s1_stages);
+    if (saved === "complete" || saved === "true" || Number(saved) >= SOFTWARE_STAGES.length) {
+      return SOFTWARE_STAGES.length;
+    }
+    return 0;
+  });
   const [isRevealingStages, setIsRevealingStages] = useState(false);
 
   function revealRestaurant(index: number) {
-    setRestaurantRevealed((current) => current.map((item, itemIndex) => (itemIndex === index ? true : item)));
+    setRestaurantRevealed((current) => {
+      const next = current.map((item, itemIndex) => (itemIndex === index ? true : item));
+      setSlideStorage(SLIDE_STORAGE_KEYS.s1_restaurant, JSON.stringify(next));
+      return next;
+    });
   }
 
   function revealBusiness(index: number) {
-    setBusinessRevealed((current) => current.map((item, itemIndex) => (itemIndex === index ? true : item)));
+    setBusinessRevealed((current) => {
+      const next = current.map((item, itemIndex) => (itemIndex === index ? true : item));
+      setSlideStorage(SLIDE_STORAGE_KEYS.s1_business, JSON.stringify(next));
+      return next;
+    });
+  }
+
+  function startRevealingStages() {
+    setSlideStorage(SLIDE_STORAGE_KEYS.s1_stages, "complete");
+    setIsRevealingStages(true);
   }
 
   useEffect(() => {
@@ -493,7 +534,7 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
                 <button
                   type="button"
                   className={styles.lifecycleRevealButton}
-                  onClick={() => setIsRevealingStages(true)}
+                  onClick={startRevealingStages}
                   disabled={isRevealingStages || revealedStageCount === SOFTWARE_STAGES.length}
                   data-interactive="true"
                   aria-live="polite"
