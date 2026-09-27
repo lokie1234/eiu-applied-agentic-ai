@@ -19,7 +19,7 @@ type Card = {
 
 
 const OUTCOMES = [
-  "Tạo Web App bằng Gemini",
+  "Tạo Web App bằng GenAI",
   "Quy trình triển khai lên Google Apps Script",
   "Google Sheets làm Database",
   "Chia sẻ ứng dụng cho cả công ty",

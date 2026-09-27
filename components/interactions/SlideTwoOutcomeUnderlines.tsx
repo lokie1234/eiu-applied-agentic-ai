@@ -17,7 +17,7 @@ type UnderlineSpec = {
   not from a browser screenshot.
 
   Text baselines / extents:
-  - Tạo Web App bằng Gemini: x 115.20 → 294.90, yMax 171.99
+  - Tạo Web App bằng GenAI: x 115.20 → 294.90, yMax 171.99
   - Deploy lên Google Apps Script: x 540.00 → 743.31, yMax 171.99
   - Google Sheets làm Database: x 115.20 → 311.03, yMax 243.99
   - Chia sẻ ứng dụng cho cả công ty: x 540.00 → 760.04, yMax 243.99
