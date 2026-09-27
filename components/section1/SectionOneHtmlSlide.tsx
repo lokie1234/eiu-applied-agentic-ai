@@ -223,7 +223,7 @@ function IdeaResults() {
         message?: string;
       };
       if (!response.ok) throw new Error(payload.message || "Không thể tải ý tưởng.");
-      setItems(Array.isArray(payload.items) ? payload.items.slice(0, 8) : []);
+      setItems(Array.isArray(payload.items) ? payload.items : []);
       setError("");
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Không thể tải ý tưởng.");
@@ -291,10 +291,15 @@ function IdeaResults() {
     }
   }
 
-  function ideaWidth(value: string) {
+  function ideaWidth(value: string, isDense: boolean) {
     const length = Array.from(value.trim()).length;
+    if (isDense) {
+      return Math.min(260, Math.max(140, 100 + length * 3.5));
+    }
     return Math.min(360, Math.max(150, 118 + length * 5.2));
   }
+
+  const isDense = items.length > 8;
 
   return (
     <section className={`${styles.root} ${styles.resultsSlide}`}>
@@ -324,7 +329,12 @@ function IdeaResults() {
         </div>
       </header>
 
-      <div className={styles.resultsGrid} aria-live="polite">
+      <div
+        className={styles.resultsGrid}
+        data-dense={isDense}
+        data-interactive="true"
+        aria-live="polite"
+      >
         {loading ? (
           <div className={styles.resultsEmpty}>Đang nhận dữ liệu từ lớp học…</div>
         ) : error ? (
@@ -336,9 +346,9 @@ function IdeaResults() {
             <article
               key={item.id}
               style={{
-                "--delay": `${index * 70}ms`,
+                "--delay": `${Math.min(index * 35, 450)}ms`,
                 "--float-delay": `${-(index % 5) * 0.55}s`,
-                "--idea-width": `${ideaWidth(item.idea)}px`,
+                "--idea-width": `${ideaWidth(item.idea, isDense)}px`,
               } as CSSProperties}
             >
               <div className={styles.resultCardTop}>

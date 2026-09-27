@@ -26,7 +26,7 @@ export async function GET() {
       .eq("section", "section1")
       .gte("submitted_at", sessionStartedAt)
       .order("submitted_at", { ascending: false })
-      .limit(30);
+      .limit(60);
     if (error) throw error;
 
     return NextResponse.json(
