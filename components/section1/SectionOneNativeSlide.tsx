@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { Fragment, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { SLIDE_STORAGE_KEYS, getSlideStorage, setSlideStorage } from "@/lib/slideStorage";
 import styles from "./SectionOneNativeSlide.module.css";
 
@@ -19,12 +19,22 @@ type Card = {
 
 
 const OUTCOMES = [
-  "Tạo Web App bằng GenAI",
-  "Quy trình triển khai lên Google Apps Script",
-  "Google Sheets làm Database",
-  "Chia sẻ ứng dụng cho cả công ty",
-  "Google Drive lưu trữ file",
-  "Tạo Gems để tái sử dụng",
+  {
+    step: "01",
+    text: "Hiểu được quy trình tạo web app thông qua Google Apps Script",
+    highlight: false,
+  },
+  {
+    step: "02",
+    text: "Hiểu được cách áp dụng GenAI",
+    highlight: false,
+  },
+  {
+    step: "03",
+    text: "Tạo ra sản phẩm thật để phục vụ cho công việc",
+    highlight: true,
+    tag: "MỤC TIÊU CỐT LÕI",
+  },
 ];
 
 const IDEAS = [
@@ -485,11 +495,40 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
       case 2:
         return (
           <Shell title="Sau khóa học bạn sẽ làm được" eyebrow="KẾT QUẢ ĐẦU RA">
-            <div className={styles.outcomesGrid}>
+            <div className={styles.outcomesVertical}>
               {OUTCOMES.map((item, index) => (
-                <div key={item} style={{ "--delay": `${index * 85}ms` } as CSSProperties}>
-                  <span>✓</span><strong>{item}</strong>
-                </div>
+                <Fragment key={item.step}>
+                  {index > 0 && (
+                    <div
+                      className={styles.outcomeConnector}
+                      aria-hidden="true"
+                      style={{ "--delay": `${index * 130 - 30}ms` } as CSSProperties}
+                    >
+                      <span className={styles.outcomeConnectorLine} />
+                      <span className={styles.outcomeConnectorArrow}>↓</span>
+                      <span className={styles.outcomeConnectorLine} />
+                    </div>
+                  )}
+                  <div
+                    className={`${styles.outcomeCard} ${item.highlight ? styles.outcomeCardHighlight : ""}`}
+                    style={{ "--delay": `${index * 130}ms` } as CSSProperties}
+                  >
+                    <span className={item.highlight ? styles.outcomeStepHighlight : styles.outcomeStep}>
+                      {item.step}
+                    </span>
+                    <strong className={item.highlight ? styles.outcomeTextHighlight : styles.outcomeText}>
+                      {item.text}
+                    </strong>
+                    {item.highlight ? (
+                      <span className={styles.outcomeHighlightBadge}>
+                        <i />
+                        {item.tag}
+                      </span>
+                    ) : (
+                      <span className={styles.outcomeCheck}>✓</span>
+                    )}
+                  </div>
+                </Fragment>
               ))}
             </div>
           </Shell>

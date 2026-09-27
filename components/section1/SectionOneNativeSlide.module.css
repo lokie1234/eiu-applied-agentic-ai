@@ -251,49 +251,192 @@
   animation: softFadeIn 0.55s ease-out both;
 }
 
-.outcomesGrid {
-  position: absolute;
-  inset: 70px 60px 60px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px 24px;
-  align-content: start;
+.outcomesVertical {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 830px;
+  margin: 22px auto 0;
+  box-sizing: border-box;
 }
 
-.outcomesGrid > div {
-  min-height: 58px;
+.outcomeCard {
+  width: 100%;
+  min-height: 68px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 0 18px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.88);
+  gap: 18px;
+  padding: 14px 24px;
+  box-sizing: border-box;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(8, 41, 69, 0.1);
-  box-shadow: 0 10px 28px rgba(8, 41, 69, 0.06);
+  box-shadow: 0 8px 24px rgba(8, 41, 69, 0.05);
   opacity: 0;
-  transform: translateY(12px);
-  animation: softUp 0.46s ease forwards;
-  animation-delay: var(--delay);
-  animation: softUp 0.46s ease forwards, gentleTileFloat 6s ease-in-out infinite alternate;
-  animation-delay: var(--delay), calc(0.8s + var(--delay));
+  transform: translateY(14px);
+  animation: outcomeSoftUp 0.48s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0ms) forwards;
 }
 
-.outcomesGrid span {
-  width: 32px;
-  height: 32px;
+.outcomeStep {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: var(--navy);
-  color: var(--gold2);
-  font-weight: 800;
+  background: rgba(8, 41, 69, 0.06);
+  border: 1px solid rgba(8, 41, 69, 0.12);
+  color: var(--navy);
+  font-size: 14px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
 }
 
-.outcomesGrid strong {
+.outcomeText {
   flex: 1 1 auto;
   min-width: 0;
+  color: var(--navy);
   font-size: 18px;
-  line-height: 1.15;
+  font-weight: 700;
+  line-height: 1.35;
+  letter-spacing: -0.015em;
+}
+
+.outcomeCheck {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(179, 145, 89, 0.14);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.outcomeConnector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 22px;
+  margin: -3px 0;
+  position: relative;
+  z-index: 1;
+  opacity: 0;
+  animation: outcomeSoftUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) var(--delay, 0ms) forwards;
+}
+
+.outcomeConnectorLine {
+  width: 48px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(179, 145, 89, 0.45), transparent);
+}
+
+.outcomeConnectorArrow {
+  font-style: normal;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--gold);
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(233, 202, 139, 0.45);
+}
+
+.outcomeCardHighlight {
+  min-height: 82px;
+  padding: 18px 28px;
+  background: linear-gradient(135deg, #041c31 0%, #082945 55%, #123f68 100%);
+  border: 1.5px solid rgba(233, 202, 139, 0.6);
+  border-radius: 22px;
+  box-shadow: 0 16px 36px rgba(4, 28, 49, 0.24), 0 0 24px rgba(233, 202, 139, 0.18);
+  position: relative;
+  overflow: hidden;
+}
+
+.outcomeCardHighlight::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 88% 50%, rgba(233, 202, 139, 0.14), transparent 48%);
+  pointer-events: none;
+}
+
+.outcomeStepHighlight {
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f4dfb0 0%, #e9ca8b 45%, #b39159 100%);
+  color: #041c31;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  box-shadow: 0 4px 14px rgba(233, 202, 139, 0.4);
+}
+
+.outcomeTextHighlight {
+  flex: 1 1 auto;
+  min-width: 0;
+  color: #ffffff;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+.outcomeHighlightBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  background: rgba(233, 202, 139, 0.16);
+  border: 1px solid rgba(233, 202, 139, 0.45);
+  color: var(--gold2);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.outcomeHighlightBadge i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--gold2);
+  box-shadow: 0 0 0 4px rgba(233, 202, 139, 0.25);
+  animation: outcomePulse 2s ease-in-out infinite;
+}
+
+@keyframes outcomeSoftUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes outcomePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.25);
+    opacity: 1;
+    box-shadow: 0 0 0 6px rgba(233, 202, 139, 0.35);
+  }
 }
 
 .ideaGrid {
@@ -1814,13 +1957,7 @@
   letter-spacing: -.015em !important;
 }
 
-/* Slide 2: every outcome stays on one line. */
-.outcomesGrid > div { padding: 0 16px !important; }
-.outcomesGrid strong {
-  white-space: nowrap !important;
-  font-size: 15.5px !important;
-  letter-spacing: -.02em !important;
-}
+/* Slide 2: replaced by outcomesVertical */
 
 /* Idea slide: remove helper pill completely. */
 .interactionHint { display: none !important; }
@@ -2005,7 +2142,6 @@
   from { opacity: 0; transform: translateY(4px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.outcomesGrid { left: 48px !important; right: 48px !important; }
 
 /* ===== ROUND 5: USER-REPORTED FIXES ===== */
 
@@ -4017,9 +4153,11 @@
   .tieredStep,
   .tieredDown span,
   .testSuccessNote i,
-  .testSuccessNote span {
   .testSuccessNote span,
-  .outcomesGrid > div,
+  .outcomesVertical,
+  .outcomeCard,
+  .outcomeConnector,
+  .outcomeHighlightBadge i,
   .ideaCard,
   .numberedCards article,
   .archCard,
