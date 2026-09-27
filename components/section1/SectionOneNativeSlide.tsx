@@ -633,8 +633,8 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
               <div className={styles.labBadge}>LAB 1</div>
               <h1>Phần mềm quản lý xin nghỉ phép</h1>
               <div className={styles.labFeatureRow}>
-                <span>Web App hoàn chỉnh</span>
-                <span>Chạy trên Google Script</span>
+                <span>Web App Demo</span>
+                <span>Chạy trên Google Apps Script</span>
                 <span>Không cần Server</span>
                 <span>Không cần Hosting</span>
               </div>
@@ -645,7 +645,7 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
       case 13:
         return (
           <Shell title="Quy trình cơ bản" eyebrow="LAB 1 · FLOW" className={styles.flowImpactSlide}>
-            <Flow items={["Gemini", "Google Sheets", "Google App Script", "Business Web App"]} singleRow />
+            <Flow items={["Gemini", "Google Sheets", "Google App Script", "Business Web App Demo"]} singleRow />
           </Shell>
         );
       case 15:
@@ -901,7 +901,7 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
       case 37:
         return (
           <Shell title="Kết thúc Lab" eyebrow="BẠN ĐÃ CÓ" className={styles.softMotionSlide}>
-            <CenteredTiles items={["Business Web App", "Google Sheets Database", "Dashboard", "URL chia sẻ", "Source Code", "Quy trình phát triển ứng dụng bằng AI"]} />
+            <CenteredTiles items={["Business Web App Demo", "Google Sheets Database", "Dashboard", "URL chia sẻ", "Source Code", "Quy trình phát triển ứng dụng bằng AI"]} />
           </Shell>
         );
       default:
