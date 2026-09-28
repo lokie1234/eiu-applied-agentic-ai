@@ -510,6 +510,27 @@
   color: #1e4f86;
 }
 
+.demoSeverityPriority {
+  background: #fbe6e3 !important;
+  color: #a83227 !important;
+  border: 1px solid rgba(168, 50, 39, .3);
+  font-weight: 850 !important;
+}
+
+.demoSeverityNormal {
+  background: #edf1f5 !important;
+  color: #435b6f !important;
+}
+
+.demoRowPriority {
+  background: rgba(168, 50, 39, .045);
+}
+
+.demoRowPriority td:first-child {
+  font-weight: 800;
+  color: #a83227;
+}
+
 .demoApprovalList,
 .demoSafetyList {
   height: 112px;
@@ -1580,38 +1601,151 @@
   text-align: center;
 }
 
-.motionPage3 .title { margin-bottom: 22px; }
+.motionPage3 .title {
+  margin-bottom: 24px;
+}
 
 .motionPage3 .outcomeGrid {
-  margin: 0 18px;
-  gap: 18px;
+  position: relative;
+  z-index: 2;
+  margin: 16px 26px 0 30px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+  align-items: stretch;
 }
 
 .motionPage3 .outcomeGrid > div {
-  min-height: 143px;
-  padding: 26px 28px;
-  border: 1px solid rgba(21, 64, 106, .08);
-  border-radius: 16px;
-  box-shadow: 0 14px 36px rgba(13, 52, 87, .07);
+  position: relative;
+  min-height: 280px;
+  padding: 34px 32px 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 0;
+  border-radius: 20px;
+  background: #fbf9f5;
+  border: 1.5px solid rgba(21, 64, 106, .12);
+  box-shadow: 0 12px 32px rgba(13, 52, 87, .06), 0 2px 8px rgba(13, 52, 87, .03);
+  transition: transform .24s ease, box-shadow .24s ease;
 }
 
-.motionPage3 .outcomeGrid > div:nth-child(2),
-.motionPage3 .outcomeGrid > div:nth-child(3) {
-  background: var(--navy);
+.motionPage3 .outcomeGrid > div:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(13, 52, 87, .1);
 }
 
-.motionPage3 .outcomeGrid > div:nth-child(2) span,
-.motionPage3 .outcomeGrid > div:nth-child(3) span { color: #fff; }
+.motionPage3 .outcomeCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
 
 .motionPage3 .outcomeGrid b {
-  width: 42px;
-  height: 42px;
-  flex: 0 0 42px;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
   display: grid;
   place-items: center;
-  border: 1px solid rgba(167, 137, 88, .35);
+  border: 1.5px solid rgba(167, 137, 88, .45);
   border-radius: 50%;
-  background: rgba(255, 255, 255, .1);
+  background: rgba(167, 137, 88, .12);
+  color: var(--gold);
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.motionPage3 .outcomeText {
+  margin: 24px 0 auto;
+  color: #1a334e;
+  font-size: 23px;
+  line-height: 1.48;
+  font-weight: 650;
+  letter-spacing: -.015em;
+}
+
+.motionPage3 .outcomeText strong {
+  color: var(--navy);
+  font-weight: 750;
+}
+
+.motionPage3 .outcomeFootBar {
+  margin-top: 24px;
+  width: 100%;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, rgba(21, 64, 106, .22), rgba(21, 64, 106, .04));
+}
+
+/* Ô thứ 2: Làm nổi bật lên */
+.motionPage3 .outcomeCardHighlight,
+.motionPage3 .outcomeGrid > div:nth-child(2) {
+  background: linear-gradient(145deg, #15406a 0%, #0e3256 55%, #08213b 100%) !important;
+  border: 2px solid rgba(233, 202, 139, .75) !important;
+  box-shadow: 0 18px 46px rgba(13, 52, 87, .32), 0 0 32px rgba(167, 137, 88, .2), inset 0 1px 0 rgba(255, 255, 255, .18) !important;
+  overflow: hidden;
+}
+
+.motionPage3 .outcomeCardHighlight::before,
+.motionPage3 .outcomeGrid > div:nth-child(2)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 160px;
+  height: 160px;
+  background: radial-gradient(circle at top right, rgba(233, 202, 139, .22), transparent 70%);
+  pointer-events: none;
+  border-top-right-radius: 18px;
+}
+
+.motionPage3 .outcomeCardHighlight b,
+.motionPage3 .outcomeGrid > div:nth-child(2) b {
+  border-color: #e9ca8b !important;
+  background: rgba(233, 202, 139, .22) !important;
+  color: #f4dfb0 !important;
+  box-shadow: 0 0 16px rgba(233, 202, 139, .35);
+}
+
+.motionPage3 .outcomeHighlightTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: rgba(233, 202, 139, .18);
+  border: 1px solid rgba(233, 202, 139, .55);
+  color: #f4dfb0;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, .18);
+}
+
+.motionPage3 .outcomeCardHighlight .outcomeText,
+.motionPage3 .outcomeGrid > div:nth-child(2) .outcomeText {
+  color: #ffffff !important;
+}
+
+.motionPage3 .outcomeCardHighlight .outcomeText strong,
+.motionPage3 .outcomeGrid > div:nth-child(2) .outcomeText strong {
+  color: #f4dfb0 !important;
+  font-weight: 800;
+  text-shadow: 0 0 14px rgba(244, 223, 176, .35);
+}
+
+.motionPage3 .outcomeHighlightBar,
+.motionPage3 .outcomeGrid > div:nth-child(2) .outcomeFootBar {
+  margin-top: 24px;
+  width: 100%;
+  height: 3px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #e9ca8b, rgba(233, 202, 139, .2)) !important;
+  box-shadow: 0 0 8px rgba(233, 202, 139, .4);
 }
 
 .motionPage4 .ambientMotion::before,
@@ -2987,76 +3121,122 @@
   animation: sectionTwoStrongReveal .78s cubic-bezier(.16, .82, .22, 1) .14s both, sectionTwoTitleCharge 3.2s ease-in-out 1.2s infinite;
 }
 
-/* Slide 29 · one full rotation, then settle into the correct 2 × 2 order. */
-.spiralRoadmap {
-  height: 350px;
-  margin: -4px 0 0;
-  display: block;
+/* Slide 29 (case 27) · Perfectly balanced 2 × 2 roadmap grid aligned with EIU DNA */
+.roadmapHeader {
+  position: relative;
+  z-index: 3;
+  margin: 0 28px 22px;
 }
 
-.spiralTrack {
-  position: absolute;
-  inset: 0;
-  width: 856px;
-  height: 350px;
-  overflow: visible;
+.roadmapHeader .title {
+  margin: 10px 0 0;
 }
 
-.spiralTrack path {
-  fill: none;
-  stroke: rgba(167, 137, 88, .36);
-  stroke-width: 2;
-  stroke-dasharray: 7 10;
-  animation: sectionTwoSignal 3.8s linear 1 both;
-}
-
-.roadmapSpinner {
-  position: absolute;
-  left: 118px;
-  top: 64px;
-  width: 620px;
-  height: 216px;
+.roadmapGrid {
+  position: relative;
+  z-index: 3;
+  margin: 0 28px;
   display: grid;
-  grid-template-columns: repeat(2, 292px);
-  grid-template-rows: repeat(2, 86px);
-  align-content: space-between;
-  justify-content: space-between;
-  transform-origin: center;
-  animation: sectionTwoRoadmapOneTurn 4.8s cubic-bezier(.44, .02, .22, 1) both;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px 24px;
 }
 
-.roadmapOrbitCard {
+.roadmapCard {
+  position: relative;
+  min-height: 138px;
+  padding: 22px 26px 20px;
   box-sizing: border-box;
-  width: 292px;
-  min-height: 86px;
-  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1.5px solid rgba(8, 41, 69, .14);
+  border-radius: 20px;
+  background: linear-gradient(160deg, #ffffff 0%, #fbfaf7 55%, #f6f1e8 100%);
+  box-shadow: 0 12px 32px rgba(8, 41, 69, .06), 0 2px 6px rgba(8, 41, 69, .03);
+  animation: sectionTwoStrongReveal .65s cubic-bezier(.22, 1, .36, 1) both;
+  transition: transform .24s cubic-bezier(.22, 1, .36, 1), box-shadow .24s cubic-bezier(.22, 1, .36, 1), border-color .24s ease;
+}
+
+.roadmapCard:hover {
+  transform: translateY(-3px);
+  border-color: rgba(179, 145, 89, .5);
+  box-shadow: 0 18px 40px rgba(8, 41, 69, .1), 0 0 20px rgba(179, 145, 89, .12);
+}
+
+.roadmapCard:nth-child(1) { animation-delay: 0s; }
+.roadmapCard:nth-child(2) { animation-delay: .08s; }
+.roadmapCard:nth-child(3) { animation-delay: .16s; }
+.roadmapCard:nth-child(4) { animation-delay: .24s; }
+
+.roadmapCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.roadmapBadgeWrap {
   display: flex;
   align-items: center;
   gap: 12px;
-  border: 1px solid rgba(21, 64, 106, .12);
-  border-radius: 16px;
-  background: rgba(255, 255, 255, .96);
-  box-shadow: 0 14px 34px rgba(13, 52, 87, .13);
-  animation: sectionTwoRoadmapCounterTurn 4.8s cubic-bezier(.44, .02, .22, 1) both;
 }
 
-.roadmapOrbitCard b {
-  width: 40px;
-  height: 40px;
-  flex: 0 0 40px;
+.roadmapNumber {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #082945;
+  border: 1px solid rgba(233, 202, 139, .4);
+  color: #f4dfb0;
   font-size: 14px;
+  font-weight: 750;
+  box-shadow: 0 4px 12px rgba(4, 28, 49, .18);
 }
 
-.roadmapOrbitCard span {
-  min-width: 0;
-  white-space: normal;
-  word-break: keep-all;
-  overflow-wrap: break-word;
-  hyphens: none;
-  text-wrap: pretty;
-  font-size: 12.25px;
-  line-height: 1.24;
+.roadmapStepTag {
+  color: #a78958;
+  font-size: 11.5px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.roadmapFlowArrow {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(8, 41, 69, .06);
+  border: 1px solid rgba(8, 41, 69, .1);
+  color: #082945;
+  font-size: 16px;
+  font-weight: 700;
+  transition: background .2s ease, color .2s ease;
+}
+
+.roadmapCard:hover .roadmapFlowArrow {
+  background: #082945;
+  border-color: rgba(233, 202, 139, .4);
+  color: #f4dfb0;
+}
+
+.roadmapText {
+  margin: 12px 0 16px;
+  color: #0d3457;
+  font-size: 16.5px;
+  line-height: 1.38;
   font-weight: 680;
+}
+
+.roadmapFootLine {
+  height: 2.5px;
+  width: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #a78958 0%, rgba(167, 137, 88, .2) 65%, transparent 100%);
+  opacity: .7;
 }
 
 /* Slides 30–32 · stronger transition while keeping the original content. */
@@ -3303,19 +3483,6 @@
   50% { text-shadow: 0 0 46px rgba(233, 202, 139, .48); transform: scale(1.035); }
 }
 
-@keyframes sectionTwoRoadmapOneTurn {
-  0% { transform: rotate(0deg) scale(.98); }
-  16% { transform: rotate(54deg) scale(1.035); }
-  84% { transform: rotate(318deg) scale(1.035); }
-  100% { transform: rotate(360deg) scale(1); }
-}
-
-@keyframes sectionTwoRoadmapCounterTurn {
-  0% { transform: rotate(0deg) scale(.96); }
-  16% { transform: rotate(-54deg) scale(1); }
-  84% { transform: rotate(-318deg) scale(1); }
-  100% { transform: rotate(-360deg) scale(1); }
-}
 
 @keyframes sectionTwoDownloadRail {
   0% { background-position: -42% 0; }
@@ -3940,9 +4107,7 @@
   .motionPage27 .requirementTransition > *,
   .motionPage28 .labCover > *,
   .motionPage29 .title,
-  .spiralTrack path,
-  .roadmapSpinner,
-  .roadmapOrbitCard,
+  .roadmapCard,
   .motionPage30 .title,
   .motionPage30 .subtitle,
   .motionPage30 .quote,
@@ -4253,15 +4418,33 @@
 .acceptanceHeader {
   position: relative;
   z-index: 3;
-  margin: 0 30px 23px;
+  margin: 0 30px 22px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 34px;
+  gap: 28px;
 }
 
-.acceptanceHeader .title { margin: 12px 0 0; }
-.acceptanceHeader > p { max-width: none; margin: 0 0 4px; color: #687987; font-size: 13px; line-height: 1.45; text-align: right; white-space: nowrap; }
+.acceptanceHeader .title {
+  margin: 10px 0 0;
+  color: #041c31;
+}
+
+.acceptanceHeader > p {
+  max-width: none;
+  margin: 0;
+  padding: 8px 18px;
+  border-left: 3px solid #e9ca8b;
+  border-radius: 0 10px 10px 0;
+  background: #082945;
+  color: #f4dfb0;
+  font-size: 13.5px;
+  line-height: 1.4;
+  font-weight: 600;
+  text-align: right;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(4, 28, 49, .15);
+}
 
 .acceptanceGrid {
   position: relative;
@@ -4269,36 +4452,143 @@
   margin: 0 28px;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 17px 20px;
+  gap: 18px 22px;
 }
 
-.acceptanceGrid article {
+.acceptanceGrid article,
+.acceptanceCard {
   position: relative;
-  min-height: 130px;
-  padding: 24px 58px 22px 74px;
+  min-height: 148px;
+  padding: 22px 26px 18px;
   box-sizing: border-box;
-  border: 1px solid rgba(21, 64, 106, .11);
-  border-radius: 21px;
-  background: linear-gradient(145deg, #fbfaf7, #f3eee5);
-  box-shadow: 0 16px 42px rgba(13, 52, 87, .09);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border: 1.5px solid rgba(8, 41, 69, .14);
+  border-radius: 20px;
+  background: linear-gradient(160deg, #ffffff 0%, #fbfaf7 55%, #f6f1e8 100%);
+  box-shadow: 0 12px 32px rgba(8, 41, 69, .06), 0 2px 6px rgba(8, 41, 69, .03);
   animation: sectionTwoAcceptanceIn .62s cubic-bezier(.22, 1, .36, 1) both;
+  transition: transform .24s cubic-bezier(.22, 1, .36, 1), box-shadow .24s cubic-bezier(.22, 1, .36, 1), border-color .24s ease;
 }
 
-.acceptanceGrid article:nth-child(2), .acceptanceGrid article:nth-child(3) {
-  border-color: rgba(233, 202, 139, .18);
-  background: linear-gradient(145deg, #123f68, #082945);
-  color: #fff;
+.acceptanceGrid article:hover,
+.acceptanceCard:hover {
+  transform: translateY(-3px);
+  border-color: rgba(179, 145, 89, .45);
+  box-shadow: 0 18px 40px rgba(8, 41, 69, .1), 0 0 20px rgba(179, 145, 89, .12);
 }
 
+.acceptanceGrid article:nth-child(1) { animation-delay: 0s; }
 .acceptanceGrid article:nth-child(2) { animation-delay: .1s; }
 .acceptanceGrid article:nth-child(3) { animation-delay: .2s; }
 .acceptanceGrid article:nth-child(4) { animation-delay: .3s; }
-.acceptanceGrid article > span { position: absolute; left: 22px; top: 24px; color: #b39159; font-size: 22px; font-weight: 800; }
-.acceptanceGrid small { display: block; margin-bottom: 8px; color: #9d7944; font-size: 9px; font-weight: 850; letter-spacing: .15em; }
-.acceptanceGrid article:nth-child(2) small, .acceptanceGrid article:nth-child(3) small { color: #e9ca8b; }
-.acceptanceGrid strong { font-size: 14px; line-height: 1.42; font-weight: 680; }
-.acceptanceGrid article > i { position: absolute; right: 20px; top: 22px; width: 25px; height: 25px; display: grid; place-items: center; border-radius: 50%; background: rgba(46, 125, 87, .12); color: #2e7d57; font-size: 12px; font-style: normal; }
-.acceptanceGrid article:nth-child(2) > i, .acceptanceGrid article:nth-child(3) > i { background: rgba(233, 202, 139, .13); color: #f4dfb0; }
+
+.acceptanceCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.acceptanceNumber {
+  width: 38px;
+  height: 38px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #082945;
+  border: 1.5px solid #123f68;
+  color: #f4dfb0;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  box-shadow: 0 2px 8px rgba(8, 41, 69, .2);
+}
+
+.acceptanceCheck {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(45, 127, 180, .14) 0%, rgba(45, 127, 180, .06) 100%);
+  border: 1px solid rgba(45, 127, 180, .28);
+  color: #18547f;
+  box-shadow: 0 2px 8px rgba(45, 127, 180, .12);
+}
+
+.acceptanceText {
+  margin: 14px 0 auto;
+  color: #082945;
+  font-size: 17px;
+  line-height: 1.46;
+  font-weight: 650;
+  letter-spacing: -.01em;
+}
+
+.acceptanceFootLine {
+  margin-top: 14px;
+  width: 100%;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #123f68 0%, rgba(18, 63, 104, .15) 60%, transparent 100%);
+}
+
+/* Các khung màu xanh đen trong EIU Design (Navy 900 & Navy 950) */
+.acceptanceGrid article:nth-child(2),
+.acceptanceGrid article:nth-child(3) {
+  background: linear-gradient(145deg, #0e3355 0%, #082945 55%, #041c31 100%) !important;
+  border: 1.5px solid rgba(233, 202, 139, .32) !important;
+  box-shadow: 0 16px 40px rgba(4, 28, 49, .22), 0 0 24px rgba(167, 137, 88, .12) !important;
+  overflow: hidden;
+}
+
+.acceptanceGrid article:nth-child(2)::before,
+.acceptanceGrid article:nth-child(3)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(circle at top right, rgba(233, 202, 139, .18), transparent 70%);
+  pointer-events: none;
+  border-top-right-radius: 18px;
+}
+
+.acceptanceGrid article:nth-child(2):hover,
+.acceptanceGrid article:nth-child(3):hover {
+  border-color: #e9ca8b !important;
+  box-shadow: 0 22px 46px rgba(4, 28, 49, .32), 0 0 28px rgba(233, 202, 139, .28) !important;
+}
+
+.acceptanceGrid article:nth-child(2) .acceptanceNumber,
+.acceptanceGrid article:nth-child(3) .acceptanceNumber {
+  background: rgba(233, 202, 139, .18) !important;
+  border-color: rgba(233, 202, 139, .45) !important;
+  color: #f4dfb0 !important;
+  box-shadow: 0 0 14px rgba(233, 202, 139, .25) !important;
+}
+
+.acceptanceGrid article:nth-child(2) .acceptanceCheck,
+.acceptanceGrid article:nth-child(3) .acceptanceCheck {
+  background: rgba(233, 202, 139, .16) !important;
+  border-color: rgba(233, 202, 139, .45) !important;
+  color: #f4dfb0 !important;
+  box-shadow: 0 0 12px rgba(233, 202, 139, .22) !important;
+}
+
+.acceptanceGrid article:nth-child(2) .acceptanceText,
+.acceptanceGrid article:nth-child(3) .acceptanceText {
+  color: #ffffff !important;
+}
+
+.acceptanceGrid article:nth-child(2) .acceptanceFootLine,
+.acceptanceGrid article:nth-child(3) .acceptanceFootLine {
+  background: linear-gradient(90deg, #e9ca8b 0%, rgba(233, 202, 139, .2) 60%, transparent 100%) !important;
+  box-shadow: 0 0 8px rgba(233, 202, 139, .3);
+}
 
 .dashboardPreviewGrid article .dashboardChart {
   position: absolute;

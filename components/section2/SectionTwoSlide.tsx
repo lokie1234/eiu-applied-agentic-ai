@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { SLIDE_STORAGE_KEYS, getSlideStorage, setSlideStorage } from "@/lib/slideStorage";
 import styles from "./SectionTwoSlide.module.css";
 
@@ -67,6 +67,50 @@ const CORE_ITEMS = [
 ] as const;
 
 const CORE_POOL_ORDER = ["permissions", "workflow", "fields", "dashboard", "integration", "form", "rules", "deployment", "validation", "report"] as const;
+
+const DEMO_DEPARTMENTS = [
+  "Phòng Vận hành",
+  "Phòng Kỹ thuật",
+  "Phòng Hành chính",
+  "Phòng Nhân sự",
+  "Phòng Kế toán",
+  "Phòng Sản xuất",
+] as const;
+
+const DEMO_INCIDENT_SAMPLES = [
+  {
+    location: "Khu vực kho A",
+    issue: "Sàn trơn gần lối đi chính, có nguy cơ gây trượt ngã.",
+  },
+  {
+    location: "Tầng 2 - Phòng Server",
+    issue: "Điều hòa rò rỉ nước ngưng tụ trên trần, gần tủ rack.",
+  },
+  {
+    location: "Sảnh B - Lối thoát hiểm",
+    issue: "Đèn chiếu sáng sự cố khẩn cấp bị chập chờn.",
+  },
+  {
+    location: "Kho B - Cửa số 3",
+    issue: "Pallet xếp hàng quá cao, chắn lối đi xe nâng hàng.",
+  },
+  {
+    location: "Phòng họp 302 - Tầng 3",
+    issue: "Ổ cắm điện âm sàn bị lỏng, phát sinh tia lửa điện nhỏ.",
+  },
+  {
+    location: "Xưởng sản xuất số 1",
+    issue: "Băng chuyền số 2 phát tiếng rít lớn và kẹt bao bì.",
+  },
+  {
+    location: "Khu vực Canteen - Tầng 1",
+    issue: "Vòi nước bồn rửa tay bị rò rỉ làm đọng nước trên sàn.",
+  },
+  {
+    location: "Bãi đỗ xe nội bộ",
+    issue: "Camera giám sát góc Tây không gửi tín hiệu về trung tâm.",
+  },
+] as const;
 
 type DemoSeverity = "bình thường" | "ưu tiên";
 type DemoStatus = "Đã nộp" | "Đã duyệt" | "Không duyệt" | "Đã hoàn thành";
@@ -321,6 +365,7 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
   const [demoFormMessage, setDemoFormMessage] = useState<string | null>(null);
   const [managerNotes, setManagerNotes] = useState<Record<string, string>>({});
   const demoSequenceRef = useRef(1);
+  const sampleIndexRef = useRef(0);
   const coreSortTimersRef = useRef<number[]>([]);
 
   useEffect(() => {
@@ -422,7 +467,14 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
       status: "Đã nộp",
     }]);
     setDemoFormMessage("Đã gửi sự cố sang hàng chờ của Quản lý.");
-    setDemoForm((current) => ({ ...current, location: "", issue: "", severity: "" }));
+    sampleIndexRef.current = (sampleIndexRef.current + 1) % DEMO_INCIDENT_SAMPLES.length;
+    const nextSample = DEMO_INCIDENT_SAMPLES[sampleIndexRef.current];
+    setDemoForm((current) => ({
+      ...current,
+      location: nextSample.location,
+      issue: nextSample.issue,
+      severity: "",
+    }));
   }
 
   function approveDemoRow(rowId: string) {
@@ -458,6 +510,18 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
   const coreComplete = coreCommonItems.length + coreSpecificItems.length === CORE_ITEMS.length;
   const selectedDataItems = DATA_ITEMS.filter((item) => activeDataItems.includes(item));
   const selectedReportItems = REPORT_ITEMS.filter((item) => activeReportItems.includes(item));
+  const sortedTableRows = useMemo(() => {
+    return [...demoRows].sort((a, b) => {
+      const aIsPriority = a.severity === "ưu tiên";
+      const bIsPriority = b.severity === "ưu tiên";
+      if (aIsPriority && !bIsPriority) return -1;
+      if (!aIsPriority && bIsPriority) return 1;
+
+      const aIndex = demoRows.indexOf(a);
+      const bIndex = demoRows.indexOf(b);
+      return bIndex - aIndex;
+    });
+  }, [demoRows]);
 
   switch (pageNumber) {
     case 1:
@@ -482,9 +546,33 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
         <p className={styles.bottomStatement}>Từ một sản phẩm đơn lẻ đến một tiêu chuẩn chung cho nhiều sản phẩm.</p>
       </Shell>;
     case 3:
-      return <Shell motion={3}><Title>Sau Section 2, bạn sẽ làm được</Title><div className={styles.outcomeGrid}>
-        {["Viết những yêu cầu có cấu trúc và có thể kiểm thử", "Phân biệt thành phần chung và thành phần đặc thù của từng ứng dụng", "Xây AI Business Framework cho doanh nghiệp", "Đóng gói Framework thành Gem trong Gemini"].map((item, index) => <div key={item}><b>0{index + 1}</b><span>{item}</span></div>)}
-      </div></Shell>;
+      return (
+        <Shell motion={3}>
+          <Title>Sau Section 2, bạn sẽ làm được</Title>
+          <div className={styles.outcomeGrid}>
+            <div>
+              <div className={styles.outcomeCardTop}>
+                <b>01</b>
+              </div>
+              <p className={styles.outcomeText}>
+                Phân biệt <strong>thành phần chung</strong> và <strong>thành phần đặc thù</strong> của từng ứng dụng
+              </p>
+              <div className={styles.outcomeFootBar} />
+            </div>
+
+            <div className={styles.outcomeCardHighlight}>
+              <div className={styles.outcomeCardTop}>
+                <b>02</b>
+                <span className={styles.outcomeHighlightTag}>✦ TRỌNG TÂM</span>
+              </div>
+              <p className={styles.outcomeText}>
+                Xây <strong>AI Framework</strong>, đóng gói thành <strong>Gem trong Gemini</strong>
+              </p>
+              <div className={styles.outcomeHighlightBar} />
+            </div>
+          </div>
+        </Shell>
+      );
     case 4:
       return <Shell dark motion={4}><div className={styles.centerStatement}><h2>AI phần lớn không làm sai.</h2><p>AI chỉ làm đúng theo yêu cầu mà bạn mô tả.</p></div></Shell>;
     case 5:
@@ -556,7 +644,44 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
         {["Không gửi khi thiếu mô tả hoặc mức độ", "Sự cố nghiêm trọng phải ưu tiên xử lý", "Chỉ người được giao hoặc quản trị viên được cập nhật", "Mỗi lần đổi trạng thái phải lưu thời gian"].map((item, index) => <div key={item}><b>0{index + 1}</b><span>{item}</span></div>)}
       </div></Shell>;
     case 11:
-      return <Shell motion={13}><div className={styles.acceptanceHeader}><div><MiniTitle>ACCEPTANCE CRITERIA</MiniTitle><Title>Tiêu chí chấp nhận</Title></div><p>Mỗi tiêu chí phải kiểm tra được bằng một hành động cụ thể.</p></div><div className={styles.acceptanceGrid}>{["Không thể nộp form nếu thiếu Mức độ", "Sau khi nộp, Google Sheets xuất hiện dòng mới", "Sự cố mức Nghiêm trọng hiển thị ở đầu danh sách", "Dashboard cập nhật sau khi tải lại dữ liệu"].map((item, index) => <article key={item}><span>0{index + 1}</span><div><small>TEST CASE</small><strong>{item}</strong></div><i aria-hidden="true">✓</i></article>)}</div></Shell>;
+      return (
+        <Shell motion={13}>
+          <div className={styles.acceptanceHeader}>
+            <div>
+              <MiniTitle>ACCEPTANCE CRITERIA</MiniTitle>
+              <Title>Tiêu chí chấp nhận</Title>
+            </div>
+            <p>Mỗi tiêu chí phải kiểm tra được bằng một hành động cụ thể.</p>
+          </div>
+          <div className={styles.acceptanceGrid}>
+            {[
+              "Không thể nộp form nếu thiếu Mức độ",
+              "Sau khi nộp, Google Sheets tự cập nhật",
+              "Sự cố Nghiêm trọng luôn ở đầu danh sách",
+              "Dashboard cập nhật sau khi tải lại dữ liệu",
+            ].map((item, index) => (
+              <article key={item} className={styles.acceptanceCard}>
+                <div className={styles.acceptanceCardTop}>
+                  <span className={styles.acceptanceNumber}>0{index + 1}</span>
+                  <div className={styles.acceptanceCheck} aria-hidden="true">
+                    <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                      <path
+                        d="M13.33 4L6 11.33L2.67 8"
+                        stroke="currentColor"
+                        strokeWidth="2.4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <p className={styles.acceptanceText}>{item}</p>
+                <div className={styles.acceptanceFootLine} />
+              </article>
+            ))}
+          </div>
+        </Shell>
+      );
     case 12:
       return <Shell motion={14}><div className={styles.guidedInteraction} data-interactive="true">
         <div className={styles.interactionHeading}>
@@ -606,7 +731,7 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
             <header><b>01</b><div><MiniTitle>NHÂN VIÊN</MiniTitle><strong>Gửi báo cáo sự cố</strong></div></header>
             <form onSubmit={submitDemoForm}>
               <label>Người báo cáo<input value={demoForm.reporter} onChange={(event) => setDemoForm((current) => ({ ...current, reporter: event.target.value }))} /></label>
-              <label>Phòng ban<input value={demoForm.department} onChange={(event) => setDemoForm((current) => ({ ...current, department: event.target.value }))} /></label>
+              <label>Phòng ban<select value={demoForm.department} onChange={(event) => setDemoForm((current) => ({ ...current, department: event.target.value }))}>{DEMO_DEPARTMENTS.map((dept) => <option key={dept} value={dept}>{dept}</option>)}</select></label>
               <label>Địa điểm<input value={demoForm.location} onChange={(event) => setDemoForm((current) => ({ ...current, location: event.target.value }))} /></label>
               <label>Mức độ <span className={styles.demoRequired}>*</span><select value={demoForm.severity} onChange={(event) => { const value = event.target.value as "" | DemoSeverity; setDemoForm((current) => ({ ...current, severity: value })); setDemoFormMessage(value ? null : "Vui lòng chọn Mức độ trước khi Submit."); }} required><option value="">Chọn mức độ</option><option value="bình thường">bình thường</option><option value="ưu tiên">ưu tiên</option></select></label>
               <label>Mô tả sự cố<input value={demoForm.issue} onChange={(event) => setDemoForm((current) => ({ ...current, issue: event.target.value }))} /></label>
@@ -627,7 +752,7 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
 
           <section className={`${styles.demoPanel} ${styles.demoExcelPanel}`}>
             <header><b>04</b><div><MiniTitle>EXCEL MÔ PHỎNG DATA</MiniTitle><strong>Dữ liệu cập nhật theo thao tác</strong></div></header>
-            {demoRows.length === 0 ? <p className={styles.demoEmpty}>Chưa có dòng dữ liệu. Hãy gửi form từ khung Nhân viên.</p> : <div className={styles.demoTableWrap}><table><thead><tr><th>Mã</th><th>Nhân viên</th><th>Sự cố</th><th>Mức độ</th><th>Trạng thái</th><th>Ghi chú</th></tr></thead><tbody>{demoRows.map((row) => <tr key={row.id}><td>{row.id}</td><td>{row.reporter}</td><td title={`${row.department} · ${row.location} · ${row.issue}`}>{row.issue}</td><td>{row.severity}</td><td><span className={row.status === "Đã hoàn thành" ? styles.demoStatusCompleted : row.status === "Đã duyệt" ? styles.demoStatusApproved : row.status === "Không duyệt" ? styles.demoStatusRejected : styles.demoStatusPending}>{row.status}</span></td><td title={row.rejectionReason ?? row.completedAt ?? row.submittedAt}>{row.rejectionReason ?? (row.completedAt ? `HT ${row.completedAt}` : row.submittedAt)}</td></tr>)}</tbody></table></div>}
+            {demoRows.length === 0 ? <p className={styles.demoEmpty}>Chưa có dòng dữ liệu. Hãy gửi form từ khung Nhân viên.</p> : <div className={styles.demoTableWrap}><table><thead><tr><th>Mã</th><th>Nhân viên</th><th>Sự cố</th><th>Mức độ</th><th>Trạng thái</th><th>Ghi chú</th></tr></thead><tbody>{sortedTableRows.map((row) => <tr key={row.id} className={row.severity === "ưu tiên" ? styles.demoRowPriority : ""}><td>{row.id}</td><td>{row.reporter}</td><td title={`${row.department} · ${row.location} · ${row.issue}`}>{row.issue}</td><td><span className={row.severity === "ưu tiên" ? styles.demoSeverityPriority : styles.demoSeverityNormal}>{row.severity}</span></td><td><span className={row.status === "Đã hoàn thành" ? styles.demoStatusCompleted : row.status === "Đã duyệt" ? styles.demoStatusApproved : row.status === "Không duyệt" ? styles.demoStatusRejected : styles.demoStatusPending}>{row.status}</span></td><td title={row.rejectionReason ?? row.completedAt ?? row.submittedAt}>{row.rejectionReason ?? (row.completedAt ? `HT ${row.completedAt}` : row.submittedAt)}</td></tr>)}</tbody></table></div>}
           </section>
 
           <section className={`${styles.demoPanel} ${styles.demoDashboardPanel}`}>
@@ -688,12 +813,36 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
     case 26:
       return <Shell dark motion={28}><div className={styles.labCover}><MiniTitle>GEMINI GEMS</MiniTitle><h1>Lab 2</h1><p>Xây một Gem áp dụng AI Business Framework của doanh nghiệp.</p></div></Shell>;
     case 27:
-      return <Shell motion={29}><Title>Lộ trình</Title><div className={`${styles.roadmap} ${styles.spiralRoadmap}`}>
-        <svg className={styles.spiralTrack} viewBox="0 0 856 350" aria-hidden="true"><path d="M96 176 C96 45 760 42 760 180 C760 310 188 314 188 198 C188 108 650 108 650 193 C650 261 310 263 310 204 C310 157 544 157 544 203 C544 234 406 235 406 205" /></svg>
-        <div className={styles.roadmapSpinner}>
-          {["Phân tích app, tách Framework, tạo Gem", "Cài đặt Gem", "Kiểm tra", "Lưu & Chia sẻ"].map((item, index) => <div className={styles.roadmapOrbitCard} key={item}><b>{index + 1}</b><span>{item}</span></div>)}
-        </div>
-      </div></Shell>;
+      return (
+        <Shell motion={29}>
+          <div className={styles.roadmapHeader}>
+            <MiniTitle>GEMINI GEMS · LAB 2</MiniTitle>
+            <Title>Lộ trình</Title>
+          </div>
+          <div className={styles.roadmapGrid}>
+            {[
+              "Phân tích app, tách Framework, tạo Gem",
+              "Cài đặt Gem",
+              "Kiểm tra",
+              "Lưu & Chia sẻ",
+            ].map((item, index) => (
+              <article key={item} className={styles.roadmapCard}>
+                <div className={styles.roadmapCardTop}>
+                  <div className={styles.roadmapBadgeWrap}>
+                    <span className={styles.roadmapNumber}>0{index + 1}</span>
+                    <span className={styles.roadmapStepTag}>BƯỚC 0{index + 1}</span>
+                  </div>
+                  <span className={styles.roadmapFlowArrow} aria-hidden="true">
+                    {index < 3 ? "→" : "✓"}
+                  </span>
+                </div>
+                <p className={styles.roadmapText}>{item}</p>
+                <div className={styles.roadmapFootLine} />
+              </article>
+            ))}
+          </div>
+        </Shell>
+      );
     case 28:
       return <Shell motion={30}><Title>Bước 1 · Phân tích, tách Framework, tạo Gem</Title><p className={styles.subtitle}>Bỏ bộ 3 file thực hành đã tạo sẵn vào Gemini, rồi yêu cầu:</p><Quote><p>{requirementPrompt}</p><button type="button" data-interactive="true" onClick={copyPrompt}>{copied ? "Đã copy" : "Copy Prompt"}</button></Quote><button type="button" data-interactive="true" className={styles.labFilesDownload} onClick={downloadLabFiles}><span aria-hidden="true">↓</span><span><strong>Tải bộ 3 file thực hành</strong><small>Gemini-Prompt.txt · App-01-Source.txt · App-02-Source.txt</small></span></button></Shell>;
     case 29:
