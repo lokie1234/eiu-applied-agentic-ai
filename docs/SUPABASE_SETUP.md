@@ -20,6 +20,21 @@ Sau đó chạy:
 
 Hai migration bổ sung trạng thái đóng/mở Quiz, tín hiệu Realtime và mốc phiên dùng để làm trống dữ liệu hiển thị trên slide khi terminate mà không xóa dữ liệu Supabase.
 
+### Private Knowledge AI
+
+Với module AI Admin, chạy lần lượt các migration sau trong SQL Editor:
+
+1. `supabase/migrations/202609250001_ai_knowledge.sql`
+2. `supabase/migrations/202609250002_add_folder.sql`
+3. `supabase/migrations/202609280001_ai_fast_retrieval.sql`
+4. `supabase/migrations/202609280002_ai_folder_scope.sql`
+5. `supabase/migrations/202609280003_ai_subfolders.sql`
+6. `supabase/migrations/202609280004_ai_document_only_scope.sql`
+7. `supabase/migrations/202609280005_ai_scope_rename.sql`
+8. `supabase/migrations/202609280006_ai_word_documents.sql`
+
+Các migration cuối bật `pgvector`, lưu các đoạn tài liệu/embeddings, cache câu trả lời trong 24 giờ, khóa retrieval theo folder/folder nhỏ được chọn trong cửa sổ chat và chỉ truy xuất PDF/TXT/MD. Nếu chưa chạy các migration này, ứng dụng vẫn hoạt động bằng Gemini File Search nhưng câu hỏi mới sẽ chậm hơn. Các PDF cũ cần được upload lại một lần để tạo local vector index; PDF upload sau migration sẽ được trích xuất và lập chỉ mục tự động.
+
 Trong **Realtime Settings**, giữ **Allow public access to channels** ở trạng thái bật. Các public channel trong project này chỉ mang tín hiệu “dữ liệu đã đổi”; payload không chứa quiz, email hay feedback. Dữ liệu thật vẫn chỉ được trả qua API có kiểm tra role.
 
 ## 2. Cấu hình local và Vercel

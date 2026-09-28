@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Image from "next/image";
+import Link from "next/link";
 import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
 import type { AccessRole } from "@/lib/access";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
@@ -144,6 +145,14 @@ function DeckShell({
         )}
 
         <div className={styles.actionBarButtons}>
+          {isAdmin && (
+            <Link
+              href="/admin/ai"
+              className={styles.aiButton}
+            >
+              ✦ AI Knowledge
+            </Link>
+          )}
           {isAdmin && onChooseSection && (
             <button
               type="button"
@@ -532,6 +541,9 @@ export default function LessonPortal({
         <div className={styles.grid} aria-hidden="true" />
 
         <div className={styles.selectorActions}>
+          <Link href="/admin/ai" className={styles.aiButton}>
+            ✦ AI Knowledge
+          </Link>
           <button
             type="button"
             className={styles.reportButton}
