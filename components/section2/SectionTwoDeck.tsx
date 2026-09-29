@@ -4,12 +4,14 @@ import Image from "next/image";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DeckSideAmbient from "@/components/DeckSideAmbient";
 import QuizSlide from "@/components/QuizSlide";
+import ShowcaseSlide from "@/components/ShowcaseSlide";
 import WorkshopLaunchButton from "@/components/WorkshopLaunchButton";
 import SectionTwoSlide from "./SectionTwoSlide";
 import styles from "./SectionTwoDeck.module.css";
 
 const CONTENT_SLIDES = 35;
-const QUIZ_SLIDE = 36;
+const SHOWCASE_SLIDE = 36;
+const QUIZ_SLIDE = 37;
 const TOTAL_SLIDES = QUIZ_SLIDE;
 // Keep navigation and SectionTwoSlide cases strictly 1:1. Do not add page offsets.
 const SLIDE_WIDTH = 960;
@@ -211,6 +213,8 @@ export default function SectionTwoDeck({ onChooseSection, isAdmin = false }: { o
                 <div key={`section2-${pageNumber}`} className={styles.slideTransition}>
                   {pageNumber === QUIZ_SLIDE ? (
                     <QuizSlide scale={renderWidth / SLIDE_WIDTH} variant="section2" isAdmin={isAdmin} />
+                  ) : pageNumber === SHOWCASE_SLIDE ? (
+                    <ShowcaseSlide scale={renderWidth / SLIDE_WIDTH} isAdmin={isAdmin} section="section2" />
                   ) : pageNumber <= CONTENT_SLIDES ? (
                     <div
                       className={styles.canvas}

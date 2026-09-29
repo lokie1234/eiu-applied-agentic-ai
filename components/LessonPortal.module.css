@@ -652,6 +652,9 @@
 
 .modal {
   width: min(430px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  box-sizing: border-box;
   padding: 32px;
   border: 1px solid rgba(157, 121, 68, 0.28);
   border-radius: 24px;
@@ -820,8 +823,47 @@
   cursor: not-allowed;
 }
 
+.exportSectionField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 17px;
+}
+
+.exportSectionField > span {
+  color: #082945;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.exportSectionField select {
+  width: 100%;
+  height: 42px;
+  box-sizing: border-box;
+  padding: 0 12px;
+  border: 1px solid rgba(23, 50, 74, 0.2);
+  border-radius: 9px;
+  background: #fff;
+  color: #082945;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  outline: none;
+}
+
+.exportSectionField select:focus {
+  border-color: #9d7944;
+  box-shadow: 0 0 0 2px rgba(157, 121, 68, 0.2);
+}
+
+.exportSectionField small {
+  color: #687987;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .exportOptions {
-  margin: 18px 0 20px;
+  margin: 14px 0 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;

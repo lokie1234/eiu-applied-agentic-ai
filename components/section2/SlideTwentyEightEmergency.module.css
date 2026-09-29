@@ -1,0 +1,169 @@
+.trigger {
+  position: absolute;
+  right: 42px;
+  bottom: 18px;
+  z-index: 12;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  padding: 6px 14px 6px 8px;
+  border: 1px solid rgba(179, 145, 89, .48);
+  border-radius: 999px;
+  background: rgba(7, 43, 73, .96);
+  color: #fff;
+  box-shadow: 0 8px 20px rgba(4, 28, 49, .18);
+  font: 800 11px/1 "Inter", "Noto Sans", "Segoe UI", Arial, sans-serif;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.trigger span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 50%;
+  background: #e9ca8b;
+  color: #082e4f;
+  font-size: 12px;
+}
+
+.trigger:hover,
+.trigger:focus-visible {
+  transform: translateY(-2px);
+  border-color: #e9ca8b;
+  outline: none;
+  box-shadow: 0 12px 28px rgba(4, 28, 49, .24), 0 0 0 3px rgba(179, 145, 89, .12);
+}
+
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  background: rgba(4, 28, 49, .58);
+  backdrop-filter: blur(5px);
+  animation: backdropIn .2s ease both;
+}
+
+.panel {
+  position: relative;
+  width: 430px;
+  min-height: 224px;
+  box-sizing: border-box;
+  padding: 30px 32px 28px;
+  border: 1px solid rgba(233, 202, 139, .52);
+  border-radius: 22px;
+  background: linear-gradient(135deg, rgba(255, 255, 255, .98), rgba(248, 245, 238, .98));
+  box-shadow: 0 30px 80px rgba(3, 22, 39, .38);
+  color: #082e4f;
+  font-family: "Inter", "Noto Sans", "Segoe UI", Arial, sans-serif;
+  animation: panelIn .28s cubic-bezier(.22, 1, .36, 1) both;
+}
+
+.panel::before {
+  content: "";
+  position: absolute;
+  left: 32px;
+  top: 0;
+  width: 82px;
+  height: 4px;
+  background: linear-gradient(90deg, #b39159, #e9ca8b);
+  border-radius: 0 0 4px 4px;
+}
+
+.close {
+  position: absolute;
+  right: 14px;
+  top: 12px;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(8, 46, 79, .07);
+  color: #315873;
+  font: 500 21px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+
+.eyebrow { color: #a78958; font-size: 10px; font-weight: 850; letter-spacing: .17em; }
+
+.panel h2 { margin: 7px 0 22px; color: #082e4f; font-size: 28px; line-height: 1.1; }
+
+.panel form label {
+  display: block;
+  margin-bottom: 8px;
+  color: #536a7a;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.codeRow { display: grid; grid-template-columns: 1fr 132px; gap: 10px; }
+
+.codeRow input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0 16px;
+  border: 1px solid #cdd7de;
+  border-radius: 12px;
+  background: #fff;
+  color: #082e4f;
+  font: 800 20px/44px "Inter", "Noto Sans", "Segoe UI", Arial, sans-serif;
+  letter-spacing: .3em;
+}
+
+.codeRow input:focus { border-color: #b39159; outline: 3px solid rgba(179, 145, 89, .14); }
+
+.codeRow button,
+.downloads button {
+  border: 1px solid #174f7e;
+  border-radius: 12px;
+  background: linear-gradient(180deg, #174f7e, #0b385e);
+  color: #fff;
+  font-family: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.codeRow button:disabled,
+.downloads button:disabled { cursor: wait; opacity: .58; }
+
+.error { margin: 8px 0 0; color: #b33a3a; font-size: 11px; font-weight: 700; }
+
+.downloads { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.downloads button {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  grid-template-rows: auto auto;
+  min-height: 78px;
+  padding: 13px 15px;
+  text-align: left;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.downloads button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(4, 28, 49, .2);
+}
+
+.downloads button > span { grid-row: 1 / 3; align-self: center; color: #e9ca8b; font-size: 22px; }
+.downloads strong { align-self: end; font-size: 13px; letter-spacing: .08em; }
+.downloads small { align-self: start; margin-top: 4px; color: rgba(255, 255, 255, .66); font-size: 9px; }
+
+@keyframes backdropIn { from { opacity: 0; } }
+@keyframes panelIn { from { opacity: 0; transform: translateY(10px) scale(.98); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger,
+  .backdrop,
+  .panel,
+  .downloads button { animation: none; transition: none; }
+}

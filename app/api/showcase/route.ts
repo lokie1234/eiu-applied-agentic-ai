@@ -117,26 +117,16 @@ export async function POST(request: Request) {
   }
 }
 
-export async function DELETE(request: Request) {
+export async function DELETE() {
   try {
     if ((await currentRole()) !== "admin") {
       return NextResponse.json({ success: false, message: "Chỉ quản trị viên mới có quyền xóa." }, { status: 403 });
     }
 
-    const body = await request.json();
-    const section = normalizeSection(body.section);
-    const clearAll = body.all === true;
-    const id = String(body.id ?? "").trim();
-    if (!clearAll && (!id || id.length > 100)) {
-      return NextResponse.json({ success: false, message: "Mã bài chia sẻ không hợp lệ." }, { status: 400 });
-    }
-
-    let query = getSupabaseAdmin().from("showcase_items").delete().eq("section", section);
-    if (!clearAll) query = query.eq("id", id);
-    const { error } = await query;
-    if (error) throw error;
-
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      message: "Thao tác xóa trên slide chỉ ẩn dữ liệu cục bộ. Dữ liệu gốc chỉ được xóa bằng chức năng Reset dữ liệu.",
+    });
   } catch (error) {
     console.error("Showcase DELETE error:", error);
     return NextResponse.json(

@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { SLIDE_STORAGE_KEYS, getSlideStorage, setSlideStorage } from "@/lib/slideStorage";
+import SlideTwentyEightEmergency from "./SlideTwentyEightEmergency";
+import SlideThirtyFiveDynamicDashboard from "./SlideThirtyFiveDynamicDashboard";
 import styles from "./SectionTwoSlide.module.css";
 
 type Props = { pageNumber: number; isFinalState?: boolean };
@@ -844,7 +846,7 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
         </Shell>
       );
     case 28:
-      return <Shell motion={30}><Title>Bước 1 · Phân tích, tách Framework, tạo Gem</Title><p className={styles.subtitle}>Bỏ bộ 3 file thực hành đã tạo sẵn vào Gemini, rồi yêu cầu:</p><Quote><p>{requirementPrompt}</p><button type="button" data-interactive="true" onClick={copyPrompt}>{copied ? "Đã copy" : "Copy Prompt"}</button></Quote><button type="button" data-interactive="true" className={styles.labFilesDownload} onClick={downloadLabFiles}><span aria-hidden="true">↓</span><span><strong>Tải bộ 3 file thực hành</strong><small>Gemini-Prompt.txt · App-01-Source.txt · App-02-Source.txt</small></span></button></Shell>;
+      return <Shell motion={30}><Title>Bước 1 · Phân tích, tách Framework, tạo Gem</Title><p className={styles.subtitle}>Bỏ bộ 3 file thực hành đã tạo sẵn vào Gemini, rồi yêu cầu:</p><Quote><p>{requirementPrompt}</p><button type="button" data-interactive="true" onClick={copyPrompt}>{copied ? "Đã copy" : "Copy Prompt"}</button></Quote><button type="button" data-interactive="true" className={styles.labFilesDownload} onClick={downloadLabFiles}><span aria-hidden="true">↓</span><span><strong>Tải bộ 3 file thực hành</strong><small>Gemini-Prompt.txt · App-01-Source.txt · App-02-Source.txt</small></span></button><SlideTwentyEightEmergency /></Shell>;
     case 29:
       return <Shell motion={31}><Title>Ví dụ - Nguyên tắc thiết kế</Title><div className={styles.principles}>{["Responsive", "Có Dashboard", "Có giao diện dùng được cho điện thoại", "Kèm theo hướng dẫn", "Sử dụng Google Sheets", "Tách riêng HTML / CSS / JS"].map(item => <span key={item}>▪ {item}</span>)}</div><p className={styles.bottomNote}>...và các nguyên tắc riêng của doanh nghiệp bạn.</p></Shell>;
     case 30:
@@ -858,138 +860,7 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
     case 34:
       return <Shell dark motion={37}><div className={styles.finalMessage}><MiniTitle>Thông điệp</MiniTitle><p>Đừng xây <strong>100 ứng dụng.</strong></p><h1>Hãy xây 01 AI Business Framework</h1><div className={styles.goldRule} /><p>để AI có thể tạo 100 ứng dụng<br />theo tiêu chuẩn của doanh nghiệp.</p></div></Shell>;
     case 35:
-      return (
-        <Shell motion={38}>
-          <div className={styles.optimizedGemSlide}>
-            <header className={styles.optimizedGemHeader}>
-              <div className={styles.optimizedGemTitleGroup}>
-                <MiniTitle>THỰC HÀNH NÂNG CAO · GEMINI GEMS</MiniTitle>
-                <h1 className={styles.optimizedGemTitle}>Thực hành nâng cao với bộ Gem đã tối ưu hóa</h1>
-                <p className={styles.optimizedGemSubtitle}>
-                  Khung ứng dụng doanh nghiệp chuẩn hóa — từ phỏng vấn nghiệp vụ đến mã nguồn hoàn chỉnh.
-                </p>
-              </div>
-
-              <div className={styles.gemDownloadGroup}>
-                <a
-                  href="/downloads/Gem-Config-WebApp-Builder.txt"
-                  download="Gem-Config-WebApp-Builder.txt"
-                  className={styles.gemDownloadBtnConfig}
-                  data-interactive="true"
-                  title="Tải tệp Gem Instructions (Config)"
-                >
-                  <span className={styles.gemBtnIcon} aria-hidden="true">↓</span>
-                  <span className={styles.gemBtnText}>
-                    <strong>Tải CONFIG</strong>
-                    <small>Instructions & Rules</small>
-                  </span>
-                </a>
-
-                <a
-                  href="/downloads/Gem-Knowledge-WebApp-Builder.txt"
-                  download="Gem-Knowledge-WebApp-Builder.txt"
-                  className={styles.gemDownloadBtnKnowledge}
-                  data-interactive="true"
-                  title="Tải tệp Gem Knowledge chuẩn"
-                >
-                  <span className={styles.gemBtnIcon} aria-hidden="true">↓</span>
-                  <span className={styles.gemBtnText}>
-                    <strong>Tải KNOWLEDGE</strong>
-                    <small>Tài liệu chuẩn & UI DNA</small>
-                  </span>
-                </a>
-              </div>
-            </header>
-
-            <div className={styles.optimizedGemGrid}>
-              <article className={styles.optimizedGemCard}>
-                <div className={styles.optimizedCardHead}>
-                  <span className={styles.optimizedCardNum}>01</span>
-                  <div>
-                    <span className={styles.optimizedCardTag}>CHUẨN SẢN PHẨM</span>
-                    <h2>Web App chạy thật 100%</h2>
-                  </div>
-                </div>
-                <ul className={styles.optimizedCardList}>
-                  <li>
-                    <span className={styles.cardBulletCheck}>✓</span>
-                    <p><strong>Xây dựng web app chạy thật:</strong> Không phải bản demo hay dữ liệu giả, đầy đủ quy trình vận hành thực tế.</p>
-                  </li>
-                  <li>
-                    <span className={styles.cardBulletCheck}>✓</span>
-                    <p><strong>Hạ tầng Google Workspace:</strong> Phát triển trên Google Apps Script, Google Sheets và Google Drive.</p>
-                  </li>
-                </ul>
-              </article>
-
-              <article className={styles.optimizedGemCard}>
-                <div className={styles.optimizedCardHead}>
-                  <span className={styles.optimizedCardNum}>02</span>
-                  <div>
-                    <span className={styles.optimizedCardTag}>BẢO MẬT & THƯƠNG HIỆU</span>
-                    <h2>Đăng nhập & EIU DNA</h2>
-                  </div>
-                </div>
-                <ul className={styles.optimizedCardList}>
-                  <li>
-                    <span className={styles.cardBulletCheck}>✓</span>
-                    <p><strong>Xác thực & phân quyền:</strong> Có màn hình đăng nhập, xác thực tài khoản và phân quyền Admin/User rõ ràng.</p>
-                  </li>
-                  <li>
-                    <span className={styles.cardBulletCheck}>✓</span>
-                    <p><strong>Đồng bộ EIU Design DNA:</strong> Áp dụng chuẩn màu sắc Navy/Gold/Cream và tích hợp logo EIU chính thức.</p>
-                  </li>
-                </ul>
-              </article>
-
-              <article className={styles.optimizedGemCard}>
-                <div className={styles.optimizedCardHead}>
-                  <span className={styles.optimizedCardNum}>03</span>
-                  <div>
-                    <span className={styles.optimizedCardTag}>TRẢI NGHIỆM ĐỐI THOẠI</span>
-                    <h2>Phỏng vấn thông minh</h2>
-                  </div>
-                </div>
-                <ul className={styles.optimizedCardList}>
-                  <li>
-                    <span className={styles.cardBulletCheck}>✓</span>
-                    <p><strong>Thu thập từng câu một:</strong> Phỏng vấn tuần tự, giúp người dùng dễ theo dõi và hoàn thiện ứng dụng.</p>
-                  </li>
-                  <li>
-                    <span className={styles.cardBulletCheck}>✓</span>
-                    <p><strong>Ghi nhớ toàn bộ yêu cầu:</strong> Ghi nhớ các yêu cầu đã trả lời, không hỏi lại hoặc làm thay đổi tiến trình.</p>
-                  </li>
-                </ul>
-              </article>
-
-              <article className={styles.optimizedGemCard}>
-                <div className={styles.optimizedCardHead}>
-                  <span className={styles.optimizedCardNum}>04</span>
-                  <div>
-                    <span className={styles.optimizedCardTag}>ĐẦU RA CHUẨN HÓA</span>
-                    <h2>Kiểm tra & Bàn giao 2 tệp</h2>
-                  </div>
-                </div>
-                <ul className={styles.optimizedCardList}>
-                  <li>
-                    <span className={styles.cardBulletCheck}>✓</span>
-                    <p><strong>Bảo mật & Audit Log:</strong> Tích hợp kiểm tra cấu hình, bảo mật phía máy chủ và nhật ký hoạt động.</p>
-                  </li>
-                  <li>
-                    <span className={styles.cardBulletCheck}>✓</span>
-                    <p><strong>Đầu ra luôn chỉ gồm 2 tệp:</strong> Mã nguồn hoàn chỉnh gồm <code>Code.gs</code> và <code>Index.html</code>, sẵn sàng triển khai.</p>
-                  </li>
-                </ul>
-              </article>
-            </div>
-
-            <footer className={styles.optimizedGemFooter}>
-              <span className={styles.optimizedFooterBadge}>HƯỚNG DẪN</span>
-              <p>Tải 2 file trên: Nạp nội dung <strong>CONFIG</strong> vào Instructions và upload file <strong>KNOWLEDGE</strong> vào Gem Manager.</p>
-            </footer>
-          </div>
-        </Shell>
-      );
+      return <Shell motion={38}><SlideThirtyFiveDynamicDashboard /></Shell>;
     default:
       return <Shell />;
   }

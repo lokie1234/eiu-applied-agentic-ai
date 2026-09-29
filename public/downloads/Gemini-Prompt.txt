@@ -1,145 +1,208 @@
-Bạn là Enterprise AI Solution Architect + Gemini Gem Designer + Senior Google Apps Script Engineer.
+Bạn là Gemini Gem Designer và Senior Google Apps Script Engineer.
 
-Tôi đã tải lên đúng 3 file đầu vào:
+Tôi cung cấp 3 file:
+1. Gemini-Prompt.txt — yêu cầu chính.
+2. App-01-Source.txt — Web App mẫu 1.
+3. App-02-Source.txt — Web App mẫu 2.
 
-- Gemini-Prompt.txt — Yêu cầu chính này.
-- App-01-Source.txt — Source Web App mẫu số 1.
-- App-02-Source.txt — Source Web App mẫu số 2.
+Hãy đọc đầy đủ 3 file trước khi làm.
 
-Hãy đọc ĐẦY ĐỦ cả 3 file trước khi thực hiện.
-Hai app mẫu chỉ dùng để rút ra kiến trúc và nguyên tắc có thể tái sử dụng. Không biến nghiệp vụ riêng của một app thành mặc định của Gem, không trộn dữ liệu nghiệp vụ của hai app, và không sao chép cơ chế chuyển vai trò giả lập dùng cho demo.
+MỤC TIÊU
 
-======================================
-1. MỤC TIÊU
-======================================
+Từ hai app mẫu, chỉ rút ra kiến trúc và các thành phần có thể tái sử dụng để tạo một Gemini Gem tên theo vai trò “Business Internal Web App Builder”.
 
-Tạo một Gemini Gem có vai trò “Business Internal Web App Builder”, dùng AI Business Framework rút ra từ phần chung của hai source mẫu để tiếp nhận Requirement mới và tạo Web App nội bộ hoàn chỉnh, nhất quán, có đăng nhập và phân quyền thật.
+Không sao chép nghiệp vụ riêng của từng app mẫu.
+Không trộn dữ liệu nghiệp vụ giữa hai app.
+Không sử dụng cơ chế chuyển role giả lập của app demo.
 
-Ưu tiên stack khi phù hợp:
+Gem sau này sẽ nhận Requirement mới và tạo Web App nội bộ bằng:
+- Google Apps Script.
+- Google Sheets.
+- HTML/CSS/Bootstrap 5/JavaScript.
+- Đăng nhập và phân quyền thật.
+- Workflow, validation, dashboard và audit khi phù hợp.
 
-- Google Apps Script Web App.
-- Google Sheets làm database.
-- HTML5 + CSS/Bootstrap 5 + JavaScript responsive.
-- Form, validation, workflow, dashboard, audit trail, test và deployment rõ ràng.
-- Xác thực tài khoản, phiên đăng nhập và RBAC có kiểm tra quyền ở backend.
+==================================================
+1. REUSABLE CORE BẮT BUỘC
+==================================================
 
-Mọi Web App do Gem tạo phải dùng được ngay sau khi copy Code.gs và Index.html vào Google Apps Script Editor, chạy hàm thiết lập được hướng dẫn và deploy Web App.
+Các app do Gem tạo phải ưu tiên các nguyên tắc sau:
 
-======================================
-2. NỀN TẢNG ĐĂNG NHẬP VÀ PHÂN QUYỀN BẮT BUỘC
-======================================
+- Có trang Login riêng.
+- Người chưa đăng nhập không được xem ứng dụng.
+- Tài khoản Admin mặc định:
+  Username: EIU8888
+  Password: EIU123
+- Mật khẩu lưu dưới dạng hash + salt, không lưu plain text.
+- Có Session Token, thời hạn phiên và Logout.
+- Có các vùng dữ liệu hệ thống tương đương:
+  Users
+  Permissions
+  Sessions
+  AuditLogs
+- Admin có thể:
+  tạo tài khoản,
+  gửi email thông báo tài khoản cho user khi Admin tạo user mới,
+  kích hoạt/vô hiệu hóa,
+  reset mật khẩu,
+  gán role,
+  cấp/thu hồi quyền.
+- Quyền được thiết kế theo content_key hoặc module_key và có thể mở rộng thành view/create/edit/approve/delete.
+- Mọi xác thực và phân quyền phải được kiểm tra lại ở Code.gs; không chỉ ẩn nút ở frontend.
+- Dữ liệu đầu vào phải được validate ở backend.
+- Các thao tác ghi quan trọng dùng LockService.
+- Setup database phải idempotent: chạy lại không làm hỏng dữ liệu cũ.
+- Các hành động quan trọng phải ghi AuditLogs.
+- Không yêu cầu Google Workspace Login nếu Requirement không yêu cầu.
 
-Đây là REUSABLE CORE bắt buộc cho mọi app do Gem tạo, trừ khi Requirement mới yêu cầu một cơ chế bảo mật mạnh hơn:
-
-1. Có trang đăng nhập riêng. Người chưa đăng nhập không được xem nội dung ứng dụng.
-2. Tạo sẵn tài khoản quản trị mặc định, dùng được ngay sau bước khởi tạo:
-   - Tài khoản: EIU8888
-   - Mật khẩu: EIU123
-3. Admin có toàn quyền và có trang “Quản lý tài khoản” để:
-   - Tạo tài khoản mới.
-   - Kích hoạt/vô hiệu hóa tài khoản.
-   - Đặt lại mật khẩu.
-   - Gán vai trò.
-   - Cấp hoặc thu hồi quyền xem từng nội dung/module/chức năng cụ thể cho từng tài khoản.
-4. Người dùng chỉ nhìn thấy và chỉ truy xuất được nội dung đã được admin cấp. Thiết kế mô hình quyền tổng quát theo content_key/module_key và có thể mở rộng thêm quyền tạo, sửa, duyệt hoặc xóa theo Requirement.
-5. Mọi kiểm tra xác thực và phân quyền phải thực hiện lại ở Code.gs cho từng API/CRUD; ẩn nút ở giao diện không được xem là biện pháp bảo mật.
-6. Có đăng xuất, session token khó đoán, thời hạn phiên, kiểm tra tài khoản còn hoạt động và cơ chế thu hồi phiên khi cần.
-7. Không lưu mật khẩu dạng rõ trong Google Sheets. Mật khẩu phải được băm kèm salt; tài khoản admin mặc định chỉ được seed theo cách idempotent khi chưa tồn tại. Có chức năng đổi mật khẩu và khuyến nghị đổi mật khẩu mặc định sau lần đăng nhập đầu tiên, nhưng không làm mất khả năng đăng nhập ban đầu bằng EIU8888 / EIU123.
-8. Google Sheets tối thiểu có các vùng dữ liệu tổng quát tương đương Users, Permissions, Sessions và AuditLogs, bên cạnh sheet nghiệp vụ. Ghi audit cho đăng nhập, tạo/sửa/vô hiệu hóa tài khoản và thay đổi quyền.
-9. Chống dữ liệu đầu vào không hợp lệ, không tin dữ liệu role/username/permission gửi từ client, chống truy cập trực tiếp trái quyền, dùng LockService cho thao tác ghi quan trọng và trả lỗi thân thiện nhưng không làm lộ bí mật.
-10. Không dùng dropdown “chuyển vai trò demo”, không hard-code quyền chỉ ở frontend và không yêu cầu kết nối Google Workspace để đăng nhập.
-
-Trong mọi kết quả tạo app, Gem phải thông báo nguyên văn, rõ ràng:
+Trong mọi app do Gem tạo phải thông báo:
 
 TÀI KHOẢN ADMIN MẶC ĐỊNH
 Tài khoản: EIU8888
 Mật khẩu: EIU123
 Khuyến nghị: Đổi mật khẩu ngay sau lần đăng nhập đầu tiên.
 
-======================================
-3. PHÂN TÍCH ẨN — KHÔNG VIẾT DÀI RA CHAT
-======================================
+==================================================
+2. TẠO ĐÚNG 2 FILE CHO YÊU CẦU HIỆN TẠI
+==================================================
 
-Từ hai app mẫu, tự phân loại thành:
+Tạo đúng 2 file TXT:
 
-- REUSABLE CORE: Lõi dùng được cho nhiều app, bao gồm nền tảng đăng nhập và phân quyền ở Mục 2.
-- OPTIONAL PATTERN: Mẫu có thể bật/tắt theo Requirement.
-- APP-SPECIFIC: Phần chỉ thuộc từng app mẫu, không đưa vào mặc định của Gem.
+1. GEM_CONFIG.txt
+2. KNOWLEDGE_ALL.txt
 
-Rút ra phần chung theo chuỗi:
-Requirement → Data → Authentication → Role/Permission → Workflow → Validation → UI → Dashboard → Audit → Deployment.
+Nếu giao diện Gemini hỗ trợ tạo file tải xuống, hãy tạo hai file dưới dạng file đính kèm/file card có thể bấm Download.
 
-Không trình bày toàn bộ quá trình suy luận. Trên chat chỉ hiển thị BRIEF tối đa 8 bullet về phần có thể tái sử dụng; mỗi bullet tối đa một câu ngắn.
+Không cần hiển thị code hoặc quá trình tạo file trong chat.
 
-======================================
-4. OUTPUT CỦA YÊU CẦU HIỆN TẠI — ĐÚNG 2 FILE DOWNLOAD
-======================================
+------------------------------
+FILE 1 — GEM_CONFIG.txt
+------------------------------
 
-Tạo duy nhất hai file tải về dạng .txt:
+Nội dung gồm:
 
-QUY TẮC TẠO FILE TẢI XUỐNG THẬT — BẮT BUỘC:
+NAME:
+Tên Gem ngắn gọn và phù hợp dùng lâu dài.
 
-1. Phải dùng tính năng tạo tệp tích hợp của Gemini để tạo hai tệp vật lý UTF-8, sau đó đính kèm trực tiếp vào chính câu trả lời để giao diện hiển thị file card/nút Download có thể bấm được.
-2. Không được chỉ in tên file, không dán toàn bộ nội dung thay cho file, không đặt file trong code block và không tạo liên kết Markdown giả.
-3. Tuyệt đối không tự viết hoặc để lộ các chuỗi liên kết nội bộ như `[Tên-file](file-tag:...)`, `file-tag:`, `code-generated-file`, `sandbox:`, `blob:` hoặc đường dẫn tạm. Đây không phải là file tải xuống hợp lệ đối với người dùng.
-4. Tên file phải chính xác là GEM_CONFIG.txt và KNOWLEDGE_ALL.txt; kiểu file là Plain Text (TXT), encoding UTF-8, nội dung đầy đủ và không rỗng.
-5. Trước khi gửi câu trả lời, phải tự kiểm tra ẩn: đã tạo đủ đúng hai file, mở/đọc lại được, đúng tên, đúng nội dung, và cả hai đã xuất hiện dưới dạng tệp đính kèm có thể tải xuống trong response.
-6. Nếu lần tạo hoặc đính kèm đầu tiên thất bại, phải tạo lại file và đính kèm lại; không được kết thúc câu trả lời bằng link giả hoặc tuyên bố đã tạo file khi chưa có file card tải xuống.
-7. Nếu môi trường hiện tại thực sự không hỗ trợ tạo tệp đính kèm, phải nói rõ “Không thể tạo tệp tải xuống trong phiên này”; tuyệt đối không giả lập nút tải. Chỉ trong trường hợp này mới cung cấp nội dung đầy đủ trong hai code block riêng để người dùng tự lưu file.
+DESCRIPTION:
+Mô tả 1–2 câu.
 
-FILE 1: GEM_CONFIG.txt
+INSTRUCTIONS:
+Một bộ Instructions hoàn chỉnh, ngắn gọn và rõ ràng để copy vào Gemini Gem.
 
-Chứa toàn bộ phần cấu hình Gem để đọc và copy-paste:
+Instructions phải quy định rằng khi người dùng đưa Requirement mới, Gem phải:
 
-- NAME: Tên Gem ngắn gọn, rõ ràng, dùng lâu dài.
-- DESCRIPTION: Mô tả 1–2 câu về vai trò của Gem.
-- INSTRUCTIONS: Nội dung hoàn chỉnh 1.500–2.500 ký tự để dán vào trường Instructions của Gem, bao gồm Persona, Task, Context, quy trình, Output Format, Guardrails và quy định sử dụng file Knowledge gộp.
+1. Hiểu nghiệp vụ.
+2. Áp dụng REUSABLE CORE từ KNOWLEDGE_ALL.txt.
+3. Thiết kế data model, quyền, workflow và UI theo Requirement.
+4. Tạo đúng 2 file code hoàn chỉnh:
+   - Code.gs
+   - Index.html
+5. Code.gs phải chứa toàn bộ backend cần thiết:
+   doGet,
+   setup database,
+   Google Sheets CRUD,
+   authentication,
+   session,
+   account management,
+   permissions,
+   validation,
+   audit,
+   error handling.
+6. Index.html phải chứa toàn bộ frontend:
+   login,
+   giao diện nghiệp vụ,
+   admin account/permission management,
+   Bootstrap 5 responsive,
+   CSS,
+   JavaScript,
+   google.script.run,
+   loading/success/error,
+   logout.
+7. Không dùng pseudo-code.
+8. Không bỏ sót hàm.
+9. Không dùng comment kiểu “code tiếp theo”.
+10. Code phải đủ để copy vào Apps Script và triển khai.
+11. Khi hệ thống hỗ trợ tạo file, xuất Code.gs và Index.html thành file tải xuống.
 
-Trong INSTRUCTIONS phải ghi rõ quy tắc vận hành sau:
+------------------------------
+FILE 2 — KNOWLEDGE_ALL.txt
+------------------------------
 
-Khi người dùng đưa Requirement mới, Gem không được trả kết quả chung chung hoặc mã giả. Gem phải áp dụng REUSABLE CORE, thiết kế nghiệp vụ theo Requirement và xuất đúng hai file code hoàn chỉnh có thể tải xuống:
+Gộp kiến thức tái sử dụng thành 5 phần:
 
-1. Code.gs — Toàn bộ backend Google Apps Script: doGet, setup idempotent, Google Sheets CRUD, xác thực, session, quản lý tài khoản, phân quyền nội dung, validation, audit và xử lý lỗi.
-2. Index.html — Toàn bộ frontend Web App: trang đăng nhập, giao diện nghiệp vụ responsive, trang quản lý tài khoản/quyền dành cho admin, JavaScript gọi google.script.run, trạng thái loading/success/error và đăng xuất.
+PART 1 — KNOWLEDGE_AI_FRAMEWORK
+- Quy trình:
+  Requirement
+  → Data
+  → Authentication
+  → Role/Permission
+  → Workflow
+  → Validation
+  → UI
+  → Dashboard
+  → Audit
+  → Deployment.
+- Phân biệt:
+  REUSABLE CORE
+  OPTIONAL PATTERN
+  APP-SPECIFIC.
+- Chỉ áp dụng nghiệp vụ thực tế theo Requirement mới.
 
-Hai file code phải đầy đủ, không viết tắt, không dùng pseudo-code, không dùng comment cắt ngắn như “// code tiếp theo...”, không yêu cầu người dùng tự bổ sung hàm còn thiếu. Vì Google Apps Script chỉ cần hai file, CSS và JavaScript phía client phải được đặt đầy đủ trong Index.html.
+PART 2 — KNOWLEDGE_UI_UX_STANDARD
+- Bootstrap 5 responsive.
+- Desktop và mobile.
+- Navigation rõ ràng.
+- Form có validation.
+- Loading, success, error state.
+- Dashboard dùng stat cards, table, filter hoặc chart khi phù hợp.
+- Admin screen tách rõ khỏi nghiệp vụ người dùng.
 
-Gem phải tạo Code.gs và Index.html thành hai tệp đính kèm thật bằng tính năng tạo file của Gemini, để giao diện hiển thị file card/nút Download. Không được mô phỏng bằng liên kết Markdown, không được xuất chuỗi `file-tag:`, `code-generated-file`, `sandbox:` hoặc chỉ đưa code block rồi gọi đó là file tải xuống. Trước khi kết thúc phải kiểm tra cả hai tệp đã đính kèm, không rỗng và tải được; nếu đính kèm lỗi thì tạo lại thay vì phát sinh link giả.
+PART 3 — KNOWLEDGE_AUTH_RBAC_PATTERN
+- Users, Permissions, Sessions, AuditLogs.
+- Admin seed EIU8888 / EIU123.
+- Password hash + salt.
+- Session token khó đoán và có expiry.
+- Backend authorization cho mọi API quan trọng.
+- Permission theo module_key/content_key.
+- Admin quản lý account và permission.
+- Audit login và thay đổi tài khoản/quyền.
 
-Trong mỗi lần tạo app, phần chat của Gem chỉ được gồm:
+PART 4 — KNOWLEDGE_WORKFLOW_PATTERN
+- Trạng thái nghiệp vụ phải được định nghĩa rõ.
+- Chỉ role/quyền hợp lệ mới được chuyển trạng thái.
+- Validate transition ở backend.
+- Ghi người thao tác, thời gian và thay đổi vào audit/history.
+- Dashboard tổng hợp dữ liệu theo Requirement.
 
-A. BRIEF — PHẦN TÁI SỬ DỤNG ĐÃ ÁP DỤNG
-- Tối đa 8 bullet ngắn.
+PART 5 — KNOWLEDGE_GAS_SHEETS_PATTERN
+- Apps Script backend + Google Sheets database.
+- Setup sheet idempotent.
+- Header rõ ràng.
+- Chuyển dữ liệu Sheet thành Object[] để frontend dễ xử lý.
+- Validate dữ liệu ở server.
+- LockService cho thao tác ghi.
+- Error response nhất quán.
+- Không làm lộ lỗi hệ thống nhạy cảm.
+- Hướng dẫn deploy:
+  Apps Script Editor
+  → Code.gs + Index.html
+  → chạy setup
+  → Deploy
+  → New deployment
+  → Web App
+  → Execute as Me
+  → chọn quyền truy cập phù hợp
+  → lấy Web App URL.
 
-B. TÀI KHOẢN ADMIN MẶC ĐỊNH
-- Tài khoản: EIU8888
-- Mật khẩu: EIU123
-- Khuyến nghị đổi mật khẩu ngay sau lần đăng nhập đầu tiên.
+==================================================
+3. PHẦN CHAT CUỐI CÙNG
+==================================================
 
-C. HAI FILE CODE ĐỂ DOWNLOAD
-- Đính kèm file card tải xuống thật: Code.gs
-- Đính kèm file card tải xuống thật: Index.html
-
-FILE 2: KNOWLEDGE_ALL.txt
-
-Gộp toàn bộ nội dung của các mảng kiến thức vào một file duy nhất, phân mục rõ ràng và đủ chi tiết để Gem tạo code nhất quán:
-
-- Phần 1: KNOWLEDGE_AI_FRAMEWORK — Khung AI Business tổng quát.
-- Phần 2: KNOWLEDGE_UI_UX_STANDARD — Tiêu chuẩn responsive UI/UX và Bootstrap 5.
-- Phần 3: KNOWLEDGE_AUTH_RBAC_PATTERN — Login, password hashing, session, Users, Permissions, content_key/module_key, admin account management, backend authorization và audit bảo mật.
-- Phần 4: KNOWLEDGE_WORKFLOW_PATTERN — Workflow, trạng thái, vai trò, audit trail và dashboard.
-- Phần 5: KNOWLEDGE_GAS_SHEETS_PATTERN — GAS + Google Sheets, data model, server-side validation, LockService, lỗi, test và deployment.
-
-KNOWLEDGE_ALL.txt phải quy định rõ tài khoản seed mặc định EIU8888 / EIU123 và cách triển khai an toàn nêu tại Mục 2.
-
-======================================
-5. OUTPUT TRÊN CHAT CỦA YÊU CẦU HIỆN TẠI
-======================================
-
-Chat chỉ hiển thị đúng cấu trúc ngắn gọn sau:
+Phần chat chỉ hiển thị theo đúng cấu trúc sau:
 
 A. BRIEF — PHẦN CÓ THỂ TÁI SỬ DỤNG
-- Tối đa 8 bullet ngắn.
+- Tối đa 8 bullet ngắn về kiến trúc chung đã rút ra.
 
 B. TÀI KHOẢN ADMIN MẶC ĐỊNH CỦA CÁC APP DO GEM TẠO
 - Tài khoản: EIU8888
@@ -147,20 +210,13 @@ B. TÀI KHOẢN ADMIN MẶC ĐỊNH CỦA CÁC APP DO GEM TẠO
 - Khuyến nghị đổi mật khẩu ngay sau lần đăng nhập đầu tiên.
 
 C. HAI FILE TẢI XUỐNG
-- Đính kèm file card tải xuống thật: GEM_CONFIG.txt
-- Đính kèm file card tải xuống thật: KNOWLEDGE_ALL.txt
+- GEM_CONFIG.txt
+- KNOWLEDGE_ALL.txt
 
-Không chèn hyperlink thủ công vào tên hai file. Tệp phải xuất hiện bằng cơ chế đính kèm/tạo file gốc của Gemini, không phải văn bản có cú pháp link.
+Không hiển thị:
+- quá trình phân tích,
+- code dùng để tạo file,
+- stdout/log,
+- toàn bộ nội dung hai file trong chat.
 
-Tuyệt đối không yêu cầu kết nối Workspaces.
-
-======================================
-6. QUY TẮC CHẤT LƯỢNG
-======================================
-
-- Không tách KNOWLEDGE_ALL.txt thành nhiều file Knowledge lẻ.
-- Không tạo ứng dụng nghiệp vụ cụ thể ở bước hiện tại; chỉ tạo cấu hình và Knowledge cho Gem. Ứng dụng cụ thể chỉ được tạo khi Gem nhận Requirement mới.
-- Tận dụng các phần chung tốt của hai source mẫu nhưng nâng cấp cơ chế role demo thành xác thực và phân quyền thật theo Mục 2.
-- Bảo đảm tài khoản admin mặc định được tạo tự động, có toàn quyền, và thông tin đăng nhập luôn xuất hiện đúng vị trí quy định.
-- Chỉ xem nhiệm vụ hoàn tất khi response có đúng hai tệp đính kèm tải xuống thật; chuỗi `file-tag:` hiển thị trong nội dung là lỗi đầu ra và phải được tạo lại.
-- Không giải thích dài dòng ngoài các phần đã quy định.
+Ưu tiên hoàn thành nội dung chính xác và tạo được hai file hơn là tuân theo các quy tắc trình bày phức tạp.

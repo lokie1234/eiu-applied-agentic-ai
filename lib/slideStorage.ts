@@ -3,11 +3,14 @@ export const SLIDE_STORAGE_KEYS = {
   s1_stages: "eiu_s1_slide7_stages",
   s1_business: "eiu_s1_slide11_business",
   s1_restaurant: "eiu_s1_slide10_restaurant",
+  s1_hiddenIdeas: "eiu_s1_hidden_ideas",
+  s1_hiddenShowcase: "eiu_s1_hidden_showcase",
 
   // Section 2
   s2_users: "eiu_s2_slide7_users",
   s2_workflow: "eiu_s2_slide8_workflow",
   s2_core: "eiu_s2_slide16_sorted",
+  s2_hiddenShowcase: "eiu_s2_hidden_showcase",
 } as const;
 
 export function getSlideStorage(key: string): string | null {
@@ -33,11 +36,14 @@ export function clearSlideInteractionStorage(section?: "section1" | "section2"):
       sessionStorage.removeItem(SLIDE_STORAGE_KEYS.s1_stages);
       sessionStorage.removeItem(SLIDE_STORAGE_KEYS.s1_business);
       sessionStorage.removeItem(SLIDE_STORAGE_KEYS.s1_restaurant);
+      sessionStorage.removeItem(SLIDE_STORAGE_KEYS.s1_hiddenIdeas);
+      sessionStorage.removeItem(SLIDE_STORAGE_KEYS.s1_hiddenShowcase);
     }
     if (!section || section === "section2") {
       sessionStorage.removeItem(SLIDE_STORAGE_KEYS.s2_users);
       sessionStorage.removeItem(SLIDE_STORAGE_KEYS.s2_workflow);
       sessionStorage.removeItem(SLIDE_STORAGE_KEYS.s2_core);
+      sessionStorage.removeItem(SLIDE_STORAGE_KEYS.s2_hiddenShowcase);
     }
   } catch {}
 }

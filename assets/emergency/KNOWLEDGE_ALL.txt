@@ -1,0 +1,119 @@
+==============================================================================
+KNOWLEDGE_ALL.txt — BUSINESS INTERNAL WEB APP BUILDER FRAMEWORK
+==============================================================================
+
+PART 1 — KNOWLEDGE_AI_FRAMEWORK
+------------------------------------------------------------------------------
+Quy trình phát triển ứng dụng nội bộ chuẩn hóa:
+Requirement 
+→ Data Model (Google Sheets Schema) 
+→ Authentication (Login, Hash+Salt, Session) 
+→ Role & Permission (RBAC) 
+→ Workflow & Business Rules 
+→ Server Validation & LockService 
+→ Responsive UI/UX (Bootstrap 5) 
+→ Dashboard Thống kê 
+→ Audit Logs 
+→ Deployment Guide.
+
+Phân định rõ ràng 3 lớp cấu trúc:
+1. REUSABLE CORE (Bắt buộc trong mọi App):
+   - Trang đăng nhập riêng biệt & Session Token management.
+   - Mã hóa mật khẩu Hash + Salt (SHA-256).
+   - Bảng hệ thống: Users, Permissions, Sessions, AuditLogs.
+   - Tài khoản Admin mặc định Seed: EIU8888 / EIU123.
+   - Backend Authorization kiểm tra quyền trực tiếp tại Code.gs.
+   - Idempotent Database Setup.
+   - LockService bảo vệ các thao tác ghi.
+   - Log vết hệ thống (AuditLogs).
+2. OPTIONAL PATTERN (Áp dụng linh hoạt):
+   - Dashboard tổng hợp (KPI cards, bảng biểu phân loại).
+   - Email Notification (thông báo tài khoản mới, duyệt đơn).
+   - Lịch sử thao tác nghiệp vụ (Business History trace).
+   - Bộ lọc và tìm kiếm dữ liệu.
+3. APP-SPECIFIC (Chỉ xuất hiện theo Requirement mới):
+   - Cấu trúc các bảng dữ liệu nghiệp vụ riêng.
+   - Quy trình chuyển trạng thái nghiệp vụ cụ thể.
+   - Giao diện thao tác nghiệp vụ chuyên biệt.
+
+Chỉ áp dụng đúng nghiệp vụ theo Requirement mới, không tự ý trộn lẫn hay sao chép logic của các app mẫu khác.
+
+
+PART 2 — KNOWLEDGE_UI_UX_STANDARD
+------------------------------------------------------------------------------
+- Framework Frontend: Bootstrap 5 (CSS & JS Bundle từ CDN).
+- Responsive Design: Hiển thị tối ưu và linh hoạt trên cả Desktop, Tablet và Mobile.
+- Navigation Layout: Thẻ Tabs hoặc Sidebar chuyển đổi mượt mà giữa Form nhập liệu, Danh sách / Workflow, Dashboard và Trang Quản trị (Admin).
+- Form Standards:
+  + Nhãn rõ ràng, bắt buộc đánh dấu (*) cho trường bắt buộc.
+  + HTML5 Form validation kết hợp JavaScript validation trước khi gửi.
+- State Management UI:
+  + Loading state (Spinner/Placeholder) khi đang thực hiện lệnh `google.script.run`.
+  + Alert / Toast thông báo thành công hoặc lỗi rõ ràng.
+  + Disable nút Submit / Action khi đang trong quá trình xử lý backend để chống bấm đúp (double submit).
+- Dashboard Layout:
+  + Stat Cards hiển thị chỉ số tổng quan (KPIs).
+  + Bảng thống kê chi tiết theo trạng thái, nhóm, phòng ban.
+- Tách biệt UI Admin: Trang quản lý tài khoản và phân quyền Admin được phân tách rõ ràng khỏi giao diện nghiệp vụ của người dùng thông thường.
+
+
+PART 3 — KNOWLEDGE_AUTH_RBAC_PATTERN
+------------------------------------------------------------------------------
+- Các Bảng Dữ Liệu Hệ Thống (Sheets):
+  + Users: [Username, PasswordHash, Salt, FullName, Email, Role, Status, CreatedAt]
+  + Permissions: [RoleOrUser, ContentKey, CanView, CanCreate, CanEdit, CanApprove, CanDelete]
+  + Sessions: [SessionToken, Username, ExpiryTime, CreatedAt]
+  + AuditLogs: [LogID, Timestamp, Username, Action, Target, Details, Status]
+- Admin Seed Mặc Định:
+  + Username: EIU8888
+  + Password: EIU123 (Được tự động Hash + Salt khi chạy setup)
+- Cơ chế Mã hóa & Session:
+  + Mật khẩu băm SHA-256 kết hợp Chuỗi Salt ngẫu nhiên riêng cho từng tài khoản. Không bao giờ lưu hay xử lý plain-text password.
+  + Session Token ngẫu nhiên có độ dài an toàn và thời gian hết hạn cố định (vd: 8-12h).
+- Backend Authorization (Bắt buộc):
+  + Mọi hàm xử lý dữ liệu nhạy cảm trong Code.gs phải nhận SessionToken từ client, xác thực token hợp lệ và kiểm tra quyền của Username tương ứng với module_key/content_key.
+  + Không dựa vào việc ẩn/hiện nút ở Frontend để bảo mật.
+- Quản trị Tài khoản & Phân quyền (Admin Module):
+  + Admin có quyền tạo tài khoản, gửi email thông báo tự động (qua MailApp/GmailApp), kích hoạt/vô hiệu hóa user, reset password, gán Role và phân quyền chi tiết (View/Create/Edit/Approve/Delete).
+- Ghi log bảo mật: Mọi thao tác Đăng nhập, Đăng xuất, Đổi mật khẩu, Tạo/Sửa User và Thay đổi Phân quyền đều phải ghi vào AuditLogs.
+
+
+PART 4 — KNOWLEDGE_WORKFLOW_PATTERN
+------------------------------------------------------------------------------
+- State Machine Nghiệp vụ: Định nghĩa danh sách các trạng thái nghiệp vụ rõ ràng (Ví dụ: Mới -> Đang xử lý -> Chờ duyệt -> Đã duyệt / Từ chối / Đã đóng).
+- Phân quyền Chuyển Trạng thái (Workflow RBAC):
+  + Cấu hình rõ Role/Quyền nào được phép chuyển từ Trạng thái A sang Trạng thái B.
+- Backend Validation cho Workflow:
+  + Backend (Code.gs) kiểm tra tính hợp lệ của việc chuyển trạng thái dựa trên Trạng thái hiện tại và Quyền của người thực hiện trước khi cập nhật.
+- Audit Trail & Lịch sử Nghiệp vụ:
+  + Ghi nhận thời gian (`toLocaleString('vi-VN')`), người thực hiện, vai trò, trạng thái cũ và trạng thái mới vào cột Lịch sử hoặc bảng Log nghiệp vụ.
+- Dashboard Tổng Hợp:
+  + Tính toán số liệu tổng hợp thời gian thực từ Google Sheets để hiển thị chỉ số nghiệp vụ trên Dashboard.
+
+
+PART 5 — KNOWLEDGE_GAS_SHEETS_PATTERN
+------------------------------------------------------------------------------
+- Kiến trúc Google Apps Script + Google Sheets Database:
+  + Sử dụng SpreadsheetApp làm Database Engine.
+  + Setup Idempotent: Kiểm tra sự tồn tại của Sheet (`getSheetByName`). Nếu chưa có mới khởi tạo và ghi Header. Đảm bảo chạy lại hàm setup không làm ghi đè hay mất dữ liệu hiện tại.
+- Chuẩn hóa Dữ liệu Server-Frontend:
+  + Chuyển đổi dữ liệu bảng Google Sheets từ dạng mảng 2 chiều thành Danh sách Object (`Object[]`) với Key là tên Header.
+  + Chuẩn hóa dữ liệu Ngày tháng và Chuỗi để tránh lỗi serialization qua `google.script.run`.
+- An Toàn & Đồng Thời (Concurrency & LockService):
+  + Bắt buộc dùng `LockService.getScriptLock()` cho tất cả thao tác Ghi (`appendRow`, `setValue`, `updateRow`).
+  + Sử dụng `tryLock(10000)` để ngăn ngừa xung đột ghi dữ liệu đồng thời khi nhiều user truy cập cùng lúc.
+- Xử lý Lỗi & Phản hồi:
+  + Cấu trúc Phản hồi thống nhất: `{ success: boolean, message: string, data: any }`.
+  + Sử dụng `try...catch` ở mọi endpoint backend. Log lỗi nội bộ ra `Logger.log()` và trả về thông báo lỗi an toàn, không lộ stack trace hay cấu trúc DB.
+- Quy Trình Triển Khai (Deployment Guide):
+  1. Mở Google Sheets -> Chọn Extensions (Mở rộng) -> Apps Script.
+  2. Tạo 2 file: Code.gs và Index.html, dán toàn bộ mã nguồn tương ứng.
+  3. Khởi tạo Database: Tại thanh công cụ Editor, chọn hàm setup (vd: `setupDatabase`) và bấm Run (Chạy) để khởi tạo các Sheet hệ thống và tài khoản Admin mặc định EIU8888 / EIU123.
+  4. Nhấn Deploy (Triển khai) -> New deployment (Triển khai mới).
+  5. Chọn loại Select type: Web app (Ứng dụng web).
+  6. Điền cấu hình:
+     - Description: Nhập tên ứng dụng / phiên bản.
+     - Execute as: Me (Tôi - địa chỉ email của bạn).
+     - Who has access: Anyone (Bất kỳ ai) hoặc người trong tổ chức.
+  7. Nhấn Deploy, hoàn tất Ủy quyền truy cập (Authorize Access).
+  8. Sao chép Web App URL để đưa vào sử dụng.

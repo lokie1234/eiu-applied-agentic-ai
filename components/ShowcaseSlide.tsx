@@ -1,7 +1,8 @@
 "use client";
 
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getSlideStorage, setSlideStorage, SLIDE_STORAGE_KEYS } from "@/lib/slideStorage";
 import styles from "./ShowcaseSlide.module.css";
 
 type ShowcaseItem = {
@@ -31,15 +32,29 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
   const [message, setMessage] = useState("");
-  const [deletingId, setDeletingId] = useState("");
-  const [clearingAll, setClearingAll] = useState(false);
+  const hiddenStorageKey = section === "section2"
+    ? SLIDE_STORAGE_KEYS.s2_hiddenShowcase
+    : SLIDE_STORAGE_KEYS.s1_hiddenShowcase;
+  const hiddenIdsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(getSlideStorage(hiddenStorageKey) ?? "[]") as unknown;
+      hiddenIdsRef.current = new Set(Array.isArray(stored) ? stored.map(String) : []);
+    } catch {
+      hiddenIdsRef.current = new Set();
+    }
+  }, [hiddenStorageKey]);
 
   const loadItems = useCallback(async () => {
     try {
       const response = await fetch(`/api/showcase?section=${encodeURIComponent(section)}`, { cache: "no-store" });
       const payload = await readJson(response);
       if (!response.ok) throw new Error(payload.message || "Không thể tải danh sách.");
-      setItems(Array.isArray(payload.items) ? payload.items : []);
+      setItems(
+        (Array.isArray(payload.items) ? payload.items : [])
+          .filter((item) => !hiddenIdsRef.current.has(item.id))
+      );
       setStatus("idle");
       setMessage("");
     } catch (error) {
@@ -91,54 +106,26 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
     }
   }
 
-  async function deleteItem(item: ShowcaseItem) {
-    if (!isAdmin || deletingId) return;
-    if (!window.confirm(`Xóa bài chia sẻ của ${item.name}?`)) return;
+  function deleteItem(item: ShowcaseItem) {
+    if (!isAdmin) return;
+    if (!window.confirm(`Ẩn bài chia sẻ của ${item.name} khỏi slide? Dữ liệu vẫn được giữ trong báo cáo Excel.`)) return;
 
-    setDeletingId(item.id);
     setStatus("idle");
-    setMessage("");
-    try {
-      const response = await fetch("/api/showcase", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ section, id: item.id }),
-      });
-      const payload = await readJson(response);
-      if (!response.ok) throw new Error(payload.message || "Không thể xóa bài chia sẻ.");
-      setItems((current) => current.filter((entry) => entry.id !== item.id));
-      setMessage("Đã xóa bài chia sẻ.");
-    } catch (error) {
-      setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Không thể xóa bài chia sẻ.");
-    } finally {
-      setDeletingId("");
-    }
+    hiddenIdsRef.current.add(item.id);
+    setSlideStorage(hiddenStorageKey, JSON.stringify([...hiddenIdsRef.current]));
+    setItems((current) => current.filter((entry) => entry.id !== item.id));
+    setMessage("Đã ẩn khỏi slide. Dữ liệu vẫn được giữ để xuất Excel.");
   }
 
-  async function clearAllItems() {
-    if (!isAdmin || clearingAll || deletingId || items.length === 0) return;
-    if (!window.confirm(`Xóa toàn bộ ${items.length} ${section === "section2" ? "bài làm" : "ứng dụng"} đã chia sẻ? Thao tác này không thể hoàn tác.`)) return;
+  function clearAllItems() {
+    if (!isAdmin || items.length === 0) return;
+    if (!window.confirm(`Ẩn toàn bộ ${items.length} ${section === "section2" ? "bài làm" : "ứng dụng"} khỏi slide? Dữ liệu vẫn được giữ trong báo cáo Excel.`)) return;
 
-    setClearingAll(true);
     setStatus("idle");
-    setMessage("");
-    try {
-      const response = await fetch("/api/showcase", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ section, all: true }),
-      });
-      const payload = await readJson(response);
-      if (!response.ok) throw new Error(payload.message || "Không thể xóa toàn bộ danh sách.");
-      setItems([]);
-      setMessage("Đã xóa toàn bộ danh sách.");
-    } catch (error) {
-      setStatus("error");
-      setMessage(error instanceof Error ? error.message : "Không thể xóa toàn bộ danh sách.");
-    } finally {
-      setClearingAll(false);
-    }
+    items.forEach((item) => hiddenIdsRef.current.add(item.id));
+    setSlideStorage(hiddenStorageKey, JSON.stringify([...hiddenIdsRef.current]));
+    setItems([]);
+    setMessage("Đã ẩn danh sách khỏi slide. Dữ liệu vẫn được giữ để xuất Excel.");
   }
 
   const isSectionTwo = section === "section2";
@@ -166,10 +153,10 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
                 <button
                   type="button"
                   className={styles.clearAll}
-                  onClick={() => void clearAllItems()}
-                  disabled={clearingAll || Boolean(deletingId) || items.length === 0}
+                  onClick={clearAllItems}
+                  disabled={items.length === 0}
                 >
-                  {clearingAll ? "Đang xóa…" : "Xóa hết"}
+                  Xóa hết
                 </button>
               )}
               <button type="button" onClick={() => void loadItems()} aria-label="Tải lại danh sách">↻</button>
@@ -186,11 +173,10 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
                     <button
                       type="button"
                       className="showcase-delete-button"
-                      onClick={() => void deleteItem(item)}
-                      disabled={Boolean(deletingId)}
-                      title="Xóa khỏi bảng"
+                      onClick={() => deleteItem(item)}
+                      title="Ẩn khỏi slide"
                     >
-                      {deletingId === item.id ? "..." : "Xóa"}
+                      Xóa
                     </button>
                   )}
                 </div>

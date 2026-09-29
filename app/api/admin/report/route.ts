@@ -14,6 +14,8 @@ type TimeFilter = {
   endIso: string;
 };
 
+const DEFAULT_SECTIONS = ["section1", "section2"];
+
 function getDateBounds(dateStr: string, tzOffsetMinutes = -420) {
   const parts = dateStr.split("-").map(Number);
   if (parts.length !== 3 || parts.some((p) => Number.isNaN(p))) return null;
@@ -96,6 +98,39 @@ function addSheet(
   return sheet;
 }
 
+function sectionKey(value: unknown) {
+  return String(value ?? "").trim().toLowerCase();
+}
+
+function sectionLabel(section: string) {
+  const match = section.match(/^section[\s_-]*(\d+)$/i);
+  return match ? `Section ${match[1]}` : section;
+}
+
+function sectionSheetPrefix(section: string) {
+  const match = section.match(/^section[\s_-]*(\d+)$/i);
+  if (match) return `S${match[1]}`;
+  return section.replace(/[^a-z0-9]+/gi, " ").trim().slice(0, 10) || "Other";
+}
+
+function collectSections(groups: Row[][], configuredSections: unknown[]) {
+  const configured = configuredSections.map(sectionKey).filter(Boolean);
+  const sections = new Set(configured.length > 0 ? configured : DEFAULT_SECTIONS);
+  groups.forEach((rows) => {
+    rows.forEach((row) => {
+      const section = sectionKey(row.section);
+      if (section) sections.add(section);
+    });
+  });
+  return [...sections].sort((left, right) =>
+    left.localeCompare(right, undefined, { numeric: true, sensitivity: "base" })
+  );
+}
+
+function rowsInSection(rows: Row[], section: string) {
+  return rows.filter((row) => sectionKey(row.section) === section);
+}
+
 export async function GET(request: Request) {
   try {
     if ((await currentRole()) !== "admin") {
@@ -106,6 +141,18 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
+    const mode = searchParams.get("mode")?.trim().toLowerCase() || "report";
+    const requestedSection = sectionKey(searchParams.get("section")) || "all";
+
+    if (mode === "sections") {
+      const sectionStates = await fetchAll("section_state", "updated_at");
+      const sections = collectSections([], sectionStates.map((row) => row.section));
+      return Response.json({
+        success: true,
+        sections: sections.map((section) => ({ value: section, label: sectionLabel(section) })),
+      }, { headers: { "Cache-Control": "no-store, max-age=0" } });
+    }
+
     const dateParam = searchParams.get("date")?.trim() || "";
     const tzOffsetMinutes = Number(searchParams.get("tzOffset") ?? -420);
     const dateBounds =
@@ -113,7 +160,7 @@ export async function GET(request: Request) {
         ? getDateBounds(dateParam, Number.isFinite(tzOffsetMinutes) ? tzOffsetMinutes : -420)
         : null;
 
-    const [learners, ideas, showcase, quiz, feedback] = await Promise.all([
+    const [learners, ideas, showcase, quiz, feedback, sectionStates] = await Promise.all([
       fetchAll(
         "learner_profiles",
         "updated_at",
@@ -139,10 +186,35 @@ export async function GET(request: Request) {
         "submitted_at",
         dateBounds ? { column: "submitted_at", startIso: dateBounds.startIso, endIso: dateBounds.endIso } : null,
       ),
+      fetchAll("section_state", "updated_at"),
     ]);
 
-    const countBySection = (rows: Row[], section: string) =>
-      rows.filter((row) => row.section === section).length;
+    const availableSections = collectSections(
+      [learners, ideas, showcase, quiz, feedback],
+      sectionStates.map((row) => row.section),
+    );
+    if (requestedSection !== "all" && !availableSections.includes(requestedSection)) {
+      return Response.json(
+        { success: false, message: "Section được chọn không tồn tại." },
+        { status: 400 },
+      );
+    }
+
+    const sections = requestedSection === "all" ? availableSections : [requestedSection];
+    const scopeRows = (rows: Row[]) =>
+      requestedSection === "all" ? rows : rowsInSection(rows, requestedSection);
+    const scopedLearners = scopeRows(learners);
+    const scopedIdeas = scopeRows(ideas);
+    const scopedShowcase = scopeRows(showcase);
+    const scopedQuiz = scopeRows(quiz);
+    const scopedFeedback = scopeRows(feedback);
+    const dataGroups = [
+      { label: "Học viên", rows: scopedLearners },
+      { label: "Ý tưởng", rows: scopedIdeas },
+      { label: "Bài làm chia sẻ", rows: scopedShowcase },
+      { label: "Quiz", rows: scopedQuiz },
+      { label: "Feedback", rows: scopedFeedback },
+    ];
     const generatedAt = new Date().toISOString();
     const workbook = new ExcelJS.Workbook();
     workbook.creator = "EIU Applied Agentic AI";
@@ -155,11 +227,10 @@ export async function GET(request: Request) {
     });
     summary.columns = [
       { key: "label", width: 34 },
-      { key: "section1", width: 18 },
-      { key: "section2", width: 18 },
+      ...sections.map((_, index) => ({ key: `section${index + 1}`, width: 18 })),
       { key: "total", width: 14 },
     ];
-    summary.mergeCells("A1:D1");
+    summary.mergeCells(1, 1, 1, sections.length + 2);
     summary.getCell("A1").value = "EIU APPLIED AGENTIC AI - INTERACTIVE REPORT";
     summary.getCell("A1").font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
     summary.getCell("A1").fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF082945" } };
@@ -172,73 +243,78 @@ export async function GET(request: Request) {
     summary.addRow(["Phạm vi báo cáo", filterLabel]);
     summary.addRow(["Xuất lúc (UTC)", generatedAt]);
     summary.addRow([]);
-    summary.addRow(["Loại dữ liệu", "Section 1", "Section 2", "Tổng"]);
+    summary.addRow(["Loại dữ liệu", ...sections.map(sectionLabel), "Tổng"]);
     styleHeader(summary.getRow(5));
-    [
-      ["Học viên", countBySection(learners, "section1"), countBySection(learners, "section2"), learners.length],
-      ["Ý tưởng", countBySection(ideas, "section1"), countBySection(ideas, "section2"), ideas.length],
-      ["Showcase", countBySection(showcase, "section1"), countBySection(showcase, "section2"), showcase.length],
-      ["Quiz", countBySection(quiz, "section1"), countBySection(quiz, "section2"), quiz.length],
-      ["Feedback", countBySection(feedback, "section1"), countBySection(feedback, "section2"), feedback.length],
-    ].forEach((row) => summary.addRow(row));
+    dataGroups.forEach(({ label, rows }) => {
+      summary.addRow([
+        label,
+        ...sections.map((section) => rowsInSection(rows, section).length),
+        rows.length,
+      ]);
+    });
 
-    addSheet(workbook, "Learners", [
-      { header: "Họ tên", key: "name", width: 30 },
-      { header: "Email EIU", key: "email", width: 36 },
-      { header: "Section", key: "section", width: 12 },
-      { header: "Tạo lúc (UTC)", key: "createdAt", width: 26 },
-      { header: "Cập nhật lúc (UTC)", key: "updatedAt", width: 26 },
-    ], learners.map((row) => ({
-      name: String(row.name ?? ""), email: String(row.email ?? ""), section: String(row.section ?? ""), createdAt: iso(row.created_at), updatedAt: iso(row.updated_at),
-    })));
+    sections.forEach((section) => {
+      const prefix = sectionSheetPrefix(section);
+      const sectionLearners = rowsInSection(scopedLearners, section);
+      const sectionIdeas = rowsInSection(scopedIdeas, section);
+      const sectionShowcase = rowsInSection(scopedShowcase, section);
+      const sectionQuiz = rowsInSection(scopedQuiz, section);
+      const sectionFeedback = rowsInSection(scopedFeedback, section);
 
-    addSheet(workbook, "Y tuong", [
-      { header: "Section", key: "section", width: 12 },
-      { header: "Họ tên", key: "name", width: 28 },
-      { header: "Email EIU", key: "email", width: 34 },
-      { header: "Ý tưởng", key: "idea", width: 80 },
-      { header: "Gửi lúc (UTC)", key: "submittedAt", width: 26 },
-    ], ideas.map((row) => ({
-      section: String(row.section ?? ""), name: String(row.name ?? ""), email: String(row.email ?? ""), idea: String(row.idea ?? ""), submittedAt: iso(row.submitted_at),
-    })));
+      addSheet(workbook, `${prefix} - Hoc vien`, [
+        { header: "Họ tên", key: "name", width: 30 },
+        { header: "Email EIU", key: "email", width: 36 },
+        { header: "Tạo lúc (UTC)", key: "createdAt", width: 26 },
+        { header: "Cập nhật lúc (UTC)", key: "updatedAt", width: 26 },
+      ], sectionLearners.map((row) => ({
+        name: String(row.name ?? ""), email: String(row.email ?? ""), createdAt: iso(row.created_at), updatedAt: iso(row.updated_at),
+      })));
 
-    addSheet(workbook, "Showcase", [
-      { header: "Section", key: "section", width: 12 },
-      { header: "Họ tên", key: "name", width: 28 },
-      { header: "Email EIU", key: "email", width: 34 },
-      { header: "URL", key: "url", width: 70 },
-      { header: "Chia sẻ lúc (UTC)", key: "sharedAt", width: 26 },
-    ], showcase.map((row) => ({
-      section: String(row.section ?? ""), name: String(row.name ?? ""), email: String(row.email ?? ""), url: String(row.url ?? ""), sharedAt: iso(row.shared_at),
-    })));
+      addSheet(workbook, `${prefix} - Y tuong`, [
+        { header: "Họ tên", key: "name", width: 28 },
+        { header: "Email EIU", key: "email", width: 34 },
+        { header: "Ý tưởng", key: "idea", width: 80 },
+        { header: "Gửi lúc (UTC)", key: "submittedAt", width: 26 },
+      ], sectionIdeas.map((row) => ({
+        name: String(row.name ?? ""), email: String(row.email ?? ""), idea: String(row.idea ?? ""), submittedAt: iso(row.submitted_at),
+      })));
 
-    addSheet(workbook, "Quiz", [
-      { header: "Section", key: "section", width: 12 },
-      { header: "Họ tên", key: "name", width: 28 },
-      { header: "Email", key: "email", width: 34 },
-      { header: "Điểm", key: "score", width: 10 },
-      { header: "Tổng điểm", key: "total", width: 12 },
-      { header: "Hoàn thành lúc (UTC)", key: "completedAt", width: 26 },
-    ], quiz.map((row) => ({
-      section: String(row.section ?? ""), name: String(row.name ?? ""), email: String(row.email ?? ""), score: Number(row.score ?? 0), total: Number(row.total ?? 0), completedAt: iso(row.completed_at),
-    })));
+      addSheet(workbook, `${prefix} - Bai lam`, [
+        { header: "Họ tên", key: "name", width: 28 },
+        { header: "Email EIU", key: "email", width: 34 },
+        { header: "URL", key: "url", width: 70 },
+        { header: "Chia sẻ lúc (UTC)", key: "sharedAt", width: 26 },
+      ], sectionShowcase.map((row) => ({
+        name: String(row.name ?? ""), email: String(row.email ?? ""), url: String(row.url ?? ""), sharedAt: iso(row.shared_at),
+      })));
 
-    addSheet(workbook, "Feedback", [
-      { header: "Section", key: "section", width: 12 },
-      { header: "Họ tên", key: "name", width: 28 },
-      { header: "Email", key: "email", width: 34 },
-      { header: "Nội dung phản hồi", key: "feedback", width: 80 },
-      { header: "Gửi lúc (UTC)", key: "submittedAt", width: 26 },
-    ], feedback.map((row) => ({
-      section: String(row.section ?? ""), name: String(row.name ?? ""), email: String(row.email ?? ""), feedback: String(row.feedback ?? ""), submittedAt: iso(row.submitted_at),
-    })));
+      addSheet(workbook, `${prefix} - Quiz`, [
+        { header: "Họ tên", key: "name", width: 28 },
+        { header: "Email", key: "email", width: 34 },
+        { header: "Điểm", key: "score", width: 10 },
+        { header: "Tổng điểm", key: "total", width: 12 },
+        { header: "Hoàn thành lúc (UTC)", key: "completedAt", width: 26 },
+      ], sectionQuiz.map((row) => ({
+        name: String(row.name ?? ""), email: String(row.email ?? ""), score: Number(row.score ?? 0), total: Number(row.total ?? 0), completedAt: iso(row.completed_at),
+      })));
+
+      addSheet(workbook, `${prefix} - Feedback`, [
+        { header: "Họ tên", key: "name", width: 28 },
+        { header: "Email", key: "email", width: 34 },
+        { header: "Nội dung phản hồi", key: "feedback", width: 80 },
+        { header: "Gửi lúc (UTC)", key: "submittedAt", width: 26 },
+      ], sectionFeedback.map((row) => ({
+        name: String(row.name ?? ""), email: String(row.email ?? ""), feedback: String(row.feedback ?? ""), submittedAt: iso(row.submitted_at),
+      })));
+    });
 
     const output = await workbook.xlsx.writeBuffer();
-    const fileSuffix = dateBounds ? dateBounds.dateStr : "all-time";
+    const dateSuffix = dateBounds ? dateBounds.dateStr : "all-time";
+    const sectionSuffix = requestedSection === "all" ? "all-sections" : requestedSection;
     return new Response(new Uint8Array(output), {
       headers: {
         "Cache-Control": "no-store, max-age=0",
-        "Content-Disposition": `attachment; filename="eiu-interactive-report-${fileSuffix}.xlsx"`,
+        "Content-Disposition": `attachment; filename="eiu-interactive-report-${sectionSuffix}-${dateSuffix}.xlsx"`,
         "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       },
     });

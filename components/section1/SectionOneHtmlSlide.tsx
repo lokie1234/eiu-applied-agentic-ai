@@ -7,9 +7,11 @@ import {
   type ReactNode,
   useCallback,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { getSlideStorage, setSlideStorage, SLIDE_STORAGE_KEYS } from "@/lib/slideStorage";
 import styles from "./SectionOneHtmlSlide.module.css";
 
 export type SectionOneHtmlKind =
@@ -212,8 +214,16 @@ function IdeaResults() {
   const [items, setItems] = useState<IdeaItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [deletingId, setDeletingId] = useState("");
-  const [clearingAll, setClearingAll] = useState(false);
+  const hiddenIdsRef = useRef<Set<string>>(new Set());
+
+  useEffect(() => {
+    try {
+      const stored = JSON.parse(getSlideStorage(SLIDE_STORAGE_KEYS.s1_hiddenIdeas) ?? "[]") as unknown;
+      hiddenIdsRef.current = new Set(Array.isArray(stored) ? stored.map(String) : []);
+    } catch {
+      hiddenIdsRef.current = new Set();
+    }
+  }, []);
 
   const loadIdeas = useCallback(async () => {
     try {
@@ -223,7 +233,10 @@ function IdeaResults() {
         message?: string;
       };
       if (!response.ok) throw new Error(payload.message || "Không thể tải ý tưởng.");
-      setItems(Array.isArray(payload.items) ? payload.items : []);
+      setItems(
+        (Array.isArray(payload.items) ? payload.items : [])
+          .filter((item) => !hiddenIdsRef.current.has(item.id))
+      );
       setError("");
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Không thể tải ý tưởng.");
@@ -247,48 +260,23 @@ function IdeaResults() {
     };
   }, [loadIdeas]);
 
-  async function deleteIdea(item: IdeaItem) {
-    if (deletingId) return;
-    if (!window.confirm(`Xóa ý tưởng “${item.idea}”?`)) return;
+  function deleteIdea(item: IdeaItem) {
+    if (!window.confirm(`Ẩn ý tưởng “${item.idea}” khỏi slide? Dữ liệu vẫn được giữ trong báo cáo Excel.`)) return;
 
-    setDeletingId(item.id);
     setError("");
-    try {
-      const response = await fetch("/api/ideas", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id: item.id }),
-      });
-      const payload = (await response.json().catch(() => ({}))) as { message?: string };
-      if (!response.ok) throw new Error(payload.message || "Không thể xóa ý tưởng.");
-      setItems((current) => current.filter((entry) => entry.id !== item.id));
-    } catch (deleteError) {
-      setError(deleteError instanceof Error ? deleteError.message : "Không thể xóa ý tưởng.");
-    } finally {
-      setDeletingId("");
-    }
+    hiddenIdsRef.current.add(item.id);
+    setSlideStorage(SLIDE_STORAGE_KEYS.s1_hiddenIdeas, JSON.stringify([...hiddenIdsRef.current]));
+    setItems((current) => current.filter((entry) => entry.id !== item.id));
   }
 
-  async function clearAllIdeas() {
-    if (clearingAll || deletingId || items.length === 0) return;
-    if (!window.confirm(`Xóa toàn bộ ${items.length} ý tưởng? Thao tác này không thể hoàn tác.`)) return;
+  function clearAllIdeas() {
+    if (items.length === 0) return;
+    if (!window.confirm(`Ẩn toàn bộ ${items.length} ý tưởng khỏi slide? Dữ liệu vẫn được giữ trong báo cáo Excel.`)) return;
 
-    setClearingAll(true);
     setError("");
-    try {
-      const response = await fetch("/api/ideas", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ all: true }),
-      });
-      const payload = (await response.json().catch(() => ({}))) as { message?: string };
-      if (!response.ok) throw new Error(payload.message || "Không thể xóa toàn bộ ý tưởng.");
-      setItems([]);
-    } catch (clearError) {
-      setError(clearError instanceof Error ? clearError.message : "Không thể xóa toàn bộ ý tưởng.");
-    } finally {
-      setClearingAll(false);
-    }
+    items.forEach((item) => hiddenIdsRef.current.add(item.id));
+    setSlideStorage(SLIDE_STORAGE_KEYS.s1_hiddenIdeas, JSON.stringify([...hiddenIdsRef.current]));
+    setItems([]);
   }
 
   function ideaWidth(value: string, isDense: boolean) {
@@ -313,11 +301,11 @@ function IdeaResults() {
           <button
             type="button"
             className={styles.clearAllButton}
-            onClick={() => void clearAllIdeas()}
-            disabled={clearingAll || Boolean(deletingId) || items.length === 0}
+            onClick={clearAllIdeas}
+            disabled={items.length === 0}
             data-interactive="true"
           >
-            {clearingAll ? "Đang xóa…" : "Xóa hết"}
+            Xóa hết
           </button>
           <div className={styles.liveStatus}>
             <i />
@@ -356,13 +344,12 @@ function IdeaResults() {
                 <button
                   type="button"
                   className={styles.resultDelete}
-                  onClick={() => void deleteIdea(item)}
-                  disabled={Boolean(deletingId)}
+                  onClick={() => deleteIdea(item)}
                   data-interactive="true"
-                  aria-label={`Xóa ý tưởng ${item.idea}`}
-                  title="Xóa ý tưởng"
+                  aria-label={`Ẩn ý tưởng ${item.idea} khỏi slide`}
+                  title="Ẩn khỏi slide"
                 >
-                  {deletingId === item.id ? "…" : "×"}
+                  ×
                 </button>
               </div>
               <p>{item.idea}</p>

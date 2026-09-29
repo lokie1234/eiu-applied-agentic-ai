@@ -16,6 +16,7 @@ const SectionTwoDeck = dynamic(() => import("./section2/SectionTwoDeck"), { ssr:
 type SectionId = "section1" | "section2";
 type TerminateStatus = "idle" | "sending" | "success" | "error";
 type ReportStatus = "idle" | "exporting" | "error";
+type ReportSectionOption = { value: string; label: string };
 
 interface PresenceCounts {
   section1: number;
@@ -203,7 +204,13 @@ export default function LessonPortal({
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportRange, setExportRange] = useState<"today" | "custom" | "all">("today");
   const [exportCustomDate, setExportCustomDate] = useState(() => getTodayDateString());
+  const [exportSection, setExportSection] = useState("all");
+  const [reportSections, setReportSections] = useState<ReportSectionOption[]>([
+    { value: "section1", label: "Section 1" },
+    { value: "section2", label: "Section 2" },
+  ]);
   const [showResetModal, setShowResetModal] = useState(false);
+  const [resetSection, setResetSection] = useState("section1");
   const [resetPassword, setResetPassword] = useState("");
   const [resetStatus, setResetStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [resetNotice, setResetNotice] = useState("");
@@ -214,12 +221,51 @@ export default function LessonPortal({
   const [profileError, setProfileError] = useState("");
   const [deckSessionKey, setDeckSessionKey] = useState(0);
   const section = role === "admin" ? adminSection : role;
+  const resetSectionLabel =
+    resetSection === "all"
+      ? "tất cả Section"
+      : reportSections.find((option) => option.value === resetSection)?.label || resetSection;
 
   const [presenceCounts, setPresenceCounts] = useState<PresenceCounts>({
     section1: 0,
     section2: 0,
     total: 0,
   });
+
+  useEffect(() => {
+    if (role !== "admin" || (!showExportModal && !showResetModal)) return;
+    let disposed = false;
+
+    async function loadReportSections() {
+      try {
+        const response = await fetch("/api/admin/report?mode=sections", { cache: "no-store" });
+        const payload = (await response.json()) as {
+          success?: boolean;
+          sections?: ReportSectionOption[];
+        };
+        if (!response.ok || !payload.success || !Array.isArray(payload.sections)) return;
+        if (disposed) return;
+        setReportSections(payload.sections);
+        setExportSection((current) =>
+          current === "all" || payload.sections?.some((section) => section.value === current)
+            ? current
+            : "all"
+        );
+        setResetSection((current) =>
+          current === "all" || payload.sections?.some((section) => section.value === current)
+            ? current
+            : payload.sections?.[0]?.value || "all"
+        );
+      } catch {
+        // Keep the current Section 1/2 fallback if metadata cannot be loaded.
+      }
+    }
+
+    void loadReportSections();
+    return () => {
+      disposed = true;
+    };
+  }, [role, showExportModal, showResetModal]);
 
   // Presence is refreshed by Supabase Realtime signals, with a slow fallback
   // for expired tabs that cannot send a pagehide beacon.
@@ -322,7 +368,7 @@ export default function LessonPortal({
 
     try {
       const response = await fetch(
-        `/api/admin/report?date=${encodeURIComponent(dateParam)}&tzOffset=${encodeURIComponent(tzOffset)}`,
+        `/api/admin/report?date=${encodeURIComponent(dateParam)}&tzOffset=${encodeURIComponent(tzOffset)}&section=${encodeURIComponent(exportSection)}`,
         { cache: "no-store" }
       );
       if (!response.ok) {
@@ -332,7 +378,7 @@ export default function LessonPortal({
 
       const disposition = response.headers.get("content-disposition") ?? "";
       const filename = disposition.match(/filename="?([^";]+)"?/i)?.[1]
-        ?? `eiu-interactive-report-${dateParam}.xlsx`;
+        ?? `eiu-interactive-report-${exportSection}-${dateParam}.xlsx`;
       const url = URL.createObjectURL(await response.blob());
       const link = document.createElement("a");
       link.href = url;
@@ -381,7 +427,10 @@ export default function LessonPortal({
       const response = await fetch("/api/admin/reset", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password: resetPassword.trim() }),
+        body: JSON.stringify({
+          password: resetPassword.trim(),
+          section: resetSection,
+        }),
       });
 
       const payload = (await response.json().catch(() => ({}))) as {
@@ -394,8 +443,12 @@ export default function LessonPortal({
       }
 
       setResetStatus("success");
-      setResetNotice("Đã xóa sạch toàn bộ dữ liệu trên Supabase thành công!");
-      clearSlideInteractionStorage();
+      setResetNotice(payload.message || `Đã xóa dữ liệu của ${resetSectionLabel} thành công.`);
+      if (resetSection === "all") {
+        clearSlideInteractionStorage();
+      } else if (resetSection === "section1" || resetSection === "section2") {
+        clearSlideInteractionStorage(resetSection);
+      }
       setResetPassword("");
       setTimeout(() => {
         setShowResetModal(false);
@@ -613,7 +666,7 @@ export default function LessonPortal({
             <button type="button" onClick={() => setAdminSection("section2")}>
               <span>SECTION 2</span>
               <strong>Từ Prompt đến AI Business Framework</strong>
-              <small>36 slide · HTML/CSS/React</small>
+              <small>37 slide · HTML/CSS/React</small>
               <div className={styles.cardLiveUsers}>
                 <span className={styles.liveDot} />
                 <span>{presenceCounts.section2} users đang học</span>
@@ -642,8 +695,25 @@ export default function LessonPortal({
               <span>BÁO CÁO THỐNG KÊ</span>
               <h2 id="export-report-title">Xuất báo cáo Excel</h2>
               <p>
-                Chọn phạm vi thời gian để lọc danh sách học viên đăng nhập và tương tác trong buổi học.
+                Chọn Section và phạm vi thời gian cần đưa vào báo cáo.
               </p>
+
+              <label className={styles.exportSectionField}>
+                <span>Phạm vi Section</span>
+                <select
+                  value={exportSection}
+                  onChange={(event) => setExportSection(event.target.value)}
+                  disabled={reportStatus === "exporting"}
+                >
+                  <option value="all">Tất cả Section</option>
+                  {reportSections.map((sectionOption) => (
+                    <option key={sectionOption.value} value={sectionOption.value}>
+                      {sectionOption.label}
+                    </option>
+                  ))}
+                </select>
+                <small>Section mới sẽ tự xuất hiện khi được thêm vào hệ thống.</small>
+              </label>
 
               <div className={styles.exportOptions}>
                 <label
@@ -755,11 +825,35 @@ export default function LessonPortal({
               aria-labelledby="reset-modal-title"
             >
               <span className={styles.dangerEyebrow}>NGUY HIỂM · THAO TÁC QUẢN TRỊ</span>
-              <h2 id="reset-modal-title">Reset toàn bộ dữ liệu?</h2>
+              <h2 id="reset-modal-title">
+                {resetSection === "all" ? "Reset toàn bộ dữ liệu?" : `Reset ${resetSectionLabel}?`}
+              </h2>
+
+              <label className={styles.exportSectionField}>
+                <span>Phạm vi reset</span>
+                <select
+                  value={resetSection}
+                  onChange={(event) => {
+                    setResetSection(event.target.value);
+                    if (resetStatus === "error") setResetNotice("");
+                  }}
+                  disabled={resetStatus === "sending" || resetStatus === "success"}
+                >
+                  {reportSections.map((sectionOption) => (
+                    <option key={sectionOption.value} value={sectionOption.value}>
+                      {sectionOption.label}
+                    </option>
+                  ))}
+                  <option value="all">Tất cả Section</option>
+                </select>
+                <small>Section mới sẽ tự xuất hiện khi được thêm vào hệ thống.</small>
+              </label>
 
               <div className={styles.dangerWarningBox}>
                 <strong>Cảnh báo không thể hoàn tác:</strong>
-                Thao tác này sẽ xóa vĩnh viễn toàn bộ dữ liệu trên Supabase bao gồm: Hồ sơ học viên, Ý tưởng, Showcase, Kết quả Quiz, Feedback và các phiên đăng nhập.
+                Thao tác này sẽ xóa vĩnh viễn dữ liệu của {resetSectionLabel} trên Supabase,
+                bao gồm: Hồ sơ học viên, Ý tưởng, Showcase, Kết quả Quiz, Feedback và các
+                phiên đăng nhập.
               </div>
 
               <label className={styles.resetPasswordField}>
@@ -804,7 +898,11 @@ export default function LessonPortal({
                   className={styles.confirmResetButton}
                   disabled={resetStatus === "sending" || resetStatus === "success"}
                 >
-                  {resetStatus === "sending" ? "Đang xóa dữ liệu…" : "Xác nhận xóa hết"}
+                  {resetStatus === "sending"
+                    ? "Đang xóa dữ liệu…"
+                    : resetSection === "all"
+                      ? "Xóa tất cả dữ liệu"
+                      : `Xóa ${resetSectionLabel}`}
                 </button>
               </div>
             </form>

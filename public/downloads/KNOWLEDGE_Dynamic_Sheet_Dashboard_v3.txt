@@ -1,0 +1,945 @@
+# DYNAMIC SHEET DASHBOARD KNOWLEDGE v3
+
+## 1. MỤC TIÊU KIẾN TRÚC
+
+Kiến trúc chuẩn:
+
+Excel/CSV sample
+→ scan tối đa khoảng 10 dòng để hiểu schema
+→ phát hiện header
+→ flatten header
+→ nhận diện structural columns
+→ infer metadata
+→ Filter Interview
+→ user xác nhận Search/Dropdown/No Filter
+→ sinh Apps Script dashboard
+→ Google Sheet là live source
+→ bulk load toàn bộ dữ liệu
+→ frontend filter/chart/table/export
+
+Điểm quan trọng:
+SCHEMA SCAN, FILTER DESIGN và DATA LOAD là ba việc khác nhau.
+
+Không cần scan 5.000 dòng để hiểu schema.
+Nhưng để filter/export đủ 5.000 dòng, dashboard vẫn phải đọc dataset thực tế bằng một bulk read hiệu quả.
+
+---
+
+## 2. HEADER NHIỀU TẦNG
+
+Một cấu trúc thường gặp:
+
+Hàng 1:
+STT | Họ tên | ĐDCN | Ngày sinh | ... | Kết quả | Nguyện vọng đạt | blank | blank | blank
+
+Hàng 2:
+blank | blank | ... | blank | TTNV | Mã trường | Mã xét tuyển | Tên mã xét tuyển
+
+Đây là header 2 tầng.
+
+Nếu chỉ lấy row 1 làm header:
+- các cột cuối sẽ bị blank header
+- object mapping dễ overwrite
+- filter/chart có thể lỗi
+
+Cần flatten group header.
+
+Ví dụ:
+
+Nguyện vọng đạt + TTNV
+→ "Nguyện vọng đạt - TTNV"
+
+Nguyện vọng đạt + Mã trường
+→ "Nguyện vọng đạt - Mã trường"
+
+Nguyện vọng đạt + Mã xét tuyển
+→ "Nguyện vọng đạt - Mã xét tuyển"
+
+Nguyện vọng đạt + Tên mã xét tuyển
+→ "Nguyện vọng đạt - Tên mã xét tuyển"
+
+---
+
+## 3. HEADER DETECTION
+
+Scan tối đa 10 hàng đầu.
+
+Mục tiêu:
+- xác định headerStartRow
+- headerEndRow
+- dataStartRow
+
+Dấu hiệu header:
+- tỷ lệ text cao
+- nhiều cell non-empty
+- hàng kế tiếp có giá trị con ở nơi hàng trên blank/grouped
+- các dòng sau bắt đầu có pattern data ổn định
+
+Không mặc định row 1 luôn là header duy nhất.
+
+---
+
+## 4. FLATTEN HEADER
+
+Với mỗi column:
+
+1. Thu thập các header labels theo chiều dọc từ headerStartRow đến headerEndRow.
+2. Forward-fill group label hợp lý trong phạm vi merged/group area.
+3. Loại bỏ blank.
+4. Loại bỏ label lặp.
+5. Join bằng " - ".
+
+Nếu cuối cùng vẫn blank:
+→ dùng "Column_12" cho internal fallback
+→ UI có thể hiển thị "Cột 12"
+
+Internal key luôn unique.
+
+---
+
+## 5. STRUCTURAL INDEX: STT / SỐ THỨ TỰ
+
+STT là cột cấu trúc, không phải dữ liệu nghiệp vụ dùng để trực quan hóa.
+
+### Normalize header
+
+Trước khi nhận diện:
+
+1. String(header)
+2. trim()
+3. lowercase()
+4. Unicode NFD
+5. bỏ dấu tiếng Việt
+6. chuyển đ → d
+7. loại punctuation thừa
+8. collapse whitespace
+
+Ví dụ:
+
+" STT "
+→ "stt"
+
+"SỐ THỨ TỰ"
+→ "so thu tu"
+
+"Số thứ tự:"
+→ "so thu tu"
+
+### Required matches
+
+Tối thiểu nhận diện:
+- stt
+- so thu tu
+
+Có thể nhận diện thêm:
+- no
+- no.
+- index
+- serial no
+- serial number
+
+Nhưng chỉ khi semantic rõ là ordinal row index.
+
+### Role
+
+Nếu match:
+role = STRUCTURAL_INDEX
+
+Metadata:
+chartEligible = false
+kpiEligible = false
+aggregateEligible = false
+filterable = false mặc định
+
+### Visualization exclusion
+
+STRUCTURAL_INDEX tuyệt đối không được dùng cho:
+- KPI
+- sum
+- average
+- min/max mang ý nghĩa nghiệp vụ
+- count by STT
+- pie
+- donut
+- bar
+- line
+- Top N
+- grouping dimension
+
+### Preserve
+
+Vẫn giữ:
+- data table
+- sort nếu cần
+- CSV export
+- XLSX export
+
+Không tự xóa cột khỏi source.
+
+---
+
+## 6. CẨN THẬN KHÔNG GÁN NHẦM STT
+
+Không được coi tất cả cột numeric tăng dần là STT.
+
+Ưu tiên semantic header.
+
+Ví dụ:
+"Employee ID" = IDENTIFIER
+không phải STRUCTURAL_INDEX.
+
+"Mã hồ sơ" = IDENTIFIER
+không phải STRUCTURAL_INDEX.
+
+"Thứ tự ưu tiên" có thể là dữ liệu nghiệp vụ.
+Không tự coi là STT trừ khi ngữ cảnh rõ.
+
+---
+
+## 7. SCHEMA INFERENCE LIMIT
+
+Default:
+SCHEMA_SAMPLE_ROWS = 10
+
+Chỉ đọc khoảng 10 data rows sau header để:
+- infer type
+- infer role
+- chart eligibility
+- filter recommendation
+
+Không dùng toàn dataset để inference.
+
+Nếu cột blank trong 10 sample rows:
+- type = UNKNOWN hoặc TEXT
+- không crash
+- vẫn hiển thị table
+
+Không scan 5.000 rows chỉ để xác định type.
+
+---
+
+## 8. FILTER INTERVIEW LÀ BƯỚC BẮT BUỘC
+
+Gem không nên quyết định filter UX thay user.
+
+Quy trình:
+
+Schema detected
+→ tạo recommendation
+→ hỏi user
+→ user confirm
+→ mới generate code
+
+Không generate Code.gs/Index.html trước confirmation.
+
+### Allowed filter modes
+
+SEARCH
+DROPDOWN
+NONE
+
+Không cần đưa quá nhiều loại filter nếu user chỉ yêu cầu search/dropdown.
+
+---
+
+## 9. FILTER RECOMMENDATION RULES
+
+Gem đưa ra đề xuất ban đầu.
+
+### Search recommended
+
+- Họ tên
+- Họ và tên
+- Full Name
+- Name
+- tên nhân viên
+- tên khách hàng
+- tên sinh viên
+- field text có high cardinality
+- mã dài mà người dùng thường tra trực tiếp
+- email nếu cần tra cứu
+
+### Dropdown recommended
+
+- giới tính
+- tỉnh/thành
+- phòng ban
+- trạng thái
+- kết quả
+- trường
+- khu vực
+- loại
+- category có unique count thấp/trung bình
+
+### None recommended
+
+- STT / Số thứ tự
+- structural index
+- free-text dài ít giá trị lọc
+- cột hoàn toàn blank
+- field không có giá trị nghiệp vụ để filter
+
+Recommendation không phải quyết định cuối cùng.
+
+---
+
+## 10. FILTER INTERVIEW FORMAT
+
+Dùng bảng gọn:
+
+| Trường | Đề xuất | Lựa chọn |
+|---|---|---|
+| Họ tên | Search | Search / Dropdown / Không filter |
+| Giới tính | Dropdown | Search / Dropdown / Không filter |
+| Tỉnh | Dropdown | Search / Dropdown / Không filter |
+
+Sau bảng:
+
+"Bạn có thể trả lời:
+- Dùng đề xuất
+- hoặc ghi thay đổi, ví dụ: Mã xét tuyển = Search; Ngày sinh = Không filter."
+
+Nếu nhiều cột:
+- vẫn liệt kê đầy đủ filterable fields
+- không hỏi structural fields
+
+---
+
+## 11. USER CONFIRMATION STATE
+
+Gem phải coi filter configuration là một state cần xác nhận.
+
+Ví dụ:
+
+confirmedFilters = {
+  ho_ten: "SEARCH",
+  gioi_tinh: "DROPDOWN",
+  tinh: "DROPDOWN",
+  ngay_sinh: "NONE"
+}
+
+Chỉ sau khi có confirmedFilters mới generate frontend controls.
+
+Nếu user trả:
+"Dùng đề xuất"
+
+thì:
+confirmedFilters = recommendations
+
+---
+
+## 12. LIVE DATA BULK READ
+
+Apps Script pattern ưu tiên:
+
+const lastRow = sheet.getLastRow();
+const lastCol = sheet.getLastColumn();
+
+const display = sheet
+  .getRange(1, 1, lastRow, lastCol)
+  .getDisplayValues();
+
+Một Spreadsheet service call lớn tốt hơn hàng nghìn getValue() calls.
+
+Không dùng:
+
+for (...) {
+  sheet.getRange(row, col).getValue();
+}
+
+---
+
+## 13. GETDISPLAYVALUES VÀ DATE SAFETY
+
+getValues() có thể trả:
+- String
+- Number
+- Boolean
+- Date
+
+Date object có thể gây rủi ro khi:
+- serialize qua google.script.run
+- custom JSON
+- Utilities.formatDate
+- timezone handling
+
+getDisplayValues() trả String[][].
+
+Ưu điểm:
+- an toàn cho browser
+- giữ hiển thị Sheet
+- giảm lỗi Date serialization
+- tránh phụ thuộc timezone cho payload cơ bản
+
+---
+
+## 14. LỖI TIMEZONE
+
+Lỗi:
+
+Exception: Invalid argument: timeZone. Must be type: String
+
+thường do:
+
+Session.getScriptTimeZone
+
+thay vì:
+
+Session.getScriptTimeZone()
+
+Hoặc:
+
+SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone
+
+thay vì:
+
+SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone()
+
+Default architecture:
+không cần Utilities.formatDate() để tải dữ liệu dashboard.
+
+Nếu bắt buộc:
+
+function getSafeTimeZone_() {
+  let tz = Session.getScriptTimeZone();
+
+  if (typeof tz !== 'string' || !tz.trim()) {
+    tz = SpreadsheetApp.getActiveSpreadsheet().getSpreadsheetTimeZone();
+  }
+
+  if (typeof tz !== 'string' || !tz.trim()) {
+    tz = 'Asia/Ho_Chi_Minh';
+  }
+
+  return String(tz);
+}
+
+---
+
+## 15. 5.000 ROWS PERFORMANCE
+
+5.000 rows × khoảng 15 columns ≈ 75.000 cells.
+
+Mô hình phù hợp:
+- một bulk Apps Script read
+- một payload
+- client-side state
+- pagination
+
+Không:
+- hàng nghìn server round-trips
+- getValue() trong nested loop
+- render 5.000 rows cùng lúc
+
+---
+
+## 16. FRONTEND STATE
+
+Recommended:
+
+const state = {
+  schema: [],
+  allData: [],
+  filteredData: [],
+  filters: {},
+  filterConfig: {},
+  page: 1,
+  pageSize: 50,
+  sort: {
+    key: null,
+    direction: 'asc'
+  }
+};
+
+---
+
+## 17. FILTER CONFIG
+
+Ví dụ:
+
+const FILTER_CONFIG = {
+  ho_ten: 'SEARCH',
+  gioi_tinh: 'DROPDOWN',
+  tinh: 'DROPDOWN',
+  ket_qua: 'DROPDOWN'
+};
+
+Code được generate từ câu trả lời interview.
+
+Không tự ý đổi SEARCH thành DROPDOWN sau khi user xác nhận.
+
+---
+
+## 18. SEARCH IMPLEMENTATION
+
+SEARCH:
+- contains
+- case-insensitive
+- trim
+- debounce 200–300ms
+
+Pseudo:
+
+const q = normalize(searchValue);
+
+rows = rows.filter(row =>
+  normalize(row[key]).includes(q)
+);
+
+Không gọi google.script.run khi gõ.
+
+---
+
+## 19. DROPDOWN IMPLEMENTATION
+
+Dropdown options lấy từ toàn bộ allData.
+
+Không lấy từ schema sample 10 rows.
+
+Pseudo:
+
+function uniqueValuesForColumn(key) {
+  const set = new Set();
+
+  state.allData.forEach(row => {
+    const value = String(row[key] ?? '').trim();
+    if (value !== '') set.add(value);
+  });
+
+  return Array.from(set).sort(localeAwareSort);
+}
+
+Có:
+- All/Tất cả
+- unique values
+- optional "(Trống)"
+
+---
+
+## 20. FILTER PIPELINE
+
+state.allData
+→ applyFilters()
+→ state.filteredData
+→ updateKPIs()
+→ updateCharts()
+→ renderTablePage()
+
+Các filter kết hợp bằng AND.
+
+Không phá allData.
+
+---
+
+## 21. PAGINATION
+
+Default:
+50 rows/page.
+
+Options:
+25
+50
+100
+
+Chỉ render:
+
+filteredData.slice(start, end)
+
+Không render 5.000 rows rồi CSS hide.
+
+---
+
+## 22. TYPE DETECTION TỪ STRING SAMPLE
+
+DATE:
+- dd/MM/yyyy
+- d/M/yyyy
+- yyyy-MM-dd
+- datetime phổ biến
+
+NUMBER:
+- parse success cao
+- tránh ID/code/STT
+
+IDENTIFIER:
+header chứa:
+- id
+- code
+- mã
+- số báo danh
+- CCCD/CMND
+- ĐDCN
+- phone
+- điện thoại
+
+CATEGORY:
+- semantic categorical
+- low/medium cardinality sample
+
+TEXT:
+- mô tả
+- ghi chú
+- free text
+- name/high-cardinality string
+
+STRUCTURAL_INDEX:
+- STT
+- Số thứ tự
+- semantic ordinal index rõ ràng
+
+---
+
+## 23. ROLE DETECTION PRIORITY
+
+Ưu tiên theo thứ tự:
+
+1. STRUCTURAL_INDEX
+2. IDENTIFIER
+3. DATE/DATETIME
+4. METRIC
+5. DIMENSION
+6. TEXT
+
+Lý do:
+STT là numeric nhưng không được rơi xuống NUMBER/METRIC.
+
+Pseudo:
+
+if (isStructuralIndexHeader(header)) {
+  role = 'STRUCTURAL_INDEX';
+  return;
+}
+
+if (isIdentifierHeader(header)) {
+  role = 'IDENTIFIER';
+  return;
+}
+
+... tiếp tục infer.
+
+---
+
+## 24. VISUALIZATION RULES
+
+STRUCTURAL_INDEX
+→ NONE
+
+IDENTIFIER
+→ no chart by default
+
+DATE + METRIC
+→ line
+
+DIMENSION + METRIC
+→ bar
+
+DIMENSION
+→ count bar/donut nếu hợp lý
+
+METRIC
+→ KPI
+
+NAME
+→ no chart by default
+
+High-cardinality text
+→ no chart
+
+Nếu chart fail:
+table/filter vẫn phải chạy.
+
+---
+
+## 25. KPI RULES
+
+Không bao giờ tạo:
+- Total STT
+- Average STT
+- Max STT như KPI nghiệp vụ
+
+KPI chỉ cho metric thực sự.
+
+Total Records là row count, không phải SUM(STT).
+
+---
+
+## 26. NEW COLUMN DETECTION
+
+Mỗi dashboard load:
+1. đọc current header rows
+2. flatten headers
+3. detect STRUCTURAL_INDEX
+4. rebuild schema
+5. sample khoảng 10 rows
+6. map all live rows
+
+Cột mới:
+- vẫn tự xuất hiện table
+- visualization theo metadata
+- filter chỉ theo policy đã generate
+
+Nếu Gem được yêu cầu regenerate sau khi schema thay đổi:
+- cột mới filterable phải vào Filter Interview.
+
+---
+
+## 27. INTERNAL SAFE KEY
+
+Không dùng raw header làm key duy nhất.
+
+Ví dụ:
+
+function makeSafeKey(label, index, used) {
+  let base = String(label || `column_${index + 1}`)
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '_')
+    .replace(/^_+|_+$/g, '');
+
+  if (!base) base = `column_${index + 1}`;
+
+  let key = base;
+  let n = 2;
+
+  while (used.has(key)) {
+    key = `${base}_${n++}`;
+  }
+
+  used.add(key);
+  return key;
+}
+
+UI label giữ tiếng Việt.
+Internal key mới cần safe.
+
+---
+
+## 28. EMPTY / DUPLICATE HEADERS
+
+Blank:
+→ fallback Column_N
+
+Duplicate:
+→ internal key thêm suffix _2, _3
+
+Không overwrite object data.
+
+---
+
+## 29. BLANK ROWS
+
+Bỏ row hoàn toàn blank khỏi dataset.
+
+Không coi blank row là data.
+
+---
+
+## 30. TABLE
+
+Table:
+- chứa STRUCTURAL_INDEX
+- sortable
+- paginated
+- dynamic columns
+- filteredData source
+
+Filter UI và visualization không quyết định table columns.
+
+---
+
+## 31. CSV EXPORT
+
+CSV All:
+state.allData
+
+CSV Filtered:
+state.filteredData
+
+Không dùng pageRows.
+
+Giữ STT nếu source có STT.
+
+BOM:
+'\uFEFF'
+
+Escape:
+- quotes doubled
+- quote field khi chứa comma/newline/quote
+
+---
+
+## 32. XLSX EXPORT
+
+XLSX phải thật.
+
+Server-side:
+1. nhận rows + headers
+2. tạo temporary Spreadsheet
+3. setValues bằng block
+4. export thành XLSX
+5. Trash temp file trong finally
+
+Không setValue từng cell.
+
+---
+
+## 33. DEFENSIVE SERVER FUNCTION
+
+Định hướng:
+
+function getDashboardData() {
+  try {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sheet = ss.getActiveSheet();
+
+    const lastRow = sheet.getLastRow();
+    const lastCol = sheet.getLastColumn();
+
+    if (lastRow < 1 || lastCol < 1) {
+      return { ok: true, schema: [], rows: [] };
+    }
+
+    const values = sheet
+      .getRange(1, 1, lastRow, lastCol)
+      .getDisplayValues();
+
+    // detect header from first <=10 rows
+    // flatten
+    // detect STT/Số thứ tự first
+    // infer schema from <=10 data rows
+    // map all rows
+
+    return {
+      ok: true,
+      schema,
+      rows
+    };
+
+  } catch (err) {
+    return {
+      ok: false,
+      message: err && err.message ? err.message : String(err),
+      stage: 'LOAD_DATA'
+    };
+  }
+}
+
+---
+
+## 34. ANTI-PATTERNS CẤM
+
+Không:
+
+const rows = sheet.getRange("A2:O20");
+
+Không:
+
+for each row
+  for each column
+    getValue()
+
+Không:
+
+Utilities.formatDate(
+  value,
+  Session.getScriptTimeZone,
+  "dd/MM/yyyy"
+)
+
+Không:
+SUM(STT)
+
+Không:
+chart by STT
+
+Không:
+dropdown options lấy từ 10 sample rows
+
+Không:
+render all 5.000 rows
+
+Không:
+generate code trước khi user confirm Filter Interview
+
+Không:
+hard-code Họ tên là column B
+
+---
+
+## 35. STABLE DEFAULTS
+
+HEADER_SCAN_LIMIT = 10
+SCHEMA_SAMPLE_ROWS = 10
+DEFAULT_PAGE_SIZE = 50
+SEARCH_DEBOUNCE_MS = 250
+
+Structural:
+STT/Số thứ tự
+→ table/export only by default
+
+Filter:
+→ user-confirmed via interview
+
+Payload:
+→ display strings
+
+Processing:
+→ client-side after one bulk load
+
+Source:
+→ read-only
+
+---
+
+## 36. FIRST RESPONSE CONTRACT
+
+Sau upload file:
+
+Gem phải trả:
+1. Detected schema
+2. Structural columns excluded from visualization
+3. Filter Interview
+
+Không trả code.
+
+Ví dụ:
+
+Detected:
+- STT → STRUCTURAL_INDEX → no visualization
+- Họ tên → TEXT
+- Tỉnh → CATEGORY
+- Kết quả → CATEGORY
+
+Interview:
+
+| Field | Recommended |
+|---|---|
+| Họ tên | Search |
+| Tỉnh | Dropdown |
+| Kết quả | Dropdown |
+
+User:
+"Dùng đề xuất"
+
+Sau đó mới sinh code.
+
+---
+
+## 37. FINAL TARGET
+
+Một file sample 10–20 dòng đủ để Gem hiểu format.
+
+Sau khi sinh code:
+- 100 rows chạy
+- 1.000 rows chạy
+- 5.000 rows vẫn cùng code
+- thêm row không sửa code
+- STT/Số thứ tự không bao giờ thành visualization
+- STT vẫn còn trong table/export
+- filter UX do user xác nhận trước khi sinh code
+- header 2 tầng không làm mất cột
+- ngày tháng không gây lỗi timezone
+- export lấy đúng toàn bộ hoặc filtered dataset
