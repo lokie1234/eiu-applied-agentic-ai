@@ -70,7 +70,21 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
 
   const sectionIds = (grants ?? []).map((grant) => String(grant.section_id));
   let sections: SectionAccess[] = [];
-  if (sectionIds.length > 0) {
+  if (appUser.is_admin) {
+    const { data, error: sectionError } = await admin
+      .from("course_sections")
+      .select("id, course_id, section_key, title, position")
+      .eq("status", "active")
+      .order("position");
+    if (sectionError) throw sectionError;
+    sections = (data ?? []).map((section) => ({
+      id: String(section.id),
+      courseId: String(section.course_id),
+      sectionKey: String(section.section_key),
+      title: String(section.title),
+      position: Number(section.position),
+    }));
+  } else if (sectionIds.length > 0) {
     const { data, error: sectionError } = await admin
       .from("course_sections")
       .select("id, course_id, section_key, title, position")
@@ -89,7 +103,15 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
 
   const courseIds = [...new Set(sections.map((section) => section.courseId))];
   let courses: CourseAccess[] = [];
-  if (courseIds.length > 0) {
+  if (appUser.is_admin) {
+    const { data, error: courseError } = await admin
+      .from("courses")
+      .select("id, slug, title, description")
+      .eq("status", "active")
+      .order("title");
+    if (courseError) throw courseError;
+    courses = ((data ?? []) as CourseRow[]).map((course) => ({ ...course }));
+  } else if (courseIds.length > 0) {
     const { data, error: courseError } = await admin
       .from("courses")
       .select("id, slug, title, description")

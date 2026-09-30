@@ -4,6 +4,8 @@ import Image from "next/image";
 import { type FormEvent, useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
+const ADMIN_QUICK_LOGIN_EMAIL = "son.lam@eiu.edu.vn";
+
 export default function LoginForm() {
   const [step, setStep] = useState<"email" | "otp">("email");
   const [email, setEmail] = useState("");
@@ -22,6 +24,8 @@ export default function LoginForm() {
     return email.trim().toLowerCase();
   }
 
+  const isAdminQuickLogin = normalizedEmail() === ADMIN_QUICK_LOGIN_EMAIL;
+
   async function sendOtp(event?: FormEvent) {
     event?.preventDefault();
     setError("");
@@ -33,6 +37,12 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
+      if (targetEmail === ADMIN_QUICK_LOGIN_EMAIL) {
+        setEmail(targetEmail);
+        setStep("otp");
+        setResendIn(0);
+        return;
+      }
       const supabase = getSupabaseBrowserClient();
       if (!supabase) throw new Error("Supabase Auth chưa được cấu hình.");
       const { error: sendError } = await supabase.auth.signInWithOtp({
@@ -59,6 +69,19 @@ export default function LoginForm() {
     }
     setLoading(true);
     try {
+      if (isAdminQuickLogin) {
+        const response = await fetch("/api/auth/admin-quick-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email: normalizedEmail(), code: otp }),
+        });
+        const payload = await response.json() as { success?: boolean; message?: string };
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.message || "Mã đăng nhập không đúng.");
+        }
+        window.location.replace("/");
+        return;
+      }
       const supabase = getSupabaseBrowserClient();
       if (!supabase) throw new Error("Supabase Auth chưa được cấu hình.");
       const { error: verifyError } = await supabase.auth.verifyOtp({
@@ -93,17 +116,17 @@ export default function LoginForm() {
             <div className="login-brand-divider" />
             <div className="login-brand-copy">
               <span>EASTERN INTERNATIONAL UNIVERSITY</span>
-              <strong>Applied Agentic AI</strong>
+              <strong>Interactive Learning Space</strong>
             </div>
           </div>
 
           <div className="login-hero-copy">
-            <div className="login-eyebrow">BUSINESS × AI</div>
+            <div className="login-eyebrow">EIU LEARNING PORTAL</div>
             <h1>
-              Turn ideas into
-              <span>working solutions.</span>
+              Learn. Build.
+              <span>Transform.</span>
             </h1>
-            <p>Two interactive sections for Applied Agentic AI.</p>
+            <p>One learning space for EIU courses, sections and interactive experiences.</p>
           </div>
 
           <div className="analytics-scene" aria-hidden="true">
@@ -111,8 +134,8 @@ export default function LoginForm() {
             <div className="analytics-board">
               <div className="analytics-board-header">
                 <div>
-                  <span>WORKFLOW ACTIVITY</span>
-                  <strong>AI Transformation</strong>
+                  <span>LEARNING ACTIVITY</span>
+                  <strong>Interactive Journey</strong>
                 </div>
                 <div className="analytics-live"><i /> LIVE</div>
               </div>
@@ -145,16 +168,16 @@ export default function LoginForm() {
             </div>
 
             <div className="floating-kpi kpi-one">
-              <span>AUTOMATION</span><strong>84%</strong><small>↑ workflow impact</small>
+              <span>ENGAGEMENT</span><strong>84%</strong><small>↑ learning progress</small>
             </div>
             <div className="floating-kpi kpi-two">
-              <span>BUILD SPEED</span><strong>3.2×</strong><small>faster iteration</small>
+              <span>LEARNING PACE</span><strong>3.2×</strong><small>faster iteration</small>
             </div>
           </div>
 
           <div className="login-visual-footer">
             <span>EIU</span>
-            <span>Applied Agentic AI · Sections 1 &amp; 2</span>
+            <span>EIU Interactive Learning Space</span>
           </div>
         </section>
 
@@ -174,10 +197,11 @@ export default function LoginForm() {
               </div>
             </div>
 
-            <div className="login-access-eyebrow">SESSION ACCESS</div>
-            <h2>Welcome to<br />Applied Agentic AI</h2>
+            <div className="login-access-eyebrow">EIU LEARNING ACCESS</div>
+            <h2>Welcome to<br />EIU Interactive<br />Learning Space</h2>
             <p className="login-access-description">
-              Nhận mã OTP qua email EIU để đăng nhập. Khóa học chỉ hiển thị khi admin đã cấp quyền.
+              Đăng nhập bằng mã OTP gửi đến email EIU. Không gian học tập chỉ hiển thị những khóa học
+              và section đã được admin cấp quyền.
             </p>
 
             <form className="login-form" onSubmit={step === "email" ? sendOtp : verifyOtp}>
@@ -215,7 +239,13 @@ export default function LoginForm() {
                       Đổi email
                     </button>
                   </div>
-                  <p className="otp-sent-note">Mã đã được gửi đến <strong>{email}</strong></p>
+                  <p className="otp-sent-note">
+                    {isAdminQuickLogin ? (
+                      <>Nhập mã đăng nhập nhanh dành cho <strong>{email}</strong></>
+                    ) : (
+                      <>Mã đã được gửi đến <strong>{email}</strong></>
+                    )}
+                  </p>
                   <input
                     id="eiu-otp"
                     className="login-email-field otp-code-field"
@@ -242,11 +272,17 @@ export default function LoginForm() {
                 className="login-submit"
                 disabled={loading}
               >
-                <span>{loading ? "Đang xử lý..." : step === "email" ? "Gửi mã OTP" : "Xác minh và đăng nhập"}</span>
+                <span>
+                  {loading
+                    ? "Đang xử lý..."
+                    : step === "email"
+                      ? isAdminQuickLogin ? "Đăng nhập nhanh" : "Gửi mã OTP"
+                      : "Xác minh và đăng nhập"}
+                </span>
                 {!loading && <span className="login-submit-arrow">→</span>}
               </button>
 
-              {step === "otp" && (
+              {step === "otp" && !isAdminQuickLogin && (
                 <button
                   type="button"
                   className="otp-resend"
@@ -261,8 +297,8 @@ export default function LoginForm() {
             <div className="login-browser-note">
               <span className="login-browser-note-icon">✓</span>
               <div>
-                <strong>Xác minh bằng email EIU</strong>
-                <p>Mọi email @eiu.edu.vn có thể nhận OTP; quyền xem khóa học do admin quản lý riêng.</p>
+                <strong>Một tài khoản, nhiều không gian học tập</strong>
+                <p>Email @eiu.edu.vn dùng để xác minh; folder khóa học và section do admin quản lý.</p>
               </div>
             </div>
 

@@ -159,6 +159,9 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 SUPABASE_SECRET_KEY=sb_secret_...
 NEXT_PUBLIC_PDF_URL=https://YOUR_PROJECT.supabase.co/storage/v1/object/public/...
 
+# Mã đăng nhập nhanh, chỉ dành cho son.lam@eiu.edu.vn
+ADMIN_QUICK_LOGIN_CODE=YOUR_PRIVATE_ADMIN_CODE
+
 # Chỉ khi dùng AI Knowledge
 GEMINI_API_KEY=...
 GEMINI_MODEL=gemini-3.6-flash
@@ -189,6 +192,10 @@ VERCEL_OIDC_TOKEN
 ```
 
 Brevo SMTP credentials chỉ nằm trong Supabase. Sau khi xóa biến Vercel, redeploy Production.
+
+`ADMIN_QUICK_LOGIN_CODE` là biến bí mật phía server, không thêm tiền tố `NEXT_PUBLIC_` và không ghi
+giá trị thật vào source code. Với đúng email `son.lam@eiu.edu.vn`, giao diện sẽ chuyển thẳng sang bước
+nhập mã này mà không gửi email. Các email khác vẫn sử dụng OTP Supabase/Brevo bình thường.
 
 ## Bước 10 — Gỡ Google Apps Script cũ
 

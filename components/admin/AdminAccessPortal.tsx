@@ -48,7 +48,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   const [sections, setSections] = useState<SectionRow[]>([]);
   const [grants, setGrants] = useState<GrantRow[]>([]);
   const [tab, setTab] = useState<Tab>("access");
-  const [newEmail, setNewEmail] = useState("");
+  const [newEmails, setNewEmails] = useState("");
   const [newCourse, setNewCourse] = useState("");
   const [newSectionTitles, setNewSectionTitles] = useState<Record<string, string>>({});
   const [query, setQuery] = useState("");
@@ -110,15 +110,21 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     }
   }
 
-  async function addEmail(event: FormEvent) {
+  const detectedEmails = useMemo(() => {
+    const matches = newEmails.toLowerCase().match(
+      /[a-z0-9](?:[a-z0-9._%+-]*[a-z0-9])?@eiu\.edu\.vn/gi,
+    ) ?? [];
+    return [...new Set(matches.map((email) => email.toLowerCase()))];
+  }, [newEmails]);
+
+  async function addEmails(event: FormEvent) {
     event.preventDefault();
-    const email = newEmail.trim().toLowerCase();
     const succeeded = await mutate(
-      { action: "add_user", email },
-      `add-user:${email}`,
-      `Đã thêm ${email}. Hãy bật section ở bảng bên dưới.`,
+      { action: "add_users", emails: detectedEmails },
+      "add-users",
+      `Đã thêm/cập nhật ${detectedEmails.length} email. Hãy bật section ở bảng bên dưới.`,
     );
-    if (succeeded) setNewEmail("");
+    if (succeeded) setNewEmails("");
   }
 
   async function createCourse(event: FormEvent) {
@@ -208,19 +214,20 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
       {tab === "access" ? (
         <>
           <section className={styles.toolbar}>
-            <form onSubmit={addEmail}>
-              <label htmlFor="new-eiu-email">Thêm email EIU</label>
-              <div>
-                <input
+            <form onSubmit={addEmails}>
+              <label htmlFor="new-eiu-email">Thêm một hoặc nhiều email EIU</label>
+              <textarea
                   id="new-eiu-email"
-                  type="email"
-                  value={newEmail}
-                  onChange={(event) => setNewEmail(event.target.value)}
-                  pattern="^[^@\s]+@eiu\.edu\.vn$"
-                  placeholder="user@eiu.edu.vn"
+                  value={newEmails}
+                  onChange={(event) => setNewEmails(event.target.value)}
+                  placeholder="Dán danh sách email, cách nhau bằng dấu phẩy, dấu chấm, xuống dòng hoặc khoảng trắng..."
                   required
                 />
-                <button disabled={Boolean(busyKey)}>Thêm email</button>
+              <div className={styles.bulkActions}>
+                <span>{detectedEmails.length} email EIU được nhận diện</span>
+                <button disabled={Boolean(busyKey) || detectedEmails.length === 0}>
+                  Thêm {detectedEmails.length || ""} email
+                </button>
               </div>
             </form>
 

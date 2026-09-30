@@ -14,10 +14,6 @@ export default async function HomePage() {
   if (!access) redirect("/login");
   if (!access.isActive) return <NoCourseAccess email={access.email} />;
 
-  const hasCourse = access.isAdmin
-    || access.courses.some((course) => course.slug === APPLIED_AGENTIC_AI_SLUG);
-  if (!hasCourse) return <NoCourseAccess email={access.email} />;
-
   const appliedCourse = access.courses.find(
     (course) => course.slug === APPLIED_AGENTIC_AI_SLUG,
   );
@@ -28,7 +24,15 @@ export default async function HomePage() {
           (section) => section.courseId === appliedCourse?.id && isLearningSection(section.sectionKey),
         )
         .map((section) => section.sectionKey as "section1" | "section2");
-  if (allowedSections.length === 0) return <NoCourseAccess email={access.email} />;
+  const courseFolders = access.courses
+    .map((course) => ({
+      ...course,
+      sections: access.sections
+        .filter((section) => section.courseId === course.id)
+        .sort((a, b) => a.position - b.position),
+    }))
+    .filter((course) => access.isAdmin || course.sections.length > 0);
+  if (courseFolders.length === 0) return <NoCourseAccess email={access.email} />;
 
   const savedSection = cookieStore.get(ACTIVE_SECTION_COOKIE)?.value;
   const initialSection = isLearningSection(savedSection) && allowedSections.includes(savedSection)
@@ -37,13 +41,14 @@ export default async function HomePage() {
   const profile = {
     name: access.displayName,
     email: access.email,
-    section: initialSection ?? allowedSections[0],
+    section: initialSection ?? allowedSections[0] ?? "section1",
   };
 
   return (
     <LessonPortal
       isAdmin={access.isAdmin}
       allowedSections={[...allowedSections]}
+      courseFolders={courseFolders}
       initialSection={initialSection}
       initialProfile={profile}
     />

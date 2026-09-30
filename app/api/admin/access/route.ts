@@ -55,7 +55,32 @@ export async function POST(request: Request) {
     const action = String(body.action ?? "");
     const supabase = getSupabaseAdmin();
 
-    if (["add_user", "remove_user", "set_section_access"].includes(action)) {
+    if (action === "add_users") {
+      const rawEmails = Array.isArray(body.emails) ? body.emails : [];
+      const emails = [...new Set(
+        rawEmails.map((value: unknown) => String(value).trim().toLowerCase()).filter(isEiuEmail),
+      )].slice(0, 500);
+      if (emails.length === 0) {
+        return NextResponse.json(
+          { success: false, message: "Không tìm thấy email hợp lệ có đuôi @eiu.edu.vn." },
+          { status: 400 },
+        );
+      }
+      const now = new Date().toISOString();
+      const { error } = await supabase.from("app_users").upsert(
+        emails.map((email) => ({ email, status: "active", updated_at: now })),
+        { onConflict: "email" },
+      );
+      if (error) throw error;
+      await supabase.from("access_audit_logs").insert(
+        emails.map((email) => ({
+          actor_email: actor.email,
+          action: "ADD_USER",
+          target_email: email,
+          details: { source: "bulk" },
+        })),
+      );
+    } else if (["add_user", "remove_user", "set_section_access"].includes(action)) {
       const email = String(body.email ?? "").trim().toLowerCase();
       if (!isEiuEmail(email)) {
         return NextResponse.json(

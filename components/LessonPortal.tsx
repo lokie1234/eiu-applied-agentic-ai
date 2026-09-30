@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
@@ -16,6 +17,19 @@ type SectionId = "section1" | "section2";
 type TerminateStatus = "idle" | "sending" | "success" | "error";
 type ReportStatus = "idle" | "exporting" | "error";
 type ReportSectionOption = { value: string; label: string };
+type CourseFolderSection = {
+  id: string;
+  sectionKey: string;
+  title: string;
+  position: number;
+};
+type CourseFolder = {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  sections: CourseFolderSection[];
+};
 
 interface PresenceCounts {
   section1: number;
@@ -158,13 +172,13 @@ function DeckShell({
               ✦ AI Knowledge
             </Link>
           )}
-          {isAdmin && onChooseSection && (
+          {onChooseSection && (
             <button
               type="button"
               className={styles.secondaryButton}
               onClick={onChooseSection}
             >
-              Sections
+              Khóa học
             </button>
           )}
 
@@ -194,14 +208,22 @@ function DeckShell({
 export default function LessonPortal({
   isAdmin,
   allowedSections,
+  courseFolders,
   initialSection,
   initialProfile,
 }: {
   isAdmin: boolean;
   allowedSections: SectionId[];
+  courseFolders: CourseFolder[];
   initialSection: SectionId | null;
   initialProfile: LearnerProfile | null;
 }) {
+  const appliedCourseId = courseFolders.find(
+    (course) => course.slug === APPLIED_AGENTIC_AI_SLUG,
+  )?.id ?? null;
+  const [selectedCourseId, setSelectedCourseId] = useState<string | null>(
+    initialSection ? appliedCourseId : null,
+  );
   const [adminSection, setAdminSection] = useState<SectionId | null>(initialSection);
   const [showTerminate, setShowTerminate] = useState(false);
   const [terminateStatus, setTerminateStatus] =
@@ -225,6 +247,7 @@ export default function LessonPortal({
   const learnerProfile = initialProfile;
   const [deckSessionKey, setDeckSessionKey] = useState(0);
   const section = adminSection;
+  const selectedCourse = courseFolders.find((course) => course.id === selectedCourseId) ?? null;
   const resetSectionLabel =
     resetSection === "all"
       ? "tất cả Section"
@@ -572,12 +595,120 @@ export default function LessonPortal({
     };
   }, [isAdmin, learnerProfile, section]);
 
+  if (!selectedCourse) {
+    return (
+      <main className={styles.portal}>
+        <div className={styles.grid} aria-hidden="true" />
+        <div className={styles.selectorActions}>
+          {isAdmin && <Link href="/admin/access">Quản lý quyền</Link>}
+          {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
+          <button type="button" onClick={signOut}>Sign out</button>
+        </div>
+
+        <section className={`${styles.panel} ${styles.learningSpacePanel}`}>
+          <div className={styles.brand}>
+            <div className={styles.logoWindow}>
+              <Image
+                src="/branding/EIU-logo-white.png"
+                alt="EIU"
+                width={2048}
+                height={2048}
+                priority
+                unoptimized
+              />
+            </div>
+            <div>
+              <span>{isAdmin ? "ADMIN LEARNING SPACE" : "MY LEARNING SPACE"}</span>
+              <strong>EIU Interactive Learning Space</strong>
+            </div>
+          </div>
+
+          <div className={styles.heading}>
+            <span>COURSE LIBRARY</span>
+            <h1>Chọn folder khóa học</h1>
+            <p>Mỗi folder chứa các section mà bạn đã được cấp quyền truy cập.</p>
+          </div>
+
+          <div className={styles.courseFolderGrid}>
+            {courseFolders.map((course) => (
+              <button
+                type="button"
+                className={styles.courseFolder}
+                key={course.id}
+                onClick={() => setSelectedCourseId(course.id)}
+              >
+                <span className={styles.folderIcon} aria-hidden="true">
+                  <i />
+                </span>
+                <span className={styles.folderCopy}>
+                  <small>COURSE FOLDER · {course.sections.length} SECTION</small>
+                  <strong>{course.title}</strong>
+                  <em>{course.description || "Không gian nội dung tương tác của khóa học."}</em>
+                </span>
+                <b aria-hidden="true">→</b>
+              </button>
+            ))}
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  if (!section && selectedCourse.slug !== APPLIED_AGENTIC_AI_SLUG) {
+    return (
+      <main className={styles.portal}>
+        <div className={styles.grid} aria-hidden="true" />
+        <div className={styles.selectorActions}>
+          <button type="button" onClick={() => setSelectedCourseId(null)}>← Khóa học</button>
+          {isAdmin && <Link href="/admin/access">Quản lý quyền</Link>}
+          <button type="button" onClick={signOut}>Sign out</button>
+        </div>
+
+        <section className={styles.panel}>
+          <div className={styles.brand}>
+            <div className={styles.logoWindow}>
+              <Image
+                src="/branding/EIU-logo-white.png"
+                alt="EIU"
+                width={2048}
+                height={2048}
+                priority
+                unoptimized
+              />
+            </div>
+            <div>
+              <span>COURSE FOLDER</span>
+              <strong>{selectedCourse.title}</strong>
+            </div>
+          </div>
+          <div className={styles.heading}>
+            <span>AVAILABLE SECTIONS</span>
+            <h1>{selectedCourse.title}</h1>
+            <p>{selectedCourse.description || "Các section thuộc khóa học này."}</p>
+          </div>
+          <div className={styles.pendingSections}>
+            {selectedCourse.sections.length === 0 ? (
+              <p>Folder này chưa có section.</p>
+            ) : selectedCourse.sections.map((courseSection) => (
+              <article key={courseSection.id}>
+                <span>SECTION {courseSection.position}</span>
+                <strong>{courseSection.title}</strong>
+                <small>Nội dung đang được chuẩn bị để kết nối với Learning Space.</small>
+              </article>
+            ))}
+          </div>
+        </section>
+      </main>
+    );
+  }
+
   if (!section) {
     return (
       <main className={styles.portal}>
         <div className={styles.grid} aria-hidden="true" />
 
         <div className={styles.selectorActions}>
+          <button type="button" onClick={() => setSelectedCourseId(null)}>← Khóa học</button>
           {isAdmin && <Link href="/admin/access">Quản lý quyền</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
           {isAdmin && (
@@ -910,7 +1041,10 @@ export default function LessonPortal({
         presenceCounts={presenceCounts}
         currentSection={section}
         statusNotice={isAdmin ? terminateNotice : undefined}
-        onChooseSection={() => setAdminSection(null)}
+        onChooseSection={() => {
+          setAdminSection(null);
+          setSelectedCourseId(null);
+        }}
         onOpenTerminate={
           isAdmin
             ? () => {
