@@ -63,12 +63,12 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
   }
 
   const { data: grants, error: grantError } = await admin
-    .from("user_section_access")
-    .select("section_id")
+    .from("user_course_access")
+    .select("course_id")
     .eq("user_email", email);
   if (grantError) throw grantError;
 
-  const sectionIds = (grants ?? []).map((grant) => String(grant.section_id));
+  const grantedCourseIds = (grants ?? []).map((grant) => String(grant.course_id));
   let sections: SectionAccess[] = [];
   if (appUser.is_admin) {
     const { data, error: sectionError } = await admin
@@ -84,11 +84,11 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
       title: String(section.title),
       position: Number(section.position),
     }));
-  } else if (sectionIds.length > 0) {
+  } else if (grantedCourseIds.length > 0) {
     const { data, error: sectionError } = await admin
       .from("course_sections")
       .select("id, course_id, section_key, title, position")
-      .in("id", sectionIds)
+      .in("course_id", grantedCourseIds)
       .eq("status", "active")
       .order("position");
     if (sectionError) throw sectionError;
@@ -101,7 +101,9 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
     }));
   }
 
-  const courseIds = [...new Set(sections.map((section) => section.courseId))];
+  const courseIds = appUser.is_admin
+    ? [...new Set(sections.map((section) => section.courseId))]
+    : grantedCourseIds;
   let courses: CourseAccess[] = [];
   if (appUser.is_admin) {
     const { data, error: courseError } = await admin

@@ -30,7 +30,7 @@ type SectionRow = {
   status: "draft" | "active";
 };
 
-type GrantRow = { user_email: string; section_id: string; granted_at: string };
+type GrantRow = { user_email: string; course_id: string; granted_at: string };
 type AccessPayload = {
   success: boolean;
   message?: string;
@@ -49,6 +49,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   const [grants, setGrants] = useState<GrantRow[]>([]);
   const [tab, setTab] = useState<Tab>("access");
   const [newEmails, setNewEmails] = useState("");
+  const [selectedCourseId, setSelectedCourseId] = useState("");
   const [newCourse, setNewCourse] = useState("");
   const [newSectionTitles, setNewSectionTitles] = useState<Record<string, string>>({});
   const [query, setQuery] = useState("");
@@ -85,6 +86,14 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     return () => { disposed = true; };
   }, [applyPayload]);
 
+  const activeCourses = useMemo(
+    () => courses.filter((course) => course.status === "active"),
+    [courses],
+  );
+  const effectiveSelectedCourseId = activeCourses.some((course) => course.id === selectedCourseId)
+    ? selectedCourseId
+    : activeCourses[0]?.id ?? "";
+
   async function mutate(body: Record<string, unknown>, key: string, successMessage: string) {
     setBusyKey(key);
     setError("");
@@ -117,12 +126,31 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     return [...new Set(matches.map((email) => email.toLowerCase()))];
   }, [newEmails]);
 
-  async function addEmails(event: FormEvent) {
-    event.preventDefault();
+  async function setBulkCourseAccess(enabled: boolean, event?: FormEvent) {
+    event?.preventDefault();
+    const course = activeCourses.find((item) => item.id === effectiveSelectedCourseId);
+    if (!course) {
+      setError("Hãy chọn một folder khóa học đang hoạt động.");
+      return;
+    }
     const succeeded = await mutate(
-      { action: "add_users", emails: detectedEmails },
-      "add-users",
-      `Đã thêm/cập nhật ${detectedEmails.length} email. Hãy bật section ở bảng bên dưới.`,
+      { action: "set_course_access_bulk", emails: detectedEmails, courseId: course.id, enabled },
+      `${enabled ? "grant" : "revoke"}-course-bulk`,
+      enabled
+        ? `Đã cấp folder “${course.title}” cho ${detectedEmails.length} email.`
+        : `Đã xóa quyền folder “${course.title}” của ${detectedEmails.length} email.`,
+    );
+    if (succeeded) setNewEmails("");
+  }
+
+  async function removeBulkUsers() {
+    if (!window.confirm(
+      `Xóa hẳn ${detectedEmails.length} email khỏi hệ thống và thu hồi quyền ở tất cả folder?`,
+    )) return;
+    const succeeded = await mutate(
+      { action: "remove_users_bulk", emails: detectedEmails },
+      "remove-users-bulk",
+      `Đã xóa ${detectedEmails.length} email khỏi danh sách quản lý.`,
     );
     if (succeeded) setNewEmails("");
   }
@@ -152,7 +180,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   }
 
   const grantSet = useMemo(
-    () => new Set(grants.map((grant) => `${grant.user_email}:${grant.section_id}`)),
+    () => new Set(grants.map((grant) => `${grant.user_email}:${grant.course_id}`)),
     [grants],
   );
   const filteredUsers = users.filter((user) => {
@@ -214,8 +242,20 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
       {tab === "access" ? (
         <>
           <section className={styles.toolbar}>
-            <form onSubmit={addEmails}>
-              <label htmlFor="new-eiu-email">Thêm một hoặc nhiều email EIU</label>
+            <form onSubmit={(event) => void setBulkCourseAccess(true, event)}>
+              <label htmlFor="course-folder-access">Folder khóa học</label>
+              <select
+                id="course-folder-access"
+                value={effectiveSelectedCourseId}
+                onChange={(event) => setSelectedCourseId(event.target.value)}
+                required
+              >
+                {activeCourses.length === 0 && <option value="">Chưa có folder hoạt động</option>}
+                {activeCourses.map((course) => (
+                  <option value={course.id} key={course.id}>{course.title}</option>
+                ))}
+              </select>
+              <label htmlFor="new-eiu-email">Danh sách email EIU</label>
               <textarea
                   id="new-eiu-email"
                   value={newEmails}
@@ -225,9 +265,27 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                 />
               <div className={styles.bulkActions}>
                 <span>{detectedEmails.length} email EIU được nhận diện</span>
-                <button disabled={Boolean(busyKey) || detectedEmails.length === 0}>
-                  Thêm {detectedEmails.length || ""} email
-                </button>
+                <div>
+                  <button
+                    type="button"
+                    className={styles.revokeButton}
+                    disabled={Boolean(busyKey) || detectedEmails.length === 0 || !effectiveSelectedCourseId}
+                    onClick={() => void setBulkCourseAccess(false)}
+                  >
+                    Xóa quyền {detectedEmails.length || ""} email
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.hardDeleteButton}
+                    disabled={Boolean(busyKey) || detectedEmails.length === 0}
+                    onClick={() => void removeBulkUsers()}
+                  >
+                    Xóa hẳn email
+                  </button>
+                  <button disabled={Boolean(busyKey) || detectedEmails.length === 0 || !effectiveSelectedCourseId}>
+                    Cấp quyền {detectedEmails.length || ""} email
+                  </button>
+                </div>
               </div>
             </form>
 
@@ -240,16 +298,16 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
           <section className={styles.tableCard}>
             <div className={styles.tableIntro}>
               <div><strong>{users.length}</strong><span>email được quản lý</span></div>
-              <div><strong>{activeSections.length}</strong><span>section khả dụng</span></div>
-              <p>Mỗi công tắc là quyền xem đúng một section. Admin luôn có toàn quyền.</p>
+              <div><strong>{activeCourses.length}</strong><span>folder khóa học</span></div>
+              <p>Mỗi công tắc cấp hoặc xóa toàn bộ quyền của một folder. Admin luôn có toàn quyền.</p>
             </div>
 
             {loading ? (
               <div className={styles.empty}>Đang tải danh sách quyền...</div>
             ) : filteredUsers.length === 0 ? (
               <div className={styles.empty}>Không tìm thấy email phù hợp.</div>
-            ) : activeSections.length === 0 ? (
-              <div className={styles.empty}>Hãy tạo section trước khi phân quyền.</div>
+            ) : activeCourses.length === 0 ? (
+              <div className={styles.empty}>Hãy tạo folder khóa học trước khi phân quyền.</div>
             ) : (
               <div className={styles.tableWrap}>
                 <table>
@@ -257,12 +315,13 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                     <tr>
                       <th>Người dùng</th>
                       <th>Trạng thái</th>
-                      {courses.flatMap((course) => sectionsForCourse(course.id).map((section) => (
-                        <th key={section.id}>
-                          <span className={styles.courseLabel}>{course.title}</span>
-                          {section.title}
+                      {activeCourses.map((course) => (
+                        <th key={course.id}>
+                          <span className={styles.courseLabel}>COURSE FOLDER</span>
+                          {course.title}
+                          <small>{sectionsForCourse(course.id).length} section</small>
                         </th>
-                      )))}
+                      ))}
                       <th />
                     </tr>
                   </thead>
@@ -278,28 +337,30 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                             {user.auth_user_id ? "Đã đăng nhập" : "Chưa đăng nhập"}
                           </span>
                         </td>
-                        {courses.flatMap((course) => sectionsForCourse(course.id).map((section) => {
-                          const key = `${user.email}:${section.id}`;
+                        {activeCourses.map((course) => {
+                          const key = `${user.email}:${course.id}`;
                           const enabled = grantSet.has(key) || user.is_admin;
                           return (
-                            <td key={section.id}>
-                              <label className={styles.toggle} title={user.is_admin ? "Admin có toàn quyền" : section.title}>
+                            <td key={course.id}>
+                              <label className={styles.toggle} title={user.is_admin ? "Admin có toàn quyền" : course.title}>
                                 <input
                                   type="checkbox"
                                   checked={enabled}
                                   disabled={user.is_admin || Boolean(busyKey)}
                                   onChange={() => void mutate({
-                                    action: "set_section_access",
-                                    email: user.email,
-                                    sectionId: section.id,
+                                    action: "set_course_access_bulk",
+                                    emails: [user.email],
+                                    courseId: course.id,
                                     enabled: !enabled,
-                                  }, key, enabled ? `Đã thu hồi ${section.title}.` : `Đã cấp ${section.title}.`)}
+                                  }, key, enabled
+                                    ? `Đã xóa quyền folder “${course.title}” của ${user.email}.`
+                                    : `Đã cấp folder “${course.title}” cho ${user.email}.`)}
                                 />
                                 <i />
                               </label>
                             </td>
                           );
-                        }))}
+                        })}
                         <td>
                           {user.is_admin ? (
                             <span className={styles.adminBadge}>ADMIN</span>
@@ -336,7 +397,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
             <div>
               <span>CẤU TRÚC NỘI DUNG</span>
               <h2>Khóa học chứa các section</h2>
-              <p>Tạo cấu trúc tại đây, sau đó quay lại tab Phân quyền email để cấp từng section.</p>
+              <p>Tạo cấu trúc tại đây, sau đó quay lại tab Phân quyền email để cấp toàn bộ folder.</p>
             </div>
             <form onSubmit={createCourse}>
               <label htmlFor="new-course">Tên khóa học mới</label>

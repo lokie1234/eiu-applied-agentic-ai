@@ -10,6 +10,14 @@ function slugify(value: string) {
     .toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 70);
 }
 
+function normalizeEiuEmails(value: unknown): string[] {
+  if (!Array.isArray(value)) return [];
+  const emails = value
+    .map((item: unknown) => String(item).trim().toLowerCase())
+    .filter((email): email is string => isEiuEmail(email));
+  return [...new Set<string>(emails)].slice(0, 500);
+}
+
 async function loadAccessData() {
   const supabase = getSupabaseAdmin();
   const [usersResult, coursesResult, sectionsResult, grantsResult] = await Promise.all([
@@ -20,7 +28,7 @@ async function loadAccessData() {
     supabase.from("course_sections")
       .select("id, course_id, section_key, title, position, status")
       .neq("status", "archived").order("position"),
-    supabase.from("user_section_access").select("user_email, section_id, granted_at"),
+    supabase.from("user_course_access").select("user_email, course_id, granted_at"),
   ]);
   if (usersResult.error) throw usersResult.error;
   if (coursesResult.error) throw coursesResult.error;
@@ -55,32 +63,109 @@ export async function POST(request: Request) {
     const action = String(body.action ?? "");
     const supabase = getSupabaseAdmin();
 
-    if (action === "add_users") {
-      const rawEmails = Array.isArray(body.emails) ? body.emails : [];
-      const emails = [...new Set(
-        rawEmails.map((value: unknown) => String(value).trim().toLowerCase()).filter(isEiuEmail),
-      )].slice(0, 500);
+    if (action === "set_course_access_bulk") {
+      const emails = normalizeEiuEmails(body.emails);
+      const courseId = String(body.courseId ?? "");
+      const enabled = body.enabled === true;
       if (emails.length === 0) {
         return NextResponse.json(
           { success: false, message: "Không tìm thấy email hợp lệ có đuôi @eiu.edu.vn." },
           { status: 400 },
         );
       }
-      const now = new Date().toISOString();
-      const { error } = await supabase.from("app_users").upsert(
-        emails.map((email) => ({ email, status: "active", updated_at: now })),
-        { onConflict: "email" },
-      );
-      if (error) throw error;
-      await supabase.from("access_audit_logs").insert(
+
+      const { data: course, error: courseError } = await supabase
+        .from("courses")
+        .select("id, title")
+        .eq("id", courseId)
+        .eq("status", "active")
+        .maybeSingle();
+      if (courseError) throw courseError;
+      if (!course) {
+        return NextResponse.json(
+          { success: false, message: "Folder khóa học không tồn tại hoặc chưa hoạt động." },
+          { status: 404 },
+        );
+      }
+
+      if (enabled) {
+        const now = new Date().toISOString();
+        const { error: userError } = await supabase.from("app_users").upsert(
+          emails.map((email) => ({ email, status: "active", updated_at: now })),
+          { onConflict: "email" },
+        );
+        if (userError) throw userError;
+        const { error: grantError } = await supabase.from("user_course_access").upsert(
+          emails.map((email) => ({
+            user_email: email,
+            course_id: courseId,
+            granted_by: actor.email,
+          })),
+          { onConflict: "user_email,course_id" },
+        );
+        if (grantError) throw grantError;
+      } else {
+        const { data: adminUsers, error: adminError } = await supabase
+          .from("app_users")
+          .select("email")
+          .in("email", emails)
+          .eq("is_admin", true);
+        if (adminError) throw adminError;
+        const adminEmails = new Set((adminUsers ?? []).map((user) => String(user.email)));
+        const revocableEmails = emails.filter((email) => !adminEmails.has(email));
+        if (revocableEmails.length > 0) {
+          const { error: revokeError } = await supabase.from("user_course_access").delete()
+            .eq("course_id", courseId)
+            .in("user_email", revocableEmails);
+          if (revokeError) throw revokeError;
+        }
+      }
+
+      const { error: auditError } = await supabase.from("access_audit_logs").insert(
         emails.map((email) => ({
           actor_email: actor.email,
-          action: "ADD_USER",
+          action: enabled ? "GRANT_COURSE_FOLDER" : "REVOKE_COURSE_FOLDER",
+          target_email: email,
+          course_id: courseId,
+          details: { courseTitle: course.title, source: emails.length > 1 ? "bulk" : "single" },
+        })),
+      );
+      if (auditError) throw auditError;
+    } else if (action === "remove_users_bulk") {
+      const emails = normalizeEiuEmails(body.emails);
+      if (emails.length === 0) {
+        return NextResponse.json(
+          { success: false, message: "Không tìm thấy email hợp lệ có đuôi @eiu.edu.vn." },
+          { status: 400 },
+        );
+      }
+      const { data: adminUsers, error: adminError } = await supabase
+        .from("app_users")
+        .select("email")
+        .in("email", emails)
+        .eq("is_admin", true);
+      if (adminError) throw adminError;
+      const adminEmails = new Set((adminUsers ?? []).map((user) => String(user.email)));
+      const removableEmails = emails.filter((email) => !adminEmails.has(email));
+      if (removableEmails.length === 0) {
+        return NextResponse.json(
+          { success: false, message: "Không thể xóa tài khoản admin." },
+          { status: 400 },
+        );
+      }
+      const { error: removeError } = await supabase.from("app_users").delete()
+        .in("email", removableEmails);
+      if (removeError) throw removeError;
+      const { error: auditError } = await supabase.from("access_audit_logs").insert(
+        removableEmails.map((email) => ({
+          actor_email: actor.email,
+          action: "REMOVE_USER",
           target_email: email,
           details: { source: "bulk" },
         })),
       );
-    } else if (["add_user", "remove_user", "set_section_access"].includes(action)) {
+      if (auditError) throw auditError;
+    } else if (action === "remove_user") {
       const email = String(body.email ?? "").trim().toLowerCase();
       if (!isEiuEmail(email)) {
         return NextResponse.json(
@@ -88,56 +173,19 @@ export async function POST(request: Request) {
         );
       }
 
-      if (action === "add_user") {
-        const { error } = await supabase.from("app_users").upsert(
-          { email, status: "active", updated_at: new Date().toISOString() }, { onConflict: "email" },
+      const { data: target, error: targetError } = await supabase
+        .from("app_users").select("is_admin").eq("email", email).maybeSingle();
+      if (targetError) throw targetError;
+      if (target?.is_admin) {
+        return NextResponse.json(
+          { success: false, message: "Không thể xóa tài khoản admin tại màn hình này." }, { status: 400 },
         );
-        if (error) throw error;
-        await supabase.from("access_audit_logs").insert({
-          actor_email: actor.email, action: "ADD_USER", target_email: email,
-        });
-      } else if (action === "remove_user") {
-        const { data: target, error: targetError } = await supabase
-          .from("app_users").select("is_admin").eq("email", email).maybeSingle();
-        if (targetError) throw targetError;
-        if (target?.is_admin) {
-          return NextResponse.json(
-            { success: false, message: "Không thể xóa tài khoản admin tại màn hình này." }, { status: 400 },
-          );
-        }
-        const { error } = await supabase.from("app_users").delete().eq("email", email);
-        if (error) throw error;
-        await supabase.from("access_audit_logs").insert({
-          actor_email: actor.email, action: "REMOVE_USER", target_email: email,
-        });
-      } else {
-        const sectionId = String(body.sectionId ?? "");
-        const enabled = body.enabled === true;
-        const { data: section, error: sectionError } = await supabase
-          .from("course_sections").select("id, title, course_id")
-          .eq("id", sectionId).neq("status", "archived").maybeSingle();
-        if (sectionError) throw sectionError;
-        if (!section) {
-          return NextResponse.json({ success: false, message: "Section không tồn tại." }, { status: 404 });
-        }
-        if (enabled) {
-          const { error } = await supabase.from("user_section_access").upsert(
-            { user_email: email, section_id: sectionId, granted_by: actor.email },
-            { onConflict: "user_email,section_id" },
-          );
-          if (error) throw error;
-        } else {
-          const { error } = await supabase.from("user_section_access").delete()
-            .eq("user_email", email).eq("section_id", sectionId);
-          if (error) throw error;
-        }
-        await supabase.from("access_audit_logs").insert({
-          actor_email: actor.email,
-          action: enabled ? "GRANT_SECTION" : "REVOKE_SECTION",
-          target_email: email, course_id: section.course_id,
-          details: { sectionId, sectionTitle: section.title },
-        });
       }
+      const { error } = await supabase.from("app_users").delete().eq("email", email);
+      if (error) throw error;
+      await supabase.from("access_audit_logs").insert({
+        actor_email: actor.email, action: "REMOVE_USER", target_email: email,
+      });
     } else if (action === "create_course") {
       const title = String(body.title ?? "").trim();
       const slug = slugify(title);
