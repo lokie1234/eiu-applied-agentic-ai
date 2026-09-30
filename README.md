@@ -1,7 +1,7 @@
 # EIU Applied Agentic AI — Interactive Deck
 
-Hướng dẫn triển khai OTP bằng Google Apps Script và quản lý quyền theo từng section:
-[docs/GOOGLE_AUTH_DEPLOYMENT.md](docs/GOOGLE_AUTH_DEPLOYMENT.md).
+Hướng dẫn triển khai OTP qua Brevo Custom SMTP và quản lý quyền theo từng section:
+[docs/BREVO_OTP_DEPLOYMENT.md](docs/BREVO_OTP_DEPLOYMENT.md).
 
 Bản project hoàn chỉnh hiện tại của Section 1.
 
@@ -9,7 +9,7 @@ Bản project hoàn chỉnh hiện tại của Section 1.
 
 - Next.js App Router + TypeScript.
 - React-PDF render PDF từ `NEXT_PUBLIC_PDF_URL`.
-- Google Apps Script gửi OTP + Supabase SSR session + quyền theo từng section.
+- Brevo Custom SMTP + Supabase Email OTP/SSR session + quyền theo từng section.
 - Previous / Next, keyboard, mouse wheel, slide number + Enter.
 - Zoom, fullscreen, PDF hyperlinks.
 - Interaction layer nằm phía trên PDF và không sửa nội dung PDF.
@@ -50,14 +50,12 @@ Tạo `.env.local` từ `.env.example`:
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
 SUPABASE_SECRET_KEY=...
-GAS_OTP_ENDPOINT=...
-GAS_OTP_SHARED_SECRET=...
 NEXT_PUBLIC_PDF_URL=...
 ```
 
-Không cần Custom SMTP hoặc chỉnh Email Template của Supabase. Google Apps Script gửi mã do Supabase
-tạo; hai phía xác thực request bằng `GAS_OTP_SHARED_SECRET`. Xem checklist đầy đủ trong hướng dẫn ở đầu
-README.
+Brevo SMTP credentials được cấu hình trong Supabase Dashboard, không đặt trong env của Next.js. Cả
+template Confirm signup và Magic Link phải dùng `{{ .Token }}` để gửi mã thay vì magic link. Xem
+checklist đầy đủ trong hướng dẫn ở đầu README.
 
 Không commit `.env.local` lên GitHub.
 

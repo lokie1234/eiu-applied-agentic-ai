@@ -33,13 +33,13 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/request-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: targetEmail }),
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) throw new Error("Supabase Auth chưa được cấu hình.");
+      const { error: sendError } = await supabase.auth.signInWithOtp({
+        email: targetEmail,
+        options: { shouldCreateUser: true },
       });
-      const payload = await response.json().catch(() => ({})) as { message?: string };
-      if (!response.ok) throw new Error(payload.message || "Không thể gửi mã OTP.");
+      if (sendError) throw sendError;
       setEmail(targetEmail);
       setStep("otp");
       setResendIn(60);
@@ -53,8 +53,8 @@ export default function LoginForm() {
   async function verifyOtp(event: FormEvent) {
     event.preventDefault();
     setError("");
-    if (!/^\d{6}$/.test(otp)) {
-      setError("Mã OTP phải gồm 6 chữ số.");
+    if (!/^\d{6,8}$/.test(otp)) {
+      setError("Mã OTP phải gồm từ 6 đến 8 chữ số.");
       return;
     }
     setLoading(true);
@@ -202,7 +202,7 @@ export default function LoginForm() {
               ) : (
                 <>
                   <div className="otp-heading-row">
-                    <label htmlFor="eiu-otp">MÃ OTP 6 SỐ</label>
+                    <label htmlFor="eiu-otp">MÃ OTP</label>
                     <button
                       type="button"
                       className="otp-change-email"
@@ -222,11 +222,11 @@ export default function LoginForm() {
                     type="text"
                     inputMode="numeric"
                     autoComplete="one-time-code"
-                    maxLength={6}
+                    maxLength={8}
                     value={otp}
                     placeholder="000000"
                     onChange={(event) => {
-                      setOtp(event.target.value.replace(/\D/g, "").slice(0, 6));
+                      setOtp(event.target.value.replace(/\D/g, "").slice(0, 8));
                       setError("");
                     }}
                     autoFocus
