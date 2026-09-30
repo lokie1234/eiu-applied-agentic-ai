@@ -22,6 +22,12 @@ html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background:
 body { font-family: "Segoe UI", "Noto Sans", Arial, ui-sans-serif, system-ui, sans-serif; -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
 button, input { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
+.access-empty-page { min-height: 100dvh; display: grid; place-items: center; padding: 24px; background: radial-gradient(circle at 20% 20%, rgba(45,127,180,.22), transparent 35%), var(--navy-950); }
+.access-empty-card { width: min(560px, 100%); padding: 42px; border: 1px solid rgba(233,202,139,.24); border-radius: 26px; background: var(--cream-soft); box-shadow: 0 28px 80px rgba(0,0,0,.3); }
+.access-empty-card > span { color: var(--gold-700); font-size: 10px; font-weight: 800; letter-spacing: .15em; }
+.access-empty-card h1 { margin: 13px 0; color: var(--navy-900); font-size: 38px; letter-spacing: -.04em; }
+.access-empty-card p { color: var(--muted); line-height: 1.65; }
+.access-empty-card button { margin-top: 16px; padding: 12px 20px; border: 0; border-radius: 999px; background: var(--navy-900); color: white; font-weight: 700; cursor: pointer; }
 
 .showcase-item-actions { display: flex; align-items: center; gap: 5px; }
 .showcase-item-actions a { white-space: nowrap; }
@@ -120,6 +126,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .login-submit:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 18px 38px rgba(8,41,69,.25); }
 .login-submit:disabled { opacity: .48; cursor: not-allowed; }
 .login-submit-arrow { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 999px; background: rgba(255,255,255,.11); color: var(--gold-200); font-size: 17px; }
+.login-email-field { width: 100%; height: 58px; padding: 0 17px; border: 1px solid rgba(23,50,74,.15); border-radius: 13px; outline: none; background: var(--white); color: var(--navy-900); font-size: 15px; font-weight: 650; box-shadow: 0 8px 26px rgba(4,28,49,.05); transition: border-color 220ms var(--ease), box-shadow 220ms var(--ease); }
+.login-email-field:focus { border-color: var(--blue); box-shadow: 0 0 0 4px rgba(45,127,180,.11), 0 10px 30px rgba(4,28,49,.06); }
+.otp-code-field { text-align: center; font-size: 24px; font-weight: 800; letter-spacing: .28em; }
+.otp-heading-row { display: flex; align-items: center; justify-content: space-between; }
+.otp-heading-row label { margin-bottom: 0; }
+.otp-change-email, .otp-resend { border: 0; background: transparent; color: var(--blue); font-size: 11px; font-weight: 750; cursor: pointer; }
+.otp-sent-note { margin: 8px 0 12px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.otp-sent-note strong { color: var(--navy-900); }
+.otp-resend { margin-top: 13px; align-self: center; }
+.otp-resend:disabled { color: #9aa7b1; cursor: not-allowed; }
 .login-browser-note { margin-top: 28px; padding: 17px; display: flex; align-items: flex-start; gap: 12px; border: 1px solid rgba(179,145,89,.18); border-radius: 18px; background: var(--cream); }
 .login-browser-note-icon { width: 27px; height: 27px; flex-shrink: 0; display: grid; place-items: center; border-radius: 999px; background: var(--navy-900); color: var(--gold-200); font-size: 12px; font-weight: 800; }
 .login-browser-note strong { display: block; margin-bottom: 3px; color: var(--navy-900); font-size: 12px; }

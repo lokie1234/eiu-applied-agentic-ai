@@ -1,44 +1,75 @@
 "use client";
 
 import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
+import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function LoginForm() {
-  const router = useRouter();
-  const [code, setCode] = useState("");
-  const [error, setError] = useState("");
+  const [step, setStep] = useState<"email" | "otp">("email");
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [resendIn, setResendIn] = useState(0);
 
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const timer = window.setInterval(() => setResendIn((value) => Math.max(0, value - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [resendIn]);
+
+  function normalizedEmail() {
+    return email.trim().toLowerCase();
+  }
+
+  async function sendOtp(event?: FormEvent) {
+    event?.preventDefault();
     setError("");
+    const targetEmail = normalizedEmail();
+    if (!/^[^@\s]+@eiu\.edu\.vn$/i.test(targetEmail)) {
+      setError("Vui lòng dùng email có đúng đuôi @eiu.edu.vn.");
+      return;
+    }
     setLoading(true);
 
     try {
-      const response = await fetch("/api/access", {
+      const response = await fetch("/api/auth/request-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code }),
+        body: JSON.stringify({ email: targetEmail }),
       });
+      const payload = await response.json().catch(() => ({})) as { message?: string };
+      if (!response.ok) throw new Error(payload.message || "Không thể gửi mã OTP.");
+      setEmail(targetEmail);
+      setStep("otp");
+      setResendIn(60);
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : "Không thể gửi mã OTP.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
-      if (!response.ok) {
-        let message = "Access code không đúng.";
-        try {
-          const data = await response.json();
-          if (typeof data?.message === "string") message = data.message;
-        } catch {
-          // Keep the default message.
-        }
-        setError(message);
-        setLoading(false);
-        return;
-      }
-
-      router.replace("/");
-      router.refresh();
-    } catch {
-      setError("Không thể kết nối tới server.");
+  async function verifyOtp(event: FormEvent) {
+    event.preventDefault();
+    setError("");
+    if (!/^\d{6}$/.test(otp)) {
+      setError("Mã OTP phải gồm 6 chữ số.");
+      return;
+    }
+    setLoading(true);
+    try {
+      const supabase = getSupabaseBrowserClient();
+      if (!supabase) throw new Error("Supabase Auth chưa được cấu hình.");
+      const { error: verifyError } = await supabase.auth.verifyOtp({
+        email: normalizedEmail(),
+        token: otp,
+        type: "email",
+      });
+      if (verifyError) throw verifyError;
+      window.location.replace("/");
+    } catch (caughtError) {
+      setError(caughtError instanceof Error ? caughtError.message : "Mã OTP không đúng hoặc đã hết hạn.");
       setLoading(false);
     }
   }
@@ -146,42 +177,92 @@ export default function LoginForm() {
             <div className="login-access-eyebrow">SESSION ACCESS</div>
             <h2>Welcome to<br />Applied Agentic AI</h2>
             <p className="login-access-description">
-              Enter your access code to open the assigned learning section.
+              Nhận mã OTP qua email EIU để đăng nhập. Khóa học chỉ hiển thị khi admin đã cấp quyền.
             </p>
 
-            <form onSubmit={handleSubmit} className="login-form">
-              <label htmlFor="access-code">ACCESS CODE</label>
-              <div className="login-code-field">
-                <input
-                  id="access-code"
-                  type="password"
-                  inputMode="numeric"
-                  autoComplete="off"
-                  maxLength={4}
-                  placeholder="••••"
-                  value={code}
-                  autoFocus
-                  onChange={(event) => {
-                    setCode(event.target.value.replace(/\D/g, ""));
-                    setError("");
-                  }}
-                />
-                <div className="login-code-status">4-digit code</div>
-              </div>
+            <form className="login-form" onSubmit={step === "email" ? sendOtp : verifyOtp}>
+              {step === "email" ? (
+                <>
+                  <label htmlFor="eiu-email">EMAIL EIU</label>
+                  <input
+                    id="eiu-email"
+                    className="login-email-field"
+                    type="email"
+                    value={email}
+                    autoComplete="email"
+                    placeholder="your.name@eiu.edu.vn"
+                    onChange={(event) => {
+                      setEmail(event.target.value);
+                      setError("");
+                    }}
+                    autoFocus
+                    required
+                  />
+                </>
+              ) : (
+                <>
+                  <div className="otp-heading-row">
+                    <label htmlFor="eiu-otp">MÃ OTP 6 SỐ</label>
+                    <button
+                      type="button"
+                      className="otp-change-email"
+                      onClick={() => {
+                        setStep("email");
+                        setOtp("");
+                        setError("");
+                      }}
+                    >
+                      Đổi email
+                    </button>
+                  </div>
+                  <p className="otp-sent-note">Mã đã được gửi đến <strong>{email}</strong></p>
+                  <input
+                    id="eiu-otp"
+                    className="login-email-field otp-code-field"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    value={otp}
+                    placeholder="000000"
+                    onChange={(event) => {
+                      setOtp(event.target.value.replace(/\D/g, "").slice(0, 6));
+                      setError("");
+                    }}
+                    autoFocus
+                    required
+                  />
+                </>
+              )}
 
               {error && <div className="login-error"><span>!</span>{error}</div>}
 
-              <button type="submit" className="login-submit" disabled={loading || code.length !== 4}>
-                <span>{loading ? "Checking access..." : "Enter Session"}</span>
+              <button
+                type="submit"
+                className="login-submit"
+                disabled={loading}
+              >
+                <span>{loading ? "Đang xử lý..." : step === "email" ? "Gửi mã OTP" : "Xác minh và đăng nhập"}</span>
                 {!loading && <span className="login-submit-arrow">→</span>}
               </button>
+
+              {step === "otp" && (
+                <button
+                  type="button"
+                  className="otp-resend"
+                  disabled={loading || resendIn > 0}
+                  onClick={() => void sendOtp()}
+                >
+                  {resendIn > 0 ? `Gửi lại mã sau ${resendIn}s` : "Gửi lại mã OTP"}
+                </button>
+              )}
             </form>
 
             <div className="login-browser-note">
               <span className="login-browser-note-icon">✓</span>
               <div>
-                <strong>One-time access</strong>
-                <p>This browser will remember your access after successful login.</p>
+                <strong>Xác minh bằng email EIU</strong>
+                <p>Mọi email @eiu.edu.vn có thể nhận OTP; quyền xem khóa học do admin quản lý riêng.</p>
               </div>
             </div>
 

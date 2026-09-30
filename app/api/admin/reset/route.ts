@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
-const HARDCODED_PASSWORD = "Lovekjng123@@";
+const RESET_CONFIRMATION = "RESET";
 
 function formatSectionLabel(section: string): string {
   const match = section.match(/^section\s*(\d+)$/i);
@@ -27,9 +27,9 @@ export async function POST(request: Request) {
     const password = body.password?.trim() || "";
     const requestedSection = body.section?.trim().toLowerCase() || "all";
 
-    if (password !== HARDCODED_PASSWORD) {
+    if (password.toUpperCase() !== RESET_CONFIRMATION) {
       return NextResponse.json(
-        { success: false, message: "Mật khẩu xác thực không đúng. Không thể reset." },
+        { success: false, message: "Vui lòng nhập đúng từ RESET để xác nhận." },
         { status: 401 },
       );
     }

@@ -4,7 +4,6 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
-import type { AccessRole } from "@/lib/access";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
@@ -147,6 +146,11 @@ function DeckShell({
 
         <div className={styles.actionBarButtons}>
           {isAdmin && (
+            <Link href="/admin/access">
+              Quản lý quyền
+            </Link>
+          )}
+          {isAdmin && (
             <Link
               href="/admin/ai"
               className={styles.aiButton}
@@ -188,13 +192,17 @@ function DeckShell({
 }
 
 export default function LessonPortal({
-  role,
+  isAdmin,
+  allowedSections,
+  initialSection,
   initialProfile,
 }: {
-  role: AccessRole;
+  isAdmin: boolean;
+  allowedSections: SectionId[];
+  initialSection: SectionId | null;
   initialProfile: LearnerProfile | null;
 }) {
-  const [adminSection, setAdminSection] = useState<SectionId | null>(null);
+  const [adminSection, setAdminSection] = useState<SectionId | null>(initialSection);
   const [showTerminate, setShowTerminate] = useState(false);
   const [terminateStatus, setTerminateStatus] =
     useState<TerminateStatus>("idle");
@@ -214,13 +222,9 @@ export default function LessonPortal({
   const [resetPassword, setResetPassword] = useState("");
   const [resetStatus, setResetStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [resetNotice, setResetNotice] = useState("");
-  const [learnerProfile, setLearnerProfile] = useState<LearnerProfile | null>(initialProfile);
-  const [profileName, setProfileName] = useState("");
-  const [profileEmailLocalPart, setProfileEmailLocalPart] = useState("");
-  const [profileStatus, setProfileStatus] = useState<"idle" | "saving" | "error">("idle");
-  const [profileError, setProfileError] = useState("");
+  const learnerProfile = initialProfile;
   const [deckSessionKey, setDeckSessionKey] = useState(0);
-  const section = role === "admin" ? adminSection : role;
+  const section = adminSection;
   const resetSectionLabel =
     resetSection === "all"
       ? "tất cả Section"
@@ -233,7 +237,7 @@ export default function LessonPortal({
   });
 
   useEffect(() => {
-    if (role !== "admin" || (!showExportModal && !showResetModal)) return;
+    if (!isAdmin || (!showExportModal && !showResetModal)) return;
     let disposed = false;
 
     async function loadReportSections() {
@@ -265,12 +269,12 @@ export default function LessonPortal({
     return () => {
       disposed = true;
     };
-  }, [role, showExportModal, showResetModal]);
+  }, [isAdmin, showExportModal, showResetModal]);
 
   // Presence is refreshed by Supabase Realtime signals, with a slow fallback
   // for expired tabs that cannot send a pagehide beacon.
   useEffect(() => {
-    if (role !== "admin") return;
+    if (!isAdmin) return;
 
     let disposed = false;
     let refreshTimer: number | undefined;
@@ -309,11 +313,11 @@ export default function LessonPortal({
       window.clearInterval(interval);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [role]);
+  }, [isAdmin]);
 
   // Learner heartbeat tracking
   useEffect(() => {
-    if (role === "admin" || !learnerProfile) return;
+    if (isAdmin || !learnerProfile || !section) return;
 
     const clientId = getOrCreateClientId();
     let disposed = false;
@@ -323,7 +327,7 @@ export default function LessonPortal({
       await fetch("/api/presence", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "heartbeat", section: role, clientId }),
+        body: JSON.stringify({ action: "heartbeat", section, clientId }),
       }).catch(() => undefined);
     }
 
@@ -334,7 +338,7 @@ export default function LessonPortal({
       if (navigator.sendBeacon) {
         navigator.sendBeacon(
           "/api/presence",
-          JSON.stringify({ action: "leave", section: role, clientId })
+          JSON.stringify({ action: "leave", section, clientId })
         );
       }
     };
@@ -349,10 +353,10 @@ export default function LessonPortal({
       window.removeEventListener("beforeunload", onLeave);
       onLeave();
     };
-  }, [role, learnerProfile]);
+  }, [isAdmin, learnerProfile, section]);
 
   async function exportReport() {
-    if (role !== "admin" || reportStatus === "exporting") return;
+    if (!isAdmin || reportStatus === "exporting") return;
     setReportStatus("exporting");
     setReportNotice("");
 
@@ -396,12 +400,12 @@ export default function LessonPortal({
   }
 
   async function signOut() {
-    if (role !== "admin") {
+    if (!isAdmin && section) {
       const clientId = getOrCreateClientId();
       await fetch("/api/presence", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "leave", section: role, clientId }),
+        body: JSON.stringify({ action: "leave", section, clientId }),
       }).catch(() => undefined);
     }
     await fetch("/api/signout", { method: "POST" }).catch(() => undefined);
@@ -412,11 +416,11 @@ export default function LessonPortal({
 
   async function resetAllData(event: FormEvent) {
     event.preventDefault();
-    if (role !== "admin" || resetStatus === "sending") return;
+    if (!isAdmin || resetStatus === "sending") return;
 
     if (!resetPassword.trim()) {
       setResetStatus("error");
-      setResetNotice("Vui lòng nhập mật khẩu xác nhận.");
+      setResetNotice("Vui lòng nhập RESET để xác nhận.");
       return;
     }
 
@@ -439,7 +443,7 @@ export default function LessonPortal({
       };
 
       if (!response.ok || !payload.success) {
-        throw new Error(payload.message || "Mật khẩu xác thực không đúng.");
+        throw new Error(payload.message || "Nội dung xác nhận không đúng.");
       }
 
       setResetStatus("success");
@@ -462,7 +466,7 @@ export default function LessonPortal({
   }
 
   async function terminateSection() {
-    if (role !== "admin" || !section || terminateStatus === "sending") return;
+    if (!isAdmin || !section || terminateStatus === "sending") return;
 
     setTerminateStatus("sending");
     setTerminateNotice("");
@@ -494,38 +498,18 @@ export default function LessonPortal({
     }
   }
 
-  async function saveLearnerProfile(event: FormEvent) {
-    event.preventDefault();
-    if (profileStatus === "saving") return;
-    setProfileStatus("saving");
-    setProfileError("");
-
-    try {
-      const response = await fetch("/api/profile", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: profileName,
-          email: `${profileEmailLocalPart.trim()}@eiu.edu.vn`,
-        }),
-      });
-
-      const payload = await response.json();
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.message || "Không thể lưu thông tin.");
-      }
-
-      setLearnerProfile(payload.profile);
-      setProfileStatus("idle");
-    } catch (error) {
-      setProfileStatus("error");
-      setProfileError(error instanceof Error ? error.message : "Không thể lưu thông tin.");
-    }
+  async function chooseSection(nextSection: SectionId) {
+    const response = await fetch("/api/session/section", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ section: nextSection }),
+    });
+    if (response.ok) setAdminSection(nextSection);
   }
 
   // Admin section termination polling listener
   useEffect(() => {
-    if (role === "admin") return;
+    if (isAdmin || !section) return;
 
     let disposed = false;
     let initialToken: string | null = null;
@@ -534,7 +518,7 @@ export default function LessonPortal({
     async function checkTermination() {
       if (disposed) return;
       try {
-        const response = await fetch(`/api/section-control?section=${role}`, {
+        const response = await fetch(`/api/section-control?section=${section}`, {
           cache: "no-store",
         });
         if (!response.ok) return;
@@ -563,10 +547,10 @@ export default function LessonPortal({
     void checkTermination();
     const supabase = getSupabaseBrowserClient();
     const channel = supabase
-      ?.channel(`eiu:section:${role}`)
+      ?.channel(`eiu:section:${section}`)
       .on("broadcast", { event: "section_terminated" }, (payload) => {
         const targetSection = (payload.payload as { section?: string })?.section;
-        if (targetSection === role) {
+        if (targetSection === section) {
           localStorage.clear();
           sessionStorage.clear();
           window.location.replace("/login");
@@ -586,40 +570,43 @@ export default function LessonPortal({
       document.removeEventListener("visibilitychange", onVisibilityChange);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [role, learnerProfile]);
+  }, [isAdmin, learnerProfile, section]);
 
-  if (role === "admin" && !section) {
+  if (!section) {
     return (
       <main className={styles.portal}>
         <div className={styles.grid} aria-hidden="true" />
 
         <div className={styles.selectorActions}>
-          <Link href="/admin/ai" className={styles.aiButton}>
-            ✦ AI Knowledge
-          </Link>
-          <button
-            type="button"
-            className={styles.reportButton}
-            onClick={() => {
-              setReportNotice("");
-              setShowExportModal(true);
-            }}
-            disabled={reportStatus === "exporting"}
-          >
-            {reportStatus === "exporting" ? "Đang xuất…" : "Xuất report Excel"}
-          </button>
-          <button
-            type="button"
-            className={styles.resetDataButton}
-            onClick={() => {
-              setResetPassword("");
-              setResetStatus("idle");
-              setResetNotice("");
-              setShowResetModal(true);
-            }}
-          >
-            Reset dữ liệu
-          </button>
+          {isAdmin && <Link href="/admin/access">Quản lý quyền</Link>}
+          {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
+          {isAdmin && (
+            <button
+              type="button"
+              className={styles.reportButton}
+              onClick={() => {
+                setReportNotice("");
+                setShowExportModal(true);
+              }}
+              disabled={reportStatus === "exporting"}
+            >
+              {reportStatus === "exporting" ? "Đang xuất…" : "Xuất report Excel"}
+            </button>
+          )}
+          {isAdmin && (
+            <button
+              type="button"
+              className={styles.resetDataButton}
+              onClick={() => {
+                setResetPassword("");
+                setResetStatus("idle");
+                setResetNotice("");
+                setShowResetModal(true);
+              }}
+            >
+              Reset dữ liệu
+            </button>
+          )}
           <button type="button" onClick={signOut}>
             Sign out
           </button>
@@ -638,45 +625,49 @@ export default function LessonPortal({
               />
             </div>
             <div>
-              <span>ADMIN ACCESS</span>
+              <span>{isAdmin ? "ADMIN ACCESS" : "MY COURSE"}</span>
               <strong>EIU - Applied Agentic AI</strong>
             </div>
           </div>
 
           <div className={styles.heading}>
-            <span>CHỌN NỘI DUNG</span>
-            <h1>Bạn muốn mở Section nào?</h1>
-            <p>Chuyển đổi giữa cả hai phần học.</p>
+            <span>APPLIED AGENTIC AI</span>
+            <h1>Chọn nội dung bạn muốn học</h1>
+            <p>Bạn chỉ thấy những section đã được quản trị viên cấp quyền.</p>
             {reportStatus === "error" && reportNotice && (
               <p className={styles.reportError} role="alert">{reportNotice}</p>
             )}
           </div>
 
           <div className={styles.cards}>
-            <button type="button" onClick={() => setAdminSection("section1")}>
-              <span>SECTION 1</span>
-              <strong>Từ Prompt đến Web App</strong>
-              <small>41 slide · PDF + HTML interactive</small>
-              <div className={styles.cardLiveUsers}>
-                <span className={styles.liveDot} />
-                <span>{presenceCounts.section1} users đang học</span>
-              </div>
-              <i>→</i>
-            </button>
-            <button type="button" onClick={() => setAdminSection("section2")}>
-              <span>SECTION 2</span>
-              <strong>Từ Prompt đến AI Business Framework</strong>
-              <small>37 slide · HTML/CSS/React</small>
-              <div className={styles.cardLiveUsers}>
-                <span className={styles.liveDot} />
-                <span>{presenceCounts.section2} users đang học</span>
-              </div>
-              <i>→</i>
-            </button>
+            {allowedSections.includes("section1") && (
+              <button type="button" onClick={() => void chooseSection("section1")}>
+                <span>SECTION 1</span>
+                <strong>Từ Prompt đến Web App</strong>
+                <small>41 slide · PDF + HTML interactive</small>
+                {isAdmin && <div className={styles.cardLiveUsers}>
+                  <span className={styles.liveDot} />
+                  <span>{presenceCounts.section1} users đang học</span>
+                </div>}
+                <i>→</i>
+              </button>
+            )}
+            {allowedSections.includes("section2") && (
+              <button type="button" onClick={() => void chooseSection("section2")}>
+                <span>SECTION 2</span>
+                <strong>Từ Prompt đến AI Business Framework</strong>
+                <small>37 slide · HTML/CSS/React</small>
+                {isAdmin && <div className={styles.cardLiveUsers}>
+                  <span className={styles.liveDot} />
+                  <span>{presenceCounts.section2} users đang học</span>
+                </div>}
+                <i>→</i>
+              </button>
+            )}
           </div>
         </section>
 
-        {showExportModal && (
+        {isAdmin && showExportModal && (
           <div
             className={styles.modalLayer}
             role="presentation"
@@ -807,7 +798,7 @@ export default function LessonPortal({
           </div>
         )}
 
-        {showResetModal && (
+        {isAdmin && showResetModal && (
           <div
             className={styles.modalLayer}
             role="presentation"
@@ -857,16 +848,16 @@ export default function LessonPortal({
               </div>
 
               <label className={styles.resetPasswordField}>
-                <span>Nhập mật khẩu xác thực để tiếp tục</span>
+                <span>Nhập RESET để xác nhận thao tác</span>
                 <input
-                  type="password"
+                  type="text"
                   className={styles.resetPasswordInput}
                   value={resetPassword}
                   onChange={(e) => {
                     setResetPassword(e.target.value);
                     if (resetStatus === "error") setResetNotice("");
                   }}
-                  placeholder="Nhập mật khẩu admin..."
+                  placeholder="RESET"
                   autoFocus
                   required
                 />
@@ -915,13 +906,13 @@ export default function LessonPortal({
   return (
     <>
       <DeckShell
-        isAdmin={role === "admin"}
+        isAdmin={isAdmin}
         presenceCounts={presenceCounts}
         currentSection={section}
-        statusNotice={role === "admin" ? terminateNotice : undefined}
-        onChooseSection={role === "admin" ? () => setAdminSection(null) : undefined}
+        statusNotice={isAdmin ? terminateNotice : undefined}
+        onChooseSection={() => setAdminSection(null)}
         onOpenTerminate={
-          role === "admin"
+          isAdmin
             ? () => {
                 setTerminateStatus("idle");
                 setTerminateNotice("");
@@ -932,13 +923,13 @@ export default function LessonPortal({
         onSignOut={signOut}
       >
         {section === "section2" ? (
-          <SectionTwoDeck key={`${section}-${deckSessionKey}`} isAdmin={role === "admin"} />
+          <SectionTwoDeck key={`${section}-${deckSessionKey}`} isAdmin={isAdmin} />
         ) : (
-          <SectionOneDeck key={`${section}-${deckSessionKey}`} isAdmin={role === "admin"} />
+          <SectionOneDeck key={`${section}-${deckSessionKey}`} isAdmin={isAdmin} />
         )}
       </DeckShell>
 
-      {role === "admin" && section && showTerminate && (
+      {isAdmin && section && showTerminate && (
         <div
           className={styles.modalLayer}
           role="presentation"
@@ -987,73 +978,6 @@ export default function LessonPortal({
         </div>
       )}
 
-      {role !== "admin" && !learnerProfile && (
-        <div className={styles.profileModalLayer} role="presentation">
-          <form
-            className={styles.profileModal}
-            onSubmit={saveLearnerProfile}
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="learner-profile-title"
-          >
-            <span className={styles.profileEyebrow}>
-              {role === "section1" ? "SECTION 1" : "SECTION 2"} · THÔNG TIN HỌC VIÊN
-            </span>
-            <h2 id="learner-profile-title">Chào mừng bạn đến lớp học</h2>
-            <p>
-              Nhập thông tin một lần để hệ thống tự ghi nhận cho ý tưởng, bài làm,
-              quiz và feedback trong suốt phiên học.
-            </p>
-
-            <label className={styles.profileField}>
-              <span>Họ và tên</span>
-              <input
-                value={profileName}
-                onChange={(event) => {
-                  setProfileName(event.target.value);
-                  setProfileError("");
-                }}
-                maxLength={80}
-                autoComplete="name"
-                placeholder="Nguyễn Văn A"
-                autoFocus
-                required
-              />
-            </label>
-
-            <label className={styles.profileField}>
-              <span>Email EIU</span>
-              <div className={styles.profileEmailField}>
-                <input
-                  value={profileEmailLocalPart}
-                  onChange={(event) => {
-                    setProfileEmailLocalPart(event.target.value.replace(/@.*$/, ""));
-                    setProfileError("");
-                  }}
-                  maxLength={64}
-                  pattern="[A-Za-z0-9._%+\-]+"
-                  autoComplete="email"
-                  aria-label="Tên tài khoản email EIU"
-                  placeholder="student.id"
-                  required
-                />
-                <strong>@eiu.edu.vn</strong>
-              </div>
-            </label>
-
-            {profileError && <p className={styles.profileError} role="alert">{profileError}</p>}
-
-            <div className={styles.profileActions}>
-              <button type="button" className={styles.profileSignOut} onClick={() => void signOut()}>
-                Đăng xuất
-              </button>
-              <button type="submit" className={styles.profileSubmit} disabled={profileStatus === "saving"}>
-                {profileStatus === "saving" ? "Đang lưu…" : "Bắt đầu học"}
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
     </>
   );
 }
