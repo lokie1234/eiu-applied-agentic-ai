@@ -1,8 +1,8 @@
 "use client";
 
-import { Suspense, useRef, useEffect, useState } from "react";
+import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, PerspectiveCamera } from "@react-three/drei";
+import { PerspectiveCamera } from "@react-three/drei";
 import GuardianRobot3D from "./GuardianRobot3D";
 import AgentWorld3D from "./AgentWorld3D";
 
@@ -16,16 +16,16 @@ export default function HeroScene({ mouseRef, showCards }: HeroSceneProps) {
     <Canvas
       dpr={[1, 1.5]}
       shadows={false}
-      gl={{ antialias: true, alpha: true }}
-      style={{ background: "transparent" }}
+      gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
+      style={{ background: "transparent", width: "100%", height: "100%" }}
     >
-      <PerspectiveCamera makeDefault position={[0, 0, 4.2]} fov={46} />
+      <PerspectiveCamera makeDefault position={[0, 0, 4.8]} fov={42} />
 
       <Suspense fallback={null}>
-        {/* World rings render first (behind robot in scene order) */}
+        {/* World (orbit rings, star field) — renders behind robot */}
         <AgentWorld3D showCards={showCards} />
 
-        {/* Guardian Robot — rendered on top of world rings */}
+        {/* Guardian Robot (with EIU logo + movement) — renders in front */}
         <GuardianRobot3D mouseRef={mouseRef} />
       </Suspense>
     </Canvas>

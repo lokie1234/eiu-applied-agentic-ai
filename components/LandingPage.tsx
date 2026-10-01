@@ -166,7 +166,7 @@ export default function LandingPage() {
         {/* 3D Scene side — replaces old .machine for capable devices */}
         <div
           className={styles.machine}
-          style={{ position: "relative" }}
+          style={{ position: "relative", minHeight: 500 }}
           aria-hidden="true"
         >
           {prefersReduced ? (
@@ -288,3 +288,4 @@ export default function LandingPage() {
     </main>
   );
 }
+
