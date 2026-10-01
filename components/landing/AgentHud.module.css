@@ -1,0 +1,71 @@
+.hudOverlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+}
+
+.hudCard {
+  position: absolute;
+  width: 196px;
+  padding: 15px 18px;
+  border: 1px solid rgba(100, 168, 211, 0.28);
+  border-radius: 14px;
+  background: rgba(8, 41, 69, 0.88);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 14px 38px rgba(0, 0, 0, 0.28);
+  animation: hudFloat 4s ease-in-out infinite, hudIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.cardInput  { left: 4%;  top: 28%;  animation-delay: 0s,    0.9s; }
+.cardProcess{ right: 4%; top: 16%;  animation-delay: -1.2s, 1.2s; }
+.cardOutput { right: 4%; bottom: 18%; animation-delay: -2.5s, 1.5s; }
+
+.dot {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: #69c5a3;
+  box-shadow: 0 0 10px #69c5a3;
+  animation: dotBlink 1.8s ease-in-out infinite;
+}
+.cardProcess .dot { background: #64a8d3; box-shadow: 0 0 10px #64a8d3; animation-delay: -0.6s; }
+.cardOutput  .dot { background: #e9ca8b; box-shadow: 0 0 10px #e9ca8b; animation-delay: -1.2s; }
+
+.label {
+  color: rgba(255, 255, 255, 0.44);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.value {
+  display: block;
+  margin-top: 7px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+@keyframes hudFloat {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-8px); }
+}
+
+@keyframes hudIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes dotBlink {
+  50% { opacity: 0.3; }
+}
+
+/* Responsive hide on very small screens */
+@media (max-width: 640px) {
+  .hudCard { display: none; }
+}
