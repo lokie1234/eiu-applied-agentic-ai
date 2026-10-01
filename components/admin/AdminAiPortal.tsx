@@ -31,7 +31,7 @@ function formatBytes(bytes: number): string {
 function formatDateTime(dateStr: string): string {
   try {
     const d = new Date(dateStr);
-    return d.toLocaleString("vi-VN", {
+    return d.toLocaleString("en-GB", {
       hour: "2-digit",
       minute: "2-digit",
       day: "2-digit",
@@ -55,7 +55,7 @@ export default function AdminAiPortal() {
     {
       id: "welcome-msg",
       role: "ai",
-      text: "Xin chào Admin! Tôi là trợ lý AI chuyên biệt của hệ thống EIU Applied Agentic AI. Tôi chỉ trả lời dựa trên tài liệu trong Knowledge Base. Hãy đặt câu hỏi để tôi tra cứu bằng chứng từ tài liệu.",
+      text: "Hello Admin. I am the private EIU Applied Agentic AI assistant. I answer only from documents in the Knowledge Base. Ask a question to begin an evidence-grounded search.",
       createdAt: new Date().toISOString(),
     },
   ]);
@@ -186,7 +186,7 @@ export default function AdminAiPortal() {
     try {
       setLoadingDocs(true);
       const res = await fetch("/api/ai/documents", { cache: "no-store" });
-      if (!res.ok) throw new Error("Không thể tải danh sách tài liệu.");
+      if (!res.ok) throw new Error("Unable to load documents.");
       const data = await res.json();
       if (data.success && Array.isArray(data.documents)) {
         setDocuments(data.documents);
@@ -203,7 +203,7 @@ export default function AdminAiPortal() {
     try {
       setLoadingRules(true);
       const res = await fetch("/api/ai/rules", { cache: "no-store" });
-      if (!res.ok) throw new Error("Không thể tải quy tắc AI.");
+      if (!res.ok) throw new Error("Unable to load AI rules.");
       const data = await res.json();
       if (data.success && data.rules) {
         const r: AiRules = data.rules;
@@ -265,7 +265,7 @@ export default function AdminAiPortal() {
     await fetch("/api/signout", { method: "POST" }).catch(() => undefined);
     localStorage.clear();
     sessionStorage.clear();
-    window.location.replace("/login");
+    window.location.replace("/");
   }
 
   // Send Chat message with Real-time Streaming
@@ -274,7 +274,7 @@ export default function AdminAiPortal() {
     const promptText = inputPrompt.trim();
     if (!promptText || isSending) return;
     if (!activeChatFolder) {
-      setChatError("Vui lòng chọn một thư mục tài liệu trước khi đặt câu hỏi.");
+      setChatError("Select a document folder before asking a question.");
       return;
     }
 
@@ -312,7 +312,7 @@ export default function AdminAiPortal() {
       });
 
       if (!res.ok) {
-        let errMsg = "Lỗi khi trao đổi với AI.";
+        let errMsg = "Unable to communicate with the AI.";
         try {
           const errData = await res.json();
           errMsg = errData.message || errMsg;
@@ -383,7 +383,7 @@ export default function AdminAiPortal() {
                   )
                 );
               } else if (event.type === "error") {
-                setChatError(event.error || "Lỗi tạo câu trả lời.");
+                setChatError(event.error || "Unable to generate an answer.");
               }
             } catch {
               // ignore malformed SSE messages
@@ -393,7 +393,7 @@ export default function AdminAiPortal() {
       } else {
         const data = await res.json();
         if (!data.success) {
-          throw new Error(data.message || "Lỗi tạo câu trả lời từ AI.");
+          throw new Error(data.message || "Unable to generate an AI answer.");
         }
 
         const aiMsg: ChatMessage = {
@@ -407,7 +407,7 @@ export default function AdminAiPortal() {
         setMessages((prev) => [...prev, aiMsg]);
       }
     } catch (err) {
-      setChatError(err instanceof Error ? err.message : "Đã xảy ra lỗi khi trao đổi với AI.");
+      setChatError(err instanceof Error ? err.message : "An AI communication error occurred.");
     } finally {
       setIsSending(false);
     }
@@ -425,7 +425,7 @@ export default function AdminAiPortal() {
       {
         id: "welcome-msg",
         role: "ai",
-        text: "Lịch sử trò chuyện đã được làm mới. Hãy nhập câu hỏi để tra cứu trong Knowledge Base.",
+        text: "The conversation was cleared. Enter a question to search the Knowledge Base.",
         createdAt: new Date().toISOString(),
       },
     ]);
@@ -442,8 +442,8 @@ export default function AdminAiPortal() {
         id: "welcome-msg",
         role: "ai",
         text: folder
-          ? `Đã khóa phạm vi tra cứu vào “${subfolder ? `${folder} / ${subfolder}` : folder}”. Hãy nhập câu hỏi của bạn.`
-          : "Vui lòng chọn một thư mục tài liệu trước khi bắt đầu tra cứu.",
+          ? `Search scope locked to “${subfolder ? `${folder} / ${subfolder}` : folder}”. Enter your question.`
+          : "Select a document folder before starting a search.",
         createdAt: new Date().toISOString(),
       },
     ]);
@@ -466,7 +466,7 @@ export default function AdminAiPortal() {
     if (invalidFiles.length > 0) {
       setUploadNotice({
         type: "error",
-        text: `Chỉ hỗ trợ PDF, TXT, Markdown hoặc Word. File không hợp lệ: ${invalidFiles
+        text: `Only PDF, TXT, Markdown, and Word files are supported. Invalid files: ${invalidFiles
           .map((file) => file.name)
           .join(", ")}`,
       });
@@ -490,19 +490,19 @@ export default function AdminAiPortal() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Tải lên tài liệu thất bại.");
+        throw new Error(data.message || "Document upload failed.");
       }
 
       setUploadNotice({
         type: "success",
-        text: data.message || `Đã tải lên và lập chỉ mục ${files.length} tài liệu thành công!`,
+        text: data.message || `${files.length} document(s) uploaded and indexed.`,
       });
 
       void loadDocuments();
     } catch (err) {
       setUploadNotice({
         type: "error",
-        text: err instanceof Error ? err.message : "Lỗi khi upload tài liệu.",
+        text: err instanceof Error ? err.message : "Unable to upload documents.",
       });
     } finally {
       setUploading(false);
@@ -522,13 +522,13 @@ export default function AdminAiPortal() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Không thể xóa tài liệu.");
+        throw new Error(data.message || "Unable to delete the document.");
       }
 
       setDocToDelete(null);
       void loadDocuments();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "Lỗi khi xóa tài liệu.");
+      alert(err instanceof Error ? err.message : "Unable to delete the document.");
     } finally {
       setDeletingDoc(false);
     }
@@ -550,7 +550,7 @@ export default function AdminAiPortal() {
       );
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Không thể xóa tài liệu trong thư mục.");
+        throw new Error(data.message || "Unable to delete documents in this folder.");
       }
 
       setDocuments((current) =>
@@ -575,13 +575,13 @@ export default function AdminAiPortal() {
       setScopeToDelete(null);
       setUploadNotice({
         type: "success",
-        text: data.message || `Đã xóa tài liệu trong "${deletedScopeLabel}".`,
+        text: data.message || `Documents in "${deletedScopeLabel}" were deleted.`,
       });
       void loadDocuments();
     } catch (err) {
       setUploadNotice({
         type: "error",
-        text: err instanceof Error ? err.message : "Lỗi khi xóa tài liệu trong thư mục.",
+        text: err instanceof Error ? err.message : "Unable to delete documents in this folder.",
       });
       setScopeToDelete(null);
     } finally {
@@ -610,7 +610,7 @@ export default function AdminAiPortal() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Không thể đổi tên thư mục.");
+        throw new Error(data.message || "Unable to rename the folder.");
       }
 
       const isSubfolderRename = Boolean(scopeToRename.subfolder);
@@ -664,7 +664,7 @@ export default function AdminAiPortal() {
     } catch (error) {
       setUploadNotice({
         type: "error",
-        text: error instanceof Error ? error.message : "Lỗi khi đổi tên thư mục.",
+        text: error instanceof Error ? error.message : "Unable to rename the folder.",
       });
     } finally {
       setRenamingScope(false);
@@ -692,17 +692,17 @@ export default function AdminAiPortal() {
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.message || "Lỗi lưu quy tắc AI.");
+        throw new Error(data.message || "Unable to save AI rules.");
       }
 
       setRulesNotice({
         type: "success",
-        message: "Đã lưu quy tắc phản hồi của AI thành công!",
+        message: "AI response rules saved.",
       });
     } catch (err) {
       setRulesNotice({
         type: "error",
-        message: err instanceof Error ? err.message : "Lỗi khi lưu quy tắc.",
+        message: err instanceof Error ? err.message : "Unable to save rules.",
       });
     } finally {
       setSavingRules(false);
@@ -715,7 +715,7 @@ export default function AdminAiPortal() {
     setRequireCitation(true);
     setRulesNotice({
       type: "success",
-      message: "Đã điền lại nội dung quy tắc mặc định (nhấn 'Lưu quy tắc' để áp dụng).",
+      message: "Default rules restored in the form. Select Save rules to apply them.",
     });
   }
 
@@ -745,10 +745,10 @@ export default function AdminAiPortal() {
 
         <div className={styles.headerActions}>
           <Link href="/" className={styles.backLink}>
-            ← Về Sections
+            ← Learning space
           </Link>
           <button type="button" className={styles.signOutBtn} onClick={handleSignOut}>
-            Đăng xuất
+            Sign out
           </button>
         </div>
       </header>
@@ -788,7 +788,7 @@ export default function AdminAiPortal() {
                 <div className={styles.chatTitleGroup}>
                   <h2>EIU Knowledge AI Assistant</h2>
                   <p>
-                    Hỏi đáp trực tiếp dựa trên {documents.filter((d) => d.status === "READY").length} tài liệu đã sẵn sàng trong Knowledge Base
+                    Ask grounded questions across {documents.filter((d) => d.status === "READY").length} ready documents in the Knowledge Base
                   </p>
                 </div>
                 <div className={styles.chatHeaderControls}>
@@ -798,26 +798,26 @@ export default function AdminAiPortal() {
                     onClick={() => setIsFastMode((prev) => !prev)}
                     title={
                       isFastMode
-                        ? "Ưu tiên vector index theo folder; tự fallback File Search khi cần"
-                        : "Dùng Gemini File Search theo folder đã chọn"
+                        ? "Prioritize the folder vector index and fall back to File Search when needed"
+                        : "Use Gemini File Search in the selected folder"
                     }
                   >
-                    {isFastMode ? "⚡ Siêu tốc (Bật)" : "🔍 Tìm kiếm sâu (Tắt)"}
+                    {isFastMode ? "⚡ Fast mode (On)" : "🔍 Deep search (Off)"}
                   </button>
                   <button type="button" className={styles.clearChatBtn} onClick={handleClearChat}>
-                    Làm mới đoạn chat
+                    Clear conversation
                   </button>
                 </div>
               </div>
 
               <div className={styles.chatScopeBar}>
                 <div className={styles.chatScopeLabel}>
-                  <strong>Phạm vi tra cứu</strong>
-                  <span>Bắt buộc chọn một thư mục để AI không trộn lẫn nguồn.</span>
+                  <strong>Search scope</strong>
+                  <span>Select one folder to keep sources isolated.</span>
                 </div>
                 <div className={styles.chatScopeOptions}>
                   {chatScopes.length === 0 ? (
-                    <span className={styles.chatScopeEmpty}>Chưa có thư mục chứa tài liệu sẵn sàng.</span>
+                    <span className={styles.chatScopeEmpty}>No folders contain ready documents.</span>
                   ) : (
                     chatScopes.map(({ key, folder, subfolder, count }) => (
                       <button
@@ -875,7 +875,7 @@ export default function AdminAiPortal() {
                     <div className={`${styles.bubble} ${styles.bubbleAi}`}>
                       <div className={styles.chatLoading}>
                         <span className={styles.spinner} />
-                        <span>AI đang phân tích tài liệu và tìm bằng chứng...</span>
+                        <span>AI is analyzing documents and retrieving evidence…</span>
                       </div>
                     </div>
                   </div>
@@ -902,8 +902,8 @@ export default function AdminAiPortal() {
                   onKeyDown={handleKeyDown}
                   placeholder={
                     activeChatFolder
-                      ? `Đặt câu hỏi trong “${activeChatSubfolder ? `${activeChatFolder} / ${activeChatSubfolder}` : activeChatFolder}”...`
-                      : "Chọn một thư mục tài liệu ở phía trên để bắt đầu..."
+                      ? `Ask a question in “${activeChatSubfolder ? `${activeChatFolder} / ${activeChatSubfolder}` : activeChatFolder}”…`
+                      : "Select a document folder above to begin…"
                   }
                   rows={2}
                   disabled={isSending || !activeChatFolder}
@@ -916,15 +916,15 @@ export default function AdminAiPortal() {
                   {isSending ? (
                     <>
                       <span className={styles.spinner} />
-                      Đang tra cứu
+                      Searching
                     </>
                   ) : (
-                    <>Gửi câu hỏi ➤</>
+                    <>Send question ➤</>
                   )}
                 </button>
               </form>
               <div className={styles.chatInputHint}>
-                Gợi ý: Nhấn Enter để gửi nhanh, Shift + Enter để xuống hàng
+                Tip: Press Enter to send, or Shift + Enter for a new line
               </div>
             </div>
           </section>
@@ -935,9 +935,9 @@ export default function AdminAiPortal() {
           <section className={`${styles.tabPanel} ${styles.knowledgePanel}`}>
             <div className={styles.knowledgeHeader}>
               <div>
-                <h2>Tài liệu Knowledge Base</h2>
+                <h2>Knowledge Base documents</h2>
                 <p>
-                  Upload PDF, TXT, MD hoặc Word để hệ thống lập chỉ mục và chỉ trả lời từ tài liệu nội bộ
+                  Upload PDF, TXT, MD, or Word files for private, document-grounded answers
                 </p>
               </div>
               <div className={styles.knowledgeHeaderActions}>
@@ -947,7 +947,7 @@ export default function AdminAiPortal() {
                   onClick={() => void loadDocuments()}
                   disabled={loadingDocs}
                 >
-                  {loadingDocs ? "Đang tải…" : "↻ Làm mới danh sách"}
+                  {loadingDocs ? "Loading…" : "↻ Refresh list"}
                 </button>
               </div>
             </div>
@@ -971,22 +971,22 @@ export default function AdminAiPortal() {
                 <div className={styles.uploadCopy}>
                   <div className={styles.uploadTitle}>
                     {uploading
-                      ? "Đang phân tích và lập chỉ mục tài liệu..."
-                      : "Thêm tài liệu vào Knowledge Base"}
+                      ? "Analyzing and indexing documents…"
+                      : "Add documents to the Knowledge Base"}
                   </div>
                   <div className={styles.uploadSubtitle}>
-                    Kéo thả hoặc chọn nhiều file · PDF, TXT, MD, DOC, DOCX · Tối đa 25MB/file
+                    Drag and drop or select multiple files · PDF, TXT, MD, DOC, DOCX · 25MB maximum per file
                   </div>
                 </div>
 
                 {!uploading ? (
                   <button type="button" className={styles.browseBtn}>
-                    Chọn tài liệu
+                    Select documents
                   </button>
                 ) : (
                   <div className={styles.uploadProgressBox}>
                     <span className={styles.spinner} />
-                    <span>Đang xử lý...</span>
+                    <span>Processing…</span>
                   </div>
                 )}
               </div>
@@ -998,7 +998,7 @@ export default function AdminAiPortal() {
                   onClick={(e) => e.stopPropagation()}
                 >
                 <div className={styles.folderLabel}>
-                  <span>📁 Lưu vào thư mục:</span>
+                  <span>📁 Save to folder:</span>
                 </div>
                 <div className={styles.folderChipsRow}>
                   {DEFAULT_FOLDERS.map((f) => (
@@ -1027,14 +1027,14 @@ export default function AdminAiPortal() {
                       setIsCustomSubfolder(false);
                     }}
                   >
-                    + Thư mục mới
+                    + New folder
                   </button>
                 </div>
                 {isCustomFolder && (
                   <input
                     type="text"
                     className={styles.customFolderInput}
-                    placeholder="Nhập tên thư mục mới..."
+                    placeholder="Enter a new folder name…"
                     value={customFolderName}
                     onChange={(e) => setCustomFolderName(e.target.value)}
                     autoFocus
@@ -1046,7 +1046,7 @@ export default function AdminAiPortal() {
                   className={styles.subfolderSelectorArea}
                   onClick={(event) => event.stopPropagation()}
                 >
-                <div className={styles.folderLabel}>↳ Folder nhỏ:</div>
+                <div className={styles.folderLabel}>↳ Subfolder:</div>
                 <div className={styles.folderChipsRow}>
                   <button
                     type="button"
@@ -1058,7 +1058,7 @@ export default function AdminAiPortal() {
                       setSelectedSubfolder("");
                     }}
                   >
-                    Không có
+                    None
                   </button>
                   {!isCustomFolder &&
                     uploadSubfolders.map((subfolder) => (
@@ -1085,14 +1085,14 @@ export default function AdminAiPortal() {
                     }`}
                     onClick={() => setIsCustomSubfolder(true)}
                   >
-                    + Folder nhỏ mới
+                    + New subfolder
                   </button>
                 </div>
                 {isCustomSubfolder && (
                   <input
                     type="text"
                     className={styles.customFolderInput}
-                    placeholder="Tên folder nhỏ..."
+                    placeholder="Subfolder name…"
                     value={customSubfolderName}
                     onChange={(event) => setCustomSubfolderName(event.target.value)}
                   />
@@ -1128,12 +1128,12 @@ export default function AdminAiPortal() {
 
             <div className={styles.documentListHeader}>
               <div>
-                <h3>Tài liệu đã upload</h3>
-                <p>Danh sách tài liệu hiện đang được AI sử dụng để tra cứu.</p>
+                <h3>Uploaded documents</h3>
+                <p>Documents currently available to the AI retrieval system.</p>
               </div>
               <div className={styles.documentListActions}>
                 <span className={styles.documentCountBadge}>
-                  {activeFolderFilter === "all" ? documents.length : activeFolderDocumentCount} tài liệu
+                  {activeFolderFilter === "all" ? documents.length : activeFolderDocumentCount} documents
                 </span>
                 {canRenameActiveScope && activeFolderDocumentCount > 0 && (
                   <button
@@ -1148,7 +1148,7 @@ export default function AdminAiPortal() {
                       setRenamedScopeName(scope.subfolder || scope.folder);
                     }}
                   >
-                    Đổi tên {activeSubfolderFilter ? "folder nhỏ" : "thư mục"}
+                    Rename {activeSubfolderFilter ? "subfolder" : "folder"}
                   </button>
                 )}
                 {activeFolderFilter !== "all" && activeFolderDocumentCount > 0 && (
@@ -1164,8 +1164,8 @@ export default function AdminAiPortal() {
                     disabled={deletingFolderDocs}
                   >
                     {activeSubfolderFilter
-                      ? "Xóa tài liệu trong folder nhỏ"
-                      : "Xóa tài liệu trong folder"}
+                      ? "Delete subfolder documents"
+                      : "Delete folder documents"}
                   </button>
                 )}
               </div>
@@ -1183,7 +1183,7 @@ export default function AdminAiPortal() {
                   setActiveSubfolderFilter("");
                 }}
               >
-                📂 Tất cả ({documents.length})
+                📂 All ({documents.length})
               </button>
               {allAvailableFolders.map((f) => {
                 const count = documents.filter((d) => (d.folder || "Chung") === f).length;
@@ -1207,7 +1207,7 @@ export default function AdminAiPortal() {
 
             {activeFolderFilter !== "all" && activeFilterSubfolders.length > 0 && (
               <div className={styles.subfolderFilterBar}>
-                <span>↳ Folder nhỏ:</span>
+                <span>↳ Subfolder:</span>
                 <button
                   type="button"
                   className={`${styles.folderFilterBtn} ${
@@ -1215,7 +1215,7 @@ export default function AdminAiPortal() {
                   }`}
                   onClick={() => setActiveSubfolderFilter("")}
                 >
-                  Tất cả trong {activeFolderFilter}
+                  All in {activeFolderFilter}
                 </button>
                 {activeFilterSubfolders.map((subfolder) => {
                   const count = documents.filter(
@@ -1246,7 +1246,7 @@ export default function AdminAiPortal() {
                 <input
                   type="text"
                   className={styles.searchInput}
-                  placeholder="Tìm kiếm tài liệu theo tên file..."
+                  placeholder="Search documents by filename…"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -1255,7 +1255,7 @@ export default function AdminAiPortal() {
                     type="button"
                     className={styles.clearSearchBtn}
                     onClick={() => setSearchQuery("")}
-                    title="Xóa tìm kiếm"
+                    title="Clear search"
                   >
                     ✕
                   </button>
@@ -1265,11 +1265,11 @@ export default function AdminAiPortal() {
               <div className={styles.tableStats}>
                 {searchQuery.trim() || activeFolderFilter !== "all" ? (
                   <span>
-                    Tìm thấy <strong>{filteredDocuments.length}</strong> / {documents.length} tài liệu
+                    Found <strong>{filteredDocuments.length}</strong> / {documents.length} documents
                   </span>
                 ) : (
                   <span>
-                    Tổng cộng: <strong>{documents.length}</strong> tài liệu
+                    Total: <strong>{documents.length}</strong> documents
                   </span>
                 )}
               </div>
@@ -1281,7 +1281,7 @@ export default function AdminAiPortal() {
                 <thead>
                   <tr>
                     <th>FILE NAME</th>
-                    <th>THƯ MỤC</th>
+                    <th>FOLDER</th>
                     <th>STATUS</th>
                     <th>SIZE</th>
                     <th>UPLOADED AT</th>
@@ -1292,13 +1292,13 @@ export default function AdminAiPortal() {
                   {documents.length === 0 ? (
                     <tr>
                       <td colSpan={6} className={styles.emptyState}>
-                        Chưa có tài liệu nào trong Knowledge Base. Hãy tải lên tài liệu đầu tiên ở trên!
+                        No documents in the Knowledge Base yet. Upload the first document above.
                       </td>
                     </tr>
                   ) : filteredDocuments.length === 0 ? (
                     <tr>
                       <td colSpan={6} className={styles.emptyState}>
-                        Không tìm thấy tài liệu nào khớp với bộ lọc hoặc từ khóa &quot;{searchQuery}&quot;.
+                        No documents match the current filters or &quot;{searchQuery}&quot;.
                       </td>
                     </tr>
                   ) : (
@@ -1348,7 +1348,7 @@ export default function AdminAiPortal() {
                               className={styles.deleteDocBtn}
                               onClick={() => setDocToDelete(doc)}
                             >
-                              Xóa
+                              Delete
                             </button>
                           </td>
                         </tr>
@@ -1367,9 +1367,9 @@ export default function AdminAiPortal() {
             <form onSubmit={handleSaveRules} className={styles.rulesContainer}>
               <div className={styles.rulesHeader}>
                 <div>
-                  <h2>Cấu hình quy tắc AI &amp; Knowledge Boundary</h2>
+                  <h2>AI rules &amp; Knowledge Boundary</h2>
                   <p>
-                    Chỉnh sửa System Prompt, thông điệp từ chối khi thiếu tài liệu và ràng buộc trích dẫn
+                    Configure the system prompt, fallback response, and source grounding requirements
                   </p>
                 </div>
                 <button
@@ -1378,7 +1378,7 @@ export default function AdminAiPortal() {
                   onClick={() => void loadRules()}
                   disabled={loadingRules}
                 >
-                  {loadingRules ? "Đang tải…" : "↻ Tải lại quy tắc"}
+                  {loadingRules ? "Loading…" : "↻ Reload rules"}
                 </button>
               </div>
 
@@ -1396,7 +1396,7 @@ export default function AdminAiPortal() {
               <div className={styles.formGroup}>
                 <label className={styles.formLabel}>AI System Rules (System Instruction)</label>
                 <span className={styles.formHint}>
-                  Chỉ thị cốt lõi định hình Knowledge Boundary, phong cách trả lời và quy tắc bảo mật của AI.
+                  Core instructions defining the Knowledge Boundary, response style, and AI security rules.
                 </span>
                 <textarea
                   className={styles.rulesTextarea}
@@ -1409,9 +1409,9 @@ export default function AdminAiPortal() {
 
               {/* Fallback Message */}
               <div className={styles.formGroup}>
-                <label className={styles.formLabel}>Fallback response (Câu từ chối khi không có bằng chứng)</label>
+                <label className={styles.formLabel}>Fallback response</label>
                 <span className={styles.formHint}>
-                  Câu trả lời bắt buộc khi câu hỏi không tìm thấy thông tin trong tài liệu đã upload.
+                  Required response when uploaded documents do not contain enough evidence.
                 </span>
                 <input
                   type="text"
@@ -1425,9 +1425,9 @@ export default function AdminAiPortal() {
               {/* Require Sources Toggle */}
               <div className={styles.toggleContainer}>
                 <div className={styles.toggleMeta}>
-                  <strong>Bắt buộc có nguồn (Require Sources Guard)</strong>
+                  <strong>Require sources guard</strong>
                   <span>
-                    Chỉ cho phép hiển thị câu trả lời khi có bằng chứng grounding từ Knowledge Base. Nếu 0 nguồn, tự động trả về câu từ chối.
+                    Show an answer only when grounded evidence is available. Otherwise return the fallback response.
                   </span>
                 </div>
                 <label className={styles.toggleSwitch}>
@@ -1447,7 +1447,7 @@ export default function AdminAiPortal() {
                   className={styles.saveRulesBtn}
                   disabled={savingRules || loadingRules}
                 >
-                  {savingRules ? "Đang lưu..." : "Lưu quy tắc (SAVE RULES)"}
+                  {savingRules ? "Saving…" : "Save rules"}
                 </button>
                 <button
                   type="button"
@@ -1455,7 +1455,7 @@ export default function AdminAiPortal() {
                   onClick={handleResetDefaultRules}
                   disabled={savingRules}
                 >
-                  Khôi phục mặc định
+                  Restore defaults
                 </button>
               </div>
             </form>
@@ -1467,10 +1467,10 @@ export default function AdminAiPortal() {
       {docToDelete && (
         <div className={styles.modalLayer} role="presentation">
           <div className={styles.modal} role="dialog" aria-modal="true">
-            <h3>Xác nhận xóa tài liệu</h3>
+            <h3>Delete document?</h3>
             <p>
-              Bạn có chắc chắn muốn xóa tài liệu <strong>&quot;{docToDelete.filename}&quot;</strong> khỏi Knowledge Base không?
-              Thao tác này sẽ xóa vĩnh viễn vector embedding trên Gemini và dữ liệu trên Supabase.
+              Permanently delete <strong>&quot;{docToDelete.filename}&quot;</strong> from the Knowledge Base?
+              Its Gemini vector embedding and Supabase data will be removed.
             </p>
             <div className={styles.modalActions}>
               <button
@@ -1479,7 +1479,7 @@ export default function AdminAiPortal() {
                 onClick={() => setDocToDelete(null)}
                 disabled={deletingDoc}
               >
-                Hủy bỏ
+                Cancel
               </button>
               <button
                 type="button"
@@ -1487,7 +1487,7 @@ export default function AdminAiPortal() {
                 onClick={() => void handleConfirmDelete()}
                 disabled={deletingDoc}
               >
-                {deletingDoc ? "Đang xóa..." : "Xác nhận xóa"}
+                {deletingDoc ? "Deleting…" : "Delete document"}
               </button>
             </div>
           </div>
@@ -1497,14 +1497,14 @@ export default function AdminAiPortal() {
       {scopeToDelete && (
         <div className={styles.modalLayer} role="presentation">
           <div className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="delete-folder-title">
-            <h3 id="delete-folder-title">Xác nhận xóa tài liệu trong folder</h3>
+            <h3 id="delete-folder-title">Delete folder documents?</h3>
             <p>
-              Bạn có chắc chắn muốn xóa vĩnh viễn toàn bộ tài liệu trong <strong>&quot;{
+              Permanently delete every document in <strong>&quot;{
                 scopeToDelete.subfolder
                   ? `${scopeToDelete.folder} / ${scopeToDelete.subfolder}`
                   : scopeToDelete.folder
-              }&quot;</strong> không?
-              Dữ liệu trên Gemini và Supabase sẽ bị xóa và không thể hoàn tác.
+              }&quot;</strong>?
+              Gemini and Supabase data will be removed. This cannot be undone.
             </p>
             <div className={styles.modalActions}>
               <button
@@ -1513,7 +1513,7 @@ export default function AdminAiPortal() {
                 onClick={() => setScopeToDelete(null)}
                 disabled={deletingFolderDocs}
               >
-                Hủy
+                Cancel
               </button>
               <button
                 type="button"
@@ -1521,7 +1521,7 @@ export default function AdminAiPortal() {
                 onClick={() => void handleConfirmDeleteFolder()}
                 disabled={deletingFolderDocs}
               >
-                {deletingFolderDocs ? "Đang xóa…" : `Xóa ${activeFolderDocumentCount} tài liệu`}
+                {deletingFolderDocs ? "Deleting…" : `Delete ${activeFolderDocumentCount} documents`}
               </button>
             </div>
           </div>
@@ -1538,11 +1538,11 @@ export default function AdminAiPortal() {
             onSubmit={handleRenameScope}
           >
             <h3 id="rename-folder-title">
-              Đổi tên {scopeToRename.subfolder ? "folder nhỏ" : "thư mục"}
+              Rename {scopeToRename.subfolder ? "subfolder" : "folder"}
             </h3>
             <p>
-              Tên hiện tại: <strong>&quot;{scopeToRename.subfolder || scopeToRename.folder}&quot;</strong>.
-              Tất cả tài liệu và vector index trong phạm vi này sẽ được cập nhật đồng bộ.
+              Current name: <strong>&quot;{scopeToRename.subfolder || scopeToRename.folder}&quot;</strong>.
+              All documents and vector indexes in this scope will be updated.
             </p>
             <input
               type="text"
@@ -1563,14 +1563,14 @@ export default function AdminAiPortal() {
                 }}
                 disabled={renamingScope}
               >
-                Hủy
+                Cancel
               </button>
               <button
                 type="submit"
                 className={styles.renameConfirmBtn}
                 disabled={renamingScope || !renamedScopeName.trim()}
               >
-                {renamingScope ? "Đang đổi tên…" : "Lưu tên mới"}
+                {renamingScope ? "Renaming…" : "Save new name"}
               </button>
             </div>
           </form>

@@ -7,7 +7,7 @@ export const metadata = {
 };
 
 export default async function AdminAiPage() {
-  if (!(await requireAdminAccess())) redirect("/login");
+  if (!(await requireAdminAccess())) redirect("/");
 
   return <AdminAiPortal />;
 }

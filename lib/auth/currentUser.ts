@@ -1,136 +1,90 @@
 import "server-only";
-import { createSupabaseServerAuthClient } from "@/lib/supabase/auth-server";
+
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import {
-  isEiuEmail,
-  type AppUserAccess,
-  type CourseAccess,
-  type SectionAccess,
-} from "@/lib/auth/types";
+import { currentAccessSession } from "@/lib/auth/session";
+import type { AppUserAccess, CourseAccess, SectionAccess } from "@/lib/auth/types";
 
 type CourseRow = {
   id: string;
   slug: string;
   title: string;
   description: string | null;
+  language_label: "vi" | "en" | "vi_en";
 };
 
-export async function currentUserAccess(): Promise<AppUserAccess | null> {
-  const auth = await createSupabaseServerAuthClient();
-  const { data: { user }, error } = await auth.auth.getUser();
-  if (error || !user || !isEiuEmail(user.email)) return null;
-
-  const email = user.email.toLowerCase();
+async function loadSections(courseIds?: string[]) {
   const admin = getSupabaseAdmin();
-  const { data: appUser, error: appUserError } = await admin
-    .from("app_users")
-    .select("email, auth_user_id, display_name, is_admin, status")
-    .eq("email", email)
-    .maybeSingle();
+  let query = admin.from("course_sections")
+    .select("id, course_id, section_key, title, position")
+    .eq("status", "active")
+    .order("position");
+  if (courseIds) query = query.in("course_id", courseIds);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []).map((section): SectionAccess => ({
+    id: String(section.id),
+    courseId: String(section.course_id),
+    sectionKey: String(section.section_key),
+    title: String(section.title),
+    position: Number(section.position),
+  }));
+}
 
-  if (appUserError) throw appUserError;
+async function loadCourses(courseIds?: string[]) {
+  const admin = getSupabaseAdmin();
+  let query = admin.from("courses")
+    .select("id, slug, title, description, language_label")
+    .eq("status", "active")
+    .order("title");
+  if (courseIds) query = query.in("id", courseIds);
+  const { data, error } = await query;
+  if (error) throw error;
+  return ((data ?? []) as CourseRow[]).map((course): CourseAccess => ({
+    id: course.id,
+    slug: course.slug,
+    title: course.title,
+    description: course.description,
+    languageLabel: course.language_label,
+  }));
+}
 
-  const metadataName = String(user.user_metadata?.full_name ?? user.user_metadata?.name ?? "").trim();
-  const avatarUrl = typeof user.user_metadata?.avatar_url === "string"
-    ? user.user_metadata.avatar_url
-    : null;
+export async function currentUserAccess(): Promise<AppUserAccess | null> {
+  const session = await currentAccessSession();
+  if (!session) return null;
 
-  if (!appUser) {
+  if (session.role === "admin") {
+    const [courses, sections] = await Promise.all([loadCourses(), loadSections()]);
     return {
-      authUserId: user.id,
-      email,
-      displayName: metadataName || email.split("@")[0],
-      avatarUrl,
-      isAdmin: false,
-      isActive: false,
-      courses: [],
-      sections: [],
+      authUserId: "admin",
+      email: "admin@eiu.edu.vn",
+      displayName: "EIU Administrator",
+      avatarUrl: null,
+      isAdmin: true,
+      isActive: true,
+      courses,
+      sections,
     };
   }
 
-  if (appUser.auth_user_id && appUser.auth_user_id !== user.id) return null;
+  const admin = getSupabaseAdmin();
+  const { data: passcode, error } = await admin.from("course_passcodes")
+    .select("id, course_id, label, status, expires_at")
+    .eq("id", session.passcodeId)
+    .maybeSingle();
+  if (error) throw error;
+  if (!passcode || passcode.status !== "active") return null;
+  if (passcode.expires_at && new Date(passcode.expires_at).getTime() <= Date.now()) return null;
 
-  if (!appUser.auth_user_id || (!appUser.display_name && metadataName)) {
-    const { error: updateError } = await admin
-      .from("app_users")
-      .update({
-        auth_user_id: user.id,
-        display_name: appUser.display_name || metadataName || null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("email", email);
-    if (updateError) throw updateError;
-  }
-
-  const { data: grants, error: grantError } = await admin
-    .from("user_course_access")
-    .select("course_id")
-    .eq("user_email", email);
-  if (grantError) throw grantError;
-
-  const grantedCourseIds = (grants ?? []).map((grant) => String(grant.course_id));
-  let sections: SectionAccess[] = [];
-  if (appUser.is_admin) {
-    const { data, error: sectionError } = await admin
-      .from("course_sections")
-      .select("id, course_id, section_key, title, position")
-      .eq("status", "active")
-      .order("position");
-    if (sectionError) throw sectionError;
-    sections = (data ?? []).map((section) => ({
-      id: String(section.id),
-      courseId: String(section.course_id),
-      sectionKey: String(section.section_key),
-      title: String(section.title),
-      position: Number(section.position),
-    }));
-  } else if (grantedCourseIds.length > 0) {
-    const { data, error: sectionError } = await admin
-      .from("course_sections")
-      .select("id, course_id, section_key, title, position")
-      .in("course_id", grantedCourseIds)
-      .eq("status", "active")
-      .order("position");
-    if (sectionError) throw sectionError;
-    sections = (data ?? []).map((section) => ({
-      id: String(section.id),
-      courseId: String(section.course_id),
-      sectionKey: String(section.section_key),
-      title: String(section.title),
-      position: Number(section.position),
-    }));
-  }
-
-  const courseIds = appUser.is_admin
-    ? [...new Set(sections.map((section) => section.courseId))]
-    : grantedCourseIds;
-  let courses: CourseAccess[] = [];
-  if (appUser.is_admin) {
-    const { data, error: courseError } = await admin
-      .from("courses")
-      .select("id, slug, title, description")
-      .eq("status", "active")
-      .order("title");
-    if (courseError) throw courseError;
-    courses = ((data ?? []) as CourseRow[]).map((course) => ({ ...course }));
-  } else if (courseIds.length > 0) {
-    const { data, error: courseError } = await admin
-      .from("courses")
-      .select("id, slug, title, description")
-      .in("id", courseIds)
-      .eq("status", "active")
-      .order("title");
-    if (courseError) throw courseError;
-    courses = ((data ?? []) as CourseRow[]).map((course) => ({ ...course }));
-  }
-
+  const courseIds = [String(passcode.course_id)];
+  const [courses, sections] = await Promise.all([loadCourses(courseIds), loadSections(courseIds)]);
+  if (courses.length === 0) return null;
   return {
-    authUserId: user.id,
-    email,
-    displayName: appUser.display_name || metadataName || email.split("@")[0],
-    avatarUrl,
-    isAdmin: Boolean(appUser.is_admin),
-    isActive: appUser.status === "active",
+    authUserId: String(passcode.id),
+    email: `access-${String(passcode.id).slice(0, 8)}@passcode.eiu`,
+    displayName: String(passcode.label || "EIU Learner"),
+    avatarUrl: null,
+    isAdmin: false,
+    isActive: true,
     courses,
     sections,
   };

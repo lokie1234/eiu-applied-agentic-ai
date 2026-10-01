@@ -4,503 +4,169 @@ import Link from "next/link";
 import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import styles from "./AdminAccessPortal.module.css";
 
-type UserRow = {
-  email: string;
-  display_name: string | null;
-  is_admin: boolean;
-  status: "active" | "suspended";
-  auth_user_id: string | null;
-  created_at: string;
-};
+type LanguageLabel = "vi" | "en" | "vi_en";
+type Course = { id: string; slug: string; title: string; description: string | null; status: "draft" | "active"; language_label: LanguageLabel };
+type Section = { id: string; course_id: string; section_key: string; title: string; position: number; status: "draft" | "active" };
+type Passcode = { id: string; course_id: string; code_hint: string; status: string; last_used_at: string | null; created_at: string };
+type Payload = { success: boolean; message?: string; courses?: Course[]; sections?: Section[]; passcodes?: Passcode[]; generatedCode?: string };
 
-type CourseRow = {
-  id: string;
-  slug: string;
-  title: string;
-  description: string | null;
-  status: "draft" | "active";
-};
-
-type SectionRow = {
-  id: string;
-  course_id: string;
-  section_key: string;
-  title: string;
-  position: number;
-  status: "draft" | "active";
-};
-
-type GrantRow = { user_email: string; course_id: string; granted_at: string };
-type AccessPayload = {
-  success: boolean;
-  message?: string;
-  users?: UserRow[];
-  courses?: CourseRow[];
-  sections?: SectionRow[];
-  grants?: GrantRow[];
-};
-
-type Tab = "access" | "catalog";
+const languageOptions: Array<{ value: LanguageLabel; label: string }> = [
+  { value: "vi", label: "Vietnamese" },
+  { value: "en", label: "English" },
+  { value: "vi_en", label: "Vietnamese and English" },
+];
 
 export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }) {
-  const [users, setUsers] = useState<UserRow[]>([]);
-  const [courses, setCourses] = useState<CourseRow[]>([]);
-  const [sections, setSections] = useState<SectionRow[]>([]);
-  const [grants, setGrants] = useState<GrantRow[]>([]);
-  const [tab, setTab] = useState<Tab>("access");
-  const [newEmails, setNewEmails] = useState("");
-  const [selectedCourseId, setSelectedCourseId] = useState("");
+  const [tab, setTab] = useState<"access" | "catalog">("access");
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
+  const [passcodes, setPasscodes] = useState<Passcode[]>([]);
+  const [courseId, setCourseId] = useState("");
+  const [generatedCode, setGeneratedCode] = useState("");
   const [newCourse, setNewCourse] = useState("");
-  const [newSectionTitles, setNewSectionTitles] = useState<Record<string, string>>({});
-  const [query, setQuery] = useState("");
+  const [newSections, setNewSections] = useState<Record<string, string>>({});
+  const [busy, setBusy] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
-  const [busyKey, setBusyKey] = useState("");
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
 
-  const applyPayload = useCallback((payload: AccessPayload) => {
-    setUsers(payload.users ?? []);
+  const apply = useCallback((payload: Payload) => {
     setCourses(payload.courses ?? []);
     setSections(payload.sections ?? []);
-    setGrants(payload.grants ?? []);
+    setPasscodes(payload.passcodes ?? []);
   }, []);
 
   useEffect(() => {
     let disposed = false;
     void fetch("/api/admin/access", { cache: "no-store" })
       .then(async (response) => {
-        const payload = await response.json() as AccessPayload;
-        if (!response.ok || !payload.success) {
-          throw new Error(payload.message || "Không thể tải dữ liệu.");
-        }
-        if (!disposed) applyPayload(payload);
+        const payload = await response.json() as Payload;
+        if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to load data.");
+        if (!disposed) apply(payload);
       })
-      .catch((caughtError) => {
-        if (!disposed) {
-          setError(caughtError instanceof Error ? caughtError.message : "Không thể tải dữ liệu.");
-        }
-      })
-      .finally(() => {
-        if (!disposed) setLoading(false);
-      });
+      .catch((caught) => { if (!disposed) setError(caught instanceof Error ? caught.message : "Unable to load data."); })
+      .finally(() => { if (!disposed) setLoading(false); });
     return () => { disposed = true; };
-  }, [applyPayload]);
+  }, [apply]);
 
-  const activeCourses = useMemo(
-    () => courses.filter((course) => course.status === "active"),
-    [courses],
-  );
-  const effectiveSelectedCourseId = activeCourses.some((course) => course.id === selectedCourseId)
-    ? selectedCourseId
-    : activeCourses[0]?.id ?? "";
+  const activeCourses = useMemo(() => courses.filter((course) => course.status === "active"), [courses]);
+  const effectiveCourseId = activeCourses.some((course) => course.id === courseId) ? courseId : activeCourses[0]?.id ?? "";
+  const selectedCourse = activeCourses.find((course) => course.id === effectiveCourseId) ?? null;
+  const selectedPasscode = passcodes.find((item) => item.course_id === effectiveCourseId) ?? null;
 
-  async function mutate(body: Record<string, unknown>, key: string, successMessage: string) {
-    setBusyKey(key);
-    setError("");
-    setNotice("");
+  async function mutate(body: Record<string, unknown>, key: string, success: string) {
+    setBusy((current) => new Set(current).add(key));
+    setError(""); setNotice("");
     try {
-      const response = await fetch("/api/admin/access", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const payload = await response.json() as AccessPayload;
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.message || "Không thể cập nhật dữ liệu.");
-      }
-      applyPayload(payload);
-      setNotice(successMessage);
-      return true;
-    } catch (caughtError) {
-      setError(caughtError instanceof Error ? caughtError.message : "Không thể cập nhật dữ liệu.");
-      return false;
+      const response = await fetch("/api/admin/access", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const payload = await response.json() as Payload;
+      if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to save changes.");
+      apply(payload); setNotice(success); return true;
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to save changes."); return false;
     } finally {
-      setBusyKey("");
+      setBusy((current) => { const next = new Set(current); next.delete(key); return next; });
     }
   }
 
-  const detectedEmails = useMemo(() => {
-    const matches = newEmails.toLowerCase().match(
-      /[a-z0-9](?:[a-z0-9._%+-]*[a-z0-9])?@eiu\.edu\.vn/gi,
-    ) ?? [];
-    return [...new Set(matches.map((email) => email.toLowerCase()))];
-  }, [newEmails]);
-
-  async function setBulkCourseAccess(enabled: boolean, event?: FormEvent) {
-    event?.preventDefault();
-    const course = activeCourses.find((item) => item.id === effectiveSelectedCourseId);
-    if (!course) {
-      setError("Hãy chọn một folder khóa học đang hoạt động.");
-      return;
+  async function generatePasscode() {
+    const response = await fetch("/api/admin/access", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ action: "generate_course_passcode", courseId: effectiveCourseId }),
+    });
+    const payload = await response.json() as Payload;
+    if (!response.ok || !payload.success || !payload.generatedCode) {
+      throw new Error(payload.message || "Unable to generate a passcode.");
     }
-    const succeeded = await mutate(
-      { action: "set_course_access_bulk", emails: detectedEmails, courseId: course.id, enabled },
-      `${enabled ? "grant" : "revoke"}-course-bulk`,
-      enabled
-        ? `Đã cấp folder “${course.title}” cho ${detectedEmails.length} email.`
-        : `Đã xóa quyền folder “${course.title}” của ${detectedEmails.length} email.`,
-    );
-    if (succeeded) setNewEmails("");
+    apply(payload);
+    setGeneratedCode(payload.generatedCode);
   }
 
-  async function removeBulkUsers() {
-    if (!window.confirm(
-      `Xóa hẳn ${detectedEmails.length} email khỏi hệ thống và thu hồi quyền ở tất cả folder?`,
-    )) return;
-    const succeeded = await mutate(
-      { action: "remove_users_bulk", emails: detectedEmails },
-      "remove-users-bulk",
-      `Đã xóa ${detectedEmails.length} email khỏi danh sách quản lý.`,
-    );
-    if (succeeded) setNewEmails("");
+  async function handleGeneratePasscode() {
+    const replacing = Boolean(selectedPasscode);
+    if (replacing && !confirm("Generate a new passcode? The current code and its active sessions will be revoked.")) return;
+    const key = `access:${effectiveCourseId}`;
+    setBusy((current) => new Set(current).add(key));
+    setError(""); setNotice("");
+    try {
+      await generatePasscode();
+      setNotice(replacing ? "A new four-digit passcode was generated and the previous code was revoked." : "A four-digit folder passcode was generated.");
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to generate a passcode.");
+    } finally {
+      setBusy((current) => { const next = new Set(current); next.delete(key); return next; });
+    }
+  }
+
+  async function deletePasscode() {
+    if (!selectedPasscode || !confirm("Remove this folder passcode and revoke its active sessions?")) return;
+    await mutate({ action: "delete_course_passcode", courseId: effectiveCourseId }, `access:${effectiveCourseId}`, "Folder passcode removed.");
+  }
+
+  async function setLanguage(languageLabel: LanguageLabel) {
+    await mutate({ action: "set_course_language", courseId: effectiveCourseId, languageLabel }, `language:${effectiveCourseId}`, "Folder language label updated.");
   }
 
   async function createCourse(event: FormEvent) {
-    event.preventDefault();
-    const title = newCourse.trim();
-    const succeeded = await mutate(
-      { action: "create_course", title },
-      "create-course",
-      `Đã tạo khóa học “${title}”.`,
-    );
-    if (succeeded) setNewCourse("");
+    event.preventDefault(); const title = newCourse.trim();
+    if (await mutate({ action: "create_course", title }, "catalog:create", `Course “${title}” created.`)) setNewCourse("");
   }
 
-  async function createSection(event: FormEvent, course: CourseRow) {
-    event.preventDefault();
-    const title = (newSectionTitles[course.id] ?? "").trim();
-    const succeeded = await mutate(
-      { action: "create_section", courseId: course.id, title },
-      `create-section:${course.id}`,
-      `Đã thêm section “${title}” vào ${course.title}.`,
-    );
-    if (succeeded) {
-      setNewSectionTitles((current) => ({ ...current, [course.id]: "" }));
-    }
+  async function createSection(event: FormEvent, course: Course) {
+    event.preventDefault(); const title = (newSections[course.id] ?? "").trim();
+    if (await mutate({ action: "create_section", courseId: course.id, title }, `section:${course.id}`, `Section “${title}” added.`)) setNewSections((current) => ({ ...current, [course.id]: "" }));
   }
 
-  const grantSet = useMemo(
-    () => new Set(grants.map((grant) => `${grant.user_email}:${grant.course_id}`)),
-    [grants],
-  );
-  const filteredUsers = users.filter((user) => {
-    const keyword = query.trim().toLowerCase();
-    return !keyword || user.email.includes(keyword) || user.display_name?.toLowerCase().includes(keyword);
-  });
-  const activeSections = sections.filter((section) => section.status === "active");
+  async function signOut() { await fetch("/api/signout", { method: "POST" }); window.location.replace("/"); }
 
-  function sectionsForCourse(courseId: string) {
-    return activeSections
-      .filter((section) => section.course_id === courseId)
-      .sort((a, b) => a.position - b.position);
-  }
+  return <main className={styles.page}>
+    <header className={styles.header}>
+      <div><span>EIU · ADMIN CONTROL</span><h1>Course access</h1><p>{adminEmail} · One shared passcode per folder</p></div>
+      <nav><Link href="/learn">Learning space</Link><Link href="/admin/ai">AI Knowledge</Link><button onClick={() => void signOut()}>Sign out</button></nav>
+    </header>
 
-  async function signOut() {
-    await fetch("/api/signout", { method: "POST" }).catch(() => undefined);
-    window.location.replace("/login");
-  }
+    <div className={styles.tabs} role="tablist">
+      <button className={tab === "access" ? styles.active : ""} onClick={() => setTab("access")}>Folder access</button>
+      <button className={tab === "catalog" ? styles.active : ""} onClick={() => setTab("catalog")}>Courses & sections</button>
+    </div>
+    {error && <div className={styles.error} role="alert">{error}</div>}
+    {notice && <div className={styles.notice} role="status">{notice}</div>}
 
-  return (
-    <main className={styles.page}>
-      <header className={styles.header}>
-        <div>
-          <span>EIU · ADMIN</span>
-          <h1>Quản lý khóa học & quyền xem</h1>
-          <p>Đăng nhập với {adminEmail}</p>
-        </div>
-        <nav>
-          <Link href="/">Khóa học</Link>
-          <Link href="/admin/ai">AI Knowledge</Link>
-          <button type="button" onClick={() => void signOut()}>Đăng xuất</button>
-        </nav>
-      </header>
+    <div className={styles.scrollArea}>
+      {loading ? <div className={styles.loading}>Loading administration data…</div> : tab === "access" ? <div className={styles.passcodeLayout}>
+        <aside className={styles.courseList}>
+          <span>COURSE FOLDERS</span>
+          {activeCourses.map((course) => <button key={course.id} className={effectiveCourseId === course.id ? styles.selectedCourse : ""} onClick={() => { setCourseId(course.id); setGeneratedCode(""); }}>
+            <i>▰</i><b>{course.title}</b><small>{passcodes.some((item) => item.course_id === course.id) ? "Passcode active" : "No passcode"}</small>
+          </button>)}
+        </aside>
 
-      <div className={styles.tabs} role="tablist" aria-label="Quản trị khóa học">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === "access"}
-          className={tab === "access" ? styles.activeTab : ""}
-          onClick={() => setTab("access")}
-        >
-          Phân quyền email
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === "catalog"}
-          className={tab === "catalog" ? styles.activeTab : ""}
-          onClick={() => setTab("catalog")}
-        >
-          Khóa học & Section
-        </button>
-      </div>
+        <section className={styles.workspace}>
+          <div className={styles.workspaceHead}><div><span>ACCESS SETTINGS</span><h2>{selectedCourse?.title}</h2><p>Anyone with this folder&apos;s shared passcode can open all of its sections.</p></div><div className={styles.statusDot} data-active={Boolean(selectedPasscode)}><i />{selectedPasscode ? "ACTIVE" : "INACTIVE"}</div></div>
 
-      {error && <p className={styles.error} role="alert">{error}</p>}
-      {notice && <p className={styles.notice} role="status">{notice}</p>}
+          <div className={styles.settingsGrid}>
+            <section className={styles.accessCard}>
+              <div className={styles.cardHeading}><span>01</span><div><small>SHARED ACCESS</small><h3>Folder passcode</h3></div></div>
+              <p>Click once to generate a secure four-digit code from 0000 to 9999. Each folder has only one active code.</p>
+              {generatedCode && <div className={styles.generatedCode}><span>NEW PASSCODE</span><strong>{generatedCode}</strong><button type="button" onClick={() => void navigator.clipboard.writeText(generatedCode)}>Copy</button></div>}
+              {selectedPasscode && <div className={styles.codeMeta}><span>Current</span><strong>{selectedPasscode.code_hint}</strong><span>Last used</span><strong>{selectedPasscode.last_used_at ? new Date(selectedPasscode.last_used_at).toLocaleString("en-GB") : "Never"}</strong></div>}
+              <div className={styles.cardActions}><button type="button" onClick={() => void handleGeneratePasscode()} disabled={!effectiveCourseId || busy.has(`access:${effectiveCourseId}`)}>{busy.has(`access:${effectiveCourseId}`) ? "Generating…" : selectedPasscode ? "Generate new passcode" : "Generate passcode"}</button>{selectedPasscode && <button type="button" className={styles.danger} onClick={() => void deletePasscode()} disabled={busy.has(`access:${effectiveCourseId}`)}>Remove</button>}</div>
+            </section>
 
-      {tab === "access" ? (
-        <>
-          <section className={styles.toolbar}>
-            <form onSubmit={(event) => void setBulkCourseAccess(true, event)}>
-              <label htmlFor="course-folder-access">Folder khóa học</label>
-              <select
-                id="course-folder-access"
-                value={effectiveSelectedCourseId}
-                onChange={(event) => setSelectedCourseId(event.target.value)}
-                required
-              >
-                {activeCourses.length === 0 && <option value="">Chưa có folder hoạt động</option>}
-                {activeCourses.map((course) => (
-                  <option value={course.id} key={course.id}>{course.title}</option>
-                ))}
-              </select>
-              <label htmlFor="new-eiu-email">Danh sách email EIU</label>
-              <textarea
-                  id="new-eiu-email"
-                  value={newEmails}
-                  onChange={(event) => setNewEmails(event.target.value)}
-                  placeholder="Dán danh sách email, cách nhau bằng dấu phẩy, dấu chấm, xuống dòng hoặc khoảng trắng..."
-                  required
-                />
-              <div className={styles.bulkActions}>
-                <span>{detectedEmails.length} email EIU được nhận diện</span>
-                <div>
-                  <button
-                    type="button"
-                    className={styles.revokeButton}
-                    disabled={Boolean(busyKey) || detectedEmails.length === 0 || !effectiveSelectedCourseId}
-                    onClick={() => void setBulkCourseAccess(false)}
-                  >
-                    Xóa quyền {detectedEmails.length || ""} email
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.hardDeleteButton}
-                    disabled={Boolean(busyKey) || detectedEmails.length === 0}
-                    onClick={() => void removeBulkUsers()}
-                  >
-                    Xóa hẳn email
-                  </button>
-                  <button disabled={Boolean(busyKey) || detectedEmails.length === 0 || !effectiveSelectedCourseId}>
-                    Cấp quyền {detectedEmails.length || ""} email
-                  </button>
-                </div>
+            <section className={styles.languageCard}>
+              <div className={styles.cardHeading}><span>02</span><div><small>DISPLAY LABEL</small><h3>Folder language</h3></div></div>
+              <p>Choose the language label displayed on the course folder.</p>
+              <div className={styles.languageOptions}>
+                {languageOptions.map((option) => <button key={option.value} type="button" className={selectedCourse?.language_label === option.value ? styles.languageActive : ""} onClick={() => void setLanguage(option.value)} disabled={busy.has(`language:${effectiveCourseId}`)}><i>{selectedCourse?.language_label === option.value ? "✓" : ""}</i><span>{option.label}</span></button>)}
               </div>
-            </form>
-
-            <label className={styles.search}>
-              Tìm kiếm
-              <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Tên hoặc email..." />
-            </label>
-          </section>
-
-          <section className={styles.tableCard}>
-            <div className={styles.tableIntro}>
-              <div><strong>{users.length}</strong><span>email được quản lý</span></div>
-              <div><strong>{activeCourses.length}</strong><span>folder khóa học</span></div>
-              <p>Mỗi công tắc cấp hoặc xóa toàn bộ quyền của một folder. Admin luôn có toàn quyền.</p>
-            </div>
-
-            {loading ? (
-              <div className={styles.empty}>Đang tải danh sách quyền...</div>
-            ) : filteredUsers.length === 0 ? (
-              <div className={styles.empty}>Không tìm thấy email phù hợp.</div>
-            ) : activeCourses.length === 0 ? (
-              <div className={styles.empty}>Hãy tạo folder khóa học trước khi phân quyền.</div>
-            ) : (
-              <div className={styles.tableWrap}>
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Người dùng</th>
-                      <th>Trạng thái</th>
-                      {activeCourses.map((course) => (
-                        <th key={course.id}>
-                          <span className={styles.courseLabel}>COURSE FOLDER</span>
-                          {course.title}
-                          <small>{sectionsForCourse(course.id).length} section</small>
-                        </th>
-                      ))}
-                      <th />
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredUsers.map((user) => (
-                      <tr key={user.email}>
-                        <td>
-                          <strong>{user.display_name || user.email.split("@")[0]}</strong>
-                          <span>{user.email}</span>
-                        </td>
-                        <td>
-                          <span className={user.auth_user_id ? styles.verified : styles.invited}>
-                            {user.auth_user_id ? "Đã đăng nhập" : "Chưa đăng nhập"}
-                          </span>
-                        </td>
-                        {activeCourses.map((course) => {
-                          const key = `${user.email}:${course.id}`;
-                          const enabled = grantSet.has(key) || user.is_admin;
-                          return (
-                            <td key={course.id}>
-                              <label className={styles.toggle} title={user.is_admin ? "Admin có toàn quyền" : course.title}>
-                                <input
-                                  type="checkbox"
-                                  checked={enabled}
-                                  disabled={user.is_admin || Boolean(busyKey)}
-                                  onChange={() => void mutate({
-                                    action: "set_course_access_bulk",
-                                    emails: [user.email],
-                                    courseId: course.id,
-                                    enabled: !enabled,
-                                  }, key, enabled
-                                    ? `Đã xóa quyền folder “${course.title}” của ${user.email}.`
-                                    : `Đã cấp folder “${course.title}” cho ${user.email}.`)}
-                                />
-                                <i />
-                              </label>
-                            </td>
-                          );
-                        })}
-                        <td>
-                          {user.is_admin ? (
-                            <span className={styles.adminBadge}>ADMIN</span>
-                          ) : (
-                            <button
-                              type="button"
-                              className={styles.remove}
-                              disabled={Boolean(busyKey)}
-                              onClick={() => {
-                                if (window.confirm(`Xóa ${user.email} và toàn bộ quyền section?`)) {
-                                  void mutate(
-                                    { action: "remove_user", email: user.email },
-                                    `remove:${user.email}`,
-                                    `Đã xóa ${user.email} khỏi danh sách quyền.`,
-                                  );
-                                }
-                              }}
-                            >
-                              Xóa
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        </>
-      ) : (
-        <section className={styles.catalog}>
-          <div className={styles.catalogIntro}>
-            <div>
-              <span>CẤU TRÚC NỘI DUNG</span>
-              <h2>Khóa học chứa các section</h2>
-              <p>Tạo cấu trúc tại đây, sau đó quay lại tab Phân quyền email để cấp toàn bộ folder.</p>
-            </div>
-            <form onSubmit={createCourse}>
-              <label htmlFor="new-course">Tên khóa học mới</label>
-              <div>
-                <input
-                  id="new-course"
-                  value={newCourse}
-                  onChange={(event) => setNewCourse(event.target.value)}
-                  placeholder="Ví dụ: Digital Marketing"
-                  maxLength={120}
-                  required
-                />
-                <button disabled={Boolean(busyKey)}>Tạo khóa học</button>
-              </div>
-            </form>
-          </div>
-
-          <div className={styles.courseGrid}>
-            {courses.map((course) => {
-              const courseSections = sectionsForCourse(course.id);
-              const protectedCourse = course.slug === "applied-agentic-ai";
-              return (
-                <article className={styles.courseCard} key={course.id}>
-                  <header>
-                    <div>
-                      <span>{protectedCourse ? "NỘI DUNG ĐANG DÙNG" : "KHÓA HỌC"}</span>
-                      <h3>{course.title}</h3>
-                      <small>{courseSections.length} section</small>
-                    </div>
-                    <button
-                      type="button"
-                      className={styles.remove}
-                      disabled={protectedCourse || Boolean(busyKey)}
-                      title={protectedCourse ? "Khóa học đang gắn với nội dung hiện tại" : "Xóa khóa học"}
-                      onClick={() => {
-                        if (window.confirm(`Xóa khóa học “${course.title}” và toàn bộ section/quyền liên quan?`)) {
-                          void mutate(
-                            { action: "delete_course", courseId: course.id },
-                            `delete-course:${course.id}`,
-                            `Đã xóa khóa học “${course.title}”.`,
-                          );
-                        }
-                      }}
-                    >
-                      Xóa khóa học
-                    </button>
-                  </header>
-
-                  <ul className={styles.sectionList}>
-                    {courseSections.length === 0 && <li className={styles.noSection}>Chưa có section.</li>}
-                    {courseSections.map((section) => {
-                      const protectedSection = section.section_key === "section1" || section.section_key === "section2";
-                      return (
-                        <li key={section.id}>
-                          <div>
-                            <strong>{section.title}</strong>
-                            <span>Thứ tự {section.position}</span>
-                          </div>
-                          <button
-                            type="button"
-                            className={styles.remove}
-                            disabled={protectedSection || Boolean(busyKey)}
-                            title={protectedSection ? "Section đang gắn với nội dung hiện tại" : "Xóa section"}
-                            onClick={() => {
-                              if (window.confirm(`Xóa section “${section.title}” và thu hồi mọi quyền liên quan?`)) {
-                                void mutate(
-                                  { action: "delete_section", sectionId: section.id },
-                                  `delete-section:${section.id}`,
-                                  `Đã xóa section “${section.title}”.`,
-                                );
-                              }
-                            }}
-                          >
-                            Xóa
-                          </button>
-                        </li>
-                      );
-                    })}
-                  </ul>
-
-                  <form className={styles.sectionForm} onSubmit={(event) => void createSection(event, course)}>
-                    <label htmlFor={`new-section-${course.id}`}>Thêm section</label>
-                    <div>
-                      <input
-                        id={`new-section-${course.id}`}
-                        value={newSectionTitles[course.id] ?? ""}
-                        onChange={(event) => setNewSectionTitles((current) => ({
-                          ...current,
-                          [course.id]: event.target.value,
-                        }))}
-                        placeholder="Tên section"
-                        maxLength={120}
-                        required
-                      />
-                      <button disabled={Boolean(busyKey)}>Thêm</button>
-                    </div>
-                  </form>
-                </article>
-              );
-            })}
+            </section>
           </div>
         </section>
-      )}
-    </main>
-  );
+      </div> : <section className={styles.catalog}>
+        <form className={styles.newCourse} onSubmit={createCourse}><div><span>COURSE STRUCTURE</span><h2>Courses & sections</h2></div><input value={newCourse} onChange={(event) => setNewCourse(event.target.value)} placeholder="New course name" required /><button disabled={busy.has("catalog:create")}>Create course</button></form>
+        <div className={styles.courseGrid}>{courses.map((course) => <article key={course.id}><div className={styles.courseHead}><div><span>COURSE FOLDER</span><h3>{course.title}</h3><small>{languageOptions.find((item) => item.value === course.language_label)?.label}</small></div>{course.slug !== "applied-agentic-ai" && <button className={styles.danger} onClick={() => { if (confirm(`Delete “${course.title}”?`)) void mutate({ action: "delete_course", courseId: course.id }, `course:${course.id}`, "Course deleted."); }}>Delete</button>}</div><div className={styles.sectionList}>{sections.filter((section) => section.course_id === course.id && section.status === "active").map((section) => <div key={section.id}><span>{section.position.toString().padStart(2, "0")}</span><strong>{section.title}</strong>{!["section1", "section2"].includes(section.section_key) && <button onClick={() => { if (confirm(`Delete “${section.title}”?`)) void mutate({ action: "delete_section", sectionId: section.id }, `section:${course.id}`, "Section deleted."); }}>×</button>}</div>)}</div><form className={styles.newSection} onSubmit={(event) => createSection(event, course)}><input value={newSections[course.id] ?? ""} onChange={(event) => setNewSections((current) => ({ ...current, [course.id]: event.target.value }))} placeholder="Add section" required /><button disabled={busy.has(`section:${course.id}`)}>+</button></form></article>)}</div>
+      </section>}
+    </div>
+  </main>;
 }

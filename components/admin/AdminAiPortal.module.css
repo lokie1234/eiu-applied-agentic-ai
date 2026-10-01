@@ -1569,3 +1569,26 @@
     font-size: 13px;
   }
 }
+
+/* Keep administration controls readable without allowing text to outgrow panels. */
+.portal {
+  font-size: 14px;
+}
+
+.portal button {
+  font-size: 12px;
+}
+
+.portal input,
+.portal textarea,
+.portal select {
+  font-size: 13px;
+}
+
+.portal p {
+  font-size: clamp(12px, 0.9vw, 14px);
+}
+
+.portal small {
+  font-size: 11px;
+}

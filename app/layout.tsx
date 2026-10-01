@@ -3,8 +3,8 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "EIU Applied Agentic AI",
-  description: "Interactive presentation viewer",
+  title: "EIU · Applied Agentic AI",
+  description: "AI learning, automation and interactive course experiences at EIU.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

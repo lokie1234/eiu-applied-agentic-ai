@@ -28,6 +28,7 @@ type CourseFolder = {
   slug: string;
   title: string;
   description: string | null;
+  languageLabel: "vi" | "en" | "vi_en";
   sections: CourseFolderSection[];
 };
 
@@ -103,8 +104,8 @@ function ActiveUsersTaskbarWidget({
   return (
     <div
       className={`${styles.activeUsersWidget} ${isChanging ? styles.widgetPulsing : ""}`}
-      title={`${activeCount} người đang học ${sectionLabel}`}
-      aria-label={`Số người đang học ${sectionLabel}`}
+      title={`${activeCount} learners active in ${sectionLabel}`}
+      aria-label={`Active learners in ${sectionLabel}`}
     >
       <span className={styles.liveDot} aria-hidden="true" />
       <span className={styles.liveSectionLabel}>{sectionLabel}</span>
@@ -161,7 +162,7 @@ function DeckShell({
         <div className={styles.actionBarButtons}>
           {isAdmin && (
             <Link href="/admin/access">
-              Quản lý quyền
+              Access settings
             </Link>
           )}
           {isAdmin && (
@@ -178,7 +179,7 @@ function DeckShell({
               className={styles.secondaryButton}
               onClick={onChooseSection}
             >
-              Khóa học
+              Courses
             </button>
           )}
 
@@ -250,7 +251,7 @@ export default function LessonPortal({
   const selectedCourse = courseFolders.find((course) => course.id === selectedCourseId) ?? null;
   const resetSectionLabel =
     resetSection === "all"
-      ? "tất cả Section"
+      ? "all sections"
       : reportSections.find((option) => option.value === resetSection)?.label || resetSection;
 
   const [presenceCounts, setPresenceCounts] = useState<PresenceCounts>({
@@ -400,7 +401,7 @@ export default function LessonPortal({
       );
       if (!response.ok) {
         const payload = (await response.json().catch(() => ({}))) as { message?: string };
-        throw new Error(payload.message || "Không thể xuất report.");
+        throw new Error(payload.message || "Unable to export the report.");
       }
 
       const disposition = response.headers.get("content-disposition") ?? "";
@@ -418,7 +419,7 @@ export default function LessonPortal({
       setShowExportModal(false);
     } catch (error) {
       setReportStatus("error");
-      setReportNotice(error instanceof Error ? error.message : "Không thể xuất report.");
+      setReportNotice(error instanceof Error ? error.message : "Unable to export the report.");
     }
   }
 
@@ -434,7 +435,7 @@ export default function LessonPortal({
     await fetch("/api/signout", { method: "POST" }).catch(() => undefined);
     localStorage.clear();
     sessionStorage.clear();
-    window.location.replace("/login");
+    window.location.replace("/");
   }
 
   async function resetAllData(event: FormEvent) {
@@ -443,7 +444,7 @@ export default function LessonPortal({
 
     if (!resetPassword.trim()) {
       setResetStatus("error");
-      setResetNotice("Vui lòng nhập RESET để xác nhận.");
+      setResetNotice("Enter RESET to confirm.");
       return;
     }
 
@@ -466,11 +467,11 @@ export default function LessonPortal({
       };
 
       if (!response.ok || !payload.success) {
-        throw new Error(payload.message || "Nội dung xác nhận không đúng.");
+        throw new Error(payload.message || "The confirmation value is incorrect.");
       }
 
       setResetStatus("success");
-      setResetNotice(payload.message || `Đã xóa dữ liệu của ${resetSectionLabel} thành công.`);
+      setResetNotice(payload.message || `Data for ${resetSectionLabel} was deleted.`);
       if (resetSection === "all") {
         clearSlideInteractionStorage();
       } else if (resetSection === "section1" || resetSection === "section2") {
@@ -484,7 +485,7 @@ export default function LessonPortal({
       }, 1600);
     } catch (error) {
       setResetStatus("error");
-      setResetNotice(error instanceof Error ? error.message : "Lỗi khi reset dữ liệu.");
+      setResetNotice(error instanceof Error ? error.message : "Unable to reset data.");
     }
   }
 
@@ -508,7 +509,7 @@ export default function LessonPortal({
 
       setTerminateStatus("success");
       setTerminateNotice(
-        `${section === "section1" ? "Section 1" : "Section 2"} đã kết thúc. Dữ liệu trên slide đã được làm mới và users đang được chuyển về đăng nhập.`
+        `${section === "section1" ? "Section 1" : "Section 2"} ended. Slide data was refreshed and learners are returning to the access screen.`
       );
       clearSlideInteractionStorage(section);
       setDeckSessionKey((current) => current + 1);
@@ -559,7 +560,7 @@ export default function LessonPortal({
           } else if (currentToken && currentToken !== initialToken) {
             localStorage.clear();
             sessionStorage.clear();
-            window.location.replace("/login");
+            window.location.replace("/");
           }
         }
       } catch {
@@ -576,7 +577,7 @@ export default function LessonPortal({
         if (targetSection === section) {
           localStorage.clear();
           sessionStorage.clear();
-          window.location.replace("/login");
+          window.location.replace("/");
         }
       })
       .subscribe();
@@ -600,7 +601,7 @@ export default function LessonPortal({
       <main className={styles.portal}>
         <div className={styles.grid} aria-hidden="true" />
         <div className={styles.selectorActions}>
-          {isAdmin && <Link href="/admin/access">Quản lý quyền</Link>}
+          {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
           <button type="button" onClick={signOut}>Sign out</button>
         </div>
@@ -625,8 +626,8 @@ export default function LessonPortal({
 
           <div className={styles.heading}>
             <span>COURSE LIBRARY</span>
-            <h1>Chọn folder khóa học</h1>
-            <p>Mỗi folder chứa các section mà bạn đã được cấp quyền truy cập.</p>
+            <h1>Choose a course folder</h1>
+            <p>Your passcode opens every section available in its course folder.</p>
           </div>
 
           <div className={styles.courseFolderGrid}>
@@ -643,7 +644,8 @@ export default function LessonPortal({
                 <span className={styles.folderCopy}>
                   <small>COURSE FOLDER · {course.sections.length} SECTION</small>
                   <strong>{course.title}</strong>
-                  <em>{course.description || "Không gian nội dung tương tác của khóa học."}</em>
+                  <em>{course.description || "Interactive content and learning resources."}</em>
+                  <span className={styles.folderLanguage}>{course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}</span>
                 </span>
                 <b aria-hidden="true">→</b>
               </button>
@@ -659,8 +661,8 @@ export default function LessonPortal({
       <main className={styles.portal}>
         <div className={styles.grid} aria-hidden="true" />
         <div className={styles.selectorActions}>
-          <button type="button" onClick={() => setSelectedCourseId(null)}>← Khóa học</button>
-          {isAdmin && <Link href="/admin/access">Quản lý quyền</Link>}
+          <button type="button" onClick={() => setSelectedCourseId(null)}>← Courses</button>
+          {isAdmin && <Link href="/admin/access">Access settings</Link>}
           <button type="button" onClick={signOut}>Sign out</button>
         </div>
 
@@ -684,16 +686,16 @@ export default function LessonPortal({
           <div className={styles.heading}>
             <span>AVAILABLE SECTIONS</span>
             <h1>{selectedCourse.title}</h1>
-            <p>{selectedCourse.description || "Các section thuộc khóa học này."}</p>
+            <p>{selectedCourse.description || "Sections available in this course folder."}</p>
           </div>
           <div className={styles.pendingSections}>
             {selectedCourse.sections.length === 0 ? (
-              <p>Folder này chưa có section.</p>
+              <p>This folder does not have any sections yet.</p>
             ) : selectedCourse.sections.map((courseSection) => (
               <article key={courseSection.id}>
                 <span>SECTION {courseSection.position}</span>
                 <strong>{courseSection.title}</strong>
-                <small>Nội dung đang được chuẩn bị để kết nối với Learning Space.</small>
+                <small>This content is being prepared for the Learning Space.</small>
               </article>
             ))}
           </div>
@@ -708,8 +710,8 @@ export default function LessonPortal({
         <div className={styles.grid} aria-hidden="true" />
 
         <div className={styles.selectorActions}>
-          <button type="button" onClick={() => setSelectedCourseId(null)}>← Khóa học</button>
-          {isAdmin && <Link href="/admin/access">Quản lý quyền</Link>}
+          <button type="button" onClick={() => setSelectedCourseId(null)}>← Courses</button>
+          {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
           {isAdmin && (
             <button
@@ -721,7 +723,7 @@ export default function LessonPortal({
               }}
               disabled={reportStatus === "exporting"}
             >
-              {reportStatus === "exporting" ? "Đang xuất…" : "Xuất report Excel"}
+              {reportStatus === "exporting" ? "Exporting…" : "Export Excel report"}
             </button>
           )}
           {isAdmin && (
@@ -735,7 +737,7 @@ export default function LessonPortal({
                 setShowResetModal(true);
               }}
             >
-              Reset dữ liệu
+              Reset data
             </button>
           )}
           <button type="button" onClick={signOut}>
@@ -763,8 +765,8 @@ export default function LessonPortal({
 
           <div className={styles.heading}>
             <span>APPLIED AGENTIC AI</span>
-            <h1>Chọn nội dung bạn muốn học</h1>
-            <p>Bạn chỉ thấy những section đã được quản trị viên cấp quyền.</p>
+            <h1>Choose what you want to learn</h1>
+            <p>Your folder passcode provides access to all sections listed below.</p>
             {reportStatus === "error" && reportNotice && (
               <p className={styles.reportError} role="alert">{reportNotice}</p>
             )}
@@ -778,7 +780,7 @@ export default function LessonPortal({
                 <small>41 slide · PDF + HTML interactive</small>
                 {isAdmin && <div className={styles.cardLiveUsers}>
                   <span className={styles.liveDot} />
-                  <span>{presenceCounts.section1} users đang học</span>
+                  <span>{presenceCounts.section1} active learners</span>
                 </div>}
                 <i>→</i>
               </button>
@@ -790,7 +792,7 @@ export default function LessonPortal({
                 <small>37 slide · HTML/CSS/React</small>
                 {isAdmin && <div className={styles.cardLiveUsers}>
                   <span className={styles.liveDot} />
-                  <span>{presenceCounts.section2} users đang học</span>
+                  <span>{presenceCounts.section2} active learners</span>
                 </div>}
                 <i>→</i>
               </button>
@@ -814,27 +816,27 @@ export default function LessonPortal({
               aria-modal="true"
               aria-labelledby="export-report-title"
             >
-              <span>BÁO CÁO THỐNG KÊ</span>
-              <h2 id="export-report-title">Xuất báo cáo Excel</h2>
+              <span>ANALYTICS REPORT</span>
+              <h2 id="export-report-title">Export Excel report</h2>
               <p>
-                Chọn Section và phạm vi thời gian cần đưa vào báo cáo.
+                Choose the section and time range to include.
               </p>
 
               <label className={styles.exportSectionField}>
-                <span>Phạm vi Section</span>
+                <span>Section scope</span>
                 <select
                   value={exportSection}
                   onChange={(event) => setExportSection(event.target.value)}
                   disabled={reportStatus === "exporting"}
                 >
-                  <option value="all">Tất cả Section</option>
+                  <option value="all">All sections</option>
                   {reportSections.map((sectionOption) => (
                     <option key={sectionOption.value} value={sectionOption.value}>
                       {sectionOption.label}
                     </option>
                   ))}
                 </select>
-                <small>Section mới sẽ tự xuất hiện khi được thêm vào hệ thống.</small>
+                <small>New sections appear here automatically.</small>
               </label>
 
               <div className={styles.exportOptions}>
@@ -851,8 +853,8 @@ export default function LessonPortal({
                     onChange={() => setExportRange("today")}
                   />
                   <div className={styles.exportOptionContent}>
-                    <strong>Hôm nay ({formatVNDate(getTodayDateString())})</strong>
-                    <small>Chỉ xuất học viên &amp; dữ liệu tham gia trong ngày hôm nay</small>
+                    <strong>Today ({formatVNDate(getTodayDateString())})</strong>
+                    <small>Only learners and activity recorded today</small>
                   </div>
                 </label>
 
@@ -869,8 +871,8 @@ export default function LessonPortal({
                     onChange={() => setExportRange("custom")}
                   />
                   <div className={styles.exportOptionContent}>
-                    <strong>Theo ngày cụ thể</strong>
-                    <small>Chọn ngày tổ chức lớp học bạn muốn xuất dữ liệu</small>
+                    <strong>Specific date</strong>
+                    <small>Choose the class date to export</small>
                     {exportRange === "custom" && (
                       <input
                         type="date"
@@ -895,8 +897,8 @@ export default function LessonPortal({
                     onChange={() => setExportRange("all")}
                   />
                   <div className={styles.exportOptionContent}>
-                    <strong>Tất cả thời gian</strong>
-                    <small>Xuất toàn bộ lịch sử học viên từ trước đến nay</small>
+                    <strong>All time</strong>
+                    <small>Export the complete learner history</small>
                   </div>
                 </label>
               </div>
@@ -914,7 +916,7 @@ export default function LessonPortal({
                   onClick={() => setShowExportModal(false)}
                   disabled={reportStatus === "exporting"}
                 >
-                  Đóng
+                  Close
                 </button>
                 <button
                   type="button"
@@ -922,7 +924,7 @@ export default function LessonPortal({
                   onClick={() => void exportReport()}
                   disabled={reportStatus === "exporting"}
                 >
-                  {reportStatus === "exporting" ? "Đang xuất file…" : "Tải file Excel"}
+                  {reportStatus === "exporting" ? "Exporting file…" : "Download Excel file"}
                 </button>
               </div>
             </section>
@@ -946,13 +948,13 @@ export default function LessonPortal({
               aria-modal="true"
               aria-labelledby="reset-modal-title"
             >
-              <span className={styles.dangerEyebrow}>NGUY HIỂM · THAO TÁC QUẢN TRỊ</span>
+              <span className={styles.dangerEyebrow}>DANGER · ADMINISTRATIVE ACTION</span>
               <h2 id="reset-modal-title">
-                {resetSection === "all" ? "Reset toàn bộ dữ liệu?" : `Reset ${resetSectionLabel}?`}
+                {resetSection === "all" ? "Reset all data?" : `Reset ${resetSectionLabel}?`}
               </h2>
 
               <label className={styles.exportSectionField}>
-                <span>Phạm vi reset</span>
+                <span>Reset scope</span>
                 <select
                   value={resetSection}
                   onChange={(event) => {
@@ -966,20 +968,19 @@ export default function LessonPortal({
                       {sectionOption.label}
                     </option>
                   ))}
-                  <option value="all">Tất cả Section</option>
+                  <option value="all">All sections</option>
                 </select>
-                <small>Section mới sẽ tự xuất hiện khi được thêm vào hệ thống.</small>
+                <small>New sections appear here automatically.</small>
               </label>
 
               <div className={styles.dangerWarningBox}>
-                <strong>Cảnh báo không thể hoàn tác:</strong>
-                Thao tác này sẽ xóa vĩnh viễn dữ liệu của {resetSectionLabel} trên Supabase,
-                bao gồm: Hồ sơ học viên, Ý tưởng, Showcase, Kết quả Quiz, Feedback và các
-                phiên đăng nhập.
+                <strong>This action cannot be undone:</strong>
+                It permanently deletes {resetSectionLabel} data from Supabase, including learner
+                profiles, ideas, showcase entries, quiz results, feedback, and active sessions.
               </div>
 
               <label className={styles.resetPasswordField}>
-                <span>Nhập RESET để xác nhận thao tác</span>
+                <span>Enter RESET to confirm</span>
                 <input
                   type="text"
                   className={styles.resetPasswordInput}
@@ -1013,7 +1014,7 @@ export default function LessonPortal({
                   onClick={() => setShowResetModal(false)}
                   disabled={resetStatus === "sending"}
                 >
-                  Hủy
+                  Cancel
                 </button>
                 <button
                   type="submit"
@@ -1021,10 +1022,10 @@ export default function LessonPortal({
                   disabled={resetStatus === "sending" || resetStatus === "success"}
                 >
                   {resetStatus === "sending"
-                    ? "Đang xóa dữ liệu…"
+                    ? "Deleting data…"
                     : resetSection === "all"
-                      ? "Xóa tất cả dữ liệu"
-                      : `Xóa ${resetSectionLabel}`}
+                      ? "Delete all data"
+                      : `Delete ${resetSectionLabel}`}
                 </button>
               </div>
             </form>
@@ -1085,7 +1086,7 @@ export default function LessonPortal({
             <span>ADMIN ACTION</span>
             <h2 id="terminate-title">Terminate current section?</h2>
             <p>
-              Users đang truy cập Section này sẽ được đưa về màn hình đăng nhập.
+              Learners in this section will return to the access screen.
             </p>
             {terminateStatus === "error" && terminateNotice && (
               <p role="alert">{terminateNotice}</p>

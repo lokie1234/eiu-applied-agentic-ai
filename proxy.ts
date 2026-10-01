@@ -1,27 +1,10 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-export async function proxy(request: NextRequest) {
-  let response = NextResponse.next({ request });
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const publishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
-  if (!url || !publishableKey) return response;
-
-  const supabase = createServerClient(url, publishableKey, {
-    cookies: {
-      getAll: () => request.cookies.getAll(),
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-        response = NextResponse.next({ request });
-        cookiesToSet.forEach(({ name, value, options }) => {
-          response.cookies.set(name, value, options);
-        });
-      },
-    },
-  });
-
-  await supabase.auth.getUser();
-  return response;
+// Authorization is verified close to protected pages, data, and API mutations.
+// Keeping this proxy local avoids an auth network round-trip on every request.
+export function proxy(request: NextRequest) {
+  void request;
+  return NextResponse.next();
 }
 
 export const config = {

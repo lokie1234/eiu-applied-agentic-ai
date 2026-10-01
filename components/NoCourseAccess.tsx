@@ -1,21 +1,21 @@
 "use client";
 
-export default function NoCourseAccess({ email }: { email: string }) {
+export default function NoCourseAccess() {
   async function signOut() {
     await fetch("/api/signout", { method: "POST" }).catch(() => undefined);
-    window.location.replace("/login");
+    window.location.replace("/");
   }
 
   return (
     <main className="access-empty-page">
       <section className="access-empty-card">
         <span>EIU COURSE ACCESS</span>
-        <h1>Chưa được cấp khóa học</h1>
+        <h1>No course access</h1>
         <p>
-          Tài khoản <strong>{email}</strong> đã đăng nhập thành công nhưng chưa có quyền xem khóa học.
-          Vui lòng liên hệ admin để được cấp quyền.
+          This passcode session does not have an active course folder. Please request a valid
+          folder passcode from the administrator.
         </p>
-        <button type="button" onClick={() => void signOut()}>Đăng xuất</button>
+        <button type="button" onClick={() => void signOut()}>Return to access</button>
       </section>
     </main>
   );

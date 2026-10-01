@@ -254,6 +254,24 @@
   white-space: nowrap;
 }
 
+.folderLanguage {
+  padding: 5px 8px;
+  border: 1px solid rgba(233, 202, 139, 0.2);
+  border-radius: 999px;
+  color: #e9ca8b;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.portal { font-size: 14px; }
+.portal button,
+.portal a { font-size: 12px; }
+.portal small { font-size: clamp(10px, 0.8vw, 12px); }
+.portal p,
+.portal em { font-size: clamp(12px, 0.95vw, 14px); }
+
 .courseFolder > b {
   width: 38px;
   height: 38px;

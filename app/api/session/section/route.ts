@@ -9,7 +9,7 @@ import {
 export async function POST(request: Request) {
   const access = await currentUserAccess();
   if (!access?.isActive) {
-    return NextResponse.json({ success: false, message: "Bạn chưa được cấp quyền." }, { status: 403 });
+    return NextResponse.json({ success: false, message: "Access is not available for this session." }, { status: 403 });
   }
 
   const body = await request.json().catch(() => ({}));
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     (item) => item.sectionKey === section && appliedCourseIds.includes(item.courseId),
   );
   if (!canOpen || !isLearningSection(section)) {
-    return NextResponse.json({ success: false, message: "Section không hợp lệ." }, { status: 403 });
+    return NextResponse.json({ success: false, message: "Invalid section." }, { status: 403 });
   }
 
   const response = NextResponse.json({ success: true, section });

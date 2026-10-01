@@ -3,6 +3,7 @@ export type CourseAccess = {
   slug: string;
   title: string;
   description: string | null;
+  languageLabel: "vi" | "en" | "vi_en";
 };
 
 export type SectionAccess = {

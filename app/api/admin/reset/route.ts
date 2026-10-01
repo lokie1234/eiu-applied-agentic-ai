@@ -15,7 +15,7 @@ export async function POST(request: Request) {
   try {
     if ((await currentRole()) !== "admin") {
       return NextResponse.json(
-        { success: false, message: "Chỉ tài khoản admin mới có quyền reset dữ liệu." },
+        { success: false, message: "Administrator access is required to reset data." },
         { status: 403 },
       );
     }
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
 
     if (password.toUpperCase() !== RESET_CONFIRMATION) {
       return NextResponse.json(
-        { success: false, message: "Vui lòng nhập đúng từ RESET để xác nhận." },
+        { success: false, message: "Enter RESET to confirm." },
         { status: 401 },
       );
     }
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
       if (sectionError) throw sectionError;
       if (!configuredSection) {
         return NextResponse.json(
-          { success: false, message: "Section được chọn không tồn tại trong hệ thống." },
+          { success: false, message: "The selected section does not exist." },
           { status: 400 },
         );
       }
@@ -89,20 +89,20 @@ export async function POST(request: Request) {
     const errors = [r1.error, r2.error, r3.error, r4.error, r5.error, r6.error, r7.error].filter(Boolean);
     if (errors.length > 0) {
       console.error("Reset data errors:", errors);
-      throw new Error(errors[0]?.message || "Lỗi khi xóa dữ liệu trên Supabase.");
+      throw new Error(errors[0]?.message || "Unable to delete data from Supabase.");
     }
 
-    const scopeLabel = resetAll ? "tất cả Section" : formatSectionLabel(requestedSection);
+    const scopeLabel = resetAll ? "all sections" : formatSectionLabel(requestedSection);
     return NextResponse.json({
       success: true,
-      message: `Đã xóa dữ liệu của ${scopeLabel} trên Supabase thành công.`,
+      message: `Data for ${scopeLabel} was deleted from Supabase.`,
     });
   } catch (error) {
     console.error("Reset data API error:", error);
     return NextResponse.json(
       {
         success: false,
-        message: error instanceof Error ? error.message : "Không thể xóa dữ liệu.",
+        message: error instanceof Error ? error.message : "Unable to delete data.",
       },
       { status: 500 },
     );
