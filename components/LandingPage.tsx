@@ -7,7 +7,7 @@ import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import styles from "./LandingExperience.module.css";
 import AgentHud from "./landing/AgentHud";
 import AnimatedHeroCopy from "./landing/AnimatedHeroCopy";
-// Keep the original EiuAgentBot for reduced-motion fallback
+// Keep original SVG bot for reduced-motion fallback
 import EiuAgentBot from "./EiuAgentBot";
 
 // ── Lazy-load the WebGL scene to avoid SSR hydration issues ──
@@ -87,10 +87,10 @@ export default function LandingPage() {
   // END AUTH
   // ═══════════════════════════════════════════════════════════════
 
-  // ── 3D experience state ──
+  // ── 3D & Cinematic Experience State ──
   const prefersReduced = useReducedMotion();
 
-  // Mouse tracking via ref — no React setState per frame
+  // Mouse tracking via ref for zero per-frame React re-renders
   const mouseRef = useRef({ x: 0, y: 0 });
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
@@ -101,31 +101,58 @@ export default function LandingPage() {
     };
   }, []);
 
-  // Cinematic intro sequence
-  const [revealed, setRevealed] = useState(false);
-  const [showCards, setShowCards] = useState(false);
+  // CTA interaction synchronization
+  const [isCtaHovered, setIsCtaHovered] = useState(false);
+  const [ctaPulsed, setCtaPulsed] = useState(false);
+
+  // ── Master Cinematic Timeline (0.0s - 4.0s) ──
+  // Stage 0: 0.0s  - Environment awake
+  // Stage 1: 0.3s  - EIU logo and nav fade in
+  // Stage 2: 0.6s  - Robot emergence begins + Eyebrow/Headline lead
+  // Stage 3: 1.3s  - Word "think" reveals -> Robot AI Core pulse
+  // Stage 4: 1.85s - Word "move" reveals -> Orbit system spins up
+  // Stage 5: 2.4s  - Workflow: INPUT card activates
+  // Stage 6: 2.9s  - Workflow: PROCESS card activates
+  // Stage 7: 3.35s - Workflow: OUTPUT card activates
+  // Stage 8: 3.6s  - CTA button enters with soft spring
+  // Stage 9: 4.0s  - Stable idle ambient mode
+  const [stage, setStage] = useState(0);
 
   useEffect(() => {
-    // Step 1: Short delay then reveal robot + copy
-    const t1 = setTimeout(() => setRevealed(true), 400);
-    // Step 2: HUD cards appear after the heading word "move" would have animated in
-    const t2 = setTimeout(() => setShowCards(true), 2000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
+    if (prefersReduced) {
+      setStage(9);
+      return;
+    }
 
-  // CTA click: brief pulse then open modal (existing auth)
-  const [ctaPulsed, setCtaPulsed] = useState(false);
+    const timers = [
+      setTimeout(() => setStage(1), 300),
+      setTimeout(() => setStage(2), 600),
+      setTimeout(() => setStage(3), 1300),
+      setTimeout(() => setStage(4), 1850),
+      setTimeout(() => setStage(5), 2400),
+      setTimeout(() => setStage(6), 2900),
+      setTimeout(() => setStage(7), 3350),
+      setTimeout(() => setStage(8), 3600),
+      setTimeout(() => setStage(9), 4000),
+    ];
+
+    return () => {
+      timers.forEach(clearTimeout);
+    };
+  }, [prefersReduced]);
+
+  // CTA click: short 320ms energy scan pulse then trigger auth modal
   const handleCtaClick = useCallback(() => {
     setCtaPulsed(true);
     setTimeout(() => {
       setCtaPulsed(false);
       open();
-    }, 280);
+    }, 320);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <main className={styles.page} onMouseMove={handleMouseMove}>
-      {/* ── Background layers (unchanged) ── */}
+      {/* ── Background layers (Atmosphere) ── */}
       <div className={styles.aurora} aria-hidden="true"><i /><i /><i /></div>
       <div className={styles.noise} aria-hidden="true" />
       <div className={styles.dataLanes} aria-hidden="true"><i /><i /><i /></div>
@@ -136,12 +163,16 @@ export default function LandingPage() {
         <span>EASTERN INTERNATIONAL UNIVERSITY</span>
       </div>
 
-      {/* ── Navigation ── */}
+      {/* ── Navigation (Step 2: Smooth Emergence) ── */}
       <motion.nav
         className={styles.nav}
-        initial={{ opacity: 0, y: -18 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0, y: -16, filter: "blur(4px)" }}
+        animate={
+          stage >= 1 || prefersReduced
+            ? { opacity: 1, y: 0, filter: "blur(0px)" }
+            : {}
+        }
+        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className={styles.logoWrap}>
           <Image
@@ -158,45 +189,55 @@ export default function LandingPage() {
 
       {/* ── Hero layout ── */}
       <section className={styles.hero}>
-        {/* Copy side */}
+        {/* Left: Copy side with staggered entrance */}
         <div className={styles.copy}>
-          <AnimatedHeroCopy onCtaClick={handleCtaClick} revealed={revealed} />
+          <AnimatedHeroCopy
+            onCtaClick={handleCtaClick}
+            onCtaHover={setIsCtaHovered}
+            stage={stage}
+          />
         </div>
 
-        {/* 3D Scene side — replaces old .machine for capable devices */}
+        {/* Right: 3D Scene side with Guardian Robot & Spatial AI World */}
         <div
           className={styles.machine}
-          style={{ position: "relative", minHeight: 500 }}
+          style={{ position: "relative", minHeight: 520 }}
           aria-hidden="true"
         >
           {prefersReduced ? (
-            /* Reduced-motion fallback: keep existing SVG robot */
             <EiuAgentBot />
           ) : (
             <>
-              {/* WebGL Guardian Robot + World */}
-              <HeroScene mouseRef={mouseRef} showCards={showCards} />
-              {/* DOM HUD overlay */}
-              <AgentHud showCards={showCards} />
+              {/* WebGL Hero Scene: Guardian Robot 3D + World Orbits */}
+              <HeroScene
+                mouseRef={mouseRef}
+                stage={stage}
+                isCtaHovered={isCtaHovered}
+                ctaPulsed={ctaPulsed}
+              />
 
-              {/* CTA energy pulse ring — triggered on click */}
+              {/* Spatial HUD Overlay (INPUT -> PROCESS -> OUTPUT) */}
+              <AgentHud stage={stage} />
+
+              {/* Energy Pulse Ring on CTA Click */}
               <AnimatePresence>
                 {ctaPulsed && (
                   <motion.div
                     key="ctaPulse"
-                    initial={{ opacity: 0.8, scale: 0.4 }}
-                    animate={{ opacity: 0, scale: 2.2 }}
+                    initial={{ opacity: 0.85, scale: 0.35 }}
+                    animate={{ opacity: 0, scale: 2.4 }}
                     exit={{}}
-                    transition={{ duration: 0.55, ease: "easeOut" }}
+                    transition={{ duration: 0.52, ease: "easeOut" }}
                     style={{
                       position: "absolute",
                       inset: "50%",
-                      width: 180,
-                      height: 180,
-                      marginLeft: -90,
-                      marginTop: -90,
+                      width: 220,
+                      height: 220,
+                      marginLeft: -110,
+                      marginTop: -110,
                       borderRadius: "50%",
-                      border: "2px solid #e9ca8b",
+                      border: "2px solid #E9CA8B",
+                      boxShadow: "0 0 45px rgba(233, 202, 139, 0.6)",
                       pointerEvents: "none",
                     }}
                   />
@@ -288,4 +329,3 @@ export default function LandingPage() {
     </main>
   );
 }
-
