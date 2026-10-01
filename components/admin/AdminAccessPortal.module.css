@@ -1,12 +1,1961 @@
-.page{width:100%;height:100dvh;overflow:hidden;display:flex;flex-direction:column;padding:24px clamp(20px,3vw,46px);background:#f7f4ed;color:#17324a}.header{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:20px 26px;border-radius:20px;background:linear-gradient(120deg,#041c31,#082945 60%,#123f68);color:#fff;box-shadow:0 18px 45px rgba(4,28,49,.15)}.header span,.workspaceHead span,.newCourse span,.courseHead span,.courseList>span{color:#e9ca8b;font-size:9px;font-weight:800;letter-spacing:.15em}.header h1{margin:6px 0 2px;font-size:29px;letter-spacing:-.04em}.header p{margin:0;color:rgba(255,255,255,.48);font-size:11px}.header nav{display:flex;align-items:center;gap:7px}.header nav a,.header nav button{padding:9px 12px;border:1px solid rgba(255,255,255,.12);border-radius:9px;background:rgba(255,255,255,.06);color:#fff;text-decoration:none;font-size:10px;font-weight:700;cursor:pointer}.tabs{flex:0 0 auto;display:flex;gap:6px;margin:16px 0 12px}.tabs button{padding:10px 16px;border:1px solid rgba(23,50,74,.12);border-radius:10px;background:#fff;color:#687987;font-weight:700;cursor:pointer}.tabs .active{border-color:#082945;background:#082945;color:#fff}.error,.notice{flex:0 0 auto;margin-bottom:9px;padding:11px 14px;border-radius:10px;font-size:12px}.error{background:#ffeded;color:#a52f36}.notice{background:#e8f7f0;color:#287251}.scrollArea{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-gutter:stable;padding:1px 3px 20px 1px}.loading{padding:60px;text-align:center;color:#687987}.passcodeLayout{min-height:100%;display:grid;grid-template-columns:260px minmax(0,1fr);gap:18px}.courseList,.workspace,.catalog{border:1px solid rgba(23,50,74,.1);border-radius:18px;background:#fff;box-shadow:0 10px 30px rgba(4,28,49,.05)}.courseList{align-self:start;position:sticky;top:0;padding:18px}.courseList>span{display:block;margin:4px 8px 15px;color:#9d7944}.courseList button{width:100%;padding:14px 11px;display:grid;grid-template-columns:27px 1fr;gap:3px 7px;border:0;border-radius:11px;background:transparent;color:#17324a;text-align:left;cursor:pointer}.courseList button:hover{background:#f7f4ed}.courseList .selectedCourse{background:#082945;color:#fff}.courseList i{grid-row:1/3;color:#b39159;font-style:normal}.courseList b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.courseList small{color:#8b99a4;font-size:9px}.workspace{min-width:0;padding:clamp(25px,3vw,42px)}.workspaceHead{display:flex;justify-content:space-between;gap:24px;padding-bottom:27px;border-bottom:1px solid #eeeae2}.workspaceHead span{color:#9d7944}.workspaceHead h2{margin:7px 0 6px;font-size:clamp(27px,3vw,38px);letter-spacing:-.045em}.workspaceHead p{margin:0;color:#687987;font-size:13px}.statusDot{align-self:flex-start;display:flex;align-items:center;gap:7px;padding:8px 11px;border:1px solid #e3dfd7;border-radius:999px;color:#8b99a4;font-size:8px;font-weight:800;letter-spacing:.1em}.statusDot i{width:7px;height:7px;border-radius:50%;background:#acb4b9}.statusDot[data-active="true"] i{background:#56b58d;box-shadow:0 0 0 4px rgba(86,181,141,.1)}.settingsGrid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(320px,.75fr);gap:18px;margin-top:26px}.accessCard,.languageCard{min-height:390px;padding:clamp(22px,2.5vw,34px);border:1px solid #e8e4dc;border-radius:18px;background:#fbfaf7}.cardHeading{display:flex;align-items:center;gap:13px}.cardHeading>span{width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:#082945;color:#f4dfb0;font-size:9px;font-weight:800}.cardHeading small{color:#9d7944;font-size:8px;font-weight:800;letter-spacing:.13em}.cardHeading h3{margin:4px 0 0;font-size:20px}.accessCard>p,.languageCard>p{margin:21px 0 25px;color:#687987;font-size:13px;line-height:1.55}.accessCard label{display:block;margin-bottom:8px;color:#687987;font-size:8px;font-weight:800;letter-spacing:.13em}.accessCard>input{width:100%;height:62px;padding:0 17px;border:1px solid rgba(23,50,74,.16);border-radius:12px;outline:0;background:#fff;color:#082945;font:750 19px ui-monospace,monospace;letter-spacing:.08em}.accessCard>input:focus{border-color:#2d7fb4;box-shadow:0 0 0 4px rgba(45,127,180,.09)}.codeMeta{margin-top:14px;padding:12px 14px;display:grid;grid-template-columns:auto 1fr auto 1fr;gap:8px 12px;border-radius:10px;background:#fff;font-size:10px}.codeMeta span{color:#8b99a4}.codeMeta strong{color:#123f68}.cardActions{display:flex;gap:8px;margin-top:20px}.cardActions button,.newCourse button{min-height:42px;padding:0 17px;border:0;border-radius:999px;background:#082945;color:#fff;font-size:11px;font-weight:750;cursor:pointer}.cardActions button:disabled,.languageOptions button:disabled{opacity:.48;cursor:default}.danger{border-color:rgba(165,47,54,.2)!important;background:#fff0f0!important;color:#a52f36!important}.languageOptions{display:flex;flex-direction:column;gap:9px}.languageOptions button{min-height:53px;padding:0 15px;display:flex;align-items:center;gap:12px;border:1px solid #e5e1d9;border-radius:11px;background:#fff;color:#17324a;font-weight:700;text-align:left;cursor:pointer}.languageOptions button i{width:22px;height:22px;display:grid;place-items:center;border:1px solid #d7d2c8;border-radius:50%;color:#fff;font-style:normal}.languageOptions .languageActive{border-color:#2d7fb4;background:#eef7fc;color:#082945;box-shadow:0 0 0 3px rgba(45,127,180,.07)}.languageOptions .languageActive i{border-color:#2d7fb4;background:#2d7fb4}.catalog{padding:26px}.newCourse{display:grid;grid-template-columns:1fr minmax(240px,390px) auto;align-items:end;gap:10px;padding-bottom:22px;border-bottom:1px solid #eeeae2}.newCourse h2{margin:6px 0 0;font-size:26px}.newCourse input,.newSection input{height:43px;padding:0 12px;border:1px solid rgba(23,50,74,.14);border-radius:9px;outline:0;background:#fff}.courseGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px;margin-top:20px}.courseGrid article{padding:18px;border:1px solid #e8e4dc;border-radius:14px;background:#fbfaf7}.courseHead{display:flex;justify-content:space-between;gap:15px}.courseHead span{color:#9d7944}.courseHead h3{margin:6px 0 2px;font-size:17px}.courseHead small{color:#8b99a4}.courseHead button{align-self:flex-start;padding:8px 10px;border:1px solid rgba(23,50,74,.12);border-radius:8px;font-size:10px;font-weight:700;cursor:pointer}.sectionList{margin:16px 0}.sectionList>div{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:8px;padding:9px 0;border-top:1px solid #ece8e0}.sectionList span{color:#b39159;font-size:9px}.sectionList strong{font-size:11px}.sectionList button{border:0;background:transparent;color:#a52f36;cursor:pointer}.newSection{display:flex;gap:7px}.newSection input{flex:1;height:38px}.newSection button{width:38px;border:0;border-radius:9px;background:#123f68;color:#fff;font-size:18px;cursor:pointer}@media(max-width:980px){.settingsGrid{grid-template-columns:1fr}.accessCard,.languageCard{min-height:auto}.courseGrid{grid-template-columns:1fr}}@media(max-width:760px){.page{padding:14px}.header{align-items:flex-start;flex-direction:column}.header nav{flex-wrap:wrap}.passcodeLayout{grid-template-columns:1fr}.courseList{position:static;display:flex;gap:7px;overflow-x:auto}.courseList>span{display:none}.courseList button{min-width:190px}.newCourse{grid-template-columns:1fr}.workspace{padding:20px}.workspaceHead{flex-direction:column}.statusDot{align-self:flex-start}}@media(max-width:520px){.codeMeta{grid-template-columns:auto 1fr}.cardActions{flex-direction:column}}
-.generatedCode{position:relative;margin-top:8px;padding:20px;border:1px solid rgba(45,127,180,.2);border-radius:14px;background:#fff}
-.generatedCode span{display:block;color:#9d7944;font-size:10px;font-weight:800;letter-spacing:.13em}
-.generatedCode strong{display:block;margin-top:7px;color:#082945;font:800 clamp(30px,4vw,44px)/1 ui-monospace,monospace;letter-spacing:.18em}
-.generatedCode button{position:absolute;right:16px;top:16px;padding:7px 10px;border:1px solid #dce5eb;border-radius:8px;background:#f4f8fa;color:#18547f;font-size:12px;font-weight:750;cursor:pointer}
-.page{font-size:14px}
-.header span,.workspaceHead span,.newCourse span,.courseHead span,.courseList>span{font-size:10px!important}
-.header p,.courseList small,.workspaceHead p,.accessCard>p,.languageCard>p{font-size:clamp(12px,.9vw,14px)!important}
-.header nav a,.header nav button,.tabs button,.cardActions button,.newCourse button,.courseHead button{font-size:12px!important}
-.courseList b,.codeMeta,.sectionList strong{font-size:12px!important}
-.statusDot,.cardHeading small,.accessCard label{font-size:10px!important}
-.languageOptions button,.newCourse input,.newSection input{font-size:13px!important}
+.page {
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 16px clamp(16px, 2.5vw, 36px);
+  background: #f7f4ed;
+  color: #17324a;
+  box-sizing: border-box;
+}
+
+.header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: linear-gradient(120deg, #041c31, #082945 60%, #123f68);
+  color: #fff;
+  box-shadow: 0 12px 36px rgba(4, 28, 49, 0.15);
+}
+
+.headerTitleGroup span {
+  color: #e9ca8b;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.headerTitleGroup h1 {
+  margin: 4px 0 2px;
+  font-size: 24px;
+  letter-spacing: -0.03em;
+  font-weight: 750;
+}
+
+.headerTitleGroup p {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px;
+}
+
+.headerTitleGroup b {
+  color: #e9ca8b;
+}
+
+.headerNav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.headerNav a,
+.headerNav button {
+  padding: 8px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.headerNav a:hover,
+.headerNav button:hover {
+  background: rgba(255, 255, 255, 0.18);
+  transform: translateY(-1px);
+}
+
+.tabs {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 8px;
+  margin: 12px 0 10px;
+}
+
+.tabs button {
+  padding: 9px 18px;
+  border: 1px solid rgba(23, 50, 74, 0.14);
+  border-radius: 10px;
+  background: #fff;
+  color: #556977;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tabs .active {
+  border-color: #082945;
+  background: #082945;
+  color: #fff;
+}
+
+.error,
+.notice {
+  flex: 0 0 auto;
+  margin-bottom: 10px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.error {
+  background: #fff0f0;
+  color: #a52f36;
+  border: 1px solid rgba(165, 47, 54, 0.2);
+}
+
+.notice {
+  background: #e8f7f0;
+  color: #287251;
+  border: 1px solid rgba(40, 114, 81, 0.2);
+}
+
+/* ==========================================================================
+   Real-Time Processing Banner (loading...... animation)
+   ========================================================================== */
+.processingBanner {
+  flex: 0 0 auto;
+  margin-bottom: 12px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #fdfbf7 0%, #f6f1e8 100%);
+  border: 1.5px solid rgba(157, 121, 68, 0.4);
+  box-shadow: 0 4px 16px rgba(157, 121, 68, 0.12);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  animation: fadeInNotice 0.25s ease;
+}
+
+@keyframes fadeInNotice {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.processingSpinnerWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.processingSpinner {
+  width: 22px;
+  height: 22px;
+  border: 2.5px solid rgba(8, 41, 69, 0.15);
+  border-top-color: #9d7944;
+  border-right-color: #082945;
+  border-radius: 50%;
+  animation: adminSpin 0.75s linear infinite;
+  display: inline-block;
+}
+
+@keyframes adminSpin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.processingTextCol {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.processingMainLine {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.processingTitle {
+  font-size: 13.5px;
+  font-weight: 750;
+  color: #082945;
+  letter-spacing: -0.01em;
+}
+
+.processingSub {
+  font-size: 11.5px;
+  color: #79664c;
+  font-weight: 500;
+}
+
+.loadingDotsAnim {
+  display: inline-flex;
+  gap: 1px;
+}
+
+.loadingDotsAnim span {
+  font-size: 15px;
+  font-weight: 900;
+  color: #9d7944;
+  animation: dotPulse 1.2s infinite ease-in-out both;
+}
+
+.loadingDotsAnim span:nth-child(1) { animation-delay: 0.0s; }
+.loadingDotsAnim span:nth-child(2) { animation-delay: 0.15s; }
+.loadingDotsAnim span:nth-child(3) { animation-delay: 0.3s; }
+.loadingDotsAnim span:nth-child(4) { animation-delay: 0.45s; }
+.loadingDotsAnim span:nth-child(5) { animation-delay: 0.6s; }
+.loadingDotsAnim span:nth-child(6) { animation-delay: 0.75s; }
+
+@keyframes dotPulse {
+  0%, 80%, 100% {
+    opacity: 0.2;
+    transform: translateY(0);
+  }
+  40% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
+.btnLoadingRow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btnSpinner {
+  width: 13px;
+  height: 13px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: adminSpin 0.7s linear infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.btnSpinnerSm {
+  width: 11px;
+  height: 11px;
+  border: 1.8px solid rgba(8, 41, 69, 0.2);
+  border-top-color: #9d7944;
+  border-radius: 50%;
+  animation: adminSpin 0.7s linear infinite;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.rowRemovingState {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #a52f36;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.emailListProcessingBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: #fcf8ee;
+  border-bottom: 1px solid #ebd9b8;
+  color: #8c672b;
+  font-size: 11.5px;
+  font-weight: 700;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  animation: fadeInNotice 0.2s ease;
+}
+
+.scrollArea {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-gutter: stable;
+  padding-right: 4px;
+}
+
+.loading {
+  padding: 60px;
+  text-align: center;
+  color: #687987;
+  font-size: 15px;
+}
+
+.passcodeLayout {
+  display: grid;
+  grid-template-columns: 270px minmax(0, 1fr);
+  gap: 16px;
+  min-height: 100%;
+}
+
+.courseList {
+  border: 1px solid rgba(23, 50, 74, 0.1);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(4, 28, 49, 0.04);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-self: start;
+}
+
+.courseListHeading {
+  display: block;
+  margin: 4px 8px 10px;
+  color: #9d7944;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.courseItem {
+  width: 100%;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: #17324a;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.courseItem:hover {
+  background: #f7f4ed;
+}
+
+.selectedCourse {
+  background: #082945 !important;
+  color: #fff !important;
+  box-shadow: 0 4px 14px rgba(8, 41, 69, 0.15);
+}
+
+.courseItemTitle {
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.3;
+}
+
+.courseItemMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: #8b99a4;
+}
+
+.selectedCourse .courseItemMeta {
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.workspace {
+  border: 1px solid rgba(23, 50, 74, 0.1);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 6px 20px rgba(4, 28, 49, 0.04);
+  padding: clamp(18px, 2.5vw, 28px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+}
+
+.workspaceHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #eeeae2;
+  flex-wrap: wrap;
+}
+
+.workspaceHeadTitle span {
+  color: #9d7944;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.workspaceHeadTitle h2 {
+  margin: 6px 0 4px;
+  font-size: clamp(22px, 2.5vw, 30px);
+  letter-spacing: -0.04em;
+  color: #082945;
+}
+
+.courseTitleRow {
+  margin: 6px 0 10px;
+}
+
+.titleDisplayRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.titleDisplayRow h2 {
+  margin: 0;
+  font-size: clamp(22px, 2.5vw, 30px);
+  letter-spacing: -0.04em;
+  color: #082945;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.titleEditBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0ebe1;
+  border: 1px solid rgba(157, 121, 68, 0.25);
+  color: #082945;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+  padding: 5px 11px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  line-height: 1.4;
+  user-select: none;
+  align-self: center;
+}
+
+.titleEditBtn:hover {
+  background: #e6dfd1;
+  border-color: rgba(157, 121, 68, 0.45);
+  transform: translateY(-1px);
+}
+
+.titleEditBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 4px 0;
+}
+
+.titleInput {
+  padding: 8px 14px;
+  font-size: clamp(18px, 2vw, 24px);
+  font-weight: 750;
+  letter-spacing: -0.02em;
+  border: 1.5px solid #082945;
+  border-radius: 8px;
+  outline: none;
+  min-width: 280px;
+  max-width: 500px;
+  flex: 1;
+  color: #082945;
+  background: #fff;
+  transition: all 0.2s ease;
+}
+
+.titleInput:focus {
+  border-color: #9d7944;
+  box-shadow: 0 0 0 3px rgba(157, 121, 68, 0.18);
+}
+
+.workspaceHeadTitle p {
+  margin: 0;
+  color: #687987;
+  font-size: 13px;
+}
+
+.workspaceDescriptionRow {
+  margin: 12px 0 8px;
+  background: #fbfaf7;
+  border: 1px solid #e7e2d8;
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.descHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.descCardLabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #9d7944;
+  text-transform: uppercase;
+}
+
+.descDisplayBox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.workspaceDescText {
+  margin: 0 !important;
+  color: #082945 !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  line-height: 1.4 !important;
+}
+
+.descEditBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0ebe1;
+  border: 1px solid rgba(157, 121, 68, 0.25);
+  color: #082945;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+  padding: 5px 11px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  line-height: 1.4;
+  user-select: none;
+}
+
+.descEditBtn:hover {
+  background: #e6dfd1;
+  border-color: rgba(157, 121, 68, 0.45);
+  transform: translateY(-1px);
+}
+
+.descEditBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.descInput {
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1px solid #c9d2d9;
+  border-radius: 8px;
+  outline: none;
+  flex: 1;
+  min-width: 280px;
+  color: #082945;
+}
+
+.descInput:focus {
+  border-color: #082945;
+  box-shadow: 0 0 0 2px rgba(8, 41, 69, 0.1);
+}
+
+.descSaveBtn {
+  padding: 8px 16px;
+  background: #082945;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.descCancelBtn {
+  padding: 8px 14px;
+  background: #e2ddd4;
+  color: #556977;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.folderPasscodeCard {
+  border: 1px solid #dbe2ea;
+  border-radius: 12px;
+  background: #fff;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 10px rgba(8, 41, 69, 0.04);
+}
+
+.passcodeMainInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.passcodeCardLabel {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #798b98;
+  text-transform: uppercase;
+}
+
+.passcodeDisplayRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.passcodeNumber {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: #082945;
+  line-height: 1;
+}
+
+.passcodeStatusBadge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #17734d;
+  background: #e6f6ee;
+  padding: 4px 10px;
+  border-radius: 999px;
+  letter-spacing: 0.08em;
+}
+
+.passcodeEditRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.passcodeInput {
+  width: 140px;
+  height: 42px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 2px solid #082945;
+  font: 800 20px ui-monospace, monospace;
+  letter-spacing: 0.12em;
+  color: #082945;
+}
+
+.folderPasscodeActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.folderPasscodeActions button {
+  padding: 9px 16px;
+  border-radius: 9px;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.workspaceMetaBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.statusDot {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid #e3dfd7;
+  border-radius: 999px;
+  color: #556977;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  background: #faf8f5;
+}
+
+.statusDot i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #56b58d;
+  box-shadow: 0 0 0 3px rgba(86, 181, 141, 0.15);
+}
+
+.langSelector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  border: 1px solid #e3dfd7;
+  border-radius: 999px;
+  background: #faf8f5;
+}
+
+.langBtn {
+  padding: 4px 9px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #687987;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.langActive {
+  background: #082945 !important;
+  color: #fff !important;
+}
+
+/* Section Passcodes Block */
+.sectionBlock {
+  border: 1px solid #e8e4dc;
+  border-radius: 14px;
+  background: #fbfaf7;
+  padding: 18px 20px;
+}
+
+.sectionBlockHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.badgeIndex {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #082945;
+  color: #f4dfb0;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.sectionBlockHeader h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 750;
+  color: #082945;
+}
+
+.sectionBlockHeader p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #687987;
+}
+
+.sectionPasscodeGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.sectionPasscodeCard {
+  border: 1px solid #e2ddd4;
+  border-radius: 12px;
+  background: #fff;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.sectionCardTitle {
+  font-size: 13px;
+  font-weight: 750;
+  color: #123f68;
+}
+
+.passcodeDisplay {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid #dfe6ed;
+  border-radius: 8px;
+  background: #f4f8fb;
+}
+
+.passcodeText {
+  font-family: ui-monospace, monospace;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #082945;
+}
+
+.passcodeActions {
+  display: flex;
+  gap: 6px;
+}
+
+.passcodeActions button {
+  padding: 6px 10px;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  background: #fff;
+  color: #17324a;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.passcodeActions button:hover {
+  background: #f0f4f8;
+  border-color: #082945;
+}
+
+.passcodeActions .primaryBtn {
+  background: #082945;
+  color: #fff;
+  border-color: #082945;
+}
+
+.passcodeActions .primaryBtn:hover {
+  background: #123f68;
+}
+
+/* Email Access (Bulk function) Block */
+.emailBlock {
+  border: 1px solid #e8e4dc;
+  border-radius: 14px;
+  background: #fbfaf7;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.emailLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 18px;
+}
+
+.bulkBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bulkBox label {
+  font-size: 11px;
+  font-weight: 800;
+  color: #123f68;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bulkTextarea {
+  width: 100%;
+  height: 140px;
+  padding: 12px;
+  border: 1px solid rgba(23, 50, 74, 0.16);
+  border-radius: 10px;
+  outline: 0;
+  background: #fff;
+  color: #082945;
+  font-size: 13px;
+  font-family: inherit;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+.bulkTextarea:focus {
+  border-color: #2d7fb4;
+  box-shadow: 0 0 0 3px rgba(45, 127, 180, 0.1);
+}
+
+.bulkActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bulkActions button {
+  padding: 8px 14px;
+  border: 0;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btnPrimary {
+  background: #082945;
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  background: #123f68;
+}
+
+.btnSecondary {
+  background: #eef2f5;
+  color: #17324a;
+  border: 1px solid #d4dce3 !important;
+}
+
+.btnSecondary:hover {
+  background: #e2e8ee;
+}
+
+.btnDanger {
+  background: #fff0f0 !important;
+  color: #a52f36 !important;
+  border: 1px solid rgba(165, 47, 54, 0.2) !important;
+}
+
+.btnDanger:hover {
+  background: #ffe3e3 !important;
+}
+
+.emailListBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.emailListHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.emailListHeader span {
+  font-size: 11px;
+  font-weight: 800;
+  color: #123f68;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.emailSearchInput {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #dce2e6;
+  border-radius: 8px;
+  font-size: 12px;
+  outline: 0;
+  background: #fff;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.emailSearchInput:focus {
+  border-color: #2d7fb4;
+}
+
+.emailListScroll {
+  max-height: 220px;
+  overflow-y: auto;
+  border: 1px solid #e2ddd4;
+  border-radius: 10px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.emailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid #f0ece3;
+  font-size: 12px;
+  gap: 8px;
+}
+
+.emailRow:last-child {
+  border-bottom: 0;
+}
+
+.emailRow span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: #17324a;
+}
+
+.adminTag {
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: #e9ca8b;
+  color: #041c31;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.removeBtn {
+  border: 0;
+  background: transparent;
+  color: #a52f36;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: 4px;
+}
+
+.removeBtn:hover {
+  background: #fff0f0;
+}
+
+.noEmailMessage {
+  padding: 30px;
+  text-align: center;
+  color: #8b99a4;
+  font-size: 12px;
+}
+
+/* Catalog tab */
+.catalog {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.newCourse {
+  display: grid;
+  grid-template-columns: 1fr minmax(240px, 380px) auto;
+  align-items: end;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid rgba(23, 50, 74, 0.1);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.newCourse h2 {
+  margin: 4px 0 0;
+  font-size: 22px;
+  color: #082945;
+}
+
+.newCourse input,
+.newSection input {
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(23, 50, 74, 0.16);
+  border-radius: 9px;
+  outline: 0;
+  background: #fff;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.newCourse button {
+  height: 42px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 9px;
+  background: #082945;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.courseGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 16px;
+}
+
+.courseCard {
+  border: 1px solid #e8e4dc;
+  border-radius: 14px;
+  background: #fff;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.courseHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.courseHead h3 {
+  margin: 4px 0 2px;
+  font-size: 16px;
+  color: #082945;
+}
+
+.courseHead small {
+  color: #8b99a4;
+  font-size: 11px;
+}
+
+.sectionList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sectionItem {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fbfaf7;
+  font-size: 12px;
+}
+
+.newSection {
+  display: flex;
+  gap: 8px;
+}
+
+.newSection input {
+  flex: 1;
+}
+
+.newSection button {
+  width: 42px;
+  border: 0;
+  border-radius: 9px;
+  background: #123f68;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Responsiveness */
+@media (max-width: 980px) {
+  .passcodeLayout {
+    grid-template-columns: 1fr;
+  }
+  .courseList {
+    flex-direction: row;
+    overflow-x: auto;
+  }
+  .courseItem {
+    min-width: 200px;
+  }
+  .emailLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .page {
+    padding: 10px;
+  }
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 16px;
+  }
+  .headerNav {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .newCourse {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================================
+   EIU Refined Segmented Tabs Navigation
+   ========================================================================== */
+.tabsNavWrapper {
+  flex: 0 0 auto;
+  margin: 14px 0 12px;
+  display: flex;
+}
+
+.tabsTrack {
+  display: inline-flex;
+  padding: 4px;
+  background: rgba(23, 50, 74, 0.07);
+  border-radius: 12px;
+  gap: 4px;
+  border: 1px solid rgba(23, 50, 74, 0.08);
+}
+
+.tabBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 18px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 750;
+  border: 0;
+  background: transparent;
+  color: #556977;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.tabBtn:hover:not(.tabBtnActive) {
+  color: #082945;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.tabBtnActive {
+  background: #082945 !important;
+  color: #f4dfb0 !important;
+  box-shadow: 0 4px 14px rgba(8, 41, 69, 0.2);
+}
+
+.tabBadge {
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: rgba(23, 50, 74, 0.1);
+  color: #082945;
+  transition: all 0.2s ease;
+}
+
+.tabBtnActive .tabBadge {
+  background: rgba(244, 223, 176, 0.2);
+  color: #f4dfb0;
+}
+
+/* ==========================================================================
+   Frame 1: Dedicated Authorized Email Management Frame
+   ========================================================================== */
+.emailManagementLayout {
+  display: grid;
+  grid-template-columns: minmax(340px, 440px) minmax(0, 1fr);
+  gap: 20px;
+  min-height: 100%;
+}
+
+.emailFrameCard {
+  border: 1px solid #e8e4dc;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 6px 24px rgba(4, 28, 49, 0.04);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.emailFrameHead {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f0ece3;
+}
+
+.emailFrameHead span {
+  color: #9d7944;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.emailFrameHead h2 {
+  margin: 2px 0 0;
+  font-size: 20px;
+  font-weight: 750;
+  color: #082945;
+  letter-spacing: -0.02em;
+}
+
+.emailFrameHead p {
+  margin: 0;
+  font-size: 12.5px;
+  color: #687987;
+  line-height: 1.45;
+}
+
+.emailSearchWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.emailSearchIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #8b99a4;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.emailSearchInput {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px 0 40px;
+  border: 1px solid rgba(23, 50, 74, 0.16);
+  border-radius: 10px;
+  font-size: 13px;
+  outline: 0;
+  background: #fbfaf7;
+  color: #082945;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.emailSearchInput:focus {
+  background: #fff;
+  border-color: #082945;
+  box-shadow: 0 0 0 3px rgba(157, 121, 68, 0.15);
+}
+
+.emailToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: #fbfaf7;
+  border: 1px solid #eee8df;
+  border-radius: 10px;
+}
+
+.emailSelectAllBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 750;
+  color: #082945;
+  cursor: pointer;
+  user-select: none;
+}
+
+.emailBatchActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.emailCountBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(8, 41, 69, 0.08);
+  color: #082945;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.emailListScroll {
+  max-height: 420px;
+  overflow-y: auto;
+  border: 1px solid #e8e4dc;
+  border-radius: 12px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.emailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f4f0e8;
+  font-size: 13px;
+  gap: 10px;
+  transition: background 0.15s ease;
+}
+
+.emailRow:hover {
+  background: #fdfbf7;
+}
+
+.emailRowSelected {
+  background: #f4f8fb !important;
+}
+
+.emailRow:last-child {
+  border-bottom: 0;
+}
+
+.emailRowLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
+}
+
+.emailRowCheckbox {
+  width: 17px;
+  height: 17px;
+  accent-color: #082945;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.emailText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 650;
+  color: #17324a;
+}
+
+.adminTag {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #e9ca8b, #c99f55);
+  color: #041c31;
+  font-size: 9.5px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  box-shadow: 0 2px 6px rgba(201, 159, 85, 0.3);
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Frame 2: Course Passcode Bypass (Unlock All Courses) Banner
+   ========================================================================== */
+/* ==========================================================================
+   Frame 2: Course Passcode Bypass (Unlock All Courses) Banner - EIU Design
+   ========================================================================== */
+.unlockBanner {
+  border: 1.5px solid rgba(157, 121, 68, 0.35);
+  border-top: 3px solid #e9ca8b;
+  border-radius: 16px;
+  background: radial-gradient(120% 120% at 100% 0%, rgba(157, 121, 68, 0.16) 0%, transparent 60%),
+              linear-gradient(135deg, #051e34 0%, #082945 55%, #0b375e 100%);
+  color: #fff;
+  padding: 22px 26px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 28px rgba(4, 28, 49, 0.16);
+  position: relative;
+  overflow: hidden;
+}
+
+.unlockBanner::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 220px;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(233, 202, 139, 0.04));
+  pointer-events: none;
+}
+
+.unlockBannerHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.unlockBannerTitle {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.unlockBannerTitle span {
+  color: #e9ca8b;
+  font-size: 10.5px;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.unlockBannerTitle h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.unlockBannerTitle h3 svg {
+  color: #f4dfb0;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.unlockBannerTitle p {
+  margin: 0;
+  font-size: 12.5px;
+  color: rgba(244, 223, 176, 0.85);
+  line-height: 1.45;
+}
+
+.unlockMasterButtons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btnUnlockAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(135deg, #f4dfb0 0%, #e9ca8b 45%, #c99f55 100%);
+  color: #082945;
+  font-size: 12.5px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(201, 159, 85, 0.4);
+  transition: all 0.2s ease;
+  letter-spacing: 0.01em;
+}
+
+.btnUnlockAll svg {
+  color: #082945;
+}
+
+.btnUnlockAll:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(201, 159, 85, 0.55);
+  background: linear-gradient(135deg, #faebd0 0%, #f0d59e 45%, #dfb66f 100%);
+}
+
+.btnLockAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 1.5px solid rgba(233, 202, 139, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4dfb0;
+  font-size: 12.5px;
+  font-weight: 750;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
+}
+
+.btnLockAll:hover:not(:disabled) {
+  background: rgba(233, 202, 139, 0.16);
+  border-color: #f4dfb0;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.unlockSelectiveRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 11px 18px;
+  background: rgba(4, 22, 38, 0.55);
+  border: 1px solid rgba(233, 202, 139, 0.2);
+  border-radius: 11px;
+  flex-wrap: wrap;
+}
+
+.unlockSelectiveLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.unlockSelectAllLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  color: #f4dfb0;
+  user-select: none;
+}
+
+.unlockCheckbox {
+  width: 17px;
+  height: 17px;
+  accent-color: #e9ca8b;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.unlockSelectiveDivider {
+  color: rgba(233, 202, 139, 0.4);
+  font-size: 14px;
+}
+
+.unlockSelectiveLabel {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.selectiveActionBtns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnSelectiveAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 15px;
+  border-radius: 8px;
+  font-size: 11.5px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.btnSelectiveUnlock {
+  background: linear-gradient(135deg, #e9ca8b 0%, #c99f55 100%);
+  color: #082945;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(201, 159, 85, 0.25);
+  font-weight: 800;
+}
+
+.btnSelectiveUnlock svg {
+  color: #082945;
+}
+
+.btnSelectiveUnlock:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.btnSelectiveUnlock:disabled {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btnSelectiveUnlock:disabled svg {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.btnSelectiveLock {
+  background: rgba(255, 255, 255, 0.09);
+  color: #f4dfb0;
+  border: 1px solid rgba(233, 202, 139, 0.35);
+}
+
+.btnSelectiveLock:hover:not(:disabled) {
+  background: rgba(233, 202, 139, 0.18);
+  border-color: #e9ca8b;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.btnSelectiveLock:disabled {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: not-allowed;
+}
+
+.pillUnlocked {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(52, 211, 153, 0.12);
+  color: #1e5a3f;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.pillLocked {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(157, 121, 68, 0.12);
+  color: #816234;
+  border: 1px solid rgba(157, 121, 68, 0.28);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.unlockToggleBtnUnlocked {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 9px;
+  border: 1px solid rgba(40, 114, 81, 0.35);
+  background: #e8f7f0;
+  color: #1e5a3f;
+  font-size: 11.5px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.unlockToggleBtnUnlocked:hover {
+  background: #d4f0e2;
+}
+
+.unlockToggleBtnLocked {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px;
+  border-radius: 9px;
+  border: 1px solid rgba(157, 121, 68, 0.35);
+  background: #fdfbf7;
+  color: #816234;
+  font-size: 11.5px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.unlockToggleBtnLocked:hover {
+  background: #f5eedf;
+}
+
+/* ==========================================================================
+   Merged Course Sections Block
+   ========================================================================== */
+.mergedSectionsBlock {
+  border: 1px solid #e8e4dc;
+  border-radius: 14px;
+  background: #fbfaf7;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mergedSectionsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.mergedSectionsTitle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mergedSectionsTitle h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 750;
+  color: #082945;
+}
+
+.mergedSectionsTitle p {
+  margin: 2px 0 0;
+  font-size: 12px;
+  color: #687987;
+}
+
+.sectionItemsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionItemRow {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #eee8df;
+  font-size: 13px;
+  transition: all 0.15s ease;
+}
+
+.sectionItemRow:hover {
+  border-color: #d8cfc0;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
+}
+
+.sectionItemPosition {
+  color: #9d7944;
+  font-weight: 850;
+  font-size: 12.5px;
+  font-family: ui-monospace, monospace;
+}
+
+.sectionItemTitle {
+  font-weight: 700;
+  color: #082945;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.defaultTag {
+  font-size: 10px;
+  font-weight: 800;
+  color: #8b99a4;
+  background: #f0f4f8;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.06em;
+}
+
+.addSectionForm {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.addSectionInput {
+  flex: 1;
+  height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgba(23, 50, 74, 0.16);
+  border-radius: 9px;
+  font-size: 13px;
+  background: #fff;
+  color: #082945;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.addSectionInput:focus {
+  border-color: #082945;
+  box-shadow: 0 0 0 3px rgba(157, 121, 68, 0.15);
+}
+
+.addSectionButton {
+  padding: 0 20px;
+  height: 42px;
+  border: 0;
+  border-radius: 9px;
+  background: #082945;
+  color: #f4dfb0;
+  font-size: 12.5px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  box-shadow: 0 3px 10px rgba(8, 41, 69, 0.15);
+}
+
+.addSectionButton:hover:not(:disabled) {
+  background: #123f68;
+  color: #fff;
+}
+
+.addSectionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.newCourseSidebarBtn {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  border: 1px dashed rgba(157, 121, 68, 0.4);
+  border-radius: 10px;
+  background: #faf8f5;
+  color: #082945;
+  font-size: 12px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.newCourseSidebarBtn:hover {
+  background: #f0ebe1;
+  border-color: #082945;
+}
+
+.newCourseInlineBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  margin-top: 8px;
+  border: 1px solid #d8cfc0;
+  border-radius: 10px;
+  background: #fbfaf7;
+}
+
+@media (max-width: 980px) {
+  .emailManagementLayout {
+    grid-template-columns: 1fr;
+  }
+}
+

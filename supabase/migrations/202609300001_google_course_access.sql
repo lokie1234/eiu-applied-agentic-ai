@@ -73,7 +73,7 @@ values (
   '10000000-0000-0000-0000-000000000001',
   'applied-agentic-ai',
   'Applied Agentic AI',
-  'Khóa học Applied Agentic AI gồm Section 1 và Section 2.',
+  'Gemini -> Google sheets -> GAS -> Web App',
   'active'
 )
 on conflict (slug) do update set

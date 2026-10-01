@@ -6,6 +6,7 @@ import {
   sessionCookieOptions,
 } from "@/lib/auth/session";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { FIXED_ADMIN_EMAIL } from "@/lib/auth/types";
 
 export const runtime = "nodejs";
 
@@ -56,7 +57,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ success: true });
     response.cookies.set(
       ACCESS_SESSION_COOKIE,
-      createAccessSession({ role: "admin" }),
+      createAccessSession({ role: "admin", email: FIXED_ADMIN_EMAIL }),
       sessionCookieOptions(),
     );
     return response;

@@ -4,6 +4,7 @@ export type CourseAccess = {
   title: string;
   description: string | null;
   languageLabel: "vi" | "en" | "vi_en";
+  isUnlocked?: boolean;
 };
 
 export type SectionAccess = {
@@ -38,4 +39,20 @@ export function isEiuEmail(value: unknown): value is string {
   const email = String(value ?? "").trim().toLowerCase();
   const parts = email.split("@");
   return parts.length === 2 && parts[0].length > 0 && parts[1] === "eiu.edu.vn";
+}
+
+export const FIXED_ADMIN_EMAIL = "son.lam@eiu.edu.vn";
+
+export function isFixedAdminEmail(value: unknown): boolean {
+  return String(value ?? "").trim().toLowerCase() === FIXED_ADMIN_EMAIL;
+}
+
+export function isValidEmail(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const email = value.trim().toLowerCase();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+export function normalizeEmail(value: unknown): string {
+  return String(value ?? "").trim().toLowerCase();
 }

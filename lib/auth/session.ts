@@ -7,8 +7,50 @@ export const ACCESS_SESSION_COOKIE = "eiu_access_session";
 export const SESSION_MAX_AGE = 60 * 60 * 12;
 
 export type AccessSession =
-  | { role: "admin"; expiresAt: number }
-  | { role: "learner"; passcodeId: string; expiresAt: number };
+  | { role: "admin"; email?: string; expiresAt: number }
+  | {
+      role: "learner";
+      email: string;
+      courseId?: string;
+      sectionKey?: string;
+      sectionId?: string;
+      unlockedSections?: string[];
+      unlockedCourses?: string[];
+      passcodeId?: string;
+      expiresAt: number;
+    }
+  | {
+      role: "learner";
+      passcodeId: string;
+      email?: string;
+      courseId?: string;
+      sectionKey?: string;
+      unlockedSections?: string[];
+      unlockedCourses?: string[];
+      expiresAt: number;
+    };
+
+export type CreateSessionPayload =
+  | { role: "admin"; email?: string }
+  | {
+      role: "learner";
+      email: string;
+      courseId?: string;
+      sectionKey?: string;
+      sectionId?: string;
+      unlockedSections?: string[];
+      unlockedCourses?: string[];
+      passcodeId?: string;
+    }
+  | {
+      role: "learner";
+      passcodeId: string;
+      email?: string;
+      courseId?: string;
+      sectionKey?: string;
+      unlockedSections?: string[];
+      unlockedCourses?: string[];
+    };
 
 function secret() {
   const value = process.env.PASSCODE_SESSION_SECRET?.trim()
@@ -21,10 +63,7 @@ function sign(payload: string) {
   return createHmac("sha256", secret()).update(payload).digest("base64url");
 }
 
-export function createAccessSession(session:
-  | { role: "admin" }
-  | { role: "learner"; passcodeId: string }
-) {
+export function createAccessSession(session: CreateSessionPayload) {
   const payload = Buffer.from(JSON.stringify({
     ...session,
     expiresAt: Date.now() + SESSION_MAX_AGE * 1000,
@@ -43,7 +82,12 @@ export function verifyAccessSession(value: string | undefined): AccessSession | 
     const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as AccessSession;
     if (parsed.expiresAt <= Date.now()) return null;
     if (parsed.role === "admin") return parsed;
-    if (parsed.role === "learner" && typeof parsed.passcodeId === "string") return parsed;
+    if (parsed.role === "learner") {
+      const learnerData = parsed as { email?: string; passcodeId?: string };
+      if (typeof learnerData.email === "string" || typeof learnerData.passcodeId === "string") {
+        return parsed;
+      }
+    }
     return null;
   } catch {
     return null;

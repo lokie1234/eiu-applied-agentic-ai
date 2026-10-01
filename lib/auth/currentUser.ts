@@ -2,7 +2,8 @@ import "server-only";
 
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { currentAccessSession } from "@/lib/auth/session";
-import type { AppUserAccess, CourseAccess, SectionAccess } from "@/lib/auth/types";
+import { parseCourseMetadata } from "@/lib/auth/courseAccessStorage";
+import { FIXED_ADMIN_EMAIL, type AppUserAccess, type CourseAccess, type SectionAccess } from "@/lib/auth/types";
 
 type CourseRow = {
   id: string;
@@ -39,13 +40,17 @@ async function loadCourses(courseIds?: string[]) {
   if (courseIds) query = query.in("id", courseIds);
   const { data, error } = await query;
   if (error) throw error;
-  return ((data ?? []) as CourseRow[]).map((course): CourseAccess => ({
-    id: course.id,
-    slug: course.slug,
-    title: course.title,
-    description: course.description,
-    languageLabel: course.language_label,
-  }));
+  return ((data ?? []) as CourseRow[]).map((course): CourseAccess => {
+    const meta = parseCourseMetadata(course.description, course.title);
+    return {
+      id: course.id,
+      slug: course.slug,
+      title: course.title,
+      description: meta.summary || null,
+      languageLabel: course.language_label,
+      isUnlocked: Boolean(meta.unlocked),
+    };
+  });
 }
 
 export async function currentUserAccess(): Promise<AppUserAccess | null> {
@@ -56,38 +61,70 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
     const [courses, sections] = await Promise.all([loadCourses(), loadSections()]);
     return {
       authUserId: "admin",
-      email: "admin@eiu.edu.vn",
-      displayName: "EIU Administrator",
+      email: FIXED_ADMIN_EMAIL,
+      displayName: "Son Lam (Admin)",
       avatarUrl: null,
       isAdmin: true,
+      isActive: true,
+      courses: courses.map((c) => ({ ...c, isUnlocked: true })),
+      sections,
+    };
+  }
+
+  // Learner with authorized email - can view all courses in folder library
+  if (session.role === "learner" && "email" in session && session.email) {
+    const [allCourses, allSections] = await Promise.all([loadCourses(), loadSections()]);
+    if (allCourses.length === 0) return null;
+
+    const sessionUnlockedCourses = new Set(session.unlockedCourses ?? []);
+    if (session.courseId) {
+      sessionUnlockedCourses.add(String(session.courseId));
+    }
+
+    const coursesWithUnlockedStatus: CourseAccess[] = allCourses.map((c) => ({
+      ...c,
+      isUnlocked: Boolean(c.isUnlocked || sessionUnlockedCourses.has(c.id)),
+    }));
+
+    return {
+      authUserId: session.email,
+      email: session.email,
+      displayName: session.email.split("@")[0],
+      avatarUrl: null,
+      isAdmin: false,
+      isActive: true,
+      courses: coursesWithUnlockedStatus,
+      sections: allSections,
+    };
+  }
+
+  // Backward compatibility fallback for legacy passcode sessions
+  if (session.role === "learner" && "passcodeId" in session && session.passcodeId) {
+    const admin = getSupabaseAdmin();
+    const { data: passcode, error } = await admin.from("course_passcodes")
+      .select("id, course_id, label, status, expires_at")
+      .eq("id", session.passcodeId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!passcode || passcode.status !== "active") return null;
+    if (passcode.expires_at && new Date(passcode.expires_at).getTime() <= Date.now()) return null;
+
+    const courseIds = [String(passcode.course_id)];
+    const [courses, sections] = await Promise.all([loadCourses(courseIds), loadSections(courseIds)]);
+    if (courses.length === 0) return null;
+    return {
+      authUserId: String(passcode.id),
+      email: `access-${String(passcode.id).slice(0, 8)}@passcode.eiu`,
+      displayName: String(passcode.label || "EIU Learner"),
+      avatarUrl: null,
+      isAdmin: false,
       isActive: true,
       courses,
       sections,
     };
   }
 
-  const admin = getSupabaseAdmin();
-  const { data: passcode, error } = await admin.from("course_passcodes")
-    .select("id, course_id, label, status, expires_at")
-    .eq("id", session.passcodeId)
-    .maybeSingle();
-  if (error) throw error;
-  if (!passcode || passcode.status !== "active") return null;
-  if (passcode.expires_at && new Date(passcode.expires_at).getTime() <= Date.now()) return null;
-
-  const courseIds = [String(passcode.course_id)];
-  const [courses, sections] = await Promise.all([loadCourses(courseIds), loadSections(courseIds)]);
-  if (courses.length === 0) return null;
-  return {
-    authUserId: String(passcode.id),
-    email: `access-${String(passcode.id).slice(0, 8)}@passcode.eiu`,
-    displayName: String(passcode.label || "EIU Learner"),
-    avatarUrl: null,
-    isAdmin: false,
-    isActive: true,
-    courses,
-    sections,
-  };
+  return null;
 }
 
 export async function requireAdminAccess() {

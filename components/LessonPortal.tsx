@@ -29,6 +29,7 @@ type CourseFolder = {
   title: string;
   description: string | null;
   languageLabel: "vi" | "en" | "vi_en";
+  isUnlocked?: boolean;
   sections: CourseFolderSection[];
 };
 
@@ -247,6 +248,53 @@ export default function LessonPortal({
   const [resetNotice, setResetNotice] = useState("");
   const learnerProfile = initialProfile;
   const [deckSessionKey, setDeckSessionKey] = useState(0);
+
+  // Unlocked courses state & course passcode modal
+  const [unlockedCourseIds, setUnlockedCourseIds] = useState<Set<string>>(() => {
+    return new Set(courseFolders.filter((c) => c.isUnlocked).map((c) => c.id));
+  });
+  const [passcodeModalCourse, setPasscodeModalCourse] = useState<CourseFolder | null>(null);
+  const [inputPasscode, setInputPasscode] = useState("");
+  const [passcodeError, setPasscodeError] = useState("");
+  const [isSubmittingPasscode, setIsSubmittingPasscode] = useState(false);
+
+  async function handleUnlockCourseSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!passcodeModalCourse || isSubmittingPasscode) return;
+    const code = inputPasscode.trim();
+    if (!code) {
+      setPasscodeError("Please enter the course passcode.");
+      return;
+    }
+
+    setIsSubmittingPasscode(true);
+    setPasscodeError("");
+
+    try {
+      const response = await fetch("/api/auth/unlock-course", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          courseId: passcodeModalCourse.id,
+          passcode: code,
+        }),
+      });
+
+      const payload = (await response.json()) as { success?: boolean; message?: string };
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.message || "Incorrect passcode. Please try again.");
+      }
+
+      setUnlockedCourseIds((prev) => new Set(prev).add(passcodeModalCourse.id));
+      setSelectedCourseId(passcodeModalCourse.id);
+      setPasscodeModalCourse(null);
+      setInputPasscode("");
+    } catch (err) {
+      setPasscodeError(err instanceof Error ? err.message : "Incorrect passcode.");
+    } finally {
+      setIsSubmittingPasscode(false);
+    }
+  }
   const section = adminSection;
   const selectedCourse = courseFolders.find((course) => course.id === selectedCourseId) ?? null;
   const resetSectionLabel =
@@ -626,32 +674,157 @@ export default function LessonPortal({
 
           <div className={styles.heading}>
             <span>COURSE LIBRARY</span>
-            <h1>Choose a course folder</h1>
-            <p>Your passcode opens every section available in its course folder.</p>
+            <h1>Choose a course</h1>
+            <p>Each section is protected with a unique passcode and authorized email access.</p>
           </div>
 
           <div className={styles.courseFolderGrid}>
-            {courseFolders.map((course) => (
-              <button
-                type="button"
-                className={styles.courseFolder}
-                key={course.id}
-                onClick={() => setSelectedCourseId(course.id)}
-              >
-                <span className={styles.folderIcon} aria-hidden="true">
-                  <i />
-                </span>
-                <span className={styles.folderCopy}>
-                  <small>COURSE FOLDER · {course.sections.length} SECTION</small>
-                  <strong>{course.title}</strong>
-                  <em>{course.description || "Interactive content and learning resources."}</em>
-                  <span className={styles.folderLanguage}>{course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}</span>
-                </span>
-                <b aria-hidden="true">→</b>
-              </button>
-            ))}
+            {courseFolders.map((course) => {
+              const isCourseUnlocked = Boolean(isAdmin || course.isUnlocked || unlockedCourseIds.has(course.id));
+              return (
+                <button
+                  type="button"
+                  className={styles.courseFolder}
+                  key={course.id}
+                  onClick={() => {
+                    if (isCourseUnlocked) {
+                      setSelectedCourseId(course.id);
+                    } else {
+                      setPasscodeModalCourse(course);
+                      setInputPasscode("");
+                      setPasscodeError("");
+                    }
+                  }}
+                >
+                  <span className={styles.folderIcon} aria-hidden="true">
+                    <i />
+                  </span>
+                  <span className={styles.folderCopy}>
+                    <strong className={styles.courseTitle}>{course.title}</strong>
+                    <span className={styles.sectionCountText}>
+                      {course.sections.length} {course.sections.length === 1 ? "SECTION" : "SECTIONS"}
+                    </span>
+                    <em>{course.description || "Interactive content and learning resources."}</em>
+                    <div className={styles.folderBadgesRow}>
+                      <span className={styles.folderLanguage}>
+                        {course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}
+                      </span>
+                      {isCourseUnlocked ? (
+                        <span className={styles.unlockedFolderBadge}>
+                          <i className={styles.dotUnlocked} aria-hidden="true" />
+                          <span>UNLOCKED</span>
+                        </span>
+                      ) : (
+                        <span className={styles.lockedFolderBadge}>
+                          <i className={styles.dotLocked} aria-hidden="true" />
+                          <span>PASSCODE REQUIRED</span>
+                        </span>
+                      )}
+                    </div>
+                  </span>
+                  <b aria-hidden="true" className={isCourseUnlocked ? styles.folderArrowUnlocked : styles.folderArrowLocked}>
+                    {isCourseUnlocked ? (
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                    ) : (
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    )}
+                  </b>
+                </button>
+              );
+            })}
           </div>
         </section>
+
+        {/* Course Passcode Modal */}
+        {passcodeModalCourse && (
+          <div
+            className={styles.modalLayer}
+            role="dialog"
+            aria-modal="true"
+            onMouseDown={(e) => {
+              if (e.target === e.currentTarget && !isSubmittingPasscode) {
+                setPasscodeModalCourse(null);
+                setInputPasscode("");
+                setPasscodeError("");
+              }
+            }}
+          >
+            <div className={styles.modal}>
+              <div className={styles.modalBrandRow}>
+                <span className={styles.modalEyebrow}>EIU · COURSE ACCESS VERIFICATION</span>
+                <button
+                  type="button"
+                  className={styles.modalCloseX}
+                  onClick={() => {
+                    setPasscodeModalCourse(null);
+                    setInputPasscode("");
+                    setPasscodeError("");
+                  }}
+                  disabled={isSubmittingPasscode}
+                  aria-label="Close"
+                >
+                  ×
+                </button>
+              </div>
+
+              <h2 className={styles.modalCourseTitle}>{passcodeModalCourse.title}</h2>
+              <p className={styles.modalCourseSummary}>
+                {passcodeModalCourse.description || "Enter the passcode provided by your instructor to access this course."}
+              </p>
+
+              <form onSubmit={handleUnlockCourseSubmit} className={styles.passcodeFormWrapper}>
+                <div className={styles.passcodeFieldContainer}>
+                  <label htmlFor="course-passcode-input" className={styles.passcodeLabel}>
+                    COURSE PASSCODE
+                  </label>
+                  <div className={styles.passcodeSecureInputWrapper}>
+                    <input
+                      id="course-passcode-input"
+                      type="text"
+                      value={inputPasscode}
+                      onChange={(e) => {
+                        setInputPasscode(e.target.value.slice(0, 10));
+                        setPasscodeError("");
+                      }}
+                      placeholder="e.g. 1611"
+                      autoFocus
+                      required
+                      className={styles.passcodeStyledInput}
+                      style={{ borderColor: passcodeError ? "#dc2626" : undefined }}
+                    />
+                  </div>
+                  {passcodeError && (
+                    <p className={styles.resetErrorNotice} role="alert">
+                      {passcodeError}
+                    </p>
+                  )}
+                </div>
+
+                <div className={styles.modalActions}>
+                  <button
+                    type="button"
+                    className={styles.cancelButton}
+                    onClick={() => {
+                      setPasscodeModalCourse(null);
+                      setInputPasscode("");
+                      setPasscodeError("");
+                    }}
+                    disabled={isSubmittingPasscode}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className={styles.confirmReportButton}
+                    disabled={isSubmittingPasscode || !inputPasscode.trim()}
+                  >
+                    {isSubmittingPasscode ? "Verifying…" : "Access Course →"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </main>
     );
   }
@@ -766,7 +939,7 @@ export default function LessonPortal({
           <div className={styles.heading}>
             <span>APPLIED AGENTIC AI</span>
             <h1>Choose what you want to learn</h1>
-            <p>Your folder passcode provides access to all sections listed below.</p>
+            <p>Sections are accessible based on your email and section passcode.</p>
             {reportStatus === "error" && reportNotice && (
               <p className={styles.reportError} role="alert">{reportNotice}</p>
             )}

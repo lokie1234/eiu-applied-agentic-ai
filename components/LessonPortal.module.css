@@ -169,25 +169,41 @@
 }
 
 .learningSpacePanel {
-  width: min(1120px, 96vw);
+  width: min(960px, 94vw);
+  padding: clamp(22px, 3.8vw, 38px);
+  border-radius: 24px;
+}
+
+.learningSpacePanel .heading {
+  margin-top: clamp(18px, 3.5vh, 28px);
+}
+
+.learningSpacePanel .heading h1 {
+  margin: 6px 0 6px;
+  font-size: clamp(26px, 3vw, 38px);
+}
+
+.learningSpacePanel .heading p {
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .courseFolderGrid {
-  margin-top: 40px;
+  margin-top: 22px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 14px;
 }
 
 .courseFolder {
-  min-height: 178px;
-  padding: 27px;
+  min-height: 124px;
+  padding: 16px 20px;
   display: grid;
-  grid-template-columns: 72px minmax(0, 1fr) auto;
+  grid-template-columns: 56px minmax(0, 1fr) 34px;
   align-items: center;
-  gap: 22px;
+  gap: 16px;
   border: 1px solid rgba(244, 223, 176, 0.16);
-  border-radius: 22px;
+  border-radius: 18px;
   background: rgba(255, 255, 255, 0.07);
   color: white;
   text-align: left;
@@ -199,28 +215,28 @@
 }
 
 .courseFolder:hover {
-  transform: translateY(-4px);
+  transform: translateY(-3px);
   border-color: rgba(233, 202, 139, 0.42);
   background: rgba(255, 255, 255, 0.12);
 }
 
 .folderIcon {
   position: relative;
-  width: 68px;
-  height: 50px;
+  width: 54px;
+  height: 38px;
   display: block;
-  border-radius: 8px 10px 10px 10px;
+  border-radius: 7px 9px 9px 9px;
   background: linear-gradient(145deg, #f4dfb0, #c99f55);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.2);
 }
 
 .folderIcon i {
   position: absolute;
-  left: 6px;
-  top: -9px;
-  width: 29px;
-  height: 13px;
-  border-radius: 7px 7px 0 0;
+  left: 5px;
+  top: -7px;
+  width: 22px;
+  height: 10px;
+  border-radius: 5px 5px 0 0;
   background: #e9ca8b;
 }
 
@@ -229,40 +245,145 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 8px;
+  gap: 3px;
+}
+
+@keyframes titleShine {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.courseTitle {
+  font-size: 21px;
+  font-weight: 750;
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: #ffffff;
+  display: inline-block;
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #ffffff 35%,
+    #f4dfb0 50%,
+    #ffffff 65%,
+    #ffffff 100%
+  );
+  background-size: 240% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: titleShine 7s ease-in-out infinite;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+              filter 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.courseFolder:hover .courseTitle {
+  transform: translateX(4px);
+  filter: drop-shadow(0 0 12px rgba(233, 202, 139, 0.45));
+}
+
+.sectionCountText {
+  color: #e9ca8b;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-top: 1px;
+  margin-bottom: 2px;
 }
 
 .folderCopy small {
   color: #e9ca8b;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 850;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
 }
 
 .folderCopy strong {
-  font-size: 22px;
-  line-height: 1.18;
+  font-size: 20px;
+  line-height: 1.2;
 }
 
 .folderCopy em {
   overflow: hidden;
   max-width: 100%;
-  color: rgba(255, 255, 255, 0.52);
-  font-size: 12px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 11.5px;
   font-style: normal;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .folderLanguage {
-  padding: 5px 8px;
-  border: 1px solid rgba(233, 202, 139, 0.2);
+  margin-top: 0;
+  padding: 3px 8px;
+  border: 1px solid rgba(233, 202, 139, 0.22);
   border-radius: 999px;
   color: #e9ca8b;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+.folderBadgesRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 5px;
+}
+
+.unlockedFolderBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(52, 211, 153, 0.14);
+  border: 1px solid rgba(52, 211, 153, 0.4);
+  color: #34d399;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lockedFolderBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(233, 202, 139, 0.14);
+  border: 1px solid rgba(233, 202, 139, 0.35);
+  color: #f4dfb0;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dotUnlocked {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 6px rgba(52, 211, 153, 0.8);
+}
+
+.dotLocked {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #e9ca8b;
+  box-shadow: 0 0 6px rgba(233, 202, 139, 0.6);
 }
 
 .portal { font-size: 14px; }
@@ -272,15 +393,48 @@
 .portal p,
 .portal em { font-size: clamp(12px, 0.95vw, 14px); }
 
+.folderArrowUnlocked,
+.folderArrowLocked {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  transition: all 0.2s ease;
+}
+
+.folderArrowUnlocked {
+  background: rgba(233, 202, 139, 0.12);
+  color: #f4dfb0;
+}
+
+.courseFolder:hover .folderArrowUnlocked {
+  background: #e9ca8b;
+  color: #041c31;
+  transform: translateX(3px);
+}
+
+.folderArrowLocked {
+  background: rgba(233, 202, 139, 0.08);
+  border: 1px solid rgba(233, 202, 139, 0.2);
+  color: #e9ca8b;
+}
+
+.courseFolder:hover .folderArrowLocked {
+  background: rgba(233, 202, 139, 0.2);
+  border-color: rgba(233, 202, 139, 0.5);
+  color: #f4dfb0;
+}
+
 .courseFolder > b {
-  width: 38px;
-  height: 38px;
+  width: 34px;
+  height: 34px;
   display: grid;
   place-items: center;
   border-radius: 999px;
   background: rgba(233, 202, 139, 0.12);
   color: #f4dfb0;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
 }
 
@@ -834,6 +988,103 @@
   color: #687987;
   font-size: 14px;
   line-height: 1.55;
+}
+
+.modalBrandRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.modalEyebrow {
+  color: #9d7944;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.modalCloseX {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid rgba(23, 50, 74, 0.14);
+  background: transparent;
+  color: #687987;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.modalCloseX:hover {
+  background: rgba(23, 50, 74, 0.08);
+  color: #082945;
+}
+
+.modalCourseTitle {
+  margin: 6px 0 8px;
+  color: #082945;
+  font-size: 24px;
+  font-weight: 750;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+}
+
+.modalCourseSummary {
+  margin: 0 0 20px;
+  color: #687987;
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+
+.passcodeFormWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.passcodeFieldContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.passcodeLabel {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #082945;
+}
+
+.passcodeSecureInputWrapper {
+  position: relative;
+}
+
+.passcodeStyledInput {
+  width: 100%;
+  height: 48px;
+  padding: 0 16px;
+  border: 1.5px solid rgba(23, 50, 74, 0.2);
+  border-radius: 12px;
+  background: #fff;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  color: #082945;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.passcodeStyledInput:focus {
+  border-color: #082945;
+  box-shadow: 0 0 0 3px rgba(157, 121, 68, 0.2);
 }
 
 .modalActions {
