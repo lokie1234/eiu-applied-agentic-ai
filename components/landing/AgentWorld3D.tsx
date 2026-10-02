@@ -186,82 +186,94 @@ export default function AgentWorld3D({ stage }: AgentWorld3DProps) {
   });
 
   return (
-    <group ref={worldRef}>
+    <group ref={worldRef} position={[2.0, 0, -0.6]}>
       {/* Subtle Data Dust in EIU Gold 300 */}
       <AcademicDataDust stage={stage} />
 
-      {/* ─── 3D ORBIT SYSTEM (Spatial Depth Layering) ─── */}
-      {/* Orbit 1: Equatorial Blue Horizon Ring (passes behind robot) */}
+      {/* ─── 3D ORBIT SYSTEM (Doubled Complete Circular Orbits - No Vertical Lines) ─── */}
+      {/* Orbit 1: Doubled Equatorial Blue Horizon Ring (passes behind robot) */}
       <DynamicOrbitRing
-        radius={1.72}
-        thickness={0.009}
+        radius={4.90}
+        thickness={0.024}
         tilt={[0.42, 0, 0]}
         color="#2D7FB4"
-        targetOpacity={0.34}
-        targetSpeed={0.22}
+        targetOpacity={0.36}
+        targetSpeed={0.20}
         stage={stage}
         phase={0}
       />
 
-      {/* Orbit 2: Tilted Gold Halo Trajectory (sweeps behind top, in front of bottom) */}
+      {/* Orbit 2: Doubled Tilted Gold Halo Trajectory (complete circular loop) */}
       <DynamicOrbitRing
-        radius={2.18}
-        thickness={0.011}
+        radius={6.20}
+        thickness={0.028}
         tilt={[0.34, 0.28, -0.12]}
         color="#E9CA8B"
-        targetOpacity={0.38}
-        targetSpeed={-0.14}
+        targetOpacity={0.40}
+        targetSpeed={-0.12}
         stage={stage}
         phase={Math.PI * 0.45}
       />
 
-      {/* Orbit 3: Inner Vertical Workflow Loop */}
+      {/* Orbit 3 (Added Complete Ring): Warm Gold Concentric Orbit */}
       <DynamicOrbitRing
-        radius={1.38}
-        thickness={0.008}
-        tilt={[Math.PI / 2 - 0.18, 0, 0.22]}
-        color="#64A8D3"
-        targetOpacity={0.28}
-        targetSpeed={0.32}
+        radius={5.56}
+        thickness={0.026}
+        tilt={[0.26, -0.30, 0.14]}
+        color="#F4DFB0"
+        targetOpacity={0.34}
+        targetSpeed={0.16}
         stage={stage}
-        phase={Math.PI}
+        phase={Math.PI * 0.85}
       />
 
-      {/* ─── SPATIAL SIGNAL PACKETS (Synchronized Flow) ─── */}
-      {/* Signal 1: Intent Data Packet (travels toward robot on Orbit 1) */}
+      {/* Orbit 4 (Added Complete Ring): Wide Celestial Cyan Horizon Loop */}
+      <DynamicOrbitRing
+        radius={7.30}
+        thickness={0.030}
+        tilt={[0.48, 0.16, -0.20]}
+        color="#64A8D3"
+        targetOpacity={0.28}
+        targetSpeed={-0.09}
+        stage={stage}
+        phase={Math.PI * 1.3}
+      />
+
+      {/* ─── SPATIAL SIGNAL PACKETS (Synchronized Flow along Complete Orbits) ─── */}
+      {/* Signal 1: Intent Data Packet on Orbit 1 */}
       <SignalDataPacket
-        radius={1.72}
+        radius={4.90}
         tilt={[0.42, 0, 0]}
         color="#64A8D3"
         speed={0.48}
         stage={stage}
         activationStage={5}
-        size={0.038}
+        size={0.08}
         startAngle={Math.PI * 0.8}
       />
 
       {/* Signal 2: Gold Processing Resonance Pulse on Orbit 2 */}
       <SignalDataPacket
-        radius={2.18}
+        radius={6.20}
         tilt={[0.34, 0.28, -0.12]}
         color="#E9CA8B"
         speed={-0.34}
         stage={stage}
         activationStage={6}
-        size={0.034}
+        size={0.075}
         startAngle={0.4}
       />
 
-      {/* Signal 3: Output Execution Pulse on Orbit 3 */}
+      {/* Signal 3: Warm Gold Resonance Pulse on Orbit 3 */}
       <SignalDataPacket
-        radius={1.38}
-        tilt={[Math.PI / 2 - 0.18, 0, 0.22]}
-        color="#2D7FB4"
-        speed={0.62}
+        radius={5.56}
+        tilt={[0.26, -0.30, 0.14]}
+        color="#F4DFB0"
+        speed={0.38}
         stage={stage}
         activationStage={7}
-        size={0.032}
-        startAngle={1.8}
+        size={0.07}
+        startAngle={2.2}
       />
     </group>
   );

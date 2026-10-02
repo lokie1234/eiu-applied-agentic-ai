@@ -14,7 +14,12 @@
 .adminButton { margin-left: auto; padding: 8px 13px; border: 1px solid rgba(255,255,255,.13); border-radius: 999px; background: rgba(255,255,255,.04); color: rgba(255,255,255,.5); font-size: 10px; font-weight: 700; cursor: pointer; transition: .25s ease; }
 .adminButton:hover { color: white; border-color: rgba(233,202,139,.45); transform: translateY(-1px); }
 .hero { height: calc(100dvh - 164px); min-height: 556px; padding: clamp(38px,5vh,72px) clamp(28px,6vw,92px) 34px; display: grid; grid-template-columns: minmax(560px,1.1fr) minmax(480px,.9fr); align-items: center; gap: clamp(42px,4vw,68px); }
-.copy { position: relative; z-index: 3; animation: reveal .9s cubic-bezier(.22,1,.36,1) both; }
+.copy { position: relative; z-index: 3; animation: reveal .9s cubic-bezier(.22,1,.36,1) both; pointer-events: none; }
+.copy :global(input),
+.copy :global(button),
+.copy :global(a),
+.copy :global(form),
+.copy :global(label) { pointer-events: auto; }
 .eyebrow { display: flex; align-items: center; gap: 10px; color: #e9ca8b; font-size: 10px; font-weight: 800; letter-spacing: .18em; }
 .eyebrow i { width: 29px; height: 1px; background: #e9ca8b; }
 .eyebrow span { padding: 4px 7px; border: 1px solid rgba(233,202,139,.2); border-radius: 999px; color: rgba(255,255,255,.46); font-size: 8px; }
@@ -113,7 +118,7 @@
 }
 
 .accessNote { color: rgba(255,255,255,.36); font-size: 10px; font-weight: 700; line-height: 1.55; letter-spacing: .08em; }
-.machine { position: relative; height: min(72vh,760px); min-height: 570px; animation: reveal 1s .18s cubic-bezier(.22,1,.36,1) both; }
+.machine { position: relative; height: min(72vh,760px); min-height: 570px; animation: reveal 1s .18s cubic-bezier(.22,1,.36,1) both; pointer-events: none; }
 .orbit { position: absolute; width: 430px; height: 430px; left: 50%; top: 50%; transform: translate(-50%,-50%); border: 1px solid rgba(100,168,211,.25); border-radius: 50%; animation: spin 18s linear infinite; }
 .orbit::before,.orbit::after { content: ""; position: absolute; inset: 45px; border: 1px dashed rgba(233,202,139,.2); border-radius: 50%; }
 .orbit::after { inset: 100px; border-style: solid; border-color: rgba(100,168,211,.2); }
@@ -216,4 +221,15 @@
   .dataLanes { opacity: .55; }
   .campusOrbit span { font-size: 9px; letter-spacing: .28em; offset-path: inset(105px 12px 22px round 28px); }
   .tagline { max-width: 92%!important; white-space: normal; }
+}
+
+@keyframes errorPulseGlow {
+  from {
+    transform: scale(0.96);
+    box-shadow: 0 0 25px #EF4444, 0 0 50px rgba(239, 68, 68, 0.65), inset 0 0 10px rgba(255, 255, 255, 0.4);
+  }
+  to {
+    transform: scale(1.06);
+    box-shadow: 0 0 50px #EF4444, 0 0 95px rgba(239, 68, 68, 0.95), inset 0 0 22px rgba(255, 255, 255, 0.85);
+  }
 }

@@ -5,10 +5,12 @@ import { type FormEvent, useEffect, useRef, useState, useCallback } from "react"
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
 import styles from "./LandingExperience.module.css";
-import AgentHud from "./landing/AgentHud";
 import AnimatedHeroCopy from "./landing/AnimatedHeroCopy";
+import EntranceBootOverlay from "./landing/EntranceBootOverlay";
 // Keep original SVG bot for reduced-motion fallback
 import EiuAgentBot from "./EiuAgentBot";
+
+import { type RobotInteractionState } from "./landing/GuardianRobot3D";
 
 // ── Lazy-load the WebGL scene to avoid SSR hydration issues ──
 const HeroScene = dynamic(() => import("./landing/HeroScene"), {
@@ -17,18 +19,19 @@ const HeroScene = dynamic(() => import("./landing/HeroScene"), {
 });
 
 // ═══════════════════════════════════════════════════════════════
-// AUTH — DO NOT MODIFY
+// AUTH & INTERACTION STATE
 // ═══════════════════════════════════════════════════════════════
 type Modal = "access" | null;
 const SAVED_EMAIL_KEY = "eiu_learner_saved_email";
 
 export default function LandingPage() {
-  // ── Auth state (UNTOUCHED) ──
+  // ── Auth & Robot state ──
   const [modal, setModal] = useState<Modal>(null);
   const [email, setEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [robotState, setRobotState] = useState<RobotInteractionState>("idle");
 
   const isAdminEmail = email.trim().toLowerCase() === "son.lam@eiu.edu.vn";
 
@@ -59,9 +62,11 @@ export default function LandingPage() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!modal || loading) return;
+    if (loading) return;
     setLoading(true);
     setError("");
+    setRobotState("processing");
+    setCtaPulsed(true);
     try {
       const cleanEmail = email.trim();
       const cleanAdminPassword = adminPassword.trim();
@@ -74,13 +79,17 @@ export default function LandingPage() {
       if (!response.ok || !payload.success) {
         throw new Error(payload.message || "Unable to sign in. Please check your email.");
       }
+      setRobotState("success");
       try {
         localStorage.setItem(SAVED_EMAIL_KEY, cleanEmail);
       } catch {}
       window.location.replace(payload.destination === "/admin/access" ? "/admin/access" : "/learn");
     } catch (caught) {
+      setRobotState("shakeError");
       setError(caught instanceof Error ? caught.message : "Unable to sign in. Please verify your credentials.");
       setLoading(false);
+      setCtaPulsed(false);
+      setTimeout(() => setRobotState("idle"), 1400);
     }
   }
   // ═══════════════════════════════════════════════════════════════
@@ -105,17 +114,17 @@ export default function LandingPage() {
   const [isCtaHovered, setIsCtaHovered] = useState(false);
   const [ctaPulsed, setCtaPulsed] = useState(false);
 
-  // ── Master Cinematic Timeline (0.0s - 4.0s) ──
-  // Stage 0: 0.0s  - Environment awake
-  // Stage 1: 0.3s  - EIU logo and nav fade in
-  // Stage 2: 0.6s  - Robot emergence begins + Eyebrow/Headline lead
-  // Stage 3: 1.3s  - Word "think" reveals -> Robot AI Core pulse
-  // Stage 4: 1.85s - Word "move" reveals -> Orbit system spins up
-  // Stage 5: 2.4s  - Workflow: INPUT card activates
-  // Stage 6: 2.9s  - Workflow: PROCESS card activates
-  // Stage 7: 3.35s - Workflow: OUTPUT card activates
-  // Stage 8: 3.6s  - CTA button enters with soft spring
-  // Stage 9: 4.0s  - Stable idle ambient mode
+  // ── Master Cinematic Timeline (Accelerated internal emergence) ──
+  // Stage 0: 0.0s   - Environment awake
+  // Stage 1: 0.15s  - EIU logo and nav fade in
+  // Stage 2: 0.35s  - Eyebrow / Headline lead "Build systems that"
+  // Stage 3: 0.65s  - Word "think" reveals -> Robot AI Core pulse
+  // Stage 4: 0.95s  - Word "move" reveals -> Orbit system spins up & tagline
+  // Stage 5: 1.20s  - Inline Login card emerges right as overlay dissolves!
+  // Stage 6: 1.50s  - Workflow synchronization
+  // Stage 7: 1.80s  - System stable readiness
+  // Stage 8: 2.10s  - Interactive mode active
+  // Stage 9: 2.40s  - Full stable idle ambient mode
   const [stage, setStage] = useState(0);
 
   useEffect(() => {
@@ -125,15 +134,15 @@ export default function LandingPage() {
     }
 
     const timers = [
-      setTimeout(() => setStage(1), 300),
-      setTimeout(() => setStage(2), 600),
-      setTimeout(() => setStage(3), 1300),
-      setTimeout(() => setStage(4), 1850),
-      setTimeout(() => setStage(5), 2400),
-      setTimeout(() => setStage(6), 2900),
-      setTimeout(() => setStage(7), 3350),
-      setTimeout(() => setStage(8), 3600),
-      setTimeout(() => setStage(9), 4000),
+      setTimeout(() => setStage(1), 150),
+      setTimeout(() => setStage(2), 350),
+      setTimeout(() => setStage(3), 650),
+      setTimeout(() => setStage(4), 950),
+      setTimeout(() => setStage(5), 1200),
+      setTimeout(() => setStage(6), 1500),
+      setTimeout(() => setStage(7), 1800),
+      setTimeout(() => setStage(8), 2100),
+      setTimeout(() => setStage(9), 2400),
     ];
 
     return () => {
@@ -150,8 +159,36 @@ export default function LandingPage() {
     }, 320);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // ── Initial Entrance Boot State (Single run per page visit) ──
+  const [isEntranceActive, setIsEntranceActive] = useState(true);
+  const [isOverlayExiting, setIsOverlayExiting] = useState(false);
+
+  const handleEntranceComplete = useCallback(() => {
+    setIsEntranceActive(false);
+  }, []);
+
+  const handleEntranceStartExit = useCallback(() => {
+    setIsOverlayExiting(true);
+  }, []);
+
   return (
-    <main className={styles.page} onMouseMove={handleMouseMove}>
+    <main
+      className={styles.page}
+      onMouseMove={handleMouseMove}
+      style={{
+        opacity: isOverlayExiting || !isEntranceActive ? 1 : 0.94,
+        transform: isOverlayExiting || !isEntranceActive ? "scale(1)" : "scale(0.995)",
+        transition: "opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1), transform 0.52s cubic-bezier(0.22, 1, 0.36, 1)",
+      }}
+    >
+      {/* ── Temporary Initial Page Entrance Boot Layer (Unmounts permanently upon completion) ── */}
+      {isEntranceActive && (
+        <EntranceBootOverlay
+          onComplete={handleEntranceComplete}
+          onStartExit={handleEntranceStartExit}
+          prefersReduced={prefersReduced}
+        />
+      )}
       {/* ── Background layers (Atmosphere) ── */}
       <div className={styles.aurora} aria-hidden="true"><i /><i /><i /></div>
       <div className={styles.noise} aria-hidden="true" />
@@ -162,6 +199,28 @@ export default function LandingPage() {
         <span>EASTERN INTERNATIONAL UNIVERSITY</span>
         <span>EASTERN INTERNATIONAL UNIVERSITY</span>
       </div>
+
+      {/* ── Fullscreen WebGL Hero Scene: Guardian Robot 3D + World Orbits (Unconstrained, Spanning Entire Web Space) ── */}
+      {!prefersReduced && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            width: "100%",
+            height: "100%",
+            zIndex: 2,
+            pointerEvents: "auto",
+          }}
+        >
+          <HeroScene
+            mouseRef={mouseRef}
+            stage={stage}
+            robotState={robotState}
+            isCtaHovered={isCtaHovered}
+            ctaPulsed={ctaPulsed}
+          />
+        </div>
+      )}
 
       {/* ── Navigation (Step 2: Smooth Emergence) ── */}
       <motion.nav
@@ -188,37 +247,57 @@ export default function LandingPage() {
       </motion.nav>
 
       {/* ── Hero layout ── */}
-      <section className={styles.hero}>
+      <section className={styles.hero} style={{ position: "relative", zIndex: 5, pointerEvents: "none" }}>
         {/* Left: Copy side with staggered entrance */}
         <div className={styles.copy}>
           <AnimatedHeroCopy
-            onCtaClick={handleCtaClick}
-            onCtaHover={setIsCtaHovered}
             stage={stage}
+            email={email}
+            setEmail={(val) => {
+              setEmail(val);
+              setError("");
+            }}
+            adminPassword={adminPassword}
+            setAdminPassword={(val) => {
+              setAdminPassword(val);
+              setError("");
+            }}
+            isAdminEmail={isAdminEmail}
+            loading={loading}
+            error={error}
+            onSubmit={submit}
+            onInputFocus={() => {
+              setIsCtaHovered(true);
+              setRobotState("lookingAtAccess");
+            }}
+            onInputBlur={() => {
+              setIsCtaHovered(false);
+              setRobotState("idle");
+            }}
+            onInputChange={() => {
+              setRobotState("typing");
+            }}
+            onCtaHover={(hovered) => {
+              setIsCtaHovered(hovered);
+              if (hovered && robotState === "idle") {
+                setRobotState("lookingAtAccess");
+              } else if (!hovered && robotState === "lookingAtAccess") {
+                setRobotState("idle");
+              }
+            }}
           />
         </div>
 
-        {/* Right: 3D Scene side with Guardian Robot & Spatial AI World */}
+        {/* Right: Overlays / HUD / Fallback */}
         <div
           className={styles.machine}
-          style={{ position: "relative", minHeight: 520 }}
+          style={{ position: "relative", minHeight: 520, pointerEvents: "none" }}
           aria-hidden="true"
         >
           {prefersReduced ? (
             <EiuAgentBot />
           ) : (
             <>
-              {/* WebGL Hero Scene: Guardian Robot 3D + World Orbits */}
-              <HeroScene
-                mouseRef={mouseRef}
-                stage={stage}
-                isCtaHovered={isCtaHovered}
-                ctaPulsed={ctaPulsed}
-              />
-
-              {/* Spatial HUD Overlay (INPUT -> PROCESS -> OUTPUT) */}
-              <AgentHud stage={stage} />
-
               {/* Energy Pulse Ring on CTA Click */}
               <AnimatePresence>
                 {ctaPulsed && (
@@ -249,7 +328,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className={styles.footer}>
+      <footer className={styles.footer} style={{ position: "relative", zIndex: 10, pointerEvents: "auto" }}>
         <span>EASTERN INTERNATIONAL UNIVERSITY</span>
         <span>BUSINESS · TECHNOLOGY · TRANSFORMATION</span>
       </footer>

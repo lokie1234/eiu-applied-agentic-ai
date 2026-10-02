@@ -4,9 +4,19 @@ import { useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
 
 interface AnimatedHeroCopyProps {
-  onCtaClick: () => void;
-  onCtaHover: (hovered: boolean) => void;
   stage: number;
+  email: string;
+  setEmail: (val: string) => void;
+  adminPassword?: string;
+  setAdminPassword?: (val: string) => void;
+  isAdminEmail?: boolean;
+  loading: boolean;
+  error?: string;
+  onSubmit: (e: React.FormEvent) => void;
+  onInputFocus?: () => void;
+  onInputBlur?: () => void;
+  onInputChange?: () => void;
+  onCtaHover: (hovered: boolean) => void;
 }
 
 // Staggered word-by-word reveal helper
@@ -27,8 +37,8 @@ function SplitHeadline({
           initial={{ opacity: 0, y: 22, filter: "blur(4px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={{
-            duration: 0.65,
-            delay: delay + i * 0.09,
+            duration: 0.45,
+            delay: delay + i * 0.06,
             ease: [0.22, 1, 0.36, 1],
           }}
         >
@@ -40,31 +50,21 @@ function SplitHeadline({
 }
 
 export default function AnimatedHeroCopy({
-  onCtaClick,
-  onCtaHover,
   stage,
+  email,
+  setEmail,
+  adminPassword = "",
+  setAdminPassword,
+  isAdminEmail = false,
+  loading,
+  error = "",
+  onSubmit,
+  onInputFocus,
+  onInputBlur,
+  onInputChange,
+  onCtaHover,
 }: AnimatedHeroCopyProps) {
   const prefersReduced = useReducedMotion();
-  const ctaRef = useRef<HTMLButtonElement>(null);
-
-  // Magnetic CTA hover handler
-  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (prefersReduced || !ctaRef.current) return;
-    const rect = ctaRef.current.getBoundingClientRect();
-    const dx = (e.clientX - rect.left - rect.width / 2) * 0.12;
-    const dy = (e.clientY - rect.top - rect.height / 2) * 0.12;
-    ctaRef.current.style.transform = `translate(${dx}px, ${dy}px) translateY(-3px) scale(1.02)`;
-  };
-
-  const handleMouseEnter = () => {
-    onCtaHover(true);
-  };
-
-  const handleMouseLeave = () => {
-    onCtaHover(false);
-    if (!ctaRef.current) return;
-    ctaRef.current.style.transform = "";
-  };
 
   // Stage flags based on master sequence
   const showEyebrow = stage >= 2;
@@ -72,7 +72,7 @@ export default function AnimatedHeroCopy({
   const showThink = stage >= 3;
   const showMove = stage >= 4;
   const showTagline = stage >= 4;
-  const showCta = stage >= 8;
+  const showCta = stage >= 5;
 
   return (
     <div style={{ position: "relative", zIndex: 3 }}>
@@ -84,7 +84,7 @@ export default function AnimatedHeroCopy({
             ? { opacity: 1, x: 0, filter: "blur(0px)" }
             : {}
         }
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         style={{
           display: "flex",
           alignItems: "center",
@@ -151,7 +151,7 @@ export default function AnimatedHeroCopy({
               initial={{ opacity: 0, scale: 0.88, filter: "blur(5px)" }}
               animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
               transition={{
-                duration: 0.65,
+                duration: 0.48,
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
@@ -164,7 +164,7 @@ export default function AnimatedHeroCopy({
             <motion.span
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.4 }}
+              transition={{ duration: 0.3 }}
               style={{ color: "rgba(255,255,255,0.6)", margin: "0 0.2em" }}
             >
               and
@@ -183,7 +183,7 @@ export default function AnimatedHeroCopy({
               initial={{ opacity: 0, x: 20, filter: "blur(4px)" }}
               animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
               transition={{
-                duration: 0.65,
+                duration: 0.48,
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
@@ -201,7 +201,7 @@ export default function AnimatedHeroCopy({
             ? { opacity: 1, y: 0, filter: "blur(0px)" }
             : {}
         }
-        transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
         style={{
           maxWidth: 620,
           margin: 0,
@@ -213,100 +213,293 @@ export default function AnimatedHeroCopy({
         Turn ideas into intelligent, automated workflows
       </motion.p>
 
-      {/* ── CTA Button: Access courses ── */}
+      {/* ── EIU DNA INLINE LOGIN CARD (Replaces CTA button directly) ── */}
       <motion.div
-        initial={{ opacity: 0, y: 14, scale: 0.98 }}
+        initial={{ opacity: 0, y: 16, scale: 0.98 }}
         animate={
           showCta || prefersReduced
             ? { opacity: 1, y: 0, scale: 1 }
             : {}
         }
         transition={{
-          duration: 0.65,
+          duration: 0.42,
           ease: [0.22, 1, 0.36, 1],
         }}
+        onMouseEnter={() => onCtaHover(true)}
+        onMouseLeave={() => onCtaHover(false)}
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 24,
-          marginTop: 28,
+          marginTop: 26,
+          width: "100%",
+          maxWidth: 460,
+          background:
+            "linear-gradient(145deg, rgba(8, 41, 69, 0.82) 0%, rgba(4, 28, 49, 0.94) 100%)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: "1px solid rgba(233, 202, 139, 0.35)",
+          borderRadius: 22,
+          padding: "22px 24px",
+          boxShadow:
+            "0 20px 48px rgba(0, 0, 0, 0.52), 0 0 35px rgba(233, 202, 139, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.14)",
+          position: "relative",
+          overflow: "hidden",
         }}
       >
-        <button
-          id="landing-access-button"
-          ref={ctaRef}
-          type="button"
-          onClick={onCtaClick}
-          onMouseMove={handleMouseMove}
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
-          aria-label="Access courses"
+        {/* Ambient gold corner accent light */}
+        <div
           style={{
-            position: "relative",
-            minWidth: 310,
-            height: 72,
-            padding: "0 12px 0 28px",
+            position: "absolute",
+            top: -24,
+            right: -24,
+            width: 100,
+            height: 100,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(233, 202, 139, 0.22) 0%, transparent 70%)",
+            pointerEvents: "none",
+          }}
+        />
+
+        {/* Card Header: EIU DNA metadata */}
+        <div
+          style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: 16,
-            border: "1px solid rgba(255,255,255,0.45)",
-            borderRadius: 999,
-            background:
-              "linear-gradient(135deg, #FFF7E8 0%, #F4DFB0 40%, #E9CA8B 80%, #DFB86C 100%)",
-            color: "#082945",
-            fontWeight: 800,
-            cursor: "pointer",
-            boxShadow:
-              "0 0 28px rgba(233,202,139,.45), 0 18px 45px rgba(0,0,0,.35)",
-            transition:
-              "box-shadow 0.3s ease, transform 0.28s cubic-bezier(0.2,0.85,0.32,1.2)",
-            overflow: "hidden",
+            marginBottom: 16,
           }}
         >
-          <span
-            style={{
-              fontSize: "clamp(21px, 1.4vw, 25px)",
-              fontWeight: 850,
-              letterSpacing: "-0.025em",
-              color: "#082945",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Access courses
-          </span>
-          <span
-            style={{
-              width: 48,
-              height: 48,
-              display: "grid",
-              placeItems: "center",
-              borderRadius: "50%",
-              background: "#082945",
-              color: "#F4DFB0",
-              fontSize: 22,
-              fontWeight: 850,
-              flexShrink: 0,
-              boxShadow: "0 4px 14px rgba(8,41,69,0.35)",
-            }}
-          >
-            ↗
-          </span>
-        </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <span
+              style={{
+                width: 7,
+                height: 7,
+                borderRadius: "50%",
+                background: "#E9CA8B",
+                boxShadow: "0 0 10px #E9CA8B",
+                display: "inline-block",
+              }}
+            />
+            <span
+              style={{
+                color: "#E9CA8B",
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+              }}
+            >
+              EIU Academic Portal · Login
+            </span>
+          </div>
 
-        <span
-          style={{
-            color: "rgba(255,255,255,.38)",
-            fontSize: 10,
-            fontWeight: 700,
-            lineHeight: 1.55,
-            letterSpacing: "0.08em",
-          }}
-        >
-          Sign in with email
-          <br />
-          to view courses
-        </span>
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              color: "rgba(255,255,255,0.6)",
+              fontSize: 10,
+              fontWeight: 700,
+              letterSpacing: "0.06em",
+            }}
+          >
+            <span
+              style={{
+                width: 6,
+                height: 6,
+                borderRadius: "50%",
+                background: "#69C5A3",
+                boxShadow: "0 0 8px #69C5A3",
+                display: "inline-block",
+              }}
+            />
+            Secure Session
+          </span>
+        </div>
+
+        {/* Login Form */}
+        <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 13 }}>
+          {/* Email Address */}
+          <div>
+            <label
+              htmlFor="hero-email-input"
+              style={{
+                display: "block",
+                marginBottom: 5,
+                color: "#F4DFB0",
+                fontSize: 10,
+                fontWeight: 800,
+                letterSpacing: "0.09em",
+                textTransform: "uppercase",
+              }}
+            >
+              Email Address
+            </label>
+            <input
+              id="hero-email-input"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                onInputChange?.();
+              }}
+              onFocus={onInputFocus}
+              onBlur={onInputBlur}
+              placeholder="name@gmail.com or student@eiu.edu.vn"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck="false"
+              autoComplete="email"
+              required
+              style={{
+                width: "100%",
+                height: 48,
+                padding: "0 16px",
+                background: "rgba(3, 20, 34, 0.75)",
+                border: "1px solid rgba(233, 202, 139, 0.28)",
+                borderRadius: 12,
+                color: "#FFFFFF",
+                fontSize: 14,
+                fontWeight: 600,
+                outline: "none",
+                boxSizing: "border-box",
+                transition: "border-color 0.2s, box-shadow 0.2s",
+              }}
+            />
+          </div>
+
+          {/* Administrator Password */}
+          {isAdminEmail && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              transition={{ duration: 0.24 }}
+            >
+              <label
+                htmlFor="hero-admin-pass-input"
+                style={{
+                  display: "block",
+                  marginBottom: 5,
+                  color: "#F4DFB0",
+                  fontSize: 10,
+                  fontWeight: 800,
+                  letterSpacing: "0.09em",
+                  textTransform: "uppercase",
+                }}
+              >
+                Administrator Password
+              </label>
+              <input
+                id="hero-admin-pass-input"
+                type="password"
+                value={adminPassword}
+                onChange={(e) => {
+                  setAdminPassword?.(e.target.value);
+                  onInputChange?.();
+                }}
+                onFocus={onInputFocus}
+                onBlur={onInputBlur}
+                placeholder="Enter administrator password"
+                autoComplete="current-password"
+                required
+                style={{
+                  width: "100%",
+                  height: 48,
+                  padding: "0 16px",
+                  background: "rgba(3, 20, 34, 0.75)",
+                  border: "1px solid rgba(233, 202, 139, 0.28)",
+                  borderRadius: 12,
+                  color: "#FFFFFF",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  outline: "none",
+                  boxSizing: "border-box",
+                }}
+              />
+            </motion.div>
+          )}
+
+          {/* Error Notice */}
+          {error && (
+            <div
+              role="alert"
+              style={{
+                padding: "8px 14px",
+                borderRadius: 9,
+                background: "rgba(166, 47, 55, 0.25)",
+                border: "1px solid rgba(248, 113, 113, 0.45)",
+                color: "#FCA5A5",
+                fontSize: 12,
+                lineHeight: 1.4,
+              }}
+            >
+              {error}
+            </div>
+          )}
+
+          {/* Submit Action: Access Courses */}
+          <button
+            id="landing-access-button"
+            type="submit"
+            disabled={loading || !email.trim() || (isAdminEmail && !adminPassword.trim())}
+            style={{
+              position: "relative",
+              width: "100%",
+              height: 52,
+              padding: "0 12px 0 24px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 12,
+              border: "1px solid rgba(255,255,255,0.45)",
+              borderRadius: 999,
+              background:
+                "linear-gradient(135deg, #FFF7E8 0%, #F4DFB0 40%, #E9CA8B 80%, #DFB86C 100%)",
+              color: "#082945",
+              fontWeight: 850,
+              fontSize: 15,
+              cursor: loading ? "wait" : "pointer",
+              boxShadow:
+                "0 0 28px rgba(233,202,139,.45), 0 10px 24px rgba(0,0,0,.35)",
+              opacity:
+                loading || !email.trim() || (isAdminEmail && !adminPassword.trim())
+                  ? 0.55
+                  : 1,
+              transition:
+                "box-shadow 0.28s ease, transform 0.24s cubic-bezier(0.2,0.85,0.32,1.2), opacity 0.2s",
+              marginTop: 4,
+              overflow: "hidden",
+            }}
+          >
+            <span
+              style={{
+                fontSize: 15,
+                fontWeight: 850,
+                letterSpacing: "-0.015em",
+                color: "#082945",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {loading ? "Verifying Credentials…" : "Access Courses"}
+            </span>
+            <span
+              style={{
+                width: 36,
+                height: 36,
+                display: "grid",
+                placeItems: "center",
+                borderRadius: "50%",
+                background: "#082945",
+                color: "#F4DFB0",
+                fontSize: 18,
+                fontWeight: 850,
+                flexShrink: 0,
+                boxShadow: "0 3px 10px rgba(8,41,69,0.3)",
+              }}
+            >
+              →
+            </span>
+          </button>
+        </form>
       </motion.div>
     </div>
   );

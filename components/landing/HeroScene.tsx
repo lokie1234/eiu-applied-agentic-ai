@@ -3,12 +3,13 @@
 import { Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
-import GuardianRobot3D from "./GuardianRobot3D";
+import GuardianRobot3D, { type RobotInteractionState } from "./GuardianRobot3D";
 import AgentWorld3D from "./AgentWorld3D";
 
 interface HeroSceneProps {
   mouseRef: React.MutableRefObject<{ x: number; y: number }>;
   stage: number;
+  robotState?: RobotInteractionState;
   isCtaHovered?: boolean;
   ctaPulsed?: boolean;
 }
@@ -16,6 +17,7 @@ interface HeroSceneProps {
 export default function HeroScene({
   mouseRef,
   stage,
+  robotState = "idle",
   isCtaHovered = false,
   ctaPulsed = false,
 }: HeroSceneProps) {
@@ -32,10 +34,10 @@ export default function HeroScene({
         background: "transparent",
         width: "100%",
         height: "100%",
-        pointerEvents: "none",
+        pointerEvents: "auto",
       }}
     >
-      <PerspectiveCamera makeDefault position={[0, 0, 4.6]} fov={40} />
+      <PerspectiveCamera makeDefault position={[0, 0, 10.5]} fov={50} />
 
       <Suspense fallback={null}>
         {/* Spatial AI World Orbits & Signals — renders behind and around robot */}
@@ -45,6 +47,7 @@ export default function HeroScene({
         <GuardianRobot3D
           mouseRef={mouseRef}
           stage={stage}
+          robotState={robotState}
           isCtaHovered={isCtaHovered}
           ctaPulsed={ctaPulsed}
         />
