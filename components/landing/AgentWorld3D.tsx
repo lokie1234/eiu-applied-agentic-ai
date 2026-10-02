@@ -239,6 +239,30 @@ export default function AgentWorld3D({ stage }: AgentWorld3DProps) {
         phase={Math.PI * 1.3}
       />
 
+      {/* Orbit 5 (Cloned Complete Ring): Deep Blue Resonant Loop */}
+      <DynamicOrbitRing
+        radius={5.15}
+        thickness={0.025}
+        tilt={[0.22, 0.38, -0.24]}
+        color="#2D7FB4"
+        targetOpacity={0.35}
+        targetSpeed={0.18}
+        stage={stage}
+        phase={Math.PI * 0.25}
+      />
+
+      {/* Orbit 6 (Cloned Complete Ring): Radiant Outer Gold Trajectory */}
+      <DynamicOrbitRing
+        radius={6.75}
+        thickness={0.028}
+        tilt={[-0.32, -0.24, 0.28]}
+        color="#E9CA8B"
+        targetOpacity={0.38}
+        targetSpeed={-0.14}
+        stage={stage}
+        phase={Math.PI * 1.65}
+      />
+
       {/* ─── SPATIAL SIGNAL PACKETS (Synchronized Flow along Complete Orbits) ─── */}
       {/* Signal 1: Intent Data Packet on Orbit 1 */}
       <SignalDataPacket
@@ -274,6 +298,30 @@ export default function AgentWorld3D({ stage }: AgentWorld3DProps) {
         activationStage={7}
         size={0.07}
         startAngle={2.2}
+      />
+
+      {/* Signal 4: Cyan Transmission Pulse on Orbit 5 */}
+      <SignalDataPacket
+        radius={5.15}
+        tilt={[0.22, 0.38, -0.24]}
+        color="#64A8D3"
+        speed={-0.42}
+        stage={stage}
+        activationStage={5}
+        size={0.072}
+        startAngle={Math.PI * 1.2}
+      />
+
+      {/* Signal 5: Gold Luminous Packet on Orbit 6 */}
+      <SignalDataPacket
+        radius={6.75}
+        tilt={[-0.32, -0.24, 0.28]}
+        color="#F4DFB0"
+        speed={0.32}
+        stage={stage}
+        activationStage={6}
+        size={0.078}
+        startAngle={Math.PI * 0.5}
       />
     </group>
   );
