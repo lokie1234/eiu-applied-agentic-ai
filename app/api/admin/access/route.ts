@@ -12,8 +12,10 @@ import {
   generateNewSectionPasscode,
   getAllAuthorizedEmails,
   getCoursesAndSectionsData,
+  parseCourseMetadata,
   removeAuthorizedEmails,
   removeCourseEmail,
+  serializeCourseMetadata,
   setAllCoursesUnlocked,
   setAuthorizedEmailsBulk,
   setCourseEmailsBulk,
@@ -23,12 +25,20 @@ import {
   setFolderGroupUnlocked,
   setSectionPasscode,
   updateCourseSummary,
+  updateCourseSystemIcons,
   updateFolderGroup,
 } from "@/lib/auth/courseAccessStorage";
 
 export const runtime = "nodejs";
 
 const LANGUAGE_LABELS = new Set(["vi", "en", "vi_en"]);
+const SECTION_CONTENT_BUCKET = "course-section-content";
+
+async function removeSectionFiles(paths: Array<string | null | undefined>) {
+  const cleanPaths = [...new Set(paths.filter((path): path is string => Boolean(path)))];
+  if (cleanPaths.length === 0) return;
+  await getSupabaseAdmin().storage.from(SECTION_CONTENT_BUCKET).remove(cleanPaths);
+}
 
 function slugify(value: string) {
   return value
@@ -168,6 +178,13 @@ export async function POST(request: Request) {
         .update({ title, updated_at: new Date().toISOString() })
         .eq("id", courseId);
       if (error) throw error;
+    } else if (action === "update_course_system_icons") {
+      const courseId = String(body.courseId ?? "");
+      const systemIcons = Array.isArray(body.systemIcons) ? body.systemIcons : [];
+      if (!courseId) {
+        return NextResponse.json({ success: false, message: "Missing course ID." }, { status: 400 });
+      }
+      await updateCourseSystemIcons(courseId, systemIcons);
     } else if (action === "create_course") {
       const title = String(body.title ?? "").trim();
       const folderGroupId = String(body.folderGroupId ?? "fg-ai-agentic").trim();
@@ -238,7 +255,7 @@ export async function POST(request: Request) {
       const courseId = String(body.courseId ?? "");
       const { data: course, error: readError } = await supabase
         .from("courses")
-        .select("slug")
+        .select("id, slug")
         .eq("id", courseId)
         .maybeSingle();
       if (readError) throw readError;
@@ -246,8 +263,19 @@ export async function POST(request: Request) {
       if (course.slug === APPLIED_AGENTIC_AI_SLUG) {
         return NextResponse.json({ success: false, message: "The core course cannot be deleted." }, { status: 400 });
       }
+      const { data: courseSectionFiles } = await supabase
+        .from("course_sections")
+        .select("content_path")
+        .eq("course_id", courseId);
+      await removeSectionFiles((courseSectionFiles ?? []).map((item) => item.content_path));
       // Delete associated sections first
       await supabase.from("course_sections").delete().eq("course_id", courseId);
+      try {
+        await supabase.from("course_passcodes").delete().eq("course_id", courseId);
+      } catch {}
+      try {
+        await supabase.from("user_unlocked_courses").delete().eq("course_id", courseId);
+      } catch {}
       try {
         await supabase.from("course_folder_allowed_emails").delete().eq("course_id", courseId);
       } catch {}
@@ -270,7 +298,18 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "Core course cannot be deleted." }, { status: 400 });
       }
       const validCourseIds = validCourses.map((c) => c.id);
+      const { data: batchSectionFiles } = await supabase
+        .from("course_sections")
+        .select("content_path")
+        .in("course_id", validCourseIds);
+      await removeSectionFiles((batchSectionFiles ?? []).map((item) => item.content_path));
       await supabase.from("course_sections").delete().in("course_id", validCourseIds);
+      try {
+        await supabase.from("course_passcodes").delete().in("course_id", validCourseIds);
+      } catch {}
+      try {
+        await supabase.from("user_unlocked_courses").delete().in("course_id", validCourseIds);
+      } catch {}
       try {
         await supabase.from("course_folder_allowed_emails").delete().in("course_id", validCourseIds);
       } catch {}
@@ -312,14 +351,41 @@ export async function POST(request: Request) {
       const sectionId = String(body.sectionId ?? "");
       const { data: section, error: readError } = await supabase
         .from("course_sections")
-        .select("section_key")
+        .select("id, section_key, course_id, content_path")
         .eq("id", sectionId)
         .maybeSingle();
       if (readError) throw readError;
       if (!section) return NextResponse.json({ success: false, message: "Section not found." }, { status: 404 });
-      if (["section1", "section2"].includes(section.section_key)) {
-        return NextResponse.json({ success: false, message: "The default Section 1 and Section 2 cannot be deleted." }, { status: 400 });
+
+      const { data: parentCourse } = await supabase
+        .from("courses")
+        .select("id, slug, description")
+        .eq("id", section.course_id)
+        .maybeSingle();
+
+      if (["section1", "section2"].includes(section.section_key) && parentCourse?.slug === APPLIED_AGENTIC_AI_SLUG) {
+        return NextResponse.json({ success: false, message: "The default Section 1 and Section 2 of core course cannot be deleted." }, { status: 400 });
       }
+
+      try {
+        await supabase.from("course_passcodes").delete().eq("section_key", section.section_key);
+      } catch {}
+
+      if (parentCourse?.description) {
+        try {
+          const meta = parseCourseMetadata(parentCourse.description);
+          if (meta.sectionPasscodes && (meta.sectionPasscodes[section.section_key] || meta.sectionPasscodes[section.id])) {
+            delete meta.sectionPasscodes[section.section_key];
+            delete meta.sectionPasscodes[section.id];
+            await supabase.from("courses").update({
+              description: serializeCourseMetadata(meta),
+              updated_at: new Date().toISOString(),
+            }).eq("id", parentCourse.id);
+          }
+        } catch {}
+      }
+
+      await removeSectionFiles([section.content_path]);
       const { error } = await supabase.from("course_sections").delete().eq("id", sectionId);
       if (error) throw error;
     } else if (action === "delete_sections") {
@@ -331,15 +397,59 @@ export async function POST(request: Request) {
       }
       const { data: secs, error: readError } = await supabase
         .from("course_sections")
-        .select("id, section_key")
+        .select("id, section_key, course_id, content_path")
         .in("id", sectionIds);
       if (readError) throw readError;
-      const validIds = (secs || [])
-        .filter((s) => !["section1", "section2"].includes(s.section_key))
-        .map((s) => s.id);
-      if (validIds.length === 0) {
-        return NextResponse.json({ success: false, message: "Default sections cannot be deleted." }, { status: 400 });
+
+      const { data: coreCourse } = await supabase
+        .from("courses")
+        .select("id")
+        .eq("slug", APPLIED_AGENTIC_AI_SLUG)
+        .maybeSingle();
+
+      const validSecs = (secs || []).filter((s) => {
+        const isCoreSec = ["section1", "section2"].includes(s.section_key) && s.course_id === coreCourse?.id;
+        return !isCoreSec;
+      });
+
+      if (validSecs.length === 0) {
+        return NextResponse.json({ success: false, message: "Default core sections cannot be deleted." }, { status: 400 });
       }
+      const validIds = validSecs.map((s) => s.id);
+      const validKeys = validSecs.map((s) => s.section_key);
+
+      try {
+        await supabase.from("course_passcodes").delete().in("section_key", validKeys);
+      } catch {}
+
+      const courseIds = [...new Set(validSecs.map((s) => s.course_id))];
+      for (const cId of courseIds) {
+        const { data: c } = await supabase.from("courses").select("id, description").eq("id", cId).maybeSingle();
+        if (c?.description) {
+          try {
+            const meta = parseCourseMetadata(c.description);
+            let changed = false;
+            for (const s of validSecs.filter((sec) => sec.course_id === cId)) {
+              if (meta.sectionPasscodes?.[s.section_key]) {
+                delete meta.sectionPasscodes[s.section_key];
+                changed = true;
+              }
+              if (meta.sectionPasscodes?.[s.id]) {
+                delete meta.sectionPasscodes[s.id];
+                changed = true;
+              }
+            }
+            if (changed) {
+              await supabase.from("courses").update({
+                description: serializeCourseMetadata(meta),
+                updated_at: new Date().toISOString(),
+              }).eq("id", c.id);
+            }
+          } catch {}
+        }
+      }
+
+      await removeSectionFiles(validSecs.map((section) => section.content_path));
       const { error } = await supabase.from("course_sections").delete().in("id", validIds);
       if (error) throw error;
     } else {

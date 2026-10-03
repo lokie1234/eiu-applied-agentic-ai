@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
 import { motion, useReducedMotion } from "motion/react";
+import btnStyles from "./AccessButton.module.css";
 
 interface AnimatedHeroCopyProps {
   stage: number;
@@ -237,7 +237,7 @@ export default function AnimatedHeroCopy({
           WebkitBackdropFilter: "blur(20px)",
           border: "1px solid rgba(233, 202, 139, 0.35)",
           borderRadius: 22,
-          padding: "22px 24px",
+          padding: "20px 22px",
           boxShadow:
             "0 20px 48px rgba(0, 0, 0, 0.52), 0 0 35px rgba(233, 202, 139, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.14)",
           position: "relative",
@@ -257,64 +257,6 @@ export default function AnimatedHeroCopy({
             pointerEvents: "none",
           }}
         />
-
-        {/* Card Header: EIU DNA metadata */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: 16,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <span
-              style={{
-                width: 7,
-                height: 7,
-                borderRadius: "50%",
-                background: "#E9CA8B",
-                boxShadow: "0 0 10px #E9CA8B",
-                display: "inline-block",
-              }}
-            />
-            <span
-              style={{
-                color: "#E9CA8B",
-                fontSize: 10,
-                fontWeight: 800,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-              }}
-            >
-              EIU Academic Portal · Login
-            </span>
-          </div>
-
-          <span
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              color: "rgba(255,255,255,0.6)",
-              fontSize: 10,
-              fontWeight: 700,
-              letterSpacing: "0.06em",
-            }}
-          >
-            <span
-              style={{
-                width: 6,
-                height: 6,
-                borderRadius: "50%",
-                background: "#69C5A3",
-                boxShadow: "0 0 8px #69C5A3",
-                display: "inline-block",
-              }}
-            />
-            Secure Session
-          </span>
-        </div>
 
         {/* Login Form */}
         <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 13 }}>
@@ -436,68 +378,50 @@ export default function AnimatedHeroCopy({
             </div>
           )}
 
-          {/* Submit Action: Access Courses */}
+          {/* Submit Action: Access Courses with Dynamic System Running Animations */}
           <button
             id="landing-access-button"
             type="submit"
-            disabled={loading || !email.trim() || (isAdminEmail && !adminPassword.trim())}
-            style={{
-              position: "relative",
-              width: "100%",
-              height: 52,
-              padding: "0 12px 0 24px",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: 12,
-              border: "1px solid rgba(255,255,255,0.45)",
-              borderRadius: 999,
-              background:
-                "linear-gradient(135deg, #FFF7E8 0%, #F4DFB0 40%, #E9CA8B 80%, #DFB86C 100%)",
-              color: "#082945",
-              fontWeight: 850,
-              fontSize: 15,
-              cursor: loading ? "wait" : "pointer",
-              boxShadow:
-                "0 0 28px rgba(233,202,139,.45), 0 10px 24px rgba(0,0,0,.35)",
-              opacity:
-                loading || !email.trim() || (isAdminEmail && !adminPassword.trim())
-                  ? 0.55
-                  : 1,
-              transition:
-                "box-shadow 0.28s ease, transform 0.24s cubic-bezier(0.2,0.85,0.32,1.2), opacity 0.2s",
-              marginTop: 4,
-              overflow: "hidden",
-            }}
+            disabled={loading || !email.trim() || Boolean(isAdminEmail && !adminPassword?.trim())}
+            className={`${btnStyles.btn} ${loading ? btnStyles.btnRunning : ""} ${
+              !email.trim() || (isAdminEmail && !adminPassword?.trim()) ? btnStyles.btnDisabled : ""
+            }`}
+            onMouseEnter={() => onCtaHover(true)}
+            onMouseLeave={() => onCtaHover(false)}
           >
-            <span
-              style={{
-                fontSize: 15,
-                fontWeight: 850,
-                letterSpacing: "-0.015em",
-                color: "#082945",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {loading ? "Verifying Credentials…" : "Access Courses"}
-            </span>
-            <span
-              style={{
-                width: 36,
-                height: 36,
-                display: "grid",
-                placeItems: "center",
-                borderRadius: "50%",
-                background: "#082945",
-                color: "#F4DFB0",
-                fontSize: 18,
-                fontWeight: 850,
-                flexShrink: 0,
-                boxShadow: "0 3px 10px rgba(8,41,69,0.3)",
-              }}
-            >
-              →
-            </span>
+            {/* Ambient Shimmer Beam on Idle, Rapid Laser Beam when System Running */}
+            {loading ? (
+              <span className={btnStyles.runningLaserBeam} aria-hidden="true" />
+            ) : (
+              <span className={btnStyles.shimmerBeam} aria-hidden="true" />
+            )}
+
+            {/* Bottom Real-time Data Stream Line when Running */}
+            {loading && <span className={btnStyles.dataStreamLine} aria-hidden="true" />}
+
+            {/* Action Label & Status Indicators */}
+            <div className={btnStyles.labelWrap}>
+              {loading && <span className={btnStyles.runningDotPulse} aria-hidden="true" />}
+              <span className={btnStyles.labelText}>
+                {loading ? "Accessing Courses" : "Access Courses"}
+              </span>
+              {loading && (
+                <span className={btnStyles.runningDots} aria-hidden="true">
+                  <i />
+                  <i />
+                  <i />
+                </span>
+              )}
+            </div>
+
+            {/* Right Badge Icon: Arrow on idle, High-tech orbital spinner when Running */}
+            <div className={btnStyles.badgeIcon} aria-hidden="true">
+              {loading ? (
+                <span className={btnStyles.badgeSpinner} />
+              ) : (
+                <span>→</span>
+              )}
+            </div>
           </button>
         </form>
       </motion.div>

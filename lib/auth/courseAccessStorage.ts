@@ -2,7 +2,8 @@ import "server-only";
 
 import { createHash, randomInt } from "node:crypto";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { FIXED_ADMIN_EMAIL, isValidEmail, normalizeEmail } from "@/lib/auth/types";
+import { FIXED_ADMIN_EMAIL, isValidEmail, normalizeEmail, APPLIED_AGENTIC_AI_SLUG, type CourseSystemIcon } from "@/lib/auth/types";
+export type { CourseSystemIcon };
 
 export type CourseFolderGroup = {
   id: string;
@@ -26,10 +27,12 @@ export type CourseMetadata = {
   passcode: string; // 1 passcode for the whole course folder
   sectionPasscodes?: Record<string, string>; // retained for backward compatibility
   unlocked?: boolean; // When true, course can be accessed without a passcode
+  unlockedEmails?: string[]; // Fallback list of emails that unlocked this course
   folderGroupId?: string; // ID of the parent folder (Folder lớn)
   folderGroupName?: string; // Display name of parent folder
   folderOrder?: number; // Position inside the parent folder
   folderGroups?: CourseFolderGroup[]; // Master list of parent folders (stored in core course or any course)
+  systemIcons?: CourseSystemIcon[];
 };
 
 export type CourseWithDetails = {
@@ -44,6 +47,7 @@ export type CourseWithDetails = {
   folderGroupId: string;
   folderGroupName: string;
   folderOrder: number;
+  systemIcons?: CourseSystemIcon[];
   metadata: CourseMetadata;
 };
 
@@ -55,6 +59,10 @@ export type SectionWithPasscode = {
   position: number;
   status: "draft" | "active" | "archived";
   passcode: string;
+  content_type: "builtin" | "pdf" | "tsx";
+  content_path: string | null;
+  source_filename: string | null;
+  slide_count: number | null;
 };
 
 export function parseCourseMetadata(raw: string | null | undefined, defaultSummary = ""): CourseMetadata {
@@ -65,6 +73,7 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
       passcode: "1611",
       sectionPasscodes: {},
       unlocked: false,
+      unlockedEmails: [],
       folderGroupId: "fg-ai-agentic",
       folderGroupName: "Chương Trình AI & Agentic",
       folderOrder: 1,
@@ -101,6 +110,13 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
       }
 
       const unlocked = Boolean((parsed as { unlocked?: unknown }).unlocked);
+      const rawUnlocked = (parsed as { unlockedEmails?: unknown }).unlockedEmails;
+      const unlockedEmails: string[] = Array.isArray(rawUnlocked)
+        ? (rawUnlocked as unknown[])
+            .map((e: unknown) => normalizeEmail(e))
+            .filter(isValidEmail)
+        : [];
+
       const folderGroupId = typeof (parsed as { folderGroupId?: unknown }).folderGroupId === "string"
         ? String((parsed as { folderGroupId: string }).folderGroupId).trim()
         : undefined;
@@ -116,30 +132,47 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
         ? (rawGroups as CourseFolderGroup[]).filter((g) => g && typeof g.id === "string" && typeof g.name === "string")
         : [];
 
+      const rawIcons = (parsed as { systemIcons?: unknown }).systemIcons;
+      const systemIcons: CourseSystemIcon[] = Array.isArray(rawIcons)
+        ? (rawIcons as unknown[])
+            .filter((item): item is { id: string; name: string; url: string } =>
+              Boolean(item && typeof item === "object" && typeof (item as { url?: unknown }).url === "string")
+            )
+            .map((item) => ({
+              id: String(item.id || Math.random().toString(36).slice(2)),
+              name: String(item.name || "").trim(),
+              url: String(item.url),
+            }))
+        : [];
+
       return {
         summary,
         allowedEmails: Array.from(new Set(emails)),
         passcode,
         sectionPasscodes,
         unlocked,
+        unlockedEmails: Array.from(new Set(unlockedEmails)),
         folderGroupId,
         folderGroupName,
         folderOrder,
         folderGroups: folderGroups.length > 0 ? folderGroups : undefined,
+        systemIcons,
       };
     }
   } catch {
     // raw was plain text string
   }
   return {
-    summary: raw.trim(),
+    summary: raw?.trim() || defaultSummary,
     allowedEmails: [FIXED_ADMIN_EMAIL],
     passcode: "1611",
     sectionPasscodes: {},
     unlocked: false,
+    unlockedEmails: [],
     folderGroupId: "fg-ai-agentic",
     folderGroupName: "Chương Trình AI & Agentic",
     folderOrder: 1,
+    systemIcons: [],
   };
 }
 
@@ -154,10 +187,12 @@ export function serializeCourseMetadata(metadata: CourseMetadata): string {
     passcode: metadata.passcode || "1611",
     sectionPasscodes: metadata.sectionPasscodes || {},
     unlocked: Boolean(metadata.unlocked),
+    ...(metadata.unlockedEmails && metadata.unlockedEmails.length > 0 ? { unlockedEmails: metadata.unlockedEmails } : {}),
     folderGroupId: metadata.folderGroupId || "",
     folderGroupName: metadata.folderGroupName || "",
     folderOrder: typeof metadata.folderOrder === "number" ? metadata.folderOrder : 0,
     ...(metadata.folderGroups && metadata.folderGroups.length > 0 ? { folderGroups: metadata.folderGroups } : {}),
+    ...(metadata.systemIcons && metadata.systemIcons.length > 0 ? { systemIcons: metadata.systemIcons } : {}),
   });
 }
 
@@ -168,7 +203,7 @@ export async function getCoursesAndSectionsData() {
   const supabase = getSupabaseAdmin();
   const [coursesResult, sectionsResult, passcodesResult] = await Promise.all([
     supabase.from("courses").select("id, slug, title, description, status, language_label").neq("status", "archived").order("title"),
-    supabase.from("course_sections").select("id, course_id, section_key, title, position, status").neq("status", "archived").order("position"),
+    supabase.from("course_sections").select("id, course_id, section_key, title, position, status, content_type, content_path, source_filename, slide_count").neq("status", "archived").order("position"),
     supabase.from("course_passcodes").select("id, course_id, code_hint, status").eq("status", "active"),
   ]);
 
@@ -182,28 +217,17 @@ export async function getCoursesAndSectionsData() {
     }
   }
 
-  // 1. Gather all custom folder groups defined in any course
-  const folderGroupMap = new Map<string, CourseFolderGroup>();
-  for (const g of DEFAULT_FOLDER_GROUPS) {
-    folderGroupMap.set(g.id, { ...g });
-  }
+  // 1. Authoritative master folder groups (defined primarily in the core course)
+  const coreCourse = (coursesResult.data ?? []).find((c) => c.slug === APPLIED_AGENTIC_AI_SLUG);
+  const coreMeta = coreCourse ? parseCourseMetadata(coreCourse.description, coreCourse.title) : null;
+  const masterGroups = coreMeta?.folderGroups && coreMeta.folderGroups.length > 0
+    ? coreMeta.folderGroups
+    : DEFAULT_FOLDER_GROUPS;
 
-  for (const row of coursesResult.data ?? []) {
-    const meta = parseCourseMetadata(row.description, row.title);
-    if (meta.folderGroups && meta.folderGroups.length > 0) {
-      for (const g of meta.folderGroups) {
-        if (g && g.id && g.name) {
-          folderGroupMap.set(g.id, g);
-        }
-      }
-    }
-    // If a course has a custom folderGroupId and folderGroupName, make sure it's in the map
-    if (meta.folderGroupId && meta.folderGroupName && !folderGroupMap.has(meta.folderGroupId)) {
-      folderGroupMap.set(meta.folderGroupId, {
-        id: meta.folderGroupId,
-        name: meta.folderGroupName,
-        order: folderGroupMap.size + 1,
-      });
+  const folderGroupMap = new Map<string, CourseFolderGroup>();
+  for (const g of masterGroups) {
+    if (g && g.id && g.name) {
+      folderGroupMap.set(g.id, { ...g });
     }
   }
 
@@ -223,13 +247,13 @@ export async function getCoursesAndSectionsData() {
     // Ensure folderGroupId is mapped to valid group or default
     let fId = metadata.folderGroupId || "";
     let fName = metadata.folderGroupName || "";
-    if (!fId) {
-      // Default applied-agentic-ai to fg-ai-agentic, others to first folder
-      fId = "fg-ai-agentic";
-      fName = folderGroupMap.get(fId)?.name || "Chương Trình AI & Agentic";
+    if (!fId || !folderGroupMap.has(fId)) {
+      const defaultGroup = folderGroups[0] ?? DEFAULT_FOLDER_GROUPS[0];
+      fId = defaultGroup.id;
+      fName = defaultGroup.name;
       metadata.folderGroupId = fId;
       metadata.folderGroupName = fName;
-    } else if (folderGroupMap.has(fId)) {
+    } else {
       fName = folderGroupMap.get(fId)!.name;
       metadata.folderGroupName = fName;
     }
@@ -246,6 +270,7 @@ export async function getCoursesAndSectionsData() {
       folderGroupId: fId,
       folderGroupName: fName,
       folderOrder: metadata.folderOrder ?? 0,
+      systemIcons: metadata.systemIcons || [],
       metadata,
     };
   });
@@ -271,6 +296,10 @@ export async function getCoursesAndSectionsData() {
       position: Number(section.position),
       status: section.status,
       passcode: code,
+      content_type: section.content_type === "pdf" || section.content_type === "tsx" ? section.content_type : "builtin",
+      content_path: section.content_path ? String(section.content_path) : null,
+      source_filename: section.source_filename ? String(section.source_filename) : null,
+      slide_count: Number.isFinite(Number(section.slide_count)) && Number(section.slide_count) > 0 ? Number(section.slide_count) : null,
     };
   });
 
@@ -300,6 +329,16 @@ export async function updateCourseMetadata(courseId: string, updater: (current: 
 
   if (updateError) throw updateError;
   return updated;
+}
+
+/**
+ * Updates a course's system icons list.
+ */
+export async function updateCourseSystemIcons(courseId: string, systemIcons: CourseSystemIcon[]) {
+  return updateCourseMetadata(courseId, (current) => ({
+    ...current,
+    systemIcons: Array.isArray(systemIcons) ? systemIcons : [],
+  }));
 }
 
 /**
@@ -454,6 +493,10 @@ export async function matchCourseByPasscode(code: string): Promise<MatchedCourse
           position: 1,
           status: "active",
           passcode: trimmed,
+          content_type: "builtin",
+          content_path: null,
+          source_filename: null,
+          slide_count: null,
         },
       };
     }
@@ -476,6 +519,10 @@ export async function matchCourseByPasscode(code: string): Promise<MatchedCourse
               position: 1,
               status: "active",
               passcode: trimmed,
+              content_type: "builtin",
+              content_path: null,
+              source_filename: null,
+              slide_count: null,
             },
           };
         }
@@ -796,9 +843,11 @@ export async function updateFolderGroup(id: string, name: string, description?: 
 
 /**
  * Delete a Folder Lớn.
- * Does NOT delete the child courses; they are moved to default folder.
+ * Permanently deletes all non-core child courses and their sections inside this folder.
+ * If the core course was inside, it is safely moved to the default surviving folder.
  */
 export async function deleteFolderGroup(id: string): Promise<void> {
+  const supabase = getSupabaseAdmin();
   const { folderGroups } = await getCoursesAndSectionsData();
   const remainingGroups = folderGroups.filter((g) => g.id !== id);
   if (remainingGroups.length === 0) {
@@ -807,23 +856,43 @@ export async function deleteFolderGroup(id: string): Promise<void> {
   await saveFolderGroups(remainingGroups);
 
   const defaultGroup = remainingGroups[0] ?? DEFAULT_FOLDER_GROUPS[0];
-  const supabase = getSupabaseAdmin();
-  const { data: courses } = await supabase.from("courses").select("id, description").neq("status", "archived");
+  const { data: courses } = await supabase.from("courses").select("id, slug, description").neq("status", "archived");
   if (courses && courses.length > 0) {
-    await Promise.all(
-      courses.map((c) => {
-        const meta = parseCourseMetadata(c.description);
-        if (meta.folderGroupId === id) {
+    for (const c of courses) {
+      const meta = parseCourseMetadata(c.description);
+      if (meta.folderGroupId === id) {
+        if (c.slug === APPLIED_AGENTIC_AI_SLUG) {
+          // The core course cannot be deleted; reassign it to default group
           meta.folderGroupId = defaultGroup.id;
           meta.folderGroupName = defaultGroup.name;
-          return supabase.from("courses").update({
+          await supabase.from("courses").update({
             description: serializeCourseMetadata(meta),
             updated_at: new Date().toISOString(),
           }).eq("id", c.id);
+        } else {
+          // Permanently delete child course and all its dependencies
+          try {
+            const { data: sectionFiles } = await supabase
+              .from("course_sections")
+              .select("content_path")
+              .eq("course_id", c.id);
+            const paths = (sectionFiles ?? []).map((item) => item.content_path).filter((path): path is string => Boolean(path));
+            if (paths.length > 0) await supabase.storage.from("course-section-content").remove(paths);
+          } catch {}
+          await supabase.from("course_sections").delete().eq("course_id", c.id);
+          try {
+            await supabase.from("course_passcodes").delete().eq("course_id", c.id);
+          } catch {}
+          try {
+            await supabase.from("user_unlocked_courses").delete().eq("course_id", c.id);
+          } catch {}
+          try {
+            await supabase.from("course_folder_allowed_emails").delete().eq("course_id", c.id);
+          } catch {}
+          await supabase.from("courses").delete().eq("id", c.id);
         }
-        return Promise.resolve();
-      })
-    );
+      }
+    }
   }
 }
 
@@ -869,4 +938,140 @@ export async function setFolderGroupUnlocked(folderGroupId: string, unlocked: bo
       })
     );
   }
+}
+
+/**
+ * Retrieves all course IDs that a specific user email has unlocked.
+ * Checks both public.user_unlocked_courses table and course metadata fallback.
+ */
+export async function getUserUnlockedCourses(email: string): Promise<string[]> {
+  const norm = normalizeEmail(email);
+  if (!norm || !isValidEmail(norm)) return [];
+  if (norm === FIXED_ADMIN_EMAIL) {
+    const { courses } = await getCoursesAndSectionsData();
+    return courses.map((c) => c.id);
+  }
+
+  const unlockedSet = new Set<string>();
+
+  // 1. Query Supabase table public.user_unlocked_courses
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data, error } = await supabase
+      .from("user_unlocked_courses")
+      .select("course_id")
+      .eq("email", norm);
+    if (!error && Array.isArray(data)) {
+      for (const row of data) {
+        if (row.course_id) unlockedSet.add(String(row.course_id));
+      }
+    }
+  } catch {
+    // Graceful fallback if table does not exist yet
+  }
+
+  // 2. Query course metadata fallback and globally unlocked courses
+  try {
+    const { courses } = await getCoursesAndSectionsData();
+    for (const c of courses) {
+      if (c.unlocked || c.metadata.unlocked) {
+        unlockedSet.add(c.id);
+      } else if (c.metadata.unlockedEmails && c.metadata.unlockedEmails.includes(norm)) {
+        unlockedSet.add(c.id);
+      }
+    }
+  } catch {
+    // Ignore fallback errors
+  }
+
+  return Array.from(unlockedSet);
+}
+
+/**
+ * Records that a user email has unlocked a course (via passcode or free access).
+ * Persists in public.user_unlocked_courses and updates course metadata fallback.
+ */
+export async function recordUserUnlockedCourse(
+  email: string,
+  courseId: string,
+  unlockedVia: "passcode" | "free_access" | "admin_grant" = "passcode"
+): Promise<void> {
+  const norm = normalizeEmail(email);
+  if (!norm || !isValidEmail(norm) || !courseId) return;
+
+  // 1. Persist in public.user_unlocked_courses table
+  try {
+    const supabase = getSupabaseAdmin();
+    await supabase.from("user_unlocked_courses").upsert(
+      {
+        email: norm,
+        course_id: courseId,
+        unlocked_via: unlockedVia,
+        unlocked_at: new Date().toISOString(),
+      },
+      { onConflict: "email,course_id" }
+    );
+  } catch {
+    // Table might not exist yet; fallback below ensures zero downtime
+  }
+
+  // 2. Persist in course metadata fallback
+  try {
+    const supabase = getSupabaseAdmin();
+    const { data: courseRow } = await supabase
+      .from("courses")
+      .select("id, description")
+      .eq("id", courseId)
+      .maybeSingle();
+
+    if (courseRow) {
+      const meta = parseCourseMetadata(courseRow.description);
+      const currentList = new Set(meta.unlockedEmails || []);
+      if (!currentList.has(norm)) {
+        currentList.add(norm);
+        meta.unlockedEmails = Array.from(currentList);
+        await supabase
+          .from("courses")
+          .update({
+            description: serializeCourseMetadata(meta),
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", courseId);
+      }
+    }
+  } catch (err) {
+    console.warn("Notice: course metadata unlockedEmails update skipped:", err);
+  }
+}
+
+/**
+ * Admin action: Resets unlocked memory for a specific course (requires students to enter new passcode).
+ */
+export async function resetCourseUnlocks(courseId: string): Promise<void> {
+  if (!courseId) return;
+  const supabase = getSupabaseAdmin();
+
+  try {
+    await supabase.from("user_unlocked_courses").delete().eq("course_id", courseId);
+  } catch {}
+
+  try {
+    const { data: courseRow } = await supabase
+      .from("courses")
+      .select("id, description")
+      .eq("id", courseId)
+      .maybeSingle();
+
+    if (courseRow) {
+      const meta = parseCourseMetadata(courseRow.description);
+      meta.unlockedEmails = [];
+      await supabase
+        .from("courses")
+        .update({
+          description: serializeCourseMetadata(meta),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", courseId);
+    }
+  } catch {}
 }

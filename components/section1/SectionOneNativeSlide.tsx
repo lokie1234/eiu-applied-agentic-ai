@@ -9,6 +9,7 @@ type Props = {
   page: number;
   scale: number;
   isFinalState?: boolean;
+  courseTitle?: string;
 };
 
 type Card = {
@@ -405,7 +406,7 @@ function RevealAnswerGrid({ items, revealed, onReveal }: { items: { title: strin
   );
 }
 
-function NativeSlides({ page, isFinalState = false }: { page: number; isFinalState?: boolean }) {
+function NativeSlides({ page, isFinalState = false, courseTitle = "Applied Agentic AI" }: { page: number; isFinalState?: boolean; courseTitle?: string }) {
   const [selectedIdea, setSelectedIdea] = useState<string | null>(null);
   const [selectedArchitecture, setSelectedArchitecture] = useState<ArchitectureKey>("Frontend");
   const [restaurantRevealed, setRestaurantRevealed] = useState<boolean[]>(() => {
@@ -480,7 +481,7 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
           <Shell className={styles.heroSlide}>
             <div className={styles.heroCopy}>
               <span className={styles.heroKicker}>EIU · APPLIED AGENTIC AI</span>
-              <h1>Applied Agentic AI<br /><em>for Business</em></h1>
+              <h1>{courseTitle}<br /><em>for Business</em></h1>
               <h2>Xây dựng Business Web Apps với AI</h2>
               <p>Khóa học thực hành 6 giờ · Từ ý tưởng → Web App hoàn chỉnh bằng AI</p>
             </div>
@@ -967,10 +968,10 @@ function NativeSlides({ page, isFinalState = false }: { page: number; isFinalSta
   );
 }
 
-export default function SectionOneNativeSlide({ page, scale, isFinalState = false }: Props) {
+export default function SectionOneNativeSlide({ page, scale, isFinalState = false, courseTitle }: Props) {
   return (
     <div className={styles.scaledCanvas} style={{ transform: `scale(${scale})` }}>
-      <NativeSlides page={page} isFinalState={isFinalState} />
+      <NativeSlides page={page} isFinalState={isFinalState} courseTitle={courseTitle} />
     </div>
   );
 }

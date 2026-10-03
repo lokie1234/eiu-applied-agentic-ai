@@ -5,6 +5,12 @@ export type CourseFolderGroup = {
   order: number;
 };
 
+export type CourseSystemIcon = {
+  id: string;
+  name: string;
+  url: string;
+};
+
 export type CourseAccess = {
   id: string;
   slug: string;
@@ -15,6 +21,7 @@ export type CourseAccess = {
   folderGroupId?: string;
   folderGroupName?: string;
   folderOrder?: number;
+  systemIcons?: CourseSystemIcon[];
 };
 
 export type SectionAccess = {
@@ -23,6 +30,9 @@ export type SectionAccess = {
   sectionKey: string;
   title: string;
   position: number;
+  contentType: "builtin" | "pdf" | "tsx";
+  sourceFilename: string | null;
+  slideCount: number | null;
 };
 
 export type AppUserAccess = {

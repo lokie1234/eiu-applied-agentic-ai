@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./AdminAccessPortal.module.css";
 
 type LanguageLabel = "vi" | "en" | "vi_en";
@@ -11,6 +11,13 @@ export type CourseFolderGroup = {
   name: string;
   description?: string;
   order: number;
+};
+
+export type CourseSystemIcon = {
+  id: string;
+  name: string;
+  url: string;
+  scale?: number;
 };
 
 type CourseMetadata = {
@@ -23,6 +30,8 @@ type CourseMetadata = {
   folderGroupName?: string;
   folderOrder?: number;
   folderGroups?: CourseFolderGroup[];
+  systemIcons?: CourseSystemIcon[];
+  systemIconSize?: number;
 };
 
 type Course = {
@@ -37,6 +46,8 @@ type Course = {
   folderGroupId?: string;
   folderGroupName?: string;
   folderOrder?: number;
+  systemIcons?: CourseSystemIcon[];
+  systemIconSize?: number;
   metadata: CourseMetadata;
 };
 
@@ -48,6 +59,10 @@ type Section = {
   position: number;
   status: "draft" | "active" | "archived";
   passcode: string;
+  content_type: "builtin" | "pdf" | "tsx";
+  content_path: string | null;
+  source_filename: string | null;
+  slide_count: number | null;
 };
 
 type Payload = {
@@ -79,6 +94,66 @@ const languageOptions: Array<{ value: LanguageLabel; label: string }> = [
 ];
 
 const FIXED_ADMIN_EMAIL = "son.lam@eiu.edu.vn";
+
+function DraggableScrollArea({
+  title,
+  children,
+  className,
+}: {
+  title?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return;
+    const el = ref.current;
+    if (!el) return;
+    if (el.scrollWidth <= el.clientWidth) return;
+
+    const startX = e.pageX - el.offsetLeft;
+    const scrollLeft = el.scrollLeft;
+    let isDown = true;
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isDown) return;
+      ev.preventDefault();
+      const x = ev.pageX - el.offsetLeft;
+      const walk = (x - startX) * 1.5;
+      el.scrollLeft = scrollLeft - walk;
+    };
+
+    const onMouseUp = () => {
+      isDown = false;
+      window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mouseup", onMouseUp);
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mouseup", onMouseUp);
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    const el = ref.current;
+    if (!el) return;
+    if (e.deltaY !== 0 && el.scrollWidth > el.clientWidth) {
+      el.scrollLeft += e.deltaY;
+    }
+  };
+
+  return (
+    <div
+      ref={ref}
+      className={className}
+      title={title}
+      onMouseDown={handleMouseDown}
+      onWheel={handleWheel}
+    >
+      {children}
+    </div>
+  );
+}
 
 export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }) {
   const [tab, setTab] = useState<"emails" | "courses">("emails");
@@ -607,17 +682,29 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   async function handleDeleteFolderGroup(group: CourseFolderGroup) {
     showConfirm({
       title: `Delete Parent Folder “${group.name}”`,
-      message: `Are you sure you want to delete parent folder “${group.name}”?`,
-      detail: "All child courses inside will remain safe and move to the default folder.",
-      confirmLabel: "Delete Folder",
+      message: `Are you sure you want to permanently delete parent folder “${group.name}”?`,
+      detail: "All child courses and sections inside this folder will also be permanently deleted.",
+      confirmLabel: "Delete Folder & Contents",
       variant: "danger",
       onConfirm: async () => {
-        await mutate(
+        const ok = await mutate(
           { action: "delete_folder_group", id: group.id },
           `delete-folder:${group.id}`,
-          `Deleted parent folder “${group.name}”.`,
-          `loading..... Deleting parent folder “${group.name}”...`
+          `Deleted parent folder “${group.name}” and all contents.`,
+          `loading..... Deleting parent folder “${group.name}” and its contents...`
         );
+        if (ok) {
+          setSelectedFolderGroups((prev) => {
+            const next = new Set(prev);
+            next.delete(group.id);
+            return next;
+          });
+          const deletedCourseIds = activeCourses.filter((c) => (c.folderGroupId || "fg-ai-agentic") === group.id && c.slug !== "applied-agentic-ai").map((c) => c.id);
+          if (deletedCourseIds.includes(effectiveCourseId)) {
+            const remaining = activeCourses.filter((c) => !deletedCourseIds.includes(c.id));
+            if (remaining.length > 0) setCourseId(remaining[0].id);
+          }
+        }
       },
     });
   }
@@ -637,18 +724,25 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     showConfirm({
       title: "Delete Selected Parent Folders",
       message: `Are you sure you want to delete ${count} selected parent folder(s)?`,
-      detail: "All child courses inside will remain safe and move to the default folder.",
-      confirmLabel: `Delete ${count} Folders`,
+      detail: "All child courses and sections inside these folders will also be permanently deleted.",
+      confirmLabel: `Delete ${count} Folders & Contents`,
       variant: "danger",
       onConfirm: async () => {
         const folderGroupIds = Array.from(selectedFolderGroups);
         const ok = await mutate(
           { action: "delete_folder_groups", folderGroupIds },
           "delete-folder-groups",
-          `Deleted ${count} parent folder(s).`,
+          `Deleted ${count} parent folder(s) and their contents.`,
           `loading..... Deleting ${count} selected parent folders...`
         );
-        if (ok) setSelectedFolderGroups(new Set());
+        if (ok) {
+          setSelectedFolderGroups(new Set());
+          const deletedCourseIds = activeCourses.filter((c) => folderGroupIds.includes(c.folderGroupId || "fg-ai-agentic") && c.slug !== "applied-agentic-ai").map((c) => c.id);
+          if (deletedCourseIds.includes(effectiveCourseId)) {
+            const remaining = activeCourses.filter((c) => !deletedCourseIds.includes(c.id));
+            if (remaining.length > 0) setCourseId(remaining[0].id);
+          }
+        }
       },
     });
   }
@@ -745,6 +839,42 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     });
   }
 
+  async function handleDeleteSingleCourse(targetCourse: Course) {
+    if (targetCourse.slug === "applied-agentic-ai") {
+      showAlert({
+        title: "Cannot Delete Core Course",
+        message: "The core course (Applied Agentic AI) is foundational to the platform and cannot be deleted.",
+      });
+      return;
+    }
+    showConfirm({
+      title: `Delete Course “${targetCourse.title}”`,
+      message: `Are you sure you want to permanently delete course “${targetCourse.title}” and all its sections?`,
+      detail: "This will permanently remove this course and all its sections from the database and cannot be undone.",
+      confirmLabel: "Delete Course",
+      variant: "danger",
+      onConfirm: async () => {
+        const ok = await mutate(
+          { action: "delete_course", courseId: targetCourse.id },
+          `del-course:${targetCourse.id}`,
+          `Deleted course “${targetCourse.title}”.`,
+          `loading..... Deleting course “${targetCourse.title}”...`
+        );
+        if (ok) {
+          setSelectedCourses((prev) => {
+            const next = new Set(prev);
+            next.delete(targetCourse.id);
+            return next;
+          });
+          if (effectiveCourseId === targetCourse.id) {
+            const remaining = activeCourses.filter((c) => c.id !== targetCourse.id);
+            if (remaining.length > 0) setCourseId(remaining[0].id);
+          }
+        }
+      },
+    });
+  }
+
   async function handleSaveDescription() {
     if (!effectiveCourseId) return;
     const ok = await mutate(
@@ -812,6 +942,332 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   }
 
   // =========================================================================
+  // COURSE SYSTEM ICONS HANDLERS (Copy-paste / Upload / Compress / Save)
+  // =========================================================================
+
+  /**
+   * Smart Boundary Flood-Fill Background Removal on HTML5 Canvas.
+   * Starts from image perimeter, detects exterior background color (white, light-gray, or black),
+   * and converts exterior background to transparent alpha without affecting interior graphics.
+   */
+  function removeCanvasBackground(canvas: HTMLCanvasElement, tolerance = 38): void {
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return;
+    const w = canvas.width;
+    const h = canvas.height;
+    if (w <= 0 || h <= 0) return;
+
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+
+    // Check corners to detect background color
+    const corners = [
+      0, // top-left
+      (w - 1) * 4, // top-right
+      ((h - 1) * w) * 4, // bottom-left
+      ((h - 1) * w + (w - 1)) * 4, // bottom-right
+    ];
+
+    let transparentCorners = 0;
+    for (const c of corners) {
+      if (data[c + 3] < 128) transparentCorners++;
+    }
+    // If corners are already transparent, no background removal is needed
+    if (transparentCorners >= 3) return;
+
+    let sumR = 0, sumG = 0, sumB = 0, count = 0;
+    for (const c of corners) {
+      if (data[c + 3] >= 128) {
+        sumR += data[c];
+        sumG += data[c + 1];
+        sumB += data[c + 2];
+        count++;
+      }
+    }
+    if (count === 0) return;
+    const bgR = Math.round(sumR / count);
+    const bgG = Math.round(sumG / count);
+    const bgB = Math.round(sumB / count);
+
+    // BFS Flood Fill from perimeter
+    const visited = new Uint8Array(w * h);
+    const queue: number[] = [];
+
+    for (let x = 0; x < w; x++) {
+      queue.push(x, 0);
+      queue.push(x, h - 1);
+      visited[x] = 1;
+      visited[(h - 1) * w + x] = 1;
+    }
+    for (let y = 1; y < h - 1; y++) {
+      queue.push(0, y);
+      queue.push(w - 1, y);
+      visited[y * w] = 1;
+      visited[y * w + (w - 1)] = 1;
+    }
+
+    const softEdgeBand = 16;
+    let head = 0;
+    while (head < queue.length) {
+      const px = queue[head++];
+      const py = queue[head++];
+      const idx = (py * w + px) * 4;
+
+      const r = data[idx];
+      const g = data[idx + 1];
+      const b = data[idx + 2];
+      const a = data[idx + 3];
+
+      if (a === 0) {
+        const neighbors = [
+          [px - 1, py],
+          [px + 1, py],
+          [px, py - 1],
+          [px, py + 1],
+        ];
+        for (const [nx, ny] of neighbors) {
+          if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+            const nPos = ny * w + nx;
+            if (!visited[nPos]) {
+              visited[nPos] = 1;
+              queue.push(nx, ny);
+            }
+          }
+        }
+        continue;
+      }
+
+      const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
+
+      if (dist <= tolerance) {
+        data[idx + 3] = 0;
+        const neighbors = [
+          [px - 1, py],
+          [px + 1, py],
+          [px, py - 1],
+          [px, py + 1],
+        ];
+        for (const [nx, ny] of neighbors) {
+          if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
+            const nPos = ny * w + nx;
+            if (!visited[nPos]) {
+              visited[nPos] = 1;
+              queue.push(nx, ny);
+            }
+          }
+        }
+      } else if (dist < tolerance + softEdgeBand) {
+        const factor = (dist - tolerance) / softEdgeBand;
+        data[idx + 3] = Math.round(data[idx + 3] * factor);
+      }
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+  }
+
+  function compressAndResizeIcon(
+    file: File | Blob | string,
+    maxWidth = 64,
+    maxHeight = 64,
+    shouldRemoveBg = true
+  ): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const processSrc = (src: string) => {
+        const img = new window.Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > maxWidth) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = Math.max(width, 1);
+          canvas.height = Math.max(height, 1);
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+          if (!ctx) {
+            resolve(src);
+            return;
+          }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+          if (shouldRemoveBg) {
+            try {
+              removeCanvasBackground(canvas);
+            } catch {
+              // fallback gracefully
+            }
+          }
+
+          try {
+            const pngUrl = canvas.toDataURL("image/png");
+            resolve(pngUrl);
+          } catch {
+            resolve(src);
+          }
+        };
+        img.onerror = () => reject(new Error("Unable to decode image."));
+        img.src = src;
+      };
+
+      if (typeof file === "string") {
+        processSrc(file);
+      } else {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          processSrc(e.target?.result as string);
+        };
+        reader.onerror = () => reject(new Error("Unable to read file."));
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  async function handleRemoveBgForIcon(iconId: string) {
+    if (!selectedCourse || !effectiveCourseId) return;
+    const currentIcons: CourseSystemIcon[] = selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || [];
+    const target = currentIcons.find((ic) => ic.id === iconId);
+    if (!target) return;
+
+    try {
+      setBusy((prev) => new Set(prev).add(`magic-bg:${iconId}`));
+      const newUrl = await compressAndResizeIcon(target.url, 64, 64, true);
+      const updated = currentIcons.map((ic) => (ic.id === iconId ? { ...ic, url: newUrl } : ic));
+      await saveSystemIcons(updated);
+      setNotice("Background removed successfully for icon.");
+    } catch {
+      setError("Could not remove background for this icon.");
+    } finally {
+      setBusy((prev) => {
+        const next = new Set(prev);
+        next.delete(`magic-bg:${iconId}`);
+        return next;
+      });
+    }
+  }
+
+  async function saveSystemIcons(updatedIcons: CourseSystemIcon[]) {
+    if (!effectiveCourseId) return;
+    setBusy((prev) => new Set(prev).add(`icons:${effectiveCourseId}`));
+    try {
+      const res = await fetch("/api/admin/access", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "update_course_system_icons",
+          courseId: effectiveCourseId,
+          systemIcons: updatedIcons,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.message || "Failed to save icons.");
+      }
+      setCourses((prev) =>
+        prev.map((c) =>
+          c.id === effectiveCourseId
+            ? {
+                ...c,
+                systemIcons: updatedIcons,
+                metadata: { ...c.metadata, systemIcons: updatedIcons },
+              }
+            : c
+        )
+      );
+      setNotice("System icons updated successfully.");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to update icons.");
+    } finally {
+      setBusy((prev) => {
+        const next = new Set(prev);
+        next.delete(`icons:${effectiveCourseId}`);
+        return next;
+      });
+    }
+  }
+
+  async function handleAddIcon(name: string, url: string) {
+    if (!selectedCourse || !effectiveCourseId) return;
+    const currentIcons: CourseSystemIcon[] = selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || [];
+    const newIcon: CourseSystemIcon = {
+      id: `icon-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      name: name.trim(),
+      url,
+      scale: 1.0,
+    };
+    await saveSystemIcons([...currentIcons, newIcon]);
+  }
+
+  async function handleRemoveIcon(iconId: string) {
+    if (!selectedCourse || !effectiveCourseId) return;
+    const currentIcons: CourseSystemIcon[] = selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || [];
+    await saveSystemIcons(currentIcons.filter((ic) => ic.id !== iconId));
+  }
+
+  function handleRenameIcon(iconId: string, newName: string) {
+    if (!selectedCourse || !effectiveCourseId) return;
+    const currentIcons: CourseSystemIcon[] = selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || [];
+    const updated = currentIcons.map((ic) => (ic.id === iconId ? { ...ic, name: newName } : ic));
+    setCourses((prev) =>
+      prev.map((c) =>
+        c.id === effectiveCourseId
+          ? {
+              ...c,
+              systemIcons: updated,
+              metadata: { ...c.metadata, systemIcons: updated },
+            }
+          : c
+      )
+    );
+  }
+
+  async function handlePasteImage(e: React.ClipboardEvent) {
+    const items = e.clipboardData?.items;
+    if (!items) return;
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.type.indexOf("image") !== -1) {
+        e.preventDefault();
+        const file = item.getAsFile();
+        if (!file) continue;
+        try {
+          // 100% automatic boundary background removal
+          const compressedUrl = await compressAndResizeIcon(file, 64, 64, true);
+          await handleAddIcon("", compressedUrl);
+        } catch {
+          setError("Could not process pasted image.");
+        }
+        break;
+      }
+    }
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      // 100% automatic boundary background removal
+      const compressedUrl = await compressAndResizeIcon(file, 64, 64, true);
+      const autoName = file.name ? file.name.replace(/\.[^/.]+$/, "") : "";
+      await handleAddIcon(autoName.toLowerCase() === "image" ? "" : autoName, compressedUrl);
+    } catch {
+      setError("Could not process uploaded image.");
+    } finally {
+      e.target.value = "";
+    }
+  }
+
+  // =========================================================================
   // MERGED COURSE SECTIONS HANDLERS (Thêm & Xóa Section gộp vào)
   // =========================================================================
 
@@ -821,8 +1277,8 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   }, [effectiveCourseId]);
 
   const deletableSections = useMemo(
-    () => courseSections.filter((s) => !["section1", "section2"].includes(s.section_key)),
-    [courseSections]
+    () => courseSections.filter((s) => !(selectedCourse?.slug === "applied-agentic-ai" && ["section1", "section2"].includes(s.section_key))),
+    [courseSections, selectedCourse?.slug]
   );
 
   const isAllSectionsSelected =
@@ -880,11 +1336,41 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     if (ok) setNewSectionTitle("");
   }
 
+  async function handleSectionContentUpload(section: Section, file: File | undefined) {
+    if (!file) return;
+    const key = `upload-section:${section.id}`;
+    setBusy((current) => new Set(current).add(key));
+    setProcessingMessage(`loading..... Uploading “${file.name}” to ${section.title}...`);
+    setError("");
+    setNotice("");
+    try {
+      const formData = new FormData();
+      formData.set("file", file);
+      const response = await fetch(`/api/admin/sections/${encodeURIComponent(section.id)}/content`, {
+        method: "POST",
+        body: formData,
+      });
+      const payload = (await response.json().catch(() => ({}))) as { success?: boolean; message?: string };
+      if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to upload section content.");
+      await loadData();
+      setNotice(`Uploaded “${file.name}”. The section now opens in the shared presentation frame.`);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to upload section content.");
+    } finally {
+      setProcessingMessage(null);
+      setBusy((current) => {
+        const next = new Set(current);
+        next.delete(key);
+        return next;
+      });
+    }
+  }
+
   async function handleDeleteSection(section: Section) {
-    if (["section1", "section2"].includes(section.section_key)) {
+    if (selectedCourse?.slug === "applied-agentic-ai" && ["section1", "section2"].includes(section.section_key)) {
       showAlert({
         title: "Default Platform Section",
-        message: "Section 1 and Section 2 are platform default sections and cannot be deleted.",
+        message: "Section 1 and Section 2 are platform default sections for the core course and cannot be deleted.",
       });
       return;
     }
@@ -895,12 +1381,19 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
       confirmLabel: "Delete Section",
       variant: "danger",
       onConfirm: async () => {
-        await mutate(
+        const ok = await mutate(
           { action: "delete_section", sectionId: section.id },
           `sec:${section.id}`,
           `Deleted section “${section.title}”.`,
           `loading..... Deleting section “${section.title}”...`
         );
+        if (ok) {
+          setSelectedSections((prev) => {
+            const next = new Set(prev);
+            next.delete(section.id);
+            return next;
+          });
+        }
       },
     });
   }
@@ -1695,6 +2188,20 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                             </span>
                                           </div>
                                         </button>
+                                        {course.slug !== "applied-agentic-ai" && (
+                                          <button
+                                            type="button"
+                                            className={styles.courseRowDeleteBtn}
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              void handleDeleteSingleCourse(course);
+                                            }}
+                                            disabled={busy.has(`del-course:${course.id}`) || Boolean(processingMessage)}
+                                            title={`Delete course “${course.title}”`}
+                                          >
+                                            ×
+                                          </button>
+                                        )}
                                       </div>
                                     );
                                   })}
@@ -2073,8 +2580,10 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                       </div>
                     </div>
 
-                    {/* 2. MERGED SECTIONS MANAGEMENT */}
-                    <div className={styles.mergedSectionsBlock}>
+                    {/* COURSE WORKSPACE SPLIT: Khung Section (Màu Đỏ - Trái) & Khung Icon (Màu Đen - Phải) */}
+                    <div className={styles.courseBottomGrid}>
+                      {/* 1. MERGED SECTIONS MANAGEMENT (Khung section chiếm phần màu đỏ) */}
+                      <div className={styles.mergedSectionsBlock}>
                       <div className={styles.mergedSectionsHeader}>
                         <div className={styles.mergedSectionsTitle}>
                           <div className={styles.badgeIndex}>
@@ -2140,7 +2649,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                           </div>
                         ) : (
                           courseSections.map((section) => {
-                            const isDefault = ["section1", "section2"].includes(section.section_key);
+                            const isDefault = selectedCourse.slug === "applied-agentic-ai" && ["section1", "section2"].includes(section.section_key);
                             const isChecked = selectedSections.has(section.id);
                             return (
                               <div
@@ -2148,7 +2657,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                 className={`${styles.sectionItemRow} ${isChecked ? styles.sectionItemRowSelected : ""}`}
                               >
                                 <div className={styles.sectionItemLeft}>
-                                  {!isDefault ? (
+                                  {!isDefault && (
                                     <input
                                       type="checkbox"
                                       checked={isChecked}
@@ -2156,18 +2665,44 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                       className={styles.emailRowCheckbox}
                                       title={`Select section “${section.title}”`}
                                     />
-                                  ) : (
-                                    <span className={styles.sectionDefaultSpacer} />
                                   )}
                                   <span className={styles.sectionItemPosition}>
                                     {section.position.toString().padStart(2, "0")}
                                   </span>
-                                  <span className={styles.sectionItemTitle} title={section.title}>
-                                    {section.title}
-                                  </span>
+                                  <DraggableScrollArea
+                                    className={styles.sectionTitleScrollArea}
+                                    title={`${section.title} (kéo qua lại để xem hết)`}
+                                  >
+                                    <span className={styles.sectionItemTitle}>
+                                      {section.title}
+                                    </span>
+                                    <span className={styles.sectionContentMeta}>
+                                      {section.source_filename
+                                        ? `${section.content_type.toUpperCase()} · ${section.source_filename}`
+                                        : isDefault
+                                          ? "Built-in interactive deck"
+                                          : "No presentation file"}
+                                    </span>
+                                  </DraggableScrollArea>
                                 </div>
                                 <div className={styles.sectionItemRight}>
-                                  {!isDefault ? (
+                                  {!isDefault && (
+                                    <label className={styles.sectionUploadButton} title="Upload or replace this section with a PDF or self-contained TSX deck">
+                                      <input
+                                        type="file"
+                                        accept=".pdf,.tsx,application/pdf,text/typescript"
+                                        hidden
+                                        disabled={busy.has(`upload-section:${section.id}`)}
+                                        onChange={(event) => {
+                                          const file = event.currentTarget.files?.[0];
+                                          void handleSectionContentUpload(section, file);
+                                          event.currentTarget.value = "";
+                                        }}
+                                      />
+                                      {busy.has(`upload-section:${section.id}`) ? "Uploading…" : section.source_filename ? "Replace file" : "Upload PDF / TSX"}
+                                    </label>
+                                  )}
+                                  {!isDefault && (
                                     <button
                                       type="button"
                                       className={styles.removeBtn}
@@ -2177,8 +2712,6 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                     >
                                       Delete
                                     </button>
-                                  ) : (
-                                    <span className={styles.defaultTag}>DEFAULT</span>
                                   )}
                                 </div>
                               </div>
@@ -2205,6 +2738,101 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                           {busy.has(`add-sec:${effectiveCourseId}`) ? "Adding…" : "+ Add Section"}
                         </button>
                       </form>
+                    </div>
+
+                    {/* 2. SYSTEM & TECH ICONS BLOCK (Khung icon chỉ chiếm phần màu đen) */}
+                      <div className={styles.systemIconsBlock}>
+                        <div className={styles.systemIconsHeader}>
+                          <div className={styles.systemIconsTitleArea}>
+                            <div className={styles.badgeIndex}>
+                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+                                <line x1="6" y1="6" x2="6.01" y2="6"/>
+                                <line x1="6" y1="18" x2="6.01" y2="18"/>
+                              </svg>
+                            </div>
+                            <div>
+                              <h3>Tech Stack Icons ({(selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || []).length})</h3>
+                              <p>Paste with Ctrl+V or upload</p>
+                            </div>
+                          </div>
+
+                          <div className={styles.systemIconsHeaderActions}>
+                            <label className={styles.iconUploadBtn} title="Upload icon image">
+                              <input
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                                onChange={(e) => void handleFileUpload(e)}
+                                style={{ display: "none" }}
+                              />
+                              <span>📁 Upload</span>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Paste Dropzone */}
+                        <div
+                          className={styles.iconPasteZone}
+                          tabIndex={0}
+                          onPaste={(e) => void handlePasteImage(e)}
+                          title="Click here and press Ctrl+V to paste icon image"
+                        >
+                          <div className={styles.pasteZoneContent}>
+                            <span className={styles.pasteShortcut}>Ctrl + V</span>
+                            <span className={styles.pasteZoneText}>
+                              Click &amp; <strong>Ctrl+V</strong> để dán ảnh icon
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Current Icons List */}
+                        {((selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || []).length > 0) ? (
+                          <div className={styles.systemIconsGrid}>
+                            {(selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || []).map((icon) => (
+                              <div key={icon.id} className={styles.systemIconItem}>
+                                <div className={styles.systemIconPreviewWrap}>
+                                  <img
+                                    src={icon.url}
+                                    alt={icon.name || "Icon"}
+                                    className={styles.systemIconAdminImg}
+                                  />
+                                </div>
+                                <input
+                                  type="text"
+                                  className={styles.systemIconNameInput}
+                                  value={icon.name && icon.name.toLowerCase() !== "system" ? icon.name : ""}
+                                  onChange={(e) => handleRenameIcon(icon.id, e.target.value)}
+                                  onBlur={() => void saveSystemIcons(selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || [])}
+                                  placeholder="Label (optional)"
+                                  title="Click to rename or leave empty"
+                                />
+                                <button
+                                  type="button"
+                                  className={styles.systemIconMagicBtn}
+                                  onClick={() => void handleRemoveBgForIcon(icon.id)}
+                                  disabled={busy.has(`magic-bg:${icon.id}`)}
+                                  title="Tách lại nền trong suốt cho icon này"
+                                >
+                                  {busy.has(`magic-bg:${icon.id}`) ? "…" : "✨"}
+                                </button>
+                                <button
+                                  type="button"
+                                  className={styles.systemIconDeleteBtn}
+                                  onClick={() => void handleRemoveIcon(icon.id)}
+                                  title="Delete icon"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className={styles.noIconsNotice}>
+                            No icons added yet. Press <strong>Ctrl+V</strong> or click <strong>Upload</strong>.
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </>
                 ) : (

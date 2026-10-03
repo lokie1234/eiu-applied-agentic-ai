@@ -7,6 +7,7 @@ import {
 } from "@/lib/auth/session";
 import {
   isEmailAuthorized,
+  getUserUnlockedCourses,
 } from "@/lib/auth/courseAccessStorage";
 import {
   FIXED_ADMIN_EMAIL,
@@ -83,6 +84,9 @@ export async function POST(request: Request) {
     }
 
     // Email is authorized! Grant session to access course library in /learn
+    // Retrieve any courses this learner has already unlocked previously
+    const previouslyUnlocked = await getUserUnlockedCourses(email);
+
     const response = NextResponse.json({
       success: true,
       destination: "/learn",
@@ -93,7 +97,7 @@ export async function POST(request: Request) {
       createAccessSession({
         role: "learner",
         email,
-        unlockedCourses: [],
+        unlockedCourses: previouslyUnlocked,
       }),
       sessionCookieOptions()
     );

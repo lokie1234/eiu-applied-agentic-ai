@@ -24,6 +24,6 @@ export default async function LearningPage() {
   if (courseFolders.length === 0) return <NoCourseAccess />;
   const savedSection = cookieStore.get(ACTIVE_SECTION_COOKIE)?.value;
   const initialSection = isLearningSection(savedSection) && allowedSections.includes(savedSection) ? savedSection : null;
-  return <LessonPortal isAdmin={access.isAdmin} allowedSections={[...allowedSections]} courseFolders={courseFolders}
+  return <LessonPortal isAdmin={access.isAdmin} courseFolders={courseFolders}
     initialSection={initialSection} initialProfile={{ name: access.displayName, email: access.email, section: initialSection ?? allowedSections[0] ?? "section1" }} />;
 }

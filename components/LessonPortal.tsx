@@ -8,6 +8,7 @@ import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
+import UploadedSectionDeck from "./deck/UploadedSectionDeck";
 import styles from "./LessonPortal.module.css";
 
 const SectionOneDeck = dynamic(() => import("./PdfDeck"), { ssr: false });
@@ -22,6 +23,9 @@ type CourseFolderSection = {
   sectionKey: string;
   title: string;
   position: number;
+  contentType: "builtin" | "pdf" | "tsx";
+  sourceFilename: string | null;
+  slideCount: number | null;
 };
 type CourseFolder = {
   id: string;
@@ -33,6 +37,7 @@ type CourseFolder = {
   folderGroupId?: string;
   folderGroupName?: string;
   folderOrder?: number;
+  systemIcons?: Array<{ id: string; name: string; url: string }>;
   sections: CourseFolderSection[];
 };
 
@@ -134,6 +139,7 @@ function DeckShell({
   onChooseSection,
   onOpenTerminate,
   onSignOut,
+  courseTitle,
 }: {
   children: ReactNode;
   isAdmin: boolean;
@@ -143,6 +149,7 @@ function DeckShell({
   onChooseSection?: () => void;
   onOpenTerminate?: () => void;
   onSignOut: () => void;
+  courseTitle: string;
 }) {
   return (
     <div className={styles.lessonShell}>
@@ -150,7 +157,7 @@ function DeckShell({
 
       <aside className={styles.actionBar} aria-label="Session controls">
         <div className={styles.actionBarIdentity} aria-live="polite">
-          <span>EIU · APPLIED AGENTIC AI</span>
+          <span>EIU · {courseTitle.toUpperCase()}</span>
           <strong>
             {statusNotice || (isAdmin ? "Admin mode" : "Learning session")}
           </strong>
@@ -212,13 +219,11 @@ function DeckShell({
 
 export default function LessonPortal({
   isAdmin,
-  allowedSections,
   courseFolders,
   initialSection,
   initialProfile,
 }: {
   isAdmin: boolean;
-  allowedSections: SectionId[];
   courseFolders: CourseFolder[];
   initialSection: SectionId | null;
   initialProfile: LearnerProfile | null;
@@ -230,6 +235,7 @@ export default function LessonPortal({
     initialSection ? appliedCourseId : null,
   );
   const [adminSection, setAdminSection] = useState<SectionId | null>(initialSection);
+  const [activeUploadedSection, setActiveUploadedSection] = useState<CourseFolderSection | null>(null);
   const [showTerminate, setShowTerminate] = useState(false);
   const [terminateStatus, setTerminateStatus] =
     useState<TerminateStatus>("idle");
@@ -256,17 +262,41 @@ export default function LessonPortal({
   const [unlockedCourseIds, setUnlockedCourseIds] = useState<Set<string>>(() => {
     return new Set(courseFolders.filter((c) => c.isUnlocked).map((c) => c.id));
   });
+
+  useEffect(() => {
+    setUnlockedCourseIds((prev) => {
+      const next = new Set(prev);
+      for (const c of courseFolders) {
+        if (c.isUnlocked) next.add(c.id);
+      }
+      return next;
+    });
+  }, [courseFolders]);
+
   const [passcodeModalCourse, setPasscodeModalCourse] = useState<CourseFolder | null>(null);
   const [inputPasscode, setInputPasscode] = useState("");
   const [passcodeError, setPasscodeError] = useState("");
   const [isSubmittingPasscode, setIsSubmittingPasscode] = useState(false);
+
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredCourseFolders = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return courseFolders;
+    return courseFolders.filter((course) => {
+      const titleMatch = course.title?.toLowerCase().includes(q);
+      const descMatch = course.description?.toLowerCase().includes(q);
+      const groupMatch = course.folderGroupName?.toLowerCase().includes(q);
+      return titleMatch || descMatch || groupMatch;
+    });
+  }, [courseFolders, searchQuery]);
 
   // Group courses by parent folder (Folder Lớn)
   const groupedCourses = useMemo(() => {
     const groups: Array<{ id: string; name: string; courses: CourseFolder[] }> = [];
     const groupMap = new Map<string, { id: string; name: string; courses: CourseFolder[] }>();
 
-    for (const course of courseFolders) {
+    for (const course of filteredCourseFolders) {
       const gId = course.folderGroupId || "fg-ai-agentic";
       const gName = course.folderGroupName || "Chương Trình AI & Agentic";
       if (!groupMap.has(gId)) {
@@ -277,7 +307,18 @@ export default function LessonPortal({
       groupMap.get(gId)!.courses.push(course);
     }
     return groups;
-  }, [courseFolders]);
+  }, [filteredCourseFolders]);
+
+  const COURSES_PER_PAGE = 4;
+  const [groupPages, setGroupPages] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    setGroupPages({});
+  }, [searchQuery]);
+
+  const handlePageChange = (groupId: string, newPage: number) => {
+    setGroupPages((prev) => ({ ...prev, [groupId]: newPage }));
+  };
 
   async function handleUnlockCourseSubmit(e: FormEvent) {
     e.preventDefault();
@@ -597,7 +638,10 @@ export default function LessonPortal({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ section: nextSection }),
     });
-    if (response.ok) setAdminSection(nextSection);
+    if (response.ok) {
+      setActiveUploadedSection(null);
+      setAdminSection(nextSection);
+    }
   }
 
   // Admin section termination polling listener
@@ -693,84 +737,277 @@ export default function LessonPortal({
             </div>
           </div>
 
-          <div className={styles.heading}>
-            <span>COURSE LIBRARY</span>
-            <h1>Choose a course</h1>
-            <p>Each section is protected with a unique passcode and authorized email access.</p>
+          <div className={styles.libraryHeaderToolbar}>
+            <div className={styles.libraryHeaderTitleArea}>
+              <span className={styles.libraryHeaderTag}>COURSE LIBRARY</span>
+              <h1 className={styles.libraryHeaderTitle}>Choose a course</h1>
+            </div>
+
+            <div className={styles.librarySearchArea}>
+              <div className={styles.searchBarWrapper}>
+                <svg
+                  className={styles.searchIcon}
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  type="text"
+                  className={styles.searchInput}
+                  placeholder="Search courses or topics..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  aria-label="Search courses"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    className={styles.searchClearBtn}
+                    onClick={() => setSearchQuery("")}
+                    aria-label="Clear search"
+                  >
+                    ×
+                  </button>
+                )}
+              </div>
+              <span className={styles.searchStatsBadge}>
+                {searchQuery
+                  ? `${filteredCourseFolders.length} found`
+                  : `${courseFolders.length} ${courseFolders.length === 1 ? "course" : "courses"}`}
+              </span>
+            </div>
           </div>
 
           <div className={styles.libraryFolderSections}>
-            {groupedCourses.map((group) => (
-              <div key={group.id} className={styles.libraryFolderGroup}>
-                {groupedCourses.length > 1 && (
-                  <div className={styles.libraryFolderHeader}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#e9ca8b" aria-hidden="true">
-                        <path d="M20 5h-9.586L8.707 3.293A.997.997 0 0 0 8 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/>
-                      </svg>
-                      <h2 className={styles.libraryFolderTitle}>{group.name}</h2>
-                    </div>
-                    <span className={styles.libraryFolderBadge}>{group.courses.length} {group.courses.length === 1 ? "COURSE" : "COURSES"}</span>
-                  </div>
-                )}
-
-                <div className={styles.courseFolderGrid}>
-                  {group.courses.map((course) => {
-                    const isCourseUnlocked = Boolean(isAdmin || course.isUnlocked || unlockedCourseIds.has(course.id));
-                    return (
-                      <button
-                        type="button"
-                        className={styles.courseFolder}
-                        key={course.id}
-                        onClick={() => {
-                          if (isCourseUnlocked) {
-                            setSelectedCourseId(course.id);
-                          } else {
-                            setPasscodeModalCourse(course);
-                            setInputPasscode("");
-                            setPasscodeError("");
-                          }
-                        }}
-                      >
-                        <span className={styles.folderIcon} aria-hidden="true">
-                          <i />
-                        </span>
-                        <span className={styles.folderCopy}>
-                          <strong className={styles.courseTitle}>{course.title}</strong>
-                          <span className={styles.sectionCountText}>
-                            {course.sections.length} {course.sections.length === 1 ? "SECTION" : "SECTIONS"}
-                          </span>
-                          <em>{course.description || "Interactive content and learning resources."}</em>
-                          <div className={styles.folderBadgesRow}>
-                            <span className={styles.folderLanguage}>
-                              {course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}
-                            </span>
-                            {isCourseUnlocked ? (
-                              <span className={styles.unlockedFolderBadge}>
-                                <i className={styles.dotUnlocked} aria-hidden="true" />
-                                <span>UNLOCKED</span>
-                              </span>
-                            ) : (
-                              <span className={styles.lockedFolderBadge}>
-                                <i className={styles.dotLocked} aria-hidden="true" />
-                                <span>PASSCODE REQUIRED</span>
-                              </span>
-                            )}
-                          </div>
-                        </span>
-                        <b aria-hidden="true" className={isCourseUnlocked ? styles.folderArrowUnlocked : styles.folderArrowLocked}>
-                          {isCourseUnlocked ? (
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                          ) : (
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                          )}
-                        </b>
-                      </button>
-                    );
-                  })}
+            {groupedCourses.length === 0 ? (
+              <div className={styles.emptySearch}>
+                <div className={styles.emptySearchIcon} aria-hidden="true">
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e9ca8b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="11" cy="11" r="8" />
+                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                  </svg>
                 </div>
+                <h3>No courses found</h3>
+                <p>No courses match &ldquo;{searchQuery}&rdquo;. Try another keyword or clear search.</p>
+                <button
+                  type="button"
+                  className={styles.clearSearchBtn}
+                  onClick={() => setSearchQuery("")}
+                >
+                  Clear search
+                </button>
               </div>
-            ))}
+            ) : (
+              groupedCourses.map((group) => {
+                const totalCourses = group.courses.length;
+                const totalPages = Math.max(1, Math.ceil(totalCourses / COURSES_PER_PAGE));
+                const currentPage = Math.min(Math.max(1, groupPages[group.id] || 1), totalPages);
+                const startIndex = (currentPage - 1) * COURSES_PER_PAGE;
+                const paginatedCourses = group.courses.slice(startIndex, startIndex + COURSES_PER_PAGE);
+                const colCount = Math.min(totalCourses, COURSES_PER_PAGE);
+
+                return (
+                  <div key={group.id} className={styles.libraryFolderGroup}>
+                    {(groupedCourses.length > 1 || totalPages > 1 || searchQuery) && (
+                      <div className={styles.libraryFolderHeader}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="#e9ca8b" aria-hidden="true">
+                            <path d="M20 5h-9.586L8.707 3.293A.997.997 0 0 0 8 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/>
+                          </svg>
+                          <h2 className={styles.libraryFolderTitle}>{group.name}</h2>
+                        </div>
+                        <div className={styles.libraryFolderHeaderRight}>
+                          <span className={styles.libraryFolderBadge}>
+                            {totalCourses} {totalCourses === 1 ? "COURSE" : "COURSES"}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    <div
+                      className={styles.courseFolderGrid}
+                      style={{ "--col-count": colCount } as React.CSSProperties}
+                    >
+                      {paginatedCourses.map((course) => {
+                        const isCourseUnlocked = Boolean(isAdmin || course.isUnlocked || unlockedCourseIds.has(course.id));
+                        return (
+                          <button
+                            type="button"
+                            className={styles.courseFolder}
+                            key={course.id}
+                            onClick={() => {
+                              if (isCourseUnlocked) {
+                                setSelectedCourseId(course.id);
+                                if (!isAdmin && course.id) {
+                                  void fetch("/api/auth/unlock-course", {
+                                    method: "POST",
+                                    headers: { "Content-Type": "application/json" },
+                                    body: JSON.stringify({ courseId: course.id, isFreeAccess: true }),
+                                  })
+                                    .then((res) => {
+                                      if (res.ok) {
+                                        setUnlockedCourseIds((prev) => new Set(prev).add(course.id));
+                                      }
+                                    })
+                                    .catch(() => {});
+                                }
+                              } else {
+                                setPasscodeModalCourse(course);
+                                setInputPasscode("");
+                                setPasscodeError("");
+                              }
+                            }}
+                          >
+                            <div className={styles.courseCardBody}>
+                              <div className={styles.courseCardTopRow}>
+                                <div className={styles.courseCardHeading}>
+                                  <strong className={styles.courseTitle}>{course.title}</strong>
+                                  <span className={styles.sectionCountText}>
+                                    {course.sections.length} {course.sections.length === 1 ? "SECTION" : "SECTIONS"}
+                                  </span>
+                                </div>
+                                <b aria-hidden="true" className={isCourseUnlocked ? styles.folderArrowUnlocked : styles.folderArrowLocked}>
+                                  {isCourseUnlocked ? (
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                  ) : (
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                                  )}
+                                </b>
+                              </div>
+
+                              <em className={styles.courseDesc}>
+                                {course.description || "Interactive content and learning resources."}
+                              </em>
+
+                              <div className={styles.folderBadgesRow}>
+                                <span className={styles.folderLanguage}>
+                                  {course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}
+                                </span>
+                                {isCourseUnlocked ? (
+                                  <span className={styles.unlockedFolderBadge}>
+                                    <i className={styles.dotUnlocked} aria-hidden="true" />
+                                    <span>UNLOCKED</span>
+                                  </span>
+                                ) : (
+                                  <span className={styles.lockedFolderBadge}>
+                                    <i className={styles.dotLocked} aria-hidden="true" />
+                                    <span>PASSCODE REQUIRED</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Tech Stack Icons: Thanh hiển thị ngang riêng biệt bên dưới, tự lặp vô tận khi > 5 icon */}
+                            {course.systemIcons && course.systemIcons.length > 0 && (
+                              <div className={styles.courseCardIconsArea} title="Course Tech Stack">
+                                {course.systemIcons.length > 5 ? (
+                                  <div className={styles.marqueeContainer}>
+                                    <div className={styles.marqueeTrack}>
+                                      {course.systemIcons.map((icon, idx) => (
+                                        <div
+                                          key={`a-${icon.id}-${idx}`}
+                                          className={styles.courseCardIconBox}
+                                          style={{ animationDelay: `${(idx % 6) * 0.45}s` }}
+                                          title={icon.name && icon.name.toLowerCase() !== "system" ? icon.name : undefined}
+                                        >
+                                          <img
+                                            src={icon.url}
+                                            alt={icon.name || "Icon"}
+                                            className={styles.courseCardIconImg}
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                    <div className={styles.marqueeTrack} aria-hidden="true">
+                                      {course.systemIcons.map((icon, idx) => (
+                                        <div
+                                          key={`b-${icon.id}-${idx}`}
+                                          className={styles.courseCardIconBox}
+                                          style={{ animationDelay: `${((idx + 2) % 6) * 0.45}s` }}
+                                          title={icon.name && icon.name.toLowerCase() !== "system" ? icon.name : undefined}
+                                        >
+                                          <img
+                                            src={icon.url}
+                                            alt={icon.name || "Icon"}
+                                            className={styles.courseCardIconImg}
+                                          />
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <div className={styles.staticIconsTrack}>
+                                    {course.systemIcons.map((icon, idx) => (
+                                      <div
+                                        key={icon.id}
+                                        className={styles.courseCardIconBox}
+                                        style={{ animationDelay: `${idx * 0.45}s` }}
+                                        title={icon.name && icon.name.toLowerCase() !== "system" ? icon.name : undefined}
+                                      >
+                                        <img
+                                          src={icon.url}
+                                          alt={icon.name || "Icon"}
+                                          className={styles.courseCardIconImg}
+                                        />
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {totalPages > 1 && (
+                      <div className={styles.groupPaginationFooter}>
+                        <span className={styles.paginationDetail}>
+                          Showing {startIndex + 1}–{Math.min(startIndex + COURSES_PER_PAGE, totalCourses)} of {totalCourses} courses
+                        </span>
+                        <div className={styles.pagePills}>
+                          <button
+                            type="button"
+                            className={styles.pagePillNav}
+                            disabled={currentPage === 1}
+                            onClick={() => handlePageChange(group.id, currentPage - 1)}
+                          >
+                            ‹ Prev
+                          </button>
+                          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
+                            <button
+                              key={pageNum}
+                              type="button"
+                              className={`${styles.pagePill} ${pageNum === currentPage ? styles.pagePillActive : ""}`}
+                              onClick={() => handlePageChange(group.id, pageNum)}
+                            >
+                              {pageNum}
+                            </button>
+                          ))}
+                          <button
+                            type="button"
+                            className={styles.pagePillNav}
+                            disabled={currentPage === totalPages}
+                            onClick={() => handlePageChange(group.id, currentPage + 1)}
+                          >
+                            Next ›
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })
+            )}
           </div>
         </section>
 
@@ -868,55 +1105,7 @@ export default function LessonPortal({
     );
   }
 
-  if (!section && selectedCourse.slug !== APPLIED_AGENTIC_AI_SLUG) {
-    return (
-      <main className={styles.portal}>
-        <div className={styles.grid} aria-hidden="true" />
-        <div className={styles.selectorActions}>
-          <button type="button" onClick={() => setSelectedCourseId(null)}>← Courses</button>
-          {isAdmin && <Link href="/admin/access">Access settings</Link>}
-          <button type="button" onClick={signOut}>Sign out</button>
-        </div>
-
-        <section className={styles.panel}>
-          <div className={styles.brand}>
-            <div className={styles.logoWindow}>
-              <Image
-                src="/branding/EIU-logo-white.png"
-                alt="EIU"
-                width={2048}
-                height={2048}
-                priority
-                unoptimized
-              />
-            </div>
-            <div>
-              <span>COURSE FOLDER</span>
-              <strong>{selectedCourse.title}</strong>
-            </div>
-          </div>
-          <div className={styles.heading}>
-            <span>AVAILABLE SECTIONS</span>
-            <h1>{selectedCourse.title}</h1>
-            <p>{selectedCourse.description || "Sections available in this course folder."}</p>
-          </div>
-          <div className={styles.pendingSections}>
-            {selectedCourse.sections.length === 0 ? (
-              <p>This folder does not have any sections yet.</p>
-            ) : selectedCourse.sections.map((courseSection) => (
-              <article key={courseSection.id}>
-                <span>SECTION {courseSection.position}</span>
-                <strong>{courseSection.title}</strong>
-                <small>This content is being prepared for the Learning Space.</small>
-              </article>
-            ))}
-          </div>
-        </section>
-      </main>
-    );
-  }
-
-  if (!section) {
+  if (!section && !activeUploadedSection) {
     return (
       <main className={styles.portal}>
         <div className={styles.grid} aria-hidden="true" />
@@ -971,44 +1160,54 @@ export default function LessonPortal({
             </div>
             <div>
               <span>{isAdmin ? "ADMIN ACCESS" : "MY COURSE"}</span>
-              <strong>EIU - Applied Agentic AI</strong>
+              <strong>{selectedCourse.title}</strong>
             </div>
           </div>
 
           <div className={styles.heading}>
-            <span>APPLIED AGENTIC AI</span>
+            <span>{selectedCourse.title.toUpperCase()}</span>
             <h1>Choose what you want to learn</h1>
-            <p>Sections are accessible based on your email and section passcode.</p>
+            <p>{selectedCourse.description || "Choose a section to open it in the shared presentation frame."}</p>
             {reportStatus === "error" && reportNotice && (
               <p className={styles.reportError} role="alert">{reportNotice}</p>
             )}
           </div>
 
           <div className={styles.cards}>
-            {allowedSections.includes("section1") && (
-              <button type="button" onClick={() => void chooseSection("section1")}>
-                <span>SECTION 1</span>
-                <strong>Từ Prompt đến Web App</strong>
-                <small>41 slide · PDF + HTML interactive</small>
-                {isAdmin && <div className={styles.cardLiveUsers}>
-                  <span className={styles.liveDot} />
-                  <span>{presenceCounts.section1} active learners</span>
-                </div>}
-                <i>→</i>
-              </button>
-            )}
-            {allowedSections.includes("section2") && (
-              <button type="button" onClick={() => void chooseSection("section2")}>
-                <span>SECTION 2</span>
-                <strong>Từ Prompt đến AI Business Framework</strong>
-                <small>37 slide · HTML/CSS/React</small>
-                {isAdmin && <div className={styles.cardLiveUsers}>
-                  <span className={styles.liveDot} />
-                  <span>{presenceCounts.section2} active learners</span>
-                </div>}
-                <i>→</i>
-              </button>
-            )}
+            {selectedCourse.sections.map((courseSection) => {
+              const coreSection = selectedCourse.slug === APPLIED_AGENTIC_AI_SLUG &&
+                (courseSection.sectionKey === "section1" || courseSection.sectionKey === "section2")
+                  ? courseSection.sectionKey as SectionId
+                  : null;
+              const hasUploadedDeck = courseSection.contentType === "pdf" || courseSection.contentType === "tsx";
+              const canOpen = Boolean(coreSection || hasUploadedDeck);
+              const count = courseSection.slideCount ?? (coreSection === "section1" ? 41 : coreSection === "section2" ? 37 : null);
+              return (
+                <button
+                  type="button"
+                  key={courseSection.id}
+                  disabled={!canOpen}
+                  onClick={() => {
+                    if (coreSection) void chooseSection(coreSection);
+                    else if (hasUploadedDeck) setActiveUploadedSection(courseSection);
+                  }}
+                >
+                  <span>SECTION {courseSection.position}</span>
+                  <strong>{courseSection.title}</strong>
+                  <small>
+                    {canOpen
+                      ? `${count ? `${count} slide · ` : ""}${coreSection ? "Interactive" : courseSection.contentType.toUpperCase()}`
+                      : "Content has not been uploaded yet"}
+                  </small>
+                  {isAdmin && coreSection && <div className={styles.cardLiveUsers}>
+                    <span className={styles.liveDot} />
+                    <span>{presenceCounts[coreSection]} active learners</span>
+                  </div>}
+                  <i>{canOpen ? "→" : "…"}</i>
+                </button>
+              );
+            })}
+            {selectedCourse.sections.length === 0 && <p>This course does not have any sections yet.</p>}
           </div>
         </section>
 
@@ -1256,10 +1455,11 @@ export default function LessonPortal({
         statusNotice={isAdmin ? terminateNotice : undefined}
         onChooseSection={() => {
           setAdminSection(null);
+          setActiveUploadedSection(null);
           setSelectedCourseId(null);
         }}
         onOpenTerminate={
-          isAdmin
+          isAdmin && section
             ? () => {
                 setTerminateStatus("idle");
                 setTerminateNotice("");
@@ -1268,11 +1468,31 @@ export default function LessonPortal({
             : undefined
         }
         onSignOut={signOut}
+        courseTitle={selectedCourse.title}
       >
-        {section === "section2" ? (
-          <SectionTwoDeck key={`${section}-${deckSessionKey}`} isAdmin={isAdmin} />
+        {activeUploadedSection ? (
+          <UploadedSectionDeck
+            key={`${activeUploadedSection.id}-${deckSessionKey}`}
+            sectionId={activeUploadedSection.id}
+            contentType={activeUploadedSection.contentType === "pdf" ? "pdf" : "tsx"}
+            slideCount={activeUploadedSection.slideCount}
+            courseTitle={selectedCourse.title}
+            sectionTitle={activeUploadedSection.title}
+          />
+        ) : section === "section2" ? (
+          <SectionTwoDeck
+            key={`${section}-${deckSessionKey}`}
+            isAdmin={isAdmin}
+            courseTitle={selectedCourse.title}
+            sectionTitle={selectedCourse.sections.find((item) => item.sectionKey === "section2")?.title || "Section 2"}
+          />
         ) : (
-          <SectionOneDeck key={`${section}-${deckSessionKey}`} isAdmin={isAdmin} />
+          <SectionOneDeck
+            key={`${section}-${deckSessionKey}`}
+            isAdmin={isAdmin}
+            courseTitle={selectedCourse.title}
+            sectionTitle={selectedCourse.sections.find((item) => item.sectionKey === "section1")?.title || "Section 1"}
+          />
         )}
       </DeckShell>
 

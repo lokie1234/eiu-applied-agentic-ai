@@ -2,7 +2,7 @@ import "server-only";
 
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { currentAccessSession } from "@/lib/auth/session";
-import { parseCourseMetadata } from "@/lib/auth/courseAccessStorage";
+import { parseCourseMetadata, getUserUnlockedCourses } from "@/lib/auth/courseAccessStorage";
 import { FIXED_ADMIN_EMAIL, type AppUserAccess, type CourseAccess, type SectionAccess } from "@/lib/auth/types";
 
 type CourseRow = {
@@ -16,7 +16,7 @@ type CourseRow = {
 async function loadSections(courseIds?: string[]) {
   const admin = getSupabaseAdmin();
   let query = admin.from("course_sections")
-    .select("id, course_id, section_key, title, position")
+    .select("id, course_id, section_key, title, position, content_type, source_filename, slide_count")
     .eq("status", "active")
     .order("position");
   if (courseIds) query = query.in("course_id", courseIds);
@@ -28,6 +28,9 @@ async function loadSections(courseIds?: string[]) {
     sectionKey: String(section.section_key),
     title: String(section.title),
     position: Number(section.position),
+    contentType: section.content_type === "pdf" || section.content_type === "tsx" ? section.content_type : "builtin",
+    sourceFilename: section.source_filename ? String(section.source_filename) : null,
+    slideCount: Number.isFinite(Number(section.slide_count)) && Number(section.slide_count) > 0 ? Number(section.slide_count) : null,
   }));
 }
 
@@ -52,6 +55,7 @@ async function loadCourses(courseIds?: string[]) {
       folderGroupId: meta.folderGroupId || "fg-ai-agentic",
       folderGroupName: meta.folderGroupName || "Chương Trình AI & Agentic",
       folderOrder: meta.folderOrder ?? 0,
+      systemIcons: meta.systemIcons || [],
     };
   });
 }
@@ -76,10 +80,17 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
 
   // Learner with authorized email - can view all courses in folder library
   if (session.role === "learner" && "email" in session && session.email) {
-    const [allCourses, allSections] = await Promise.all([loadCourses(), loadSections()]);
+    const [allCourses, allSections, rememberedUnlocked] = await Promise.all([
+      loadCourses(),
+      loadSections(),
+      getUserUnlockedCourses(session.email),
+    ]);
     if (allCourses.length === 0) return null;
 
-    const sessionUnlockedCourses = new Set(session.unlockedCourses ?? []);
+    const sessionUnlockedCourses = new Set([
+      ...(session.unlockedCourses ?? []),
+      ...rememberedUnlocked,
+    ]);
     if (session.courseId) {
       sessionUnlockedCourses.add(String(session.courseId));
     }

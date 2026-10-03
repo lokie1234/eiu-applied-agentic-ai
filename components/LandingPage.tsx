@@ -134,7 +134,7 @@ export default function LandingPage() {
 
   // CTA interaction synchronization
   const [isCtaHovered, setIsCtaHovered] = useState(false);
-  const [ctaPulsed, setCtaPulsed] = useState(false);
+  const ctaPulsed = false;
 
   // ── Master Cinematic Timeline (Accelerated internal emergence) ──
   // Stage 0: 0.0s   - Environment awake
@@ -172,10 +172,6 @@ export default function LandingPage() {
     };
   }, [prefersReduced]);
 
-  // CTA click: trigger auth modal directly
-  const handleCtaClick = useCallback(() => {
-    open();
-  }, []);
 
   // ── Initial Entrance Boot State (Single run per page visit) ──
   const [isEntranceActive, setIsEntranceActive] = useState(true);

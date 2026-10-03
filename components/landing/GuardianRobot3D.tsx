@@ -78,9 +78,9 @@ function VisorErrorDisplay() {
       context.font = "bold 104px monospace";
       context.textAlign = "center";
       context.textBaseline = "middle";
-      context.fillStyle = "#FF5959";
-      context.shadowColor = "#FF2020";
-      context.shadowBlur = 18;
+      context.fillStyle = "#FFD600";
+      context.shadowColor = "#FFB800";
+      context.shadowBlur = 24;
       context.fillText("Error....Error.....", 640, 128, 1180);
     }
     const display = new THREE.CanvasTexture(canvas);
@@ -357,15 +357,15 @@ function RobotOrbitTrack({
 
     // Dynamic track color & glow
     if (coreMatRef.current) {
-      const targetColor = isErr ? "#FF453A" : "#E9CA8B";
-      const targetEmissive = isErr ? "#FF3B30" : "#B39159";
+      const targetColor = isErr ? "#FFD600" : "#E9CA8B";
+      const targetEmissive = isErr ? "#FFB800" : "#B39159";
       coreMatRef.current.color.lerp(new THREE.Color(targetColor), delta * 5);
       coreMatRef.current.emissive.lerp(new THREE.Color(targetEmissive), delta * 5);
       coreMatRef.current.emissiveIntensity = isErr ? 1.4 : 0.65;
     }
 
     if (auraMatRef.current) {
-      const targetAura = isErr ? "#FF3B30" : "#2D7FB4";
+      const targetAura = isErr ? "#FFB800" : "#2D7FB4";
       auraMatRef.current.color.lerp(new THREE.Color(targetAura), delta * 5);
       auraMatRef.current.opacity = isErr ? 0.38 : 0.22;
     }
@@ -980,7 +980,7 @@ export default function GuardianRobot3D({
 
   // Core Drag Initiation (Callable from 3D hit or global window raycast)
   const startDrag = useCallback(
-    (clientX: number, clientY: number) => {
+    (_clientX?: number, _clientY?: number) => {
       isDragging.current = true;
       isError.current = false;
       setShowErrorBadge(false);
@@ -1634,8 +1634,23 @@ export default function GuardianRobot3D({
     const boost = isLoading ? 3.0 : isProcessing ? 2.2 : isLookingAtAccess ? 1.45 : ctaPulsed ? 2.4 : 1.0;
     const keyCorePulse = isKeyActive ? 1.0 + keyIntensity * 0.7 : 1.0;
 
-    if (isError.current || isRestricted) {
-      // Diagnostic Error Red Alert!
+    if (isError.current) {
+      // Diagnostic Error Warning Yellow Alert!
+      coreEmissiveMat.color.set("#FFD600");
+      coreEmissiveMat.emissive.set("#FFB800");
+      coreEmissiveMat.emissiveIntensity = 2.8 + Math.sin(t * 18) * 1.0;
+
+      eyeEmissiveMat.color.set("#FFD600");
+      eyeEmissiveMat.emissive.set("#FFB800");
+      eyeEmissiveMat.emissiveIntensity = 3.0 + Math.sin(t * 18) * 1.2;
+
+      antennaEmissiveMat.color.set("#FFD600");
+      antennaEmissiveMat.emissive.set("#FFB800");
+      antennaEmissiveMat.emissiveIntensity = 3.2;
+
+      thrusterGlowMat.opacity = 0.92;
+    } else if (isRestricted) {
+      // Access Restricted Red Alert!
       coreEmissiveMat.color.set("#FF3B30");
       coreEmissiveMat.emissive.set("#FF3B30");
       coreEmissiveMat.emissiveIntensity = 2.8 + Math.sin(t * 18) * 1.0;
@@ -1679,7 +1694,9 @@ export default function GuardianRobot3D({
 
     if (corePointLightRef.current) {
       corePointLightRef.current.intensity = 0.8 * basePulse * boost * keyCorePulse * (isError.current ? 1.8 : 1.0);
-      if (isError.current || isRestricted) {
+      if (isError.current) {
+        corePointLightRef.current.color.set("#FFB800");
+      } else if (isRestricted) {
         corePointLightRef.current.color.set("#FF3B30");
       } else if (isLoading) {
         corePointLightRef.current.color.set("#00FF88");
