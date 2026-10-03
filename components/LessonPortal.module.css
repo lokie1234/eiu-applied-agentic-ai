@@ -1474,3 +1474,52 @@
   opacity: 0.65;
   cursor: not-allowed;
 }
+
+/* ==========================================================================
+   FOLDER LỚN CATEGORY GROUPING IN LEARNING SPACE
+   ========================================================================== */
+.libraryFolderSections {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  width: 100%;
+}
+
+.libraryFolderGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.libraryFolderHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid rgba(233, 202, 139, 0.25);
+}
+
+.libraryFolderTitle {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 800;
+  color: #f4dfb0;
+  letter-spacing: -0.01em;
+}
+
+.libraryFolderBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(233, 202, 139, 0.15);
+  color: #e9ca8b;
+  border: 1px solid rgba(233, 202, 139, 0.3);
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+

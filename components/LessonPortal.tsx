@@ -3,7 +3,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
-import { type FormEvent, type ReactNode, useEffect, useRef, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -30,6 +30,9 @@ type CourseFolder = {
   description: string | null;
   languageLabel: "vi" | "en" | "vi_en";
   isUnlocked?: boolean;
+  folderGroupId?: string;
+  folderGroupName?: string;
+  folderOrder?: number;
   sections: CourseFolderSection[];
 };
 
@@ -257,6 +260,24 @@ export default function LessonPortal({
   const [inputPasscode, setInputPasscode] = useState("");
   const [passcodeError, setPasscodeError] = useState("");
   const [isSubmittingPasscode, setIsSubmittingPasscode] = useState(false);
+
+  // Group courses by parent folder (Folder Lớn)
+  const groupedCourses = useMemo(() => {
+    const groups: Array<{ id: string; name: string; courses: CourseFolder[] }> = [];
+    const groupMap = new Map<string, { id: string; name: string; courses: CourseFolder[] }>();
+
+    for (const course of courseFolders) {
+      const gId = course.folderGroupId || "fg-ai-agentic";
+      const gName = course.folderGroupName || "Chương Trình AI & Agentic";
+      if (!groupMap.has(gId)) {
+        const item = { id: gId, name: gName, courses: [] };
+        groupMap.set(gId, item);
+        groups.push(item);
+      }
+      groupMap.get(gId)!.courses.push(course);
+    }
+    return groups;
+  }, [courseFolders]);
 
   async function handleUnlockCourseSubmit(e: FormEvent) {
     e.preventDefault();
@@ -678,60 +699,78 @@ export default function LessonPortal({
             <p>Each section is protected with a unique passcode and authorized email access.</p>
           </div>
 
-          <div className={styles.courseFolderGrid}>
-            {courseFolders.map((course) => {
-              const isCourseUnlocked = Boolean(isAdmin || course.isUnlocked || unlockedCourseIds.has(course.id));
-              return (
-                <button
-                  type="button"
-                  className={styles.courseFolder}
-                  key={course.id}
-                  onClick={() => {
-                    if (isCourseUnlocked) {
-                      setSelectedCourseId(course.id);
-                    } else {
-                      setPasscodeModalCourse(course);
-                      setInputPasscode("");
-                      setPasscodeError("");
-                    }
-                  }}
-                >
-                  <span className={styles.folderIcon} aria-hidden="true">
-                    <i />
-                  </span>
-                  <span className={styles.folderCopy}>
-                    <strong className={styles.courseTitle}>{course.title}</strong>
-                    <span className={styles.sectionCountText}>
-                      {course.sections.length} {course.sections.length === 1 ? "SECTION" : "SECTIONS"}
-                    </span>
-                    <em>{course.description || "Interactive content and learning resources."}</em>
-                    <div className={styles.folderBadgesRow}>
-                      <span className={styles.folderLanguage}>
-                        {course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}
-                      </span>
-                      {isCourseUnlocked ? (
-                        <span className={styles.unlockedFolderBadge}>
-                          <i className={styles.dotUnlocked} aria-hidden="true" />
-                          <span>UNLOCKED</span>
-                        </span>
-                      ) : (
-                        <span className={styles.lockedFolderBadge}>
-                          <i className={styles.dotLocked} aria-hidden="true" />
-                          <span>PASSCODE REQUIRED</span>
-                        </span>
-                      )}
+          <div className={styles.libraryFolderSections}>
+            {groupedCourses.map((group) => (
+              <div key={group.id} className={styles.libraryFolderGroup}>
+                {groupedCourses.length > 1 && (
+                  <div className={styles.libraryFolderHeader}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#e9ca8b" aria-hidden="true">
+                        <path d="M20 5h-9.586L8.707 3.293A.997.997 0 0 0 8 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/>
+                      </svg>
+                      <h2 className={styles.libraryFolderTitle}>{group.name}</h2>
                     </div>
-                  </span>
-                  <b aria-hidden="true" className={isCourseUnlocked ? styles.folderArrowUnlocked : styles.folderArrowLocked}>
-                    {isCourseUnlocked ? (
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    ) : (
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    )}
-                  </b>
-                </button>
-              );
-            })}
+                    <span className={styles.libraryFolderBadge}>{group.courses.length} {group.courses.length === 1 ? "COURSE" : "COURSES"}</span>
+                  </div>
+                )}
+
+                <div className={styles.courseFolderGrid}>
+                  {group.courses.map((course) => {
+                    const isCourseUnlocked = Boolean(isAdmin || course.isUnlocked || unlockedCourseIds.has(course.id));
+                    return (
+                      <button
+                        type="button"
+                        className={styles.courseFolder}
+                        key={course.id}
+                        onClick={() => {
+                          if (isCourseUnlocked) {
+                            setSelectedCourseId(course.id);
+                          } else {
+                            setPasscodeModalCourse(course);
+                            setInputPasscode("");
+                            setPasscodeError("");
+                          }
+                        }}
+                      >
+                        <span className={styles.folderIcon} aria-hidden="true">
+                          <i />
+                        </span>
+                        <span className={styles.folderCopy}>
+                          <strong className={styles.courseTitle}>{course.title}</strong>
+                          <span className={styles.sectionCountText}>
+                            {course.sections.length} {course.sections.length === 1 ? "SECTION" : "SECTIONS"}
+                          </span>
+                          <em>{course.description || "Interactive content and learning resources."}</em>
+                          <div className={styles.folderBadgesRow}>
+                            <span className={styles.folderLanguage}>
+                              {course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}
+                            </span>
+                            {isCourseUnlocked ? (
+                              <span className={styles.unlockedFolderBadge}>
+                                <i className={styles.dotUnlocked} aria-hidden="true" />
+                                <span>UNLOCKED</span>
+                              </span>
+                            ) : (
+                              <span className={styles.lockedFolderBadge}>
+                                <i className={styles.dotLocked} aria-hidden="true" />
+                                <span>PASSCODE REQUIRED</span>
+                              </span>
+                            )}
+                          </div>
+                        </span>
+                        <b aria-hidden="true" className={isCourseUnlocked ? styles.folderArrowUnlocked : styles.folderArrowLocked}>
+                          {isCourseUnlocked ? (
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                          ) : (
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                          )}
+                        </b>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
         </section>
 

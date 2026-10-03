@@ -63,13 +63,26 @@ export default function LandingPage() {
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (loading) return;
+
+    const cleanEmail = email.trim();
+    const cleanAdminPassword = adminPassword.trim();
+    if (!cleanEmail) return;
+
+    const isUserType = cleanEmail.toLowerCase() !== "son.lam@eiu.edu.vn";
+    if (!isUserType && !cleanAdminPassword) return;
+
     setLoading(true);
     setError("");
-    setRobotState("processing");
-    setCtaPulsed(true);
+
+    // Dạng users: Bấm access code -> kính mặt robo hiện loading.... màu xanh ngay!
+    // Admin: robot chuyển sang processing để kiểm tra pass trước, đúng pass mới hiện loading xanh
+    if (isUserType) {
+      setRobotState("loading");
+    } else {
+      setRobotState("processing");
+    }
+
     try {
-      const cleanEmail = email.trim();
-      const cleanAdminPassword = adminPassword.trim();
       const response = await fetch("/api/auth/access", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -79,17 +92,26 @@ export default function LandingPage() {
       if (!response.ok || !payload.success) {
         throw new Error(payload.message || "Unable to sign in. Please check your email.");
       }
-      setRobotState("success");
+
+      // Xác thực thành công: dạng users hoặc đúng pass admin
+      // Kính mặt robo hiện loading.... màu xanh
+      setRobotState("loading");
+      if (modal) {
+        setModal(null);
+      }
       try {
         localStorage.setItem(SAVED_EMAIL_KEY, cleanEmail);
       } catch {}
-      window.location.replace(payload.destination === "/admin/access" ? "/admin/access" : "/learn");
+
+      const destination = payload.destination === "/admin/access" ? "/admin/access" : "/learn";
+      setTimeout(() => {
+        window.location.replace(destination);
+      }, 1500);
     } catch (caught) {
-      setRobotState("shakeError");
+      setRobotState("restricted");
       setError(caught instanceof Error ? caught.message : "Unable to sign in. Please verify your credentials.");
       setLoading(false);
-      setCtaPulsed(false);
-      setTimeout(() => setRobotState("idle"), 1400);
+      setTimeout(() => setRobotState("idle"), 2800);
     }
   }
   // ═══════════════════════════════════════════════════════════════
@@ -150,14 +172,10 @@ export default function LandingPage() {
     };
   }, [prefersReduced]);
 
-  // CTA click: short 320ms energy scan pulse then trigger auth modal
+  // CTA click: trigger auth modal directly
   const handleCtaClick = useCallback(() => {
-    setCtaPulsed(true);
-    setTimeout(() => {
-      setCtaPulsed(false);
-      open();
-    }, 320);
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    open();
+  }, []);
 
   // ── Initial Entrance Boot State (Single run per page visit) ──
   const [isEntranceActive, setIsEntranceActive] = useState(true);
@@ -268,22 +286,23 @@ export default function LandingPage() {
             onSubmit={submit}
             onInputFocus={() => {
               setIsCtaHovered(true);
-              setRobotState("lookingAtAccess");
+              setRobotState((prev) => (prev === "loading" || prev === "processing" || prev === "restricted" ? prev : "lookingAtAccess"));
             }}
             onInputBlur={() => {
               setIsCtaHovered(false);
-              setRobotState("idle");
+              setRobotState((prev) => (prev === "loading" || prev === "processing" || prev === "shakeError" || prev === "restricted" ? prev : "idle"));
             }}
             onInputChange={() => {
-              setRobotState("typing");
+              setRobotState((prev) => (prev === "loading" || prev === "processing" ? prev : "typing"));
             }}
             onCtaHover={(hovered) => {
               setIsCtaHovered(hovered);
-              if (hovered && robotState === "idle") {
-                setRobotState("lookingAtAccess");
-              } else if (!hovered && robotState === "lookingAtAccess") {
-                setRobotState("idle");
-              }
+              setRobotState((prev) => {
+                if (prev === "loading" || prev === "processing" || prev === "shakeError" || prev === "restricted") return prev;
+                if (hovered && prev === "idle") return "lookingAtAccess";
+                if (!hovered && prev === "lookingAtAccess") return "idle";
+                return prev;
+              });
             }}
           />
         </div>
@@ -294,36 +313,7 @@ export default function LandingPage() {
           style={{ position: "relative", minHeight: 520, pointerEvents: "none" }}
           aria-hidden="true"
         >
-          {prefersReduced ? (
-            <EiuAgentBot />
-          ) : (
-            <>
-              {/* Energy Pulse Ring on CTA Click */}
-              <AnimatePresence>
-                {ctaPulsed && (
-                  <motion.div
-                    key="ctaPulse"
-                    initial={{ opacity: 0.85, scale: 0.35 }}
-                    animate={{ opacity: 0, scale: 2.4 }}
-                    exit={{}}
-                    transition={{ duration: 0.52, ease: "easeOut" }}
-                    style={{
-                      position: "absolute",
-                      inset: "50%",
-                      width: 220,
-                      height: 220,
-                      marginLeft: -110,
-                      marginTop: -110,
-                      borderRadius: "50%",
-                      border: "2px solid #E9CA8B",
-                      boxShadow: "0 0 45px rgba(233, 202, 139, 0.6)",
-                      pointerEvents: "none",
-                    }}
-                  />
-                )}
-              </AnimatePresence>
-            </>
-          )}
+          {prefersReduced && <EiuAgentBot />}
         </div>
       </section>
 

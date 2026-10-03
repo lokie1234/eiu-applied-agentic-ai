@@ -301,11 +301,21 @@
   font-size: 15px;
 }
 
+.scrollAreaCourses {
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 .passcodeLayout {
+  flex: 1 1 0;
+  min-height: 0;
+  height: 100%;
   display: grid;
-  grid-template-columns: 270px minmax(0, 1fr);
-  gap: 16px;
-  min-height: 100%;
+  grid-template-columns: 345px minmax(0, 1fr);
+  gap: 14px;
+  overflow: hidden;
 }
 
 .courseList {
@@ -313,11 +323,14 @@
   border-radius: 16px;
   background: #fff;
   box-shadow: 0 6px 20px rgba(4, 28, 49, 0.04);
-  padding: 14px;
+  padding: 10px;
   display: flex;
   flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
   gap: 6px;
-  align-self: start;
 }
 
 .courseListHeading {
@@ -378,11 +391,15 @@
   border-radius: 16px;
   background: #fff;
   box-shadow: 0 6px 20px rgba(4, 28, 49, 0.04);
-  padding: clamp(18px, 2.5vw, 28px);
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 8px;
   min-width: 0;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .workspaceHead {
@@ -714,28 +731,337 @@
 .langSelector {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 6px;
+  gap: 3px;
+  padding: 2px 4px;
   border: 1px solid #e3dfd7;
   border-radius: 999px;
   background: #faf8f5;
+  flex-shrink: 0;
 }
 
 .langBtn {
-  padding: 4px 9px;
+  padding: 3px 8px;
   border: 0;
   border-radius: 999px;
   background: transparent;
   color: #687987;
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 750;
   cursor: pointer;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .langActive {
   background: #082945 !important;
   color: #fff !important;
+}
+
+/* ==========================================================================
+   UNIFIED COURSE COMMAND HUB (Gộp toàn bộ layout hiển thị & điều khiển nhanh)
+   ========================================================================== */
+.courseCommandHub {
+  border: 1.5px solid rgba(179, 145, 89, 0.35);
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 4px 16px rgba(4, 28, 49, 0.04);
+  flex-shrink: 0;
+}
+
+.commandHubTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: nowrap;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f0ebe1;
+}
+
+.commandHubTopLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: nowrap;
+}
+
+.parentFolderPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  background: #fdfbf7;
+  border: 1px solid rgba(179, 145, 89, 0.35);
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.parentFolderLabel {
+  font-size: 10px;
+  font-weight: 850;
+  color: #9d7944;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.parentFolderSelect {
+  height: 24px;
+  padding: 0 5px;
+  border: 1px solid rgba(23, 50, 74, 0.12);
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 750;
+  background: #fff;
+  color: #082945;
+  outline: none;
+  cursor: pointer;
+  max-width: 140px;
+}
+
+.parentFolderSelect:focus {
+  border-color: #082945;
+  box-shadow: 0 0 0 2px rgba(179, 145, 89, 0.2);
+}
+
+.commandHubTitleBox {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.titleDisplayRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.titleDisplayRow h2 {
+  margin: 0;
+  font-size: 17px;
+  letter-spacing: -0.02em;
+  color: #082945;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.inlineEditBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: #f4eee2;
+  border: 1px solid rgba(157, 121, 68, 0.3);
+  color: #082945;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.inlineEditBtn:hover {
+  background: #ede3d1;
+  border-color: #082945;
+  transform: translateY(-1px);
+}
+
+.descInlineRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.workspaceDescText {
+  margin: 0 !important;
+  color: #556778 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  line-height: 1.3 !important;
+}
+
+.inlineDescEditBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: transparent;
+  border: none;
+  color: #9d7944;
+  font-size: 10.5px;
+  font-weight: 750;
+  cursor: pointer;
+  padding: 1px 5px;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+}
+
+.inlineDescEditBtn:hover {
+  background: #f4eee2;
+  color: #082945;
+}
+
+.commandHubPasscodeStrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #fdfbf7 0%, #f6f1e7 100%);
+  border: 1px solid rgba(179, 145, 89, 0.35);
+  box-shadow: 0 1px 4px rgba(179, 145, 89, 0.06);
+  flex-wrap: nowrap;
+  min-height: 30px;
+  box-sizing: border-box;
+}
+
+.passcodeStripLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+.passcodeStripLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  color: #9d7944;
+  text-transform: uppercase;
+}
+
+.passcodeStripLabel svg {
+  color: #b39159;
+}
+
+.passcodePillDisplay {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.passcodeNumberCompact {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13.5px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
+  color: #082945;
+  background: #ffffff;
+  padding: 1px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(179, 145, 89, 0.4);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.passcodeStatusPill {
+  font-size: 8.5px;
+  font-weight: 850;
+  color: #17734d;
+  background: #e6f6ee;
+  border: 1px solid rgba(23, 115, 77, 0.25);
+  padding: 1px 6px;
+  border-radius: 999px;
+  letter-spacing: 0.06em;
+}
+
+.passcodeEditInline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.passcodeInputCompact {
+  width: 90px;
+  height: 26px;
+  padding: 0 8px;
+  border-radius: 5px;
+  border: 1.5px solid #082945;
+  font: 800 13px ui-monospace, monospace;
+  letter-spacing: 0.1em;
+  color: #082945;
+  background: #fff;
+}
+
+.btnPasscodeSave {
+  padding: 3px 10px;
+  border-radius: 5px;
+  background: #082945;
+  color: #f4dfb0;
+  font-size: 10.5px;
+  font-weight: 800;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btnPasscodeSave:hover {
+  background: #0e3d64;
+}
+
+.btnPasscodeCancel {
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #e6dfd1;
+  color: #556977;
+  font-size: 10.5px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.passcodeStripActions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.passcodeActionBtn {
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: #fff;
+  border: 1px solid rgba(23, 50, 74, 0.14);
+  color: #082945;
+  font-size: 10.5px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.passcodeActionBtn:hover {
+  background: #f7f2e7;
+  border-color: #082945;
+}
+
+.passcodeActionBtnPrimary {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  border: 1px solid rgba(233, 202, 139, 0.4);
+  background: #082945;
+  color: #f4dfb0;
+  font-size: 10.5px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.passcodeActionBtnPrimary:hover:not(:disabled) {
+  background: #0d385e;
+  transform: translateY(-1px);
 }
 
 /* Section Passcodes Block */
@@ -1207,9 +1533,19 @@
 /* ==========================================================================
    EIU Refined Segmented Tabs Navigation
    ========================================================================== */
+.topControlRow {
+  flex: 0 0 auto;
+  margin: 10px 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .tabsNavWrapper {
   flex: 0 0 auto;
-  margin: 14px 0 12px;
+  margin: 10px 0 10px;
   display: flex;
 }
 
@@ -1465,10 +1801,128 @@
 
 /* ==========================================================================
    Frame 2: Course Passcode Bypass (Unlock All Courses) Banner
-   ========================================================================== */
 /* ==========================================================================
-   Frame 2: Course Passcode Bypass (Unlock All Courses) Banner - EIU Design
+   Frame 2: Master Access Toolbar (Compact Ribbon - EIU Luxury Design)
    ========================================================================== */
+.masterAccessToolbar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 14px;
+  margin: 0;
+  background: linear-gradient(135deg, #041c31 0%, #07253e 50%, #093356 100%);
+  border: 1.5px solid rgba(233, 202, 139, 0.45);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(4, 28, 49, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  color: #fff;
+  flex-wrap: wrap;
+}
+
+.masterAccessLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.masterAccessBrand {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: #f4dfb0;
+  font-size: 11px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.masterAccessBrand svg {
+  color: #e9ca8b;
+}
+
+.masterAccessDivider {
+  width: 1px;
+  height: 18px;
+  background: rgba(233, 202, 139, 0.25);
+}
+
+.masterAccessRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.masterGlobalBtns {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btnUnlockAllCompact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  background: linear-gradient(135deg, #f4dfb0 0%, #e9ca8b 50%, #c99f55 100%);
+  color: #082945;
+  font-size: 11.5px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(201, 159, 85, 0.35);
+  transition: all 0.15s ease;
+}
+
+.btnUnlockAllCompact:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.btnLockAllCompact {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(233, 202, 139, 0.35);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f4dfb0;
+  font-size: 11.5px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btnLockAllCompact:hover:not(:disabled) {
+  background: rgba(233, 202, 139, 0.18);
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.selectiveActionBtnsCompact {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-left: 8px;
+  border-left: 1px solid rgba(233, 202, 139, 0.25);
+}
+
+.btnSelectiveActionCompact {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
 .unlockBanner {
   border: 1.5px solid rgba(157, 121, 68, 0.35);
   border-top: 3px solid #e9ca8b;
@@ -1715,6 +2169,28 @@
   cursor: not-allowed;
 }
 
+.btnSelectiveDelete {
+  background: rgba(220, 38, 38, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.btnSelectiveDelete:hover:not(:disabled) {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  border-color: #ef4444;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+  transform: translateY(-1px);
+}
+
+.btnSelectiveDelete:disabled {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
 .pillUnlocked {
   display: inline-flex;
   align-items: center;
@@ -1787,104 +2263,176 @@
    Merged Course Sections Block
    ========================================================================== */
 .mergedSectionsBlock {
-  border: 1px solid #e8e4dc;
-  border-radius: 14px;
-  background: #fbfaf7;
-  padding: 20px 22px;
+  flex: 1 1 0;
+  min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  border: 1px solid #e8e4dc;
+  border-radius: 12px;
+  background: #fbfaf7;
+  padding: 10px 12px;
+  gap: 6px;
+  overflow: hidden;
 }
 
 .mergedSectionsHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   flex-wrap: wrap;
+  flex-shrink: 0;
 }
 
 .mergedSectionsTitle {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 
 .mergedSectionsTitle h3 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 750;
   color: #082945;
 }
 
 .mergedSectionsTitle p {
-  margin: 2px 0 0;
-  font-size: 12px;
+  margin: 1px 0 0;
+  font-size: 11px;
   color: #687987;
 }
 
 .sectionItemsContainer {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
+  border: 1px solid #e5dfd5;
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(4, 28, 49, 0.03);
+}
+
+.sectionItemsContainer::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sectionItemsContainer::-webkit-scrollbar-track {
+  background: rgba(8, 41, 69, 0.03);
+  border-radius: 4px;
+}
+
+.sectionItemsContainer::-webkit-scrollbar-thumb {
+  background: rgba(179, 145, 89, 0.35);
+  border-radius: 4px;
+}
+
+.sectionItemsContainer::-webkit-scrollbar-thumb:hover {
+  background: rgba(179, 145, 89, 0.7);
 }
 
 .sectionItemRow {
-  display: grid;
-  grid-template-columns: 36px 1fr auto;
+  display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 11px 16px;
-  border-radius: 10px;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 12px;
   background: #fff;
-  border: 1px solid #eee8df;
-  font-size: 13px;
-  transition: all 0.15s ease;
+  border: none;
+  border-bottom: 1px solid #f0ece3;
+  border-radius: 0;
+  min-height: 34px;
+  font-size: 12.5px;
+  transition: all 0.12s ease;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+.sectionItemRow:last-child {
+  border-bottom: none;
 }
 
 .sectionItemRow:hover {
-  border-color: #d8cfc0;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.03);
+  background: #fdfbf7;
+}
+
+.sectionItemRowSelected {
+  background: #f7f2e7 !important;
+}
+
+.sectionItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sectionDefaultSpacer {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
 .sectionItemPosition {
   color: #9d7944;
   font-weight: 850;
-  font-size: 12.5px;
+  font-size: 13px;
   font-family: ui-monospace, monospace;
+  flex-shrink: 0;
+  letter-spacing: 0.04em;
 }
 
 .sectionItemTitle {
   font-weight: 700;
   color: #082945;
+  font-size: 13px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.sectionItemRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
 }
 
 .defaultTag {
   font-size: 10px;
-  font-weight: 800;
-  color: #8b99a4;
-  background: #f0f4f8;
+  font-weight: 850;
+  color: #718096;
+  background: #f1f5f9;
+  border: 1px solid rgba(23, 50, 74, 0.1);
   padding: 3px 8px;
-  border-radius: 6px;
-  letter-spacing: 0.06em;
+  border-radius: 5px;
+  letter-spacing: 0.08em;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .addSectionForm {
   display: flex;
-  gap: 10px;
-  margin-top: 6px;
+  gap: 8px;
+  margin-top: 4px;
+  flex-shrink: 0;
 }
 
 .addSectionInput {
   flex: 1;
-  height: 42px;
-  padding: 0 14px;
+  height: 36px;
+  padding: 0 12px;
   border: 1px solid rgba(23, 50, 74, 0.16);
-  border-radius: 9px;
-  font-size: 13px;
+  border-radius: 8px;
+  font-size: 12px;
   background: #fff;
   color: #082945;
   outline: none;
@@ -1894,22 +2442,23 @@
 
 .addSectionInput:focus {
   border-color: #082945;
-  box-shadow: 0 0 0 3px rgba(157, 121, 68, 0.15);
+  box-shadow: 0 0 0 2px rgba(179, 145, 89, 0.2);
 }
 
 .addSectionButton {
-  padding: 0 20px;
-  height: 42px;
+  padding: 0 16px;
+  height: 36px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 8px;
   background: #082945;
   color: #f4dfb0;
-  font-size: 12.5px;
-  font-weight: 750;
+  font-size: 11.5px;
+  font-weight: 800;
+  border: 1px solid rgba(233, 202, 139, 0.3);
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
-  box-shadow: 0 3px 10px rgba(8, 41, 69, 0.15);
+  box-shadow: 0 2px 6px rgba(8, 41, 69, 0.12);
 }
 
 .addSectionButton:hover:not(:disabled) {
@@ -1958,4 +2507,1132 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   GLOBAL FLOATING HUD OVERLAY (loading..... trực quan nổi bật trên cùng)
+   ========================================================================== */
+.globalLoadingOverlay {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 99999;
+  pointer-events: none;
+  animation: hudDropIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes hudDropIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+.loadingHUDCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, rgba(4, 28, 49, 0.96) 0%, rgba(8, 41, 69, 0.96) 100%);
+  border: 1.5px solid rgba(233, 202, 139, 0.65);
+  box-shadow: 0 16px 48px rgba(4, 28, 49, 0.38), 0 0 24px rgba(233, 202, 139, 0.25);
+  backdrop-filter: blur(14px);
+  color: #fff;
+  min-width: 320px;
+  max-width: 90vw;
+}
+
+.loadingSpinnerRing {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2.5px solid rgba(233, 202, 139, 0.25);
+  border-top-color: #f4dfb0;
+  border-right-color: #e9ca8b;
+  animation: adminSpin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.loadingHUDContent {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.loadingHUDTitleRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.loadingHUDWord {
+  color: #e9ca8b;
+  font-size: 13.5px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(233, 202, 139, 0.5);
+}
+
+.loadingHUDMsg {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.loadingProgressBarTrack {
+  width: 100%;
+  height: 2.5px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+  position: relative;
+}
+
+.loadingProgressBarFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 45%;
+  background: linear-gradient(90deg, #b39159, #f4dfb0, #e9ca8b);
+  border-radius: 2px;
+  animation: progressBarShimmer 1.2s infinite ease-in-out;
+}
+
+@keyframes progressBarShimmer {
+  0% {
+    left: -45%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* ==========================================================================
+   FOLDER LỚN (PARENT FOLDERS) ACCORDION & SIDEBAR
+   ========================================================================== */
+.courseSidebarTop {
+  width: 100%;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.newFolderTopBtn {
+  width: 100%;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #041c31 0%, #082945 100%);
+  border: 1px solid rgba(233, 202, 139, 0.45);
+  color: #f4dfb0;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(4, 28, 49, 0.15);
+  box-sizing: border-box;
+}
+
+.newFolderTopBtn:hover {
+  background: linear-gradient(135deg, #093356 0%, #0c3e6b 100%);
+  border-color: #e9ca8b;
+  color: #fff;
+  transform: translateY(-1px);
+}
+
+.newFolderInlineBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1.5px solid rgba(179, 145, 89, 0.5);
+  box-shadow: 0 4px 14px rgba(179, 145, 89, 0.15);
+  animation: fadeInNotice 0.2s ease;
+}
+
+.folderInputClean {
+  width: 100%;
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid rgba(23, 50, 74, 0.18);
+  border-radius: 8px;
+  font-size: 12px;
+  background: #fdfbf8;
+  color: #082945;
+  outline: none;
+  box-sizing: border-box;
+  transition: all 0.15s ease;
+}
+
+.folderInputClean:focus {
+  background: #fff;
+  border-color: #082945;
+  box-shadow: 0 0 0 3px rgba(179, 145, 89, 0.15);
+}
+
+.folderSelectClean {
+  width: 100%;
+  height: 34px;
+  margin-top: 4px;
+  padding: 0 8px;
+  border: 1px solid rgba(23, 50, 74, 0.18);
+  border-radius: 8px;
+  font-size: 12px;
+  background: #fff;
+  color: #082945;
+  font-weight: 700;
+  outline: none;
+  cursor: pointer;
+}
+
+.folderGroupsListWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.folderGroupCard {
+  flex-shrink: 0;
+  border: 1px solid #e2ddd4;
+  border-radius: 10px;
+  background: #fff;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(4, 28, 49, 0.03);
+  transition: all 0.2s ease;
+}
+
+.folderGroupCard:hover {
+  border-color: #cfc5b4;
+}
+
+.folderGroupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 8px;
+  min-height: 32px;
+  background: linear-gradient(135deg, #fcfaf7 0%, #f6f1e7 100%);
+  border-bottom: 1px solid rgba(23, 50, 74, 0.06);
+  cursor: pointer;
+  user-select: none;
+}
+
+.folderGroupHeader:hover {
+  background: #efe9dc;
+}
+
+.folderGroupTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+}
+
+.folderGroupChevron {
+  font-size: 8px;
+  color: #9d7944;
+  transition: transform 0.2s ease;
+  display: inline-block;
+  line-height: 1;
+  flex-shrink: 0;
+  width: 10px;
+  text-align: center;
+}
+
+.folderGroupChevronOpen {
+  transform: rotate(90deg);
+}
+
+.folderIconGold {
+  color: #b39159;
+  flex-shrink: 0;
+}
+
+.folderGroupNameText {
+  font-size: 12px;
+  font-weight: 800;
+  color: #082945;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.folderGroupBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: rgba(179, 145, 89, 0.18);
+  color: #7d602d;
+  font-size: 9.5px;
+  font-weight: 850;
+  flex-shrink: 0;
+}
+
+.folderGroupActions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.folderBtnLock,
+.folderBtnUnlock {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid;
+}
+
+.folderBtnLock {
+  background: #fdfbf7;
+  color: #816234;
+  border-color: rgba(157, 121, 68, 0.35);
+}
+
+.folderBtnLock:hover:not(:disabled) {
+  background: #f7ede0;
+}
+
+.folderBtnUnlock {
+  background: #e8f7f0;
+  color: #1e5a3f;
+  border-color: rgba(40, 114, 81, 0.35);
+}
+
+.folderBtnUnlock:hover:not(:disabled) {
+  background: #d5f2e3;
+}
+
+.folderBtnLockIcon,
+.folderBtnUnlockIcon {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  border: 1px solid;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.folderBtnLockIcon {
+  background: #fdfbf7;
+  color: #816234;
+  border-color: rgba(157, 121, 68, 0.35);
+}
+
+.folderBtnLockIcon:hover:not(:disabled) {
+  background: #f7ede0;
+}
+
+.folderBtnUnlockIcon {
+  background: #e8f7f0;
+  color: #1e5a3f;
+  border-color: rgba(40, 114, 81, 0.35);
+}
+
+.folderBtnUnlockIcon:hover:not(:disabled) {
+  background: #d5f2e3;
+}
+
+.folderActionIconBtn {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(23, 50, 74, 0.12);
+  border-radius: 5px;
+  background: #fff;
+  color: #687987;
+  font-size: 10.5px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.folderActionIconBtn:hover {
+  background: #082945;
+  color: #fff;
+}
+
+.folderActionDeleteBtn {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(165, 47, 54, 0.2);
+  border-radius: 5px;
+  background: #fff0f0;
+  color: #a52f36;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.folderActionDeleteBtn:hover:not(:disabled) {
+  background: #ffe2e2;
+}
+
+.folderRenameCard {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  background: #fdfbf7;
+  border-bottom: 1.5px solid rgba(179, 145, 89, 0.4);
+  animation: fadeInNotice 0.2s ease;
+}
+
+.folderRenameInputWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.folderRenameInput {
+  flex: 1;
+  height: 34px;
+  padding: 0 10px;
+  font-size: 13px;
+  font-weight: 750;
+  color: #082945;
+  background: #fff;
+  border: 1.5px solid #082945;
+  border-radius: 8px;
+  outline: none;
+  box-sizing: border-box;
+  box-shadow: 0 0 0 2px rgba(179, 145, 89, 0.15);
+  transition: all 0.15s ease;
+  min-width: 0;
+  width: 100%;
+}
+
+.folderRenameInput:focus {
+  border-color: #082945;
+  box-shadow: 0 0 0 3px rgba(233, 202, 139, 0.35);
+}
+
+.folderRenameActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.folderRenameSaveBtn {
+  padding: 5px 14px;
+  border-radius: 7px;
+  background: #082945;
+  color: #f4dfb0;
+  font-size: 11.5px;
+  font-weight: 800;
+  border: 1px solid rgba(233, 202, 139, 0.3);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.folderRenameSaveBtn:hover:not(:disabled) {
+  background: #0d385e;
+  transform: translateY(-1px);
+}
+
+.folderRenameCancelBtn {
+  padding: 5px 12px;
+  border-radius: 7px;
+  background: #eef2f5;
+  color: #17324a;
+  font-size: 11.5px;
+  font-weight: 750;
+  border: 1px solid rgba(23, 50, 74, 0.12);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.folderRenameCancelBtn:hover {
+  background: #dfe6eb;
+}
+
+.folderGroupCoursesList {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 5px;
+  background: #faf8f5;
+}
+
+.compactCourseGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.compactCourseRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  background: #fff;
+  border: 1px solid rgba(23, 50, 74, 0.08);
+  min-height: 28px;
+  transition: all 0.12s ease;
+  flex-shrink: 0;
+}
+
+.compactCourseRow:hover {
+  border-color: rgba(179, 145, 89, 0.4);
+  background: #fefdfb;
+}
+
+.compactCourseRowSelected {
+  background: #f7f1e4 !important;
+  border-color: #b39159 !important;
+  box-shadow: 0 1px 4px rgba(179, 145, 89, 0.15);
+}
+
+.compactCourseMain {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.compactCourseTitle {
+  font-size: 11.5px;
+  font-weight: 750;
+  color: #082945;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.compactCourseRowSelected .compactCourseTitle {
+  color: #041c31;
+  font-weight: 800;
+}
+
+.compactCourseMetaGroup {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.compactCourseSecCount {
+  font-size: 9px;
+  font-weight: 700;
+  color: #8b99a4;
+  font-family: ui-monospace, monospace;
+}
+
+.compactPillUnlocked {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: #e6f6ee;
+  color: #1e5a3f;
+  font-size: 7.5px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(30, 90, 63, 0.2);
+}
+
+.compactPillLocked {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 4px;
+  border-radius: 3px;
+  background: #fdf5e8;
+  color: #8a6727;
+  font-size: 7.5px;
+  font-weight: 850;
+  letter-spacing: 0.04em;
+  border: 1px solid rgba(138, 103, 39, 0.2);
+}
+
+.compactAddCourseBtn {
+  width: 100%;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1px;
+  border: 1px dashed rgba(179, 145, 89, 0.4);
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.7);
+  color: #082945;
+  font-size: 10px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.compactAddCourseBtn:hover {
+  background: #fff;
+  border-color: #082945;
+  color: #082945;
+}
+
+.compactFolderEmpty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 3px 6px;
+  font-size: 10.5px;
+  color: #8b99a4;
+  font-style: italic;
+  flex-shrink: 0;
+}
+
+.compactAddCourseInlineBtn {
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #fff;
+  border: 1px solid rgba(179, 145, 89, 0.35);
+  color: #082945;
+  font-size: 9.5px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.compactAddCourseInlineBtn:hover {
+  background: #f7f0e4;
+  border-color: #082945;
+}
+
+/* ==========================================================================
+   PARENT FOLDER SELECTOR IN SELECTED COURSE WORKSPACE
+   ========================================================================== */
+.parentFolderSelectRow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: #fdfbf7;
+  border: 1px solid rgba(179, 145, 89, 0.35);
+  border-radius: 8px;
+}
+
+.parentFolderSelectLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 850;
+  color: #9d7944;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.parentFolderDropdown {
+  height: 28px;
+  padding: 0 8px;
+  border: 1px solid rgba(23, 50, 74, 0.15);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 750;
+  background: #fff;
+  color: #082945;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.parentFolderDropdown:focus {
+  border-color: #082945;
+  box-shadow: 0 0 0 2px rgba(179, 145, 89, 0.2);
+}
+
+.movingFolderBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #9d7944;
+  font-weight: 750;
+}
+
+/* ==========================================================================
+   BATCH FOLDER GROUP STYLES (Thư Mục Lớn)
+   ========================================================================== */
+.folderBatchToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  background: #fdf5f5;
+  border: 1px solid rgba(220, 38, 38, 0.25);
+  border-radius: 8px;
+  animation: fadeInNotice 0.2s ease;
+}
+
+.folderBatchText {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #991b1b;
+}
+
+.folderBatchText b {
+  color: #dc2626;
+}
+
+.folderGroupCardSelected {
+  border-color: rgba(220, 38, 38, 0.45) !important;
+  box-shadow: 0 0 0 1.5px rgba(220, 38, 38, 0.25);
+}
+
+/* ==========================================================================
+   MULTI-SECTION BATCH ACTION TOOLBAR & SELECTION
+   ========================================================================== */
+.sectionBatchToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #fdfbf7;
+  border: 1px solid rgba(179, 145, 89, 0.28);
+  border-radius: 10px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.sectionSelectAllLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 750;
+  color: #082945;
+  cursor: pointer;
+  user-select: none;
+}
+
+.sectionBatchRight {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sectionItemRowSelected {
+  background: rgba(233, 202, 139, 0.12) !important;
+  border-color: rgba(179, 145, 89, 0.4) !important;
+}
+
+/* ==========================================================================
+   EIU LUXURY MODAL POP-UP DIALOG SYSTEM (Chuẩn EIU Luxury Design)
+   ========================================================================== */
+.eiuModalBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(3, 19, 34, 0.78);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: eiuBackdropFade 0.2s ease forwards;
+}
+
+@keyframes eiuBackdropFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.eiuModalCard {
+  width: 100%;
+  max-width: 480px;
+  background: linear-gradient(145deg, #041c31 0%, #07253e 55%, #093356 100%);
+  border: 1.5px solid rgba(233, 202, 139, 0.4);
+  border-radius: 18px;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.75),
+    0 0 35px rgba(233, 202, 139, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  overflow: hidden;
+  animation: eiuModalPop 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  color: #fff;
+}
+
+@keyframes eiuModalPop {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.eiuModalHeader {
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.eiuModalBadgeRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.eiuModalBrandTag {
+  font-size: 10px;
+  font-weight: 850;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #e9ca8b;
+  text-shadow: 0 0 10px rgba(233, 202, 139, 0.4);
+}
+
+.eiuModalBadgeDanger {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(220, 38, 38, 0.25);
+  border: 1px solid rgba(239, 68, 68, 0.5);
+  color: #fca5a5;
+  font-size: 9.5px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eiuModalBadgeGold {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(233, 202, 139, 0.15);
+  border: 1px solid rgba(233, 202, 139, 0.4);
+  color: #f4dfb0;
+  font-size: 9.5px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eiuModalTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.eiuModalIconDanger {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(220, 38, 38, 0.2);
+  border: 1.5px solid rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+  box-shadow: 0 0 20px rgba(220, 38, 38, 0.3);
+  flex-shrink: 0;
+}
+
+.eiuModalIconGold {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(233, 202, 139, 0.15);
+  border: 1.5px solid rgba(233, 202, 139, 0.5);
+  color: #e9ca8b;
+  box-shadow: 0 0 20px rgba(233, 202, 139, 0.25);
+  flex-shrink: 0;
+}
+
+.eiuModalTitleRow h3 {
+  margin: 0;
+  font-size: 18.5px;
+  font-weight: 750;
+  color: #fff;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
+}
+
+.eiuModalBody {
+  padding: 20px 24px;
+}
+
+.eiuModalMessage {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.65;
+  color: #e2e8f0;
+}
+
+.eiuModalDetailBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-top: 14px;
+  padding: 11px 14px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(233, 202, 139, 0.2);
+  border-radius: 10px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #cbd5e1;
+}
+
+.eiuModalDetailBox svg {
+  color: #e9ca8b;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.eiuModalFooter {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px 22px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.eiuModalBtnCancel {
+  padding: 9px 18px;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #cbd5e1;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.eiuModalBtnCancel:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border-color: rgba(233, 202, 139, 0.4);
+}
+
+.eiuModalBtnDanger {
+  padding: 9px 20px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  border: 1px solid rgba(248, 113, 113, 0.6);
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.45);
+  transition: all 0.18s ease;
+}
+
+.eiuModalBtnDanger:hover {
+  filter: brightness(1.12);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6);
+}
+
+.eiuModalBtnConfirm {
+  padding: 9px 20px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #e9ca8b 0%, #b39159 100%);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  color: #041c31;
+  font-size: 12.5px;
+  font-weight: 850;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(233, 202, 139, 0.35);
+  transition: all 0.18s ease;
+}
+
+.eiuModalBtnConfirm:hover {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(233, 202, 139, 0.5);
+}
+
+/* ==========================================================================
+   Course Real-Time Search Bar (EIU Luxury Design)
+   ========================================================================== */
+.courseSearchWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  flex-shrink: 0;
+}
+
+.courseSearchIcon {
+  position: absolute;
+  left: 10px;
+  color: #9d7944;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.courseSearchInput {
+  width: 100%;
+  height: 34px;
+  padding: 0 28px 0 32px;
+  background: #fdfbf8;
+  border: 1px solid rgba(23, 50, 74, 0.16);
+  border-radius: 8px;
+  font-size: 12px;
+  color: #082945;
+  outline: none;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.courseSearchInput:focus {
+  background: #fff;
+  border-color: #082945;
+  box-shadow: 0 0 0 3px rgba(179, 145, 89, 0.15);
+}
+
+.courseSearchClear {
+  position: absolute;
+  right: 8px;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(23, 50, 74, 0.1);
+  color: #082945;
+  border: none;
+  border-radius: 50%;
+  font-size: 13px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  transition: all 0.15s ease;
+}
+
+.courseSearchClear:hover {
+  background: #082945;
+  color: #fff;
+}
+
+.courseSearchNoMatch {
+  padding: 24px 16px;
+  text-align: center;
+  color: #687987;
+  font-size: 12.5px;
+  background: #fcfaf7;
+  border: 1px dashed rgba(179, 145, 89, 0.35);
+  border-radius: 10px;
+  margin: 6px 0;
+}
+
+.courseSearchClearBtn {
+  margin-top: 8px;
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: #082945;
+  color: #f4dfb0;
+  border: none;
+  font-size: 11px;
+  font-weight: 750;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.courseSearchClearBtn:hover {
+  background: #123f68;
+}
+
+/* ==========================================================================
+   Dual Independent Scrollbars: Left Sidebar (Pane 1) + Right Workspace (Pane 2)
+   ========================================================================== */
+.folderScrollContainer {
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.folderScrollContainer::-webkit-scrollbar,
+.workspace::-webkit-scrollbar {
+  width: 6px;
+}
+
+.folderScrollContainer::-webkit-scrollbar-track,
+.workspace::-webkit-scrollbar-track {
+  background: rgba(8, 41, 69, 0.04);
+  border-radius: 4px;
+}
+
+.folderScrollContainer::-webkit-scrollbar-thumb,
+.workspace::-webkit-scrollbar-thumb {
+  background: rgba(179, 145, 89, 0.35);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+.folderScrollContainer::-webkit-scrollbar-thumb:hover,
+.workspace::-webkit-scrollbar-thumb:hover {
+  background: rgba(179, 145, 89, 0.7);
+}
+
 

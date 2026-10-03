@@ -4,12 +4,32 @@ import { createHash, randomInt } from "node:crypto";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { FIXED_ADMIN_EMAIL, isValidEmail, normalizeEmail } from "@/lib/auth/types";
 
+export type CourseFolderGroup = {
+  id: string;
+  name: string;
+  description?: string;
+  order: number;
+};
+
+export const DEFAULT_FOLDER_GROUPS: CourseFolderGroup[] = [
+  {
+    id: "fg-ai-agentic",
+    name: "Chương Trình AI & Agentic",
+    description: "Các khóa học chuyên sâu về AI & Agentic Automation",
+    order: 1,
+  },
+];
+
 export type CourseMetadata = {
   summary: string;
   allowedEmails: string[];
   passcode: string; // 1 passcode for the whole course folder
   sectionPasscodes?: Record<string, string>; // retained for backward compatibility
   unlocked?: boolean; // When true, course can be accessed without a passcode
+  folderGroupId?: string; // ID of the parent folder (Folder lớn)
+  folderGroupName?: string; // Display name of parent folder
+  folderOrder?: number; // Position inside the parent folder
+  folderGroups?: CourseFolderGroup[]; // Master list of parent folders (stored in core course or any course)
 };
 
 export type CourseWithDetails = {
@@ -21,6 +41,9 @@ export type CourseWithDetails = {
   status: "draft" | "active" | "archived";
   passcode: string; // Course folder passcode
   unlocked: boolean; // When true, course can be accessed without a passcode
+  folderGroupId: string;
+  folderGroupName: string;
+  folderOrder: number;
   metadata: CourseMetadata;
 };
 
@@ -36,7 +59,16 @@ export type SectionWithPasscode = {
 
 export function parseCourseMetadata(raw: string | null | undefined, defaultSummary = ""): CourseMetadata {
   if (!raw) {
-    return { summary: defaultSummary, allowedEmails: [FIXED_ADMIN_EMAIL], passcode: "1611", sectionPasscodes: {}, unlocked: false };
+    return {
+      summary: defaultSummary,
+      allowedEmails: [FIXED_ADMIN_EMAIL],
+      passcode: "1611",
+      sectionPasscodes: {},
+      unlocked: false,
+      folderGroupId: "fg-ai-agentic",
+      folderGroupName: "Chương Trình AI & Agentic",
+      folderOrder: 1,
+    };
   }
   try {
     const parsed = JSON.parse(raw);
@@ -69,13 +101,46 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
       }
 
       const unlocked = Boolean((parsed as { unlocked?: unknown }).unlocked);
+      const folderGroupId = typeof (parsed as { folderGroupId?: unknown }).folderGroupId === "string"
+        ? String((parsed as { folderGroupId: string }).folderGroupId).trim()
+        : undefined;
+      const folderGroupName = typeof (parsed as { folderGroupName?: unknown }).folderGroupName === "string"
+        ? String((parsed as { folderGroupName: string }).folderGroupName).trim()
+        : undefined;
+      const folderOrder = typeof (parsed as { folderOrder?: unknown }).folderOrder === "number"
+        ? Number((parsed as { folderOrder: number }).folderOrder)
+        : undefined;
 
-      return { summary, allowedEmails: Array.from(new Set(emails)), passcode, sectionPasscodes, unlocked };
+      const rawGroups = (parsed as { folderGroups?: unknown }).folderGroups;
+      const folderGroups: CourseFolderGroup[] = Array.isArray(rawGroups)
+        ? (rawGroups as CourseFolderGroup[]).filter((g) => g && typeof g.id === "string" && typeof g.name === "string")
+        : [];
+
+      return {
+        summary,
+        allowedEmails: Array.from(new Set(emails)),
+        passcode,
+        sectionPasscodes,
+        unlocked,
+        folderGroupId,
+        folderGroupName,
+        folderOrder,
+        folderGroups: folderGroups.length > 0 ? folderGroups : undefined,
+      };
     }
   } catch {
     // raw was plain text string
   }
-  return { summary: raw.trim(), allowedEmails: [FIXED_ADMIN_EMAIL], passcode: "1611", sectionPasscodes: {}, unlocked: false };
+  return {
+    summary: raw.trim(),
+    allowedEmails: [FIXED_ADMIN_EMAIL],
+    passcode: "1611",
+    sectionPasscodes: {},
+    unlocked: false,
+    folderGroupId: "fg-ai-agentic",
+    folderGroupName: "Chương Trình AI & Agentic",
+    folderOrder: 1,
+  };
 }
 
 export function serializeCourseMetadata(metadata: CourseMetadata): string {
@@ -89,11 +154,15 @@ export function serializeCourseMetadata(metadata: CourseMetadata): string {
     passcode: metadata.passcode || "1611",
     sectionPasscodes: metadata.sectionPasscodes || {},
     unlocked: Boolean(metadata.unlocked),
+    folderGroupId: metadata.folderGroupId || "",
+    folderGroupName: metadata.folderGroupName || "",
+    folderOrder: typeof metadata.folderOrder === "number" ? metadata.folderOrder : 0,
+    ...(metadata.folderGroups && metadata.folderGroups.length > 0 ? { folderGroups: metadata.folderGroups } : {}),
   });
 }
 
 /**
- * Load all courses with parsed metadata and their section passcodes.
+ * Load all courses with parsed metadata, parent folders, and their section passcodes.
  */
 export async function getCoursesAndSectionsData() {
   const supabase = getSupabaseAdmin();
@@ -113,6 +182,33 @@ export async function getCoursesAndSectionsData() {
     }
   }
 
+  // 1. Gather all custom folder groups defined in any course
+  const folderGroupMap = new Map<string, CourseFolderGroup>();
+  for (const g of DEFAULT_FOLDER_GROUPS) {
+    folderGroupMap.set(g.id, { ...g });
+  }
+
+  for (const row of coursesResult.data ?? []) {
+    const meta = parseCourseMetadata(row.description, row.title);
+    if (meta.folderGroups && meta.folderGroups.length > 0) {
+      for (const g of meta.folderGroups) {
+        if (g && g.id && g.name) {
+          folderGroupMap.set(g.id, g);
+        }
+      }
+    }
+    // If a course has a custom folderGroupId and folderGroupName, make sure it's in the map
+    if (meta.folderGroupId && meta.folderGroupName && !folderGroupMap.has(meta.folderGroupId)) {
+      folderGroupMap.set(meta.folderGroupId, {
+        id: meta.folderGroupId,
+        name: meta.folderGroupName,
+        order: folderGroupMap.size + 1,
+      });
+    }
+  }
+
+  const folderGroups = Array.from(folderGroupMap.values()).sort((a, b) => a.order - b.order);
+
   const courses: CourseWithDetails[] = (coursesResult.data ?? []).map((course) => {
     const metadata = parseCourseMetadata(course.description, course.description || "");
     let code = metadata.passcode;
@@ -124,6 +220,20 @@ export async function getCoursesAndSectionsData() {
     }
     metadata.passcode = code;
 
+    // Ensure folderGroupId is mapped to valid group or default
+    let fId = metadata.folderGroupId || "";
+    let fName = metadata.folderGroupName || "";
+    if (!fId) {
+      // Default applied-agentic-ai to fg-ai-agentic, others to first folder
+      fId = "fg-ai-agentic";
+      fName = folderGroupMap.get(fId)?.name || "Chương Trình AI & Agentic";
+      metadata.folderGroupId = fId;
+      metadata.folderGroupName = fName;
+    } else if (folderGroupMap.has(fId)) {
+      fName = folderGroupMap.get(fId)!.name;
+      metadata.folderGroupName = fName;
+    }
+
     return {
       id: String(course.id),
       slug: String(course.slug),
@@ -133,6 +243,9 @@ export async function getCoursesAndSectionsData() {
       status: course.status,
       passcode: code,
       unlocked: Boolean(metadata.unlocked),
+      folderGroupId: fId,
+      folderGroupName: fName,
+      folderOrder: metadata.folderOrder ?? 0,
       metadata,
     };
   });
@@ -161,7 +274,7 @@ export async function getCoursesAndSectionsData() {
     };
   });
 
-  return { courses, sections };
+  return { courses, sections, folderGroups };
 }
 
 /**
@@ -598,4 +711,162 @@ export async function verifyCoursePasscode(courseId: string, code: string): Prom
   }
 
   return false;
+}
+
+/**
+ * Persists master folder groups across courses (primarily in the core course).
+ */
+export async function saveFolderGroups(groups: CourseFolderGroup[]) {
+  const supabase = getSupabaseAdmin();
+  const { data: coreCourse } = await supabase
+    .from("courses")
+    .select("id, description")
+    .eq("slug", "applied-agentic-ai")
+    .maybeSingle();
+
+  if (coreCourse) {
+    const meta = parseCourseMetadata(coreCourse.description);
+    meta.folderGroups = groups;
+    await supabase.from("courses").update({
+      description: serializeCourseMetadata(meta),
+      updated_at: new Date().toISOString(),
+    }).eq("id", coreCourse.id);
+  }
+}
+
+/**
+ * Create a new Parent Folder (Folder Lớn).
+ */
+export async function createFolderGroup(name: string, description?: string): Promise<CourseFolderGroup> {
+  const trimmed = name.trim();
+  if (!trimmed) throw new Error("Folder name cannot be empty");
+
+  const { folderGroups } = await getCoursesAndSectionsData();
+  const id = `fg-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+  const newGroup: CourseFolderGroup = {
+    id,
+    name: trimmed,
+    description: description?.trim() || undefined,
+    order: folderGroups.length + 1,
+  };
+
+  const updatedGroups = [...folderGroups, newGroup];
+  await saveFolderGroups(updatedGroups);
+  return newGroup;
+}
+
+/**
+ * Update an existing Folder Lớn (name / description / order).
+ */
+export async function updateFolderGroup(id: string, name: string, description?: string): Promise<CourseFolderGroup[]> {
+  const trimmed = name.trim();
+  if (!trimmed) throw new Error("Folder name cannot be empty");
+
+  const { folderGroups } = await getCoursesAndSectionsData();
+  const updatedGroups = folderGroups.map((g) => {
+    if (g.id === id) {
+      return { ...g, name: trimmed, description: description !== undefined ? description.trim() : g.description };
+    }
+    return g;
+  });
+
+  await saveFolderGroups(updatedGroups);
+
+  // Also update courses that reference this folder group
+  const supabase = getSupabaseAdmin();
+  const { data: courses } = await supabase.from("courses").select("id, description").neq("status", "archived");
+  if (courses && courses.length > 0) {
+    await Promise.all(
+      courses.map((c) => {
+        const meta = parseCourseMetadata(c.description);
+        if (meta.folderGroupId === id) {
+          meta.folderGroupName = trimmed;
+          return supabase.from("courses").update({
+            description: serializeCourseMetadata(meta),
+            updated_at: new Date().toISOString(),
+          }).eq("id", c.id);
+        }
+        return Promise.resolve();
+      })
+    );
+  }
+
+  return updatedGroups;
+}
+
+/**
+ * Delete a Folder Lớn.
+ * Does NOT delete the child courses; they are moved to default folder.
+ */
+export async function deleteFolderGroup(id: string): Promise<void> {
+  const { folderGroups } = await getCoursesAndSectionsData();
+  const remainingGroups = folderGroups.filter((g) => g.id !== id);
+  if (remainingGroups.length === 0) {
+    remainingGroups.push(...DEFAULT_FOLDER_GROUPS);
+  }
+  await saveFolderGroups(remainingGroups);
+
+  const defaultGroup = remainingGroups[0] ?? DEFAULT_FOLDER_GROUPS[0];
+  const supabase = getSupabaseAdmin();
+  const { data: courses } = await supabase.from("courses").select("id, description").neq("status", "archived");
+  if (courses && courses.length > 0) {
+    await Promise.all(
+      courses.map((c) => {
+        const meta = parseCourseMetadata(c.description);
+        if (meta.folderGroupId === id) {
+          meta.folderGroupId = defaultGroup.id;
+          meta.folderGroupName = defaultGroup.name;
+          return supabase.from("courses").update({
+            description: serializeCourseMetadata(meta),
+            updated_at: new Date().toISOString(),
+          }).eq("id", c.id);
+        }
+        return Promise.resolve();
+      })
+    );
+  }
+}
+
+/**
+ * Move / assign a course into a specific Folder Lớn.
+ */
+export async function setCourseFolderGroup(courseId: string, folderGroupId: string, folderGroupName?: string) {
+  const { folderGroups } = await getCoursesAndSectionsData();
+  const targetGroup = folderGroups.find((g) => g.id === folderGroupId);
+  const finalName = folderGroupName?.trim() || targetGroup?.name || "Chương Trình AI & Agentic";
+
+  return updateCourseMetadata(courseId, (current) => ({
+    ...current,
+    folderGroupId,
+    folderGroupName: finalName,
+  }));
+}
+
+/**
+ * Lock or unlock ALL courses inside a specific Folder Lớn.
+ */
+export async function setFolderGroupUnlocked(folderGroupId: string, unlocked: boolean) {
+  const supabase = getSupabaseAdmin();
+  const { data: courses, error } = await supabase
+    .from("courses")
+    .select("id, description")
+    .neq("status", "archived");
+
+  if (error) throw error;
+
+  if (courses && courses.length > 0) {
+    await Promise.all(
+      courses.map((c) => {
+        const meta = parseCourseMetadata(c.description);
+        if (meta.folderGroupId === folderGroupId) {
+          meta.unlocked = Boolean(unlocked);
+          return supabase.from("courses").update({
+            description: serializeCourseMetadata(meta),
+            updated_at: new Date().toISOString(),
+          }).eq("id", c.id);
+        }
+        return Promise.resolve();
+      })
+    );
+  }
 }

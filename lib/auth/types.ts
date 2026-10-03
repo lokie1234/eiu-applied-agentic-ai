@@ -1,3 +1,10 @@
+export type CourseFolderGroup = {
+  id: string;
+  name: string;
+  description?: string;
+  order: number;
+};
+
 export type CourseAccess = {
   id: string;
   slug: string;
@@ -5,6 +12,9 @@ export type CourseAccess = {
   description: string | null;
   languageLabel: "vi" | "en" | "vi_en";
   isUnlocked?: boolean;
+  folderGroupId?: string;
+  folderGroupName?: string;
+  folderOrder?: number;
 };
 
 export type SectionAccess = {

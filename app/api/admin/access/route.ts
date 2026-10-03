@@ -6,6 +6,8 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import {
   clearAllAuthorizedEmails,
   clearCourseEmails,
+  createFolderGroup,
+  deleteFolderGroup,
   generateNewCoursePasscode,
   generateNewSectionPasscode,
   getAllAuthorizedEmails,
@@ -15,10 +17,13 @@ import {
   setAllCoursesUnlocked,
   setAuthorizedEmailsBulk,
   setCourseEmailsBulk,
+  setCourseFolderGroup,
   setCoursePasscode,
   setCourseUnlocked,
+  setFolderGroupUnlocked,
   setSectionPasscode,
   updateCourseSummary,
+  updateFolderGroup,
 } from "@/lib/auth/courseAccessStorage";
 
 export const runtime = "nodejs";
@@ -165,6 +170,8 @@ export async function POST(request: Request) {
       if (error) throw error;
     } else if (action === "create_course") {
       const title = String(body.title ?? "").trim();
+      const folderGroupId = String(body.folderGroupId ?? "fg-ai-agentic").trim();
+      const folderGroupName = String(body.folderGroupName ?? "Chương Trình AI & Agentic").trim();
       const slug = slugify(title);
       if (!title || title.length > 120 || !slug) {
         return NextResponse.json({ success: false, message: "Invalid course title." }, { status: 400 });
@@ -174,11 +181,59 @@ export async function POST(request: Request) {
         allowedEmails: [actor.email],
         sectionPasscodes: {},
         unlocked: false,
+        folderGroupId,
+        folderGroupName,
       });
       const { error } = await supabase
         .from("courses")
         .insert({ title, slug, status: "active", language_label: "vi_en", description: initialMeta });
       if (error) throw error;
+    } else if (action === "create_folder_group") {
+      const name = String(body.name ?? "").trim();
+      const description = typeof body.description === "string" ? body.description.trim() : undefined;
+      if (!name) {
+        return NextResponse.json({ success: false, message: "Folder name is required." }, { status: 400 });
+      }
+      await createFolderGroup(name, description);
+    } else if (action === "update_folder_group") {
+      const id = String(body.id ?? "");
+      const name = String(body.name ?? "").trim();
+      const description = typeof body.description === "string" ? body.description.trim() : undefined;
+      if (!id || !name) {
+        return NextResponse.json({ success: false, message: "Folder ID and name are required." }, { status: 400 });
+      }
+      await updateFolderGroup(id, name, description);
+    } else if (action === "delete_folder_group") {
+      const id = String(body.id ?? "");
+      if (!id) {
+        return NextResponse.json({ success: false, message: "Folder ID is required." }, { status: 400 });
+      }
+      await deleteFolderGroup(id);
+    } else if (action === "delete_folder_groups") {
+      const ids: string[] = Array.isArray(body.folderGroupIds)
+        ? (body.folderGroupIds as unknown[]).map(String).filter(Boolean)
+        : [];
+      if (ids.length === 0) {
+        return NextResponse.json({ success: false, message: "No folder groups selected." }, { status: 400 });
+      }
+      for (const id of ids) {
+        await deleteFolderGroup(id);
+      }
+    } else if (action === "set_course_folder_group") {
+      const courseId = String(body.courseId ?? "");
+      const folderGroupId = String(body.folderGroupId ?? "");
+      const folderGroupName = typeof body.folderGroupName === "string" ? body.folderGroupName : undefined;
+      if (!courseId || !folderGroupId) {
+        return NextResponse.json({ success: false, message: "Course ID and folder ID are required." }, { status: 400 });
+      }
+      await setCourseFolderGroup(courseId, folderGroupId, folderGroupName);
+    } else if (action === "set_folder_group_unlocked") {
+      const folderGroupId = String(body.folderGroupId ?? "");
+      const unlocked = Boolean(body.unlocked);
+      if (!folderGroupId) {
+        return NextResponse.json({ success: false, message: "Folder ID is required." }, { status: 400 });
+      }
+      await setFolderGroupUnlocked(folderGroupId, unlocked);
     } else if (action === "delete_course") {
       const courseId = String(body.courseId ?? "");
       const { data: course, error: readError } = await supabase
@@ -191,7 +246,35 @@ export async function POST(request: Request) {
       if (course.slug === APPLIED_AGENTIC_AI_SLUG) {
         return NextResponse.json({ success: false, message: "The core course cannot be deleted." }, { status: 400 });
       }
+      // Delete associated sections first
+      await supabase.from("course_sections").delete().eq("course_id", courseId);
+      try {
+        await supabase.from("course_folder_allowed_emails").delete().eq("course_id", courseId);
+      } catch {}
       const { error } = await supabase.from("courses").delete().eq("id", courseId);
+      if (error) throw error;
+    } else if (action === "delete_courses") {
+      const courseIds: string[] = Array.isArray(body.courseIds)
+        ? (body.courseIds as unknown[]).map(String).filter(Boolean)
+        : [];
+      if (courseIds.length === 0) {
+        return NextResponse.json({ success: false, message: "No courses selected." }, { status: 400 });
+      }
+      const { data: coursesToDelete, error: readError } = await supabase
+        .from("courses")
+        .select("id, slug")
+        .in("id", courseIds);
+      if (readError) throw readError;
+      const validCourses = (coursesToDelete || []).filter((c) => c.slug !== APPLIED_AGENTIC_AI_SLUG);
+      if (validCourses.length === 0) {
+        return NextResponse.json({ success: false, message: "Core course cannot be deleted." }, { status: 400 });
+      }
+      const validCourseIds = validCourses.map((c) => c.id);
+      await supabase.from("course_sections").delete().in("course_id", validCourseIds);
+      try {
+        await supabase.from("course_folder_allowed_emails").delete().in("course_id", validCourseIds);
+      } catch {}
+      const { error } = await supabase.from("courses").delete().in("id", validCourseIds);
       if (error) throw error;
     } else if (action === "create_section") {
       const courseId = String(body.courseId ?? "");
@@ -238,6 +321,26 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "The default Section 1 and Section 2 cannot be deleted." }, { status: 400 });
       }
       const { error } = await supabase.from("course_sections").delete().eq("id", sectionId);
+      if (error) throw error;
+    } else if (action === "delete_sections") {
+      const sectionIds: string[] = Array.isArray(body.sectionIds)
+        ? (body.sectionIds as unknown[]).map(String).filter(Boolean)
+        : [];
+      if (sectionIds.length === 0) {
+        return NextResponse.json({ success: false, message: "No sections selected." }, { status: 400 });
+      }
+      const { data: secs, error: readError } = await supabase
+        .from("course_sections")
+        .select("id, section_key")
+        .in("id", sectionIds);
+      if (readError) throw readError;
+      const validIds = (secs || [])
+        .filter((s) => !["section1", "section2"].includes(s.section_key))
+        .map((s) => s.id);
+      if (validIds.length === 0) {
+        return NextResponse.json({ success: false, message: "Default sections cannot be deleted." }, { status: 400 });
+      }
+      const { error } = await supabase.from("course_sections").delete().in("id", validIds);
       if (error) throw error;
     } else {
       return NextResponse.json({ success: false, message: "Unsupported action." }, { status: 400 });

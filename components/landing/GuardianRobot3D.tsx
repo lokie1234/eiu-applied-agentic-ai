@@ -16,7 +16,9 @@ export type RobotInteractionState =
   | "lookingAtAccess"
   | "typing"
   | "processing"
+  | "loading"
   | "shakeError"
+  | "restricted"
   | "success";
 
 interface GuardianRobotProps {
@@ -106,6 +108,146 @@ function VisorErrorDisplay() {
     <mesh geometry={geometry} position={[0, 0.02, 0.14]} rotation={[0.06, 0, 0]}>
       <meshBasicMaterial ref={materialRef} map={texture} transparent depthWrite={false}
         toneMapped={false} polygonOffset polygonOffsetFactor={-2} polygonOffsetUnits={-2} />
+    </mesh>
+  );
+}
+
+function VisorRestrictedDisplay() {
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const texture = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1280;
+    canvas.height = 256;
+    const context = canvas.getContext("2d");
+    if (context) {
+      context.font = "bold 90px 'JetBrains Mono', 'Courier New', monospace";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillStyle = "#FF3B30";
+      context.shadowColor = "#FF2020";
+      context.shadowBlur = 24;
+      context.fillText("Access Restricted!!!", 640, 128, 1200);
+    }
+    const display = new THREE.CanvasTexture(canvas);
+    display.colorSpace = THREE.SRGBColorSpace;
+    return display;
+  }, []);
+  const geometry = useMemo(() => {
+    const surface = new THREE.PlaneGeometry(0.55, 0.14, 48, 8);
+    const positions = surface.attributes.position;
+    for (let i = 0; i < positions.count; i++) {
+      const x = positions.getX(i);
+      const y = positions.getY(i);
+      positions.setZ(i, Math.sqrt(0.32 * 0.32 - x * x - y * y) + 0.003);
+    }
+    surface.computeVertexNormals();
+    return surface;
+  }, []);
+  useEffect(() => () => {
+    texture.dispose();
+    geometry.dispose();
+  }, [texture, geometry]);
+  useFrame(({ clock }) => {
+    if (materialRef.current) {
+      materialRef.current.opacity = 0.82 + Math.sin(clock.getElapsedTime() * 10) * 0.18;
+    }
+  });
+  return (
+    <mesh geometry={geometry} position={[0, 0.02, 0.14]} rotation={[0.06, 0, 0]}>
+      <meshBasicMaterial
+        ref={materialRef}
+        map={texture}
+        transparent
+        depthWrite={false}
+        toneMapped={false}
+        polygonOffset
+        polygonOffsetFactor={-2}
+        polygonOffsetUnits={-2}
+      />
+    </mesh>
+  );
+}
+
+function VisorLoadingDisplay() {
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const textureRef = useRef<THREE.CanvasTexture | null>(null);
+  const lastDotsRef = useRef(-1);
+
+  const { texture, geometry } = useMemo(() => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 1280;
+    canvas.height = 256;
+    canvasRef.current = canvas;
+
+    const context = canvas.getContext("2d");
+    if (context) {
+      context.font = "bold 104px 'JetBrains Mono', 'Courier New', monospace";
+      context.textAlign = "center";
+      context.textBaseline = "middle";
+      context.fillStyle = "#00FF88";
+      context.shadowColor = "#00FF88";
+      context.shadowBlur = 24;
+      context.fillText("loading....", 640, 128, 1180);
+    }
+    const display = new THREE.CanvasTexture(canvas);
+    display.colorSpace = THREE.SRGBColorSpace;
+    textureRef.current = display;
+
+    const surface = new THREE.PlaneGeometry(0.55, 0.14, 48, 8);
+    const positions = surface.attributes.position;
+    for (let i = 0; i < positions.count; i++) {
+      const x = positions.getX(i);
+      const y = positions.getY(i);
+      positions.setZ(i, Math.sqrt(0.32 * 0.32 - x * x - y * y) + 0.003);
+    }
+    surface.computeVertexNormals();
+
+    return { texture: display, geometry: surface };
+  }, []);
+
+  useEffect(() => () => {
+    texture.dispose();
+    geometry.dispose();
+  }, [texture, geometry]);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    if (materialRef.current) {
+      materialRef.current.opacity = 0.82 + Math.sin(t * 8) * 0.18;
+    }
+
+    // Dynamic dot progression: loading. -> loading.. -> loading... -> loading....
+    const dotsCount = (Math.floor(t * 3.5) % 4) + 1;
+    if (dotsCount !== lastDotsRef.current && canvasRef.current && textureRef.current) {
+      lastDotsRef.current = dotsCount;
+      const ctx = canvasRef.current.getContext("2d");
+      if (ctx) {
+        ctx.clearRect(0, 0, 1280, 256);
+        ctx.font = "bold 104px 'JetBrains Mono', 'Courier New', monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillStyle = "#00FF88";
+        ctx.shadowColor = "#00FF88";
+        ctx.shadowBlur = 24;
+        ctx.fillText(`loading${".".repeat(dotsCount)}`, 640, 128, 1180);
+        textureRef.current.needsUpdate = true;
+      }
+    }
+  });
+
+  return (
+    <mesh geometry={geometry} position={[0, 0.02, 0.14]} rotation={[0.06, 0, 0]}>
+      <meshBasicMaterial
+        ref={materialRef}
+        map={texture}
+        transparent
+        depthWrite={false}
+        toneMapped={false}
+        polygonOffset
+        polygonOffsetFactor={-2}
+        polygonOffsetUnits={-2}
+      />
     </mesh>
   );
 }
@@ -826,6 +968,8 @@ export default function GuardianRobot3D({
   // Error State & Autonomous Recovery ("Error...Error.... xong tự bơi về quỷ đạo")
   const isError = useRef(false);
   const [showErrorBadge, setShowErrorBadge] = useState(false);
+  const showLoadingBadge = robotState === "loading" || robotState === "success";
+  const showRestrictedBadge = robotState === "restricted" || robotState === "shakeError";
   const errorRecoverTarget = useRef(new THREE.Vector3(0, 0, 0));
   const errorRecoverTheta = useRef(0);
   const swimTimer = useRef(0);
@@ -1156,10 +1300,10 @@ export default function GuardianRobot3D({
     thruster: thrusterGlowMat,
   } = dynamicMatsRef.current;
 
-  // Trigger shake error when robotState is shakeError
+  // Trigger shake error when robotState is shakeError or restricted
   useEffect(() => {
-    if (robotState === "shakeError") {
-      shakeTimer.current = 0.35; // 350ms controlled head-shake
+    if (robotState === "shakeError" || robotState === "restricted") {
+      shakeTimer.current = 0.65; // 650ms controlled head-shake
     }
   }, [robotState]);
 
@@ -1335,6 +1479,8 @@ export default function GuardianRobot3D({
     const isProcessing = robotState === "processing";
     const isSuccess = robotState === "success";
     const isTyping = robotState === "typing";
+    const isLoading = robotState === "loading" || isSuccess;
+    const isRestricted = showRestrictedBadge;
 
     let targetTorsoYaw = 0;
     let targetTorsoRoll = 0;
@@ -1354,7 +1500,8 @@ export default function GuardianRobot3D({
       targetTorsoPitch = Math.abs(travelVelX) * 0.015 - py * 0.04;
 
       if (isLookingAtAccess) targetTorsoYaw += -0.15;
-      if (isProcessing) targetTorsoPitch += 0.04;
+      if (isProcessing || isLoading) targetTorsoPitch += 0.04;
+      if (isRestricted) targetTorsoPitch -= 0.03;
       if (isKeyActive) targetTorsoPitch += Math.sin(keyCountRef.current * 1.5) * 0.015 * keyIntensity;
     }
 
@@ -1369,7 +1516,7 @@ export default function GuardianRobot3D({
     let shakeOffset = 0;
     if (shakeTimer.current > 0 || isError.current) {
       shakeTimer.current = Math.max(0, shakeTimer.current - delta);
-      shakeOffset = Math.sin(t * 34) * (isError.current ? 0.065 : 0.045);
+      shakeOffset = Math.sin(t * 34) * (isError.current ? 0.065 : 0.05);
     }
 
     let targetHeadYaw = px * 0.68 - travelVelX * 0.03 + shakeOffset;
@@ -1380,7 +1527,13 @@ export default function GuardianRobot3D({
     const targetHeadRoll =
       (torsoRef.current ? -torsoRef.current.rotation.z * 0.65 : 0) - px * 0.12;
 
-    if (isLookingAtAccess) {
+    if (isRestricted) {
+      targetHeadYaw = shakeOffset;
+      targetHeadPitch = -0.06;
+    } else if (isLoading) {
+      targetHeadYaw = px * 0.25;
+      targetHeadPitch = -0.06 - py * 0.15;
+    } else if (isLookingAtAccess) {
       targetHeadYaw = -0.48 + shakeOffset;
       targetHeadPitch = -0.18;
     } else if (isCtaHovered) {
@@ -1478,20 +1631,39 @@ export default function GuardianRobot3D({
 
     // ─── 7. LIGHTING & EMISSIVE ENERGY (ALERT ON ERROR, SERENE ON PATROL) ───
     const basePulse = Math.sin(t * 2.0) * 0.35 + 0.95;
-    const boost = isSuccess ? 3.0 : isProcessing ? 2.2 : isLookingAtAccess ? 1.45 : ctaPulsed ? 2.4 : 1.0;
+    const boost = isLoading ? 3.0 : isProcessing ? 2.2 : isLookingAtAccess ? 1.45 : ctaPulsed ? 2.4 : 1.0;
     const keyCorePulse = isKeyActive ? 1.0 + keyIntensity * 0.7 : 1.0;
 
-    if (isError.current) {
+    if (isError.current || isRestricted) {
       // Diagnostic Error Red Alert!
       coreEmissiveMat.color.set("#FF3B30");
       coreEmissiveMat.emissive.set("#FF3B30");
-      coreEmissiveMat.emissiveIntensity = 2.4 + Math.sin(t * 18) * 1.0;
+      coreEmissiveMat.emissiveIntensity = 2.8 + Math.sin(t * 18) * 1.0;
 
       eyeEmissiveMat.color.set("#FF3B30");
       eyeEmissiveMat.emissive.set("#FF3B30");
-      eyeEmissiveMat.emissiveIntensity = 2.8 + Math.sin(t * 18) * 1.2;
+      eyeEmissiveMat.emissiveIntensity = 3.0 + Math.sin(t * 18) * 1.2;
+
+      antennaEmissiveMat.color.set("#FF3B30");
+      antennaEmissiveMat.emissive.set("#FF3B30");
+      antennaEmissiveMat.emissiveIntensity = 3.2;
 
       thrusterGlowMat.opacity = 0.92;
+    } else if (isLoading) {
+      // Active Luminous Cyber Green (User Access or Correct Admin Pass)
+      coreEmissiveMat.color.set("#00FF88");
+      coreEmissiveMat.emissive.set("#00FF88");
+      coreEmissiveMat.emissiveIntensity = 3.2 + Math.sin(t * 8) * 0.8;
+
+      eyeEmissiveMat.color.set("#00FF88");
+      eyeEmissiveMat.emissive.set("#00FF88");
+      eyeEmissiveMat.emissiveIntensity = 3.2;
+
+      antennaEmissiveMat.color.set("#00FF88");
+      antennaEmissiveMat.emissive.set("#00FF88");
+      antennaEmissiveMat.emissiveIntensity = 3.4 + Math.sin(t * 8) * 0.8;
+
+      thrusterGlowMat.opacity = 0.75 + Math.sin(t * 6) * 0.15;
     } else {
       // Serene EIU Brand Cyan & Blue
       coreEmissiveMat.color.set("#2D7FB4");
@@ -1507,6 +1679,13 @@ export default function GuardianRobot3D({
 
     if (corePointLightRef.current) {
       corePointLightRef.current.intensity = 0.8 * basePulse * boost * keyCorePulse * (isError.current ? 1.8 : 1.0);
+      if (isError.current || isRestricted) {
+        corePointLightRef.current.color.set("#FF3B30");
+      } else if (isLoading) {
+        corePointLightRef.current.color.set("#00FF88");
+      } else {
+        corePointLightRef.current.color.set("#2D7FB4");
+      }
     }
 
     const antennaTypingBoost = isTyping || isKeyActive ? 2.8 + keyIntensity * 1.5 : 1.0;
@@ -2035,6 +2214,8 @@ export default function GuardianRobot3D({
           {/* ───────────── AERODYNAMIC SCULPTED HEAD WITH GIMBAL MOUNT ───────────── */}
           <group ref={headRef} position={[0, 0.41, 0]}>
             {showErrorBadge && <VisorErrorDisplay />}
+            {showRestrictedBadge && !showErrorBadge && <VisorRestrictedDisplay />}
+            {showLoadingBadge && !showErrorBadge && !showRestrictedBadge && <VisorLoadingDisplay />}
             {/* Sub-Cranial Occipital Mount & Underside Gimbal Socket */}
             <group position={[0, -0.15, 0]}>
               <mesh material={materials.deepNavy}>
@@ -2097,7 +2278,7 @@ export default function GuardianRobot3D({
           </mesh>
 
           {/* ─── INTELLIGENT DIGITAL APERTURE EYES ─── */}
-          <group ref={eyesGroupRef} position={[0, 0.025, 0.305]} visible={!showErrorBadge}>
+          <group ref={eyesGroupRef} position={[0, 0.025, 0.305]} visible={!showErrorBadge && !showLoadingBadge && !showRestrictedBadge}>
             {/* Left Eye */}
             <group position={[-0.115, 0, 0]}>
               <mesh ref={leftEyeRef}>

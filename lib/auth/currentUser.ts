@@ -49,6 +49,9 @@ async function loadCourses(courseIds?: string[]) {
       description: meta.summary || null,
       languageLabel: course.language_label,
       isUnlocked: Boolean(meta.unlocked),
+      folderGroupId: meta.folderGroupId || "fg-ai-agentic",
+      folderGroupName: meta.folderGroupName || "Chương Trình AI & Agentic",
+      folderOrder: meta.folderOrder ?? 0,
     };
   });
 }
