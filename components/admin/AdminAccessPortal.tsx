@@ -161,6 +161,12 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   const [sections, setSections] = useState<Section[]>([]);
   const [authorizedEmails, setAuthorizedEmails] = useState<string[]>([]);
   const [courseId, setCourseId] = useState("");
+  const [iconProcessing, setIconProcessing] = useState<{
+    stage: string;
+    source: string;
+    previewUrl?: string;
+  } | null>(null);
+  const [iconDragActive, setIconDragActive] = useState(false);
 
   // EIU Modal Dialog state
   const [dialog, setDialog] = useState<EiuDialogState>({
@@ -1133,29 +1139,6 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     });
   }
 
-  async function handleRemoveBgForIcon(iconId: string) {
-    if (!selectedCourse || !effectiveCourseId) return;
-    const currentIcons: CourseSystemIcon[] = selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || [];
-    const target = currentIcons.find((ic) => ic.id === iconId);
-    if (!target) return;
-
-    try {
-      setBusy((prev) => new Set(prev).add(`magic-bg:${iconId}`));
-      const newUrl = await compressAndResizeIcon(target.url, 64, 64, true);
-      const updated = currentIcons.map((ic) => (ic.id === iconId ? { ...ic, url: newUrl } : ic));
-      await saveSystemIcons(updated);
-      setNotice("Background removed successfully for icon.");
-    } catch {
-      setError("Could not remove background for this icon.");
-    } finally {
-      setBusy((prev) => {
-        const next = new Set(prev);
-        next.delete(`magic-bg:${iconId}`);
-        return next;
-      });
-    }
-  }
-
   async function saveSystemIcons(updatedIcons: CourseSystemIcon[]) {
     if (!effectiveCourseId) return;
     setBusy((prev) => new Set(prev).add(`icons:${effectiveCourseId}`));
@@ -1231,6 +1214,21 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     );
   }
 
+  async function processIncomingIconFile(file: File | Blob, name: string, source: string) {
+    if (iconProcessing) return;
+    try {
+      setIconProcessing({ stage: "Đang tách nền…", source });
+      // 100% automatic boundary background removal
+      const compressedUrl = await compressAndResizeIcon(file, 64, 64, true);
+      setIconProcessing({ stage: "Đang lưu icon…", source, previewUrl: compressedUrl });
+      await handleAddIcon(name, compressedUrl);
+    } catch {
+      setError(`Could not process ${source} image.`);
+    } finally {
+      setIconProcessing(null);
+    }
+  }
+
   async function handlePasteImage(e: React.ClipboardEvent) {
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -1240,28 +1238,42 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
         e.preventDefault();
         const file = item.getAsFile();
         if (!file) continue;
-        try {
-          // 100% automatic boundary background removal
-          const compressedUrl = await compressAndResizeIcon(file, 64, 64, true);
-          await handleAddIcon("", compressedUrl);
-        } catch {
-          setError("Could not process pasted image.");
-        }
+        await processIncomingIconFile(file, "", "pasted");
         break;
       }
     }
   }
 
+  function handleIconDragOver(e: React.DragEvent) {
+    if (!Array.from(e.dataTransfer.types).includes("Files")) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "copy";
+    if (!iconDragActive) setIconDragActive(true);
+  }
+
+  function handleIconDragLeave(e: React.DragEvent) {
+    if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
+    setIconDragActive(false);
+  }
+
+  async function handleIconDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setIconDragActive(false);
+    const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith("image/"));
+    if (!file) {
+      setError("Please drop an image file (PNG, JPG, WEBP, SVG).");
+      return;
+    }
+    const autoName = file.name ? file.name.replace(/\.[^/.]+$/, "") : "";
+    await processIncomingIconFile(file, autoName.toLowerCase() === "image" ? "" : autoName, "dropped");
+  }
+
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    const autoName = file.name ? file.name.replace(/\.[^/.]+$/, "") : "";
     try {
-      // 100% automatic boundary background removal
-      const compressedUrl = await compressAndResizeIcon(file, 64, 64, true);
-      const autoName = file.name ? file.name.replace(/\.[^/.]+$/, "") : "";
-      await handleAddIcon(autoName.toLowerCase() === "image" ? "" : autoName, compressedUrl);
-    } catch {
-      setError("Could not process uploaded image.");
+      await processIncomingIconFile(file, autoName.toLowerCase() === "image" ? "" : autoName, "uploaded");
     } finally {
       e.target.value = "";
     }
@@ -2764,6 +2776,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                 type="file"
                                 accept="image/png,image/jpeg,image/webp,image/svg+xml"
                                 onChange={(e) => void handleFileUpload(e)}
+                                disabled={!!iconProcessing}
                                 style={{ display: "none" }}
                               />
                               <span>📁 Upload</span>
@@ -2771,20 +2784,62 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                           </div>
                         </div>
 
-                        {/* Paste Dropzone */}
+                        {/* Paste / Drop Zone */}
                         <div
-                          className={styles.iconPasteZone}
+                          className={`${styles.iconPasteZone} ${iconDragActive ? styles.iconPasteZoneDragActive : ""} ${iconProcessing ? styles.iconPasteZoneBusy : ""}`}
                           tabIndex={0}
                           onPaste={(e) => void handlePasteImage(e)}
-                          title="Click here and press Ctrl+V to paste icon image"
+                          onDragOver={handleIconDragOver}
+                          onDragEnter={handleIconDragOver}
+                          onDragLeave={handleIconDragLeave}
+                          onDrop={(e) => void handleIconDrop(e)}
+                          aria-busy={!!iconProcessing}
+                          title="Click here and press Ctrl+V, or drop an image file"
                         >
-                          <div className={styles.pasteZoneContent}>
-                            <span className={styles.pasteShortcut}>Ctrl + V</span>
-                            <span className={styles.pasteZoneText}>
-                              Click &amp; <strong>Ctrl+V</strong> để dán ảnh icon
-                            </span>
-                          </div>
+                          {iconProcessing ? (
+                            <div className={styles.pasteZoneContent} role="status" aria-live="polite">
+                              <span className={styles.iconLoadingSpinner} aria-hidden="true" />
+                              <span className={styles.pasteZoneText}>
+                                {iconProcessing.stage}
+                                <span className={styles.iconLoadingDots} aria-hidden="true">
+                                  <i />
+                                  <i />
+                                  <i />
+                                </span>
+                              </span>
+                            </div>
+                          ) : iconDragActive ? (
+                            <div className={styles.pasteZoneContent}>
+                              <span className={styles.pasteShortcut}>⬇</span>
+                              <span className={styles.pasteZoneText}>Thả ảnh vào đây</span>
+                            </div>
+                          ) : (
+                            <div className={styles.pasteZoneContent}>
+                              <span className={styles.pasteShortcut}>Ctrl + V</span>
+                              <span className={styles.pasteZoneText}>
+                                Click &amp; <strong>Ctrl+V</strong> hoặc kéo thả ảnh icon
+                              </span>
+                            </div>
+                          )}
                         </div>
+
+                        {/* Pending (processing) icon placeholder */}
+                        {iconProcessing && (
+                          <div className={`${styles.systemIconItem} ${styles.systemIconItemLoading}`}>
+                            <div className={styles.systemIconPreviewWrap}>
+                              {iconProcessing.previewUrl ? (
+                                <img
+                                  src={iconProcessing.previewUrl}
+                                  alt="Processing icon"
+                                  className={styles.systemIconAdminImg}
+                                />
+                              ) : (
+                                <span className={styles.iconLoadingSpinnerSmall} aria-hidden="true" />
+                              )}
+                            </div>
+                            <span className={styles.iconSkeletonBar} />
+                          </div>
+                        )}
 
                         {/* Current Icons List */}
                         {((selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || []).length > 0) ? (
@@ -2809,15 +2864,6 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                 />
                                 <button
                                   type="button"
-                                  className={styles.systemIconMagicBtn}
-                                  onClick={() => void handleRemoveBgForIcon(icon.id)}
-                                  disabled={busy.has(`magic-bg:${icon.id}`)}
-                                  title="Tách lại nền trong suốt cho icon này"
-                                >
-                                  {busy.has(`magic-bg:${icon.id}`) ? "…" : "✨"}
-                                </button>
-                                <button
-                                  type="button"
                                   className={styles.systemIconDeleteBtn}
                                   onClick={() => void handleRemoveIcon(icon.id)}
                                   title="Delete icon"
@@ -2827,11 +2873,11 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                               </div>
                             ))}
                           </div>
-                        ) : (
+                        ) : !iconProcessing ? (
                           <div className={styles.noIconsNotice}>
                             No icons added yet. Press <strong>Ctrl+V</strong> or click <strong>Upload</strong>.
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </>
