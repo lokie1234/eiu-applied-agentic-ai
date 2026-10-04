@@ -23,7 +23,7 @@ type CourseFolderSection = {
   sectionKey: string;
   title: string;
   position: number;
-  contentType: "builtin" | "pdf" | "tsx";
+  contentType: "builtin" | "pdf" | "tsx" | "pptx";
   sourceFilename: string | null;
   slideCount: number | null;
 };
@@ -1179,13 +1179,13 @@ export default function LessonPortal({
                 (courseSection.sectionKey === "section1" || courseSection.sectionKey === "section2")
                   ? courseSection.sectionKey as SectionId
                   : null;
-              const hasUploadedDeck = courseSection.contentType === "pdf" || courseSection.contentType === "tsx";
+              const hasUploadedDeck = courseSection.contentType === "pdf" || courseSection.contentType === "tsx" || courseSection.contentType === "pptx";
               const canOpen = Boolean(coreSection || hasUploadedDeck);
-              const count = courseSection.slideCount ?? (coreSection === "section1" ? 41 : coreSection === "section2" ? 37 : null);
+              const count = coreSection === "section1" ? 41 : coreSection === "section2" ? 37 : courseSection.slideCount;
               return (
+                <div key={courseSection.id} className={styles.courseSectionCard}>
                 <button
                   type="button"
-                  key={courseSection.id}
                   disabled={!canOpen}
                   onClick={() => {
                     if (coreSection) void chooseSection(coreSection);
@@ -1205,6 +1205,22 @@ export default function LessonPortal({
                   </div>}
                   <i>{canOpen ? "→" : "…"}</i>
                 </button>
+                {coreSection && courseSection.contentType === "pptx" && (
+                  <button type="button" className={styles.sectionFilePreview} onClick={() => { setAdminSection(null); setActiveUploadedSection(courseSection); }}>
+                    View file
+                  </button>
+                )}
+                {coreSection && courseSection.contentType === "pptx" && (
+                  <a
+                    className={styles.sectionPptxLink}
+                    href={`/api/sections/${encodeURIComponent(courseSection.id)}/content?download=1`}
+                    download={courseSection.sourceFilename || "Presentation.pptx"}
+                    title="Download the original attachment and open it in PowerPoint for audio, animations, and add-ins"
+                  >
+                    Download
+                  </a>
+                )}
+                </div>
               );
             })}
             {selectedCourse.sections.length === 0 && <p>This course does not have any sections yet.</p>}
@@ -1474,7 +1490,7 @@ export default function LessonPortal({
           <UploadedSectionDeck
             key={`${activeUploadedSection.id}-${deckSessionKey}`}
             sectionId={activeUploadedSection.id}
-            contentType={activeUploadedSection.contentType === "pdf" ? "pdf" : "tsx"}
+            contentType={activeUploadedSection.contentType === "pptx" ? "pptx" : activeUploadedSection.contentType === "pdf" ? "pdf" : "tsx"}
             slideCount={activeUploadedSection.slideCount}
             courseTitle={selectedCourse.title}
             sectionTitle={activeUploadedSection.title}

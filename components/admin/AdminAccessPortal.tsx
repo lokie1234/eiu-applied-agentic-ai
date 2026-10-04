@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./AdminAccessPortal.module.css";
+import { createUploadQueue } from "@/lib/uploadQueue";
+import { uploadSectionFile } from "@/lib/uploadSectionFile";
+import SectionBatchUpload from "./SectionBatchUpload";
 
 type LanguageLabel = "vi" | "en" | "vi_en";
 
@@ -59,7 +62,7 @@ type Section = {
   position: number;
   status: "draft" | "active" | "archived";
   passcode: string;
-  content_type: "builtin" | "pdf" | "tsx";
+  content_type: "builtin" | "pdf" | "tsx" | "pptx";
   content_path: string | null;
   source_filename: string | null;
   slide_count: number | null;
@@ -259,10 +262,14 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   const [editingDescription, setEditingDescription] = useState(false);
   const [descriptionValue, setDescriptionValue] = useState("");
   const [newSectionTitle, setNewSectionTitle] = useState("");
+  const [addMultipleSections, setAddMultipleSections] = useState(false);
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+  const [sectionTitleValue, setSectionTitleValue] = useState("");
 
   // New course state
   const [showNewCourseBox, setShowNewCourseBox] = useState(false);
   const [newCourseTitle, setNewCourseTitle] = useState("");
+  const [addMultipleCourses, setAddMultipleCourses] = useState(false);
   const [targetFolderForCourse, setTargetFolderForCourse] = useState<string>("fg-ai-agentic");
 
   // Folder groups state (Folder Lớn)
@@ -277,6 +284,12 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   const [editingFolderName, setEditingFolderName] = useState("");
 
   const [busy, setBusy] = useState<Set<string>>(new Set());
+  const sectionUploadQueue = useRef(createUploadQueue());
+  const pendingSectionUploads = useRef(new Set<string>());
+  const draggedSection = useRef<string | null>(null);
+  const [sectionDropTarget, setSectionDropTarget] = useState<string | null>(null);
+  const draggedCourse = useRef<{ id: string; folderId: string } | null>(null);
+  const [courseDropTarget, setCourseDropTarget] = useState<string | null>(null);
   const [processingMessage, setProcessingMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState("");
@@ -1339,44 +1352,92 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     e.preventDefault();
     const title = newSectionTitle.trim();
     if (!title || !effectiveCourseId) return;
+    const titles = addMultipleSections ? title.split(/[,.\-]+/u).map((name) => name.trim()).filter(Boolean) : [title];
+    if (!titles.length) return;
     const ok = await mutate(
-      { action: "create_section", courseId: effectiveCourseId, title },
+      { action: "create_section", courseId: effectiveCourseId, title, ...(addMultipleSections ? { titles } : {}) },
       `add-sec:${effectiveCourseId}`,
-      `Added section “${title}” to ${selectedCourse?.title}.`,
-      `loading..... Creating section “${title}”...`
+      `Added ${titles.length} section(s) to ${selectedCourse?.title}.`,
+      `Creating ${titles.length} section(s)…`
     );
     if (ok) setNewSectionTitle("");
   }
 
-  async function handleSectionContentUpload(section: Section, file: File | undefined) {
-    if (!file) return;
+  async function handleReorderSection(sourceId: string, targetId: string) {
+    if (sourceId === targetId || !effectiveCourseId || processingMessage || busy.has("reorder-sections")) return;
+    const ids = courseSections.map((section) => section.id);
+    const source = ids.indexOf(sourceId);
+    const target = ids.indexOf(targetId);
+    if (source < 0 || target < 0) return;
+    ids.splice(source, 1);
+    ids.splice(target, 0, sourceId);
+    await mutate({ action: "reorder_sections", courseId: effectiveCourseId, sectionIds: ids },
+      "reorder-sections", "Section order saved.", "Saving section order…");
+  }
+
+  async function handleRenameSection(event: FormEvent, section: Section) {
+    event.preventDefault();
+    const title = sectionTitleValue.trim();
+    if (!title || title.length > 120 || busy.has(`rename-sec:${section.id}`)) return;
+    const ok = await mutate(
+      { action: "rename_section", sectionId: section.id, title },
+      `rename-sec:${section.id}`,
+      `Renamed section to “${title}”.`,
+      `Saving section name…`
+    );
+    if (ok) setEditingSectionId(null);
+  }
+
+  async function handleSectionContentUpload(section: Section, file: File | undefined, onProgress?: (value: number) => void): Promise<boolean> {
+    if (!file) return false;
+    if (file.size > 50 * 1024 * 1024) {
+      setError("The maximum file size is 50 MB.");
+      setNotice("");
+      return false;
+    }
     const key = `upload-section:${section.id}`;
+    if (pendingSectionUploads.current.has(key)) return false;
+    pendingSectionUploads.current.add(key);
     setBusy((current) => new Set(current).add(key));
-    setProcessingMessage(`loading..... Uploading “${file.name}” to ${section.title}...`);
+    return sectionUploadQueue.current(async () => {
     setError("");
     setNotice("");
     try {
-      const formData = new FormData();
-      formData.set("file", file);
-      const response = await fetch(`/api/admin/sections/${encodeURIComponent(section.id)}/content`, {
-        method: "POST",
-        body: formData,
-      });
-      const payload = (await response.json().catch(() => ({}))) as { success?: boolean; message?: string };
-      if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to upload section content.");
-      await loadData();
-      setNotice(`Uploaded “${file.name}”. The section now opens in the shared presentation frame.`);
+      const payload = (await uploadSectionFile(`/api/admin/sections/${encodeURIComponent(section.id)}/content`, file, onProgress)) as {
+        success?: boolean;
+        message?: string;
+        contentType: Section["content_type"];
+        contentPath: string;
+        sourceFilename: string;
+        slideCount: number | null;
+      };
+      setSections((current) => current.map((item) => item.id === section.id ? {
+        ...item,
+        content_type: payload.contentType,
+        content_path: payload.contentPath,
+        source_filename: payload.sourceFilename,
+        slide_count: payload.slideCount,
+      } : item));
+      setNotice(file.name.toLowerCase().endsWith(".pptx")
+        ? `Uploaded "${file.name}" with all package content preserved. Open the section to preview or download the file.`
+        : `Uploaded "${file.name}". The section now opens in the shared presentation frame.`);
+      return true;
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to upload section content.");
+      setError(caught instanceof Error && caught.name === "TimeoutError"
+        ? `Upload of "${file.name}" timed out. Refresh to check whether it was saved before retrying.`
+        : `Upload of "${file.name}" failed: ${caught instanceof Error ? caught.message : "Unable to upload section content."}`);
+      return false;
     } finally {
-      setProcessingMessage(null);
+      pendingSectionUploads.current.delete(key);
       setBusy((current) => {
         const next = new Set(current);
         next.delete(key);
         return next;
       });
     }
+    });
   }
+
 
   async function handleDeleteSection(section: Section) {
     if (selectedCourse?.slug === "applied-agentic-ai" && ["section1", "section2"].includes(section.section_key)) {
@@ -1414,23 +1475,38 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     e.preventDefault();
     const title = newCourseTitle.trim();
     if (!title) return;
+    const titles = addMultipleCourses ? title.split(/[,.\-]+/u).map((name) => name.trim()).filter(Boolean) : [title];
+    if (!titles.length) return;
     const targetFolderId = targetFolderForCourse || folderGroups[0]?.id || "fg-ai-agentic";
     const targetFolder = folderGroups.find((g) => g.id === targetFolderId) || folderGroups[0];
     const ok = await mutate(
       {
         action: "create_course",
         title,
+        ...(addMultipleCourses ? { titles } : {}),
         folderGroupId: targetFolder?.id || "fg-ai-agentic",
         folderGroupName: targetFolder?.name || "AI & Agentic Programs",
       },
       "create-course",
-      `Created course “${title}”.`,
-      `loading..... Creating course “${title}”...`
+      `Created ${titles.length} course(s) in ${targetFolder?.name || "AI & Agentic Programs"}.`,
+      `Creating ${titles.length} course(s)…`
     );
     if (ok) {
       setNewCourseTitle("");
       setShowNewCourseBox(false);
     }
+  }
+
+  async function handleReorderCourse(sourceId: string, targetId: string, folderId: string) {
+    if (sourceId === targetId || processingMessage || busy.has("reorder-courses")) return;
+    const ids = activeCourses.filter((course) => (course.folderGroupId || "fg-ai-agentic") === folderId).map((course) => course.id);
+    const source = ids.indexOf(sourceId);
+    const target = ids.indexOf(targetId);
+    if (source < 0 || target < 0) return;
+    ids.splice(source, 1);
+    ids.splice(target, 0, sourceId);
+    await mutate({ action: "reorder_courses", folderGroupId: folderId, courseIds: ids },
+      "reorder-courses", "Course order saved.", "Saving course order…");
   }
 
   async function signOut() {
@@ -2174,8 +2250,39 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                     return (
                                       <div
                                         key={course.id}
-                                        className={`${styles.compactCourseRow} ${isSelected ? styles.compactCourseRowSelected : ""}`}
+                                        className={`${styles.compactCourseRow} ${isSelected ? styles.compactCourseRowSelected : ""} ${courseDropTarget === course.id ? styles.sectionDropTarget : ""}`}
+                                        onDragOver={(event) => {
+                                          if (draggedCourse.current?.folderId !== group.id || processingMessage) return;
+                                          event.preventDefault();
+                                          event.dataTransfer.dropEffect = "move";
+                                          setCourseDropTarget(course.id);
+                                        }}
+                                        onDrop={(event) => {
+                                          event.preventDefault();
+                                          const source = draggedCourse.current;
+                                          draggedCourse.current = null;
+                                          setCourseDropTarget(null);
+                                          if (source?.folderId === group.id) void handleReorderCourse(source.id, course.id, group.id);
+                                        }}
                                       >
+                                        <button type="button" className={styles.sectionDragHandle}
+                                          draggable={!processingMessage && !busy.has("reorder-courses")}
+                                          disabled={Boolean(processingMessage) || busy.has("reorder-courses")}
+                                          aria-label={`Reorder ${course.title}`} title="Drag to reorder · Arrow Up/Down to move"
+                                          onDragStart={(event) => {
+                                            draggedCourse.current = { id: course.id, folderId: group.id };
+                                            event.dataTransfer.effectAllowed = "move";
+                                            event.dataTransfer.setData("text/plain", course.id);
+                                          }}
+                                          onDragEnd={() => { draggedCourse.current = null; setCourseDropTarget(null); }}
+                                          onKeyDown={(event) => {
+                                            if (!["ArrowUp", "ArrowDown"].includes(event.key)) return;
+                                            event.preventDefault();
+                                            const index = groupCourses.findIndex((item) => item.id === course.id);
+                                            const target = groupCourses[index + (event.key === "ArrowUp" ? -1 : 1)];
+                                            if (target) void handleReorderCourse(course.id, target.id, group.id);
+                                          }}
+                                        >⠿</button>
                                         <input
                                           type="checkbox"
                                           checked={isChecked}
@@ -2264,11 +2371,15 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                     </select>
                   </label>
 
+                  <label className={styles.bulkSectionOption}>
+                    <input type="checkbox" checked={addMultipleCourses} onChange={(event) => setAddMultipleCourses(event.target.checked)} />
+                    Add multiple courses · Separate names with commas, hyphens, or periods
+                  </label>
                   <input
                     type="text"
                     value={newCourseTitle}
                     onChange={(e) => setNewCourseTitle(e.target.value)}
-                    placeholder="e.g. Next.js Fullstack Masterclass"
+                    placeholder={addMultipleCourses ? "Example: Course One, Course Two - Course Three. Course Four" : "e.g. Next.js Fullstack Masterclass"}
                     required
                     autoFocus
                     className={styles.folderInputClean}
@@ -2286,7 +2397,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                           <span>loading..... Creating...</span>
                         </span>
                       ) : (
-                        "Create Course"
+                        addMultipleCourses ? "Create Courses" : "Create Course"
                       )}
                     </button>
                     <button
@@ -2610,6 +2721,10 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                         </div>
                       </div>
 
+                      <p className={styles.sectionUploadHelp}>
+                        PDF / TSX / PPTX · Up to 50 MB. PPTX files stay unchanged; download and open in PowerPoint for audio, animations, and add-ins.
+                      </p>
+
                       {/* Multi-Section Batch Action Toolbar */}
                       {deletableSections.length > 0 && (
                         <div className={styles.sectionBatchToolbar}>
@@ -2654,21 +2769,57 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                       )}
 
                       {/* Section List */}
+                      <SectionBatchUpload key={effectiveCourseId} sections={courseSections} coreCourse={selectedCourse.slug === "applied-agentic-ai"}
+                        upload={(target, file, progress) => {
+                          const section = courseSections.find((item) => item.id === target.id);
+                          return section ? handleSectionContentUpload(section, file, progress) : Promise.resolve(false);
+                        }} />
                       <div className={styles.sectionItemsContainer}>
                         {courseSections.length === 0 ? (
                           <div className={styles.noEmailMessage}>
                             No sections created in this course folder yet.
                           </div>
                         ) : (
-                          courseSections.map((section) => {
+                          courseSections.map((section, index) => {
                             const isDefault = selectedCourse.slug === "applied-agentic-ai" && ["section1", "section2"].includes(section.section_key);
                             const isChecked = selectedSections.has(section.id);
                             return (
                               <div
                                 key={section.id}
-                                className={`${styles.sectionItemRow} ${isChecked ? styles.sectionItemRowSelected : ""}`}
+                                className={`${styles.sectionItemRow} ${isChecked ? styles.sectionItemRowSelected : ""} ${sectionDropTarget === section.id ? styles.sectionDropTarget : ""}`}
+                                onDragOver={(event) => {
+                                  if (!draggedSection.current || processingMessage) return;
+                                  event.preventDefault();
+                                  event.dataTransfer.dropEffect = "move";
+                                  setSectionDropTarget(section.id);
+                                }}
+                                onDrop={(event) => {
+                                  event.preventDefault();
+                                  const source = draggedSection.current;
+                                  draggedSection.current = null;
+                                  setSectionDropTarget(null);
+                                  if (source) void handleReorderSection(source, section.id);
+                                }}
                               >
                                 <div className={styles.sectionItemLeft}>
+                                  <button type="button" className={styles.sectionDragHandle}
+                                    draggable={!processingMessage && !busy.has("reorder-sections")}
+                                    disabled={Boolean(processingMessage) || busy.has("reorder-sections")}
+                                    aria-label={`Reorder ${section.title}`}
+                                    title="Drag to reorder · Arrow Up/Down to move"
+                                    onDragStart={(event) => {
+                                      draggedSection.current = section.id;
+                                      event.dataTransfer.effectAllowed = "move";
+                                      event.dataTransfer.setData("text/plain", section.id);
+                                    }}
+                                    onDragEnd={() => { draggedSection.current = null; setSectionDropTarget(null); }}
+                                    onKeyDown={(event) => {
+                                      if (!["ArrowUp", "ArrowDown"].includes(event.key)) return;
+                                      event.preventDefault();
+                                      const target = courseSections[index + (event.key === "ArrowUp" ? -1 : 1)];
+                                      if (target) void handleReorderSection(section.id, target.id);
+                                    }}
+                                  >⠿</button>
                                   {!isDefault && (
                                     <input
                                       type="checkbox"
@@ -2679,18 +2830,37 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                     />
                                   )}
                                   <span className={styles.sectionItemPosition}>
-                                    {section.position.toString().padStart(2, "0")}
+                                    Section {index + 1}
                                   </span>
                                   <DraggableScrollArea
                                     className={styles.sectionTitleScrollArea}
                                     title={`${section.title} (kéo qua lại để xem hết)`}
                                   >
-                                    <span className={styles.sectionItemTitle}>
-                                      {section.title}
-                                    </span>
+                                    {editingSectionId === section.id ? (
+                                      <form onSubmit={(event) => void handleRenameSection(event, section)} className={styles.addSectionForm}>
+                                        <input
+                                          className={styles.addSectionInput}
+                                          aria-label="Section name"
+                                          value={sectionTitleValue}
+                                          onChange={(event) => setSectionTitleValue(event.target.value)}
+                                          maxLength={120}
+                                          required
+                                          autoFocus
+                                          disabled={busy.has(`rename-sec:${section.id}`)}
+                                        />
+                                        <button type="submit" className={styles.addSectionButton} disabled={!sectionTitleValue.trim() || busy.has(`rename-sec:${section.id}`)}>
+                                          {busy.has(`rename-sec:${section.id}`) ? "Saving…" : "Save"}
+                                        </button>
+                                        <button type="button" className={styles.removeBtn} onClick={() => setEditingSectionId(null)} disabled={busy.has(`rename-sec:${section.id}`)}>Cancel</button>
+                                      </form>
+                                    ) : (
+                                      <span className={styles.sectionItemTitle}>
+                                        {section.title}
+                                      </span>
+                                    )}
                                     <span className={styles.sectionContentMeta}>
                                       {section.source_filename
-                                        ? `${section.content_type.toUpperCase()} · ${section.source_filename}`
+                                        ? `${isDefault ? "Built-in deck + PPTX attachment" : section.content_type.toUpperCase()} · ${section.source_filename}`
                                         : isDefault
                                           ? "Built-in interactive deck"
                                           : "No presentation file"}
@@ -2698,22 +2868,27 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                   </DraggableScrollArea>
                                 </div>
                                 <div className={styles.sectionItemRight}>
-                                  {!isDefault && (
-                                    <label className={styles.sectionUploadButton} title="Upload or replace this section with a PDF or self-contained TSX deck">
-                                      <input
-                                        type="file"
-                                        accept=".pdf,.tsx,application/pdf,text/typescript"
-                                        hidden
-                                        disabled={busy.has(`upload-section:${section.id}`)}
-                                        onChange={(event) => {
-                                          const file = event.currentTarget.files?.[0];
-                                          void handleSectionContentUpload(section, file);
-                                          event.currentTarget.value = "";
-                                        }}
-                                      />
-                                      {busy.has(`upload-section:${section.id}`) ? "Uploading…" : section.source_filename ? "Replace file" : "Upload PDF / TSX"}
-                                    </label>
+                                  {section.source_filename && (
+                                    <a
+                                      className={styles.sectionUploadButton}
+                                      href={`/api/sections/${encodeURIComponent(section.id)}/content?download=1`}
+                                      download={section.source_filename}
+                                      title="Download the uploaded file"
+                                    >
+                                      Download
+                                    </a>
                                   )}
+                                  <button
+                                    type="button"
+                                    className={styles.addSectionButton}
+                                    onClick={() => {
+                                      setEditingSectionId(section.id);
+                                      setSectionTitleValue(section.title);
+                                    }}
+                                    disabled={Boolean(processingMessage) || editingSectionId === section.id}
+                                  >
+                                    Rename
+                                  </button>
                                   {!isDefault && (
                                     <button
                                       type="button"
@@ -2733,12 +2908,16 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                       </div>
 
                       {/* Add Section Form */}
+                      <label className={styles.bulkSectionOption}>
+                        <input type="checkbox" checked={addMultipleSections} onChange={(event) => setAddMultipleSections(event.target.checked)} />
+                        Add multiple sections · Separate names with commas, hyphens, or periods
+                      </label>
                       <form onSubmit={handleAddSection} className={styles.addSectionForm}>
                         <input
                           type="text"
                           value={newSectionTitle}
                           onChange={(e) => setNewSectionTitle(e.target.value)}
-                          placeholder="New section title (e.g. Module 3: Advanced Function Calling)…"
+                          placeholder={addMultipleSections ? "Example: Section One, Section Two - Section Three. Section Four" : "New section title (e.g. Module 3: Advanced Function Calling)…"}
                           className={styles.addSectionInput}
                           required
                         />
@@ -2747,7 +2926,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                           className={styles.addSectionButton}
                           disabled={busy.has(`add-sec:${effectiveCourseId}`) || !newSectionTitle.trim()}
                         >
-                          {busy.has(`add-sec:${effectiveCourseId}`) ? "Adding…" : "+ Add Section"}
+                          {busy.has(`add-sec:${effectiveCourseId}`) ? "Adding…" : addMultipleSections ? "+ Add Sections" : "+ Add Section"}
                         </button>
                       </form>
                     </div>

@@ -277,13 +277,13 @@ function EiuCrestBadge() {
 }
 
 // ─── MASTER PATROL ORBIT GEOMETRY (DOUBLED TO SPAN ENTIRE WEB SPACE) ────────────
-export const ORBIT_CENTER_X = 2.0;
-export const ORBIT_CENTER_Y = 0.0;
-export const ORBIT_RADIUS_X = 4.40;
-export const ORBIT_RADIUS_Y = 2.60;
-export const ORBIT_RADIUS_Z = 0.88;
+const ORBIT_CENTER_X = 2.0;
+const ORBIT_CENTER_Y = 0.0;
+const ORBIT_RADIUS_X = 4.40;
+const ORBIT_RADIUS_Y = 2.60;
+const ORBIT_RADIUS_Z = 0.88;
 
-export function getMasterOrbitPoint(theta: number): THREE.Vector3 {
+function getMasterOrbitPoint(theta: number): THREE.Vector3 {
   // Doubled orbit scale to span the available space generously across the page:
   // Semi-major X = 4.40, Semi-minor Y = 2.60, Depth Z = 0.88
   const x = ORBIT_CENTER_X + Math.cos(theta) * ORBIT_RADIUS_X + Math.sin(theta) * 0.24;
@@ -293,7 +293,7 @@ export function getMasterOrbitPoint(theta: number): THREE.Vector3 {
 }
 
 // Check whether drop point (x, y) is inside or near the orbit corridor
-export function evaluateDropPosition(x: number, y: number): {
+function evaluateDropPosition(x: number, y: number): {
   isInside: boolean;
   nearestTheta: number;
   nearestPoint: THREE.Vector3;

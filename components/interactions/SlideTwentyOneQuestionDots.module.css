@@ -1,8 +1,0 @@
-.root{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:18;}
-.box{position:absolute;}
-.q{position:absolute;color:rgba(180,144,89,.7);font-size:22px;font-weight:800;line-height:1;opacity:.45;text-shadow:0 0 10px rgba(233,202,139,.18);animation:float 2.8s ease-in-out infinite;}
-.q1{left:18%;top:26%;}
-.q2{left:47%;top:56%;font-size:18px;}
-.q3{right:16%;top:24%;font-size:20px;}
-@keyframes float{0%,100%{transform:translateY(0) scale(.98);opacity:.35;}50%{transform:translateY(-6px) scale(1.05);opacity:.75;}}
-@media (prefers-reduced-motion: reduce){.q{animation:none!important;}}

@@ -1,5 +1,6 @@
 import ts from "typescript";
-import { NextResponse } from "next/server";
+import JSZip from "jszip";
+import { after, NextResponse } from "next/server";
 import { requireAdminAccess } from "@/lib/auth/currentUser";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
@@ -55,17 +56,25 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
   }
   try {
     const { id } = await context.params;
-    const formData = await request.formData();
+    let formData: FormData;
+    try {
+      formData = await request.formData();
+    } catch {
+      return NextResponse.json({
+        success: false,
+        message: "Upload data is incomplete or invalid. Please select the file again and retry (maximum 50 MB).",
+      }, { status: 400 });
+    }
     const file = formData.get("file");
     if (!(file instanceof File) || file.size === 0) {
-      return NextResponse.json({ success: false, message: "Choose a PDF or TSX file." }, { status: 400 });
+      return NextResponse.json({ success: false, message: "Choose a PDF, TSX, or PPTX file." }, { status: 400 });
     }
     if (file.size > MAX_FILE_SIZE) {
       return NextResponse.json({ success: false, message: "The maximum file size is 50 MB." }, { status: 413 });
     }
     const extension = file.name.split(".").pop()?.toLowerCase();
-    if (extension !== "pdf" && extension !== "tsx") {
-      return NextResponse.json({ success: false, message: "Only .pdf and .tsx files are supported." }, { status: 400 });
+    if (extension !== "pdf" && extension !== "tsx" && extension !== "pptx") {
+      return NextResponse.json({ success: false, message: "Only .pdf, .tsx, and .pptx files are supported." }, { status: 400 });
     }
 
     const supabase = getSupabaseAdmin();
@@ -78,17 +87,18 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (!section) return NextResponse.json({ success: false, message: "Section not found." }, { status: 404 });
     if (["section1", "section2"].includes(String(section.section_key))) {
       const { data: parentCourse } = await supabase.from("courses").select("slug").eq("id", section.course_id).maybeSingle();
-      if (parentCourse?.slug === "applied-agentic-ai") {
+      if (parentCourse?.slug === "applied-agentic-ai" && extension !== "pptx") {
         return NextResponse.json({
           success: false,
-          message: "The two built-in sections keep their interactive functions. Upload files to a new section instead.",
+          message: "Built-in sections accept original PPTX attachments only. Their interactive lessons stay unchanged; upload PDF or TSX to a new section instead.",
         }, { status: 400 });
       }
     }
 
     let body: Uint8Array;
-    let contentType: "pdf" | "tsx";
+    let contentType: "pdf" | "tsx" | "pptx";
     let mimeType: string;
+    let pptxSlideCount: number | null = null;
     if (extension === "tsx") {
       const source = await file.text();
       const compiled = compileTsx(source);
@@ -97,8 +107,26 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       mimeType = "text/javascript";
     } else {
       body = new Uint8Array(await file.arrayBuffer());
-      contentType = "pdf";
-      mimeType = "application/pdf";
+      if (extension === "pptx") {
+        // Read the package directory only. Never regenerate the archive: doing so
+        // can strip media, animation, embedded objects, and add-in relationships.
+        try {
+          const archive = await JSZip.loadAsync(body);
+          const slides = archive.file(/^ppt\/slides\/slide\d+\.xml$/);
+          if (!archive.file("[Content_Types].xml") || !archive.file("_rels/.rels") ||
+              !archive.file("ppt/presentation.xml") || slides.length === 0) {
+            throw new Error("Invalid PowerPoint package.");
+          }
+          pptxSlideCount = slides.length;
+        } catch {
+          return NextResponse.json({ success: false, message: "This file is not a valid .pptx presentation." }, { status: 400 });
+        }
+        contentType = "pptx";
+        mimeType = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
+      } else {
+        contentType = "pdf";
+        mimeType = "application/pdf";
+      }
     }
 
     const storedName = `${Date.now()}-${safeFilename(file.name.replace(/\.tsx$/i, ".js"))}`;
@@ -110,7 +138,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (uploadError) throw uploadError;
 
     const rawSlideCount = Number(formData.get("slideCount"));
-    const slideCount = Number.isInteger(rawSlideCount) && rawSlideCount > 0 ? rawSlideCount : null;
+    const slideCount = pptxSlideCount ?? (Number.isInteger(rawSlideCount) && rawSlideCount > 0 ? rawSlideCount : null);
     const { error: updateError } = await supabase.from("course_sections").update({
       content_type: contentType,
       content_path: path,
@@ -123,9 +151,17 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       throw updateError;
     }
     if (section.content_path && section.content_path !== path) {
-      await supabase.storage.from(BUCKET).remove([String(section.content_path)]);
+      const previousPath = String(section.content_path);
+      after(async () => {
+        try {
+          const { error } = await supabase.storage.from(BUCKET).remove([previousPath]);
+          if (error) console.error("Previous section content cleanup error:", error);
+        } catch (error) {
+          console.error("Previous section content cleanup error:", error);
+        }
+      });
     }
-    return NextResponse.json({ success: true, contentType, sourceFilename: file.name, slideCount });
+    return NextResponse.json({ success: true, contentType, contentPath: path, sourceFilename: file.name, slideCount });
   } catch (error) {
     console.error("Section content upload error:", error);
     return NextResponse.json({

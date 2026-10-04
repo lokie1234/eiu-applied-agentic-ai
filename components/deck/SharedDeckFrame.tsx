@@ -16,6 +16,7 @@ type Props = {
   transitionClassName?: string;
   showWorkshopApps?: boolean;
   showDemoApp?: boolean;
+  aspectRatio?: number;
 };
 
 export default function SharedDeckFrame({
@@ -27,6 +28,7 @@ export default function SharedDeckFrame({
   transitionClassName = "section-one-slide-transition",
   showWorkshopApps = false,
   showDemoApp = false,
+  aspectRatio = SLIDE_ASPECT_RATIO,
 }: Props) {
   const safeTotal = Math.max(1, totalSlides);
   const [pageNumber, setPageNumber] = useState(1);
@@ -130,7 +132,7 @@ export default function SharedDeckFrame({
         if (!stageRef.current) return;
         const availableWidth = Math.max(stageRef.current.clientWidth - 18, 280);
         const availableHeight = Math.max(stageRef.current.clientHeight - 18, 180);
-        setViewerWidth(Math.max(280, Math.min(availableWidth, availableHeight * SLIDE_ASPECT_RATIO, 1920)));
+        setViewerWidth(Math.max(1, Math.min(availableWidth, availableHeight * aspectRatio, 1920)));
       });
     }
     updateSize();
@@ -140,7 +142,7 @@ export default function SharedDeckFrame({
       observer.disconnect();
       cancelAnimationFrame(frameId);
     };
-  }, []);
+  }, [aspectRatio]);
 
   async function toggleFullscreen() {
     try {
@@ -212,7 +214,7 @@ export default function SharedDeckFrame({
           {renderWidth > 0 && <DeckSideAmbient slideWidth={renderWidth} />}
           {renderWidth > 0 ? (
             <>
-              <div className={frameClassName} style={{ width: renderWidth, aspectRatio: `${SLIDE_ASPECT_RATIO}` }}>
+              <div className={frameClassName} style={{ width: renderWidth, aspectRatio: `${aspectRatio}` }}>
                 <div key={pageNumber} className={transitionClassName}>{renderSlide(pageNumber, renderWidth)}</div>
               </div>
               {showWorkshopApps && <WorkshopLaunchButton slideWidth={renderWidth} showDemoApp={showDemoApp} />}

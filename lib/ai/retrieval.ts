@@ -343,7 +343,7 @@ function splitLongText(text: string, maxChars: number): string[] {
   return parts;
 }
 
-export function chunkExtractedPages(pages: ExtractedPage[]): ExtractedPage[] {
+function chunkExtractedPages(pages: ExtractedPage[]): ExtractedPage[] {
   const chunks: ExtractedPage[] = [];
   for (const page of pages) {
     const cleanText = page.text.replace(/\s+/g, " ").trim();
@@ -356,7 +356,7 @@ export function chunkExtractedPages(pages: ExtractedPage[]): ExtractedPage[] {
   return chunks;
 }
 
-export async function embedTexts(
+async function embedTexts(
   ai: GoogleGenAI,
   texts: string[],
   taskType: "RETRIEVAL_DOCUMENT" | "RETRIEVAL_QUERY",

@@ -1,9 +1,4 @@
-export type CourseFolderGroup = {
-  id: string;
-  name: string;
-  description?: string;
-  order: number;
-};
+
 
 export type CourseSystemIcon = {
   id: string;
@@ -30,7 +25,7 @@ export type SectionAccess = {
   sectionKey: string;
   title: string;
   position: number;
-  contentType: "builtin" | "pdf" | "tsx";
+  contentType: "builtin" | "pdf" | "tsx" | "pptx";
   sourceFilename: string | null;
   slideCount: number | null;
 };
@@ -55,17 +50,7 @@ export function isLearningSection(value: unknown): value is LearningSection {
   return value === "section1" || value === "section2";
 }
 
-export function isEiuEmail(value: unknown): value is string {
-  const email = String(value ?? "").trim().toLowerCase();
-  const parts = email.split("@");
-  return parts.length === 2 && parts[0].length > 0 && parts[1] === "eiu.edu.vn";
-}
-
 export const FIXED_ADMIN_EMAIL = "son.lam@eiu.edu.vn";
-
-export function isFixedAdminEmail(value: unknown): boolean {
-  return String(value ?? "").trim().toLowerCase() === FIXED_ADMIN_EMAIL;
-}
 
 export function isValidEmail(value: unknown): value is string {
   if (typeof value !== "string") return false;

@@ -40,7 +40,7 @@ Bản project hoàn chỉnh hiện tại của Section 1.
 
 Mapping chính nằm tại:
 
-`components/interactions/InteractionLayer.tsx`
+`components/PdfDeck.tsx` v? `components/section1/`
 
 ## Environment Variables
 

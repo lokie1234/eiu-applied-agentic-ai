@@ -4,7 +4,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 
 export const ACCESS_SESSION_COOKIE = "eiu_access_session";
-export const SESSION_MAX_AGE = 60 * 60 * 12;
+const SESSION_MAX_AGE = 60 * 60 * 12;
 
 export type AccessSession =
   | { role: "admin"; email?: string; expiresAt: number }
@@ -71,7 +71,7 @@ export function createAccessSession(session: CreateSessionPayload) {
   return `${payload}.${sign(payload)}`;
 }
 
-export function verifyAccessSession(value: string | undefined): AccessSession | null {
+function verifyAccessSession(value: string | undefined): AccessSession | null {
   if (!value) return null;
   const [payload, signature, ...extra] = value.split(".");
   if (!payload || !signature || extra.length > 0) return null;
@@ -96,10 +96,6 @@ export function verifyAccessSession(value: string | undefined): AccessSession | 
 
 export async function currentAccessSession() {
   return verifyAccessSession((await cookies()).get(ACCESS_SESSION_COOKIE)?.value);
-}
-
-export function passcodeDigest(value: string) {
-  return createHmac("sha256", secret()).update(value.trim().toUpperCase()).digest("hex");
 }
 
 export function sessionCookieOptions() {

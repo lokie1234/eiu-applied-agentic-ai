@@ -4,12 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import SharedDeckFrame from "@/components/deck/SharedDeckFrame";
 import styles from "./UploadedSectionDeck.module.css";
+import PptxSectionDeck from "./PptxSectionDeck";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
 
 type Props = {
   sectionId: string;
-  contentType: "pdf" | "tsx";
+  contentType: "pdf" | "tsx" | "pptx";
   slideCount: number | null;
   courseTitle: string;
   sectionTitle: string;
@@ -85,6 +86,10 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
     if (!tsxCode) return "";
     return createTsxDocument(tsxCode, 1);
   }, [tsxCode]);
+
+  if (contentType === "pptx") {
+    return <PptxSectionDeck sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} />;
+  }
 
   return (
     <SharedDeckFrame

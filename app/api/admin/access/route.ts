@@ -1,5 +1,6 @@
 import { randomInt } from "node:crypto";
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { requireAdminAccess } from "@/lib/auth/currentUser";
 import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -9,7 +10,6 @@ import {
   createFolderGroup,
   deleteFolderGroup,
   generateNewCoursePasscode,
-  generateNewSectionPasscode,
   getAllAuthorizedEmails,
   getCoursesAndSectionsData,
   parseCourseMetadata,
@@ -187,23 +187,36 @@ export async function POST(request: Request) {
       await updateCourseSystemIcons(courseId, systemIcons);
     } else if (action === "create_course") {
       const title = String(body.title ?? "").trim();
+      const titles: string[] = Array.isArray(body.titles) ? body.titles.map((value: unknown) => String(value).trim()) : [title];
       const folderGroupId = String(body.folderGroupId ?? "fg-ai-agentic").trim();
       const folderGroupName = String(body.folderGroupName ?? "Chương Trình AI & Agentic").trim();
-      const slug = slugify(title);
-      if (!title || title.length > 120 || !slug) {
+      const slugs = titles.map(slugify);
+      if (!titles.length || titles.length > 100 || titles.some((value) => !value || value.length > 120) || slugs.some((slug) => !slug)) {
         return NextResponse.json({ success: false, message: "Invalid course title." }, { status: 400 });
       }
-      const initialMeta = JSON.stringify({
-        summary: title,
+      if (new Set(slugs).size !== slugs.length) {
+        return NextResponse.json({ success: false, message: "Course names must be distinct." }, { status: 400 });
+      }
+      const rows = titles.map((courseTitle, index) => ({
+        title: courseTitle,
+        slug: slugs[index],
+        status: "active",
+        language_label: "vi_en",
+        description: JSON.stringify({
+        summary: courseTitle,
         allowedEmails: [actor.email],
         sectionPasscodes: {},
         unlocked: false,
         folderGroupId,
         folderGroupName,
-      });
+        }),
+      }));
       const { error } = await supabase
         .from("courses")
-        .insert({ title, slug, status: "active", language_label: "vi_en", description: initialMeta });
+        .insert(rows);
+      if (error?.code === "23505") {
+        return NextResponse.json({ success: false, message: "A course with one of these names already exists. Choose different names." }, { status: 409 });
+      }
       if (error) throw error;
     } else if (action === "create_folder_group") {
       const name = String(body.name ?? "").trim();
@@ -236,6 +249,35 @@ export async function POST(request: Request) {
       for (const id of ids) {
         await deleteFolderGroup(id);
       }
+    } else if (action === "reorder_courses") {
+      const folderId = String(body.folderGroupId ?? "");
+      const ids: string[] = Array.isArray(body.courseIds) ? body.courseIds.map(String) : [];
+      const data = await getCoursesAndSectionsData();
+      const members = data.courses.filter((course) => course.status === "active" && course.folderGroupId === folderId);
+      if (!folderId || !ids.length || new Set(ids).size !== ids.length || ids.length !== members.length ||
+          members.some((course) => !ids.includes(course.id))) {
+        return NextResponse.json({ success: false, message: "The folder contents have changed. Refresh and try again." }, { status: 400 });
+      }
+      const { data: originals, error: readError } = await supabase.from("courses").select("id, description").in("id", ids);
+      if (readError) throw readError;
+      if (originals?.length !== ids.length) throw new Error("Course list changed.");
+      try {
+        for (const [index, id] of ids.entries()) {
+          const original = originals.find((course) => course.id === id)!;
+          const metadata = parseCourseMetadata(original.description);
+          const { error } = await supabase.from("courses").update({
+            description: serializeCourseMetadata({ ...metadata, folderOrder: index + 1 }),
+          }).eq("id", id);
+          if (error) throw error;
+        }
+      } catch (error) {
+        for (const course of originals) {
+          const { error: rollbackError } = await supabase.from("courses").update({ description: course.description }).eq("id", course.id);
+          if (rollbackError) console.error("Course order rollback error:", rollbackError);
+        }
+        throw error;
+      }
+      revalidatePath("/learn");
     } else if (action === "set_course_folder_group") {
       const courseId = String(body.courseId ?? "");
       const folderGroupId = String(body.folderGroupId ?? "");
@@ -318,35 +360,80 @@ export async function POST(request: Request) {
     } else if (action === "create_section") {
       const courseId = String(body.courseId ?? "");
       const title = String(body.title ?? "").trim();
+      const titles = Array.isArray(body.titles) ? body.titles.map((value: unknown) => String(value).trim()) : [title];
       const { data: course, error: courseError } = await supabase
         .from("courses")
         .select("slug")
         .eq("id", courseId)
         .maybeSingle();
       if (courseError) throw courseError;
-      if (!course || !title || title.length > 120) {
+      if (!course || titles.length === 0 || titles.length > 100 || titles.some((value: string) => !value || value.length > 120)) {
         return NextResponse.json({ success: false, message: "Invalid section title." }, { status: 400 });
       }
-      const { data: last } = await supabase
+      const { data: last, error: positionError } = await supabase
         .from("course_sections")
         .select("position")
         .eq("course_id", courseId)
         .order("position", { ascending: false })
         .limit(1)
         .maybeSingle();
-      const newKey = `${course.slug}-${slugify(title)}-${Date.now().toString(36)}`;
-      const { error } = await supabase.from("course_sections").insert({
+      if (positionError) throw positionError;
+      const stamp = Date.now().toString(36);
+      const rows = titles.map((sectionTitle: string, index: number) => ({
         course_id: courseId,
-        section_key: newKey,
-        title,
-        position: Number(last?.position ?? 0) + 1,
+        section_key: `${course.slug}-${slugify(sectionTitle)}-${stamp}-${index}`,
+        title: sectionTitle,
+        position: Number(last?.position ?? 0) + index + 1,
         status: "active",
-      });
+      }));
+      const { error } = await supabase.from("course_sections").insert(rows);
       if (error) throw error;
 
       // Assign initial 4-digit code for the new section
-      const newPass = randomInt(1000, 9999).toString();
-      await setSectionPasscode(courseId, newKey, newPass);
+      for (const row of rows) {
+        await setSectionPasscode(courseId, row.section_key, randomInt(1000, 9999).toString());
+      }
+    } else if (action === "reorder_sections") {
+      const courseId = String(body.courseId ?? "");
+      const ids: string[] = Array.isArray(body.sectionIds) ? body.sectionIds.map(String) : [];
+      const { data: existing, error: readError } = await supabase.from("course_sections")
+        .select("id, position").eq("course_id", courseId).eq("status", "active");
+      if (readError) throw readError;
+      if (!courseId || !ids.length || new Set(ids).size !== ids.length || ids.length !== existing?.length ||
+          existing.some((section) => !ids.includes(section.id))) {
+        return NextResponse.json({ success: false, message: "The section list has changed. Refresh and try again." }, { status: 400 });
+      }
+      try {
+        for (const [index, id] of ids.entries()) {
+          const { error } = await supabase.from("course_sections")
+            .update({ position: index + 1 }).eq("id", id).eq("course_id", courseId);
+          if (error) throw error;
+        }
+      } catch (error) {
+        // Restore the previous order if a database write fails partway through.
+        for (const section of existing) {
+          const { error: rollbackError } = await supabase.from("course_sections")
+            .update({ position: section.position }).eq("id", section.id).eq("course_id", courseId);
+          if (rollbackError) console.error("Section order rollback error:", rollbackError);
+        }
+        throw error;
+      }
+      revalidatePath("/learn");
+    } else if (action === "rename_section") {
+      const sectionId = String(body.sectionId ?? "");
+      const title = String(body.title ?? "").trim();
+      if (!sectionId || !title || title.length > 120) {
+        return NextResponse.json({ success: false, message: "Invalid section title." }, { status: 400 });
+      }
+      const { data: section, error } = await supabase
+        .from("course_sections")
+        .update({ title })
+        .eq("id", sectionId)
+        .select("id")
+        .maybeSingle();
+      if (error) throw error;
+      if (!section) return NextResponse.json({ success: false, message: "Section not found." }, { status: 404 });
+      revalidatePath("/learn");
     } else if (action === "delete_section") {
       const sectionId = String(body.sectionId ?? "");
       const { data: section, error: readError } = await supabase

@@ -39,7 +39,7 @@ export function getGeminiModel(): string {
   return model;
 }
 
-export function isAuthError(error: unknown): boolean {
+function isAuthError(error: unknown): boolean {
   if (!error) return false;
   const message =
     error instanceof Error
@@ -86,7 +86,7 @@ export type GenerateContentParams = Omit<
   "model"
 >;
 
-export type GenerateContentOutput = Awaited<
+type GenerateContentOutput = Awaited<
   ReturnType<GoogleGenAI["models"]["generateContent"]>
 >;
 

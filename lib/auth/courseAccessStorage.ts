@@ -12,7 +12,7 @@ export type CourseFolderGroup = {
   order: number;
 };
 
-export const DEFAULT_FOLDER_GROUPS: CourseFolderGroup[] = [
+const DEFAULT_FOLDER_GROUPS: CourseFolderGroup[] = [
   {
     id: "fg-ai-agentic",
     name: "Chương Trình AI & Agentic",
@@ -51,7 +51,7 @@ export type CourseWithDetails = {
   metadata: CourseMetadata;
 };
 
-export type SectionWithPasscode = {
+type SectionWithPasscode = {
   id: string;
   course_id: string;
   section_key: string;
@@ -59,7 +59,7 @@ export type SectionWithPasscode = {
   position: number;
   status: "draft" | "active" | "archived";
   passcode: string;
-  content_type: "builtin" | "pdf" | "tsx";
+  content_type: "builtin" | "pdf" | "tsx" | "pptx";
   content_path: string | null;
   source_filename: string | null;
   slide_count: number | null;
@@ -275,6 +275,8 @@ export async function getCoursesAndSectionsData() {
     };
   });
 
+  courses.sort((a, b) => (a.folderOrder || Number.MAX_SAFE_INTEGER) - (b.folderOrder || Number.MAX_SAFE_INTEGER));
+
   const sections: SectionWithPasscode[] = (sectionsResult.data ?? []).map((section) => {
     const parentCourse = courses.find((c) => c.id === section.course_id);
     let code = parentCourse?.passcode || parentCourse?.metadata.passcode
@@ -296,7 +298,7 @@ export async function getCoursesAndSectionsData() {
       position: Number(section.position),
       status: section.status,
       passcode: code,
-      content_type: section.content_type === "pdf" || section.content_type === "tsx" ? section.content_type : "builtin",
+      content_type: section.content_type === "pdf" || section.content_type === "tsx" || section.content_type === "pptx" ? section.content_type : "builtin",
       content_path: section.content_path ? String(section.content_path) : null,
       source_filename: section.source_filename ? String(section.source_filename) : null,
       slide_count: Number.isFinite(Number(section.slide_count)) && Number(section.slide_count) > 0 ? Number(section.slide_count) : null,
@@ -309,7 +311,7 @@ export async function getCoursesAndSectionsData() {
 /**
  * Updates a course's metadata JSON in courses.description.
  */
-export async function updateCourseMetadata(courseId: string, updater: (current: CourseMetadata) => CourseMetadata) {
+async function updateCourseMetadata(courseId: string, updater: (current: CourseMetadata) => CourseMetadata) {
   const supabase = getSupabaseAdmin();
   const { data: course, error: readError } = await supabase
     .from("courses")
@@ -454,115 +456,6 @@ export async function generateNewCoursePasscode(courseId: string): Promise<strin
  */
 export async function setSectionPasscode(courseId: string, sectionKey: string, code: string) {
   return setCoursePasscode(courseId, code);
-}
-
-/**
- * Backward compatibility: generate section passcode.
- */
-export async function generateNewSectionPasscode(courseId: string, _sectionKey?: string): Promise<string> {
-  return generateNewCoursePasscode(courseId);
-}
-
-export type MatchedCourseAccess = {
-  course: CourseWithDetails;
-  sections: SectionWithPasscode[];
-  section: SectionWithPasscode;
-};
-
-/**
- * Matches an entered passcode to a course folder.
- */
-export async function matchCourseByPasscode(code: string): Promise<MatchedCourseAccess | null> {
-  const trimmed = code.trim();
-  if (!trimmed) return null;
-
-  const { courses, sections } = await getCoursesAndSectionsData();
-
-  // 1. Direct course folder passcode match
-  for (const course of courses) {
-    if (course.passcode === trimmed || course.metadata.passcode === trimmed) {
-      const courseSections = sections.filter((s) => s.course_id === course.id);
-      return {
-        course,
-        sections: courseSections,
-        section: courseSections[0] ?? {
-          id: `sec-${course.id}`,
-          course_id: course.id,
-          section_key: "section1",
-          title: course.title,
-          position: 1,
-          status: "active",
-          passcode: trimmed,
-          content_type: "builtin",
-          content_path: null,
-          source_filename: null,
-          slide_count: null,
-        },
-      };
-    }
-  }
-
-  // 2. Check legacy sectionPasscodes
-  for (const course of courses) {
-    if (course.metadata.sectionPasscodes) {
-      for (const pass of Object.values(course.metadata.sectionPasscodes)) {
-        if (pass === trimmed) {
-          const courseSections = sections.filter((s) => s.course_id === course.id);
-          return {
-            course,
-            sections: courseSections,
-            section: courseSections[0] ?? {
-              id: `sec-${course.id}`,
-              course_id: course.id,
-              section_key: "section1",
-              title: course.title,
-              position: 1,
-              status: "active",
-              passcode: trimmed,
-              content_type: "builtin",
-              content_path: null,
-              source_filename: null,
-              slide_count: null,
-            },
-          };
-        }
-      }
-    }
-  }
-
-  // 3. Fallback check sections
-  for (const sec of sections) {
-    if (sec.passcode === trimmed) {
-      const course = courses.find((c) => c.id === sec.course_id);
-      if (course) {
-        const courseSections = sections.filter((s) => s.course_id === course.id);
-        return {
-          course,
-          sections: courseSections,
-          section: sec,
-        };
-      }
-    }
-  }
-
-  return null;
-}
-
-/**
- * Given a code entered on login, find which section and course it matches.
- */
-export async function matchSectionByPasscode(code: string) {
-  return matchCourseByPasscode(code);
-}
-
-
-/**
- * Checks whether an email has access to a course folder.
- */
-export function isEmailAllowedForCourse(email: string, course: CourseWithDetails): boolean {
-  const norm = normalizeEmail(email);
-  if (norm === FIXED_ADMIN_EMAIL) return true;
-  return course.metadata.allowedEmails.some((allowed) => allowed.toLowerCase() === norm);
 }
 
 /**
@@ -763,7 +656,7 @@ export async function verifyCoursePasscode(courseId: string, code: string): Prom
 /**
  * Persists master folder groups across courses (primarily in the core course).
  */
-export async function saveFolderGroups(groups: CourseFolderGroup[]) {
+async function saveFolderGroups(groups: CourseFolderGroup[]) {
   const supabase = getSupabaseAdmin();
   const { data: coreCourse } = await supabase
     .from("courses")
@@ -1042,36 +935,4 @@ export async function recordUserUnlockedCourse(
   } catch (err) {
     console.warn("Notice: course metadata unlockedEmails update skipped:", err);
   }
-}
-
-/**
- * Admin action: Resets unlocked memory for a specific course (requires students to enter new passcode).
- */
-export async function resetCourseUnlocks(courseId: string): Promise<void> {
-  if (!courseId) return;
-  const supabase = getSupabaseAdmin();
-
-  try {
-    await supabase.from("user_unlocked_courses").delete().eq("course_id", courseId);
-  } catch {}
-
-  try {
-    const { data: courseRow } = await supabase
-      .from("courses")
-      .select("id, description")
-      .eq("id", courseId)
-      .maybeSingle();
-
-    if (courseRow) {
-      const meta = parseCourseMetadata(courseRow.description);
-      meta.unlockedEmails = [];
-      await supabase
-        .from("courses")
-        .update({
-          description: serializeCourseMetadata(meta),
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", courseId);
-    }
-  } catch {}
 }

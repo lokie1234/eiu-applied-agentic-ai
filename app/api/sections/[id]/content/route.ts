@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
-export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
+export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
   const access = await currentUserAccess();
   if (!access?.isActive) return NextResponse.json({ message: "Authentication required." }, { status: 401 });
   try {
@@ -17,7 +17,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       .eq("status", "active")
       .maybeSingle();
     if (error) throw error;
-    if (!section?.content_path || !["pdf", "tsx"].includes(section.content_type)) {
+    if (!section?.content_path || !["pdf", "tsx", "pptx"].includes(section.content_type)) {
       return NextResponse.json({ message: "This section does not have uploaded content." }, { status: 404 });
     }
     const course = access.courses.find((item) => item.id === String(section.course_id));
@@ -28,10 +28,19 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
       .from("course-section-content")
       .download(String(section.content_path));
     if (downloadError) throw downloadError;
+    const isPptx = section.content_type === "pptx";
+    const attachment = isPptx || new URL(request.url).searchParams.get("download") === "1";
+    const filename = String(section.source_filename || `section.${section.content_type}`);
+    const fallbackFilename = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const encodedFilename = encodeURIComponent(filename).replace(/['()*]/g, (character) =>
+      `%${character.charCodeAt(0).toString(16).toUpperCase()}`);
     return new NextResponse(data, {
       headers: {
-        "Content-Type": section.content_type === "pdf" ? "application/pdf" : "text/javascript; charset=utf-8",
-        "Content-Disposition": `inline; filename="${String(section.source_filename || `section.${section.content_type}`)}"`,
+        "Content-Type": isPptx
+          ? "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+          : section.content_type === "pdf" ? "application/pdf" : "text/javascript; charset=utf-8",
+        "Content-Disposition": `${attachment ? "attachment" : "inline"}; filename="${fallbackFilename}"; filename*=UTF-8''${encodedFilename}`,
+        "X-Content-Type-Options": "nosniff",
         "Cache-Control": "private, max-age=300",
       },
     });

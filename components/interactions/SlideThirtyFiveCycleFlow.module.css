@@ -1,7 +1,0 @@
-.root{position:absolute;inset:0;z-index:18;pointer-events:none;overflow:hidden;}
-.svg{position:absolute;inset:0;overflow:visible;}
-.path{fill:none;stroke:url(#g35);stroke-width:3.3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:10 8;animation:flow 1.25s linear infinite;filter:drop-shadow(0 0 5px rgba(233,202,139,.42));}
-.signal{fill:#f4dfb0;filter:drop-shadow(0 0 11px rgba(244,223,176,.88));}
-.heads path{fill:#e9ca8b;opacity:.98;filter:drop-shadow(0 0 6px rgba(233,202,139,.55));}
-@keyframes flow{to{stroke-dashoffset:-18;}}
-@media (prefers-reduced-motion:reduce){.path{animation:none!important;}.signal{display:none;}}

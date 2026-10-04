@@ -28,7 +28,7 @@ async function loadSections(courseIds?: string[]) {
     sectionKey: String(section.section_key),
     title: String(section.title),
     position: Number(section.position),
-    contentType: section.content_type === "pdf" || section.content_type === "tsx" ? section.content_type : "builtin",
+    contentType: section.content_type === "pdf" || section.content_type === "tsx" || section.content_type === "pptx" ? section.content_type : "builtin",
     sourceFilename: section.source_filename ? String(section.source_filename) : null,
     slideCount: Number.isFinite(Number(section.slide_count)) && Number(section.slide_count) > 0 ? Number(section.slide_count) : null,
   }));
@@ -57,7 +57,7 @@ async function loadCourses(courseIds?: string[]) {
       folderOrder: meta.folderOrder ?? 0,
       systemIcons: meta.systemIcons || [],
     };
-  });
+  }).sort((a, b) => (a.folderOrder || Number.MAX_SAFE_INTEGER) - (b.folderOrder || Number.MAX_SAFE_INTEGER));
 }
 
 export async function currentUserAccess(): Promise<AppUserAccess | null> {

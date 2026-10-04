@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    // Proxy buffers request bodies before route handlers read FormData.
+    // Leave room for multipart headers around the 50 MB section-upload limit.
+    proxyClientMaxBodySize: "52mb",
+  },
 };
 
 export default nextConfig;

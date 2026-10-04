@@ -111,6 +111,34 @@
   gap: 18px;
 }
 
+.courseSectionCard {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.courseSectionCard > button {
+  width: 100%;
+  flex: 1;
+}
+
+.sectionPptxLink {
+  padding: 12px 18px;
+  border: 1px solid rgba(233, 202, 139, .3);
+  border-radius: 12px;
+  background: rgba(233, 202, 139, .08);
+  color: #f4dfb0;
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.sectionPptxLink:hover { background: rgba(233, 202, 139, .16); }
+.cards .sectionFilePreview { min-height: 42px; padding: 12px 18px; border-radius: 12px; align-items: center; color: #f4dfb0; font-size: 14px; font-weight: 700; }
+.sectionPptxLink:focus-visible { outline: 3px solid #e9ca8b; outline-offset: 3px; }
+
 .cards button {
   position: relative;
   min-height: 188px;
@@ -310,12 +338,13 @@
 
 .courseFolderGrid {
   display: grid;
-  grid-template-columns: repeat(var(--col-count, 4), minmax(240px, 280px));
+  grid-template-columns: repeat(var(--col-count, 4), minmax(0, 280px));
   gap: 12px;
   width: 100%;
 }
 
 .courseFolder {
+  min-width: 0;
   min-height: 140px;
   padding: 14px 16px;
   display: flex;
@@ -336,10 +365,14 @@
 }
 
 .courseFolder:hover {
-  transform: translateY(-2px);
   border-color: rgba(233, 202, 139, 0.42);
   background: rgba(255, 255, 255, 0.11);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.22);
+  box-shadow: inset 0 0 0 1px rgba(233, 202, 139, 0.18);
+}
+
+.courseFolder:focus-visible {
+  outline: 2px solid #e9ca8b;
+  outline-offset: 3px;
 }
 
 .courseCardBody {
@@ -390,7 +423,7 @@
   display: flex;
   align-items: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .staticIconsTrack {
@@ -1819,7 +1852,9 @@
   flex-direction: column;
   gap: 24px;
   width: 100%;
-  padding-right: 8px;
+  /* Reserve room for lifted cards, focus outlines and hover shadows. */
+  padding: 8px 16px 24px 12px;
+  box-sizing: border-box;
   scrollbar-gutter: stable;
   scrollbar-width: thin;
   scrollbar-color: rgba(233, 202, 139, 0.35) transparent;
