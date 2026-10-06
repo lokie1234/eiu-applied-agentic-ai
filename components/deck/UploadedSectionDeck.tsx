@@ -18,7 +18,9 @@ type Props = {
 
 function createTsxDocument(compiledCode: string, pageNumber: number) {
   const encodedCode = JSON.stringify(compiledCode).replace(/</g, "\\u003c");
-  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:"><style>
+  // Compiled TSX runs via Function inside an opaque-origin sandbox. Network
+  // access stays blocked; allow-downloads supports locally embedded datasets.
+  return `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'; style-src 'unsafe-inline'; img-src data: blob:; font-src data:"><style>
     *{box-sizing:border-box}html,body,#root{width:100%;height:100%;margin:0;overflow:hidden}
     body{font-family:Inter,Arial,sans-serif;background:#fff;color:#082945}
     #root>*,.slide{width:100%;height:100%}button,a,[role=button]{cursor:pointer}
@@ -105,7 +107,7 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
         return (
           <iframe
             className={styles.tsxFrame}
-            sandbox="allow-scripts"
+            sandbox="allow-scripts allow-downloads"
             title={`${sectionTitle} · slide ${pageNumber}`}
             srcDoc={pageNumber === 1 ? frameDocument : createTsxDocument(tsxCode, pageNumber)}
           />
