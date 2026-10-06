@@ -1,4 +1,5 @@
 import "server-only";
+import { currentTeacher, teacherByEmail } from "./teachers";
 
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { currentAccessSession } from "@/lib/auth/session";
@@ -64,6 +65,16 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
   const session = await currentAccessSession();
   if (!session) return null;
 
+  if (session.role === "teacher") {
+    const teacher = await currentTeacher();
+    if (!teacher) return null;
+    const [courses, sections] = teacher.must_change_password ? [[], []] : await Promise.all([loadCourses(), loadSections()]);
+    return {
+      authUserId: teacher.id, email: teacher.email, displayName: teacher.display_name, avatarUrl: null,
+      isAdmin: false, isTeacher: true, mustChangePassword: teacher.must_change_password, isActive: !teacher.must_change_password,
+      courses: courses.map(course => ({ ...course, isUnlocked: true })), sections,
+    };
+  }
   if (session.role === "admin") {
     const [courses, sections] = await Promise.all([loadCourses(), loadSections()]);
     return {
@@ -80,6 +91,7 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
 
   // Learner with authorized email - can view all courses in folder library
   if (session.role === "learner" && "email" in session && session.email) {
+    if (await teacherByEmail(session.email)) return null;
     const [allCourses, allSections, rememberedUnlocked] = await Promise.all([
       loadCourses(),
       loadSections(),
@@ -144,4 +156,17 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
 export async function requireAdminAccess() {
   const access = await currentUserAccess();
   return access?.isActive && access.isAdmin ? access : null;
+}
+
+export async function requireCourseManager() {
+  const access = await currentUserAccess();
+  return access?.isActive && (access.isAdmin || access.isTeacher) ? access : null;
+}
+export async function canManageSection(sectionId: string) {
+  const actor = await requireCourseManager();
+  if (!actor) return false;
+  if (actor.isAdmin) return true;
+  const { data, error } = await getSupabaseAdmin().from("course_sections").select("created_by").eq("id", sectionId).maybeSingle();
+  if (error) throw error;
+  return data?.created_by === actor.authUserId;
 }

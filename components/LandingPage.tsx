@@ -65,7 +65,7 @@ export default function LandingPage() {
     if (loading) return;
 
     const cleanEmail = email.trim();
-    const cleanAdminPassword = adminPassword.trim();
+    const cleanAdminPassword = adminPassword;
     if (!cleanEmail) return;
 
     const isUserType = cleanEmail.toLowerCase() !== "son.lam@eiu.edu.vn";
@@ -103,7 +103,7 @@ export default function LandingPage() {
         localStorage.setItem(SAVED_EMAIL_KEY, cleanEmail);
       } catch {}
 
-      const destination = payload.destination === "/admin/access" ? "/admin/access" : "/learn";
+      const destination = ["/admin/access", "/teacher", "/change-password"].includes(payload.destination ?? "") ? payload.destination! : "/learn";
       setTimeout(() => {
         window.location.replace(destination);
       }, 1500);
@@ -366,24 +366,24 @@ export default function LandingPage() {
                   />
                 </div>
 
-                {isAdminEmail && (
+                {(
                   <div className={styles.inputGroup}>
-                    <label htmlFor="login-admin-pass">ADMINISTRATOR PASSWORD</label>
+                    <label htmlFor="login-admin-pass">PASSWORD (ADMIN / TEACHER)</label>
                     <input
                       id="login-admin-pass"
                       type="password"
                       value={adminPassword}
                       onChange={(event) => { setAdminPassword(event.target.value); setError(""); }}
-                      placeholder="Enter admin password"
+                      placeholder="Teacher password; learners leave blank"
                       autoComplete="current-password"
-                      required
+                      required={isAdminEmail}
                     />
                   </div>
                 )}
 
                 {error && <div className={styles.error} role="alert">{error}</div>}
 
-                <button type="submit" disabled={loading || !email.trim() || (isAdminEmail && !adminPassword.trim())}>
+                <button type="submit" disabled={loading || !email.trim() || (isAdminEmail && !adminPassword.length)}>
                   {loading ? "Verifying…" : "Continue"}<b>→</b>
                 </button>
               </form>

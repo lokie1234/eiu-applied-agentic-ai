@@ -36,6 +36,8 @@ export type AppUserAccess = {
   displayName: string;
   avatarUrl: string | null;
   isAdmin: boolean;
+  isTeacher?: boolean;
+  mustChangePassword?: boolean;
   isActive: boolean;
   courses: CourseAccess[];
   sections: SectionAccess[];

@@ -219,11 +219,13 @@ function DeckShell({
 
 export default function LessonPortal({
   isAdmin,
+  isTeacher,
   courseFolders,
   initialSection,
   initialProfile,
 }: {
   isAdmin: boolean;
+  isTeacher?: boolean;
   courseFolders: CourseFolder[];
   initialSection: SectionId | null;
   initialProfile: LearnerProfile | null;
@@ -714,6 +716,7 @@ export default function LessonPortal({
       <main className={styles.portal}>
         <div className={styles.grid} aria-hidden="true" />
         <div className={styles.selectorActions}>
+          {isTeacher && <Link href="/teacher">Manage courses</Link>}
           {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
           <button type="button" onClick={signOut}>Sign out</button>
@@ -1112,6 +1115,7 @@ export default function LessonPortal({
 
         <div className={styles.selectorActions}>
           <button type="button" onClick={() => setSelectedCourseId(null)}>← Courses</button>
+          {isTeacher && <Link href="/teacher">Manage courses</Link>}
           {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
           {isAdmin && (

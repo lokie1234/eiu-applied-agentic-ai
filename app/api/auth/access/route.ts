@@ -1,4 +1,6 @@
-import { createHash, timingSafeEqual } from "node:crypto";
+import { teacherByEmail, matchesPassword } from "@/lib/auth/teachers";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { getAdminCredential, verifyAdminPassword } from "@/lib/auth/adminPassword";
 import { NextResponse } from "next/server";
 import {
   ACCESS_SESSION_COOKIE,
@@ -17,22 +19,11 @@ import {
 
 export const runtime = "nodejs";
 
-function digest(value: string) {
-  return createHash("sha256").update(value).digest();
-}
-
-function safeCompare(a: string, b: string): boolean {
-  if (!a || !b) return false;
-  const hashA = digest(a);
-  const hashB = digest(b);
-  return hashA.length === hashB.length && timingSafeEqual(hashA, hashB);
-}
-
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
     const rawEmail = String(body.email ?? "").trim();
-    const adminPassword = String(body.adminPassword ?? body.code ?? "").trim();
+    const adminPassword = String(body.adminPassword ?? body.code ?? "");
 
     if (!rawEmail || !isValidEmail(rawEmail)) {
       return NextResponse.json(
@@ -42,8 +33,22 @@ export async function POST(request: Request) {
     }
 
     const email = normalizeEmail(rawEmail);
-    const configuredAdminCode = process.env.ADMIN_ACCESS_PASSWORD?.trim();
-    const isAdminPassword = Boolean(configuredAdminCode) && safeCompare(adminPassword, configuredAdminCode!);
+    if (adminPassword.length > 1024) return NextResponse.json({ message: "Password is too long." }, { status: 400 });
+    const teacher = email === FIXED_ADMIN_EMAIL ? null : await teacherByEmail(email);
+    if (teacher) {
+      const db = getSupabaseAdmin();
+      const { count, error } = await db.from("access_audit_logs").select("id", { count: "exact", head: true }).eq("action", "TEACHER_LOGIN_FAILED").eq("target_email", email).gte("created_at", new Date(Date.now() - 15 * 60 * 1000).toISOString());
+      if (error) throw error;
+      if ((count ?? 0) >= 5) return NextResponse.json({ message: "Too many attempts. Try again in 15 minutes." }, { status: 429 });
+      if (teacher.status !== "active" || !await matchesPassword(adminPassword, teacher.password_hash)) {
+        const { error: auditError } = await db.from("access_audit_logs").insert({ action: "TEACHER_LOGIN_FAILED", target_email: email });
+        if (auditError) throw auditError;
+        return NextResponse.json({ message: "Incorrect email or password, or account suspended." }, { status: 401 });
+      }
+      const response = NextResponse.json({ success: true, destination: teacher.must_change_password ? "/change-password" : "/teacher" });
+      response.cookies.set(ACCESS_SESSION_COOKIE, createAccessSession({ role: "teacher", email, accountId: teacher.id, sessionVersion: teacher.session_version }), sessionCookieOptions());
+      return response;
+    }
 
     // Case 1: son.lam@eiu.edu.vn admin login
     if (email === FIXED_ADMIN_EMAIL) {
@@ -54,11 +59,12 @@ export async function POST(request: Request) {
         );
       }
 
-      if (isAdminPassword) {
+      const credential = await getAdminCredential();
+      if (await verifyAdminPassword(adminPassword, credential)) {
         const response = NextResponse.json({ success: true, destination: "/admin/access" });
         response.cookies.set(
           ACCESS_SESSION_COOKIE,
-          createAccessSession({ role: "admin", email: FIXED_ADMIN_EMAIL }),
+          createAccessSession({ role: "admin", email: FIXED_ADMIN_EMAIL, sessionVersion: credential?.session_version ?? 0 }),
           sessionCookieOptions()
         );
         return response;

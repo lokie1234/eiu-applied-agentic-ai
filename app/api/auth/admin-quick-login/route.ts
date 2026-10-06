@@ -1,4 +1,5 @@
-import { createHash, timingSafeEqual } from "node:crypto";
+import { getAdminCredential, verifyAdminPassword } from "@/lib/auth/adminPassword";
+import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import {
   ACCESS_SESSION_COOKIE,
@@ -12,10 +13,6 @@ export const runtime = "nodejs";
 
 const ATTEMPT_WINDOW_MS = 15 * 60 * 1000;
 const MAX_FAILED_ATTEMPTS = 5;
-
-function digest(value: string) {
-  return createHash("sha256").update(value).digest();
-}
 
 function fingerprint(request: Request) {
   const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
@@ -39,16 +36,14 @@ export async function POST(request: Request) {
     if ((count ?? 0) >= MAX_FAILED_ATTEMPTS) {
       return NextResponse.json({ success: false, message: "Too many attempts. Please try again in 15 minutes." }, { status: 429 });
     }
-    const configuredPassword = process.env.ADMIN_ACCESS_PASSWORD?.trim();
-    if (!configuredPassword) {
+    const credential = await getAdminCredential();
+    if (!credential && !process.env.ADMIN_ACCESS_PASSWORD?.trim()) {
       return NextResponse.json(
         { success: false, message: "Administrator access is not configured." },
         { status: 503 },
       );
     }
-    const expectedHash = createHash("sha256").update(configuredPassword).digest("hex");
-    const valid = password.length > 0
-      && timingSafeEqual(digest(password), Buffer.from(expectedHash, "hex"));
+    const valid = await verifyAdminPassword(password, credential);
     if (!valid) {
       await supabase.from("access_audit_logs").insert({ actor_email: "admin@eiu.edu.vn", action: "ADMIN_PASSWORD_FAILED", details: { fingerprint: requestFingerprint } });
       return NextResponse.json({ success: false, message: "Incorrect administrator code." }, { status: 401 });
@@ -57,7 +52,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ success: true });
     response.cookies.set(
       ACCESS_SESSION_COOKIE,
-      createAccessSession({ role: "admin", email: FIXED_ADMIN_EMAIL }),
+      createAccessSession({ role: "admin", email: FIXED_ADMIN_EMAIL, sessionVersion: credential?.session_version ?? 0 }),
       sessionCookieOptions(),
     );
     return response;

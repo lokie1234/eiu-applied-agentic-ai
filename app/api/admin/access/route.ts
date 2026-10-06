@@ -1,7 +1,7 @@
 import { randomInt } from "node:crypto";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { requireAdminAccess } from "@/lib/auth/currentUser";
+import { requireCourseManager } from "@/lib/auth/currentUser";
 import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import {
@@ -51,10 +51,12 @@ function slugify(value: string) {
 }
 
 export async function GET() {
-  if (!(await requireAdminAccess())) {
+  const actor = await requireCourseManager();
+  if (!actor) {
     return NextResponse.json({ success: false, message: "Administrator access required." }, { status: 403 });
   }
   try {
+    if (!actor.isAdmin) return NextResponse.json({ success: true, ...await teacherData(actor.authUserId) });
     const data = await getCoursesAndSectionsData();
     const authorizedEmails = await getAllAuthorizedEmails(data.courses);
     return NextResponse.json({ success: true, ...data, authorizedEmails });
@@ -65,7 +67,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const actor = await requireAdminAccess();
+  const actor = await requireCourseManager();
   if (!actor) {
     return NextResponse.json({ success: false, message: "Administrator access required." }, { status: 403 });
   }
@@ -74,6 +76,26 @@ export async function POST(request: Request) {
     const body = await request.json();
     const action = String(body.action ?? "");
     const supabase = getSupabaseAdmin();
+    if (!actor.isAdmin) {
+      const allowed = ["create_course", "create_section", "delete_section", "delete_sections", "rename_section", "reorder_sections", "update_course_title", "update_course_summary", "update_course_description", "set_course_language", "delete_course"];
+      if (!allowed.includes(action)) return NextResponse.json({ message: "Administrator access required for this action." }, { status: 403 });
+      if (["delete_section", "delete_sections", "rename_section"].includes(action)) {
+        const ids = action === "delete_sections" && Array.isArray(body.sectionIds) ? body.sectionIds.map(String) : [String(body.sectionId ?? "")];
+        const { data, error } = await supabase.from("course_sections").select("id,created_by").in("id", ids);
+        if (error) throw error;
+        if (!ids.length || data?.length !== new Set(ids).size || data.some(section => section.created_by !== actor.authUserId)) return NextResponse.json({ message: "You can only edit your own sections." }, { status: 403 });
+      } else if (action !== "create_course") {
+        const courseId = String(body.courseId ?? "");
+        const { data: course, error } = await supabase.from("courses").select("created_by").eq("id", courseId).maybeSingle();
+        if (error) throw error;
+        if (!course || course.created_by !== actor.authUserId) return NextResponse.json({ message: "You can only manage your own courses." }, { status: 403 });
+        if (["delete_course", "reorder_sections"].includes(action)) {
+          const { count, error: sectionError } = await supabase.from("course_sections").select("id", { count: "exact", head: true }).eq("course_id", courseId).or('created_by.is.null,created_by.neq.' + actor.authUserId);
+          if (sectionError) throw sectionError;
+          if (count) return NextResponse.json({ message: "This course contains sections owned by another user." }, { status: 403 });
+        }
+      }
+    }
     let generatedCode: string | undefined;
 
     if (action === "grant_emails_bulk") {
@@ -198,6 +220,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "Course names must be distinct." }, { status: 400 });
       }
       const rows = titles.map((courseTitle, index) => ({
+        created_by: actor.isTeacher ? actor.authUserId : null,
         title: courseTitle,
         slug: slugs[index],
         status: "active",
@@ -380,6 +403,7 @@ export async function POST(request: Request) {
       if (positionError) throw positionError;
       const stamp = Date.now().toString(36);
       const rows = titles.map((sectionTitle: string, index: number) => ({
+        created_by: actor.isTeacher ? actor.authUserId : null,
         course_id: courseId,
         section_key: `${course.slug}-${slugify(sectionTitle)}-${stamp}-${index}`,
         title: sectionTitle,
@@ -543,6 +567,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Unsupported action." }, { status: 400 });
     }
 
+    if (!actor.isAdmin) return NextResponse.json({ success: true, ...await teacherData(actor.authUserId) });
     const updatedData = await getCoursesAndSectionsData();
     const authorizedEmails = await getAllAuthorizedEmails(updatedData.courses);
     return NextResponse.json({
@@ -558,4 +583,18 @@ export async function POST(request: Request) {
       : "Unable to update administration data.";
     return NextResponse.json({ success: false, message }, { status: 500 });
   }
+}
+
+async function teacherData(actorId: string) {
+  const db = getSupabaseAdmin();
+  const [courses, sections] = await Promise.all([
+    db.from("courses").select("id,slug,title,description,language_label,created_by").eq("status", "active").order("title"),
+    db.from("course_sections").select("id,course_id,section_key,title,created_by,position,content_type,content_path,source_filename,slide_count").eq("status", "active").order("position"),
+  ]);
+  if (courses.error) throw courses.error;
+  if (sections.error) throw sections.error;
+  return {
+    courses: courses.data.map(c => { const meta = parseCourseMetadata(c.description, c.title); return { id: c.id, slug: c.slug, title: c.title, summary: meta.summary, languageLabel: c.language_label, canEdit: c.created_by === actorId }; }),
+    sections: sections.data.map(s => ({ ...s, canEdit: s.created_by === actorId })),
+  };
 }

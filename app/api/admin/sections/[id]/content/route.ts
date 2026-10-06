@@ -1,7 +1,7 @@
 import ts from "typescript";
 import JSZip from "jszip";
 import { after, NextResponse } from "next/server";
-import { requireAdminAccess } from "@/lib/auth/currentUser";
+import { canManageSection } from "@/lib/auth/currentUser";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -51,11 +51,11 @@ function compileTsx(source: string) {
 }
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
-  if (!(await requireAdminAccess())) {
+  const { id } = await context.params;
+  if (!(await canManageSection(id))) {
     return NextResponse.json({ success: false, message: "Administrator access required." }, { status: 403 });
   }
   try {
-    const { id } = await context.params;
     let formData: FormData;
     try {
       formData = await request.formData();

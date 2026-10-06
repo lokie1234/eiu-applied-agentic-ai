@@ -66,6 +66,7 @@ function handlers(options = {}) {
       };
       if (name === "@/lib/auth/currentUser") return {
         requireAdminAccess: async () => state.admin ? { email: "admin@example.test" } : null,
+        canManageSection: async () => state.admin,
         currentUserAccess: async () => state.access,
       };
       if (name === "@/lib/supabase/server") return { getSupabaseAdmin: () => supabase };

@@ -1,4 +1,5 @@
 "use client";
+import TeacherAccounts from "./TeacherAccounts";
 
 import Link from "next/link";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -159,7 +160,7 @@ function DraggableScrollArea({
 }
 
 export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }) {
-  const [tab, setTab] = useState<"emails" | "courses">("emails");
+  const [tab, setTab] = useState<"emails" | "courses" | "teachers">("emails");
   const [courses, setCourses] = useState<Course[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
   const [authorizedEmails, setAuthorizedEmails] = useState<string[]>([]);
@@ -1526,6 +1527,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
         </div>
         <nav className={styles.headerNav}>
           <Link href="/learn">Learning Space</Link>
+          <Link href="/change-password">Change password</Link>
           <Link href="/admin/ai">✦ AI Knowledge</Link>
           <button type="button" onClick={() => void signOut()}>
             Sign out
@@ -1557,6 +1559,10 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
             <span>Course Setup &amp; Structure</span>
             <span className={styles.tabBadge}>{activeCourses.length}</span>
+          </button>
+          <button type="button" className={`${styles.tabBtn} ${tab === "teachers" ? styles.tabBtnActive : ""}`} onClick={() => setTab("teachers")} role="tab" aria-selected={tab === "teachers"}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-4-5"/></svg>
+            <span>Teacher Accounts</span>
           </button>
         </div>
 
@@ -1729,7 +1735,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
       {notice && !processingMessage && <div className={styles.notice} role="status">{notice}</div>}
 
       <div className={`${styles.scrollArea} ${tab === "courses" ? styles.scrollAreaCourses : ""}`}>
-        {loading ? (
+        {tab === "teachers" ? <TeacherAccounts /> : loading ? (
           <div className={styles.loading}>Loading administration data…</div>
         ) : tab === "emails" ? (
           /* =========================================================================

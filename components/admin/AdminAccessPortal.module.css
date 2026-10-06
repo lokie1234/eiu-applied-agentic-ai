@@ -1565,6 +1565,8 @@
 }
 
 .tabBtn {
+  white-space: nowrap;
+  flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   gap: 8px;

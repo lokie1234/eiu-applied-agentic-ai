@@ -2,12 +2,14 @@ import "server-only";
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export const ACCESS_SESSION_COOKIE = "eiu_access_session";
 const SESSION_MAX_AGE = 60 * 60 * 12;
 
 export type AccessSession =
-  | { role: "admin"; email?: string; expiresAt: number }
+  | { role: "admin"; email?: string; sessionVersion?: number; expiresAt: number }
+  | { role: "teacher"; email: string; accountId: string; sessionVersion: number; expiresAt: number }
   | {
       role: "learner";
       email: string;
@@ -31,7 +33,8 @@ export type AccessSession =
     };
 
 export type CreateSessionPayload =
-  | { role: "admin"; email?: string }
+  | { role: "admin"; email?: string; sessionVersion?: number }
+  | { role: "teacher"; email: string; accountId: string; sessionVersion: number }
   | {
       role: "learner";
       email: string;
@@ -82,6 +85,7 @@ function verifyAccessSession(value: string | undefined): AccessSession | null {
     const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as AccessSession;
     if (parsed.expiresAt <= Date.now()) return null;
     if (parsed.role === "admin") return parsed;
+    if (parsed.role === "teacher" && typeof parsed.accountId === "string" && typeof parsed.sessionVersion === "number") return parsed;
     if (parsed.role === "learner") {
       const learnerData = parsed as { email?: string; passcodeId?: string };
       if (typeof learnerData.email === "string" || typeof learnerData.passcodeId === "string") {
@@ -95,7 +99,14 @@ function verifyAccessSession(value: string | undefined): AccessSession | null {
 }
 
 export async function currentAccessSession() {
-  return verifyAccessSession((await cookies()).get(ACCESS_SESSION_COOKIE)?.value);
+  const session = verifyAccessSession((await cookies()).get(ACCESS_SESSION_COOKIE)?.value);
+  if (session?.role === "admin") {
+    const { data, error } = await getSupabaseAdmin().from("admin_credentials")
+      .select("session_version").eq("id", true).maybeSingle();
+    if (error && !["42P01", "PGRST205"].includes(error.code)) throw error;
+    if ((session.sessionVersion ?? 0) !== (data?.session_version ?? 0)) return null;
+  }
+  return session;
 }
 
 export function sessionCookieOptions() {
