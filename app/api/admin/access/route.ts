@@ -77,14 +77,14 @@ export async function POST(request: Request) {
     const action = String(body.action ?? "");
     const supabase = getSupabaseAdmin();
     if (!actor.isAdmin) {
-      const allowed = ["create_course", "create_section", "delete_section", "delete_sections", "rename_section", "reorder_sections", "update_course_title", "update_course_summary", "update_course_description", "set_course_language", "delete_course"];
+      const allowed = ["create_folder_group", "set_course_folder_group", "create_course", "create_section", "delete_section", "delete_sections", "rename_section", "reorder_sections", "update_course_title", "update_course_summary", "update_course_description", "set_course_language", "delete_course"];
       if (!allowed.includes(action)) return NextResponse.json({ message: "Administrator access required for this action." }, { status: 403 });
       if (["delete_section", "delete_sections", "rename_section"].includes(action)) {
         const ids = action === "delete_sections" && Array.isArray(body.sectionIds) ? body.sectionIds.map(String) : [String(body.sectionId ?? "")];
         const { data, error } = await supabase.from("course_sections").select("id,created_by").in("id", ids);
         if (error) throw error;
         if (!ids.length || data?.length !== new Set(ids).size || data.some(section => section.created_by !== actor.authUserId)) return NextResponse.json({ message: "You can only edit your own sections." }, { status: 403 });
-      } else if (action !== "create_course") {
+      } else if (!["create_course", "create_folder_group"].includes(action)) {
         const courseId = String(body.courseId ?? "");
         const { data: course, error } = await supabase.from("courses").select("created_by").eq("id", courseId).maybeSingle();
         if (error) throw error;
@@ -97,6 +97,8 @@ export async function POST(request: Request) {
       }
     }
     let generatedCode: string | undefined;
+    let createdCourseIds: string[] | undefined;
+    let createdFolderGroupId: string | undefined;
 
     if (action === "grant_emails_bulk") {
       const rawEmails = body.emails ?? body.rawEmails ?? "";
@@ -211,7 +213,13 @@ export async function POST(request: Request) {
       const title = String(body.title ?? "").trim();
       const titles: string[] = Array.isArray(body.titles) ? body.titles.map((value: unknown) => String(value).trim()) : [title];
       const folderGroupId = String(body.folderGroupId ?? "fg-ai-agentic").trim();
-      const folderGroupName = String(body.folderGroupName ?? "Chương Trình AI & Agentic").trim();
+      let folderGroupName = String(body.folderGroupName ?? "Chương Trình AI & Agentic").trim();
+      if (!actor.isAdmin) {
+        const { folderGroups } = await getCoursesAndSectionsData();
+        const folder = folderGroups.find(group => group.id === folderGroupId);
+        if (!folder) return NextResponse.json({ success: false, message: "Folder not found. Refresh your workspace and choose another folder." }, { status: 400 });
+        folderGroupName = folder.name;
+      }
       const slugs = titles.map(slugify);
       if (!titles.length || titles.length > 100 || titles.some((value) => !value || value.length > 120) || slugs.some((slug) => !slug)) {
         return NextResponse.json({ success: false, message: "Invalid course title." }, { status: 400 });
@@ -234,20 +242,23 @@ export async function POST(request: Request) {
         folderGroupName,
         }),
       }));
-      const { error } = await supabase
+      const { data: created, error } = await supabase
         .from("courses")
-        .insert(rows);
+        .insert(rows)
+        .select("id");
       if (error?.code === "23505") {
         return NextResponse.json({ success: false, message: "A course with one of these names already exists. Choose different names." }, { status: 409 });
       }
       if (error) throw error;
+      createdCourseIds = (created ?? []).map(course => String(course.id));
     } else if (action === "create_folder_group") {
       const name = String(body.name ?? "").trim();
       const description = typeof body.description === "string" ? body.description.trim() : undefined;
-      if (!name) {
-        return NextResponse.json({ success: false, message: "Folder name is required." }, { status: 400 });
+      if (!name || name.length > 120 || (description?.length ?? 0) > 2000) {
+        return NextResponse.json({ success: false, message: "Enter a folder name of up to 120 characters and a description of up to 2000 characters." }, { status: 400 });
       }
-      await createFolderGroup(name, description);
+      const folder = await createFolderGroup(name, description);
+      createdFolderGroupId = folder.id;
     } else if (action === "update_folder_group") {
       const id = String(body.id ?? "");
       const name = String(body.name ?? "").trim();
@@ -308,7 +319,14 @@ export async function POST(request: Request) {
       if (!courseId || !folderGroupId) {
         return NextResponse.json({ success: false, message: "Course ID and folder ID are required." }, { status: 400 });
       }
-      await setCourseFolderGroup(courseId, folderGroupId, folderGroupName);
+      if (!actor.isAdmin) {
+        const { folderGroups } = await getCoursesAndSectionsData();
+        const folder = folderGroups.find(group => group.id === folderGroupId);
+        if (!folder) return NextResponse.json({ success: false, message: "Folder not found. Refresh your workspace and choose another folder." }, { status: 400 });
+        await setCourseFolderGroup(courseId, folder.id, folder.name);
+      } else {
+        await setCourseFolderGroup(courseId, folderGroupId, folderGroupName);
+      }
     } else if (action === "set_folder_group_unlocked") {
       const folderGroupId = String(body.folderGroupId ?? "");
       const unlocked = Boolean(body.unlocked);
@@ -567,7 +585,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Unsupported action." }, { status: 400 });
     }
 
-    if (!actor.isAdmin) return NextResponse.json({ success: true, ...await teacherData(actor.authUserId) });
+    if (!actor.isAdmin) return NextResponse.json({ success: true, ...await teacherData(actor.authUserId), ...(createdCourseIds ? { createdCourseIds } : {}), ...(createdFolderGroupId ? { createdFolderGroupId } : {}) });
     const updatedData = await getCoursesAndSectionsData();
     const authorizedEmails = await getAllAuthorizedEmails(updatedData.courses);
     return NextResponse.json({
@@ -575,9 +593,15 @@ export async function POST(request: Request) {
       ...updatedData,
       authorizedEmails,
       ...(generatedCode ? { generatedCode } : {}),
+      ...(createdCourseIds ? { createdCourseIds } : {}),
+      ...(createdFolderGroupId ? { createdFolderGroupId } : {}),
     });
   } catch (error) {
     console.error("Admin update error:", error);
+    const databaseError = error as { code?: string; message?: string; details?: string } | null;
+    if (databaseError?.code === "23503" && /created_by/.test(`${databaseError.message} ${databaseError.details}`)) {
+      return NextResponse.json({ success: false, errorCode: "COURSE_OWNERSHIP_NOT_CONFIGURED", message: "Course ownership setup needs an administrator update. Please contact your administrator before trying again." }, { status: 409 });
+    }
     const message = error instanceof Error && /duplicate|unique/i.test(error.message)
       ? "Duplicate item or entry already exists."
       : "Unable to update administration data.";
@@ -587,14 +611,16 @@ export async function POST(request: Request) {
 
 async function teacherData(actorId: string) {
   const db = getSupabaseAdmin();
-  const [courses, sections] = await Promise.all([
+  const [courses, sections, catalog] = await Promise.all([
     db.from("courses").select("id,slug,title,description,language_label,created_by").eq("status", "active").order("title"),
     db.from("course_sections").select("id,course_id,section_key,title,created_by,position,content_type,content_path,source_filename,slide_count").eq("status", "active").order("position"),
+    getCoursesAndSectionsData(),
   ]);
   if (courses.error) throw courses.error;
   if (sections.error) throw sections.error;
   return {
-    courses: courses.data.map(c => { const meta = parseCourseMetadata(c.description, c.title); return { id: c.id, slug: c.slug, title: c.title, summary: meta.summary, languageLabel: c.language_label, canEdit: c.created_by === actorId }; }),
+    folderGroups: catalog.folderGroups,
+    courses: courses.data.map(c => { const meta = parseCourseMetadata(c.description, c.title); const folder = catalog.folderGroups.find(group => group.id === meta.folderGroupId) ?? catalog.folderGroups[0]; return { id: c.id, slug: c.slug, title: c.title, summary: meta.summary, languageLabel: c.language_label, folderGroupId: folder?.id, folderGroupName: folder?.name, canEdit: c.created_by === actorId }; }),
     sections: sections.data.map(s => ({ ...s, canEdit: s.created_by === actorId })),
   };
 }

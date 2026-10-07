@@ -1,7 +1,7 @@
 "use client";
 import TeacherAccounts from "./TeacherAccounts";
 
-import Link from "next/link";
+import CourseManagerHeader from "./CourseManagerHeader";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./AdminAccessPortal.module.css";
 import { createUploadQueue } from "@/lib/uploadQueue";
@@ -1517,23 +1517,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
 
   return (
     <main className={styles.page}>
-      <header className={styles.header}>
-        <div className={styles.headerTitleGroup}>
-          <span>EIU · LEARNING PLATFORM ADMINISTRATION</span>
-          <h1>Admin Control Center</h1>
-          <p>
-            Admin: <b>{adminEmail}</b> · Centralized Learner Access &amp; Course Management
-          </p>
-        </div>
-        <nav className={styles.headerNav}>
-          <Link href="/learn">Learning Space</Link>
-          <Link href="/change-password">Change password</Link>
-          <Link href="/admin/ai">✦ AI Knowledge</Link>
-          <button type="button" onClick={() => void signOut()}>
-            Sign out
-          </button>
-        </nav>
-      </header>
+      <CourseManagerHeader role="admin" identity={adminEmail} onSignOut={() => void signOut()} />
 
       {/* EIU Luxury Top Control Row: Segmented Tabs (Left) + Master Access Toolbar (Right) */}
       <div className={styles.topControlRow}>

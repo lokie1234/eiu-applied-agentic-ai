@@ -1,54 +1,209 @@
 "use client";
+
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import styles from "./admin/TeacherAccounts.module.css";
+import { useEffect, useRef, useState } from "react";
+import CourseManagerHeader from "./admin/CourseManagerHeader";
+import admin from "./admin/AdminAccessPortal.module.css";
 import layout from "./TeacherPortal.module.css";
 import { uploadSectionFile } from "@/lib/uploadSectionFile";
-type Course = { id: string; title: string; summary: string; languageLabel: string; canEdit: boolean };
-type Section = { id: string; course_id: string; title: string; canEdit: boolean; source_filename: string | null };
-async function api(body?: Record<string, unknown>) {
-  const res = await fetch("/api/admin/access", body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : { cache: "no-store" });
-  const data = await res.json(); if (!res.ok) throw new Error(data.message); return data;
+
+type Course = { id: string; title: string; summary: string; languageLabel: string; canEdit: boolean; folderGroupId?: string; folderGroupName?: string };
+type Folder = { id: string; name: string; description?: string; order: number };
+type Section = { id: string; course_id: string; title: string; canEdit: boolean; source_filename: string | null; content_type: string };
+type WorkspaceData = { courses: Course[]; sections: Section[]; folderGroups: Folder[]; createdCourseIds?: string[]; createdFolderGroupId?: string };
+const languages: Record<string, string> = { vi: "Vietnamese", en: "English", vi_en: "Vietnamese & English" };
+
+async function api(body?: Record<string, unknown>): Promise<WorkspaceData> {
+  const res = await fetch("/api/admin/access", body ? {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body),
+  } : { cache: "no-store" });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.message || "Unable to load your workspace. Please try again.");
+  return data;
 }
+
+function BookIcon() {
+  return <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 6c-3-2-6-2-9-1v14c3-1 6-1 9 1 3-2 6-2 9-1V5c-3-1-6-1-9 1Z"/><path d="M12 6v14"/></svg>;
+}
+
 export default function TeacherPortal({ name }: { name: string }) {
-  const [courses, setCourses] = useState<Course[]>([]); const [sections, setSections] = useState<Section[]>([]);
-  const [title, setTitle] = useState(""); const [newSection, setNewSection] = useState(""); const [courseId, setCourseId] = useState("");
-  const [error, setError] = useState(""); const [busy, setBusy] = useState(false); const [loading, setLoading] = useState(true); const [progress, setProgress] = useState(0);
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [sections, setSections] = useState<Section[]>([]);
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [newFolderName, setNewFolderName] = useState("");
+  const [newFolderDescription, setNewFolderDescription] = useState("");
+  const [showNewFolder, setShowNewFolder] = useState(false);
+  const [targetFolderId, setTargetFolderId] = useState("fg-ai-agentic");
+  const [folderFilter, setFolderFilter] = useState("");
+  const [title, setTitle] = useState("");
+  const [newSection, setNewSection] = useState("");
+  const [courseId, setCourseId] = useState("");
+  const [scope, setScope] = useState<"mine" | "all">("mine");
+  const [search, setSearch] = useState("");
+  const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [busy, setBusy] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const inFlight = useRef(false);
+
+  function applyData(data: WorkspaceData) { setCourses(data.courses); setSections(data.sections); setFolders(data.folderGroups); }
+
   useEffect(() => {
     let active = true;
-    api().then(data => { if (active) { setCourses(data.courses); setSections(data.sections); } }).catch(err => { if (active) setError(err.message); }).finally(() => { if (active) setLoading(false); });
+    api().then(data => { if (active) applyData(data); })
+      .catch(err => { if (active) setError(err.message); })
+      .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, []);
-  async function request(body: Record<string, unknown>) {
-    if (busy) return; setBusy(true); setError("");
-    try { const data = await api(body); setCourses(data.courses); setSections(data.sections); if (body.action === "create_course") setTitle(""); if (body.action === "create_section") setNewSection(""); }
-    catch (err) { setError(err instanceof Error ? err.message : "Unable to save changes."); } finally { setBusy(false); }
+
+  async function request(body: Record<string, unknown> | undefined, message: string, processing: string) {
+    if (inFlight.current) return;
+    inFlight.current = true; setBusy(processing); setError(""); setNotice("");
+    try {
+      const data = await api(body); applyData(data);
+      if (body?.action === "create_course") {
+        setTitle(""); setScope("mine"); setSearch("");
+        setCourseId(data.createdCourseIds?.[0] ?? ""); setNewSection("");
+        setFolderFilter(String(body.folderGroupId ?? ""));
+      }
+      if (body?.action === "create_folder_group") {
+        setNewFolderName(""); setNewFolderDescription(""); setShowNewFolder(false);
+        setTargetFolderId(data.createdFolderGroupId ?? ""); setFolderFilter(data.createdFolderGroupId ?? "");
+        setSearch(""); setNewSection("");
+      }
+      if (body?.action === "set_course_folder_group") setFolderFilter("");
+      if (body?.action === "create_section") setNewSection("");
+      setNotice(message);
+    } catch (err) { setError(err instanceof Error ? err.message : "Unable to save changes."); }
+    finally { inFlight.current = false; setBusy(""); }
   }
+
   async function upload(section: Section, file: File) {
-    if (busy) return; setBusy(true); setError(""); setProgress(0);
-    try { await uploadSectionFile(`/api/admin/sections/${section.id}/content`, file, setProgress); const data = await api(); setCourses(data.courses); setSections(data.sections); }
-    catch (err) { setError(err instanceof Error ? err.message : "Unable to upload content."); } finally { setBusy(false); }
+    if (inFlight.current) return;
+    inFlight.current = true; setBusy(`Uploading ${file.name}`); setError(""); setNotice(""); setProgress(0);
+    try {
+      await uploadSectionFile(`/api/admin/sections/${section.id}/content`, file, setProgress);
+      applyData(await api()); setNotice(`Content saved for “${section.title}”.`);
+    } catch (err) { setError(err instanceof Error ? err.message : "Unable to upload content."); }
+    finally { inFlight.current = false; setBusy(""); setProgress(0); }
   }
-  const selected = courses.find(c => c.id === courseId) ?? courses[0];
+
+  const ownCourses = courses.filter(c => c.canEdit);
+  const targetFolder = folders.find(folder => folder.id === targetFolderId) ?? folders[0];
+  const visibleCourses = courses.filter(c => (scope === "all" || c.canEdit) && (!folderFilter || c.folderGroupId === folderFilter) && `${c.title} ${c.folderGroupName ?? ""}`.toLowerCase().includes(search.trim().toLowerCase()));
+  const visibleFolders = folders.filter(folder => (!folderFilter || folder.id === folderFilter) && (!search.trim() || folder.name.toLowerCase().includes(search.trim().toLowerCase()) || visibleCourses.some(c => c.folderGroupId === folder.id)));
+  const selected = visibleCourses.find(c => c.id === courseId) ?? visibleCourses[0];
   const courseSections = sections.filter(s => s.course_id === selected?.id);
-  return <main className={layout.page}><header className={layout.header}><div><h1>Teacher Workspace</h1><p>{name} · Create courses and manage your own sections</p></div><nav><Link href="/learn">View all courses</Link><Link href="/change-password">Change password</Link><button className={styles.button} onClick={async () => { await fetch("/api/signout", { method: "POST" }); window.location.replace("/"); }}>Sign out</button></nav></header>
-    {error && <p className={`${styles.message} ${styles.error}`} role="alert">{error}</p>}{busy && <p role="status">Processing… {progress > 0 ? `${progress}%` : ""}</p>}
-    <div className={layout.content}><div className={layout.courses}><aside className={`${styles.card} ${layout.sidebar}`}><h2>Courses</h2><form className={styles.form} onSubmit={e => { e.preventDefault(); void request({ action: "create_course", title }); }}><label>NEW COURSE TITLE<input className={styles.input} value={title} onChange={e => setTitle(e.target.value)} required maxLength={120}/></label><button className={styles.primary} disabled={busy || loading}>+ Create course</button></form>
-      {courses.map(c => <button className={`${layout.course} ${selected?.id === c.id ? layout.selected : ""}`} key={c.id} onClick={() => setCourseId(c.id)}><b>{c.title}</b><small>{c.canEdit ? "Your course" : "Read only"}</small></button>)}</aside>
-      <section className={`${styles.card} ${layout.detail}`}><h2>{selected?.title ?? (loading ? "Loading…" : "No courses yet")}</h2>{selected && <><p>{selected.summary}</p>{selected.canEdit ? <>
-        <form key={selected.id} className={styles.form} onSubmit={e => { e.preventDefault(); const form = new FormData(e.currentTarget); void request({ action: "update_course_title", courseId: selected.id, title: form.get("title") }); }}><label>COURSE TITLE<input className={styles.input} name="title" defaultValue={selected.title} maxLength={120} required/></label><button className={styles.button} disabled={busy}>Save course title</button></form>
-        <form key={`summary-${selected.id}`} className={styles.form} onSubmit={e => { e.preventDefault(); void request({ action: "update_course_summary", courseId: selected.id, summary: new FormData(e.currentTarget).get("summary") }); }}><label>DESCRIPTION<input className={styles.input} name="summary" defaultValue={selected.summary}/></label><button className={styles.button} disabled={busy}>Save description</button></form>
-        <label>Language <select className={styles.select} value={selected.languageLabel} disabled={busy} onChange={e => void request({ action: "set_course_language", courseId: selected.id, languageLabel: e.target.value })}><option value="vi">Vietnamese</option><option value="en">English</option><option value="vi_en">Vietnamese & English</option></select></label>
-        <button className={styles.danger} disabled={busy} onClick={() => { if (window.confirm(`Delete course “${selected.title}” and all your sections?`)) void request({ action: "delete_course", courseId: selected.id }); }}>Delete course</button>
-        <form className={styles.form} onSubmit={e => { e.preventDefault(); void request({ action: "create_section", courseId: selected.id, title: newSection }); }}><label>NEW SECTION<input className={styles.input} value={newSection} onChange={e => setNewSection(e.target.value)} maxLength={120} required/></label><button className={styles.primary} disabled={busy}>+ Add section</button></form>
-      </> : <p className={styles.badge}>Read only · Owned by another teacher or the admin</p>}
-      {courseSections.map((s, index) => <article className={layout.section} key={s.id}><h3>{index + 1}. {s.title}</h3><p>{s.source_filename || "No content file uploaded"}</p>{s.canEdit ? <div className={layout.sectionActions}>
-        <form onSubmit={e => { e.preventDefault(); void request({ action: "rename_section", sectionId: s.id, title: new FormData(e.currentTarget).get("title") }); }}><input className={styles.input} name="title" aria-label={`Section title for ${s.title}`} defaultValue={s.title} required maxLength={120}/><button className={styles.button} disabled={busy}>Save title</button></form>
-        <label className={styles.button}>Upload PDF / TSX / PPTX<input type="file" hidden disabled={busy} accept=".pdf,.tsx,.pptx" onChange={e => { const file = e.currentTarget.files?.[0]; if (file) void upload(s, file); e.currentTarget.value = ""; }}/></label>
-        {selected.canEdit && courseSections.every(item => item.canEdit) && index > 0 && <button className={styles.button} disabled={busy} onClick={() => { const ids = courseSections.map(item => item.id); [ids[index], ids[index - 1]] = [ids[index - 1], ids[index]]; void request({ action: "reorder_sections", courseId: selected.id, sectionIds: ids }); }}>↑ Move up</button>}
-        <button className={styles.danger} disabled={busy} onClick={() => { if (window.confirm(`Delete section “${s.title}”?`)) void request({ action: "delete_section", sectionId: s.id }); }}>Delete</button>
-      </div> : <span className={styles.badge}>Read only</span>}</article>)}
-      </>}
-      </section></div></div>
-  </main>;
+  const allSectionsOwned = courseSections.every(s => s.canEdit);
+  const disabled = Boolean(busy) || loading;
+
+  function selectCourse(id: string) { setCourseId(id); setNewSection(""); setNotice(""); }
+  function moveSection(index: number, direction: number) {
+    if (!selected) return;
+    const ids = courseSections.map(s => s.id);
+    [ids[index], ids[index + direction]] = [ids[index + direction], ids[index]];
+    void request({ action: "reorder_sections", courseId: selected.id, sectionIds: ids }, "Section order saved.", "Saving section order…");
+  }
+
+  return (
+    <main className={`${admin.page} ${layout.workspace}`}>
+      <CourseManagerHeader role="teacher" identity={name} onSignOut={() => {
+        void fetch("/api/signout", { method: "POST" }).then(res => {
+          if (!res.ok) throw new Error("Unable to sign out. Please try again.");
+          window.location.replace("/");
+        }).catch(err => setError(err.message));
+      }} />
+
+      <div className={admin.topControlRow}>
+        <div className={admin.tabsTrack} aria-label="Course view">
+          {(["mine", "all"] as const).map(value => <button key={value} type="button" className={`${admin.tabBtn} ${scope === value ? admin.tabBtnActive : ""}`} aria-pressed={scope === value} onClick={() => { setScope(value); setSearch(""); setFolderFilter(""); setNewSection(""); }}>
+            {value === "mine" ? "My courses" : "All courses"}<span className={admin.tabBadge}>{value === "mine" ? ownCourses.length : courses.length}</span>
+          </button>)}
+        </div>
+        <div className={layout.toolbar}>
+          <button className={layout.button} type="button" disabled={disabled} aria-expanded={showNewFolder} aria-controls="new-folder-form" onClick={() => setShowNewFolder(!showNewFolder)}>+ New folder</button>
+          <input className={layout.input} value={search} onChange={e => { setSearch(e.target.value); setNewSection(""); }} placeholder="Search courses…" aria-label="Search courses" />
+          <button className={layout.button} type="button" disabled={disabled} onClick={() => void request(undefined, "Workspace refreshed.", "Refreshing workspace…")}>↻ Refresh</button>
+        </div>
+      </div>
+
+      {error && <div className={admin.error} role="alert">{error}</div>}
+      {notice && <div className={admin.notice} role="status">{notice}</div>}
+      {busy && <div className={admin.processingBanner} role="status"><span className={admin.processingSpinner} aria-hidden="true"/><span>{busy}{progress > 0 ? ` · ${progress}% transferred` : ""}</span></div>}
+
+      <div className={`${admin.scrollArea} ${layout.canvas}`}>
+        <div className={layout.overview}>
+          <div><span className={layout.eyebrow}>YOUR TEACHING SPACE</span><h2>Course Setup & Structure</h2><p>Build your courses, organize lessons and publish learning materials.</p></div>
+          <div className={layout.metrics} aria-label="Workspace overview"><div><b>{ownCourses.length}</b><span>My courses</span></div><div><b>{sections.filter(s => s.canEdit).length}</b><span>My sections</span></div><div><b>{courses.length}</b><span>In the library</span></div></div>
+        </div>
+
+        <div className={layout.courses}>
+          <aside className={layout.sidebar} aria-label="Course library">
+            {showNewFolder && <section className={`${layout.card} ${layout.createCard} ${layout.folderCreate}`}>
+              <span className={layout.eyebrow}>ORGANIZE YOUR LIBRARY</span><h3>Create a folder</h3><p>Group related courses in a folder, just like the admin library.</p>
+              <form id="new-folder-form" className={layout.form} onSubmit={e => { e.preventDefault(); void request({ action: "create_folder_group", name: newFolderName, description: newFolderDescription }, "Folder created. You can add a course to it now.", "Creating folder…"); }}>
+                <label htmlFor="new-folder-name">FOLDER NAME</label><input id="new-folder-name" className={layout.input} value={newFolderName} onChange={e => setNewFolderName(e.target.value)} maxLength={120} placeholder="e.g. Business Analytics" required disabled={disabled}/>
+                <label htmlFor="new-folder-description">DESCRIPTION (OPTIONAL)</label><textarea id="new-folder-description" className={layout.input} value={newFolderDescription} onChange={e => setNewFolderDescription(e.target.value)} rows={2} maxLength={2000} disabled={disabled}/>
+                <button className={layout.primary} disabled={disabled || !newFolderName.trim()}>+ Create folder</button>
+              </form>
+            </section>}
+            <section className={`${layout.card} ${layout.createCard}`}>
+              <span className={layout.eyebrow}>START SOMETHING NEW</span><h3>Create a course</h3><p>Your course and its sections belong to you.</p>
+              <form className={layout.form} onSubmit={e => { e.preventDefault(); void request({ action: "create_course", title, folderGroupId: targetFolder?.id }, "Course created. Add your first section below.", "Creating your course…"); }}>
+                <label htmlFor="new-course-title">COURSE TITLE</label><input id="new-course-title" className={layout.input} value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. MIS 311" required maxLength={120} disabled={disabled}/>
+                <label htmlFor="new-course-folder">PARENT FOLDER</label><select id="new-course-folder" className={layout.input} value={targetFolder?.id ?? ""} onChange={e => setTargetFolderId(e.target.value)} disabled={disabled || !folders.length} required>{folders.map(folder => <option value={folder.id} key={folder.id}>{folder.name}</option>)}</select>
+                <button className={layout.primary} disabled={disabled || !title.trim() || !targetFolder}>+ Create course</button>
+              </form>
+            </section>
+            <section className={`${layout.card} ${layout.libraryCard}`}>
+              <div className={layout.libraryHeading}><h3>{scope === "mine" ? "My courses" : "Course library"}</h3><span>{visibleCourses.length}</span></div>
+              <div className={layout.folderFilter}><label className={layout.srOnly} htmlFor="course-folder-filter">Filter courses by folder</label><select id="course-folder-filter" className={layout.input} value={folderFilter} onChange={e => { setFolderFilter(e.target.value); setNewSection(""); }}><option value="">All folders</option>{folders.map(folder => <option key={folder.id} value={folder.id}>{folder.name}</option>)}</select></div>
+              {loading ? <p className={layout.emptySmall}>Loading courses…</p> : visibleFolders.length ? <div className={layout.courseList}>{visibleFolders.map(folder => <div key={folder.id}><div className={layout.folderHeading}><span>{folder.name}</span><small>{visibleCourses.filter(c => c.folderGroupId === folder.id).length}</small></div>{visibleCourses.filter(c => c.folderGroupId === folder.id).map(c => <button type="button" className={`${layout.course} ${selected?.id === c.id ? layout.selected : ""}`} key={c.id} aria-pressed={selected?.id === c.id} onClick={() => selectCourse(c.id)}>
+                <span className={layout.courseIcon}><BookIcon/></span><span className={layout.courseIdentity}><b>{c.title}</b><small>{c.canEdit ? "Your course" : "Read only"} · {sections.filter(s => s.course_id === c.id).length} sections</small></span>
+              </button>)}{!visibleCourses.some(c => c.folderGroupId === folder.id) && <p className={layout.folderEmpty}>{scope === "mine" ? "No courses of yours in this folder yet." : "No courses in this folder yet."}</p>}</div>)}</div> : <p className={layout.emptySmall}>{search ? "No courses match your search." : "No folders in the library yet."}</p>}
+            </section>
+          </aside>
+
+          <section className={layout.detail} aria-label="Selected course" aria-busy={Boolean(busy)}>
+            {selected ? <>
+              <div className={`${layout.card} ${layout.courseHeader}`}>
+                <div><div className={layout.courseMeta}><span className={layout.eyebrow}>COURSE WORKSPACE</span><span className={`${layout.badge} ${selected.canEdit ? layout.owned : ""}`}>{selected.canEdit ? "Your course" : "Read only"}</span></div><h2>{selected.title}</h2><p>{selected.summary || "Add a description to introduce this course."}</p><div className={layout.metadata}><span>{selected.folderGroupName}</span><span>{languages[selected.languageLabel] ?? selected.languageLabel}</span><span>{courseSections.length} sections</span></div></div>
+                <Link className={layout.button} href="/learn">Open Learning Space ↗</Link>
+              </div>
+
+              {selected.canEdit ? <details key={selected.id} className={`${layout.card} ${layout.settings}`}>
+                <summary>Course settings <span>Title, description & language</span></summary>
+                <div className={layout.settingsBody}>
+                  <form key={`title-${selected.title}`} className={layout.form} onSubmit={e => { e.preventDefault(); void request({ action: "update_course_title", courseId: selected.id, title: new FormData(e.currentTarget).get("title") }, "Course title saved.", "Saving course title…"); }}>
+                    <label htmlFor="course-title">COURSE TITLE</label><input id="course-title" className={layout.input} name="title" defaultValue={selected.title} maxLength={120} required disabled={disabled}/><button className={layout.button} disabled={disabled}>Save title</button>
+                  </form>
+                  <div className={layout.form}><label htmlFor="course-language">LANGUAGE</label><select id="course-language" className={layout.input} value={selected.languageLabel} disabled={disabled} onChange={e => void request({ action: "set_course_language", courseId: selected.id, languageLabel: e.target.value }, "Course language saved.", "Saving language…")}><option value="vi">Vietnamese</option><option value="en">English</option><option value="vi_en">Vietnamese & English</option></select></div>
+                  <div className={`${layout.form} ${layout.fullWidth}`}><label htmlFor="course-parent-folder">PARENT FOLDER</label><select id="course-parent-folder" className={layout.input} value={selected.folderGroupId ?? ""} disabled={disabled} onChange={e => void request({ action: "set_course_folder_group", courseId: selected.id, folderGroupId: e.target.value }, "Course moved to folder.", "Moving course…")}>{folders.map(folder => <option key={folder.id} value={folder.id}>{folder.name}</option>)}</select></div>
+                  <form key={`summary-${selected.summary}`} className={`${layout.form} ${layout.fullWidth}`} onSubmit={e => { e.preventDefault(); void request({ action: "update_course_summary", courseId: selected.id, summary: new FormData(e.currentTarget).get("summary") }, "Course description saved.", "Saving description…"); }}>
+                    <label htmlFor="course-summary">DESCRIPTION</label><textarea id="course-summary" className={layout.input} rows={3} name="summary" defaultValue={selected.summary} disabled={disabled}/><button className={layout.button} disabled={disabled}>Save description</button>
+                  </form>
+                  <div className={`${layout.dangerZone} ${layout.fullWidth}`}><div><b>Delete course</b><p>{allSectionsOwned ? "Permanently remove this course and its sections." : "This course includes another user's sections and cannot be deleted."}</p></div><button className={layout.danger} disabled={disabled || !allSectionsOwned} onClick={() => { if (window.confirm(`Delete course “${selected.title}” and all its sections? This cannot be undone.`)) void request({ action: "delete_course", courseId: selected.id }, "Course deleted.", "Deleting course…"); }}>Delete course</button></div>
+                </div>
+              </details> : <div className={layout.readOnly}><span className={layout.badge}>VIEW ONLY</span><p>This course belongs to another teacher or the admin. You can view its lessons in Learning Space.</p></div>}
+
+              <section className={`${layout.card} ${layout.sectionsCard}`}>
+                <div className={layout.sectionHeading}><div><span className={layout.eyebrow}>LEARNING CONTENT</span><h3>Sections <span>{courseSections.length}</span></h3></div><p>PDF, TSX & PPTX materials</p></div>
+                {selected.canEdit && <form className={layout.addSection} onSubmit={e => { e.preventDefault(); void request({ action: "create_section", courseId: selected.id, title: newSection }, "Section created. Upload its learning material below.", "Creating section…"); }}><label htmlFor="new-section-title">NEW SECTION</label><div><input id="new-section-title" className={layout.input} value={newSection} onChange={e => setNewSection(e.target.value)} placeholder="e.g. Introduction & learning objectives" maxLength={120} required disabled={disabled}/><button className={layout.primary} disabled={disabled || !newSection.trim()}>+ Add section</button></div></form>}
+                {courseSections.length ? <div className={layout.sectionList}>{courseSections.map((s, index) => <article className={layout.section} key={s.id}>
+                  <div className={layout.sectionInfo}><span className={layout.sectionNumber}>{String(index + 1).padStart(2, "0")}</span><div><h4>{s.title}</h4><p>{s.source_filename || "No material uploaded yet"}</p><span className={`${layout.badge} ${s.source_filename ? layout.owned : ""}`}>{s.source_filename ? s.content_type.toUpperCase() : "Awaiting content"}</span></div></div>
+                  {s.canEdit ? <>
+                    <div className={layout.sectionActions}><label className={`${layout.button} ${disabled ? layout.disabled : ""}`}>{s.source_filename ? "Replace material" : "Upload material"}<input type="file" className={layout.fileInput} disabled={disabled} aria-label={`Upload material for ${s.title}`} accept=".pdf,.tsx,.pptx" onChange={e => { const file = e.currentTarget.files?.[0]; if (file) void upload(s, file); e.currentTarget.value = ""; }}/></label>
+                      {selected.canEdit && allSectionsOwned && <><button className={layout.iconButton} disabled={disabled || index === 0} aria-label={`Move ${s.title} up`} onClick={() => moveSection(index, -1)}>↑</button><button className={layout.iconButton} disabled={disabled || index === courseSections.length - 1} aria-label={`Move ${s.title} down`} onClick={() => moveSection(index, 1)}>↓</button></>}
+                    </div>
+                    <details className={layout.sectionEdit}><summary>Edit section</summary><form key={s.title} onSubmit={e => { e.preventDefault(); void request({ action: "rename_section", sectionId: s.id, title: new FormData(e.currentTarget).get("title") }, "Section title saved.", "Saving section title…"); }}><label className={layout.srOnly} htmlFor={`title-${s.id}`}>Section title</label><input id={`title-${s.id}`} className={layout.input} name="title" defaultValue={s.title} required maxLength={120} disabled={disabled}/><button className={layout.button} disabled={disabled}>Save title</button><button type="button" className={layout.danger} disabled={disabled} onClick={() => { if (window.confirm(`Delete section “${s.title}”? This cannot be undone.`)) void request({ action: "delete_section", sectionId: s.id }, "Section deleted.", "Deleting section…"); }}>Delete section</button></form></details>
+                  </> : <span className={layout.badge}>Read only</span>}
+                </article>)}</div> : <div className={layout.empty}><BookIcon/><h4>{selected.canEdit ? "Ready for your first lesson" : "No sections yet"}</h4><p>{selected.canEdit ? "Add a section, then upload a PDF, interactive TSX or PowerPoint." : "Learning materials will appear here when the owner adds them."}</p></div>}
+              </section>
+            </> : <div className={`${layout.card} ${layout.emptyCanvas}`}><span className={layout.emptyIcon}><BookIcon/></span><span className={layout.eyebrow}>YOUR NEXT COURSE STARTS HERE</span><h2>{loading ? "Loading your workspace…" : search ? "No matching courses" : scope === "mine" ? "Make room for your next idea." : "A fresh learning library"}</h2><p>{search ? "Try a different title in the search field." : "Create a course on the left, add your sections and bring your learning materials together."}</p>{scope === "mine" && !search && <button className={layout.button} onClick={() => setScope("all")}>Browse all courses →</button>}</div>}
+          </section>
+        </div>
+      </div>
+    </main>
+  );
 }

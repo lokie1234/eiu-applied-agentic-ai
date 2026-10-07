@@ -4,6 +4,8 @@
 
 Run `supabase/migrations/202610060001_teacher_accounts.sql` in the project's Supabase SQL Editor before deploying this change. It adds `teacher_accounts` and ownership columns on courses and sections. Existing courses and sections remain managed by the main admin.
 
+Also apply `supabase/migrations/202610070001_teacher_course_ownership.sql`. Older databases may already have `created_by` referencing `staff_accounts`; adding the column with `IF NOT EXISTS` does not update that foreign key. This repair points both course and section ownership at `teacher_accounts`, preserves existing rows and fails atomically if a non-null legacy owner needs mapping first. After applying it, verify that a teacher can create a course and section and that both retain that teacher's ID in `created_by`.
+
 ## Main admin
 
 Open **Admin Control Center → Teacher Accounts**, beside Authorized Emails and Course Setup & Structure.
@@ -22,6 +24,8 @@ The main admin can open **Change password** in the Admin Control Center header. 
 Teachers sign in using their email and password on the existing login screen. First login goes to `/change-password`. The new password must be entered twice and can be shown/hidden. There are no minimum-length or character-composition rules; passwords must be nonempty, differ from the temporary password, and fit the 1024-character request limit.
 
 After changing the password, `/teacher` provides course creation and section management, including PDF/TSX/PPTX uploads. Teachers can edit their own courses and their own sections; other courses and sections are read-only. Reordering or deleting an entire course cannot modify another user's sections. All courses can be viewed from `/learn` without course passcodes.
+
+Teachers can use **New folder** to create a shared parent folder in the same library used by the main admin, choose a parent folder when creating a course, and move their own courses between folders. Folder creation uses the existing core-course metadata catalog and needs no extra migration. Renaming, deleting, or unlocking folders remains admin-only. The workspace groups courses by folder and supports filtering across My courses and All courses.
 
 Teacher login is blocked after five failed attempts within fifteen minutes. First-login requirements, account suspension, and session versions are checked in the database on protected requests.
 

@@ -658,20 +658,21 @@ export async function verifyCoursePasscode(courseId: string, code: string): Prom
  */
 async function saveFolderGroups(groups: CourseFolderGroup[]) {
   const supabase = getSupabaseAdmin();
-  const { data: coreCourse } = await supabase
+  const { data: coreCourse, error: readError } = await supabase
     .from("courses")
     .select("id, description")
     .eq("slug", "applied-agentic-ai")
     .maybeSingle();
 
-  if (coreCourse) {
-    const meta = parseCourseMetadata(coreCourse.description);
-    meta.folderGroups = groups;
-    await supabase.from("courses").update({
-      description: serializeCourseMetadata(meta),
-      updated_at: new Date().toISOString(),
-    }).eq("id", coreCourse.id);
-  }
+  if (readError) throw readError;
+  if (!coreCourse) throw new Error("The course library is not configured for saving folders.");
+  const meta = parseCourseMetadata(coreCourse.description);
+  meta.folderGroups = groups;
+  const { error } = await supabase.from("courses").update({
+    description: serializeCourseMetadata(meta),
+    updated_at: new Date().toISOString(),
+  }).eq("id", coreCourse.id);
+  if (error) throw error;
 }
 
 /**
