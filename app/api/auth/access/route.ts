@@ -36,6 +36,13 @@ export async function POST(request: Request) {
     if (adminPassword.length > 1024) return NextResponse.json({ message: "Password is too long." }, { status: 400 });
     const teacher = email === FIXED_ADMIN_EMAIL ? null : await teacherByEmail(email);
     if (teacher) {
+      // Email discovery is not a failed password attempt, even during a lockout.
+      if (!adminPassword) {
+        return NextResponse.json(
+          { success: false, requireTeacherPassword: true, message: "Please enter your teacher password." },
+          { status: 401 }
+        );
+      }
       const db = getSupabaseAdmin();
       const { count, error } = await db.from("access_audit_logs").select("id", { count: "exact", head: true }).eq("action", "TEACHER_LOGIN_FAILED").eq("target_email", email).gte("created_at", new Date(Date.now() - 15 * 60 * 1000).toISOString());
       if (error) throw error;

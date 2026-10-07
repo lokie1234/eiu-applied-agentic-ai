@@ -10,6 +10,7 @@ interface AnimatedHeroCopyProps {
   adminPassword?: string;
   setAdminPassword?: (val: string) => void;
   isAdminEmail?: boolean;
+  requiresPassword?: boolean;
   loading: boolean;
   error?: string;
   onSubmit: (e: React.FormEvent) => void;
@@ -56,6 +57,7 @@ export default function AnimatedHeroCopy({
   adminPassword = "",
   setAdminPassword,
   isAdminEmail = false,
+  requiresPassword = isAdminEmail,
   loading,
   error = "",
   onSubmit,
@@ -309,8 +311,8 @@ export default function AnimatedHeroCopy({
             />
           </div>
 
-          {/* Administrator Password */}
-          {isAdminEmail && (
+          {/* Staff Password */}
+          {requiresPassword && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
@@ -328,7 +330,7 @@ export default function AnimatedHeroCopy({
                   textTransform: "uppercase",
                 }}
               >
-                Administrator Password
+                {isAdminEmail ? "Administrator Password" : "Teacher Password"}
               </label>
               <input
                 id="hero-admin-pass-input"
@@ -340,8 +342,9 @@ export default function AnimatedHeroCopy({
                 }}
                 onFocus={onInputFocus}
                 onBlur={onInputBlur}
-                placeholder="Enter administrator password"
+                placeholder={isAdminEmail ? "Enter administrator password" : "Enter teacher password"}
                 autoComplete="current-password"
+                autoFocus
                 required
                 style={{
                   width: "100%",
@@ -382,9 +385,9 @@ export default function AnimatedHeroCopy({
           <button
             id="landing-access-button"
             type="submit"
-            disabled={loading || !email.trim() || Boolean(isAdminEmail && !adminPassword?.trim())}
+            disabled={loading || !email.trim() || Boolean(requiresPassword && !adminPassword.length)}
             className={`${btnStyles.btn} ${loading ? btnStyles.btnRunning : ""} ${
-              !email.trim() || (isAdminEmail && !adminPassword?.trim()) ? btnStyles.btnDisabled : ""
+              !email.trim() || (requiresPassword && !adminPassword.length) ? btnStyles.btnDisabled : ""
             }`}
             onMouseEnter={() => onCtaHover(true)}
             onMouseLeave={() => onCtaHover(false)}

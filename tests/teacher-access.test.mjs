@@ -113,7 +113,37 @@ test("teacher login routes first-time accounts to password change and cannot fal
   assert.equal(first.data.destination, "/change-password");
   assert.equal(cookie[1].role, "teacher"); assert.equal(cookie[1].sessionVersion, 5);
   valid = false;
-  assert.equal((await login.POST(request({ ...body, adminPassword: "" }))).status, 401);
+  const challenge = await login.POST(request({ ...body, adminPassword: "" }));
+  assert.equal(challenge.status, 401);
+  assert.equal(challenge.data.requireTeacherPassword, true);
+  assert.equal((await login.POST(request({ ...body, adminPassword: "wrong" }))).status, 401);
+});
+test("teacher email discovery does not consume password attempts and lockouts still protect password verification", async () => {
+  let count = 0; let audits = 0; let checks = 0; let cookies = 0;
+  const login = load("app/api/auth/access/route.ts", {
+    "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200, cookies: { set() { cookies++; } } }) } },
+    "@/lib/auth/teachers": { teacherByEmail: async () => ({ id: "teacher", status: "active", password_hash: "hash", session_version: 1, must_change_password: false }), matchesPassword: async password => { checks++; return password === "correct"; } },
+    "@/lib/auth/adminPassword": {},
+    "@/lib/auth/session": { createAccessSession: payload => payload, sessionCookieOptions: () => ({}) },
+    "@/lib/auth/types": { FIXED_ADMIN_EMAIL: "admin@example.test", isValidEmail: () => true, normalizeEmail: value => value.trim().toLowerCase() },
+    "@/lib/auth/courseAccessStorage": { isEmailAuthorized() { throw new Error("Teacher cannot fall back to learner access"); } },
+    "@/lib/supabase/server": { getSupabaseAdmin: () => ({ from: () => ({ select() { return this; }, eq() { return this; }, gte: async () => ({ count }), insert: async () => { audits++; count++; return {}; } }) }) },
+  });
+  const email = " Teacher@Example.Test ";
+  for (let i = 0; i < 6; i++) {
+    const result = await login.POST(request({ email }));
+    assert.equal(result.data.requireTeacherPassword, true);
+    assert.equal(result.data.success, false);
+  }
+  assert.equal(audits, 0); assert.equal(checks, 0); assert.equal(cookies, 0);
+  for (let i = 0; i < 5; i++) assert.equal((await login.POST(request({ email, adminPassword: "wrong" }))).status, 401);
+  assert.equal(audits, 5);
+  assert.equal((await login.POST(request({ email }))).data.requireTeacherPassword, true);
+  assert.equal((await login.POST(request({ email, adminPassword: "correct" }))).status, 429);
+  assert.equal(checks, 5); assert.equal(cookies, 0);
+  count = 0;
+  const success = await login.POST(request({ email, adminPassword: "correct" }));
+  assert.equal(success.data.destination, "/teacher"); assert.equal(cookies, 1);
 });
 test("password change confirms twice, accepts a one-character password and keeps the encrypted admin view synchronized", async () => {
   let update;

@@ -29,11 +29,20 @@ export default function LandingPage() {
   const [modal, setModal] = useState<Modal>(null);
   const [email, setEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
+  const [teacherPasswordEmail, setTeacherPasswordEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [robotState, setRobotState] = useState<RobotInteractionState>("idle");
 
   const isAdminEmail = email.trim().toLowerCase() === "son.lam@eiu.edu.vn";
+  const requiresPassword = isAdminEmail || Boolean(teacherPasswordEmail && teacherPasswordEmail === email.trim().toLowerCase());
+
+  function changeEmail(value: string) {
+    setEmail(value);
+    setTeacherPasswordEmail("");
+    setAdminPassword("");
+    setError("");
+  }
 
   useEffect(() => {
     try {
@@ -69,7 +78,7 @@ export default function LandingPage() {
     if (!cleanEmail) return;
 
     const isUserType = cleanEmail.toLowerCase() !== "son.lam@eiu.edu.vn";
-    if (!isUserType && !cleanAdminPassword) return;
+    if (requiresPassword && !cleanAdminPassword) return;
 
     setLoading(true);
     setError("");
@@ -88,7 +97,13 @@ export default function LandingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: cleanEmail, adminPassword: cleanAdminPassword }),
       });
-      const payload = (await response.json()) as { success?: boolean; message?: string; destination?: string };
+      const payload = (await response.json()) as { success?: boolean; message?: string; destination?: string; requireTeacherPassword?: boolean };
+      if (payload.requireTeacherPassword) {
+        setTeacherPasswordEmail(cleanEmail.toLowerCase());
+        setRobotState("lookingAtAccess");
+        setLoading(false);
+        return;
+      }
       if (!response.ok || !payload.success) {
         throw new Error(payload.message || "Unable to sign in. Please check your email.");
       }
@@ -267,16 +282,14 @@ export default function LandingPage() {
           <AnimatedHeroCopy
             stage={stage}
             email={email}
-            setEmail={(val) => {
-              setEmail(val);
-              setError("");
-            }}
+            setEmail={changeEmail}
             adminPassword={adminPassword}
             setAdminPassword={(val) => {
               setAdminPassword(val);
               setError("");
             }}
             isAdminEmail={isAdminEmail}
+            requiresPassword={requiresPassword}
             loading={loading}
             error={error}
             onSubmit={submit}
@@ -347,7 +360,7 @@ export default function LandingPage() {
               <button className={styles.close} type="button" onClick={() => setModal(null)} aria-label="Close">×</button>
               <span>SECURE ACCESS</span>
               <h2 id="access-title">Sign In</h2>
-              <p>{isAdminEmail ? "Enter your administrator password to sign in." : "Enter your authorized email to access the courses."}</p>
+              <p>{requiresPassword ? `Enter your ${isAdminEmail ? "administrator" : "teacher"} password to sign in.` : "Enter your authorized email to access the courses."}</p>
               <form onSubmit={submit}>
                 <div className={styles.inputGroup}>
                   <label htmlFor="login-email">EMAIL ADDRESS</label>
@@ -355,7 +368,7 @@ export default function LandingPage() {
                     id="login-email"
                     type="email"
                     value={email}
-                    onChange={(event) => { setEmail(event.target.value); setError(""); }}
+                    onChange={(event) => changeEmail(event.target.value)}
                     placeholder="name@gmail.com"
                     autoCapitalize="none"
                     autoCorrect="off"
@@ -366,24 +379,25 @@ export default function LandingPage() {
                   />
                 </div>
 
-                {(
+                {requiresPassword && (
                   <div className={styles.inputGroup}>
-                    <label htmlFor="login-admin-pass">PASSWORD (ADMIN / TEACHER)</label>
+                    <label htmlFor="login-admin-pass">{isAdminEmail ? "ADMINISTRATOR PASSWORD" : "TEACHER PASSWORD"}</label>
                     <input
                       id="login-admin-pass"
                       type="password"
                       value={adminPassword}
                       onChange={(event) => { setAdminPassword(event.target.value); setError(""); }}
-                      placeholder="Teacher password; learners leave blank"
+                      placeholder={isAdminEmail ? "Enter administrator password" : "Enter teacher password"}
                       autoComplete="current-password"
-                      required={isAdminEmail}
+                      autoFocus
+                      required
                     />
                   </div>
                 )}
 
                 {error && <div className={styles.error} role="alert">{error}</div>}
 
-                <button type="submit" disabled={loading || !email.trim() || (isAdminEmail && !adminPassword.length)}>
+                <button type="submit" disabled={loading || !email.trim() || (requiresPassword && !adminPassword.length)}>
                   {loading ? "Verifying…" : "Continue"}<b>→</b>
                 </button>
               </form>
