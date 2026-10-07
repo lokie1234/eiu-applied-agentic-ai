@@ -6,8 +6,9 @@ import styles from "./AdminAccessPortal.module.css";
 type Target = { id: string; title: string; content_path?: string | null; section_key: string };
 type Item = { id: number; file: File; sectionId: string; state: "ready" | "queued" | "uploading" | "done" | "error"; progress: number };
 
-export default function SectionBatchUpload({ sections, coreCourse, upload }: {
+export default function SectionBatchUpload({ sections, coreCourse, upload, disabled = false }: {
   sections: Target[]; coreCourse: boolean;
+  disabled?: boolean;
   upload: (section: Target, file: File, progress: (value: number) => void) => Promise<boolean>;
 }) {
   const [items, setItems] = useState<Item[]>([]);
@@ -15,7 +16,7 @@ export default function SectionBatchUpload({ sections, coreCourse, upload }: {
   const [dragging, setDragging] = useState(false);
   const patch = (id: number, update: Partial<Item>) => setItems((current) => current.map((item) => item.id === id ? { ...item, ...update } : item));
   function select(files: FileList | File[]) {
-    if (running) return;
+    if (running || disabled) return;
     const available = [...sections.filter((section) => !section.content_path), ...sections.filter((section) => section.content_path)];
     setItems(Array.from(files).sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true })).map((file, index) => ({
       id: index, file, sectionId: available[index]?.id || "", state: "ready", progress: 0,
@@ -28,7 +29,7 @@ export default function SectionBatchUpload({ sections, coreCourse, upload }: {
       (!coreCourse || !["section1", "section2"].includes(section.section_key) || /\.pptx$/i.test(item.file.name));
   });
   async function start() {
-    if (!valid || running) return;
+    if (!valid || running || disabled) return;
     setRunning(true);
     for (const item of pending) patch(item.id, { state: "queued" });
     try {
@@ -42,11 +43,11 @@ export default function SectionBatchUpload({ sections, coreCourse, upload }: {
   }
   return <div className={styles.batchUpload}>
     <div className={`${styles.batchDropZone} ${dragging ? styles.sectionDropTarget : ""}`}
-      onDragOver={(event) => { event.preventDefault(); if (!running) setDragging(true); }}
+      onDragOver={(event) => { event.preventDefault(); if (!running && !disabled) setDragging(true); }}
       onDragLeave={() => setDragging(false)}
       onDrop={(event) => { event.preventDefault(); setDragging(false); select(event.dataTransfer.files); }}>
       <div><strong>Add files to sections</strong><p>Drop files here. Files are sorted by name and paired with empty sections first.</p></div>
-      <label className={styles.sectionUploadButton}>Choose files<input type="file" multiple hidden accept=".pdf,.tsx,.pptx" disabled={running}
+      <label className={styles.sectionUploadButton}>Choose files<input type="file" multiple hidden accept=".pdf,.tsx,.pptx" disabled={running || disabled}
         onChange={(event) => { if (event.currentTarget.files) select(event.currentTarget.files); event.currentTarget.value = ""; }} /></label>
     </div>
     {items.length > 0 && <>
@@ -59,7 +60,7 @@ export default function SectionBatchUpload({ sections, coreCourse, upload }: {
         <span role="status">{item.state === "uploading" ? item.progress < 100 ? `${item.progress}%` : "Saving…" : { ready: "Ready", queued: "Queued", done: "✓ Done", error: "Failed · retry" }[item.state]}</span>
       </div>)}</div>
       <div className={styles.batchActions}><span>{items.filter((item) => item.state === "done").length}/{items.length} complete · 1 file per section</span>
-        <button type="button" className={styles.addSectionButton} disabled={!valid || running} onClick={() => void start()}>{running ? "Uploading…" : `Upload ${pending.length} files`}</button>
+        <button type="button" className={styles.addSectionButton} disabled={!valid || running || disabled} onClick={() => void start()}>{running ? "Uploading…" : `Upload ${pending.length} files`}</button>
         <button type="button" className={styles.removeBtn} disabled={running} onClick={() => setItems([])}>Clear</button>
       </div>
       {!valid && pending.length > 0 && <p>Choose a different section for each file. PDF / TSX / PPTX, up to 50 MB each; built-in lessons accept PPTX.</p>}

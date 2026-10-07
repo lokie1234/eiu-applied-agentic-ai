@@ -27,6 +27,10 @@ After changing the password, `/teacher` provides course creation and section man
 
 Teachers can use **New folder** to create a shared parent folder in the same library used by the main admin, choose a parent folder when creating a course, and move their own courses between folders. Folder creation uses the existing core-course metadata catalog and needs no extra migration. Renaming, deleting, or unlocking folders remains admin-only. The workspace groups courses by folder and supports filtering across My courses and All courses.
 
+Teacher content management also supports creating multiple courses or sections (one title per line), selecting and deleting owned courses/sections in bulk, reordering sections by drag-and-drop, and reordering courses when every course in that folder belongs to the teacher. Mixed-ownership deletion requests are rejected before any content is removed. Teachers can download original section files and upload several PDF/TSX/PPTX files with the same sequential batch uploader, file-to-section mapping, progress and retry behavior used by admin.
+
+Admin and teacher share the icon editor, image preparation, batch uploader and EIU confirmation dialog. Teachers can paste, drop or upload tech-stack icons, edit labels and remove icons on their own courses. Other courses display icons and downloads in read-only mode. Course passcodes, learner authorization, folder-wide access changes and teacher-account administration retain their admin-only permissions.
+
 Teacher login is blocked after five failed attempts within fifteen minutes. First-login requirements, account suspension, and session versions are checked in the database on protected requests.
 
 ## Verification

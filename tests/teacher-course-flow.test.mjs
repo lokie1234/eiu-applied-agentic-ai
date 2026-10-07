@@ -55,8 +55,13 @@ function fixture() {
     "@/lib/supabase/server": { getSupabaseAdmin: () => db },
     "@/lib/auth/courseAccessStorage": {
       parseCourseMetadata: (raw, summary) => raw ? JSON.parse(raw) : { summary },
+      serializeCourseMetadata: value => JSON.stringify(value),
       setSectionPasscode: async (...args) => state.passcodes.push(args),
-      getCoursesAndSectionsData: async () => ({ courses: state.tables.courses, sections: state.tables.course_sections, folderGroups: state.folders }),
+      getCoursesAndSectionsData: async () => ({ courses: state.tables.courses.map(c => ({ ...c, folderGroupId: JSON.parse(c.description ?? "{}").folderGroupId ?? "fg-ai-agentic" })), sections: state.tables.course_sections, folderGroups: state.folders }),
+      updateCourseSystemIcons: async (id, systemIcons) => {
+        const course = state.tables.courses.find(c => c.id === id);
+        course.description = JSON.stringify({ ...JSON.parse(course.description ?? "{}"), systemIcons });
+      },
       createFolderGroup: async (name, description) => {
         const folder = { id: "fg-new", name, description, order: state.folders.length + 1 };
         state.folders.push(folder); return folder;
@@ -104,7 +109,7 @@ test("teachers cannot modify another teacher's course, sections or global access
   const f = fixture();
   f.state.tables.course_sections.push({ id: "foreign-section", course_id: "other-course", created_by: "teacher-b", status: "active" });
   for (const action of ["create_section", "update_course_title", "set_course_language", "delete_course", "reorder_sections", "rename_section", "delete_section", "delete_sections", "grant_emails_bulk", "delete_courses"])
-    assert.equal((await f.post({ action, courseId: "other-course", sectionId: "foreign-section", sectionIds: ["foreign-section"], title: "Changed", languageLabel: "vi" })).status, 403, action);
+    assert.equal((await f.post({ action, courseId: "other-course", courseIds: ["other-course"], sectionId: "foreign-section", sectionIds: ["foreign-section"], title: "Changed", languageLabel: "vi" })).status, 403, action);
   assert.equal(f.state.tables.courses.find(c => c.id === "other-course").title, "Other course");
 });
 
@@ -149,4 +154,53 @@ test("teacher creates a shared folder, adds an owned course and moves it between
     assert.equal((await f.post({ action, id: "fg-new", name: "Renamed", folderGroupId: "fg-new", folderGroupIds: ["fg-new"] })).status, 403, action);
   assert.equal((await f.post({ action: "create_folder_group", name: " " })).status, 400);
   assert.equal((await f.post({ action: "create_folder_group", name: "x".repeat(121) })).status, 400);
+});
+
+test("teacher icon changes are scoped to owned courses and preserve access metadata", async () => {
+  const f = fixture();
+  const created = await f.post({ action: "create_course", title: "MIS 311" });
+  const id = created.data.createdCourseIds[0];
+  const raw = f.state.tables.courses.find(c => c.id === id);
+  const original = JSON.parse(raw.description);
+  const icon = { id: "python", name: "Python", url: "data:image/png;base64,aGVsbG8=", scale: 1 };
+  const saved = await f.post({ action: "update_course_system_icons", courseId: id, systemIcons: [icon] });
+  assert.equal(saved.status, 200);
+  assert.equal(saved.data.courses.find(c => c.id === id).systemIcons[0].name, "Python");
+  const metadata = JSON.parse(raw.description);
+  assert.deepEqual(metadata.allowedEmails, original.allowedEmails);
+  assert.equal(metadata.unlocked, original.unlocked);
+  assert.equal((await f.post({ action: "update_course_system_icons", courseId: "other-course", systemIcons: [icon] })).status, 403);
+  assert.equal((await f.post({ action: "update_course_system_icons", courseId: id, systemIcons: [{ ...icon, url: "javascript:alert(1)" }] })).status, 400);
+  assert.equal((await f.post({ action: "update_course_system_icons", courseId: id, systemIcons: [icon, icon] })).status, 400);
+  assert.equal((await f.post({ action: "update_course_system_icons", courseId: id, systemIcons: [] })).status, 200);
+  assert.equal(JSON.parse(raw.description).systemIcons.length, 0);
+});
+
+test("bulk course and section deletion rejects mixed ownership before any mutation", async () => {
+  const f = fixture();
+  const created = await f.post({ action: "create_course", titles: ["Course A", "Course B"] });
+  const [a, b] = created.data.createdCourseIds;
+  await f.post({ action: "create_section", courseId: a, title: "Own lesson" });
+  const ownSection = f.state.tables.course_sections[0];
+  f.state.tables.course_sections.push({ id: "foreign", course_id: a, created_by: "teacher-b", title: "Foreign lesson", status: "active" });
+  assert.equal((await f.post({ action: "delete_sections", sectionIds: [ownSection.id, "foreign"] })).status, 403);
+  assert.equal((await f.post({ action: "delete_courses", courseIds: [a, "other-course"] })).status, 403);
+  assert.equal((await f.post({ action: "delete_courses", courseIds: [a, b] })).status, 403);
+  assert.equal(f.state.tables.course_sections.length, 2);
+  assert.ok(f.state.tables.courses.some(c => c.id === b));
+  assert.equal((await f.post({ action: "delete_courses", courseIds: [b] })).status, 200);
+  assert.ok(f.state.tables.courses.some(c => c.id === a));
+  assert.equal((await f.post({ action: "set_all_courses_unlocked", unlocked: true })).status, 403);
+  assert.equal((await f.post({ action: "set_course_passcode", courseId: a, code: "1111" })).status, 403);
+});
+
+test("teacher can reorder a complete folder of owned courses while a shared folder cannot be reordered", async () => {
+  const f = fixture();
+  await f.post({ action: "create_folder_group", name: "Own courses" });
+  const created = await f.post({ action: "create_course", titles: ["A", "B"], folderGroupId: "fg-new" });
+  const [a, b] = created.data.createdCourseIds;
+  const reordered = await f.post({ action: "reorder_courses", folderGroupId: "fg-new", courseIds: [b, a] });
+  assert.equal(reordered.status, 200);
+  assert.equal(reordered.data.courses.findIndex(c => c.id === b) < reordered.data.courses.findIndex(c => c.id === a), true);
+  assert.equal((await f.post({ action: "reorder_courses", folderGroupId: "fg-ai-agentic", courseIds: [a, "other-course"] })).status, 403);
 });

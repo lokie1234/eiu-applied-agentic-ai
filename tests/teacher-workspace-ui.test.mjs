@@ -22,6 +22,7 @@ test("teacher workspace creates and selects owned courses, manages sections and 
   const calls = [], uploads = [];
   const folderGroups = [{ id: "fg-ai-agentic", name: "AI & Agentic", order: 1 }];
   let failCreate = true;
+  let sectionSequence = 0;
   const fetch = async (url, options) => {
     const body = options?.body ? JSON.parse(options.body) : null;
     calls.push(body); let createdCourseIds, createdFolderGroupId;
@@ -34,8 +35,10 @@ test("teacher workspace creates and selects owned courses, manages sections and 
       courses.push({ id: "new-course", title: body.title, summary: body.title, languageLabel: "vi_en", canEdit: true, folderGroupId: body.folderGroupId, folderGroupName: folderGroups.find(g => g.id === body.folderGroupId).name });
       createdCourseIds = ["new-course"];
     }
-    if (body?.action === "create_section") sections.push({ id: "new-section", course_id: body.courseId, title: body.title, source_filename: null, content_type: "builtin", canEdit: true });
+    if (body?.action === "create_section") for (const title of body.titles ?? [body.title]) sections.push({ id: sectionSequence++ ? `new-section-${sectionSequence}` : "new-section", course_id: body.courseId, section_key: `lesson-${sectionSequence}`, title, source_filename: null, content_path: null, content_type: "builtin", canEdit: true });
     if (body?.action === "rename_section") sections.find(s => s.id === body.sectionId).title = body.title;
+    if (body?.action === "update_course_system_icons") courses.find(c => c.id === body.courseId).systemIcons = body.systemIcons;
+    if (body?.action === "delete_sections") for (let i = sections.length - 1; i >= 0; i--) if (body.sectionIds.includes(sections[i].id)) sections.splice(i, 1);
     if (body?.action === "set_course_folder_group") {
       const course = courses.find(c => c.id === body.courseId);
       course.folderGroupId = body.folderGroupId;
@@ -46,18 +49,24 @@ test("teacher workspace creates and selects owned courses, manages sections and 
   function load(path, dependencies = {}) {
     const exports = {};
     const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;
-    vm.runInNewContext(code, { exports, fetch, window, FormData: window.FormData, console,
+    vm.runInNewContext(code, { exports, fetch, window, document: window.document, FormData: window.FormData, console,
       require: name => dependencies[name] ?? (name.endsWith(".css") ? new Proxy({}, { get: (_, key) => key === "__esModule" ? false : `${name.includes("AdminAccess") ? "admin" : "teacher"}_${String(key)}` }) : name === "next/link" ? ({ children, ...props }) => React.createElement("a", props, children) : require(name)),
     });
     return exports.default;
   }
   const Header = load("components/admin/CourseManagerHeader.tsx");
+  const Icons = load("components/admin/CourseSystemIcons.tsx", { "@/lib/courseIconImage": { compressAndResizeIcon: async () => "data:image/png;base64,aGVsbG8=" } });
+  const BatchUpload = load("components/admin/SectionBatchUpload.tsx");
+  const Dialog = load("components/admin/EiuConfirmDialog.tsx");
+  const Queue = { createUploadQueue: () => { let tail = Promise.resolve(); return task => { const next = tail.then(task); tail = next.catch(() => {}); return next; }; } };
   const Portal = load("components/TeacherPortal.tsx", {
     "./admin/CourseManagerHeader": Header,
+    "./admin/CourseSystemIcons": Icons, "./admin/SectionBatchUpload": BatchUpload, "./admin/EiuConfirmDialog": Dialog, "@/lib/uploadQueue": Queue,
     "@/lib/uploadSectionFile": { uploadSectionFile: async (url, file, onProgress) => {
       uploads.push({ url, name: file.name }); onProgress(100);
-      sections.find(s => s.id === "new-section").source_filename = file.name;
-      sections.find(s => s.id === "new-section").content_type = "pdf";
+      const target = sections.find(s => s.id === url.split("/").at(-2));
+      target.source_filename = file.name; target.content_path = `uploads/${file.name}`;
+      target.content_type = "pdf";
     } },
   });
   const container = window.document.createElement("div"); window.document.body.append(container);
@@ -65,7 +74,8 @@ test("teacher workspace creates and selects owned courses, manages sections and 
   const input = async (selector, value) => {
     const element = container.querySelector(selector); assert.ok(element, selector);
     await act(async () => {
-      Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(element, value);
+      const prototype = element.tagName === "TEXTAREA" ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+      Object.getOwnPropertyDescriptor(prototype, "value").set.call(element, value);
       element.dispatchEvent(new window.Event("input", { bubbles: true }));
     });
   };
@@ -106,13 +116,47 @@ test("teacher workspace creates and selects owned courses, manages sections and 
     await submit("#title-new-section");
     assert.equal(calls.at(-1).sectionId, "new-section");
     assert.match(detail().textContent, /Introduction to MIS/);
-    const fileInput = container.querySelector('input[type="file"]');
+    const fileInput = container.querySelector('[aria-label="Upload material for Introduction to MIS"]');
     const transfer = new window.DataTransfer();
     transfer.items.add(new window.File(["%PDF-1.4"], "lecture.pdf", { type: "application/pdf" }));
     await act(async () => { fileInput.files = transfer.files; fileInput.dispatchEvent(new window.Event("change", { bubbles: true })); });
     assert.equal(uploads.length, 1);
     assert.equal(uploads[0].url, "/api/admin/sections/new-section/content");
     assert.match(detail().textContent, /lecture.pdf/);
+    const download = detail().querySelector('a[download="lecture.pdf"]');
+    assert.equal(download.getAttribute("href"), "/api/sections/new-section/content?download=1");
+    const iconTransfer = new window.DataTransfer();
+    iconTransfer.items.add(new window.File(["PNG"], "python.png", { type: "image/png" }));
+    await act(async () => { const element = container.querySelector('[aria-label="Upload course icon"]'); element.files = iconTransfer.files; element.dispatchEvent(new window.Event("change", { bubbles: true })); });
+    assert.equal(calls.at(-1).action, "update_course_system_icons");
+    assert.equal(calls.at(-1).courseId, "new-course");
+    assert.equal(calls.at(-1).systemIcons[0].name, "python");
+    await input('[aria-label="Label for python"]', "Python tools");
+    await act(async () => container.querySelector('[aria-label="Label for python"]').dispatchEvent(new window.FocusEvent("focusout", { bubbles: true })));
+    assert.equal(calls.at(-1).systemIcons[0].name, "Python tools");
+    await act(async () => container.querySelector('[aria-label="Delete icon Python tools"]').click());
+    assert.equal(calls.at(-1).systemIcons.length, 0);
+    const multiple = [...container.querySelectorAll("label")].find(label => label.textContent.includes("Add multiple sections")).querySelector("input");
+    await act(async () => multiple.click());
+    await input("#new-section-title", "Basics\nPractice");
+    await submit("#new-section-title");
+    assert.deepEqual(calls.at(-1).titles, ["Basics", "Practice"]);
+    const batchFiles = new window.DataTransfer();
+    for (const filename of ["02-practice.pdf", "01-basics.pdf"]) batchFiles.items.add(new window.File(["%PDF-1.4"], filename, { type: "application/pdf" }));
+    await act(async () => { const element = container.querySelector('input[type="file"][multiple]'); element.files = batchFiles.files; element.dispatchEvent(new window.Event("change", { bubbles: true })); });
+    await act(async () => button("Upload 2 files").click());
+    assert.equal(uploads.length, 3);
+    assert.equal(uploads[1].name, "01-basics.pdf"); assert.equal(uploads[2].name, "02-practice.pdf");
+    for (const title of ["Basics", "Practice"]) await act(async () => container.querySelector(`[aria-label="Select section ${title}"]`).click());
+    const deletions = () => calls.filter(body => body?.action === "delete_sections").length;
+    await act(async () => button("Delete selected sections (2)").click());
+    assert.ok(container.querySelector('[role="dialog"]')); assert.equal(deletions(), 0);
+    await act(async () => [...container.querySelectorAll('[role="dialog"] button')].find(b => b.textContent === "Cancel").click());
+    assert.equal(deletions(), 0);
+    await act(async () => button("Delete selected sections (2)").click());
+    await act(async () => [...container.querySelectorAll('[role="dialog"] button')].find(b => b.textContent === "Delete").click());
+    assert.equal(deletions(), 1);
+    assert.equal(sections.filter(s => s.canEdit).length, 1);
     await act(async () => {
       const select = container.querySelector("#course-parent-folder");
       select.value = "fg-ai-agentic";

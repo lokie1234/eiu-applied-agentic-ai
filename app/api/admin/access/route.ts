@@ -2,7 +2,7 @@ import { randomInt } from "node:crypto";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireCourseManager } from "@/lib/auth/currentUser";
-import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
+import { APPLIED_AGENTIC_AI_SLUG, type CourseSystemIcon } from "@/lib/auth/types";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import {
   clearAllAuthorizedEmails,
@@ -77,9 +77,20 @@ export async function POST(request: Request) {
     const action = String(body.action ?? "");
     const supabase = getSupabaseAdmin();
     if (!actor.isAdmin) {
-      const allowed = ["create_folder_group", "set_course_folder_group", "create_course", "create_section", "delete_section", "delete_sections", "rename_section", "reorder_sections", "update_course_title", "update_course_summary", "update_course_description", "set_course_language", "delete_course"];
+      const allowed = ["create_folder_group", "set_course_folder_group", "create_course", "create_section", "delete_section", "delete_sections", "rename_section", "reorder_sections", "update_course_title", "update_course_summary", "update_course_description", "update_course_system_icons", "set_course_language", "delete_course", "delete_courses", "reorder_courses"];
       if (!allowed.includes(action)) return NextResponse.json({ message: "Administrator access required for this action." }, { status: 403 });
-      if (["delete_section", "delete_sections", "rename_section"].includes(action)) {
+      if (["delete_courses", "reorder_courses"].includes(action)) {
+        const ids: string[] = Array.isArray(body.courseIds) ? body.courseIds.map(String).filter(Boolean) : [];
+        if (!ids.length || new Set(ids).size !== ids.length) return NextResponse.json({ message: "Choose distinct courses to manage." }, { status: 400 });
+        const { data, error } = await supabase.from("courses").select("id,created_by").in("id", ids);
+        if (error) throw error;
+        if (data?.length !== ids.length || data.some(course => course.created_by !== actor.authUserId)) return NextResponse.json({ message: "You can only manage your own courses." }, { status: 403 });
+        if (action === "delete_courses") {
+          const { count, error: sectionError } = await supabase.from("course_sections").select("id", { count: "exact", head: true }).in("course_id", ids).or('created_by.is.null,created_by.neq.' + actor.authUserId);
+          if (sectionError) throw sectionError;
+          if (count) return NextResponse.json({ message: "These courses contain sections owned by another user." }, { status: 403 });
+        }
+      } else if (["delete_section", "delete_sections", "rename_section"].includes(action)) {
         const ids = action === "delete_sections" && Array.isArray(body.sectionIds) ? body.sectionIds.map(String) : [String(body.sectionId ?? "")];
         const { data, error } = await supabase.from("course_sections").select("id,created_by").in("id", ids);
         if (error) throw error;
@@ -204,9 +215,9 @@ export async function POST(request: Request) {
       if (error) throw error;
     } else if (action === "update_course_system_icons") {
       const courseId = String(body.courseId ?? "");
-      const systemIcons = Array.isArray(body.systemIcons) ? body.systemIcons : [];
-      if (!courseId) {
-        return NextResponse.json({ success: false, message: "Missing course ID." }, { status: 400 });
+      const systemIcons: CourseSystemIcon[] = Array.isArray(body.systemIcons) ? body.systemIcons : [];
+      if (!courseId || !Array.isArray(body.systemIcons) || systemIcons.length > 50 || systemIcons.some(icon => !icon || typeof icon.id !== "string" || !icon.id || icon.id.length > 128 || typeof icon.name !== "string" || icon.name.length > 120 || typeof icon.url !== "string" || icon.url.length > 256_000 || !/^(https?:\/\/|data:image\/(png|jpeg|webp|svg\+xml)[;,])/i.test(icon.url) || (icon.scale !== undefined && (typeof icon.scale !== "number" || !Number.isFinite(icon.scale) || icon.scale <= 0 || icon.scale > 4))) || new Set(systemIcons.map(icon => icon.id)).size !== systemIcons.length) {
+        return NextResponse.json({ success: false, message: "Invalid course icons. Use up to 50 image icons with labels of up to 120 characters." }, { status: 400 });
       }
       await updateCourseSystemIcons(courseId, systemIcons);
     } else if (action === "create_course") {
@@ -620,7 +631,11 @@ async function teacherData(actorId: string) {
   if (sections.error) throw sections.error;
   return {
     folderGroups: catalog.folderGroups,
-    courses: courses.data.map(c => { const meta = parseCourseMetadata(c.description, c.title); const folder = catalog.folderGroups.find(group => group.id === meta.folderGroupId) ?? catalog.folderGroups[0]; return { id: c.id, slug: c.slug, title: c.title, summary: meta.summary, languageLabel: c.language_label, folderGroupId: folder?.id, folderGroupName: folder?.name, canEdit: c.created_by === actorId }; }),
+    courses: courses.data.map(c => {
+      const meta = parseCourseMetadata(c.description, c.title);
+      const folder = catalog.folderGroups.find(group => group.id === meta.folderGroupId) ?? catalog.folderGroups[0];
+      return { id: c.id, slug: c.slug, title: c.title, summary: meta.summary, languageLabel: c.language_label, folderGroupId: folder?.id, folderGroupName: folder?.name, folderOrder: meta.folderOrder ?? 0, systemIcons: meta.systemIcons || [], canEdit: c.created_by === actorId };
+    }).sort((a, b) => (a.folderOrder || Number.MAX_SAFE_INTEGER) - (b.folderOrder || Number.MAX_SAFE_INTEGER)),
     sections: sections.data.map(s => ({ ...s, canEdit: s.created_by === actorId })),
   };
 }

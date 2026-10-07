@@ -4,6 +4,7 @@ export type CourseSystemIcon = {
   id: string;
   name: string;
   url: string;
+  scale?: number;
 };
 
 export type CourseAccess = {

@@ -24,7 +24,7 @@ function route(actor, owner) {
 test("unauthenticated users and teachers cannot mutate someone else's sections or global settings", async () => {
   assert.equal((await route(null).POST(request({ action: "create_course" }))).status, 403);
   for (const owner of ["other", null]) for (const action of ["rename_section", "delete_section", "delete_sections", "create_section", "delete_course", "update_course_title", "set_all_courses_unlocked", "grant_emails_bulk", "update_system_icons", "delete_courses"]) {
-    const res = await route({ isAdmin: false, isTeacher: true, authUserId: "teacher" }, owner).POST(request({ action, sectionId: "section", sectionIds: ["section"], courseId: "course" }));
+    const res = await route({ isAdmin: false, isTeacher: true, authUserId: "teacher" }, owner).POST(request({ action, sectionId: "section", sectionIds: ["section"], courseId: "course", courseIds: ["course"] }));
     assert.equal(res.status, 403, action);
   }
 });

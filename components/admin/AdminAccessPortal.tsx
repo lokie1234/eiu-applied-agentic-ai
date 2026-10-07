@@ -7,6 +7,8 @@ import styles from "./AdminAccessPortal.module.css";
 import { createUploadQueue } from "@/lib/uploadQueue";
 import { uploadSectionFile } from "@/lib/uploadSectionFile";
 import SectionBatchUpload from "./SectionBatchUpload";
+import CourseSystemIcons from "./CourseSystemIcons";
+import EiuConfirmDialog from "./EiuConfirmDialog";
 
 type LanguageLabel = "vi" | "en" | "vi_en";
 
@@ -165,12 +167,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   const [sections, setSections] = useState<Section[]>([]);
   const [authorizedEmails, setAuthorizedEmails] = useState<string[]>([]);
   const [courseId, setCourseId] = useState("");
-  const [iconProcessing, setIconProcessing] = useState<{
-    stage: string;
-    source: string;
-    previewUrl?: string;
-  } | null>(null);
-  const [iconDragActive, setIconDragActive] = useState(false);
+
 
   // EIU Modal Dialog state
   const [dialog, setDialog] = useState<EiuDialogState>({
@@ -965,196 +962,8 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   // COURSE SYSTEM ICONS HANDLERS (Copy-paste / Upload / Compress / Save)
   // =========================================================================
 
-  /**
-   * Smart Boundary Flood-Fill Background Removal on HTML5 Canvas.
-   * Starts from image perimeter, detects exterior background color (white, light-gray, or black),
-   * and converts exterior background to transparent alpha without affecting interior graphics.
-   */
-  function removeCanvasBackground(canvas: HTMLCanvasElement, tolerance = 38): void {
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return;
-    const w = canvas.width;
-    const h = canvas.height;
-    if (w <= 0 || h <= 0) return;
-
-    const imgData = ctx.getImageData(0, 0, w, h);
-    const data = imgData.data;
-
-    // Check corners to detect background color
-    const corners = [
-      0, // top-left
-      (w - 1) * 4, // top-right
-      ((h - 1) * w) * 4, // bottom-left
-      ((h - 1) * w + (w - 1)) * 4, // bottom-right
-    ];
-
-    let transparentCorners = 0;
-    for (const c of corners) {
-      if (data[c + 3] < 128) transparentCorners++;
-    }
-    // If corners are already transparent, no background removal is needed
-    if (transparentCorners >= 3) return;
-
-    let sumR = 0, sumG = 0, sumB = 0, count = 0;
-    for (const c of corners) {
-      if (data[c + 3] >= 128) {
-        sumR += data[c];
-        sumG += data[c + 1];
-        sumB += data[c + 2];
-        count++;
-      }
-    }
-    if (count === 0) return;
-    const bgR = Math.round(sumR / count);
-    const bgG = Math.round(sumG / count);
-    const bgB = Math.round(sumB / count);
-
-    // BFS Flood Fill from perimeter
-    const visited = new Uint8Array(w * h);
-    const queue: number[] = [];
-
-    for (let x = 0; x < w; x++) {
-      queue.push(x, 0);
-      queue.push(x, h - 1);
-      visited[x] = 1;
-      visited[(h - 1) * w + x] = 1;
-    }
-    for (let y = 1; y < h - 1; y++) {
-      queue.push(0, y);
-      queue.push(w - 1, y);
-      visited[y * w] = 1;
-      visited[y * w + (w - 1)] = 1;
-    }
-
-    const softEdgeBand = 16;
-    let head = 0;
-    while (head < queue.length) {
-      const px = queue[head++];
-      const py = queue[head++];
-      const idx = (py * w + px) * 4;
-
-      const r = data[idx];
-      const g = data[idx + 1];
-      const b = data[idx + 2];
-      const a = data[idx + 3];
-
-      if (a === 0) {
-        const neighbors = [
-          [px - 1, py],
-          [px + 1, py],
-          [px, py - 1],
-          [px, py + 1],
-        ];
-        for (const [nx, ny] of neighbors) {
-          if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
-            const nPos = ny * w + nx;
-            if (!visited[nPos]) {
-              visited[nPos] = 1;
-              queue.push(nx, ny);
-            }
-          }
-        }
-        continue;
-      }
-
-      const dist = Math.sqrt((r - bgR) ** 2 + (g - bgG) ** 2 + (b - bgB) ** 2);
-
-      if (dist <= tolerance) {
-        data[idx + 3] = 0;
-        const neighbors = [
-          [px - 1, py],
-          [px + 1, py],
-          [px, py - 1],
-          [px, py + 1],
-        ];
-        for (const [nx, ny] of neighbors) {
-          if (nx >= 0 && nx < w && ny >= 0 && ny < h) {
-            const nPos = ny * w + nx;
-            if (!visited[nPos]) {
-              visited[nPos] = 1;
-              queue.push(nx, ny);
-            }
-          }
-        }
-      } else if (dist < tolerance + softEdgeBand) {
-        const factor = (dist - tolerance) / softEdgeBand;
-        data[idx + 3] = Math.round(data[idx + 3] * factor);
-      }
-    }
-
-    ctx.putImageData(imgData, 0, 0);
-  }
-
-  function compressAndResizeIcon(
-    file: File | Blob | string,
-    maxWidth = 64,
-    maxHeight = 64,
-    shouldRemoveBg = true
-  ): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const processSrc = (src: string) => {
-        const img = new window.Image();
-        img.crossOrigin = "anonymous";
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > maxWidth) {
-              height = Math.round((height * maxWidth) / width);
-              width = maxWidth;
-            }
-          } else {
-            if (height > maxHeight) {
-              width = Math.round((width * maxHeight) / height);
-              height = maxHeight;
-            }
-          }
-
-          canvas.width = Math.max(width, 1);
-          canvas.height = Math.max(height, 1);
-          const ctx = canvas.getContext("2d", { willReadFrequently: true });
-          if (!ctx) {
-            resolve(src);
-            return;
-          }
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-          if (shouldRemoveBg) {
-            try {
-              removeCanvasBackground(canvas);
-            } catch {
-              // fallback gracefully
-            }
-          }
-
-          try {
-            const pngUrl = canvas.toDataURL("image/png");
-            resolve(pngUrl);
-          } catch {
-            resolve(src);
-          }
-        };
-        img.onerror = () => reject(new Error("Unable to decode image."));
-        img.src = src;
-      };
-
-      if (typeof file === "string") {
-        processSrc(file);
-      } else {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          processSrc(e.target?.result as string);
-        };
-        reader.onerror = () => reject(new Error("Unable to read file."));
-        reader.readAsDataURL(file);
-      }
-    });
-  }
-
   async function saveSystemIcons(updatedIcons: CourseSystemIcon[]) {
-    if (!effectiveCourseId) return;
+    if (!effectiveCourseId) return false;
     setBusy((prev) => new Set(prev).add(`icons:${effectiveCourseId}`));
     try {
       const res = await fetch("/api/admin/access", {
@@ -1182,114 +991,16 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
         )
       );
       setNotice("System icons updated successfully.");
+      return true;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to update icons.");
+      return false;
     } finally {
       setBusy((prev) => {
         const next = new Set(prev);
         next.delete(`icons:${effectiveCourseId}`);
         return next;
       });
-    }
-  }
-
-  async function handleAddIcon(name: string, url: string) {
-    if (!selectedCourse || !effectiveCourseId) return;
-    const currentIcons: CourseSystemIcon[] = selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || [];
-    const newIcon: CourseSystemIcon = {
-      id: `icon-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-      name: name.trim(),
-      url,
-      scale: 1.0,
-    };
-    await saveSystemIcons([...currentIcons, newIcon]);
-  }
-
-  async function handleRemoveIcon(iconId: string) {
-    if (!selectedCourse || !effectiveCourseId) return;
-    const currentIcons: CourseSystemIcon[] = selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || [];
-    await saveSystemIcons(currentIcons.filter((ic) => ic.id !== iconId));
-  }
-
-  function handleRenameIcon(iconId: string, newName: string) {
-    if (!selectedCourse || !effectiveCourseId) return;
-    const currentIcons: CourseSystemIcon[] = selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || [];
-    const updated = currentIcons.map((ic) => (ic.id === iconId ? { ...ic, name: newName } : ic));
-    setCourses((prev) =>
-      prev.map((c) =>
-        c.id === effectiveCourseId
-          ? {
-              ...c,
-              systemIcons: updated,
-              metadata: { ...c.metadata, systemIcons: updated },
-            }
-          : c
-      )
-    );
-  }
-
-  async function processIncomingIconFile(file: File | Blob, name: string, source: string) {
-    if (iconProcessing) return;
-    try {
-      setIconProcessing({ stage: "Đang tách nền…", source });
-      // 100% automatic boundary background removal
-      const compressedUrl = await compressAndResizeIcon(file, 64, 64, true);
-      setIconProcessing({ stage: "Đang lưu icon…", source, previewUrl: compressedUrl });
-      await handleAddIcon(name, compressedUrl);
-    } catch {
-      setError(`Could not process ${source} image.`);
-    } finally {
-      setIconProcessing(null);
-    }
-  }
-
-  async function handlePasteImage(e: React.ClipboardEvent) {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      if (item.type.indexOf("image") !== -1) {
-        e.preventDefault();
-        const file = item.getAsFile();
-        if (!file) continue;
-        await processIncomingIconFile(file, "", "pasted");
-        break;
-      }
-    }
-  }
-
-  function handleIconDragOver(e: React.DragEvent) {
-    if (!Array.from(e.dataTransfer.types).includes("Files")) return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect = "copy";
-    if (!iconDragActive) setIconDragActive(true);
-  }
-
-  function handleIconDragLeave(e: React.DragEvent) {
-    if (e.currentTarget.contains(e.relatedTarget as Node | null)) return;
-    setIconDragActive(false);
-  }
-
-  async function handleIconDrop(e: React.DragEvent) {
-    e.preventDefault();
-    setIconDragActive(false);
-    const file = Array.from(e.dataTransfer.files).find((f) => f.type.startsWith("image/"));
-    if (!file) {
-      setError("Please drop an image file (PNG, JPG, WEBP, SVG).");
-      return;
-    }
-    const autoName = file.name ? file.name.replace(/\.[^/.]+$/, "") : "";
-    await processIncomingIconFile(file, autoName.toLowerCase() === "image" ? "" : autoName, "dropped");
-  }
-
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const autoName = file.name ? file.name.replace(/\.[^/.]+$/, "") : "";
-    try {
-      await processIncomingIconFile(file, autoName.toLowerCase() === "image" ? "" : autoName, "uploaded");
-    } finally {
-      e.target.value = "";
     }
   }
 
@@ -2921,133 +2632,10 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                       </form>
                     </div>
 
-                    {/* 2. SYSTEM & TECH ICONS BLOCK (Khung icon chỉ chiếm phần màu đen) */}
-                      <div className={styles.systemIconsBlock}>
-                        <div className={styles.systemIconsHeader}>
-                          <div className={styles.systemIconsTitleArea}>
-                            <div className={styles.badgeIndex}>
-                              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
-                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
-                                <line x1="6" y1="6" x2="6.01" y2="6"/>
-                                <line x1="6" y1="18" x2="6.01" y2="18"/>
-                              </svg>
-                            </div>
-                            <div>
-                              <h3>Tech Stack Icons ({(selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || []).length})</h3>
-                              <p>Paste with Ctrl+V or upload</p>
-                            </div>
-                          </div>
-
-                          <div className={styles.systemIconsHeaderActions}>
-                            <label className={styles.iconUploadBtn} title="Upload icon image">
-                              <input
-                                type="file"
-                                accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                                onChange={(e) => void handleFileUpload(e)}
-                                disabled={!!iconProcessing}
-                                style={{ display: "none" }}
-                              />
-                              <span>📁 Upload</span>
-                            </label>
-                          </div>
-                        </div>
-
-                        {/* Paste / Drop Zone */}
-                        <div
-                          className={`${styles.iconPasteZone} ${iconDragActive ? styles.iconPasteZoneDragActive : ""} ${iconProcessing ? styles.iconPasteZoneBusy : ""}`}
-                          tabIndex={0}
-                          onPaste={(e) => void handlePasteImage(e)}
-                          onDragOver={handleIconDragOver}
-                          onDragEnter={handleIconDragOver}
-                          onDragLeave={handleIconDragLeave}
-                          onDrop={(e) => void handleIconDrop(e)}
-                          aria-busy={!!iconProcessing}
-                          title="Click here and press Ctrl+V, or drop an image file"
-                        >
-                          {iconProcessing ? (
-                            <div className={styles.pasteZoneContent} role="status" aria-live="polite">
-                              <span className={styles.iconLoadingSpinner} aria-hidden="true" />
-                              <span className={styles.pasteZoneText}>
-                                {iconProcessing.stage}
-                                <span className={styles.iconLoadingDots} aria-hidden="true">
-                                  <i />
-                                  <i />
-                                  <i />
-                                </span>
-                              </span>
-                            </div>
-                          ) : iconDragActive ? (
-                            <div className={styles.pasteZoneContent}>
-                              <span className={styles.pasteShortcut}>⬇</span>
-                              <span className={styles.pasteZoneText}>Thả ảnh vào đây</span>
-                            </div>
-                          ) : (
-                            <div className={styles.pasteZoneContent}>
-                              <span className={styles.pasteShortcut}>Ctrl + V</span>
-                              <span className={styles.pasteZoneText}>
-                                Click &amp; <strong>Ctrl+V</strong> hoặc kéo thả ảnh icon
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Pending (processing) icon placeholder */}
-                        {iconProcessing && (
-                          <div className={`${styles.systemIconItem} ${styles.systemIconItemLoading}`}>
-                            <div className={styles.systemIconPreviewWrap}>
-                              {iconProcessing.previewUrl ? (
-                                <img
-                                  src={iconProcessing.previewUrl}
-                                  alt="Processing icon"
-                                  className={styles.systemIconAdminImg}
-                                />
-                              ) : (
-                                <span className={styles.iconLoadingSpinnerSmall} aria-hidden="true" />
-                              )}
-                            </div>
-                            <span className={styles.iconSkeletonBar} />
-                          </div>
-                        )}
-
-                        {/* Current Icons List */}
-                        {((selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || []).length > 0) ? (
-                          <div className={styles.systemIconsGrid}>
-                            {(selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || []).map((icon) => (
-                              <div key={icon.id} className={styles.systemIconItem}>
-                                <div className={styles.systemIconPreviewWrap}>
-                                  <img
-                                    src={icon.url}
-                                    alt={icon.name || "Icon"}
-                                    className={styles.systemIconAdminImg}
-                                  />
-                                </div>
-                                <input
-                                  type="text"
-                                  className={styles.systemIconNameInput}
-                                  value={icon.name && icon.name.toLowerCase() !== "system" ? icon.name : ""}
-                                  onChange={(e) => handleRenameIcon(icon.id, e.target.value)}
-                                  onBlur={() => void saveSystemIcons(selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || [])}
-                                  placeholder="Label (optional)"
-                                  title="Click to rename or leave empty"
-                                />
-                                <button
-                                  type="button"
-                                  className={styles.systemIconDeleteBtn}
-                                  onClick={() => void handleRemoveIcon(icon.id)}
-                                  title="Delete icon"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            ))}
-                          </div>
-                        ) : !iconProcessing ? (
-                          <div className={styles.noIconsNotice}>
-                            No icons added yet. Press <strong>Ctrl+V</strong> or click <strong>Upload</strong>.
-                          </div>
-                        ) : null}
-                      </div>
+                      <CourseSystemIcons key={effectiveCourseId}
+                        icons={selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || []}
+                        editable disabled={Boolean(processingMessage) || busy.has(`icons:${effectiveCourseId}`)}
+                        onSave={saveSystemIcons} />
                     </div>
                   </>
                 ) : (
@@ -3061,66 +2649,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
       {/* =========================================================================
           EIU LUXURY MODAL POP-UP DIALOG (Chuẩn EIU Luxury Design System)
           ========================================================================= */}
-      {dialog.isOpen && (
-        <div className={styles.eiuModalBackdrop} role="dialog" aria-modal="true" onClick={closeDialog}>
-          <div className={styles.eiuModalCard} onClick={(e) => e.stopPropagation()}>
-            <div className={styles.eiuModalHeader}>
-              <div className={styles.eiuModalBadgeRow}>
-                <span className={styles.eiuModalBrandTag}>EIU SYSTEM GOVERNANCE</span>
-                <span className={dialog.variant === "danger" ? styles.eiuModalBadgeDanger : styles.eiuModalBadgeGold}>
-                  {dialog.variant === "danger" ? "DANGER ZONE" : "NOTICE"}
-                </span>
-              </div>
-              <div className={styles.eiuModalTitleRow}>
-                <div className={dialog.variant === "danger" ? styles.eiuModalIconDanger : styles.eiuModalIconGold}>
-                  {dialog.variant === "danger" ? (
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-                  ) : (
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                  )}
-                </div>
-                <h3>{dialog.title}</h3>
-              </div>
-            </div>
-
-            <div className={styles.eiuModalBody}>
-              <p className={styles.eiuModalMessage}>{dialog.message}</p>
-              {dialog.detail && (
-                <div className={styles.eiuModalDetailBox}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                  <span>{dialog.detail}</span>
-                </div>
-              )}
-            </div>
-
-            <div className={styles.eiuModalFooter}>
-              {!dialog.isAlert && (
-                <button
-                  type="button"
-                  className={styles.eiuModalBtnCancel}
-                  onClick={closeDialog}
-                >
-                  {dialog.cancelLabel || "Cancel"}
-                </button>
-              )}
-              <button
-                type="button"
-                className={dialog.variant === "danger" ? styles.eiuModalBtnDanger : styles.eiuModalBtnConfirm}
-                onClick={async () => {
-                  const onConfirmFn = dialog.onConfirm;
-                  closeDialog();
-                  if (onConfirmFn) {
-                    await onConfirmFn();
-                  }
-                }}
-                autoFocus
-              >
-                {dialog.confirmLabel || "Confirm"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <EiuConfirmDialog dialog={dialog} onClose={closeDialog} />
     </main>
   );
 }
