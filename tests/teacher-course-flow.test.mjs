@@ -10,8 +10,8 @@ function fixture() {
   const state = {
     actor: { isAdmin: false, isTeacher: true, authUserId: "teacher-a", email: "a@example.test" },
     tables: { courses: [{ id: "admin-course", slug: "admin-course", title: "Admin course", created_by: null, status: "active" }, { id: "other-course", slug: "other-course", title: "Other course", created_by: "teacher-b", status: "active" }], course_sections: [] },
-    sequence: 0, insertError: null, passcodes: [],
-    folders: [{ id: "fg-ai-agentic", name: "AI & Agentic", order: 1 }],
+    sequence: 0, insertError: null, passcodes: [], templateError: false,
+    folders: [{ id: "fg-ai-agentic", name: "AI & Agentic", order: 1, createdBy: "teacher-a" }],
   };
   const db = {
     storage: { from: () => ({ remove: async () => ({ error: null }) }) },
@@ -57,13 +57,23 @@ function fixture() {
       parseCourseMetadata: (raw, summary) => raw ? JSON.parse(raw) : { summary },
       serializeCourseMetadata: value => JSON.stringify(value),
       setSectionPasscode: async (...args) => state.passcodes.push(args),
+      setSectionTemplate: async (id, keys, enabled) => {
+        if (state.templateError) throw new Error("Template save failed");
+        const course = state.tables.courses.find(c => c.id === id);
+        const meta = JSON.parse(course.description ?? "{}");
+        meta.sectionTemplates ??= {};
+        for (const key of keys) if (enabled) meta.sectionTemplates[key] = "eiu-business-v1";
+        course.description = JSON.stringify(meta);
+      },
       getCoursesAndSectionsData: async () => ({ courses: state.tables.courses.map(c => ({ ...c, folderGroupId: JSON.parse(c.description ?? "{}").folderGroupId ?? "fg-ai-agentic" })), sections: state.tables.course_sections, folderGroups: state.folders }),
       updateCourseSystemIcons: async (id, systemIcons) => {
         const course = state.tables.courses.find(c => c.id === id);
         course.description = JSON.stringify({ ...JSON.parse(course.description ?? "{}"), systemIcons });
       },
-      createFolderGroup: async (name, description) => {
-        const folder = { id: "fg-new", name, description, order: state.folders.length + 1 };
+      updateFolderGroup: async (id, name, description) => Object.assign(state.folders.find(g => g.id === id), { name, description }),
+      deleteFolderGroup: async id => { state.folders = state.folders.filter(g => g.id !== id); },
+      createFolderGroup: async (name, description, createdBy) => {
+        const folder = { id: "fg-new", name, description, createdBy, order: state.folders.length + 1 };
         state.folders.push(folder); return folder;
       },
       setCourseFolderGroup: async (courseId, folderGroupId, folderGroupName) => {
@@ -131,7 +141,7 @@ test("admin-created courses keep admin ownership and return the newly created ID
   assert.equal(f.state.tables.courses.find(c => c.id === result.data.createdCourseIds[0]).created_by, null);
 });
 
-test("teacher creates a shared folder, adds an owned course and moves it between real folders", async () => {
+test("teacher creates an owned folder, adds an owned course and moves it between real folders", async () => {
   const f = fixture();
   const folder = await f.post({ action: "create_folder_group", name: " Business Analytics ", description: "Teaching materials" });
   assert.equal(folder.status, 200);
@@ -150,8 +160,14 @@ test("teacher creates a shared folder, adds an owned course and moves it between
   assert.equal((await f.post({ action: "set_course_folder_group", courseId: "other-course", folderGroupId: "fg-new" })).status, 403);
   assert.equal((await f.post({ action: "set_course_folder_group", courseId: id, folderGroupId: "missing" })).status, 400);
   assert.equal((await f.post({ action: "create_course", title: "Invalid parent", folderGroupId: "missing" })).status, 400);
-  for (const action of ["update_folder_group", "delete_folder_group", "delete_folder_groups", "set_folder_group_unlocked"])
-    assert.equal((await f.post({ action, id: "fg-new", name: "Renamed", folderGroupId: "fg-new", folderGroupIds: ["fg-new"] })).status, 403, action);
+  assert.equal(folder.data.folderGroups.find(g => g.id === "fg-new").createdBy, "teacher-a");
+  assert.equal((await f.post({ action: "update_folder_group", id: "fg-new", name: "Renamed" })).status, 200);
+  assert.equal((await f.post({ action: "set_folder_group_unlocked", folderGroupId: "fg-new", unlocked: true })).status, 403);
+  f.state.folders.push({ id: "foreign", name: "Admin folder", order: 3 });
+  for (const action of ["update_folder_group", "delete_folder_group", "delete_folder_groups"])
+    assert.equal((await f.post({ action, id: "foreign", name: "Renamed", folderGroupIds: ["foreign"] })).status, 403);
+  assert.equal((await f.post({ action: "create_course", title: "Forbidden", folderGroupId: "foreign" })).status, 403);
+  assert.equal((await f.post({ action: "set_course_folder_group", courseId: id, folderGroupId: "foreign" })).status, 403);
   assert.equal((await f.post({ action: "create_folder_group", name: " " })).status, 400);
   assert.equal((await f.post({ action: "create_folder_group", name: "x".repeat(121) })).status, 400);
 });
@@ -203,4 +219,75 @@ test("teacher can reorder a complete folder of owned courses while a shared fold
   assert.equal(reordered.status, 200);
   assert.equal(reordered.data.courses.findIndex(c => c.id === b) < reordered.data.courses.findIndex(c => c.id === a), true);
   assert.equal((await f.post({ action: "reorder_courses", folderGroupId: "fg-ai-agentic", courseIds: [a, "other-course"] })).status, 403);
+});
+
+for (const role of ["admin", "teacher"]) test(`${role} can opt into the template for each created section`, async () => {
+  const f = fixture();
+  if (role === "admin") f.state.actor = { isAdmin: true, authUserId: "admin" };
+  const courseId = (await f.post({ action: "create_course", title: "Template course" })).data.createdCourseIds[0];
+  assert.equal((await f.post({ action: "create_section", courseId, titles: ["A", "B"], useEiuTemplate: true })).status, 200);
+  const course = f.state.tables.courses.find(c => c.id === courseId);
+  const selected = JSON.parse(course.description).sectionTemplates;
+  assert.equal(Object.keys(selected).length, 2);
+  assert.ok(f.state.tables.course_sections.every(s => selected[s.section_key] === "eiu-business-v1"));
+  assert.equal((await f.post({ action: "create_section", courseId, title: "Plain", useEiuTemplate: false })).status, 200);
+  const plain = f.state.tables.course_sections.find(s => s.title === "Plain");
+  assert.equal(JSON.parse(course.description).sectionTemplates[plain.section_key], undefined);
+  f.state.templateError = true;
+  assert.equal((await f.post({ action: "create_section", courseId, title: "Failed", useEiuTemplate: true })).status, 500);
+  assert.ok(!f.state.tables.course_sections.some(s => s.title === "Failed"));
+});
+
+test("a teacher cannot mutate an owned section inside someone else's course", async () => {
+  const f = fixture();
+  f.state.tables.course_sections.push({ id: "moved-section", course_id: "other-course", created_by: "teacher-a", title: "Moved lesson", status: "active" });
+  for (const action of ["rename_section", "delete_section", "delete_sections"]) {
+    const result = await f.post({ action, sectionId: "moved-section", sectionIds: ["moved-section"], title: "Changed" });
+    assert.equal(result.status, 403, action);
+  }
+  assert.equal((await f.get()).data.sections.find(s => s.id === "moved-section").canEdit, false);
+  assert.equal(f.state.tables.course_sections[0].title, "Moved lesson");
+  f.state.actor = { isAdmin: true, authUserId: "admin" };
+  assert.equal((await f.post({ action: "rename_section", sectionId: "moved-section", title: "Admin edit" })).status, 200);
+});
+
+test("teacher catalog supports the shared layout without exposing access secrets", async () => {
+  const f = fixture();
+  f.state.tables.courses[0].description = JSON.stringify({ summary: "", passcode: "9999", allowedEmails: ["private@example.test"], sectionPasscodes: { lesson: "5678" }, unlocked: true });
+  const result = await f.get();
+  const shared = result.data.courses.find(c => c.id === "admin-course");
+  assert.equal(shared.status, "active");
+  assert.equal(shared.description, "");
+  assert.equal(shared.canEdit, false);
+  assert.equal(shared.metadata.summary, "");
+  assert.equal(shared.passcode, undefined);
+  assert.equal(shared.metadata.passcode, undefined);
+  assert.equal(shared.metadata.allowedEmails, undefined);
+  assert.equal(shared.metadata.sectionPasscodes, undefined);
+});
+
+test("folder ownership cannot be forged and mixed folder deletions are rejected before any write", async () => {
+  const f = fixture();
+  const created = await f.post({ action: "create_folder_group", name: "Own folder", createdBy: "teacher-b" });
+  assert.equal(created.data.folderGroups.find(g => g.id === "fg-new").createdBy, "teacher-a");
+  f.state.folders.push({ id: "foreign", name: "Foreign", createdBy: "teacher-b", order: 3 });
+  const before = JSON.stringify(f.state.folders);
+  assert.equal((await f.post({ action: "delete_folder_groups", folderGroupIds: ["fg-new", "foreign"] })).status, 403);
+  assert.equal(JSON.stringify(f.state.folders), before);
+  f.state.tables.courses.push({ id: "foreign-child", title: "Admin child", status: "active", created_by: null, description: JSON.stringify({ folderGroupId: "fg-new" }) });
+  assert.equal((await f.post({ action: "delete_folder_group", id: "fg-new" })).status, 403);
+  assert.ok(f.state.tables.courses.some(c => c.id === "foreign-child"));
+});
+
+
+test("hidden owned courses and folders cannot be modified through stale teacher requests", async () => {
+  const f = fixture();
+  assert.equal((await f.post({ action: "create_course", title: "Owned course", folderGroupId: "fg-ai-agentic" })).status, 200);
+  const course = f.state.tables.courses.find(c => c.created_by === "teacher-a");
+  assert.ok(course);
+  course.description = JSON.stringify({ hidden: true, folderGroupId: "fg-ai-agentic" });
+  assert.equal((await f.post({ action: "update_course_title", courseId: course.id, title: "Changed" })).status, 403);
+  course.description = JSON.stringify({ folderGroupId: "fg-ai-agentic" });
+  f.state.folders.find(group => group.id === "fg-ai-agentic").hidden = true;
+  assert.equal((await f.post({ action: "update_course_title", courseId: course.id, title: "Changed" })).status, 403);
 });

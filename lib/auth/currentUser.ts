@@ -3,7 +3,7 @@ import { currentTeacher, teacherByEmail } from "./teachers";
 
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { currentAccessSession } from "@/lib/auth/session";
-import { parseCourseMetadata, getUserUnlockedCourses } from "@/lib/auth/courseAccessStorage";
+import { parseCourseMetadata, getUserUnlockedCourses, getCoursesAndSectionsData } from "@/lib/auth/courseAccessStorage";
 import { FIXED_ADMIN_EMAIL, type AppUserAccess, type CourseAccess, type SectionAccess } from "@/lib/auth/types";
 
 type CourseRow = {
@@ -50,13 +50,16 @@ async function loadCourses(courseIds?: string[]) {
       id: course.id,
       slug: course.slug,
       title: course.title,
-      description: meta.summary || null,
+      description: meta.summary,
       languageLabel: course.language_label,
       isUnlocked: Boolean(meta.unlocked),
       folderGroupId: meta.folderGroupId || "fg-ai-agentic",
       folderGroupName: meta.folderGroupName || "Chương Trình AI & Agentic",
       folderOrder: meta.folderOrder ?? 0,
       systemIcons: meta.systemIcons || [],
+      sectionTemplates: meta.sectionTemplates || {},
+      templateKey: meta.templateKey,
+      hidden: Boolean(meta.hidden),
     };
   }).sort((a, b) => (a.folderOrder || Number.MAX_SAFE_INTEGER) - (b.folderOrder || Number.MAX_SAFE_INTEGER));
 }
@@ -72,7 +75,7 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
     return {
       authUserId: teacher.id, email: teacher.email, displayName: teacher.display_name, avatarUrl: null,
       isAdmin: false, isTeacher: true, mustChangePassword: teacher.must_change_password, isActive: !teacher.must_change_password,
-      courses: courses.map(course => ({ ...course, isUnlocked: true })), sections,
+      ...(teacher.must_change_password ? { courses: [], sections: [] } : await visibleLibrary(courses.map(course => ({ ...course, isUnlocked: true })), sections)),
     };
   }
   if (session.role === "admin") {
@@ -119,8 +122,7 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
       avatarUrl: null,
       isAdmin: false,
       isActive: true,
-      courses: coursesWithUnlockedStatus,
-      sections: allSections,
+      ...await visibleLibrary(coursesWithUnlockedStatus, allSections),
     };
   }
 
@@ -145,8 +147,7 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
       avatarUrl: null,
       isAdmin: false,
       isActive: true,
-      courses,
-      sections,
+      ...await visibleLibrary(courses, sections),
     };
   }
 
@@ -166,7 +167,20 @@ export async function canManageSection(sectionId: string) {
   const actor = await requireCourseManager();
   if (!actor) return false;
   if (actor.isAdmin) return true;
-  const { data, error } = await getSupabaseAdmin().from("course_sections").select("created_by").eq("id", sectionId).maybeSingle();
+  if (!actor.sections.some(section => section.id === sectionId)) return false;
+  const db = getSupabaseAdmin();
+  const { data, error } = await db.from("course_sections").select("created_by,course_id").eq("id", sectionId).maybeSingle();
   if (error) throw error;
-  return data?.created_by === actor.authUserId;
+  if (!data || data.created_by !== actor.authUserId) return false;
+  const { data: course, error: courseError } = await db.from("courses").select("created_by").eq("id", data.course_id).maybeSingle();
+  if (courseError) throw courseError;
+  return course?.created_by === actor.authUserId;
+}
+
+async function visibleLibrary(courses: CourseAccess[], sections: SectionAccess[]) {
+  const catalog = await getCoursesAndSectionsData();
+  const hiddenFolders = new Set(catalog.folderGroups.filter(group => group.hidden).map(group => group.id));
+  const visible = courses.filter(course => !course.hidden && !hiddenFolders.has(course.folderGroupId || "fg-ai-agentic"));
+  const ids = new Set(visible.map(course => course.id));
+  return { courses: visible, sections: sections.filter(section => ids.has(section.courseId)) };
 }

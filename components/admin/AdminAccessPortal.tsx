@@ -1,5 +1,8 @@
 "use client";
 import TeacherAccounts from "./TeacherAccounts";
+import TemplateLibrary from "./TemplateLibrary";
+import VisibilityToggle from "./VisibilityToggle";
+import type { SlideTemplate } from "@/lib/auth/courseAccessStorage";
 
 import CourseManagerHeader from "./CourseManagerHeader";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -7,12 +10,15 @@ import styles from "./AdminAccessPortal.module.css";
 import { createUploadQueue } from "@/lib/uploadQueue";
 import { uploadSectionFile } from "@/lib/uploadSectionFile";
 import SectionBatchUpload from "./SectionBatchUpload";
+import SectionSourceLibrary from "./SectionSourceLibrary";
 import CourseSystemIcons from "./CourseSystemIcons";
 import EiuConfirmDialog from "./EiuConfirmDialog";
 
 type LanguageLabel = "vi" | "en" | "vi_en";
 
 export type CourseFolderGroup = {
+  hidden?: boolean;
+  canEdit?: boolean;
   id: string;
   name: string;
   description?: string;
@@ -27,6 +33,9 @@ export type CourseSystemIcon = {
 };
 
 type CourseMetadata = {
+  hidden?: boolean;
+  templateKey?: string;
+  sectionTemplates?: Record<string, string>;
   summary: string;
   allowedEmails: string[];
   passcode?: string;
@@ -41,6 +50,8 @@ type CourseMetadata = {
 };
 
 type Course = {
+  canEdit?: boolean;
+  canDelete?: boolean;
   id: string;
   slug: string;
   title: string;
@@ -58,6 +69,7 @@ type Course = {
 };
 
 type Section = {
+  canEdit?: boolean;
   id: string;
   course_id: string;
   section_key: string;
@@ -79,6 +91,8 @@ type Payload = {
   folderGroups?: CourseFolderGroup[];
   authorizedEmails?: string[];
   generatedCode?: string;
+  createdCourseIds?: string[];
+  createdFolderGroupId?: string;
 };
 
 type EiuDialogState = {
@@ -161,8 +175,9 @@ function DraggableScrollArea({
   );
 }
 
-export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }) {
-  const [tab, setTab] = useState<"emails" | "courses" | "teachers">("emails");
+export default function AdminAccessPortal({ adminEmail, role = "admin", initialTab }: { adminEmail: string; role?: "admin" | "teacher"; initialTab?: "layouts" }) {
+  const isAdmin = role === "admin";
+  const [tab, setTab] = useState<"emails" | "courses" | "teachers" | "layouts">(initialTab ?? (isAdmin ? "emails" : "courses"));
   const [courses, setCourses] = useState<Course[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
   const [authorizedEmails, setAuthorizedEmails] = useState<string[]>([]);
@@ -261,6 +276,18 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   const [descriptionValue, setDescriptionValue] = useState("");
   const [newSectionTitle, setNewSectionTitle] = useState("");
   const [addMultipleSections, setAddMultipleSections] = useState(false);
+  const [templates, setTemplates] = useState<SlideTemplate[]>([]);
+  const [templateError, setTemplateError] = useState("");
+  useEffect(() => {
+    let disposed = false;
+    const refresh = () => { void fetch("/api/templates", { cache: "no-store" }).then(async response => {
+      const payload = await response.json();
+      if (!response.ok || !Array.isArray(payload.templates)) throw new Error(payload.message || "Unable to load layouts.");
+      if (!disposed) { setTemplates(payload.templates); setTemplateError(""); }
+    }).catch(() => { if (!disposed) setTemplateError("Unable to load templates. Refresh to try again."); }); };
+    refresh(); window.addEventListener("focus", refresh);
+    return () => { disposed = true; window.removeEventListener("focus", refresh); };
+  }, []);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [sectionTitleValue, setSectionTitleValue] = useState("");
 
@@ -293,12 +320,22 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
 
+  const [courseSearch, setCourseSearch] = useState("");
+
   const apply = useCallback((payload: Payload) => {
-    if (payload.courses) setCourses(payload.courses);
+    if (payload.courses) {
+      setCourses(payload.courses);
+      setSelectedCourses(current => new Set([...current].filter(id => payload.courses!.some(course => course.id === id && (isAdmin || (course.canEdit && course.canDelete !== false))))));
+    }
+    if (payload.createdCourseIds?.[0]) { setCourseId(payload.createdCourseIds[0]); setCourseSearch(""); }
+    if (payload.createdFolderGroupId) {
+      setTargetFolderForCourse(payload.createdFolderGroupId);
+      setCollapsedFolders(current => new Set([...current].filter(id => id !== payload.createdFolderGroupId)));
+    }
     if (payload.sections) setSections(payload.sections);
     if (payload.folderGroups) setFolderGroups(payload.folderGroups);
     if (payload.authorizedEmails) setAuthorizedEmails(payload.authorizedEmails);
-  }, []);
+  }, [isAdmin]);
 
   function toggleFolderCollapse(folderId: string) {
     setCollapsedFolders((prev) => {
@@ -313,7 +350,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     return fetch("/api/admin/access", { cache: "no-store" })
       .then(async (response) => {
         const payload = (await response.json()) as Payload;
-        if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to load administration data.");
+        if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to load your workspace.");
         apply(payload);
       });
   }, [apply]);
@@ -322,7 +359,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     let disposed = false;
     loadData()
       .catch((caught) => {
-        if (!disposed) setError(caught instanceof Error ? caught.message : "Unable to load administration data.");
+        if (!disposed) setError(caught instanceof Error ? caught.message : "Unable to load your workspace.");
       })
       .finally(() => {
         if (!disposed) setLoading(false);
@@ -332,15 +369,25 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     };
   }, [loadData]);
 
-  const [courseSearch, setCourseSearch] = useState("");
+  const [ownCoursesOnly, setOwnCoursesOnly] = useState(false);
 
-  const activeCourses = useMemo(() => courses.filter((c) => c.status === "active"), [courses]);
-  const effectiveCourseId = activeCourses.some((c) => c.id === courseId) ? courseId : activeCourses[0]?.id ?? "";
+  const activeCourses = useMemo(() => courses.filter((c) => c.status === "active" && (isAdmin || !ownCoursesOnly || c.canEdit)), [courses, isAdmin, ownCoursesOnly]);
+  const effectiveCourseId = activeCourses.some((c) => c.id === courseId) ? courseId : (!isAdmin ? activeCourses.find(course => course.canEdit)?.id : undefined) ?? activeCourses[0]?.id ?? "";
   const selectedCourse = activeCourses.find((c) => c.id === effectiveCourseId) ?? null;
+  const canEditFolder = (group: CourseFolderGroup) => isAdmin || group.canEdit === true;
+  const editableFolders = folderGroups.filter(canEditFolder);
+  const canDeleteFolder = (group: CourseFolderGroup) => isAdmin || (group.canEdit === true && courses.filter(course => course.folderGroupId === group.id).every(course => course.canEdit && course.canDelete !== false));
+  const canEditCourse = Boolean(selectedCourse && (isAdmin || selectedCourse.canEdit));
+  const canEditSection = (section: Section) => isAdmin || Boolean(canEditCourse && section.canEdit);
+  const canSelectCourse = (course: Course) => isAdmin || Boolean(course.canEdit && course.canDelete !== false && course.slug !== "applied-agentic-ai");
+  const canReorderCourses = (items: Course[]) => isAdmin || (items.length > 0 && items.every(course => course.canEdit && folderGroups.some(group => group.id === course.folderGroupId && group.canEdit)));
   const courseSections = useMemo(
     () => sections.filter((s) => s.course_id === effectiveCourseId && s.status === "active").sort((a, b) => a.position - b.position),
     [sections, effectiveCourseId]
   );
+
+  const editableSections = courseSections.filter(canEditSection);
+  const canReorderSections = isAdmin || (canEditCourse && courseSections.every(section => section.canEdit));
 
   const normalizedCourseSearch = courseSearch.trim().toLowerCase();
   const filteredFolderGroups = useMemo(() => {
@@ -362,7 +409,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   useEffect(() => {
     setTitleValue(selectedCourse?.title || "");
     setEditingTitle(false);
-    setDescriptionValue(selectedCourse?.metadata?.summary || selectedCourse?.description || "");
+    setDescriptionValue(selectedCourse?.metadata?.summary ?? selectedCourse?.description ?? "");
     setEditingDescription(false);
     setEditingCoursePasscode(false);
     setCustomCoursePasscode("");
@@ -394,6 +441,28 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     successMessage: string,
     processingText?: string
   ) {
+    if (!isAdmin) {
+      const action = String(body.action);
+      const folderActions = ["update_folder_group", "delete_folder_group", "delete_folder_groups"];
+      const courseActions = ["create_section", "set_course_folder_group", "set_course_template", "update_course_title", "update_course_summary", "update_course_description", "update_course_system_icons", "set_course_language", "delete_course", "reorder_sections"];
+      const sectionActions = ["delete_section", "delete_sections", "rename_section"];
+      let permitted = ["create_course", "create_folder_group"].includes(action);
+      if (folderActions.includes(action)) {
+        const ids = action === "delete_folder_groups" ? body.folderGroupIds as string[] : [String(body.id)];
+        permitted = Boolean(ids?.length) && ids.every(id => folderGroups.some(group => group.id === id && group.canEdit));
+      }
+      if (action === "create_course" || action === "set_course_folder_group") permitted = folderGroups.some(group => group.id === body.folderGroupId && group.canEdit);
+      if (courseActions.includes(action)) permitted = courses.some(course => course.id === body.courseId && course.canEdit) && (action !== "set_course_folder_group" || folderGroups.some(group => group.id === body.folderGroupId && group.canEdit));
+      if (sectionActions.includes(action)) {
+        const ids = action === "delete_sections" ? body.sectionIds as string[] : [String(body.sectionId)];
+        permitted = Boolean(ids?.length) && ids.every(id => sections.some(section => section.id === id && section.canEdit && courses.some(course => course.id === section.course_id && course.canEdit)));
+      }
+      if (["delete_courses", "reorder_courses"].includes(action)) {
+        const ids = body.courseIds as string[];
+        permitted = Boolean(ids?.length) && ids.every(id => courses.some(course => course.id === id && course.canEdit && (action !== "delete_courses" || course.canDelete !== false)));
+      }
+      if (!permitted) { setError("You can only manage your own courses and sections."); return false; }
+    }
     setBusy((current) => new Set(current).add(key));
     if (processingText) {
       setProcessingMessage(processingText);
@@ -803,6 +872,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   }
 
   function handleToggleCourseSelection(id: string) {
+    if (!activeCourses.some(course => course.id === id && canSelectCourse(course))) return;
     setSelectedCourses((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -812,10 +882,11 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   }
 
   function handleSelectAllCoursesToggle() {
-    if (selectedCourses.size === activeCourses.length) {
+    const selectableCourses = activeCourses.filter(canSelectCourse);
+    if (selectedCourses.size === selectableCourses.length) {
       setSelectedCourses(new Set());
     } else {
-      setSelectedCourses(new Set(activeCourses.map((c) => c.id)));
+      setSelectedCourses(new Set(selectableCourses.map((c) => c.id)));
     }
   }
 
@@ -963,6 +1034,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   // =========================================================================
 
   async function saveSystemIcons(updatedIcons: CourseSystemIcon[]) {
+    if (!canEditCourse) return false;
     if (!effectiveCourseId) return false;
     setBusy((prev) => new Set(prev).add(`icons:${effectiveCourseId}`));
     try {
@@ -1014,14 +1086,15 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   }, [effectiveCourseId]);
 
   const deletableSections = useMemo(
-    () => courseSections.filter((s) => !(selectedCourse?.slug === "applied-agentic-ai" && ["section1", "section2"].includes(s.section_key))),
-    [courseSections, selectedCourse?.slug]
+    () => courseSections.filter((s) => (isAdmin || (selectedCourse?.canEdit && s.canEdit)) && !(selectedCourse?.slug === "applied-agentic-ai" && ["section1", "section2"].includes(s.section_key))),
+    [courseSections, selectedCourse?.slug, selectedCourse?.canEdit, isAdmin]
   );
 
   const isAllSectionsSelected =
     deletableSections.length > 0 && deletableSections.every((s) => selectedSections.has(s.id));
 
   function handleToggleSectionSelection(id: string) {
+    if (!deletableSections.some(section => section.id === id)) return;
     setSelectedSections((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -1076,7 +1149,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   }
 
   async function handleReorderSection(sourceId: string, targetId: string) {
-    if (sourceId === targetId || !effectiveCourseId || processingMessage || busy.has("reorder-sections")) return;
+    if (!canReorderSections || sourceId === targetId || !effectiveCourseId || processingMessage || busy.has("reorder-sections")) return;
     const ids = courseSections.map((section) => section.id);
     const source = ids.indexOf(sourceId);
     const target = ids.indexOf(targetId);
@@ -1101,6 +1174,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   }
 
   async function handleSectionContentUpload(section: Section, file: File | undefined, onProgress?: (value: number) => void): Promise<boolean> {
+    if (!canEditSection(section)) return false;
     if (!file) return false;
     if (file.size > 50 * 1024 * 1024) {
       setError("The maximum file size is 50 MB.");
@@ -1189,8 +1263,9 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
     if (!title) return;
     const titles = addMultipleCourses ? title.split(/[,.\-]+/u).map((name) => name.trim()).filter(Boolean) : [title];
     if (!titles.length) return;
-    const targetFolderId = targetFolderForCourse || folderGroups[0]?.id || "fg-ai-agentic";
-    const targetFolder = folderGroups.find((g) => g.id === targetFolderId) || folderGroups[0];
+    const targetFolderId = targetFolderForCourse;
+    const targetFolder = editableFolders.find((g) => g.id === targetFolderId) || editableFolders[0];
+    if (!targetFolder) { setError("Create your own folder before adding a course."); return; }
     const ok = await mutate(
       {
         action: "create_course",
@@ -1210,7 +1285,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
   }
 
   async function handleReorderCourse(sourceId: string, targetId: string, folderId: string) {
-    if (sourceId === targetId || processingMessage || busy.has("reorder-courses")) return;
+    if (!canReorderCourses(activeCourses.filter(course => (course.folderGroupId || "fg-ai-agentic") === folderId)) || sourceId === targetId || processingMessage || busy.has("reorder-courses")) return;
     const ids = activeCourses.filter((course) => (course.folderGroupId || "fg-ai-agentic") === folderId).map((course) => course.id);
     const source = ids.indexOf(sourceId);
     const target = ids.indexOf(targetId);
@@ -1228,12 +1303,13 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
 
   return (
     <main className={styles.page}>
-      <CourseManagerHeader role="admin" identity={adminEmail} onSignOut={() => void signOut()} />
+      <CourseManagerHeader role={role} identity={adminEmail} onSignOut={() => void signOut()} />
+      {isAdmin && <a href="/admin/drive" style={{ color: "#17324a", fontSize: 12, fontWeight: 600, alignSelf: "flex-end", padding: "6px 12px" }}>Google Drive connection →</a>}
 
       {/* EIU Luxury Top Control Row: Segmented Tabs (Left) + Master Access Toolbar (Right) */}
       <div className={styles.topControlRow}>
         <div className={styles.tabsTrack} role="tablist">
-          <button
+          {isAdmin && (<button
             type="button"
             className={`${styles.tabBtn} ${tab === "emails" ? styles.tabBtnActive : ""}`}
             onClick={() => setTab("emails")}
@@ -1243,7 +1319,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
             <span>Authorized Emails</span>
             <span className={styles.tabBadge}>{authorizedEmails.length}</span>
-          </button>
+          </button>)}
           <button
             type="button"
             className={`${styles.tabBtn} ${tab === "courses" ? styles.tabBtnActive : ""}`}
@@ -1255,14 +1331,18 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
             <span>Course Setup &amp; Structure</span>
             <span className={styles.tabBadge}>{activeCourses.length}</span>
           </button>
-          <button type="button" className={`${styles.tabBtn} ${tab === "teachers" ? styles.tabBtnActive : ""}`} onClick={() => setTab("teachers")} role="tab" aria-selected={tab === "teachers"}>
+          <button type="button" className={`${styles.tabBtn} ${tab === "layouts" ? styles.tabBtnActive : ""}`} onClick={() => setTab("layouts")} role="tab" aria-selected={tab === "layouts"}>
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M9 9v9M8 22h8M12 18v4"/></svg>
+            <span>Slide Layouts</span><span className={styles.tabBadge}>{templates.length}</span>
+          </button>
+          {isAdmin && (<button type="button" className={`${styles.tabBtn} ${tab === "teachers" ? styles.tabBtnActive : ""}`} onClick={() => setTab("teachers")} role="tab" aria-selected={tab === "teachers"}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-4-5"/></svg>
             <span>Teacher Accounts</span>
-          </button>
+          </button>)}
         </div>
 
         {tab === "courses" && (
-          <div className={styles.masterAccessToolbar}>
+          (isAdmin ? <div className={styles.masterAccessToolbar}>
             <div className={styles.masterAccessLeft}>
               <div className={styles.masterAccessBrand}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
@@ -1377,10 +1457,14 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                 </div>
               )}
             </div>
-          </div>
+          </div> : null)
         )}
       </div>
 
+      {!isAdmin && <div className={styles.teacherBulkToolbar}>
+        <label><input type="checkbox" checked={activeCourses.filter(canSelectCourse).length > 0 && activeCourses.filter(canSelectCourse).every(course => selectedCourses.has(course.id))} onChange={handleSelectAllCoursesToggle} disabled={!activeCourses.some(canSelectCourse) || Boolean(processingMessage)} />Select my courses</label>
+        <button type="button" className={styles.btnDanger} disabled={!selectedCourses.size || Boolean(processingMessage)} onClick={() => void handleDeleteSelectedCourses()}>Delete selected ({selectedCourses.size})</button>
+      </div>}
       {/* FLOATING HUD OVERLAY (loading..... trực quan nổi bật trên cùng) */}
       {processingMessage && (
         <div className={styles.globalLoadingOverlay} role="status" aria-live="polite">
@@ -1429,9 +1513,9 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
       {error && <div className={styles.error} role="alert">{error}</div>}
       {notice && !processingMessage && <div className={styles.notice} role="status">{notice}</div>}
 
-      <div className={`${styles.scrollArea} ${tab === "courses" ? styles.scrollAreaCourses : ""}`}>
-        {tab === "teachers" ? <TeacherAccounts /> : loading ? (
-          <div className={styles.loading}>Loading administration data…</div>
+      <div className={`${styles.scrollArea} ${tab === "courses" ? styles.scrollAreaCourses : tab === "layouts" ? styles.scrollAreaLayouts : ""}`}>
+        {tab === "layouts" ? templateError ? <div className={styles.error} role="alert">{templateError}</div> : <TemplateLibrary key={role} isAdmin={isAdmin} initialTemplates={templates} onTemplatesChange={setTemplates} /> : tab === "teachers" ? <TeacherAccounts /> : loading ? (
+          <div className={styles.loading}>Loading your workspace…</div>
         ) : tab === "emails" ? (
           /* =========================================================================
              FRAME 1: DEDICATED AUTHORIZED EMAIL MANAGEMENT FRAME (Add nhiều, Xóa nhiều, Search)
@@ -1661,6 +1745,10 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                 </button>
               </div>
 
+              {!isAdmin && <div className={styles.teacherCourseScope} role="group" aria-label="Course filter">
+                <button type="button" aria-pressed={!ownCoursesOnly} onClick={() => setOwnCoursesOnly(false)}>All courses</button>
+                <button type="button" aria-pressed={ownCoursesOnly} onClick={() => setOwnCoursesOnly(true)}>My courses</button>
+              </div>}
               {/* Real-time Search Box */}
               <div className={styles.courseSearchWrapper}>
                 <svg className={styles.courseSearchIcon} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1742,7 +1830,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
 
               {/* Selected Folder Groups Batch Toolbar */}
               {selectedFolderGroups.size > 0 && (
-                <div className={styles.folderBatchToolbar}>
+                (selectedFolderGroups.size > 0 ? <div className={styles.folderBatchToolbar}>
                   <span className={styles.folderBatchText}>
                     Selected: <b>{selectedFolderGroups.size}</b> folder(s)
                   </span>
@@ -1763,7 +1851,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                       `Delete (${selectedFolderGroups.size})`
                     )}
                   </button>
-                </div>
+                </div> : null)
               )}
 
               {/* INDEPENDENT SCROLL PANE 1: Folder Groups & Courses List */}
@@ -1853,10 +1941,11 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                             onClick={() => toggleFolderCollapse(group.id)}
                           >
                             <div className={styles.folderGroupTitleRow}>
-                              {folderGroups.length > 1 && (
+                              {canEditFolder(group) && (folderGroups.length > 1 || !isAdmin) && (
                                 <input
                                   type="checkbox"
                                   checked={isFolderChecked}
+                                  disabled={!canDeleteFolder(group)}
                                   onChange={() => handleToggleFolderGroupSelection(group.id)}
                                   onClick={(e) => e.stopPropagation()}
                                   className={styles.emailRowCheckbox}
@@ -1876,9 +1965,10 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                             </div>
 
                             {/* Quick Folder Actions (Compact Icons) */}
-                            <div className={styles.folderGroupActions} onClick={(e) => e.stopPropagation()}>
+                            {canEditFolder(group) && (<div className={styles.folderGroupActions} onClick={(e) => e.stopPropagation()}>
+                              {isAdmin && <VisibilityToggle hidden={Boolean(group.hidden)} label={`folder ${group.name}`} busy={busy.has(`hide-folder:${group.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-folder:${group.id}`)} onToggle={() => void mutate({ action: "set_folder_group_hidden", folderGroupId: group.id, hidden: !group.hidden }, `hide-folder:${group.id}`, "Folder visibility updated.")} />}
                               {childCourses.length > 0 && (
-                                <button
+                                (isAdmin ? <button
                                   type="button"
                                   className={allUnlocked ? styles.folderBtnLockIcon : styles.folderBtnUnlockIcon}
                                   onClick={() => void handleToggleFolderGroupUnlocked(group, !allUnlocked)}
@@ -1892,7 +1982,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                   ) : (
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
                                   )}
-                                </button>
+                                </button> : null)
                               )}
 
                               <button
@@ -1907,18 +1997,18 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                 ✎
                               </button>
 
-                              {folderGroups.length > 1 && (
+                              {canEditFolder(group) && (folderGroups.length > 1 || !isAdmin) && (
                                 <button
                                   type="button"
                                   className={styles.folderActionDeleteBtn}
                                   onClick={() => void handleDeleteFolderGroup(group)}
-                                  disabled={busy.has(`delete-folder:${group.id}`) || Boolean(processingMessage)}
+                                  disabled={!canDeleteFolder(group) || busy.has(`delete-folder:${group.id}`) || Boolean(processingMessage)}
                                   title="Delete folder"
                                 >
                                   ×
                                 </button>
                               )}
-                            </div>
+                            </div>)}
                           </div>
                         )}
 
@@ -1928,7 +2018,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                             {childCourses.length === 0 ? (
                               <div className={styles.compactFolderEmpty}>
                                 <span>No courses yet</span>
-                                <button
+                                {canEditFolder(group) && (<button
                                   type="button"
                                   className={styles.compactAddCourseInlineBtn}
                                   onClick={() => {
@@ -1937,7 +2027,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                   }}
                                 >
                                   + Add Course
-                                </button>
+                                </button>)}
                               </div>
                             ) : (
                               <>
@@ -1953,7 +2043,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                         key={course.id}
                                         className={`${styles.compactCourseRow} ${isSelected ? styles.compactCourseRowSelected : ""} ${courseDropTarget === course.id ? styles.sectionDropTarget : ""}`}
                                         onDragOver={(event) => {
-                                          if (draggedCourse.current?.folderId !== group.id || processingMessage) return;
+                                          if (!canReorderCourses(groupCourses) || draggedCourse.current?.folderId !== group.id || processingMessage) return;
                                           event.preventDefault();
                                           event.dataTransfer.dropEffect = "move";
                                           setCourseDropTarget(course.id);
@@ -1963,12 +2053,12 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                           const source = draggedCourse.current;
                                           draggedCourse.current = null;
                                           setCourseDropTarget(null);
-                                          if (source?.folderId === group.id) void handleReorderCourse(source.id, course.id, group.id);
+                                          if (canReorderCourses(groupCourses) && source?.folderId === group.id) void handleReorderCourse(source.id, course.id, group.id);
                                         }}
                                       >
-                                        <button type="button" className={styles.sectionDragHandle}
-                                          draggable={!processingMessage && !busy.has("reorder-courses")}
-                                          disabled={Boolean(processingMessage) || busy.has("reorder-courses")}
+                                        {canReorderCourses(groupCourses) && (<button type="button" className={styles.sectionDragHandle}
+                                          draggable={canReorderCourses(groupCourses) && !processingMessage && !busy.has("reorder-courses")}
+                                          disabled={!canReorderCourses(groupCourses) || Boolean(processingMessage) || busy.has("reorder-courses")}
                                           aria-label={`Reorder ${course.title}`} title="Drag to reorder · Arrow Up/Down to move"
                                           onDragStart={(event) => {
                                             draggedCourse.current = { id: course.id, folderId: group.id };
@@ -1983,15 +2073,15 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                             const target = groupCourses[index + (event.key === "ArrowUp" ? -1 : 1)];
                                             if (target) void handleReorderCourse(course.id, target.id, group.id);
                                           }}
-                                        >⠿</button>
-                                        <input
+                                        >⠿</button>)}
+                                        {canSelectCourse(course) && (<input
                                           type="checkbox"
                                           checked={isChecked}
                                           onChange={() => handleToggleCourseSelection(course.id)}
                                           className={styles.emailRowCheckbox}
                                           title={`Select ${course.title}`}
                                           onClick={(e) => e.stopPropagation()}
-                                        />
+                                        />)}
                                         <button
                                           type="button"
                                           className={styles.compactCourseMain}
@@ -2004,12 +2094,13 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                           <div className={styles.compactCourseMetaGroup}>
                                             <span className={styles.compactCourseSecCount}>{countSecs}s</span>
                                             <span className={isUnlocked ? styles.compactPillUnlocked : styles.compactPillLocked}>
-                                              {isUnlocked ? "UNLOCKED" : "PASS"}
+                                              {!isAdmin ? course.canEdit ? "YOUR COURSE" : "READ ONLY" : isUnlocked ? "UNLOCKED" : "PASS"}
                                             </span>
                                           </div>
                                         </button>
+                                        {isAdmin && <VisibilityToggle hidden={Boolean(course.metadata.hidden)} label={`course ${course.title}`} busy={busy.has(`hide-course:${course.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-course:${course.id}`)} onToggle={() => void mutate({ action: "set_course_hidden", courseId: course.id, hidden: !course.metadata.hidden }, `hide-course:${course.id}`, "Course visibility updated.")} />}
                                         {course.slug !== "applied-agentic-ai" && (
-                                          <button
+                                          (canSelectCourse(course) ? <button
                                             type="button"
                                             className={styles.courseRowDeleteBtn}
                                             onClick={(e) => {
@@ -2020,14 +2111,14 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                             title={`Delete course “${course.title}”`}
                                           >
                                             ×
-                                          </button>
+                                          </button> : null)
                                         )}
                                       </div>
                                     );
                                   })}
                                 </div>
 
-                                <button
+                                {canEditFolder(group) && (<button
                                   type="button"
                                   className={styles.compactAddCourseBtn}
                                   onClick={() => {
@@ -2037,7 +2128,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                   title={`Add course to “${group.name}”`}
                                 >
                                   + Add Course
-                                </button>
+                                </button>)}
                               </>
                             )}
                           </div>
@@ -2060,11 +2151,11 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                   <label style={{ fontSize: "11px", fontWeight: "700", color: "#687987" }}>
                     Folder:
                     <select
-                      value={targetFolderForCourse}
+                      value={editableFolders.some(group => group.id === targetFolderForCourse) ? targetFolderForCourse : editableFolders[0]?.id || ""}
                       onChange={(e) => setTargetFolderForCourse(e.target.value)}
                       className={styles.folderSelectClean}
                     >
-                      {folderGroups.map((g) => (
+                      {editableFolders.map((g) => (
                         <option key={g.id} value={g.id}>
                           📁 {g.name}
                         </option>
@@ -2118,6 +2209,8 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                 <button
                   type="button"
                   className={styles.newCourseSidebarBtn}
+                  disabled={!editableFolders.length}
+                  title={!editableFolders.length ? "Create your own folder first" : "Create a course"}
                   onClick={() => setShowNewCourseBox(true)}
                 >
                   + New Course
@@ -2126,11 +2219,26 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
             </aside>
 
               {/* Main Workspace for Selected Course */}
-              <section className={styles.workspace}>
+              <section className={styles.workspace} aria-label="Selected course">
                 {selectedCourse ? (
                   <>
                     {/* UNIFIED COURSE COMMAND HUB (Gộp toàn bộ layout hiển thị & điều khiển nhanh) */}
                     <div className={styles.courseCommandHub}>
+                      {!isAdmin && <div className={styles.teacherOwnership}>
+                        <span>{canEditCourse ? "Your course" : "Read only"}</span>
+                        <p>{canEditCourse ? "Add sections and manage your learning materials here." : "This course belongs to the admin or another teacher. You can view and download its learning materials."}</p>
+                        <a href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}`}>Open Learning Space</a>
+                      </div>}
+                      <div className={styles.templateSetup}>
+                        <div className={styles.templateSetupCopy}><label htmlFor="course-slide-template"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>Slide template</label><p>Layout for existing and future PPTX, PDF and TSX slides.</p></div>
+                        <select id="course-slide-template" aria-label="Slide template" value={selectedCourse.metadata?.templateKey ?? (Object.keys(selectedCourse.metadata?.sectionTemplates ?? {}).length ? "__legacy" : "")} disabled={!canEditCourse || Boolean(processingMessage) || busy.has(`template:${effectiveCourseId}`) || Boolean(templateError)} onChange={event => void mutate({ action: "set_course_template", courseId: effectiveCourseId, templateKey: event.target.value }, `template:${effectiveCourseId}`, "Course template updated.")}>
+                          <option value="">Original slides (no template)</option>
+                          {selectedCourse.metadata?.templateKey === undefined && Object.keys(selectedCourse.metadata?.sectionTemplates ?? {}).length > 0 && <option disabled value="__legacy">Existing section layouts</option>}
+                          {selectedCourse.metadata?.templateKey && !templates.some(template => template.id === selectedCourse.metadata.templateKey) && <option value={selectedCourse.metadata.templateKey}>Deleted layout - choose another</option>}
+                          {templates.map(template => <option key={template.id} value={template.id}>{template.name}</option>)}
+                        </select>
+                        {templateError && <p role="alert">{templateError}</p>}
+                      </div>
                       {/* Top Bar: Parent Folder, Course Status, and Language */}
                       <div className={styles.commandHubTopRow}>
                         <div className={styles.commandHubTopLeft}>
@@ -2143,10 +2251,11 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                             <select
                               value={selectedCourse.folderGroupId || "fg-ai-agentic"}
                               onChange={(e) => void handleMoveCourseFolder(selectedCourse.id, e.target.value)}
-                              disabled={busy.has(`move-course:${selectedCourse.id}`) || Boolean(processingMessage)}
+                              disabled={!canEditCourse || busy.has(`move-course:${selectedCourse.id}`) || Boolean(processingMessage)}
                               className={styles.parentFolderSelect}
                             >
-                              {folderGroups.map((g) => (
+                              {!editableFolders.some(group => group.id === selectedCourse.folderGroupId) && <option value={selectedCourse.folderGroupId || "fg-ai-agentic"}>{folderGroups.find(group => group.id === selectedCourse.folderGroupId)?.name || "Current folder"}</option>}
+                              {editableFolders.map((g) => (
                                 <option key={g.id} value={g.id}>
                                   📁 {g.name}
                                 </option>
@@ -2160,7 +2269,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                           </div>
 
                           {/* Instant 1-Click Toggle Passcode Requirement */}
-                          <button
+                          {isAdmin && (<button
                             type="button"
                             className={Boolean(selectedCourse.unlocked ?? selectedCourse.metadata?.unlocked) ? styles.unlockToggleBtnUnlocked : styles.unlockToggleBtnLocked}
                             onClick={() => void handleToggleSingleCourseUnlocked(selectedCourse)}
@@ -2183,7 +2292,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                 <span>PASSCODE PROTECTED</span>
                               </>
                             )}
-                          </button>
+                          </button>)}
                         </div>
 
                         {/* Language Selector Pill */}
@@ -2194,7 +2303,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                               type="button"
                               className={`${styles.langBtn} ${selectedCourse.language_label === opt.value ? styles.langActive : ""}`}
                               onClick={() => void setLanguage(opt.value)}
-                              disabled={busy.has(`lang:${effectiveCourseId}`)}
+                              disabled={!canEditCourse || busy.has(`lang:${effectiveCourseId}`)}
                             >
                               {opt.label}
                             </button>
@@ -2246,7 +2355,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                         ) : (
                           <div className={styles.titleDisplayRow}>
                             <h2>{selectedCourse.title}</h2>
-                            <button
+                            {canEditCourse && (<button
                               type="button"
                               onClick={() => {
                                 setTitleValue(selectedCourse.title);
@@ -2256,7 +2365,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                               title="Edit course title"
                             >
                               ✎ Edit Title
-                            </button>
+                            </button>)}
                           </div>
                         )}
 
@@ -2272,7 +2381,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                   e.preventDefault();
                                   void handleSaveDescription();
                                 } else if (e.key === "Escape") {
-                                  setDescriptionValue(selectedCourse.metadata?.summary || selectedCourse.description || "");
+                                  setDescriptionValue(selectedCourse.metadata?.summary ?? selectedCourse.description ?? "");
                                   setEditingDescription(false);
                                 }
                               }}
@@ -2291,7 +2400,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                             <button
                               type="button"
                               onClick={() => {
-                                setDescriptionValue(selectedCourse.metadata?.summary || selectedCourse.description || "");
+                                setDescriptionValue(selectedCourse.metadata?.summary ?? selectedCourse.description ?? "");
                                 setEditingDescription(false);
                               }}
                               className={styles.descCancelBtn}
@@ -2302,25 +2411,25 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                         ) : (
                           <div className={styles.descInlineRow}>
                             <p className={styles.workspaceDescText}>
-                              {selectedCourse.metadata?.summary || selectedCourse.description || "Gemini -> Google sheets -> GAS -> Web App"}
+                              {selectedCourse.metadata?.summary ?? selectedCourse.description ?? ""}
                             </p>
-                            <button
+                            {canEditCourse && (<button
                               type="button"
                               onClick={() => {
-                                setDescriptionValue(selectedCourse.metadata?.summary || selectedCourse.description || "");
+                                setDescriptionValue(selectedCourse.metadata?.summary ?? selectedCourse.description ?? "");
                                 setEditingDescription(true);
                               }}
                               className={styles.inlineDescEditBtn}
                               title="Edit course summary"
                             >
                               ✎ Edit Summary
-                            </button>
+                            </button>)}
                           </div>
                         )}
                       </div>
 
                       {/* Passcode Quick Strip */}
-                      <div className={styles.commandHubPasscodeStrip}>
+                      {isAdmin && (<div className={styles.commandHubPasscodeStrip}>
                         <div className={styles.passcodeStripLeft}>
                           <span className={styles.passcodeStripLabel}>
                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><circle cx="12" cy="16" r="1.5"/></svg>
@@ -2401,7 +2510,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                             </button>
                           </div>
                         )}
-                      </div>
+                      </div>)}
                     </div>
 
                     {/* COURSE WORKSPACE SPLIT: Khung Section (Màu Đỏ - Trái) & Khung Icon (Màu Đen - Phải) */}
@@ -2416,7 +2525,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                           <div>
                             <h3>Course Sections &amp; Structure ({courseSections.length})</h3>
                             <p>
-                              Manage, add, and remove curriculum sections for this course.
+                              {canEditCourse ? "Manage, add, and remove curriculum sections for this course." : "View the curriculum and learning materials in this course."}
                             </p>
                           </div>
                         </div>
@@ -2470,11 +2579,11 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                       )}
 
                       {/* Section List */}
-                      <SectionBatchUpload key={effectiveCourseId} sections={courseSections} coreCourse={selectedCourse.slug === "applied-agentic-ai"}
+                      {editableSections.length > 0 && (<SectionBatchUpload key={effectiveCourseId} sections={editableSections} disabled={Boolean(processingMessage)} coreCourse={selectedCourse.slug === "applied-agentic-ai"}
                         upload={(target, file, progress) => {
                           const section = courseSections.find((item) => item.id === target.id);
                           return section ? handleSectionContentUpload(section, file, progress) : Promise.resolve(false);
-                        }} />
+                        }} />)}
                       <div className={styles.sectionItemsContainer}>
                         {courseSections.length === 0 ? (
                           <div className={styles.noEmailMessage}>
@@ -2482,6 +2591,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                           </div>
                         ) : (
                           courseSections.map((section, index) => {
+                            const editable = canEditSection(section);
                             const isDefault = selectedCourse.slug === "applied-agentic-ai" && ["section1", "section2"].includes(section.section_key);
                             const isChecked = selectedSections.has(section.id);
                             return (
@@ -2489,7 +2599,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                 key={section.id}
                                 className={`${styles.sectionItemRow} ${isChecked ? styles.sectionItemRowSelected : ""} ${sectionDropTarget === section.id ? styles.sectionDropTarget : ""}`}
                                 onDragOver={(event) => {
-                                  if (!draggedSection.current || processingMessage) return;
+                                  if (!canReorderSections || !draggedSection.current || processingMessage) return;
                                   event.preventDefault();
                                   event.dataTransfer.dropEffect = "move";
                                   setSectionDropTarget(section.id);
@@ -2499,13 +2609,13 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                   const source = draggedSection.current;
                                   draggedSection.current = null;
                                   setSectionDropTarget(null);
-                                  if (source) void handleReorderSection(source, section.id);
+                                  if (canReorderSections && source) void handleReorderSection(source, section.id);
                                 }}
                               >
                                 <div className={styles.sectionItemLeft}>
-                                  <button type="button" className={styles.sectionDragHandle}
-                                    draggable={!processingMessage && !busy.has("reorder-sections")}
-                                    disabled={Boolean(processingMessage) || busy.has("reorder-sections")}
+                                  {canReorderSections && (<button type="button" className={styles.sectionDragHandle}
+                                    draggable={canReorderSections && !processingMessage && !busy.has("reorder-sections")}
+                                    disabled={!canReorderSections || Boolean(processingMessage) || busy.has("reorder-sections")}
                                     aria-label={`Reorder ${section.title}`}
                                     title="Drag to reorder · Arrow Up/Down to move"
                                     onDragStart={(event) => {
@@ -2520,8 +2630,8 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                       const target = courseSections[index + (event.key === "ArrowUp" ? -1 : 1)];
                                       if (target) void handleReorderSection(section.id, target.id);
                                     }}
-                                  >⠿</button>
-                                  {!isDefault && (
+                                  >⠿</button>)}
+                                  {editable && !isDefault && (
                                     <input
                                       type="checkbox"
                                       checked={isChecked}
@@ -2569,6 +2679,9 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                   </DraggableScrollArea>
                                 </div>
                                 <div className={styles.sectionItemRight}>
+                                  {editable && <SectionSourceLibrary sectionId={section.id} sectionTitle={section.title} />}
+                                  <a className={styles.sectionUploadButton} href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}&sectionId=${encodeURIComponent(section.id)}`}>View</a>
+                                  {!editable && <span className={styles.compactPillLocked}>Read only</span>}
                                   {section.source_filename && (
                                     <a
                                       className={styles.sectionUploadButton}
@@ -2579,7 +2692,7 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                       Download
                                     </a>
                                   )}
-                                  <button
+                                  {editable && (<button
                                     type="button"
                                     className={styles.addSectionButton}
                                     onClick={() => {
@@ -2589,8 +2702,8 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                                     disabled={Boolean(processingMessage) || editingSectionId === section.id}
                                   >
                                     Rename
-                                  </button>
-                                  {!isDefault && (
+                                  </button>)}
+                                  {editable && !isDefault && (
                                     <button
                                       type="button"
                                       className={styles.removeBtn}
@@ -2609,10 +2722,12 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                       </div>
 
                       {/* Add Section Form */}
+                      {canEditCourse && <>
                       <label className={styles.bulkSectionOption}>
                         <input type="checkbox" checked={addMultipleSections} onChange={(event) => setAddMultipleSections(event.target.checked)} />
                         Add multiple sections · Separate names with commas, hyphens, or periods
                       </label>
+
                       <form onSubmit={handleAddSection} className={styles.addSectionForm}>
                         <input
                           type="text"
@@ -2630,11 +2745,12 @@ export default function AdminAccessPortal({ adminEmail }: { adminEmail: string }
                           {busy.has(`add-sec:${effectiveCourseId}`) ? "Adding…" : addMultipleSections ? "+ Add Sections" : "+ Add Section"}
                         </button>
                       </form>
+                      </>}
                     </div>
 
                       <CourseSystemIcons key={effectiveCourseId}
                         icons={selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || []}
-                        editable disabled={Boolean(processingMessage) || busy.has(`icons:${effectiveCourseId}`)}
+                        editable={canEditCourse} disabled={Boolean(processingMessage) || busy.has(`icons:${effectiveCourseId}`)}
                         onSave={saveSystemIcons} />
                     </div>
                   </>

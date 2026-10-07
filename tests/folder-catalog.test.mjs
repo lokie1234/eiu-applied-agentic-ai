@@ -25,6 +25,7 @@ function fixture() {
       neq(key, value) { filters.push(row => row[key] !== value); return this; },
       update(value) { update = value; return this; },
       maybeSingle: async () => { const res = result(); return { ...res, data: res.data?.[0] ?? null }; },
+      single: async () => { const res = result(); return { ...res, data: res.data?.[0] ?? null }; },
       then(resolve, reject) { return Promise.resolve(result()).then(resolve, reject); },
     };
   } };
@@ -63,4 +64,77 @@ test("folder creation reports a failed database write and leaves the catalog unc
 test("folder creation cannot report success without the catalog's core course", async () => {
   const { state, storage } = fixture(); state.courses = [];
   await assert.rejects(storage.createFolderGroup("New folder"), /not configured for saving folders/);
+});
+
+test("clearing a summary survives saving and reloading without changing course settings", async () => {
+  const { state, storage } = fixture();
+  for (const summary of ["", "   "]) {
+    await storage.updateCourseSummary("core", summary);
+    const saved = JSON.parse(state.courses[0].description);
+    assert.equal(saved.summary, "");
+    assert.equal(saved.passcode, "1234");
+    assert.equal(storage.parseCourseMetadata(state.courses[0].description, "Default summary").summary, "");
+    const reloaded = await storage.getCoursesAndSectionsData();
+    assert.equal(reloaded.courses[0].metadata.summary, "");
+    assert.equal(reloaded.courses[0].description, "");
+  }
+});
+
+test("folder descriptions can be cleared and remain empty after reloading", async () => {
+  const { storage } = fixture();
+  const folder = await storage.createFolderGroup("Materials", "Original description");
+  await storage.updateFolderGroup(folder.id, folder.name, "   ");
+  const reloaded = await storage.getCoursesAndSectionsData();
+  assert.equal(reloaded.folderGroups.find(item => item.id === folder.id).description, "");
+});
+
+test("section template survives unrelated metadata edits and can be disabled", async () => {
+  const { state, storage } = fixture();
+  await storage.setSectionTemplate("core", ["a", "b"], true);
+  await storage.updateCourseSummary("core", "");
+  let saved = JSON.parse(state.courses[0].description);
+  assert.deepEqual(saved.sectionTemplates, { a: "eiu-business-v1", b: "eiu-business-v1" });
+  assert.equal(saved.passcode, "1234");
+  await storage.setSectionTemplate("core", ["a"], false);
+  saved = JSON.parse(state.courses[0].description);
+  assert.deepEqual(saved.sectionTemplates, { b: "eiu-business-v1" });
+});
+
+test("owned folder metadata survives catalog loading and rename", async () => {
+  const { state, storage } = fixture();
+  const folder = await storage.createFolderGroup("Teacher folder", "", "teacher-a");
+  assert.equal(folder.createdBy, "teacher-a");
+  await storage.updateFolderGroup(folder.id, "Renamed", "");
+  const reloaded = await storage.getCoursesAndSectionsData();
+  assert.equal(reloaded.folderGroups.find(g => g.id === folder.id).createdBy, "teacher-a");
+  assert.equal(JSON.parse(state.courses[0].description).folderGroups.find(g => g.id === folder.id).name, "Renamed");
+});
+
+
+test("layout registry can add and delete every layout without restoring the built-in default", async () => {
+  const { state, storage } = fixture();
+  assert.equal((await storage.getSlideTemplates())[0].id, "eiu-business-v1");
+  await storage.saveSlideTemplates([{ id: "custom", name: "New layout", background: "data:image/png;base64,YQ==" }]);
+  await storage.updateCourseSummary("core", "Changed summary");
+  assert.equal((await storage.getSlideTemplates())[0].id, "custom");
+  await storage.saveSlideTemplates([]);
+  assert.equal((await storage.getSlideTemplates()).length, 0);
+  assert.equal(JSON.parse(state.courses[0].description).passcode, "1234");
+});
+
+test("course template and folder visibility survive unrelated writes and hidden folders reject passcodes", async () => {
+  const { state, storage } = fixture();
+  await storage.updateCourseMetadata("core", current => ({ ...current, templateKey: "custom", hidden: true }));
+  await storage.updateCourseSummary("core", "Course description");
+  assert.equal(JSON.parse(state.courses[0].description).templateKey, "custom");
+  assert.equal(await storage.verifyCoursePasscode("core", "1234"), false);
+  await storage.updateCourseMetadata("core", current => ({ ...current, hidden: false }));
+  await storage.setFolderGroupHidden("fg-ai-agentic", true);
+  assert.equal((await storage.getCoursesAndSectionsData()).folderGroups[0].hidden, true);
+  assert.equal(await storage.verifyCoursePasscode("core", "1234"), false);
+  await storage.updateFolderGroup("fg-ai-agentic", "Renamed");
+  assert.equal((await storage.getCoursesAndSectionsData()).folderGroups[0].hidden, true);
+  await storage.setFolderGroupHidden("fg-ai-agentic", false);
+  assert.equal(await storage.verifyCoursePasscode("core", "1234"), true);
+  assert.equal(JSON.parse(state.courses[0].description).templateKey, "custom");
 });

@@ -23,7 +23,7 @@ function route(actor, owner) {
 }
 test("unauthenticated users and teachers cannot mutate someone else's sections or global settings", async () => {
   assert.equal((await route(null).POST(request({ action: "create_course" }))).status, 403);
-  for (const owner of ["other", null]) for (const action of ["rename_section", "delete_section", "delete_sections", "create_section", "delete_course", "update_course_title", "set_all_courses_unlocked", "grant_emails_bulk", "update_system_icons", "delete_courses"]) {
+  for (const owner of ["other", null]) for (const action of ["rename_section", "delete_section", "delete_sections", "create_section", "delete_course", "update_course_title", "set_all_courses_unlocked", "grant_emails_bulk", "update_system_icons", "delete_courses", "set_course_hidden", "set_folder_group_hidden"]) {
     const res = await route({ isAdmin: false, isTeacher: true, authUserId: "teacher" }, owner).POST(request({ action, sectionId: "section", sectionIds: ["section"], courseId: "course", courseIds: ["course"] }));
     assert.equal(res.status, 403, action);
   }
@@ -191,4 +191,26 @@ test("database admin password replaces the environment password after the first 
     assert.equal(await auth.verifyAdminPassword("old-configured-password", { password_hash: "hash", session_version: 1 }), false);
     assert.equal(await auth.verifyAdminPassword("new-password", { password_hash: "hash", session_version: 1 }), true);
   } finally { if (previous === undefined) delete process.env.ADMIN_ACCESS_PASSWORD; else process.env.ADMIN_ACCESS_PASSWORD = previous; }
+});
+
+test("upload permission requires both section and parent course ownership, while admin retains full access", async () => {
+  let role = "teacher", parentOwner = "other", sectionOwner = "teacher";
+  const db = { from(table) {
+    const filters = [];
+    const rows = () => (table === "courses" ? [{ id: "course", status: "active", created_by: parentOwner, description: "", title: "Course" }] : [{ id: "section", course_id: "course", status: "active", created_by: sectionOwner }]).filter(row => filters.every(([key, value]) => row[key] === value));
+    return { select() { return this; }, order() { return this; }, eq(key, value) { filters.push([key, value]); return this; }, maybeSingle: async () => ({ data: rows()[0] }), then: resolve => Promise.resolve({ data: rows() }).then(resolve) };
+  } };
+  const access = load("lib/auth/currentUser.ts", {
+    "server-only": {}, "./teachers": { currentTeacher: async () => ({ id: "teacher", email: "teacher@example.test", display_name: "Teacher", must_change_password: false }) },
+    "@/lib/auth/session": { currentAccessSession: async () => ({ role }) },
+    "@/lib/supabase/server": { getSupabaseAdmin: () => db },
+    "@/lib/auth/courseAccessStorage": { parseCourseMetadata: () => ({ summary: "" }), getCoursesAndSectionsData: async () => ({ folderGroups: [] }) }, "@/lib/auth/types": { FIXED_ADMIN_EMAIL: "admin@example.test" },
+  });
+  assert.equal(await access.canManageSection("section"), false);
+  parentOwner = "teacher";
+  assert.equal(await access.canManageSection("section"), true);
+  sectionOwner = "other";
+  assert.equal(await access.canManageSection("section"), false);
+  role = "admin";
+  assert.equal(await access.canManageSection("section"), true);
 });

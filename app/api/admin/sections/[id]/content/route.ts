@@ -53,7 +53,7 @@ function compileTsx(source: string) {
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
   if (!(await canManageSection(id))) {
-    return NextResponse.json({ success: false, message: "Administrator access required." }, { status: 403 });
+    return NextResponse.json({ success: false, message: "You do not have permission to upload content to this section." }, { status: 403 });
   }
   try {
     let formData: FormData;

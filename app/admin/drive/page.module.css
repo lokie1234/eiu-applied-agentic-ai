@@ -1,0 +1,23 @@
+.page { min-height: 100dvh; padding: 40px 24px; background: #f5f3ed; color: #17324a; }
+.back { display: block; max-width: 850px; margin: 0 auto 20px; color: #17324a; font-size: 14px; }
+.card { max-width: 850px; margin: auto; padding: 32px; background: #fff; border: 1px solid #ded4c3; border-radius: 16px; }
+.eyebrow { color: #997443; font-size: 11px; font-weight: 700; letter-spacing: .12em; }
+.card h1 { margin: 10px 0; font-size: 28px; }
+.card h2 { margin-top: 28px; font-size: 18px; }
+.card p { line-height: 1.6; }
+.account { display: flex; justify-content: space-between; gap: 16px; align-items: center; padding: 20px 0; margin: 20px 0; border-block: 1px solid #e8e0d3; }
+.account span,.account strong { display: block; overflow-wrap: anywhere; }
+.account span { margin-bottom: 6px; font-size: 12px; color: #647585; }
+.account b,.folders b { font-size: 12px; color: #826535; }
+.button { display: inline-block; background: #102e44; color: #fff; border-radius: 8px; padding: 12px 18px; font-size: 14px; font-weight: 600; text-decoration: none; }
+.button:focus-visible { outline: 3px solid #ba965d; outline-offset: 3px; }
+.notice { background: #f8f4e9; padding: 12px 16px; border-left: 3px solid #ba965d; }
+.folders { display: grid; gap: 10px; }
+.folders>div { display: grid; grid-template-columns: 55px 1fr auto; gap: 12px; padding: 14px; border: 1px solid #e8e0d3; border-radius: 8px; font-size: 13px; }
+.note { color: #687987; font-size: 12px; margin-top: 24px; }
+.folderId { display: block; margin-top: 6px; color: #687987; font-size: 10px; overflow-wrap: anywhere; }
+.folderButton { background: #f7f3e9; border: 1px solid #d2bc96; border-radius: 6px; color: #17324a; font-size: 12px; padding: 8px 10px; cursor: pointer; align-self: start; }
+.folderButton:disabled { opacity: .5; cursor: default; }
+.folderButton:focus-visible { outline: 2px solid #ba965d; outline-offset: 2px; }
+.folderState { grid-column: 2 / -1; }
+@media(max-width:600px) { .page { padding: 24px 16px; } .card { padding: 20px; } .account { align-items: start; flex-direction: column; } .folders>div { grid-template-columns: 55px 1fr; } }

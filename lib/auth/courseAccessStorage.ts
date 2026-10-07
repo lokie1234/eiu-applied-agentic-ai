@@ -5,7 +5,13 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { FIXED_ADMIN_EMAIL, isValidEmail, normalizeEmail, APPLIED_AGENTIC_AI_SLUG, type CourseSystemIcon } from "@/lib/auth/types";
 export type { CourseSystemIcon };
 
+export type SlideTemplate = { id: string; name: string; background: string };
+
+export const DEFAULT_SLIDE_TEMPLATES: SlideTemplate[] = [{ id: "eiu-business-v1", name: "EIU Business", background: "/templates/eiu-business-v1/background.png" }];
+
 export type CourseFolderGroup = {
+  hidden?: boolean;
+  createdBy?: string;
   id: string;
   name: string;
   description?: string;
@@ -22,10 +28,14 @@ const DEFAULT_FOLDER_GROUPS: CourseFolderGroup[] = [
 ];
 
 export type CourseMetadata = {
+  hidden?: boolean;
+  templateKey?: string;
+  slideTemplates?: SlideTemplate[];
   summary: string;
   allowedEmails: string[];
   passcode: string; // 1 passcode for the whole course folder
   sectionPasscodes?: Record<string, string>; // retained for backward compatibility
+  sectionTemplates?: Record<string, string>;
   unlocked?: boolean; // When true, course can be accessed without a passcode
   unlockedEmails?: string[]; // Fallback list of emails that unlocked this course
   folderGroupId?: string; // ID of the parent folder (Folder lớn)
@@ -150,6 +160,10 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
         allowedEmails: Array.from(new Set(emails)),
         passcode,
         sectionPasscodes,
+        hidden: parsed.hidden === true,
+        templateKey: typeof parsed.templateKey === "string" ? parsed.templateKey : undefined,
+        slideTemplates: Array.isArray(parsed.slideTemplates) ? parsed.slideTemplates : undefined,
+        sectionTemplates: Object.fromEntries(Object.entries(parsed.sectionTemplates ?? {}).filter(([, value]) => typeof value === "string").map(([key, value]) => [key, String(value)])),
         unlocked,
         unlockedEmails: Array.from(new Set(unlockedEmails)),
         folderGroupId,
@@ -182,10 +196,14 @@ export function serializeCourseMetadata(metadata: CourseMetadata): string {
     emails.unshift(FIXED_ADMIN_EMAIL);
   }
   return JSON.stringify({
+    hidden: Boolean(metadata.hidden),
+    ...(metadata.templateKey !== undefined ? { templateKey: metadata.templateKey } : {}),
+    ...(metadata.slideTemplates !== undefined ? { slideTemplates: metadata.slideTemplates } : {}),
     summary: metadata.summary || "",
     allowedEmails: emails,
     passcode: metadata.passcode || "1611",
     sectionPasscodes: metadata.sectionPasscodes || {},
+    sectionTemplates: metadata.sectionTemplates || {},
     unlocked: Boolean(metadata.unlocked),
     ...(metadata.unlockedEmails && metadata.unlockedEmails.length > 0 ? { unlockedEmails: metadata.unlockedEmails } : {}),
     folderGroupId: metadata.folderGroupId || "",
@@ -262,7 +280,7 @@ export async function getCoursesAndSectionsData() {
       id: String(course.id),
       slug: String(course.slug),
       title: String(course.title),
-      description: metadata.summary || null,
+      description: metadata.summary,
       language_label: course.language_label ?? "vi_en",
       status: course.status,
       passcode: code,
@@ -311,7 +329,7 @@ export async function getCoursesAndSectionsData() {
 /**
  * Updates a course's metadata JSON in courses.description.
  */
-async function updateCourseMetadata(courseId: string, updater: (current: CourseMetadata) => CourseMetadata) {
+export async function updateCourseMetadata(courseId: string, updater: (current: CourseMetadata) => CourseMetadata) {
   const supabase = getSupabaseAdmin();
   const { data: course, error: readError } = await supabase
     .from("courses")
@@ -454,6 +472,17 @@ export async function generateNewCoursePasscode(courseId: string): Promise<strin
 /**
  * Backward compatibility: set section passcode (now updates folder passcode as well).
  */
+export async function setSectionTemplate(courseId: string, sectionKeys: string[], enabled: boolean) {
+  return updateCourseMetadata(courseId, (current) => {
+    const sectionTemplates = { ...current.sectionTemplates };
+    for (const key of sectionKeys) {
+      if (enabled) sectionTemplates[key] = "eiu-business-v1";
+      else delete sectionTemplates[key];
+    }
+    return { ...current, sectionTemplates };
+  });
+}
+
 export async function setSectionPasscode(courseId: string, sectionKey: string, code: string) {
   return setCoursePasscode(courseId, code);
 }
@@ -636,7 +665,9 @@ export async function setAllCoursesUnlocked(unlocked: boolean) {
 export async function verifyCoursePasscode(courseId: string, code: string): Promise<boolean> {
   const { courses } = await getCoursesAndSectionsData();
   const course = courses.find((c) => c.id === courseId);
-  if (!course) return false;
+  if (!course || course.metadata.hidden) return false;
+  const { folderGroups } = await getCoursesAndSectionsData();
+  if (folderGroups.some(group => group.id === course.folderGroupId && group.hidden)) return false;
   if (course.unlocked || course.metadata.unlocked) return true;
 
   const trimmed = code.trim();
@@ -678,7 +709,7 @@ async function saveFolderGroups(groups: CourseFolderGroup[]) {
 /**
  * Create a new Parent Folder (Folder Lớn).
  */
-export async function createFolderGroup(name: string, description?: string): Promise<CourseFolderGroup> {
+export async function createFolderGroup(name: string, description?: string, createdBy?: string): Promise<CourseFolderGroup> {
   const trimmed = name.trim();
   if (!trimmed) throw new Error("Folder name cannot be empty");
 
@@ -689,6 +720,7 @@ export async function createFolderGroup(name: string, description?: string): Pro
     name: trimmed,
     description: description?.trim() || undefined,
     order: folderGroups.length + 1,
+    ...(createdBy ? { createdBy } : {}),
   };
 
   const updatedGroups = [...folderGroups, newGroup];
@@ -936,4 +968,22 @@ export async function recordUserUnlockedCourse(
   } catch (err) {
     console.warn("Notice: course metadata unlockedEmails update skipped:", err);
   }
+}
+
+export async function getSlideTemplates(): Promise<SlideTemplate[]> {
+  const { data, error } = await getSupabaseAdmin().from("courses").select("description").eq("slug", APPLIED_AGENTIC_AI_SLUG).maybeSingle();
+  if (error) throw error;
+  return parseCourseMetadata(data?.description).slideTemplates ?? DEFAULT_SLIDE_TEMPLATES;
+}
+
+export async function saveSlideTemplates(templates: SlideTemplate[]) {
+  const { data, error } = await getSupabaseAdmin().from("courses").select("id").eq("slug", APPLIED_AGENTIC_AI_SLUG).single();
+  if (error) throw error;
+  await updateCourseMetadata(data.id, current => ({ ...current, slideTemplates: templates }));
+}
+
+export async function setFolderGroupHidden(id: string, hidden: boolean) {
+  const { folderGroups } = await getCoursesAndSectionsData();
+  if (!folderGroups.some(group => group.id === id)) throw new Error("Folder not found.");
+  await saveFolderGroups(folderGroups.map(group => group.id === id ? { ...group, hidden } : group));
 }

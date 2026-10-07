@@ -18,6 +18,9 @@ export type CourseAccess = {
   folderGroupName?: string;
   folderOrder?: number;
   systemIcons?: CourseSystemIcon[];
+  sectionTemplates?: Record<string, string>;
+  templateKey?: string;
+  hidden?: boolean;
 };
 
 export type SectionAccess = {

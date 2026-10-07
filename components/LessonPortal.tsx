@@ -24,6 +24,7 @@ type CourseFolderSection = {
   title: string;
   position: number;
   contentType: "builtin" | "pdf" | "tsx" | "pptx";
+  templateKey?: string;
   sourceFilename: string | null;
   slideCount: number | null;
 };
@@ -223,21 +224,25 @@ export default function LessonPortal({
   courseFolders,
   initialSection,
   initialProfile,
+  initialCourseId,
+  initialSectionId,
 }: {
   isAdmin: boolean;
   isTeacher?: boolean;
   courseFolders: CourseFolder[];
   initialSection: SectionId | null;
   initialProfile: LearnerProfile | null;
+  initialCourseId?: string;
+  initialSectionId?: string;
 }) {
   const appliedCourseId = courseFolders.find(
     (course) => course.slug === APPLIED_AGENTIC_AI_SLUG,
   )?.id ?? null;
   const [selectedCourseId, setSelectedCourseId] = useState<string | null>(
-    initialSection ? appliedCourseId : null,
+    initialCourseId ?? (initialSection ? appliedCourseId : null),
   );
   const [adminSection, setAdminSection] = useState<SectionId | null>(initialSection);
-  const [activeUploadedSection, setActiveUploadedSection] = useState<CourseFolderSection | null>(null);
+  const [activeUploadedSection, setActiveUploadedSection] = useState<CourseFolderSection | null>(() => initialSection ? null : courseFolders.find(course => course.id === initialCourseId)?.sections.find(item => item.id === initialSectionId && ["pdf", "tsx", "pptx"].includes(item.contentType)) ?? null);
   const [showTerminate, setShowTerminate] = useState(false);
   const [terminateStatus, setTerminateStatus] =
     useState<TerminateStatus>("idle");
@@ -888,7 +893,7 @@ export default function LessonPortal({
                               </div>
 
                               <em className={styles.courseDesc}>
-                                {course.description || "Interactive content and learning resources."}
+                                {course.description ?? ""}
                               </em>
 
                               <div className={styles.folderBadgesRow}>
@@ -1048,7 +1053,7 @@ export default function LessonPortal({
 
               <h2 className={styles.modalCourseTitle}>{passcodeModalCourse.title}</h2>
               <p className={styles.modalCourseSummary}>
-                {passcodeModalCourse.description || "Enter the passcode provided by your instructor to access this course."}
+                {passcodeModalCourse.description ?? ""}
               </p>
 
               <form onSubmit={handleUnlockCourseSubmit} className={styles.passcodeFormWrapper}>
@@ -1171,7 +1176,7 @@ export default function LessonPortal({
           <div className={styles.heading}>
             <span>{selectedCourse.title.toUpperCase()}</span>
             <h1>Choose what you want to learn</h1>
-            <p>{selectedCourse.description || "Choose a section to open it in the shared presentation frame."}</p>
+            {selectedCourse.description && <p>{selectedCourse.description}</p>}
             {reportStatus === "error" && reportNotice && (
               <p className={styles.reportError} role="alert">{reportNotice}</p>
             )}
@@ -1492,8 +1497,9 @@ export default function LessonPortal({
       >
         {activeUploadedSection ? (
           <UploadedSectionDeck
-            key={`${activeUploadedSection.id}-${deckSessionKey}`}
+            key={`${activeUploadedSection.id}-${activeUploadedSection.templateKey ?? ""}-${deckSessionKey}`}
             sectionId={activeUploadedSection.id}
+            templateKey={activeUploadedSection.templateKey}
             contentType={activeUploadedSection.contentType === "pptx" ? "pptx" : activeUploadedSection.contentType === "pdf" ? "pdf" : "tsx"}
             slideCount={activeUploadedSection.slideCount}
             courseTitle={selectedCourse.title}

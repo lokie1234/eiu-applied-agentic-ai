@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PptxViewer, SlideHandle } from "@aiden0z/pptx-renderer";
 import SharedDeckFrame from "./SharedDeckFrame";
+import EiuTemplateFrame from "./EiuTemplateFrame";
 import styles from "./UploadedSectionDeck.module.css";
 import { fitPptxTables } from "@/lib/pptxTableLayout";
 
@@ -50,8 +51,8 @@ function PreviewSlide({ viewer, page, width }: { viewer: PptxViewer; page: numbe
   );
 }
 
-export default function PptxSectionDeck({ sectionId, courseTitle, sectionTitle }: {
-  sectionId: string; courseTitle: string; sectionTitle: string;
+export default function PptxSectionDeck({ sectionId, courseTitle, sectionTitle, useTemplate = false, templateImage }: {
+  sectionId: string; courseTitle: string; sectionTitle: string; useTemplate?: boolean; templateImage?: string;
 }) {
   const [viewer, setViewer] = useState<PptxViewer | null>(null);
   const [error, setError] = useState("");
@@ -85,10 +86,10 @@ export default function PptxSectionDeck({ sectionId, courseTitle, sectionTitle }
   return (
     <div className={styles.pptxPreviewShell}>
       <SharedDeckFrame courseTitle={courseTitle} sectionTitle={sectionTitle} totalSlides={viewer?.slideCount || 1}
-        aspectRatio={viewer ? viewer.slideWidth / viewer.slideHeight : 16 / 9}
+        aspectRatio={useTemplate ? 16 / 9 : viewer ? viewer.slideWidth / viewer.slideHeight : 16 / 9}
         frameClassName={styles.frame} transitionClassName={styles.slide}
         renderSlide={(page, width) => viewer
-          ? <PreviewSlide viewer={viewer} page={page} width={width} />
+          ? useTemplate ? <EiuTemplateFrame page={page} background={templateImage}><PreviewSlide viewer={viewer} page={page} width={Math.min(width * .888, width * 9 / 16 * .774 * viewer.slideWidth / viewer.slideHeight)} /></EiuTemplateFrame> : <PreviewSlide viewer={viewer} page={page} width={width} />
           : <div className={styles.message} role={error ? "alert" : "status"}>{error || "Loading presentation preview…"}</div>} />
     </div>
   );

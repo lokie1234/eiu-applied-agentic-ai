@@ -4,8 +4,9 @@ import { requireAdminAccess } from "@/lib/auth/currentUser";
 
 export const metadata = { title: "EIU · Course Access Administration" };
 
-export default async function AdminAccessPage() {
+export default async function AdminAccessPage({ searchParams }: { searchParams: Promise<{ tab?: string }> }) {
   const admin = await requireAdminAccess();
   if (!admin) redirect("/");
-  return <AdminAccessPortal adminEmail={admin.email} />;
+  const query = await searchParams;
+  return <AdminAccessPortal adminEmail={admin.email} initialTab={query.tab === "layouts" ? "layouts" : undefined} />;
 }
