@@ -208,3 +208,6 @@
 @keyframes spinLoader {
   to { transform: rotate(360deg); }
 }
+
+.googleLogin { display:flex; align-items:center; justify-content:center; min-height:48px; padding:10px 16px; border:1px solid #B39159; border-radius:12px; background:#FBFAF7; color:#082945; font-size:14px; font-weight:700; text-decoration:none; }
+.googleLogin:focus-visible { outline:3px solid #E9CA8B; outline-offset:3px; }

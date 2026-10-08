@@ -1,88 +1,54 @@
 "use client";
-
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./page.module.css";
-
-type Folder = { type: string; id: string; name: string; available: boolean };
-let loading: Promise<void> | null = null;
-
+type Destination = { id: string; label: string; folder_id: string };
+let pickerLoading: Promise<void> | null = null;
 function loadPicker() {
   if (typeof google !== "undefined" && google.picker) return Promise.resolve();
-  if (loading) return loading;
-  loading = new Promise<void>((resolve, reject) => {
-    const initialize = () => gapi.load("picker", { callback: resolve, onerror: () => reject(new Error("Không tải được Google Picker.")), timeout: 15000, ontimeout: () => reject(new Error("Google Picker tải quá lâu. Thử lại.")) });
-    if (typeof gapi !== "undefined") { initialize(); return; }
-    const script = document.createElement("script");
-    script.src = "https://apis.google.com/js/api.js";
-    script.async = true;
-    const timer = window.setTimeout(() => { script.remove(); reject(new Error("Không tải được Google API. Kiểm tra kết nối mạng.")); }, 15000);
-    script.onload = () => { clearTimeout(timer); initialize(); };
-    script.onerror = () => { clearTimeout(timer); script.remove(); reject(new Error("Không tải được Google API.")); };
-    document.head.appendChild(script);
-  }).catch(error => { loading = null; throw error; });
-  return loading;
+  if (!pickerLoading) pickerLoading = new Promise<void>((resolve, reject) => {
+    const init = () => gapi.load("picker", { callback: resolve, onerror: () => reject(new Error("Unable to load Google Picker.")), timeout: 15000, ontimeout: () => reject(new Error("Google Picker timed out.")) });
+    if (typeof gapi !== "undefined") return init();
+    const script = document.createElement("script"); script.src = "https://apis.google.com/js/api.js"; script.async = true;
+    script.onload = init; script.onerror = () => reject(new Error("Unable to load Google Picker.")); document.head.appendChild(script);
+  }).catch(error => { pickerLoading = null; throw error; });
+  return pickerLoading;
 }
-
-async function pickerRequest(payload: object) {
-  const response = await fetch("/api/admin/drive/picker", {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload), cache: "no-store",
-  });
-  const result = await response.json();
-  if (!response.ok) throw new Error(result.message || "Không thể truy cập Drive.");
-  return result;
-}
-
-export default function FolderPicker({ initialFolders, configured }: { initialFolders: Folder[]; configured: boolean }) {
-  const [folders, setFolders] = useState(initialFolders);
-  const [busy, setBusy] = useState("");
-  const [message, setMessage] = useState("");
-  const activePicker = useRef<google.picker.Picker | null>(null);
-  const mounted = useRef(true);
-  useEffect(() => {
-    mounted.current = true;
-    return () => { mounted.current = false; activePicker.current?.dispose(); };
-  }, []);
-
-  async function choose(folder: Folder) {
-    setBusy(folder.type); setMessage("");
+export default function FolderPicker({ configured }: { configured: boolean }) {
+  const [destinations, setDestinations] = useState<Destination[]>([]);
+  const [id, setId] = useState(""); const [label, setLabel] = useState(""); const [link, setLink] = useState("");
+  const [busy, setBusy] = useState(false); const [message, setMessage] = useState("");
+  useEffect(() => { void fetch("/api/admin/drive/destinations", { cache: "no-store" }).then(async response => { const data = await response.json(); if (!response.ok) throw new Error(data.message); setDestinations(data.destinations); }).catch(error => setMessage(error.message)); }, []);
+  async function save(action = "save", target = id) {
+    setBusy(true); setMessage("");
+    try {
+      const response = await fetch("/api/admin/drive/destinations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action, id: target || undefined, label, link }) });
+      const data = await response.json(); if (!response.ok) throw new Error(data.message);
+      setDestinations(data.destinations); setId(""); setLabel(""); setLink(""); setMessage(action === "delete" ? "Destination removed. Files in Drive are unchanged." : "Drive destination saved.");
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to save folder."); }
+    finally { setBusy(false); }
+  }
+  async function browse() {
+    setBusy(true); setMessage("");
     try {
       await loadPicker();
-      const credentials = await pickerRequest({ action: "open", type: folder.type }) as { accessToken: string; apiKey: string; appId: string; folderId: string };
-      if (!mounted.current) return;
-      const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS)
-        .setIncludeFolders(true).setSelectFolderEnabled(true).setMimeTypes("application/vnd.google-apps.folder");
-      activePicker.current?.dispose();
-      const picker = new google.picker.PickerBuilder().addView(view)
-        .setOAuthToken(credentials.accessToken).setDeveloperKey(credentials.apiKey).setAppId(credentials.appId)
-        .setOrigin(window.location.origin).setTitle(`Chọn folder ${folder.type.toUpperCase()} đã cung cấp`)
-        .setCallback(data => {
-          if (data.action === google.picker.Action.CANCEL) { if (mounted.current) setBusy(""); return; }
-          if (data.action !== google.picker.Action.PICKED) return;
-          const selectedId = data.docs?.[0]?.id;
-          void pickerRequest({ action: "verify", type: folder.type, folderId: selectedId }).then(result => {
-            if (!mounted.current) return;
-            setFolders(current => current.map(item => item.type === folder.type ? result.folder : item));
-            setMessage(`Đã xác minh quyền lưu file ${folder.type.toUpperCase()} vào ${result.folder.name}.`);
-          }).catch(error => { if (mounted.current) setMessage(error instanceof Error ? error.message : "Không xác minh được folder."); })
-            .finally(() => { if (mounted.current) setBusy(""); });
-        }).build();
-      activePicker.current = picker;
-      picker.setVisible(true);
-      // The short-lived access token is held in memory only, never persisted.
-    } catch (error) {
-      if (mounted.current) { setMessage(error instanceof Error ? error.message : "Không mở được Google Picker."); setBusy(""); }
-    }
+      const response = await fetch("/api/admin/drive/picker", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "browse" }) });
+      const data = await response.json(); if (!response.ok) throw new Error(data.message);
+      const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS).setIncludeFolders(true).setSelectFolderEnabled(true).setMimeTypes("application/vnd.google-apps.folder");
+      const picker = new google.picker.PickerBuilder().addView(view).setOAuthToken(data.accessToken).setDeveloperKey(data.apiKey).setAppId(data.appId).setOrigin(window.location.origin).setTitle("Choose a Drive destination").setCallback(result => {
+        if (result.action === google.picker.Action.PICKED) { const folder = result.docs?.[0]; if (folder) { setLink("https://drive.google.com/drive/folders/" + folder.id); setLabel(current => current || folder.name || "Drive folder"); } }
+        if (result.action === google.picker.Action.PICKED || result.action === google.picker.Action.CANCEL) { setBusy(false); picker.dispose(); }
+      }).build(); picker.setVisible(true);
+    } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to open Drive."); setBusy(false); }
   }
-
   return <>
-    {!configured && <p className={styles.notice}>Bật Google Picker API và thêm API key vào cấu hình local để chọn folder.</p>}
-    <div className={styles.folders}>{folders.map(folder => <div key={folder.type}>
-      <strong>{folder.type.toUpperCase()}</strong>
-      <span>{folder.available ? folder.name : "Chọn folder đã cung cấp để cấp quyền"}<small className={styles.folderId}>ID: {folder.id}</small></span>
-      <button className={styles.folderButton} type="button" disabled={!configured || !!busy} onClick={() => void choose(folder)}>{busy === folder.type ? "Đang xác minh…" : folder.available ? "Chọn lại" : "Chọn folder"}</button>
-      <b className={styles.folderState}>{folder.available ? "Sẵn sàng" : "Chưa có quyền"}</b>
-    </div>)}</div>
+    <form className={styles.destinationForm} onSubmit={event => { event.preventDefault(); void save(); }}>
+      <label>Display name<input value={label} onChange={event => setLabel(event.target.value)} placeholder="Course materials" maxLength={100} required disabled={busy} /></label>
+      <label>Drive folder link<input value={link} onChange={event => setLink(event.target.value)} placeholder="https://drive.google.com/drive/folders/…" required disabled={busy} /></label>
+      <div className={styles.actions}><button type="button" disabled={busy || !configured} onClick={() => void browse()}>Browse Drive</button><button type="submit" disabled={busy}>{busy ? "Working…" : id ? "Save changes" : "Add destination"}</button>{id && <button type="button" disabled={busy} onClick={() => { setId(""); setLabel(""); setLink(""); }}>Cancel</button>}</div>
+    </form>
+    <p className={styles.note}>Choose a folder with Browse Drive to grant access. You can rename destinations or replace their links at any time.</p>
+    <div className={styles.folders}>{destinations.map(folder => <div key={folder.id}><div><strong>{folder.label}</strong><a href={"https://drive.google.com/drive/folders/" + folder.folder_id} target="_blank" rel="noreferrer">Open folder ↗</a></div><div className={styles.actions}><button type="button" disabled={busy} onClick={() => { setId(folder.id); setLabel(folder.label); setLink("https://drive.google.com/drive/folders/" + folder.folder_id); }}>Edit</button><button type="button" disabled={busy} onClick={() => { if (window.confirm("Remove this destination? Files in Drive will be kept.")) void save("delete", folder.id); }}>Remove</button></div></div>)}</div>
+    {!destinations.length && <p className={styles.note}>Add a destination to make it available in folder and section exports.</p>}
     {message && <p className={styles.notice} role="status">{message}</p>}
-    <p>Chọn đúng ba folder đã gửi. Web kiểm tra quyền thêm file sau mỗi lựa chọn; folder khác sẽ không thay đổi cấu hình đích.</p>
   </>;
 }

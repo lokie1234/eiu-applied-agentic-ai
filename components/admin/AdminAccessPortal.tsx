@@ -10,6 +10,7 @@ import styles from "./AdminAccessPortal.module.css";
 import { createUploadQueue } from "@/lib/uploadQueue";
 import { uploadSectionFile } from "@/lib/uploadSectionFile";
 import SectionBatchUpload from "./SectionBatchUpload";
+import DriveExport from "./DriveExport";
 import SectionSourceLibrary from "./SectionSourceLibrary";
 import CourseSystemIcons from "./CourseSystemIcons";
 import EiuConfirmDialog from "./EiuConfirmDialog";
@@ -1304,7 +1305,6 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
   return (
     <main className={styles.page}>
       <CourseManagerHeader role={role} identity={adminEmail} onSignOut={() => void signOut()} />
-      {isAdmin && <a href="/admin/drive" style={{ color: "#17324a", fontSize: 12, fontWeight: 600, alignSelf: "flex-end", padding: "6px 12px" }}>Google Drive connection →</a>}
 
       {/* EIU Luxury Top Control Row: Segmented Tabs (Left) + Master Access Toolbar (Right) */}
       <div className={styles.topControlRow}>
@@ -1966,6 +1966,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
 
                             {/* Quick Folder Actions (Compact Icons) */}
                             {canEditFolder(group) && (<div className={styles.folderGroupActions} onClick={(e) => e.stopPropagation()}>
+                              {isAdmin && <DriveExport groupId={group.id} label="Save folder to Drive" />}
                               {isAdmin && <VisibilityToggle hidden={Boolean(group.hidden)} label={`folder ${group.name}`} busy={busy.has(`hide-folder:${group.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-folder:${group.id}`)} onToggle={() => void mutate({ action: "set_folder_group_hidden", folderGroupId: group.id, hidden: !group.hidden }, `hide-folder:${group.id}`, "Folder visibility updated.")} />}
                               {childCourses.length > 0 && (
                                 (isAdmin ? <button
@@ -2268,6 +2269,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                             )}
                           </div>
 
+                          {isAdmin && <DriveExport courseId={selectedCourse.id} label="Save course to Drive" />}
                           {/* Instant 1-Click Toggle Passcode Requirement */}
                           {isAdmin && (<button
                             type="button"
@@ -2679,7 +2681,8 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                                   </DraggableScrollArea>
                                 </div>
                                 <div className={styles.sectionItemRight}>
-                                  {editable && <SectionSourceLibrary sectionId={section.id} sectionTitle={section.title} />}
+                                  {isAdmin && <DriveExport sectionId={section.id} />}
+                                  {isAdmin && <SectionSourceLibrary sectionId={section.id} sectionTitle={section.title} />}
                                   <a className={styles.sectionUploadButton} href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}&sectionId=${encodeURIComponent(section.id)}`}>View</a>
                                   {!editable && <span className={styles.compactPillLocked}>Read only</span>}
                                   {section.source_filename && (

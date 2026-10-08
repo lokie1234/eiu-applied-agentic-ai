@@ -24,14 +24,14 @@ const HeroScene = dynamic(() => import("./landing/HeroScene"), {
 type Modal = "access" | null;
 const SAVED_EMAIL_KEY = "eiu_learner_saved_email";
 
-export default function LandingPage() {
+export default function LandingPage({ googleResult }: { googleResult?: string } = {}) {
   // ── Auth & Robot state ──
   const [modal, setModal] = useState<Modal>(null);
   const [email, setEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [teacherPasswordEmail, setTeacherPasswordEmail] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(googleResult && googleResult !== "connected" ? googleResult === "wrong-account" ? "Google sign-in is available only for the administrator account." : "Google sign-in did not complete. Please try again." : "");
   const [robotState, setRobotState] = useState<RobotInteractionState>("idle");
 
   const isAdminEmail = email.trim().toLowerCase() === "son.lam@eiu.edu.vn";
@@ -293,6 +293,7 @@ export default function LandingPage() {
             loading={loading}
             error={error}
             onSubmit={submit}
+            onMethodChange={() => { setError(""); setAdminPassword(""); }}
             onInputFocus={() => {
               setIsCtaHovered(true);
               setRobotState((prev) => (prev === "loading" || prev === "processing" || prev === "restricted" ? prev : "lookingAtAccess"));

@@ -1,12 +1,13 @@
 import { createHash } from "node:crypto";
 import JSZip from "jszip";
 import { NextResponse } from "next/server";
-import { canManageSection } from "@/lib/auth/currentUser";
+import { requireAdminAccess } from "@/lib/auth/currentUser";
 import { getCoursesAndSectionsData } from "@/lib/auth/courseAccessStorage";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { authorizedDriveClient } from "@/lib/drive/connection";
+import { selectedDestination, verifyDriveFolder } from "@/lib/drive/destinations";
 import { saveDriveOriginal } from "@/lib/drive/sourceUpload";
-import { describeSectionSource, sectionSourceType } from "@/lib/sectionSourceFiles";
+import { describeSectionSource, sectionSourceType, driveDocumentName } from "@/lib/sectionSourceFiles";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -16,13 +17,13 @@ const headers = { "Cache-Control": "no-store, private" };
 const json = (data: object, status = 200) => NextResponse.json(data, { status, headers });
 function databaseMessage(error: { code?: string }) {
   return ["42P01", "PGRST205"].includes(error.code ?? "")
-    ? "Chạy migration 202610070001_section_source_files.sql trong Supabase SQL Editor trước khi dùng thư viện nguồn."
-    : "Không thể lưu danh mục file. Thử lại sau.";
+    ? "Apply the section source files migration before using the source library."
+    : "Unable to save the file catalog. Please try again.";
 }
 
 export async function GET(_request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
-  if (!(await canManageSection(id))) return json({ message: "Section management access required." }, 403);
+  if (!(await requireAdminAccess())) return json({ message: "Section management access required." }, 403);
   const { data, error } = await getSupabaseAdmin().from(TABLE).select(FIELDS).eq("section_id", id).order("created_at", { ascending: false }).limit(200);
   if (error) return json({ message: databaseMessage(error) }, 503);
   return json({ sources: data ?? [] });
@@ -30,7 +31,7 @@ export async function GET(_request: Request, context: { params: Promise<{ id: st
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
-  if (!(await canManageSection(id))) return json({ message: "Section management access required." }, 403);
+  if (!(await requireAdminAccess())) return json({ message: "Section management access required." }, 403);
   const db = getSupabaseAdmin();
   let sourceId = "";
   let claimed = false;
@@ -39,17 +40,17 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const file = form.get("file");
     sourceId = String(form.get("sourceId") ?? "");
     if (!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(sourceId)) return json({ message: "Invalid upload ID." }, 400);
-    if (!(file instanceof File) || file.size === 0) return json({ message: "Chọn file PDF, PPTX hoặc TSX." }, 400);
-    if (file.size > 50 * 1024 * 1024) return json({ message: "File tối đa 50 MB." }, 413);
+    if (!(file instanceof File) || file.size === 0) return json({ message: "Choose a PDF, PPTX or TSX file." }, 400);
+    if (file.size > 50 * 1024 * 1024) return json({ message: "The maximum file size is 50 MB." }, 413);
     let type;
-    try { type = sectionSourceType(file.name); } catch { return json({ message: "Chỉ hỗ trợ PDF, PPTX và TSX." }, 400); }
+    try { type = sectionSourceType(file.name); } catch { return json({ message: "Only PDF, PPTX and TSX files are supported." }, 400); }
     const body = new Uint8Array(await file.arrayBuffer());
-    if (type === "pdf" && !Buffer.from(body.subarray(0, 1024)).includes(Buffer.from("%PDF-"))) return json({ message: "File không có định dạng PDF hợp lệ." }, 400);
+    if (type === "pdf" && !Buffer.from(body.subarray(0, 1024)).includes(Buffer.from("%PDF-"))) return json({ message: "This is not a valid PDF file." }, 400);
     if (type === "pptx") {
       try {
         const zip = await JSZip.loadAsync(body);
         if (!zip.file("[Content_Types].xml") || !zip.file("ppt/presentation.xml") || !zip.file(/^ppt\/slides\/slide\d+\.xml$/).length) throw new Error("Invalid PPTX.");
-      } catch { return json({ message: "File không có định dạng PPTX hợp lệ." }, 400); }
+      } catch { return json({ message: "This is not a valid PPTX file." }, 400); }
     }
     // TSX is archived as original bytes here; execution validation happens at publish.
     const sha256 = createHash("sha256").update(body).digest("hex");
@@ -59,6 +60,11 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (!section || !course) return json({ message: "Section not found." }, 404);
     const folder = catalog.folderGroups.find(item => item.id === course.folderGroupId);
     const exported = describeSectionSource({ folderName: folder?.name ?? course.folderGroupName, courseTitle: course.title, sectionTitle: section.title, originalFilename: file.name, sourceId, uploadedAt: new Date() });
+    const client = await authorizedDriveClient();
+    const destination = await selectedDestination(String(form.get("destinationId") ?? ""));
+    await verifyDriveFolder(client, destination.folder_id);
+    exported.driveFolderId = destination.folder_id;
+    exported.name = driveDocumentName(String(form.get("name") ?? ""), exported.name, type);
     // Confirm DB availability before making any external file write.
     const existing = await db.from(TABLE).select("id,section_id,sha256,status,exported_filename,drive_folder_id,updated_at").eq("id", sourceId).maybeSingle();
     if (existing.error) return json({ message: databaseMessage(existing.error) }, 503);
@@ -69,13 +75,12 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       const claim = await db.from(TABLE).update({ status: "uploading", updated_at: new Date().toISOString() }).eq("id", sourceId)
         .or(`status.eq.failed,and(status.eq.uploading,updated_at.lt.${cutoff})`).select("id").maybeSingle();
       if (claim.error) return json({ message: databaseMessage(claim.error) }, 503);
-      if (!claim.data) return json({ message: "File đang được lưu. Đợi vài phút rồi tải lại danh sách trước khi thử lại." }, 409);
+      if (!claim.data) return json({ message: "This file is being saved. Refresh the list before retrying." }, 409);
     } else {
       const insert = await db.from(TABLE).insert({ id: sourceId, section_id: id, original_filename: file.name, exported_filename: exported.name, file_type: type, byte_size: file.size, sha256, drive_folder_id: exported.driveFolderId });
       if (insert.error) return json({ message: databaseMessage(insert.error) }, 503);
     }
     claimed = true;
-    const client = await authorizedDriveClient();
     const driveId = await saveDriveOriginal(client, {
       sourceId, sectionId: id, folderId: existing.data?.drive_folder_id ?? exported.driveFolderId,
       name: existing.data?.exported_filename ?? exported.name, sha256, body,
@@ -86,6 +91,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     return json({ success: true });
   } catch {
     if (claimed) await db.from(TABLE).update({ status: "failed", updated_at: new Date().toISOString() }).eq("id", sourceId);
-    return json({ message: "Chưa lưu xong file vào Drive và danh mục. Thử lại cùng file; bản bài học đang dạy được giữ nguyên." }, 502);
+    return json({ message: "Unable to save this source. Retry the same file; the published lesson is unchanged." }, 502);
   }
 }

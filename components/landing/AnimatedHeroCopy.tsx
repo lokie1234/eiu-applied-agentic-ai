@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import btnStyles from "./AccessButton.module.css";
+import SignInCard from "./SignInCard";
 
 interface AnimatedHeroCopyProps {
   stage: number;
@@ -17,6 +17,7 @@ interface AnimatedHeroCopyProps {
   onInputFocus?: () => void;
   onInputBlur?: () => void;
   onInputChange?: () => void;
+  onMethodChange?: () => void;
   onCtaHover: (hovered: boolean) => void;
 }
 
@@ -64,6 +65,7 @@ export default function AnimatedHeroCopy({
   onInputFocus,
   onInputBlur,
   onInputChange,
+  onMethodChange,
   onCtaHover,
 }: AnimatedHeroCopyProps) {
   const prefersReduced = useReducedMotion();
@@ -215,218 +217,17 @@ export default function AnimatedHeroCopy({
         Turn ideas into intelligent, automated workflows
       </motion.p>
 
-      {/* ── EIU DNA INLINE LOGIN CARD (Replaces CTA button directly) ── */}
       <motion.div
-        initial={{ opacity: 0, y: 16, scale: 0.98 }}
-        animate={
-          showCta || prefersReduced
-            ? { opacity: 1, y: 0, scale: 1 }
-            : {}
-        }
-        transition={{
-          duration: 0.42,
-          ease: [0.22, 1, 0.36, 1],
-        }}
+        initial={{ opacity: 0, y: 16 }}
+        animate={showCta || prefersReduced ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
         onMouseEnter={() => onCtaHover(true)}
         onMouseLeave={() => onCtaHover(false)}
-        style={{
-          marginTop: 26,
-          width: "100%",
-          maxWidth: 460,
-          background:
-            "linear-gradient(145deg, rgba(8, 41, 69, 0.82) 0%, rgba(4, 28, 49, 0.94) 100%)",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          border: "1px solid rgba(233, 202, 139, 0.35)",
-          borderRadius: 22,
-          padding: "20px 22px",
-          boxShadow:
-            "0 20px 48px rgba(0, 0, 0, 0.52), 0 0 35px rgba(233, 202, 139, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.14)",
-          position: "relative",
-          overflow: "hidden",
-        }}
+        style={{ marginTop: 26, width: "100%", maxWidth: 460 }}
       >
-        {/* Ambient gold corner accent light */}
-        <div
-          style={{
-            position: "absolute",
-            top: -24,
-            right: -24,
-            width: 100,
-            height: 100,
-            borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(233, 202, 139, 0.22) 0%, transparent 70%)",
-            pointerEvents: "none",
-          }}
-        />
-
-        {/* Login Form */}
-        <form onSubmit={onSubmit} style={{ display: "flex", flexDirection: "column", gap: 13 }}>
-          {/* Email Address */}
-          <div>
-            <label
-              htmlFor="hero-email-input"
-              style={{
-                display: "block",
-                marginBottom: 5,
-                color: "#F4DFB0",
-                fontSize: 10,
-                fontWeight: 800,
-                letterSpacing: "0.09em",
-                textTransform: "uppercase",
-              }}
-            >
-              Email Address
-            </label>
-            <input
-              id="hero-email-input"
-              type="email"
-              value={email}
-              onChange={(e) => {
-                setEmail(e.target.value);
-                onInputChange?.();
-              }}
-              onFocus={onInputFocus}
-              onBlur={onInputBlur}
-              placeholder="name@gmail.com or student@eiu.edu.vn"
-              autoCapitalize="none"
-              autoCorrect="off"
-              spellCheck="false"
-              autoComplete="email"
-              required
-              style={{
-                width: "100%",
-                height: 48,
-                padding: "0 16px",
-                background: "rgba(3, 20, 34, 0.75)",
-                border: "1px solid rgba(233, 202, 139, 0.28)",
-                borderRadius: 12,
-                color: "#FFFFFF",
-                fontSize: 14,
-                fontWeight: 600,
-                outline: "none",
-                boxSizing: "border-box",
-                transition: "border-color 0.2s, box-shadow 0.2s",
-              }}
-            />
-          </div>
-
-          {/* Staff Password */}
-          {requiresPassword && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              transition={{ duration: 0.24 }}
-            >
-              <label
-                htmlFor="hero-admin-pass-input"
-                style={{
-                  display: "block",
-                  marginBottom: 5,
-                  color: "#F4DFB0",
-                  fontSize: 10,
-                  fontWeight: 800,
-                  letterSpacing: "0.09em",
-                  textTransform: "uppercase",
-                }}
-              >
-                {isAdminEmail ? "Administrator Password" : "Teacher Password"}
-              </label>
-              <input
-                id="hero-admin-pass-input"
-                type="password"
-                value={adminPassword}
-                onChange={(e) => {
-                  setAdminPassword?.(e.target.value);
-                  onInputChange?.();
-                }}
-                onFocus={onInputFocus}
-                onBlur={onInputBlur}
-                placeholder={isAdminEmail ? "Enter administrator password" : "Enter teacher password"}
-                autoComplete="current-password"
-                autoFocus
-                required
-                style={{
-                  width: "100%",
-                  height: 48,
-                  padding: "0 16px",
-                  background: "rgba(3, 20, 34, 0.75)",
-                  border: "1px solid rgba(233, 202, 139, 0.28)",
-                  borderRadius: 12,
-                  color: "#FFFFFF",
-                  fontSize: 14,
-                  fontWeight: 600,
-                  outline: "none",
-                  boxSizing: "border-box",
-                }}
-              />
-            </motion.div>
-          )}
-
-          {/* Error Notice */}
-          {error && (
-            <div
-              role="alert"
-              style={{
-                padding: "8px 14px",
-                borderRadius: 9,
-                background: "rgba(166, 47, 55, 0.25)",
-                border: "1px solid rgba(248, 113, 113, 0.45)",
-                color: "#FCA5A5",
-                fontSize: 12,
-                lineHeight: 1.4,
-              }}
-            >
-              {error}
-            </div>
-          )}
-
-          {/* Submit Action: Access Courses with Dynamic System Running Animations */}
-          <button
-            id="landing-access-button"
-            type="submit"
-            disabled={loading || !email.trim() || Boolean(requiresPassword && !adminPassword.length)}
-            className={`${btnStyles.btn} ${loading ? btnStyles.btnRunning : ""} ${
-              !email.trim() || (requiresPassword && !adminPassword.length) ? btnStyles.btnDisabled : ""
-            }`}
-            onMouseEnter={() => onCtaHover(true)}
-            onMouseLeave={() => onCtaHover(false)}
-          >
-            {/* Ambient Shimmer Beam on Idle, Rapid Laser Beam when System Running */}
-            {loading ? (
-              <span className={btnStyles.runningLaserBeam} aria-hidden="true" />
-            ) : (
-              <span className={btnStyles.shimmerBeam} aria-hidden="true" />
-            )}
-
-            {/* Bottom Real-time Data Stream Line when Running */}
-            {loading && <span className={btnStyles.dataStreamLine} aria-hidden="true" />}
-
-            {/* Action Label & Status Indicators */}
-            <div className={btnStyles.labelWrap}>
-              {loading && <span className={btnStyles.runningDotPulse} aria-hidden="true" />}
-              <span className={btnStyles.labelText}>
-                {loading ? "Accessing Courses" : "Access Courses"}
-              </span>
-              {loading && (
-                <span className={btnStyles.runningDots} aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                </span>
-              )}
-            </div>
-
-            {/* Right Badge Icon: Arrow on idle, High-tech orbital spinner when Running */}
-            <div className={btnStyles.badgeIcon} aria-hidden="true">
-              {loading ? (
-                <span className={btnStyles.badgeSpinner} />
-              ) : (
-                <span>→</span>
-              )}
-            </div>
-          </button>
-        </form>
+        <SignInCard email={email} setEmail={setEmail} adminPassword={adminPassword} setAdminPassword={setAdminPassword}
+          isAdminEmail={isAdminEmail} requiresPassword={requiresPassword} loading={loading} error={error} onSubmit={onSubmit}
+          onInputFocus={onInputFocus} onInputBlur={onInputBlur} onInputChange={onInputChange} onMethodChange={onMethodChange} />
       </motion.div>
     </div>
   );

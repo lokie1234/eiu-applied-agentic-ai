@@ -273,3 +273,16 @@ test("TSX still compiles and downloads as JavaScript, inline", async () => {
   assert.match(downloaded.headers.get("content-disposition"), /^inline;/);
   assert.match(await downloaded.text(), /h\("div", null, "Interactive slide"\)/);
 });
+
+test("TSX original is preserved separately and rollback cleans both uploaded files", async () => {
+  const original = "// Keep original source\nexport default [<div>Original</div>];";
+  const api = handlers();
+  assert.equal((await api.upload(original, "original.tsx")).status, 200);
+  assert.equal(api.state.stored.get(api.state.section.original_content_path).toString(), original);
+  assert.notEqual(api.state.section.content_path, api.state.section.original_content_path);
+  const previousOriginal = api.state.section.original_content_path;
+  api.state.updateError = { message: "metadata failure" };
+  assert.equal((await api.upload(original, "replacement.tsx")).status, 500);
+  assert.equal(api.state.stored.size, 2);
+  assert.equal(api.state.stored.get(previousOriginal).toString(), original);
+});

@@ -25,14 +25,16 @@ test("routes all original types into the supplied folders and preserves TSX", ()
     const file = exports.describeSectionSource({ ...input, originalFilename: `Bài gốc.${type.toUpperCase()}` });
     assert.equal(file.driveFolderId, id);
     assert.ok(file.name.endsWith(`.${type}`));
-    assert.ok(file.name.includes("Chương trình AI — Agentic AI — Section 1 Tổng quan — Bài gốc"));
+    assert.ok(file.name.includes("Chương trình AI — Agentic AI — Section 1 Tổng quan"));
   }
 });
 
-test("distinct source IDs avoid collisions while retries produce the same name", () => {
+test("readable names omit timestamps and IDs while preserving safe labels", () => {
   const first = exports.describeSectionSource(input).name;
   assert.equal(exports.describeSectionSource(input).name, first);
-  assert.notEqual(exports.describeSectionSource({ ...input, sourceId: "source-87654321" }).name, first);
+  assert.equal(exports.describeSectionSource({ ...input, sourceId: "source-87654321" }).name, first);
+  assert.ok(!first.includes(input.sourceId));
+  assert.equal(exports.driveDocumentName("My slides.pdf", first, "pptx"), "My slides.pptx");
   const sanitized = exports.describeSectionSource({ ...input, folderName: "Folder/child\\name\n" }).name;
   assert.ok(!/[\/\\\n]/.test(sanitized));
 });

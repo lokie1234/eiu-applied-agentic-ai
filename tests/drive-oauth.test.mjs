@@ -8,11 +8,11 @@ import ts from "typescript";
 const require = createRequire(import.meta.url);
 
 function fixture(overrides = {}) {
-  const state = { exchanges: 0, saves: [], admin: true, identity: "son.lam@eiu.edu.vn", ...overrides };
+  const state = { exchanges: 0, saves: [], admin: true, identity: "son.lam@eiu.edu.vn", sessions: [], ...overrides };
   const sessionHash = createHash("sha256").update("admin-session").digest("hex");
   const values = new Map([
     ["session", "admin-session"],
-    ["oauth", JSON.stringify({ state: "expected-state", verifier: "pkce-verifier", sessionHash })],
+    ["oauth", JSON.stringify({ state: "expected-state", verifier: "pkce-verifier", sessionHash, mode: state.mode })],
   ]);
   const code = ts.transpileModule(fs.readFileSync("app/api/admin/drive/callback/route.ts", "utf8"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
@@ -20,14 +20,16 @@ function fixture(overrides = {}) {
   const exports = {};
   const dependencies = {
     "next/server": { NextResponse: { json: (data, options) => ({ data, status: options.status }), redirect: url => ({ url: url.toString() }) } },
-    "next/headers": { cookies: async () => ({ get: key => values.has(key) ? { value: values.get(key) } : undefined, delete: ({ name }) => values.delete(name) }) },
+    "next/headers": { cookies: async () => ({ get: key => values.has(key) ? { value: values.get(key) } : undefined, delete: ({ name }) => values.delete(name), set: (key, value) => { values.set(key, value); state.sessions.push(value); } }) },
     "@/lib/auth/currentUser": { requireAdminAccess: async () => state.admin ? {} : null },
-    "@/lib/auth/session": { ACCESS_SESSION_COOKIE: "session" },
+    "@/lib/auth/session": { ACCESS_SESSION_COOKIE: "session", createAccessSession: payload => JSON.stringify(payload), sessionCookieOptions: () => ({}) },
+    "@/lib/auth/adminPassword": { getAdminCredential: async () => ({ session_version: 7 }) },
+    "@/lib/auth/types": { FIXED_ADMIN_EMAIL: "son.lam@eiu.edu.vn" },
     "@/lib/drive/connection": {
       DRIVE_STATE_COOKIE: "oauth", driveConfig: () => ({ redirectUri: "http://localhost:3000/api/admin/drive/callback", accountEmail: "son.lam@eiu.edu.vn", clientId: "client" }),
       driveClient: () => ({
         getToken: async options => { state.exchanges++; assert.equal(options.codeVerifier, "pkce-verifier"); return { tokens: { id_token: "identity", refresh_token: "private-token", scope: state.scope ?? "https://www.googleapis.com/auth/drive.file" } }; },
-        verifyIdToken: async () => ({ getPayload: () => ({ email: state.identity, email_verified: true }) }),
+        verifyIdToken: async () => ({ getPayload: () => ({ email: state.identity, email_verified: state.verified ?? true }) }),
       }),
       saveDriveToken: async (...args) => state.saves.push(args),
     },
@@ -68,4 +70,19 @@ test("only verified configured account with Drive scope can replace saved creden
   assert.match(response.url, /result=connected/);
   assert.ok(!response.url.includes("private-token"));
   assert.equal(success.state.saves.length, 1);
+});
+
+test("Google landing login creates only an admin session and shares Drive authorization", async () => {
+  const success = fixture({ admin: false, mode: "login" });
+  const response = await success.get();
+  assert.match(response.url, /admin\/access/);
+  assert.equal(success.state.saves.length, 1);
+  assert.equal(JSON.parse(success.values.get("session")).role, "admin");
+  assert.equal(JSON.parse(success.values.get("session")).sessionVersion, 7);
+  for (const options of [{ identity: "teacher@example.com" }, { verified: false }]) {
+    const denied = fixture({ admin: false, mode: "login", ...options });
+    assert.match((await denied.get()).url, /result=wrong-account/);
+    assert.equal(denied.state.saves.length, 0);
+    assert.equal(denied.state.sessions.length, 0);
+  }
 });

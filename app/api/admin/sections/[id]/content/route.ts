@@ -80,7 +80,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const supabase = getSupabaseAdmin();
     const { data: section, error: readError } = await supabase
       .from("course_sections")
-      .select("id, course_id, section_key, content_path")
+      .select("id, course_id, section_key, content_path, original_content_path")
       .eq("id", id)
       .maybeSingle();
     if (readError) throw readError;
@@ -137,17 +137,24 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     });
     if (uploadError) throw uploadError;
 
+    let originalPath: string | null = null;
+    if (extension === "tsx") {
+      originalPath = section.course_id + "/" + section.id + "/" + Date.now() + "-original-" + safeFilename(file.name);
+      const original = await supabase.storage.from(BUCKET).upload(originalPath, new Uint8Array(await file.arrayBuffer()), { contentType: "text/plain", upsert: false });
+      if (original.error) { await supabase.storage.from(BUCKET).remove([path]); throw original.error; }
+    }
     const rawSlideCount = Number(formData.get("slideCount"));
     const slideCount = pptxSlideCount ?? (Number.isInteger(rawSlideCount) && rawSlideCount > 0 ? rawSlideCount : null);
     const { error: updateError } = await supabase.from("course_sections").update({
       content_type: contentType,
       content_path: path,
+      original_content_path: originalPath,
       source_filename: file.name,
       slide_count: slideCount,
       updated_at: new Date().toISOString(),
     }).eq("id", id);
     if (updateError) {
-      await supabase.storage.from(BUCKET).remove([path]);
+      await supabase.storage.from(BUCKET).remove(originalPath ? [path, originalPath] : [path]);
       throw updateError;
     }
     if (section.content_path && section.content_path !== path) {
@@ -160,6 +167,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
           console.error("Previous section content cleanup error:", error);
         }
       });
+    }
+    if (section.original_content_path && section.original_content_path !== originalPath) {
+      const previousOriginal = String(section.original_content_path);
+      after(async () => { await supabase.storage.from(BUCKET).remove([previousOriginal]); });
     }
     return NextResponse.json({ success: true, contentType, contentPath: path, sourceFilename: file.name, slideCount });
   } catch (error) {

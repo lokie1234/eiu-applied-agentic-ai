@@ -9,11 +9,12 @@ import { DRIVE_SCOPES, DRIVE_STATE_COOKIE, driveClient, driveConfig, assertDrive
 export const runtime = "nodejs";
 
 export async function GET(request: Request) {
-  if (!(await requireAdminAccess())) return NextResponse.json({ message: "Admin access required." }, { status: 403 });
+  const mode = new URL(request.url).searchParams.get("mode") === "login" ? "login" : "connect";
+  if (mode !== "login" && !(await requireAdminAccess())) return NextResponse.json({ message: "Admin access required." }, { status: 403 });
   try {
     const config = driveConfig();
     if (new URL(request.url).origin !== new URL(config.redirectUri).origin) {
-      return NextResponse.json({ message: "GOOGLE_DRIVE_REDIRECT_URI phải cùng domain với trang đang mở. Local dùng localhost, Vercel dùng domain deploy." }, { status: 503 });
+      return NextResponse.json({ message: "The Google callback must use the same domain as this page." }, { status: 503 });
     }
     await assertDriveTokenStorage();
     const client = driveClient();
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
     const state = randomBytes(32).toString("base64url");
     const pkce = await client.generateCodeVerifierAsync();
     const sessionHash = createHash("sha256").update(store.get(ACCESS_SESSION_COOKIE)?.value ?? "").digest("hex");
-    store.set(DRIVE_STATE_COOKIE, JSON.stringify({ state, verifier: pkce.codeVerifier, sessionHash }), {
+    store.set(DRIVE_STATE_COOKIE, JSON.stringify({ state, verifier: pkce.codeVerifier, sessionHash, mode }), {
       httpOnly: true, secure: new URL(config.redirectUri).protocol === "https:", sameSite: "lax", path: "/api/admin/drive", maxAge: 600,
     });
     const url = client.generateAuthUrl({
@@ -31,6 +32,6 @@ export async function GET(request: Request) {
     });
     return NextResponse.redirect(url);
   } catch {
-    return NextResponse.json({ message: "Không thể bắt đầu kết nối Drive. Kiểm tra cấu hình OAuth, PASSCODE_SESSION_SECRET, Supabase và migration google_drive_connections." }, { status: 503 });
+    return NextResponse.json({ message: "Unable to connect Google. Check OAuth configuration and Drive token storage." }, { status: 503 });
   }
 }

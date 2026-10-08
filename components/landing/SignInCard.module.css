@@ -1,0 +1,23 @@
+.card { width:100%; max-width:460px; padding:26px; box-sizing:border-box; border:1px solid #dfd6c5; border-radius:22px; background:#FBFAF7; color:#17324A; box-shadow:0 16px 44px #041c3126; pointer-events:auto; }
+.topline { display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:28px; margin-bottom:12px; }
+.eyebrow { color:#9D7944; font-size:11px; font-weight:800; letter-spacing:.13em; }
+.card h2 { margin:0 0 8px; color:#082945; font-size:26px; font-weight:750; line-height:1.2; letter-spacing:-.035em; }
+.intro { margin:0 0 22px; font-size:14px; line-height:1.6; color:#687987; }
+.back { display:flex; align-items:center; gap:6px; padding:6px 0 6px 8px; border:0; background:transparent; color:#18547F; font:inherit; font-size:13px; font-weight:650; cursor:pointer; }
+.choices { display:grid; gap:12px; }
+.choice { display:flex; align-items:center; gap:14px; width:100%; padding:17px 16px; border:1px solid #ddd7cd; border-radius:14px; background:#fff; color:#17324A; text-align:left; font:inherit; cursor:pointer; transition:border-color .18s,background .18s,transform .18s; }
+.choice:hover:not(:disabled) { border-color:#B39159; background:#F7F4ED; transform:translateY(-1px); }
+.choiceIcon { display:grid; place-items:center; width:40px; height:40px; flex-shrink:0; border:1px solid #e9e4db; border-radius:12px; background:#FBFAF7; color:#123F68; }
+.choiceIcon svg { width:23px; height:23px; }
+.choice strong { display:block; font-size:16px; font-weight:700; }.choice small { display:block; margin-top:5px; font-size:12px; line-height:1.4; color:#687987; }.arrow { margin-left:auto; color:#9D7944; font-size:19px; }
+.form { display:grid; gap:16px; }.form label { display:grid; gap:8px; font-size:14px; font-weight:650; color:#17324A; }
+.form input { width:100%; box-sizing:border-box; min-height:48px; padding:12px 14px; border:1px solid #d7d0c5; border-radius:11px; background:#fff; color:#17324A; font:inherit; font-size:14px; font-weight:400; }.form input::placeholder { color:#83919b; }
+.primary { display:flex; align-items:center; justify-content:center; gap:12px; min-height:48px; padding:12px 18px; border:1px solid #082945; border-radius:12px; background:#082945; color:#fff; font:inherit; font-size:14px; font-weight:700; cursor:pointer; transition:background .18s; }.primary:hover:not(:disabled) { background:#123F68; }.primary>span:last-child:not(.spinner) { margin-left:auto; }
+.card button:disabled,.form input:disabled { opacity:.55; cursor:default; }.card :is(a,button,input):focus-visible { outline:3px solid #B39159; outline-offset:3px; }
+.googlePanel { display:grid; gap:18px; }.accountNote { display:flex; align-items:center; gap:13px; padding:16px; border:1px solid #e8e0d3; border-radius:14px; background:#F7F4ED; }.accountMark { display:grid; place-items:center; width:40px; height:40px; flex-shrink:0; border-radius:50%; background:#fff; }.accountNote strong { font-size:14px; }.accountNote p { margin:5px 0 0; color:#687987; font-size:12px; line-height:1.5; }
+.googleLogo { width:20px; height:20px; flex-shrink:0; }.googleButton { display:flex; align-items:center; justify-content:center; gap:12px; min-height:48px; box-sizing:border-box; padding:12px 16px; border:1px solid #747775; border-radius:12px; background:#fff; color:#1f1f1f; font-size:14px; font-weight:600; text-decoration:none; transition:background .18s,box-shadow .18s; }.googleButton:hover { background:#f2f4f7; box-shadow:0 2px 8px #041c310a; }.googleButton[aria-disabled=true] { opacity:.55; }.googleNote { margin:0; color:#687987; text-align:center; font-size:12px; line-height:1.5; }
+.error { padding:12px 14px; margin:16px 0 0; border:1px solid #edcec8; border-radius:10px; background:#fff0eb; color:#963b30; font-size:14px; line-height:1.5; }
+.footer { display:flex; align-items:center; justify-content:center; gap:7px; padding-top:18px; margin-top:22px; border-top:1px solid #e8e0d3; font-size:11px; line-height:1.5; color:#687987; }.footer svg { width:14px; height:14px; flex-shrink:0; }
+.spinner { width:16px; height:16px; border:2px solid #ffffff50; border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }@keyframes spin { to { transform:rotate(360deg); } }
+@media(max-width:480px) { .card { padding:22px 20px; }.card h2 { font-size:24px; }.choice { padding:15px 12px; gap:12px; }.footer { font-size:10px; } }
+@media(prefers-reduced-motion:reduce) { .choice,.primary,.googleButton { transition:none; }.choice:hover:not(:disabled) { transform:none; }.spinner { animation:none; } }

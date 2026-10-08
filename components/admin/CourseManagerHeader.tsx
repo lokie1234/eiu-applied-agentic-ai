@@ -21,6 +21,7 @@ export default function CourseManagerHeader({
       <nav className={styles.headerNav} aria-label="Workspace navigation">
         <Link href="/learn">Learning Space</Link>
         <Link href="/change-password">Change password</Link>
+        {isAdmin && <Link href="/admin/drive">Google Drive</Link>}
         {isAdmin && <Link href="/admin/ai">✦ AI Knowledge</Link>}
         <button type="button" onClick={onSignOut}>Sign out</button>
       </nav>

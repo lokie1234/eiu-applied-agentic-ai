@@ -15,12 +15,12 @@ export function sectionSourceType(filename: string): SectionSourceType {
   return extension;
 }
 
-function label(value: string, fallback: string) {
+function label(value: string, fallback: string, limit = 70) {
   // Preserve Vietnamese accents and remove path/control characters from labels.
   const normalized = value.normalize("NFC")
     .replace(/[\u0000-\u001f\u007f/\\:*?"<>|]/g, " ")
     .replace(/\s+/g, " ").trim();
-  return Array.from(normalized || fallback).slice(0, 70).join("");
+  return Array.from(normalized || fallback).slice(0, limit).join("");
 }
 
 export function describeSectionSource(input: {
@@ -33,17 +33,17 @@ export function describeSectionSource(input: {
 }) {
   const type = sectionSourceType(input.originalFilename);
   if (!Number.isFinite(input.uploadedAt.getTime())) throw new Error("Invalid upload time.");
-  // A source UUID is allocated before upload and reused for retries. Distinct
-  // sources must not overwrite each other when filenames/timestamps match.
+  // Retry identity is stored in Drive appProperties, separate from the readable filename.
   if (!/^[a-zA-Z0-9_-]{8,80}$/.test(input.sourceId)) throw new Error("Invalid source ID.");
-  const timestamp = input.uploadedAt.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
-  const originalStem = input.originalFilename.replace(/\.[^.]+$/, "");
   const name = [
     label(input.folderName, "Unassigned folder"),
     label(input.courseTitle, "Untitled course"),
     label(input.sectionTitle, "Untitled section"),
-    label(originalStem, "Source"),
-    `${timestamp}-${input.sourceId}`,
   ].join(" — ") + `.${type}`;
-  return { type, driveFolderId: SECTION_SOURCE_DESTINATIONS[type], name };
+  return { type, driveFolderId: SECTION_SOURCE_DESTINATIONS[type] as string, name };
+}
+
+export function driveDocumentName(value: string, defaultName: string, type: SectionSourceType) {
+  const stem = value.trim() ? value.trim().replace(/\.(pdf|pptx|tsx)$/i, "") : defaultName.replace(/\.(pdf|pptx|tsx)$/i, "");
+  return label(stem, "Document", 150) + `.${type}`;
 }

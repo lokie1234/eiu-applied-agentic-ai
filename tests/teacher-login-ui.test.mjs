@@ -8,7 +8,7 @@ import ts from "typescript";
 import React, { act } from "react";
 
 const require = createRequire(import.meta.url);
-test("landing teacher login reveals the password, submits it, and clears it when the email changes", async () => {
+test("landing sign-in chooser supports Google, Back navigation, and teacher password validation", async () => {
   const window = new Window({ url: "http://localhost" });
   for (const name of ["window", "document", "HTMLElement", "HTMLInputElement", "Event", "MouseEvent", "navigator", "localStorage"])
     Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
@@ -30,12 +30,14 @@ test("landing teacher login reveals the password, submits it, and clears it when
     const exports = {};
     const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;
     vm.runInNewContext(code, { exports, fetch, window, document: window.document, localStorage: window.localStorage,
+      requestAnimationFrame: callback => { timers.push(callback); return timers.length; },
       setTimeout: callback => { timers.push(callback); return timers.length; }, clearTimeout() {}, console,
       require: name => dependencies[name] ?? (name.endsWith(".css") ? {} : name === "motion/react" ? { motion, AnimatePresence: ({ children }) => children, useReducedMotion: () => true } : require(name)),
     });
     return exports.default;
   }
-  const Hero = load("components/landing/AnimatedHeroCopy.tsx");
+  const SignInCard = load("components/landing/SignInCard.tsx");
+  const Hero = load("components/landing/AnimatedHeroCopy.tsx", { "./SignInCard": SignInCard });
   const Landing = load("components/LandingPage.tsx", {
     "next/image": () => null, "next/dynamic": () => () => null,
     "./landing/AnimatedHeroCopy": Hero, "./landing/EntranceBootOverlay": () => null, "./EiuAgentBot": () => null,
@@ -53,10 +55,22 @@ test("landing teacher login reveals the password, submits it, and clears it when
   try {
     await act(async () => root.render(React.createElement(Landing)));
     assert.equal(container.querySelector('input[type="password"]'), null);
+    assert.equal(container.querySelector("form"), null);
+    const choose = async name => act(async () => [...container.querySelectorAll("button")].find(button => button.textContent.startsWith(name)).click());
+    await choose("Google");
+    assert.equal(container.querySelector("form"), null);
+    const google = container.querySelector('a[href="/api/admin/drive/connect?mode=login"]');
+    assert.ok(google); assert.ok(google.querySelector("svg"));
+    assert.match(container.textContent, /authorized administrator Google account/);
+    await act(async () => container.querySelector('[aria-label="Back to sign-in options"]').click());
+    assert.equal(container.querySelector("form"), null);
+    await choose("Username");
+    assert.ok(container.querySelector("#hero-email-input"));
+    assert.equal(container.querySelector('a[href*="mode=login"]'), null);
     await input("#hero-email-input", "teacher@example.test");
     await submit();
     assert.equal(calls.length, 1); assert.equal(calls[0].adminPassword, "");
-    assert.match(container.textContent, /Teacher Password/);
+    assert.match(container.textContent, /Teacher password/i);
     assert.ok(container.querySelector('input[type="password"]'));
     assert.equal(container.querySelector("#landing-access-button").disabled, true);
     assert.equal(container.querySelector('[role="alert"]'), null);
@@ -70,7 +84,12 @@ test("landing teacher login reveals the password, submits it, and clears it when
     assert.equal(container.querySelector('input[type="password"]'), null);
     await submit(); assert.equal(calls[2].adminPassword, "");
     await input("#hero-email-input", "son.lam@eiu.edu.vn");
-    assert.match(container.textContent, /Administrator Password/);
+    assert.match(container.textContent, /Administrator password/i);
+    assert.equal(container.querySelector('input[type="password"]').value, "");
+    await input('input[type="password"]', "temporary-password");
+    await act(async () => container.querySelector('[aria-label="Back to sign-in options"]').click());
+    assert.equal(container.querySelector("form"), null);
+    await choose("Username");
     assert.equal(container.querySelector('input[type="password"]').value, "");
   } finally {
     await act(async () => root.unmount()); await window.happyDOM.abort();

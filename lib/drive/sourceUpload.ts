@@ -9,7 +9,7 @@ export async function saveDriveOriginal(client: OAuth2Client, input: {
   if (!/^[a-f0-9-]{36}$/i.test(input.sourceId)) throw new Error("Invalid source ID.");
   const existing = await client.request<{ files: { id: string; appProperties?: Record<string, string> }[] }>({
     url: "https://www.googleapis.com/drive/v3/files", timeout: 10000,
-    params: { q: `trashed = false and appProperties has { key='eiuSourceId' and value='${input.sourceId}' }`, fields: "files(id,appProperties)", pageSize: 10 },
+    params: { q: `'${input.folderId}' in parents and trashed = false and appProperties has { key='eiuSourceId' and value='${input.sourceId}' }`, fields: "files(id,appProperties)", pageSize: 10 },
   });
   const recovered = existing.data.files.find(file => file.appProperties?.eiuSha256 === input.sha256 && file.appProperties?.eiuSectionId === input.sectionId);
   if (recovered) return recovered.id;

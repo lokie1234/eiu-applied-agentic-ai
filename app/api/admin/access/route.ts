@@ -409,9 +409,9 @@ export async function POST(request: Request) {
       }
       const { data: courseSectionFiles } = await supabase
         .from("course_sections")
-        .select("content_path")
+        .select("content_path,original_content_path")
         .eq("course_id", courseId);
-      await removeSectionFiles((courseSectionFiles ?? []).map((item) => item.content_path));
+      await removeSectionFiles((courseSectionFiles ?? []).flatMap((item) => [item.content_path, item.original_content_path]));
       // Delete associated sections first
       await supabase.from("course_sections").delete().eq("course_id", courseId);
       try {
@@ -444,9 +444,9 @@ export async function POST(request: Request) {
       const validCourseIds = validCourses.map((c) => c.id);
       const { data: batchSectionFiles } = await supabase
         .from("course_sections")
-        .select("content_path")
+        .select("content_path,original_content_path")
         .in("course_id", validCourseIds);
-      await removeSectionFiles((batchSectionFiles ?? []).map((item) => item.content_path));
+      await removeSectionFiles((batchSectionFiles ?? []).flatMap((item) => [item.content_path, item.original_content_path]));
       await supabase.from("course_sections").delete().in("course_id", validCourseIds);
       try {
         await supabase.from("course_passcodes").delete().in("course_id", validCourseIds);
@@ -551,7 +551,7 @@ export async function POST(request: Request) {
       const sectionId = String(body.sectionId ?? "");
       const { data: section, error: readError } = await supabase
         .from("course_sections")
-        .select("id, section_key, course_id, content_path")
+        .select("id, section_key, course_id, content_path, original_content_path")
         .eq("id", sectionId)
         .maybeSingle();
       if (readError) throw readError;
@@ -585,7 +585,7 @@ export async function POST(request: Request) {
         } catch {}
       }
 
-      await removeSectionFiles([section.content_path]);
+      await removeSectionFiles([section.content_path, section.original_content_path]);
       const { error } = await supabase.from("course_sections").delete().eq("id", sectionId);
       if (error) throw error;
     } else if (action === "delete_sections") {
@@ -597,7 +597,7 @@ export async function POST(request: Request) {
       }
       const { data: secs, error: readError } = await supabase
         .from("course_sections")
-        .select("id, section_key, course_id, content_path")
+        .select("id, section_key, course_id, content_path, original_content_path")
         .in("id", sectionIds);
       if (readError) throw readError;
 
@@ -649,7 +649,7 @@ export async function POST(request: Request) {
         }
       }
 
-      await removeSectionFiles(validSecs.map((section) => section.content_path));
+      await removeSectionFiles(validSecs.flatMap((section) => [section.content_path, section.original_content_path]));
       const { error } = await supabase.from("course_sections").delete().in("id", validIds);
       if (error) throw error;
     } else {

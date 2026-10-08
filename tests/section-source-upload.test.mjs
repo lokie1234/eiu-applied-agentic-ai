@@ -26,10 +26,11 @@ function fixture(options = {}) {
   const naming = load("lib/sectionSourceFiles.ts", {});
   const route = load("app/api/admin/sections/[id]/sources/route.ts", {
     "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200 }) } },
-    "@/lib/auth/currentUser": { canManageSection: async () => state.allowed },
+    "@/lib/auth/currentUser": { requireAdminAccess: async () => state.allowed },
     "@/lib/auth/courseAccessStorage": { getCoursesAndSectionsData: async () => ({ sections: [{ id: "section", course_id: "course", title: "Section 1" }], courses: [{ id: "course", title: "Course", folderGroupId: "folder" }], folderGroups: [{ id: "folder", name: "Folder" }] }) },
     "@/lib/supabase/server": { getSupabaseAdmin: () => db },
     "@/lib/drive/connection": { authorizedDriveClient: async () => ({}) },
+    "@/lib/drive/destinations": { selectedDestination: async () => ({ folder_id: "chosen-drive-folder" }), verifyDriveFolder: async () => "Chosen folder" },
     "@/lib/drive/sourceUpload": { saveDriveOriginal: async (_client, input) => { state.originals.push(input); if (state.uploadFailure) throw new Error("Provider failure"); return "drive-id"; } },
     "@/lib/sectionSourceFiles": naming,
   });
@@ -55,7 +56,7 @@ test("source library keeps exact TSX bytes and writes only catalog metadata", as
   assert.equal((await f.post("Bài học.tsx", original)).status, 200);
   assert.equal(Buffer.from(f.state.originals[0].body).toString("utf8"), original);
   assert.ok(f.state.originals[0].name.endsWith(".tsx"));
-  assert.equal(f.state.originals[0].folderId, "1J0Kudr8xTczKjujXDZ3ek7Aq2pvEz1Ir");
+  assert.equal(f.state.originals[0].folderId, "chosen-drive-folder");
   assert.equal(f.state.writes.at(-1).status, "ready");
   assert.equal(f.state.writes.at(-1).drive_file_id, "drive-id");
 });
