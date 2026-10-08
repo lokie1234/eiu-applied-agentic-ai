@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { requireAdminAccess } from "@/lib/auth/currentUser";
 import { ACCESS_SESSION_COOKIE } from "@/lib/auth/session";
-import { DRIVE_STATE_COOKIE, driveClient, driveConfig, saveLocalDriveToken } from "@/lib/drive/connection";
+import { DRIVE_STATE_COOKIE, driveClient, driveConfig, saveDriveToken } from "@/lib/drive/connection";
 
 export const runtime = "nodejs";
 function equal(a: string, b: string) {
@@ -38,7 +38,7 @@ export async function GET(request: Request) {
     if (!(tokens.scope ?? "").split(" ").includes("https://www.googleapis.com/auth/drive.file")) {
       result = "missing-scope"; throw new Error("Drive access not granted.");
     }
-    await saveLocalDriveToken(config.accountEmail, tokens.refresh_token);
+    await saveDriveToken(config.accountEmail, tokens.refresh_token);
     result = "connected";
   } catch {
     // Do not log provider errors: they can contain OAuth codes or credentials.

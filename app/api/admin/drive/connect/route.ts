@@ -4,15 +4,18 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { requireAdminAccess } from "@/lib/auth/currentUser";
 import { ACCESS_SESSION_COOKIE } from "@/lib/auth/session";
-import { DRIVE_SCOPES, DRIVE_STATE_COOKIE, driveClient, driveConfig } from "@/lib/drive/connection";
+import { DRIVE_SCOPES, DRIVE_STATE_COOKIE, driveClient, driveConfig, assertDriveTokenStorage } from "@/lib/drive/connection";
 
 export const runtime = "nodejs";
 
-export async function GET() {
+export async function GET(request: Request) {
   if (!(await requireAdminAccess())) return NextResponse.json({ message: "Admin access required." }, { status: 403 });
   try {
-    if (process.env.NODE_ENV === "production") return NextResponse.json({ message: "Connect from local development; production token persistence is not configured yet." }, { status: 503 });
     const config = driveConfig();
+    if (new URL(request.url).origin !== new URL(config.redirectUri).origin) {
+      return NextResponse.json({ message: "GOOGLE_DRIVE_REDIRECT_URI phải cùng domain với trang đang mở. Local dùng localhost, Vercel dùng domain deploy." }, { status: 503 });
+    }
+    await assertDriveTokenStorage();
     const client = driveClient();
     const store = await cookies();
     const state = randomBytes(32).toString("base64url");
@@ -28,6 +31,6 @@ export async function GET() {
     });
     return NextResponse.redirect(url);
   } catch {
-    return NextResponse.json({ message: "Unable to start Drive connection. Check server OAuth configuration." }, { status: 503 });
+    return NextResponse.json({ message: "Không thể bắt đầu kết nối Drive. Kiểm tra cấu hình OAuth, PASSCODE_SESSION_SECRET, Supabase và migration google_drive_connections." }, { status: 503 });
   }
 }

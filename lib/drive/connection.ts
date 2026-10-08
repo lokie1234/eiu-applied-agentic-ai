@@ -3,6 +3,7 @@ import { OAuth2Client } from "google-auth-library";
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { SECTION_SOURCE_DESTINATIONS } from "@/lib/sectionSourceFiles";
 
 const TOKEN_PATH = path.join(process.cwd(), ".local", "google-drive.enc");
@@ -35,32 +36,57 @@ function encryptionKey() {
   return createHash("sha256").update(`eiu-drive-token:${secret}`).digest();
 }
 
-export async function storedDriveToken(): Promise<string | null> {
-  const configured = process.env.GOOGLE_DRIVE_REFRESH_TOKEN?.trim();
-  if (configured) return configured;
-  // Filesystem persistence is intentionally only supported for local development.
-  if (process.env.NODE_ENV === "production") return null;
-  let data: string;
-  try { data = await readFile(TOKEN_PATH, "utf8"); }
-  catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return null; throw error; }
+function decryptDriveToken(data: string): string | null {
   const { iv, tag, body } = JSON.parse(data) as { iv: string; tag: string; body: string };
   const decipher = createDecipheriv("aes-256-gcm", encryptionKey(), Buffer.from(iv, "base64"));
   decipher.setAuthTag(Buffer.from(tag, "base64"));
   const decoded = Buffer.concat([decipher.update(Buffer.from(body, "base64")), decipher.final()]);
   const record = JSON.parse(decoded.toString("utf8")) as { email: string; refreshToken: string };
-  if (record.email !== driveConfig().accountEmail) return null;
-  return record.refreshToken;
+  return record.email === driveConfig().accountEmail ? record.refreshToken : null;
 }
 
-export async function saveLocalDriveToken(email: string, refreshToken: string) {
-  if (process.env.NODE_ENV === "production") throw new Error("Production token persistence is not configured. Connect using local development first.");
+export async function assertDriveTokenStorage() {
+  encryptionKey();
+  if (process.env.NODE_ENV !== "production") return;
+  const { error } = await getSupabaseAdmin().from("google_drive_connections")
+    .select("account_email").eq("account_email", driveConfig().accountEmail).maybeSingle();
+  if (error) throw new Error("Google Drive token storage is unavailable. Apply the Drive connections migration.");
+}
+
+export async function storedDriveToken(): Promise<string | null> {
+  if (process.env.NODE_ENV === "production") {
+    const { data, error } = await getSupabaseAdmin().from("google_drive_connections")
+      .select("encrypted_token").eq("account_email", driveConfig().accountEmail).maybeSingle();
+    if (data) return decryptDriveToken(data.encrypted_token);
+    const configured = process.env.GOOGLE_DRIVE_REFRESH_TOKEN?.trim();
+    if (configured) return configured;
+    if (error) throw new Error("Google Drive token storage is unavailable.");
+    return null;
+  }
+  const configured = process.env.GOOGLE_DRIVE_REFRESH_TOKEN?.trim();
+  if (configured) return configured;
+  let data: string;
+  try { data = await readFile(TOKEN_PATH, "utf8"); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === "ENOENT") return null; throw error; }
+  return decryptDriveToken(data);
+}
+
+export async function saveDriveToken(email: string, refreshToken: string) {
   if (email !== driveConfig().accountEmail) throw new Error("Unexpected Drive account.");
   const iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", encryptionKey(), iv);
   const body = Buffer.concat([cipher.update(JSON.stringify({ email, refreshToken }), "utf8"), cipher.final()]);
+  const encrypted = JSON.stringify({ iv: iv.toString("base64"), tag: cipher.getAuthTag().toString("base64"), body: body.toString("base64") });
+  if (process.env.NODE_ENV === "production") {
+    const { error } = await getSupabaseAdmin().from("google_drive_connections").upsert({
+      account_email: email, encrypted_token: encrypted, updated_at: new Date().toISOString(),
+    }, { onConflict: "account_email" });
+    if (error) throw new Error("Unable to persist Google Drive authorization.");
+    return;
+  }
   await mkdir(path.dirname(TOKEN_PATH), { recursive: true });
-  const temporary = `${TOKEN_PATH}.${randomBytes(8).toString("hex")}.tmp`;
-  await writeFile(temporary, JSON.stringify({ iv: iv.toString("base64"), tag: cipher.getAuthTag().toString("base64"), body: body.toString("base64") }), { mode: 0o600 });
+  const temporary = TOKEN_PATH + "." + randomBytes(8).toString("hex") + ".tmp";
+  await writeFile(temporary, encrypted, { mode: 0o600 });
   await rename(temporary, TOKEN_PATH);
 }
 

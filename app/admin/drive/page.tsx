@@ -33,7 +33,7 @@ export default async function DriveConnectionPage({ searchParams }: { searchPara
       <div className={styles.account}><div><span>Tài khoản lưu trữ</span><strong>{status?.email ?? "son.lam@eiu.edu.vn"}</strong></div><b>{status?.connected ? "Đã kết nối" : "Chưa kết nối"}</b></div>
       <a className={styles.button} href="/api/admin/drive/connect">{status?.connected ? "Kết nối lại Google Drive" : "Connect Google Drive"}</a>
       {status?.connected && <><h2>Folder đích</h2><FolderPicker initialFolders={status.folders} configured={Boolean(process.env.GOOGLE_DRIVE_PICKER_API_KEY?.trim())} /></>}
-      <p className={styles.note}>Trang này hiện phục vụ kết nối local. Chưa thay đổi luồng upload section; bản gốc chưa tự lưu vào Drive.</p>
+      <p className={styles.note}>Kết nối được lưu mã hóa trên server. Local dùng file riêng; bản deploy dùng Supabase.</p>
     </section>
   </main>;
 }

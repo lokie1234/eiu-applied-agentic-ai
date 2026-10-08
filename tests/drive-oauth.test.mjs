@@ -29,7 +29,7 @@ function fixture(overrides = {}) {
         getToken: async options => { state.exchanges++; assert.equal(options.codeVerifier, "pkce-verifier"); return { tokens: { id_token: "identity", refresh_token: "private-token", scope: state.scope ?? "https://www.googleapis.com/auth/drive.file" } }; },
         verifyIdToken: async () => ({ getPayload: () => ({ email: state.identity, email_verified: true }) }),
       }),
-      saveLocalDriveToken: async (...args) => state.saves.push(args),
+      saveDriveToken: async (...args) => state.saves.push(args),
     },
   };
   vm.runInNewContext(code, { exports, URL, Buffer, require: name => dependencies[name] ?? require(name) });
