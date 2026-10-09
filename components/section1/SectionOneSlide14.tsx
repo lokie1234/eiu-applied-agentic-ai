@@ -72,18 +72,18 @@ export default function SectionOneSlide14({ scale = 1 }: Props) {
 
               <div className={styles.item}>
                 <span className={styles.modelGlyph}>⚡</span>
-                <div><b>3.6 Flash</b><small>Fast response</small></div>
+                <div><b>3.5 Flash-Lite</b><small>Fastest answers</small></div>
               </div>
 
               <div className={`${styles.item} ${styles.active}`}>
                 <span className={styles.modelGlyph}>✦</span>
-                <div><b>3.6 Thinking ✓</b><small>Complex problem solving</small></div>
+                <div><b>3.6 Flash ✓</b><small>All-around help</small></div>
                 <label>Recommended</label>
               </div>
 
               <div className={styles.item}>
                 <span className={styles.modelGlyph}>◆</span>
-                <div><b>3.1 Pro</b><small>Advanced AI</small></div>
+                <div><b>3.1 Pro</b><small>Advanced reasoning</small></div>
               </div>
             </div>
           </article>

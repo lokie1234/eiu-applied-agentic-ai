@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { isValidEmail } from "@/lib/auth/types";
 import { type FormEvent, useEffect, useRef, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { motion, AnimatePresence, useReducedMotion } from "motion/react";
@@ -75,7 +76,10 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
 
     const cleanEmail = email.trim();
     const cleanAdminPassword = adminPassword;
-    if (!cleanEmail) return;
+    if (!isValidEmail(cleanEmail)) {
+      setError("Please enter a valid email address.");
+      return;
+    }
 
     const isUserType = cleanEmail.toLowerCase() !== "son.lam@eiu.edu.vn";
     if (requiresPassword && !cleanAdminPassword) return;
@@ -362,7 +366,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
               <span>SECURE ACCESS</span>
               <h2 id="access-title">Sign In</h2>
               <p>{requiresPassword ? `Enter your ${isAdminEmail ? "administrator" : "teacher"} password to sign in.` : "Enter your authorized email to access the courses."}</p>
-              <form onSubmit={submit}>
+              <form noValidate onSubmit={submit}>
                 <div className={styles.inputGroup}>
                   <label htmlFor="login-email">EMAIL ADDRESS</label>
                   <input
@@ -376,7 +380,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
                     spellCheck="false"
                     autoComplete="email"
                     autoFocus
-                    required
+                    aria-required="true"
                   />
                 </div>
 
@@ -391,7 +395,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
                       placeholder={isAdminEmail ? "Enter administrator password" : "Enter teacher password"}
                       autoComplete="current-password"
                       autoFocus
-                      required
+                      aria-required="true"
                     />
                   </div>
                 )}

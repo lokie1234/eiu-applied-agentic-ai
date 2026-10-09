@@ -59,11 +59,12 @@ function DynamicOrbitRing({
     const targetSpd = active ? targetSpeed : 0;
 
     // Smooth ramp-up of opacity and speed from zero
-    mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, delta * 2.2);
-    currentSpeed.current = THREE.MathUtils.lerp(
+    mat.opacity = THREE.MathUtils.damp(mat.opacity, targetOp, 2.2, delta);
+    currentSpeed.current = THREE.MathUtils.damp(
       currentSpeed.current,
       targetSpd,
-      delta * 1.8
+      1.8,
+      delta
     );
 
     currentRot.current += currentSpeed.current * delta;
@@ -115,7 +116,7 @@ function SignalDataPacket({
   useFrame((_, delta) => {
     const isReady = stage >= activationStage;
     const targetOp = isReady ? 0.95 : 0;
-    mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, delta * 3.0);
+    mat.opacity = THREE.MathUtils.damp(mat.opacity, targetOp, 3.0, delta);
 
     if (isReady && dotRef.current) {
       angleRef.current += speed * delta;
@@ -165,7 +166,7 @@ function AcademicDataDust({ stage }: { stage: number }) {
 
   useFrame((_, delta) => {
     const targetOp = stage >= 1 ? 0.42 : 0;
-    mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOp, delta * 1.5);
+    mat.opacity = THREE.MathUtils.damp(mat.opacity, targetOp, 1.5, delta);
     if (pointsRef.current) {
       pointsRef.current.rotation.y += delta * 0.015;
     }

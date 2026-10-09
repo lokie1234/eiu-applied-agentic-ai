@@ -3394,6 +3394,26 @@
   gap: 14px 16px;
 }
 
+.geminiInstructionNote {
+  position: absolute;
+  z-index: 3;
+  left: 52px;
+  right: 52px;
+  bottom: 28px;
+  margin: 0;
+  padding: 15px 20px;
+  border: 1px solid #e9bc61;
+  border-left: 6px solid #c17b12;
+  border-radius: 12px;
+  background: #fff2cd;
+  color: #783f08;
+  box-shadow: 0 6px 18px rgba(167, 137, 88, .16);
+  font-size: 18px;
+  line-height: 1.35;
+  font-weight: 800;
+  text-align: center;
+}
+
 .condensedPromptLead {
   position: relative;
   z-index: 3;
@@ -5025,3 +5045,13 @@
 /* ==========================================================================
    Workshop controls are rendered persistently by the deck, outside the slide frame.
    ========================================================================== */
+
+.coverLogo {
+  position: absolute;
+  z-index: 4;
+  top: 38px;
+  right: 52px;
+  width: 180px;
+  height: 50px;
+  object-fit: contain;
+}

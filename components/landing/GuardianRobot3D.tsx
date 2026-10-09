@@ -283,13 +283,13 @@ const ORBIT_RADIUS_X = 4.40;
 const ORBIT_RADIUS_Y = 2.60;
 const ORBIT_RADIUS_Z = 0.88;
 
-function getMasterOrbitPoint(theta: number): THREE.Vector3 {
+function getMasterOrbitPoint(theta: number, target = new THREE.Vector3()): THREE.Vector3 {
   // Doubled orbit scale to span the available space generously across the page:
   // Semi-major X = 4.40, Semi-minor Y = 2.60, Depth Z = 0.88
   const x = ORBIT_CENTER_X + Math.cos(theta) * ORBIT_RADIUS_X + Math.sin(theta) * 0.24;
   const y = ORBIT_CENTER_Y + Math.sin(theta) * ORBIT_RADIUS_Y - Math.cos(theta) * 0.20;
   const z = Math.sin(theta) * ORBIT_RADIUS_Z + Math.cos(theta) * 0.48;
-  return new THREE.Vector3(x, y, z);
+  return target.set(x, y, z);
 }
 
 // Check whether drop point (x, y) is inside or near the orbit corridor
@@ -344,6 +344,15 @@ function RobotOrbitTrack({
   const coreMatRef = useRef<THREE.MeshStandardMaterial>(null);
   const auraMatRef = useRef<THREE.MeshBasicMaterial>(null);
 
+  const scratch = useMemo(() => ({
+    point: new THREE.Vector3(),
+    gold: new THREE.Color("#E9CA8B"),
+    yellow: new THREE.Color("#FFD600"),
+    warmGold: new THREE.Color("#B39159"),
+    amber: new THREE.Color("#FFB800"),
+    blue: new THREE.Color("#2D7FB4"),
+  }), []);
+
   useFrame(({ clock }, delta) => {
     const t = clock.getElapsedTime();
     const isErr = isErrorRef.current;
@@ -351,22 +360,22 @@ function RobotOrbitTrack({
     // Pulse bead position moving ahead on track
     if (pulseMeshRef.current) {
       const pulseT = (t * 0.14) % 1.0;
-      const pt = curve.getPointAt(pulseT);
+      const pt = curve.getPointAt(pulseT, scratch.point);
       pulseMeshRef.current.position.copy(pt);
     }
 
     // Dynamic track color & glow
     if (coreMatRef.current) {
-      const targetColor = isErr ? "#FFD600" : "#E9CA8B";
-      const targetEmissive = isErr ? "#FFB800" : "#B39159";
-      coreMatRef.current.color.lerp(new THREE.Color(targetColor), delta * 5);
-      coreMatRef.current.emissive.lerp(new THREE.Color(targetEmissive), delta * 5);
+      const targetColor = isErr ? scratch.yellow : scratch.gold;
+      const targetEmissive = isErr ? scratch.amber : scratch.warmGold;
+      coreMatRef.current.color.lerp(targetColor, 1 - Math.exp(-5 * delta));
+      coreMatRef.current.emissive.lerp(targetEmissive, 1 - Math.exp(-5 * delta));
       coreMatRef.current.emissiveIntensity = isErr ? 1.4 : 0.65;
     }
 
     if (auraMatRef.current) {
-      const targetAura = isErr ? "#FFB800" : "#2D7FB4";
-      auraMatRef.current.color.lerp(new THREE.Color(targetAura), delta * 5);
+      const targetAura = isErr ? scratch.amber : scratch.blue;
+      auraMatRef.current.color.lerp(targetAura, 1 - Math.exp(-5 * delta));
       auraMatRef.current.opacity = isErr ? 0.38 : 0.22;
     }
   });
@@ -888,6 +897,21 @@ export default function GuardianRobot3D({
   isCtaHovered = false,
   ctaPulsed = false,
 }: GuardianRobotProps) {
+  const device = useRef({ isMobile: false, isReduced: false });
+  const orbitScratch = useMemo(() => ({ point: new THREE.Vector3(), next: new THREE.Vector3() }), []);
+  useEffect(() => {
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => { device.current = { isMobile: mobile.matches, isReduced: reduced.matches }; };
+    update();
+    mobile.addEventListener("change", update);
+    reduced.addEventListener("change", update);
+    return () => {
+      mobile.removeEventListener("change", update);
+      reduced.removeEventListener("change", update);
+    };
+  }, []);
+
   // Master hierarchy refs
   const rootRef = useRef<THREE.Group>(null);
   const hoverGroupRef = useRef<THREE.Group>(null);
@@ -981,6 +1005,7 @@ export default function GuardianRobot3D({
   // Core Drag Initiation (Callable from 3D hit or global window raycast)
   const startDrag = useCallback(
     (_clientX?: number, _clientY?: number) => {
+      if (isDragging.current) return;
       isDragging.current = true;
       isError.current = false;
       setShowErrorBadge(false);
@@ -1312,8 +1337,7 @@ export default function GuardianRobot3D({
     const t = clock.getElapsedTime();
 
     // Check device / reduced motion constraints
-    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-    const isReduced = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const { isMobile, isReduced } = device.current;
 
     // 1. POINTER INERTIA (Snappy damping for high-response tracking)
     const targetMouseX = isReduced || isMobile ? 0 : mouseRef.current.x;
@@ -1434,8 +1458,8 @@ export default function GuardianRobot3D({
         progressTheta.current -= Math.PI * 2;
       }
 
-      const orbitPos = getMasterOrbitPoint(progressTheta.current);
-      const nextPos = getMasterOrbitPoint(progressTheta.current + 0.04);
+      const orbitPos = getMasterOrbitPoint(progressTheta.current, orbitScratch.point);
+      const nextPos = getMasterOrbitPoint(progressTheta.current + 0.04, orbitScratch.next);
       travelVelX = (nextPos.x - orbitPos.x) / 0.04;
       travelVelY = (nextPos.y - orbitPos.y) / 0.04;
 

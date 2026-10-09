@@ -529,6 +529,7 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
     case 1:
       return (
         <Shell dark motion={1}>
+          <Image className={styles.coverLogo} src="/branding/eiu-logo-uploaded.png" alt="EIU - Eastern International University" width={180} height={50} sizes="180px" />
           <div className={styles.cover}>
             <h1 className={styles.coverTitle}>
               <span className={styles.coverPromptLine}>Từ thiết kế <strong>Prompt</strong></span>
@@ -854,7 +855,7 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
     case 31:
       return <Shell motion={33}><Title>Bước 2 · Cài đặt Gem</Title><div className={styles.gemSetupLayout}><div className={styles.tallScreenshot}><Image src="/section2/gemini-step-002.png" alt="Các trường cài đặt New Gem" fill sizes="420px" /></div><div className={styles.gemSetupCallout}><MiniTitle>GEM SETTINGS</MiniTitle><p>Tiến hành điền và upload các trường dữ liệu cần thiết từ hướng dẫn của Gemini.</p><div><span>01</span><strong>Name</strong></div><div><span>02</span><strong>Instructions</strong></div><div><span>03</span><strong>Knowledge files</strong></div></div></div></Shell>;
     case 32:
-      return <Shell motion={34}><Title>Tiến hành thử nghiệm với 1 prompt rút gọn</Title><p className={styles.condensedPromptLead}>Tạo app để...</p><div className={`${styles.practiceList} ${styles.condensedPromptPractice}`}>{["Đặt xe công tác", "Đặt phòng họp", "Báo cáo sự cố", "Xin nghỉ phép", "Quản lý tài sản", "Đề xuất mua hàng", "Onboarding nhân sự", "Phê duyệt chi phí", "Theo dõi công việc"].map((item,index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</div>)}</div></Shell>;
+      return <Shell motion={34}><Title>Tiến hành thử nghiệm với 1 prompt rút gọn</Title><p className={styles.condensedPromptLead}>Tạo app để...</p><div className={`${styles.practiceList} ${styles.condensedPromptPractice}`}>{["Đặt xe công tác", "Đặt phòng họp", "Báo cáo sự cố", "Xin nghỉ phép", "Quản lý tài sản", "Đề xuất mua hàng", "Onboarding nhân sự", "Phê duyệt chi phí", "Theo dõi công việc"].map((item,index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</div>)}</div><p className={styles.geminiInstructionNote}>Lưu ý: Phải làm theo đúng hướng dẫn mà Gemini đưa ra!</p></Shell>;
     case 33:
       return <Shell motion={35}><Title>Bước 4 - Lưu và chia sẻ</Title><div className={styles.saveFlow}>{[["SAVE","Lưu Gem sau khi kiểm tra"],["SHARE","Chia sẻ Viewer hoặc Editor"],["USE","Mở New Chat và thử yêu cầu mới"]].map(([head,body], index) => <div className={index === 1 ? styles.navyCard : ""} key={head}><strong className={styles.saveFlowLabel}>{head}</strong><p>{body}</p>{index < 2 && <span>→</span>}</div>)}</div></Shell>;
     case 34:

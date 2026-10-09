@@ -479,6 +479,7 @@ function NativeSlides({ page, isFinalState = false, courseTitle = "Applied Agent
       case 1:
         return (
           <Shell className={styles.heroSlide}>
+            <Image className={styles.coverLogo} src="/branding/eiu-logo-uploaded.png" alt="EIU - Eastern International University" width={180} height={50} sizes="180px" />
             <div className={styles.heroCopy}>
               <span className={styles.heroKicker}>EIU · APPLIED AGENTIC AI</span>
               <h1>{courseTitle}<br /><em>for Business</em></h1>
@@ -846,6 +847,10 @@ function NativeSlides({ page, isFinalState = false, courseTitle = "Applied Agent
                   </div>
                   <div className={styles.mergedWarningItem}>
                     <span className={styles.mergedWarningDot}>2</span>
+                    <p><strong>Sao chép code:</strong> Phải chờ Gemini <em>hoàn thành tạo code</em> rồi mới tiến hành sao chép.</p>
+                  </div>
+                  <div className={styles.mergedWarningItem}>
+                    <span className={styles.mergedWarningDot}>3</span>
                     <p><strong>Xóa code cũ:</strong> <em>Xóa sạch toàn bộ nội dung mặc định</em> trong <code>Code.gs</code> và file <code>Index.html</code> ngay khi vừa tạo trước khi dán mã nguồn.</p>
                   </div>
                 </div>
@@ -884,9 +889,9 @@ function NativeSlides({ page, isFinalState = false, courseTitle = "Applied Agent
         );
       case 30:
         return (
-          <Shell title="Vì sao phải Authorize?" eyebrow="GOOGLE PERMISSIONS" className={styles.softMotionSlide}>
+          <Shell title="Vì sao phải Authorize?" eyebrow="GOOGLE PERMISSIONS" className={`${styles.softMotionSlide} ${styles.permissionsSlide}`}>
             <p className={styles.permissionIntro}>Google cần xác nhận ứng dụng được phép:</p>
-            <CenteredTiles items={["Đọc Google Sheets", "Ghi dữ liệu", "Gửi Email", "Truy cập Drive"]} columns={2} />
+            <CenteredTiles items={["Đọc Google Sheets", "Ghi dữ liệu", "Truy cập Drive"]} columns={3} />
           </Shell>
         );
       case 31:

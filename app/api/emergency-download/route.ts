@@ -3,7 +3,6 @@ import path from "node:path";
 
 export const runtime = "nodejs";
 
-const EMERGENCY_CODE = "7878";
 const FILES = {
   config: { source: "GEM_CONFIG.txt", download: "GEM_CONFIG.txt" },
   knowledge: { source: "KNOWLEDGE_ALL.txt", download: "KNOWLEDGE_ALL.txt" },
@@ -12,20 +11,12 @@ const FILES = {
 type FileKey = keyof typeof FILES;
 
 export async function POST(request: Request) {
-  let body: { code?: unknown; file?: unknown };
+  let body: { file?: unknown };
 
   try {
     body = await request.json();
   } catch {
     return Response.json({ error: "Invalid request." }, { status: 400 });
-  }
-
-  if (body.code !== EMERGENCY_CODE) {
-    return Response.json({ error: "Invalid code." }, { status: 401 });
-  }
-
-  if (body.file === undefined) {
-    return Response.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
   }
 
   if (typeof body.file !== "string" || !(body.file in FILES)) {

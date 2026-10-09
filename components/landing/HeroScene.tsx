@@ -1,7 +1,7 @@
 "use client";
 
-import { Suspense, useEffect } from "react";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Suspense, useEffect, useRef, useState } from "react";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import GuardianRobot3D, { type RobotInteractionState } from "./GuardianRobot3D";
@@ -13,6 +13,65 @@ interface HeroSceneProps {
   robotState?: RobotInteractionState;
   isCtaHovered?: boolean;
   ctaPulsed?: boolean;
+}
+
+// Keep the full scene and interactions; reduce only pixel workload on slower GPUs.
+function ScenePerformance({ onDprChange, onRunningChange }: {
+  onDprChange: (dpr: number) => void;
+  onRunningChange: (running: boolean) => void;
+}) {
+  const get = useThree((state) => state.get);
+  const sample = useRef({ elapsed: 0, frames: 0, warmup: 4 });
+
+  useEffect(() => {
+    const { gl, clock, setFrameloop } = get();
+    // The visor keeps its physical glass material with a smaller refraction buffer.
+    const originalScale = gl.transmissionResolutionScale;
+    gl.transmissionResolutionScale = 0.75;
+    let inView = true;
+    let running = true;
+    const syncVisibility = () => {
+      const next = !document.hidden && inView;
+      if (next === running) return;
+      running = next;
+      // Fiber resets the clock on loop changes. Preserve animation phase on resume.
+      const elapsed = clock.elapsedTime;
+      setFrameloop(next ? "always" : "never");
+      clock.elapsedTime = elapsed;
+      onRunningChange(next);
+      sample.current = { elapsed: 0, frames: 0, warmup: 4 };
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      inView = entry.isIntersecting;
+      syncVisibility();
+    });
+    observer.observe(gl.domElement);
+    document.addEventListener("visibilitychange", syncVisibility);
+    syncVisibility();
+    return () => {
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", syncVisibility);
+      gl.transmissionResolutionScale = originalScale;
+    };
+  }, [get, onRunningChange]);
+
+  useFrame((state, delta) => {
+    const measurement = sample.current;
+    if (measurement.warmup > 0) {
+      measurement.warmup -= delta;
+      return;
+    }
+    measurement.elapsed += delta;
+    measurement.frames++;
+    if (measurement.elapsed < 2) return;
+    const fps = measurement.frames / measurement.elapsed;
+    // Sustained slow frames lower DPR gradually, without quality oscillation.
+    if (fps < 48 && state.viewport.dpr > 0.85) {
+      onDprChange(Math.max(0.85, Number((state.viewport.dpr - 0.15).toFixed(2))));
+    }
+    sample.current = { elapsed: 0, frames: 0, warmup: 2 };
+  });
+  return null;
 }
 
 // ─── PROCEDURAL STUDIO LIGHTING ENVIRONMENT (IBL REFLECTIONS) ─────────────────
@@ -73,6 +132,8 @@ function EiuStudioLightingEnvironment() {
       renderTarget.dispose();
       pmremGenerator.dispose();
       panelGeo.dispose();
+      pKey.material.dispose();
+      pRim.material.dispose();
     };
   }, [gl, scene]);
 
@@ -86,9 +147,12 @@ export default function HeroScene({
   isCtaHovered = false,
   ctaPulsed = false,
 }: HeroSceneProps) {
+  const [dpr, setDpr] = useState(1.25);
+  const [running, setRunning] = useState(true);
   return (
     <Canvas
-      dpr={[1, 1.5]}
+      dpr={[0.85, dpr]}
+      frameloop={running ? "always" : "never"}
       shadows={false}
       gl={{
         antialias: true,
@@ -104,6 +168,7 @@ export default function HeroScene({
         pointerEvents: "auto",
       }}
     >
+      <ScenePerformance onDprChange={setDpr} onRunningChange={setRunning} />
       <PerspectiveCamera makeDefault position={[0, 0, 10.5]} fov={50} />
 
       <Suspense fallback={null}>
