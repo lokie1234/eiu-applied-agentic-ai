@@ -8,7 +8,6 @@ export type SignInCardProps = {
   setPasscode: (value: string) => void;
   loading: boolean;
   error?: string;
-  onFreeAccess?: () => void;
   onSubmit: (event: FormEvent) => void;
   onInputFocus?: () => void;
   onInputBlur?: () => void;
@@ -25,7 +24,7 @@ function GoogleLogo() {
   </svg>;
 }
 
-export default function SignInCard({ passcode, setPasscode, loading, error = "", onSubmit, onFreeAccess, onInputFocus, onInputBlur, onInputChange, onMethodChange }: SignInCardProps) {
+export default function SignInCard({ passcode, setPasscode, loading, error = "", onSubmit, onInputFocus, onInputBlur, onInputChange, onMethodChange }: SignInCardProps) {
   const [method, setMethod] = useState<"passcode" | "google" | null>(null);
   const passcodeChoice = useRef<HTMLButtonElement>(null);
   function choose(next: "passcode" | "google" | null) {
@@ -56,7 +55,6 @@ export default function SignInCard({ passcode, setPasscode, loading, error = "",
       <a className={styles.googleButton} href="/api/admin/drive/connect?mode=login" aria-disabled={loading || undefined} onClick={event => { if (loading) event.preventDefault(); }}><GoogleLogo /><span>Continue with Google</span></a>
       <p className={styles.googleNote}>Only the authorized administrator Google account can continue.</p>
     </div>}
-    {onFreeAccess && method !== "google" && <button type="button" className={styles.freeAccess} disabled={loading} onClick={onFreeAccess}>{loading ? "Opening…" : "Browse free courses"}<span aria-hidden="true">→</span></button>}
     {error && <div id="sign-in-error" className={styles.error} role="alert">
       <span className={styles.errorIcon} aria-hidden="true">!</span>
       <div className={styles.errorContent}>

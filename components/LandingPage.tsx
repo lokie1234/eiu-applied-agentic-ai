@@ -33,12 +33,12 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
     setError("");
   }
 
-  async function submit(event?: FormEvent, freeAccess = false) {
-    event?.preventDefault();
+  async function submit(event: FormEvent) {
+    event.preventDefault();
     if (loading) return;
 
     const cleanPasscode = passcode.trim();
-    if (!freeAccess && !/^[A-Za-z0-9-]{4,32}$/.test(cleanPasscode)) {
+    if (!/^[A-Za-z0-9-]{4,32}$/.test(cleanPasscode)) {
       setError("Please enter a valid passcode.");
       return;
     }
@@ -50,7 +50,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
       const response = await fetch("/api/auth/access", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(freeAccess ? { freeAccess: true } : { passcode: cleanPasscode }),
+        body: JSON.stringify({ passcode: cleanPasscode }),
       });
       const payload = (await response.json()) as { success?: boolean; message?: string; destination?: string };
       if (!response.ok || !payload.success) {
@@ -229,7 +229,6 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
             loading={loading}
             error={error}
             onSubmit={submit}
-                  onFreeAccess={() => void submit(undefined, true)}
             onMethodChange={() => { setError(""); setPasscode(""); }}
             onInputFocus={() => {
               setIsCtaHovered(true);

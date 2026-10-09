@@ -9,7 +9,6 @@ interface AnimatedHeroCopyProps {
   setPasscode: (val: string) => void;
   loading: boolean;
   error?: string;
-  onFreeAccess?: () => void;
   onSubmit: (e: React.FormEvent) => void;
   onInputFocus?: () => void;
   onInputBlur?: () => void;
@@ -55,7 +54,6 @@ export default function AnimatedHeroCopy({
   loading,
   error = "",
   onSubmit,
-  onFreeAccess,
   onInputFocus,
   onInputBlur,
   onInputChange,
@@ -221,7 +219,6 @@ export default function AnimatedHeroCopy({
       >
         <SignInCard passcode={passcode} setPasscode={setPasscode}
           loading={loading} error={error} onSubmit={onSubmit}
-          onFreeAccess={onFreeAccess}
           onInputFocus={onInputFocus} onInputBlur={onInputBlur} onInputChange={onInputChange} onMethodChange={onMethodChange} />
       </motion.div>
     </div>
