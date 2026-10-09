@@ -13,6 +13,8 @@ type Props = {
   sectionTitle: string;
   totalSlides: number;
   renderSlide: (pageNumber: number, renderWidth: number) => ReactNode;
+  // Keep resource owners (such as a PDF Document) outside the keyed animation.
+  renderSlideContainer?: (children: ReactNode) => ReactNode;
   frameClassName?: string;
   transitionClassName?: string;
   showWorkshopApps?: boolean;
@@ -25,6 +27,7 @@ export default function SharedDeckFrame({
   sectionTitle,
   totalSlides,
   renderSlide,
+  renderSlideContainer,
   frameClassName = "slide-frame",
   transitionClassName = "section-one-slide-transition",
   showWorkshopApps = false,
@@ -222,7 +225,9 @@ export default function SharedDeckFrame({
           {renderWidth > 0 ? (
             <>
               <div className={frameClassName} style={{ width: renderWidth, aspectRatio: `${aspectRatio}` }}>
-                <div key={pageNumber} className={transitionClassName}>{renderSlide(pageNumber, renderWidth)}</div>
+                {renderSlideContainer
+                  ? renderSlideContainer(<div key={pageNumber} className={transitionClassName}>{renderSlide(pageNumber, renderWidth)}</div>)
+                  : <div key={pageNumber} className={transitionClassName}>{renderSlide(pageNumber, renderWidth)}</div>}
               </div>
               {showWorkshopApps && <WorkshopLaunchButton slideWidth={renderWidth} showDemoApp={showDemoApp} />}
             </>

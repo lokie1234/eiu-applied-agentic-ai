@@ -4,6 +4,7 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getSlideStorage, setSlideStorage, SLIDE_STORAGE_KEYS } from "@/lib/slideStorage";
 import styles from "./ShowcaseSlide.module.css";
+import { useLiveRefresh, cancelledRefresh } from "@/lib/liveRefresh";
 
 type ShowcaseItem = {
   id: string;
@@ -46,10 +47,11 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
     }
   }, [hiddenStorageKey]);
 
-  const loadItems = useCallback(async () => {
+  const readItems = useCallback(async (signal: AbortSignal) => {
     try {
-      const response = await fetch(`/api/showcase?section=${encodeURIComponent(section)}`, { cache: "no-store" });
+      const response = await fetch(`/api/showcase?section=${encodeURIComponent(section)}`, { cache: "no-store", signal });
       const payload = await readJson(response);
+      signal.throwIfAborted();
       if (!response.ok) throw new Error(payload.message || "Không thể tải danh sách.");
       setItems(
         (Array.isArray(payload.items) ? payload.items : [])
@@ -58,12 +60,14 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
       setStatus("idle");
       setMessage("");
     } catch (error) {
+      if (cancelledRefresh(signal)) return;
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Không thể tải danh sách.");
     } finally {
-      setLoading(false);
+      if (!cancelledRefresh(signal)) setLoading(false);
     }
   }, [section]);
+  const loadItems = useLiveRefresh(readItems);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void loadItems(), 0);

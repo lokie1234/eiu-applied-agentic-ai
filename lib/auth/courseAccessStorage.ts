@@ -241,8 +241,8 @@ export function serializeCourseMetadata(metadata: CourseMetadata): string {
 /**
  * Load all courses with parsed metadata, parent folders, and their section passcodes.
  */
-export async function getCoursesAndSectionsData() {
-  const supabase = getSupabaseAdmin();
+export async function getCoursesAndSectionsData(signal?: AbortSignal) {
+  const supabase = getSupabaseAdmin(signal);
   const [coursesResult, sectionsResult] = await Promise.all([
     supabase.from("courses").select("id, slug, title, description, status, language_label").neq("status", "archived").order("title"),
     supabase.from("course_sections").select("id, course_id, section_key, title, position, status, content_type, content_path, source_filename, slide_count").neq("status", "archived").order("position"),
@@ -303,9 +303,10 @@ export async function getCoursesAndSectionsData() {
   });
 
   courses.sort((a, b) => (a.folderOrder || Number.MAX_SAFE_INTEGER) - (b.folderOrder || Number.MAX_SAFE_INTEGER));
+  const coursesById = new Map(courses.map(course => [course.id, course]));
 
   const sections: SectionWithPasscode[] = (sectionsResult.data ?? []).map((section) => {
-    const parentCourse = courses.find((c) => c.id === section.course_id);
+    const parentCourse = coursesById.get(section.course_id);
     const code = parentCourse?.passcode || "";
 
     return {

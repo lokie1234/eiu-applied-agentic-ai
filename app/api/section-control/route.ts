@@ -9,8 +9,8 @@ function validSection(value: string): value is SectionId {
   return value === "section1" || value === "section2";
 }
 
-async function readOrCreateToken(section: SectionId) {
-  const supabase = getSupabaseAdmin();
+async function readOrCreateToken(section: SectionId, signal?: AbortSignal) {
+  const supabase = getSupabaseAdmin(signal);
   const { data, error } = await supabase
     .from("section_state")
     .select("termination_token")
@@ -20,7 +20,7 @@ async function readOrCreateToken(section: SectionId) {
   if (data?.termination_token) return String(data.termination_token);
 
   const token = crypto.randomUUID();
-  const { data: created, error: createError } = await supabase
+  const { data: created, error: createError } = await getSupabaseAdmin()
     .from("section_state")
     .upsert({ section, termination_token: token }, { onConflict: "section" })
     .select("termination_token")
@@ -31,7 +31,7 @@ async function readOrCreateToken(section: SectionId) {
 
 export async function GET(request: Request) {
   try {
-    const role = await currentRole();
+    const role = await currentRole(undefined, request.signal);
     if (!role) {
       return NextResponse.json({ success: false, message: "Phiên đăng nhập đã hết hạn." }, { status: 401 });
     }
@@ -44,7 +44,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ success: false, message: "Không có quyền truy cập Section này." }, { status: 403 });
     }
 
-    const token = await readOrCreateToken(section);
+    const token = await readOrCreateToken(section, request.signal);
     return NextResponse.json(
       { success: true, section, token, terminationToken: token },
       { headers: { "Cache-Control": "no-store, max-age=0" } },

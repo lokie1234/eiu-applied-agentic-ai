@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { currentRole, canFacilitateSection } from "@/lib/currentRole";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { currentUserAccess } from "@/lib/auth/currentUser";
+import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
+import { readQuizProgress } from "@/lib/quizProgress";
 
 type SectionId = "section1" | "section2";
 
@@ -10,29 +13,35 @@ function isSectionId(value: string): value is SectionId {
 
 export async function GET(request: Request) {
   try {
-    const role = await currentRole();
-    const section = new URL(request.url).searchParams.get("section") ?? "";
+    const access = await currentUserAccess(request.signal);
+    const role = await currentRole(access);
+    const params = new URL(request.url).searchParams;
+    const section = params.get("section") ?? "";
 
     if (!isSectionId(section)) {
       return NextResponse.json({ success: false, message: "Section không hợp lệ." }, { status: 400 });
     }
-    const teaching = await canFacilitateSection(section);
+    const teaching = await canFacilitateSection(section, access);
     if (!teaching && role !== section) {
       return NextResponse.json({ success: false, message: "Không có quyền truy cập Quiz này." }, { status: 403 });
     }
 
-    const supabase = getSupabaseAdmin();
-    const { data: state, error: stateError } = await supabase
+    const supabase = getSupabaseAdmin(request.signal);
+    const includeProgress = params.get("includeProgress") === "1";
+    const profile = includeProgress ? await currentLearnerProfile(access) : null;
+    const [{ data: state, error: stateError }, result] = await Promise.all([supabase
       .from("section_state")
       .select("quiz_open, quiz_opened_at")
       .eq("section", section)
-      .maybeSingle();
+      .maybeSingle(),
+      profile?.section === section ? readQuizProgress(profile.identity, section, request.signal) : Promise.resolve(null),
+    ]);
     if (stateError) throw stateError;
 
     const isOpen = state?.quiz_open === true;
     if (!teaching) {
       return NextResponse.json(
-        { success: true, section, isOpen },
+        { success: true, section, isOpen, ...(includeProgress ? { result } : {}) },
         { headers: { "Cache-Control": "no-store, max-age=0" } },
       );
     }
@@ -62,7 +71,7 @@ export async function GET(request: Request) {
     });
 
     return NextResponse.json(
-      { success: true, section, isOpen, completedLearners },
+      { success: true, section, isOpen, completedLearners, ...(includeProgress ? { result } : {}) },
       { headers: { "Cache-Control": "no-store, max-age=0" } },
     );
   } catch (error) {

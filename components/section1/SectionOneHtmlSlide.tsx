@@ -13,6 +13,7 @@ import {
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getSlideStorage, setSlideStorage, SLIDE_STORAGE_KEYS } from "@/lib/slideStorage";
 import styles from "./SectionOneHtmlSlide.module.css";
+import { useLiveRefresh, cancelledRefresh } from "@/lib/liveRefresh";
 
 export type SectionOneHtmlKind =
   | "slide3"
@@ -225,13 +226,14 @@ function IdeaResults() {
     }
   }, []);
 
-  const loadIdeas = useCallback(async () => {
+  const readIdeas = useCallback(async (signal: AbortSignal) => {
     try {
-      const response = await fetch("/api/ideas", { cache: "no-store" });
+      const response = await fetch("/api/ideas", { cache: "no-store", signal });
       const payload = (await response.json().catch(() => ({}))) as {
         items?: IdeaItem[];
         message?: string;
       };
+      signal.throwIfAborted();
       if (!response.ok) throw new Error(payload.message || "Không thể tải ý tưởng.");
       setItems(
         (Array.isArray(payload.items) ? payload.items : [])
@@ -239,11 +241,13 @@ function IdeaResults() {
       );
       setError("");
     } catch (loadError) {
+      if (cancelledRefresh(signal)) return;
       setError(loadError instanceof Error ? loadError.message : "Không thể tải ý tưởng.");
     } finally {
-      setLoading(false);
+      if (!cancelledRefresh(signal)) setLoading(false);
     }
   }, []);
+  const loadIdeas = useLiveRefresh(readIdeas);
 
   useEffect(() => {
     const firstLoad = window.setTimeout(() => void loadIdeas(), 0);

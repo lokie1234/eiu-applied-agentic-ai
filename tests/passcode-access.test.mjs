@@ -92,7 +92,7 @@ test("submission endpoints use server identity for both the record and its activ
     let record, activity;
     const identity = { sessionId: "learner-session", name: "Alice", email: "alice@example.test", information: { department: "IT" } };
     const db = { from: () => ({ insert(row) { record = row; return this; }, select() { return this; }, single: async () => ({ data: { ...record, id: "saved-record", shared_at: new Date().toISOString() } }) }) };
-    const endpoint = load(`app/api/${route}/route.ts`, { "next/server": response, "@/lib/quizProgress": { readQuizProgress: async () => null }, "@/lib/currentRole": { currentRole: async () => section }, "@/lib/currentLearnerProfile": { currentLearnerProfile: async () => ({ name: identity.name, email: identity.email, section, identity }) }, "@/lib/sectionSession": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "@/lib/learnerActivity": { recordLearnerActivity: async (...args) => { activity = args; } } });
+    const endpoint = load(`app/api/${route}/route.ts`, { "next/server": response, "@/lib/quizProgress": { readQuizProgress: async () => null }, "@/lib/auth/currentUser": { currentUserAccess: async () => ({ isActive: true }) }, "@/lib/currentRole": { currentRole: async () => section }, "@/lib/currentLearnerProfile": { currentLearnerProfile: async () => ({ name: identity.name, email: identity.email, section, identity }) }, "@/lib/sectionSession": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "@/lib/learnerActivity": { recordLearnerActivity: async (...args) => { activity = args; } } });
     const result = await endpoint.POST(request({ ...body, section, name: "Fake", email: "fake@example.test", information: { department: "Fake" } }));
     assert.equal(result.data.success, true, route); assert.equal(record.name, "Alice"); assert.equal(record.email, "alice@example.test");
     if (route === "quiz-results") { assert.equal(result.data.learner.name, "Alice"); assert.equal(result.data.learner.email, "alice@example.test"); assert.equal(result.data.learner.information.department, "IT"); }
@@ -224,7 +224,7 @@ test("only teaching permission in Applied Agentic AI grants access to its shared
   assert.equal(await roles.canFacilitateSection("section1"), true);
   assert.equal(await roles.canFacilitateSection("section2"), false);
   let writes = 0;
-  const quiz = load("app/api/quiz-control/route.ts", { "next/server": response, "@/lib/currentRole": roles, "@/lib/supabase/server": { getSupabaseAdmin: () => ({ from: () => ({ upsert: async () => { writes++; return {}; } }) }) } });
+  const quiz = load("app/api/quiz-control/route.ts", { "next/server": response, "@/lib/auth/currentUser": { currentUserAccess: async () => user }, "@/lib/currentLearnerProfile": {}, "@/lib/quizProgress": {}, "@/lib/currentRole": roles, "@/lib/supabase/server": { getSupabaseAdmin: () => ({ from: () => ({ upsert: async () => { writes++; return {}; } }) }) } });
   assert.equal((await quiz.POST(request({ section: "section2" }))).status, 403);
   assert.equal(writes, 0);
   assert.equal((await quiz.POST(request({ section: "section1" }))).status, 200);

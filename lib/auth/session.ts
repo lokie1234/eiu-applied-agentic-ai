@@ -51,10 +51,10 @@ function verifyAccessSession(value: string | undefined): AccessSession | null {
   }
 }
 
-export async function currentAccessSession() {
+export async function currentAccessSession(signal?: AbortSignal) {
   const session = verifyAccessSession((await cookies()).get(ACCESS_SESSION_COOKIE)?.value);
   if (session?.role === "admin") {
-    const { data, error } = await getSupabaseAdmin().from("admin_credentials")
+    const { data, error } = await getSupabaseAdmin(signal).from("admin_credentials")
       .select("session_version").eq("id", true).maybeSingle();
     if (error && !["42P01", "PGRST205"].includes(error.code)) throw error;
     if ((session.sessionVersion ?? 0) !== (data?.session_version ?? 0)) return null;

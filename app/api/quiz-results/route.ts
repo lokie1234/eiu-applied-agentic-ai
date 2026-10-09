@@ -4,6 +4,7 @@ import { currentRole } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { readQuizProgress } from "@/lib/quizProgress";
+import { currentUserAccess } from "@/lib/auth/currentUser";
 
 type SectionId = "section1" | "section2";
 type AnswerRecord = {
@@ -32,9 +33,9 @@ function normalizeAnswers(value: unknown): AnswerRecord[] | null {
 export async function GET(request: Request) {
   try {
     const section = new URL(request.url).searchParams.get("section");
-    const profile = await currentLearnerProfile();
+    const profile = await currentLearnerProfile(undefined, request.signal);
     if (!profile || profile.section !== section) return NextResponse.json({ message: "Access denied." }, { status: 403 });
-    return NextResponse.json({ success: true, result: await readQuizProgress(profile.identity, section) }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ success: true, result: await readQuizProgress(profile.identity, section, request.signal) }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return NextResponse.json({ message: "Unable to restore your quiz result." }, { status: 500 });
   }
@@ -44,7 +45,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const section: SectionId = body.section === "section2" ? "section2" : "section1";
-    const role = await currentRole();
+    const access = await currentUserAccess(request.signal);
+    const role = await currentRole(access);
     if (role !== "admin" && role !== section) {
       return NextResponse.json({ success: false, message: "Không có quyền gửi kết quả cho Section này." }, { status: 403 });
     }
@@ -54,7 +56,7 @@ export async function POST(request: Request) {
     const answers = normalizeAnswers(body.answers);
 
     if (body.website) return NextResponse.json({ success: true });
-    const profile = await currentLearnerProfile();
+    const profile = await currentLearnerProfile(access);
     if (!profile || profile.section !== section) {
       return NextResponse.json(
         { success: false, message: "Vui lòng hoàn tất thông tin học viên trước khi gửi kết quả." },

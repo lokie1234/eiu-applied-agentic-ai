@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { Document, Page, pdfjs } from "react-pdf";
+import dynamic from "next/dynamic";
 import SharedDeckFrame from "@/components/deck/SharedDeckFrame";
 import styles from "./UploadedSectionDeck.module.css";
-import PptxSectionDeck from "./PptxSectionDeck";
-import EiuTemplateFrame from "./EiuTemplateFrame";
-
-pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+const PptxSectionDeck = dynamic(() => import("./PptxSectionDeck"), { ssr: false });
+const UploadedPdfDeck = dynamic(() => import("./UploadedPdfDeck"), { ssr: false });
 
 type Props = {
   sectionId: string;
@@ -70,15 +68,16 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
 
   useEffect(() => {
     if (contentType !== "tsx") return;
+    const controller = new AbortController();
     let disposed = false;
-    fetch(contentUrl, { cache: "no-store" })
+    fetch(contentUrl, { cache: "no-store", signal: controller.signal })
       .then(async (response) => {
         if (!response.ok) throw new Error("Unable to load TSX section content.");
         return response.text();
       })
       .then((code) => { if (!disposed) setTsxCode(code); })
       .catch((reason) => { if (!disposed) setError(reason instanceof Error ? reason.message : "Unable to load content."); });
-    return () => { disposed = true; };
+    return () => { disposed = true; controller.abort(); };
   }, [contentType, contentUrl]);
 
   useEffect(() => {
@@ -91,24 +90,6 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
     return () => window.removeEventListener("message", onMessage);
   }, [contentType]);
 
-  const renderPdf = (pageNumber: number, renderWidth: number) => (
-    <Document
-      className={styles.pdfDocument}
-      file={contentUrl}
-      loading={<div className={styles.message}>Loading PDF…</div>}
-      error={<div className={styles.message}>Unable to display this PDF.</div>}
-      onLoadSuccess={({ numPages }) => setTotalSlides(numPages)}
-    >
-      <Page
-        className={styles.pdfPage}
-        pageNumber={pageNumber}
-        width={renderWidth}
-        renderTextLayer={false}
-        renderAnnotationLayer
-      />
-    </Document>
-  );
-
   const frameDocument = useMemo(() => {
     if (!tsxCode || (useTemplate && !templateImage)) return "";
     return createTsxDocument(tsxCode, 1, useTemplate ? templateImage : "", templateKey);
@@ -119,6 +100,9 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
   if (contentType === "pptx") {
     return <PptxSectionDeck templateImage={templateImage} useTemplate={useTemplate} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} />;
   }
+  if (contentType === "pdf") {
+    return <UploadedPdfDeck contentUrl={contentUrl} slideCount={slideCount} courseTitle={courseTitle} sectionTitle={sectionTitle} templateImage={templateImage} />;
+  }
 
   return (
     <SharedDeckFrame
@@ -127,9 +111,8 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
       totalSlides={totalSlides}
       frameClassName={styles.frame}
       transitionClassName={styles.slide}
-      renderSlide={(pageNumber, renderWidth) => {
+      renderSlide={(pageNumber) => {
         if (error) return <div className={styles.message}>{error}</div>;
-        if (contentType === "pdf") return useTemplate ? <EiuTemplateFrame page={pageNumber} background={templateImage}>{renderPdf(pageNumber, renderWidth * .888)}</EiuTemplateFrame> : renderPdf(pageNumber, renderWidth);
         if (!tsxCode || (useTemplate && !templateImage)) return <div className={styles.message}>Loading TSX section…</div>;
         return (
           <iframe

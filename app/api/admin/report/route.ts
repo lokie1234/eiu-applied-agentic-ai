@@ -65,9 +65,11 @@ async function fetchAll(
   return rows;
 }
 
+const reportDateFormatter = new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Ho_Chi_Minh", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" });
+
 function iso(value: unknown) {
   const date = new Date(String(value ?? ""));
-  return Number.isNaN(date.getTime()) ? "" : new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Ho_Chi_Minh", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).format(date).replace(", ", " ");
+  return Number.isNaN(date.getTime()) ? "" : reportDateFormatter.format(date).replace(", ", " ");
 }
 
 function reportInformation(row: Row, omitEmail = false) {

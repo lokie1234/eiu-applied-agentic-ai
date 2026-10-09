@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { currentRole } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { currentUserAccess } from "@/lib/auth/currentUser";
 
 type SectionId = "section1" | "section2";
 
@@ -10,7 +11,8 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const section: SectionId = body.section === "section2" ? "section2" : "section1";
-    const role = await currentRole();
+    const access = await currentUserAccess(request.signal);
+    const role = await currentRole(access);
     if (role !== "admin" && role !== section) {
       return NextResponse.json({ success: false, message: "Không có quyền gửi phản hồi cho Section này." }, { status: 403 });
     }
@@ -21,7 +23,7 @@ export async function POST(request: Request) {
     if (!feedback || feedback.length > 2000) {
       return NextResponse.json({ success: false, message: "Nội dung phản hồi không hợp lệ." }, { status: 400 });
     }
-    const profile = await currentLearnerProfile();
+    const profile = await currentLearnerProfile(access);
     if (!profile || profile.section !== section) {
       return NextResponse.json(
         { success: false, message: "Vui lòng hoàn tất thông tin học viên trước khi gửi phản hồi." },

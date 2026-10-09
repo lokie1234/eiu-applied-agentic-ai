@@ -1,0 +1,219 @@
+{
+  "baseline": {
+    "base": "http://localhost:3100",
+    "mode": "production local; 10 isolated contexts; API login + real UI clicks",
+    "elapsedMs": 89878,
+    "users": 10,
+    "successful": 10,
+    "uniqueSessions": 10,
+    "timings": {
+      "login": {
+        "count": 10,
+        "medianMs": 4035,
+        "p95Ms": 11955,
+        "maxMs": 11955
+      },
+      "catalog": {
+        "count": 10,
+        "medianMs": 523,
+        "p95Ms": 1518,
+        "maxMs": 1518
+      },
+      "course": {
+        "count": 10,
+        "medianMs": 192,
+        "p95Ms": 524,
+        "maxMs": 524
+      },
+      "section": {
+        "count": 10,
+        "medianMs": 1753,
+        "p95Ms": 2897,
+        "maxMs": 2897
+      },
+      "refresh": {
+        "count": 10,
+        "medianMs": 2042,
+        "p95Ms": 32594,
+        "maxMs": 32594
+      }
+    },
+    "slideClicks": {
+      "count": 170,
+      "medianMs": 316,
+      "p95Ms": 555,
+      "maxMs": 1024
+    },
+    "api": {
+      "count": 54,
+      "medianMs": 822,
+      "p95Ms": 8955,
+      "maxMs": 17203
+    },
+    "pageErrors": [],
+    "refreshPreserved": 10,
+    "requestFailures": [
+      {
+        "method": "unknown",
+        "path": "/api/presence",
+        "error": "net::ERR_ABORTED",
+        "count": 58
+      },
+      {
+        "method": "unknown",
+        "path": "/learn",
+        "error": "net::ERR_ABORTED",
+        "count": 15
+      }
+    ]
+  },
+  "after": {
+    "base": "http://localhost:3100",
+    "mode": "production local; 10 isolated contexts; API login + real UI clicks",
+    "elapsedMs": 54768,
+    "users": 10,
+    "successful": 10,
+    "uniqueSessions": 10,
+    "timings": {
+      "login": {
+        "count": 10,
+        "medianMs": 2921,
+        "p95Ms": 5785,
+        "maxMs": 5785
+      },
+      "catalog": {
+        "count": 10,
+        "medianMs": 670,
+        "p95Ms": 1485,
+        "maxMs": 1485
+      },
+      "course": {
+        "count": 10,
+        "medianMs": 167,
+        "p95Ms": 454,
+        "maxMs": 454
+      },
+      "section": {
+        "count": 10,
+        "medianMs": 1649,
+        "p95Ms": 1867,
+        "maxMs": 1867
+      },
+      "refresh": {
+        "count": 10,
+        "medianMs": 1369,
+        "p95Ms": 3129,
+        "maxMs": 3129
+      }
+    },
+    "slideClicks": {
+      "count": 170,
+      "medianMs": 385,
+      "p95Ms": 532,
+      "maxMs": 610
+    },
+    "api": {
+      "count": 45,
+      "medianMs": 582,
+      "p95Ms": 1523,
+      "maxMs": 1524
+    },
+    "pageErrors": [],
+    "refreshPreserved": 10,
+    "requestFailures": [
+      {
+        "method": "unknown",
+        "path": "/api/presence",
+        "error": "net::ERR_ABORTED",
+        "count": 30
+      },
+      {
+        "method": "unknown",
+        "path": "/learn",
+        "error": "net::ERR_ABORTED",
+        "count": 8
+      }
+    ]
+  },
+  "final_with_quiz": {
+    "base": "http://localhost:3100",
+    "mode": "production local; 10 isolated contexts; API login + real UI clicks",
+    "elapsedMs": 55083,
+    "users": 10,
+    "successful": 10,
+    "uniqueSessions": 10,
+    "timings": {
+      "login": {
+        "count": 10,
+        "medianMs": 3247,
+        "p95Ms": 4716,
+        "maxMs": 4716
+      },
+      "catalog": {
+        "count": 10,
+        "medianMs": 1451,
+        "p95Ms": 1820,
+        "maxMs": 1820
+      },
+      "course": {
+        "count": 10,
+        "medianMs": 206,
+        "p95Ms": 864,
+        "maxMs": 864
+      },
+      "section": {
+        "count": 10,
+        "medianMs": 1387,
+        "p95Ms": 1475,
+        "maxMs": 1475
+      },
+      "refresh": {
+        "count": 10,
+        "medianMs": 815,
+        "p95Ms": 1266,
+        "maxMs": 1266
+      }
+    },
+    "slideClicks": {
+      "count": 170,
+      "medianMs": 396,
+      "p95Ms": 574,
+      "maxMs": 755
+    },
+    "api": {
+      "count": 92,
+      "medianMs": 657,
+      "p95Ms": 1939,
+      "maxMs": 2792
+    },
+    "pageErrors": [],
+    "refreshPreserved": 10,
+    "quiz": {
+      "users": 10,
+      "requests": 49,
+      "statusCounts": {
+        "200": 49
+      },
+      "medianMs": 770,
+      "p95Ms": 1939,
+      "maxMs": 2318,
+      "pathCounts": {
+        "/api/quiz-control": 49
+      }
+    },
+    "requestFailures": [
+      {
+        "method": "POST",
+        "path": "/api/presence",
+        "error": "net::ERR_ABORTED",
+        "count": 30
+      },
+      {
+        "method": "GET",
+        "path": "/learn",
+        "error": "net::ERR_ABORTED",
+        "count": 10
+      }
+    ]
+  }
+}

@@ -4,6 +4,7 @@ import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import styles from "./QuizSlide.module.css";
 import type { IdentityField } from "@/lib/learningIdentity";
+import { useLiveRefresh, cancelledRefresh } from "@/lib/liveRefresh";
 
 type Question = {
   question: string;
@@ -93,14 +94,19 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
   }, []);
 
-  const loadQuizState = useCallback(async () => {
+  const readQuizState = useCallback(async (signal: AbortSignal) => {
     try {
-      const [response, progressResponse] = await Promise.all([
-        fetch(`/api/quiz-control?section=${variant}`, { cache: "no-store" }),
-        isAdmin ? Promise.resolve(null) : fetch(`/api/quiz-results?section=${variant}`, { cache: "no-store" }),
-      ]);
-      if (progressResponse && !progressResponse.ok) throw new Error("Unable to restore quiz progress.");
-      const progress = progressResponse ? await progressResponse.json() : null;
+      const response = await fetch(`/api/quiz-control?section=${variant}${isAdmin ? "" : "&includeProgress=1"}`, { cache: "no-store", signal });
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(payload.message || "Không thể tải trạng thái Quiz.");
+      // Compatibility with an older server during rolling deployments.
+      let progress = payload;
+      if (!isAdmin && !("result" in payload)) {
+        const progressResponse = await fetch(`/api/quiz-results?section=${variant}`, { cache: "no-store", signal });
+        if (!progressResponse.ok) throw new Error("Unable to restore quiz progress.");
+        progress = await progressResponse.json();
+      }
+      signal.throwIfAborted();
       if (progress?.result && !autoSubmitStartedRef.current) {
         autoSubmitStartedRef.current = true;
         setAnswers(progress.result.answers);
@@ -109,20 +115,15 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
         setRecordedLearner(progress.result.learner);
         setFeedbackSubmitted(progress.result.feedbackSubmitted);
       }
-      const payload = (await response.json().catch(() => ({}))) as {
-        isOpen?: boolean;
-        completedLearners?: CompletedLearner[];
-        message?: string;
-      };
-      if (!response.ok) throw new Error(payload.message || "Không thể tải trạng thái Quiz.");
-
       setQuizOpen(payload.isOpen === true);
       if (isAdmin) setCompletedLearners(payload.completedLearners ?? []);
       setQuizStateStatus("ready");
     } catch {
+      if (cancelledRefresh(signal)) return;
       setQuizStateStatus("error");
     }
   }, [isAdmin, variant]);
+  const loadQuizState = useLiveRefresh(readQuizState);
 
   useEffect(() => {
     let refreshTimer: number | undefined;
@@ -146,7 +147,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
       window.clearInterval(fallbackTimer);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [loadQuizState, variant]);
+  }, [loadQuizState, variant, isAdmin]);
 
   const score = answers.filter((item) => item.isCorrect).length;
   const current = questions[index];

@@ -4,17 +4,17 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
 import { rememberDeckSelection } from "@/lib/deckLocation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
-import UploadedSectionDeck from "./deck/UploadedSectionDeck";
 import styles from "./LessonPortal.module.css";
 
 const SectionOneDeck = dynamic(() => import("./PdfDeck"), { ssr: false });
 const SectionTwoDeck = dynamic(() => import("./section2/SectionTwoDeck"), { ssr: false });
+const UploadedSectionDeck = dynamic(() => import("./deck/UploadedSectionDeck"), { ssr: false });
 
 type SectionId = "section1" | "section2";
 type TerminateStatus = "idle" | "sending" | "success" | "error";
@@ -241,12 +241,18 @@ export default function LessonPortal({
   initialSectionId?: string;
 }) {
   const router = useRouter();
+  const [catalogRefreshing, startCatalogRefresh] = useTransition();
+  const catalogRefreshInFlight = useRef(false);
+  useEffect(() => {
+    if (!catalogRefreshing) catalogRefreshInFlight.current = false;
+  }, [catalogRefreshing]);
   useEffect(() => {
     let lastRefresh = 0;
     const refreshCatalog = () => {
-      if (document.visibilityState !== "visible" || Date.now() - lastRefresh < 2_000) return;
+      if (document.visibilityState !== "visible" || catalogRefreshInFlight.current || Date.now() - lastRefresh < 2_000) return;
       lastRefresh = Date.now();
-      router.refresh();
+      catalogRefreshInFlight.current = true;
+      startCatalogRefresh(() => router.refresh());
     };
     window.addEventListener("focus", refreshCatalog);
     document.addEventListener("visibilitychange", refreshCatalog);
@@ -256,7 +262,7 @@ export default function LessonPortal({
       document.removeEventListener("visibilitychange", refreshCatalog);
       window.clearInterval(interval);
     };
-  }, [router]);
+  }, [router, startCatalogRefresh]);
   const appliedCourseId = courseFolders.find(
     (course) => course.slug === APPLIED_AGENTIC_AI_SLUG,
   )?.id ?? null;
@@ -285,6 +291,7 @@ export default function LessonPortal({
   const [resetStatus, setResetStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [resetNotice, setResetNotice] = useState("");
   const learnerProfile = initialProfile;
+  const hasLearnerProfile = Boolean(learnerProfile);
   const [deckSessionKey, setDeckSessionKey] = useState(0);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -321,9 +328,10 @@ export default function LessonPortal({
   const COURSES_PER_PAGE = 4;
   const [groupPages, setGroupPages] = useState<Record<string, number>>({});
 
-  useEffect(() => {
+  function changeSearchQuery(value: string) {
+    setSearchQuery(value);
     setGroupPages({});
-  }, [searchQuery]);
+  }
 
   const handlePageChange = (groupId: string, newPage: number) => {
     setGroupPages((prev) => ({ ...prev, [groupId]: newPage }));
@@ -386,21 +394,34 @@ export default function LessonPortal({
 
     let disposed = false;
     let refreshTimer: number | undefined;
+    let inFlight = false;
+    let refreshQueued = false;
+    const controller = new AbortController();
 
     async function fetchCounts() {
       if (disposed) return;
+      if (inFlight) { refreshQueued = true; return; }
+      inFlight = true;
       try {
-        const response = await fetch("/api/presence", { cache: "no-store" });
+        const response = await fetch("/api/presence", { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]) });
         if (!response.ok) return;
         const payload = (await response.json()) as {
           success?: boolean;
           counts?: PresenceCounts;
         };
-        if (payload.success && payload.counts) {
-          setPresenceCounts(payload.counts);
+        if (!disposed && payload.success && payload.counts) {
+          const counts = payload.counts;
+          setPresenceCounts(previous => previous.section1 === counts.section1 && previous.section2 === counts.section2 && previous.total === counts.total ? previous : counts);
         }
       } catch {
         // Ignore network glitches
+      } finally {
+        inFlight = false;
+        if (!disposed && refreshQueued) {
+          refreshQueued = false;
+          window.clearTimeout(refreshTimer);
+          refreshTimer = window.setTimeout(() => void fetchCounts(), 150);
+        }
       }
     }
 
@@ -417,6 +438,7 @@ export default function LessonPortal({
 
     return () => {
       disposed = true;
+      controller.abort();
       window.clearTimeout(refreshTimer);
       window.clearInterval(interval);
       if (supabase && channel) void supabase.removeChannel(channel);
@@ -425,26 +447,32 @@ export default function LessonPortal({
 
   // Learner heartbeat tracking
   useEffect(() => {
-    if (isAdmin || !learnerProfile || !section) return;
+    if (isAdmin || !hasLearnerProfile || !section) return;
 
     const clientId = getOrCreateClientId();
     let disposed = false;
+    let inFlight = false;
+    let leaveSent = false;
+    const controller = new AbortController();
 
     async function sendHeartbeat() {
-      if (disposed) return;
+      if (disposed || inFlight) return;
+      inFlight = true;
+      leaveSent = false;
       await fetch("/api/presence", {
         method: "POST",
+        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]),
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "heartbeat", section, clientId }),
-      }).catch(() => undefined);
+      }).catch(() => undefined).finally(() => { inFlight = false; });
     }
 
     void sendHeartbeat();
     const heartbeatTimer = window.setInterval(() => void sendHeartbeat(), 10_000);
 
     const onLeave = () => {
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(
+      if (!leaveSent && navigator.sendBeacon) {
+        leaveSent = navigator.sendBeacon(
           "/api/presence",
           JSON.stringify({ action: "leave", section, clientId })
         );
@@ -456,12 +484,13 @@ export default function LessonPortal({
 
     return () => {
       disposed = true;
+      controller.abort();
       clearInterval(heartbeatTimer);
       window.removeEventListener("pagehide", onLeave);
       window.removeEventListener("beforeunload", onLeave);
       onLeave();
     };
-  }, [isAdmin, learnerProfile, section]);
+  }, [isAdmin, hasLearnerProfile, section]);
 
   async function exportReport() {
     if (!isAdmin || reportStatus === "exporting") return;
@@ -626,12 +655,16 @@ export default function LessonPortal({
     let disposed = false;
     let initialToken: string | null = null;
     let isInitialized = false;
+    let inFlight = false;
+    const controller = new AbortController();
 
     async function checkTermination() {
-      if (disposed) return;
+      if (disposed || inFlight) return;
+      inFlight = true;
       try {
         const response = await fetch(`/api/section-control?section=${section}`, {
           cache: "no-store",
+          signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]),
         });
         if (!response.ok) return;
 
@@ -640,7 +673,7 @@ export default function LessonPortal({
           terminationToken?: string;
         };
 
-        if (payload.success) {
+        if (!disposed && payload.success) {
           const currentToken = payload.terminationToken ?? null;
           if (!isInitialized) {
             initialToken = currentToken;
@@ -653,6 +686,8 @@ export default function LessonPortal({
         }
       } catch {
         // Ignore network glitches
+      } finally {
+        inFlight = false;
       }
     }
 
@@ -678,11 +713,12 @@ export default function LessonPortal({
 
     return () => {
       disposed = true;
+      controller.abort();
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [isAdmin, learnerProfile, section]);
+  }, [isAdmin, section]);
 
   if (!selectedCourse) {
     return (
@@ -740,14 +776,14 @@ export default function LessonPortal({
                   className={styles.searchInput}
                   placeholder="Search courses or topics..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => changeSearchQuery(e.target.value)}
                   aria-label="Search courses"
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     className={styles.searchClearBtn}
-                    onClick={() => setSearchQuery("")}
+                    onClick={() => changeSearchQuery("")}
                     aria-label="Clear search"
                   >
                     ×
@@ -776,7 +812,7 @@ export default function LessonPortal({
                 <button
                   type="button"
                   className={styles.clearSearchBtn}
-                  onClick={() => setSearchQuery("")}
+                  onClick={() => changeSearchQuery("")}
                 >
                   Clear search
                 </button>

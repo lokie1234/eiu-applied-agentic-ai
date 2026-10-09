@@ -52,6 +52,7 @@ test("quiz endpoint denies another section and returns an existing result withou
   const route = load("app/api/quiz-results/route.ts", { console, Date }, {
     "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status || 200 }) } },
     "@/lib/currentRole": { currentRole: async () => "section2" },
+    "@/lib/auth/currentUser": { currentUserAccess: async () => ({ isActive: true }) },
     "@/lib/currentLearnerProfile": { currentLearnerProfile: async () => ({ section: "section2", identity: { sessionId: "signed" } }) },
     "@/lib/quizProgress": { readQuizProgress: async () => previous },
     "@/lib/supabase/server": { getSupabaseAdmin: () => { inserts++; throw new Error("Must not insert"); } },

@@ -6,15 +6,18 @@ import { FIXED_ADMIN_EMAIL, type AppUserAccess } from "./types";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import type { LearnerIdentity } from "@/lib/learningIdentity";
 
-export async function currentUserAccess(): Promise<AppUserAccess | null> {
-  const session = await currentAccessSession();
+export async function currentUserAccess(signal?: AbortSignal): Promise<AppUserAccess | null> {
+  const session = await currentAccessSession(signal);
   if (!session) return null;
-  const catalog = await getCoursesAndSectionsData();
+  const identityQuery = session.role === "passcode" && session.identityLogId
+    ? getSupabaseAdmin(signal).from("access_audit_logs").select("details").eq("id", session.identityLogId).eq("action", "PASSCODE_LOGIN").single()
+    : Promise.resolve(null);
+  const [catalog, storedIdentity] = await Promise.all([getCoursesAndSectionsData(signal), identityQuery]);
   const resolved = session.role === "admin" ? catalog : session.role === "guest" ? resolveFreeAccess(catalog) : resolvePasscode(catalog, session.credentialHash);
   if (!resolved) return null;
   let identity: LearnerIdentity | undefined;
   if (session.role === "passcode" && session.identityLogId) {
-    const { data, error } = await getSupabaseAdmin().from("access_audit_logs").select("details").eq("id", session.identityLogId).eq("action", "PASSCODE_LOGIN").single();
+    const { data, error } = storedIdentity!;
     if (error || !data || data.details?.sessionId !== session.sessionId) return null;
     identity = data.details as LearnerIdentity;
   }

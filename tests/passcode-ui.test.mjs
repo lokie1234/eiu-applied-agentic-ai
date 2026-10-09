@@ -9,14 +9,18 @@ import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
 import learningIdentity from "./helpers/learning-identity.mjs";
 const require = createRequire(import.meta.url);
+const liveRefresh = {};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync("lib/liveRefresh.ts", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText,
+  { exports: liveRefresh, require, AbortController, AbortSignal });
 function component(path, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;
-  vm.runInNewContext(code, { exports, console, Date, crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, fetch: (...args) => globalThis.fetch(...args), require: name => {
+  vm.runInNewContext(code, { exports, console, Date, AbortController, AbortSignal, crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, fetch: (...args) => globalThis.fetch(...args), require: name => {
     if (name === "./LearnerInformationDialog") return { __esModule: true, default: component("components/landing/LearnerInformationDialog.tsx") };
     if (name === "./EiuConfirmDialog") return { __esModule: true, default: component("components/admin/EiuConfirmDialog.tsx") };
     if (name === "./LearnerInformationSettings") return { __esModule: true, default: component("components/admin/LearnerInformationSettings.tsx", { "@/lib/learningIdentity": learningIdentity }) };
     if (name === "@/lib/deckLocation") return { rememberDeckSelection() {} };
+    if (name === "@/lib/liveRefresh") return liveRefresh;
     if (name.endsWith(".css")) return new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) });
     return dependencies[name] ?? require(name);
   } });
@@ -60,9 +64,11 @@ test("completed quiz restores on remount even when closed and keeps feedback ins
   const { createRoot } = await import("react-dom/client");
   const previousFetch = globalThis.fetch;
   let posts = 0, feedbackSubmitted = false;
+  const reads = [];
   globalThis.fetch = async (url, options) => {
     if (options?.method === "POST") posts++;
-    return { ok: true, json: async () => url.startsWith("/api/quiz-control") ? { isOpen: false } : { success: true, result: { answers: Array.from({ length: 10 }, (_, i) => ({ isCorrect: i < 8 })), learner: { name: "Alice", email: "alice@example.test", information: {}, fields: [] }, feedbackSubmitted } } };
+    else reads.push(url);
+    return { ok: true, json: async () => ({ success: true, isOpen: false, result: { answers: Array.from({ length: 10 }, (_, i) => ({ isCorrect: i < 8 })), learner: { name: "Alice", email: "alice@example.test", information: {}, fields: [] }, feedbackSubmitted } }) };
   };
   const Quiz = component("components/QuizSlide.tsx", { "@/lib/supabase/browser": { getSupabaseBrowserClient: () => null } });
   const container = window.document.createElement("div"); window.document.body.append(container); const root = createRoot(container);
@@ -79,6 +85,8 @@ test("completed quiz restores on remount even when closed and keeps feedback ins
     await act(async () => { root.render(React.createElement(Quiz, { scale: 1, key: "feedback-refresh" })); await new Promise(resolve => setTimeout(resolve, 20)); });
     await act(async () => new Promise(resolve => setTimeout(resolve, 20)));
     assert.equal(container.querySelector("textarea"), null); assert.equal(posts, 0);
+    assert.equal(reads.length, 3);
+    assert.ok(reads.every(url => url.includes("/api/quiz-control?") && url.includes("includeProgress=1")), "each remount restores status and progress in one request");
   } finally { await act(async () => root.unmount()); globalThis.fetch = previousFetch; await window.happyDOM.close(); }
 });
 

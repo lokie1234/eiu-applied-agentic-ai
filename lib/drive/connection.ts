@@ -9,6 +9,7 @@ import { SECTION_SOURCE_DESTINATIONS } from "@/lib/sectionSourceFiles";
 const TOKEN_PATH = path.join(process.cwd(), ".local", "google-drive.enc");
 export const DRIVE_STATE_COOKIE = "eiu_drive_oauth";
 export const DRIVE_SCOPES = ["openid", "email", "https://www.googleapis.com/auth/drive.file"];
+let activeClient: { key: string; client: OAuth2Client; verification: Promise<void> | null } | null = null;
 
 export function driveConfig() {
   const clientId = process.env.GOOGLE_DRIVE_CLIENT_ID?.trim();
@@ -93,14 +94,27 @@ export async function saveDriveToken(email: string, refreshToken: string) {
 export async function authorizedDriveClient() {
   const config = driveConfig();
   const token = await storedDriveToken();
-  if (!token) throw new Error("Google Drive is not connected.");
-  const client = driveClient();
-  client.setCredentials({ refresh_token: token });
-  const identity = await client.request<{ email: string; email_verified: boolean }>({ url: "https://www.googleapis.com/oauth2/v3/userinfo", timeout: 10000 });
-  if (!identity.data.email_verified || identity.data.email.toLowerCase() !== config.accountEmail) {
-    throw new Error("Stored authorization belongs to a different Google account. Reconnect Drive.");
+  if (!token) { activeClient = null; throw new Error("Google Drive is not connected."); }
+  // Read current stored credentials on every call; reconnects replace the client immediately.
+  const key = createHash("sha256").update(JSON.stringify([config, token])).digest("hex");
+  if (activeClient?.key !== key) {
+    const client = driveClient();
+    client.setCredentials({ refresh_token: token });
+    activeClient = { key, client, verification: null };
   }
-  return client;
+  const entry = activeClient;
+  // Reuse access tokens, but share identity checks only while they are in flight.
+  if (!entry.verification) {
+    entry.verification = (async () => {
+      const identity = await entry.client.request<{ email: string; email_verified: boolean }>({ url: "https://www.googleapis.com/oauth2/v3/userinfo", timeout: 10000 });
+      if (!identity.data.email_verified || identity.data.email.toLowerCase() !== config.accountEmail) {
+        throw new Error("Stored authorization belongs to a different Google account. Reconnect Drive.");
+      }
+    })().catch(error => { if (activeClient === entry) activeClient = null; throw error; })
+      .finally(() => { entry.verification = null; });
+  }
+  await entry.verification;
+  return entry.client;
 }
 
 export async function driveStatus() {

@@ -4,6 +4,7 @@ import { currentRole, canFacilitateSection } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
 import { getSectionSessionStartedAt } from "@/lib/sectionSession";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { currentUserAccess } from "@/lib/auth/currentUser";
 
 type IdeaRow = { id: string; idea: string; submitted_at: string };
 
@@ -45,7 +46,8 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    if ((await currentRole()) !== "section1") {
+    const access = await currentUserAccess(request.signal);
+    if ((await currentRole(access)) !== "section1") {
       return NextResponse.json(
         { success: false, message: "Chỉ phiên học viên Section 1 mới được gửi ý tưởng." },
         { status: 403 },
@@ -61,7 +63,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const profile = await currentLearnerProfile();
+    const profile = await currentLearnerProfile(access);
     if (!profile) {
       return NextResponse.json(
         { success: false, message: "Vui lòng hoàn tất thông tin học viên trước khi gửi ý tưởng." },

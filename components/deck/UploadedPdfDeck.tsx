@@ -1,0 +1,41 @@
+"use client";
+
+import { useState } from "react";
+import { Document, Page, pdfjs } from "react-pdf";
+import SharedDeckFrame from "./SharedDeckFrame";
+import EiuTemplateFrame from "./EiuTemplateFrame";
+import styles from "./UploadedSectionDeck.module.css";
+
+pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
+
+export default function UploadedPdfDeck({ contentUrl, slideCount, courseTitle, sectionTitle, templateImage }: {
+  contentUrl: string; slideCount: number | null; courseTitle: string; sectionTitle: string; templateImage: string;
+}) {
+  const [totalSlides, setTotalSlides] = useState(slideCount ?? 1);
+  return (
+    <SharedDeckFrame
+      courseTitle={courseTitle}
+      sectionTitle={sectionTitle}
+      totalSlides={totalSlides}
+      frameClassName={styles.frame}
+      transitionClassName={styles.slide}
+      renderSlideContainer={children => (
+        <Document
+          className={styles.pdfDocument}
+          file={contentUrl}
+          loading={<div className={styles.message}>Loading PDF…</div>}
+          error={<div className={styles.message}>Unable to display this PDF.</div>}
+          onLoadSuccess={({ numPages }) => setTotalSlides(numPages)}
+        >{children}</Document>
+      )}
+      renderSlide={(pageNumber, renderWidth) => {
+        const page = <Page className={styles.pdfPage} pageNumber={pageNumber}
+          width={templateImage ? renderWidth * .888 : renderWidth}
+          renderTextLayer={false} renderAnnotationLayer />;
+        return templateImage
+          ? <EiuTemplateFrame page={pageNumber} background={templateImage}>{page}</EiuTemplateFrame>
+          : page;
+      }}
+    />
+  );
+}

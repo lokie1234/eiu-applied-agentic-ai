@@ -4,6 +4,8 @@ import { currentRole } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
 import { getSectionSessionStartedAt } from "@/lib/sectionSession";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { currentUserAccess } from "@/lib/auth/currentUser";
+import type { AppUserAccess } from "@/lib/auth/types";
 
 type ShowcaseSection = "section1" | "section2";
 type ShowcaseRow = { id: string; name: string; url: string; shared_at: string };
@@ -40,20 +42,20 @@ function toItem(row: ShowcaseRow) {
   return { id: row.id, name: row.name, url: row.url, sharedAt: row.shared_at };
 }
 
-async function canAccess(section: ShowcaseSection) {
-  const role = await currentRole();
+async function canAccess(section: ShowcaseSection, access?: AppUserAccess | null, signal?: AbortSignal) {
+  const role = await currentRole(access, signal);
   return role === "admin" || role === section;
 }
 
 export async function GET(request: Request) {
   try {
     const section = normalizeSection(new URL(request.url).searchParams.get("section"));
-    if (!(await canAccess(section))) {
+    if (!(await canAccess(section, undefined, request.signal))) {
       return NextResponse.json({ success: false, message: "Không có quyền truy cập Section này." }, { status: 403 });
     }
 
     const sessionStartedAt = await getSectionSessionStartedAt(section);
-    const { data, error } = await getSupabaseAdmin()
+    const { data, error } = await getSupabaseAdmin(request.signal)
       .from("showcase_items")
       .select("id, name, url, shared_at")
       .eq("section", section)
@@ -79,13 +81,14 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const section = normalizeSection(body.section);
-    if (!(await canAccess(section))) {
+    const access = await currentUserAccess(request.signal);
+    if (!(await canAccess(section, access))) {
       return NextResponse.json({ success: false, message: "Không có quyền gửi bài vào Section này." }, { status: 403 });
     }
 
     const url = String(body.url ?? "").trim();
     if (body.website) return NextResponse.json({ success: true });
-    const profile = await currentLearnerProfile();
+    const profile = await currentLearnerProfile(access);
     if (!profile || profile.section !== section) {
       return NextResponse.json(
         { success: false, message: "Vui lòng hoàn tất thông tin học viên trước khi chia sẻ." },

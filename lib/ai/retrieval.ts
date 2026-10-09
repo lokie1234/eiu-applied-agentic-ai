@@ -17,6 +17,11 @@ let vectorStorageAvailable: boolean | null = null;
 let responseCacheStorageAvailable: boolean | null = null;
 let semanticCacheStorageAvailable: boolean | null = null;
 
+// A transient network/database failure must not disable caching or retrieval for this instance.
+function storageFailure(error: { code?: string }): false | null {
+  return ["42P01", "42883", "PGRST202", "PGRST205"].includes(error.code ?? "") ? false : null;
+}
+
 export interface CachedAiAnswer {
   answer: string;
   sources: AISource[];
@@ -175,7 +180,7 @@ export async function getCachedAiAnswer(cacheKey: string): Promise<CachedAiAnswe
     .gt("expires_at", new Date(now).toISOString())
     .maybeSingle();
   if (error) {
-    responseCacheStorageAvailable = false;
+    responseCacheStorageAvailable = storageFailure(error);
     return null;
   }
   responseCacheStorageAvailable = true;
@@ -214,7 +219,7 @@ export async function setCachedAiAnswer(
     expires_at: new Date(expiresAt).toISOString(),
     created_at: new Date().toISOString(),
   });
-  responseCacheStorageAvailable = !error;
+  responseCacheStorageAvailable = error ? storageFailure(error) : true;
 }
 
 export async function invalidateCacheForKnowledgeBase(knowledgeBaseId: string): Promise<void> {
@@ -237,16 +242,14 @@ export async function getSemanticCachedAiAnswer(params: {
   subfolder?: string;
   query: string;
   similarityThreshold?: number;
+  embedQuery?: (query: string) => Promise<number[]>;
 }): Promise<CachedAiAnswer | null> {
   if (semanticCacheStorageAvailable === false) return null;
   const threshold = params.similarityThreshold ?? 0.93;
   const supabase = getSupabaseAdmin();
   try {
-    const [queryEmbedding] = await embedTexts(
-      params.ai,
-      [params.query],
-      "RETRIEVAL_QUERY"
-    );
+    const queryEmbedding = params.embedQuery ? await params.embedQuery(params.query)
+      : (await embedTexts(params.ai, [params.query], "RETRIEVAL_QUERY"))[0];
 
     const { data, error } = await supabase.rpc("match_ai_semantic_cache", {
       query_embedding: queryEmbedding,
@@ -257,7 +260,7 @@ export async function getSemanticCachedAiAnswer(params: {
     });
 
     if (error) {
-      semanticCacheStorageAvailable = false;
+      semanticCacheStorageAvailable = storageFailure(error);
       return null;
     }
     semanticCacheStorageAvailable = true;
@@ -287,15 +290,14 @@ export async function setSemanticCachedAiAnswer(params: {
   normalizedQuery: string;
   answer: string;
   sources: AISource[];
+  embedQuery?: (query: string) => Promise<number[]>;
 }): Promise<void> {
   if (semanticCacheStorageAvailable === false || !params.answer.trim()) return;
   const supabase = getSupabaseAdmin();
   try {
-    const [queryEmbedding] = await embedTexts(
-      params.ai,
-      [params.normalizedQuery || params.queryText],
-      "RETRIEVAL_QUERY"
-    );
+    const query = params.normalizedQuery || params.queryText;
+    const queryEmbedding = params.embedQuery ? await params.embedQuery(query)
+      : (await embedTexts(params.ai, [query], "RETRIEVAL_QUERY"))[0];
     const expiresAt = new Date(Date.now() + RESPONSE_CACHE_TTL_MS).toISOString();
 
     const { error } = await supabase.from("ai_semantic_cache").upsert({
@@ -313,7 +315,7 @@ export async function setSemanticCachedAiAnswer(params: {
     });
 
     if (error) {
-      semanticCacheStorageAvailable = false;
+      semanticCacheStorageAvailable = storageFailure(error);
     } else {
       semanticCacheStorageAvailable = true;
     }
@@ -383,6 +385,20 @@ async function embedTexts(
   return allEmbeddings;
 }
 
+/** One reader per chat request, sharing only embeddings of exactly the same text. */
+export function createQueryEmbeddingReader(ai: GoogleGenAI) {
+  const pending = new Map<string, Promise<number[]>>();
+  return (query: string) => {
+    let embedding = pending.get(query);
+    if (!embedding) {
+      embedding = embedTexts(ai, [query], "RETRIEVAL_QUERY").then(values => values[0])
+        .catch(error => { pending.delete(query); throw error; });
+      pending.set(query, embedding);
+    }
+    return embedding;
+  };
+}
+
 export async function indexDocumentChunks(params: {
   ai: GoogleGenAI;
   knowledgeBaseId: string;
@@ -406,7 +422,7 @@ export async function indexDocumentChunks(params: {
         .select("id")
         .limit(1);
       if (availabilityError) {
-        vectorStorageAvailable = false;
+        vectorStorageAvailable = storageFailure(availabilityError);
         return false;
       }
       vectorStorageAvailable = true;
@@ -465,7 +481,7 @@ export async function indexDocumentChunks(params: {
     }
 
     if (error) {
-      vectorStorageAvailable = false;
+      vectorStorageAvailable = storageFailure(error);
       return false;
     }
     vectorStorageAvailable = true;
@@ -535,6 +551,7 @@ export async function retrieveDocumentChunks(params: {
   folder: string;
   subfolder?: string;
   limit?: number;
+  embedQuery?: (query: string) => Promise<number[]>;
 }): Promise<RetrievedChunk[] | null> {
   if (vectorStorageAvailable === false) return null;
 
@@ -542,11 +559,8 @@ export async function retrieveDocumentChunks(params: {
   const normalized = normalizeQuery(params.query);
 
   try {
-    const [queryEmbedding] = await embedTexts(
-      params.ai,
-      [normalized.searchQuery],
-      "RETRIEVAL_QUERY"
-    );
+    const queryEmbedding = params.embedQuery ? await params.embedQuery(normalized.searchQuery)
+      : (await embedTexts(params.ai, [normalized.searchQuery], "RETRIEVAL_QUERY"))[0];
 
     const supabase = getSupabaseAdmin();
 
@@ -560,7 +574,7 @@ export async function retrieveDocumentChunks(params: {
     });
 
     if (vectorError) {
-      vectorStorageAvailable = false;
+      vectorStorageAvailable = storageFailure(vectorError);
       return null;
     }
     vectorStorageAvailable = true;

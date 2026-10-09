@@ -7,7 +7,7 @@ import {
 } from "@/lib/auth/types";
 
 export async function POST(request: Request) {
-  const access = await currentUserAccess();
+  const access = await currentUserAccess(request.signal);
   if (!access?.isActive) {
     return NextResponse.json({ success: false, message: "Access is not available for this session." }, { status: 403 });
   }

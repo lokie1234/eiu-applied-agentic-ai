@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { currentRole, teachingSections } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { currentUserAccess } from "@/lib/auth/currentUser";
 
 type TrackedSection = "section1" | "section2";
 const PRESENCE_TTL_MS = 35_000;
@@ -10,15 +11,9 @@ function validSection(value: string): value is TrackedSection {
   return value === "section1" || value === "section2";
 }
 
-async function getPresenceCounts(allowed: readonly string[]) {
-  const supabase = getSupabaseAdmin();
+async function getPresenceCounts(allowed: readonly string[], signal?: AbortSignal) {
+  const supabase = getSupabaseAdmin(signal);
   const cutoff = new Date(Date.now() - PRESENCE_TTL_MS).toISOString();
-
-  await supabase
-    .from("presence_sessions")
-    .update({ left_at: new Date().toISOString() })
-    .is("left_at", null)
-    .lt("last_seen_at", cutoff);
 
   const countSection = (section: TrackedSection) => supabase
     .from("presence_sessions")
@@ -39,15 +34,15 @@ async function getPresenceCounts(allowed: readonly string[]) {
   return { section1, section2, total: section1 + section2 };
 }
 
-export async function GET() {
+export async function GET(request?: Request) {
   try {
-    const allowed = await teachingSections();
+    const allowed = await teachingSections(undefined, request?.signal);
     if (!allowed.length) {
       return NextResponse.json({ success: false, message: "Chỉ admin mới xem được số người đang học." }, { status: 403 });
     }
 
     return NextResponse.json(
-      { success: true, counts: await getPresenceCounts(allowed) },
+      { success: true, counts: await getPresenceCounts(allowed, request?.signal) },
       { headers: { "Cache-Control": "no-store, max-age=0" } },
     );
   } catch (error) {
@@ -72,7 +67,8 @@ export async function POST(request: Request) {
     const action = String(payload.action ?? "heartbeat");
     const clientId = String(payload.clientId ?? "").trim().slice(0, 120);
     const section = String(payload.section ?? "").trim();
-    const role = await currentRole();
+    const access = await currentUserAccess(request.signal);
+    const role = await currentRole(access);
 
     if (!clientId || !validSection(section)) {
       return NextResponse.json({ success: false, message: "Thông tin hiện diện không hợp lệ." }, { status: 400 });
@@ -80,7 +76,7 @@ export async function POST(request: Request) {
     if (role !== "admin" && role !== section) {
       return NextResponse.json({ success: false, message: "Không có quyền cập nhật Section này." }, { status: 403 });
     }
-    const profile = role === "admin" ? null : await currentLearnerProfile();
+    const profile = role === "admin" ? null : await currentLearnerProfile(access);
     if (role !== "admin" && !profile) {
       return NextResponse.json(
         { success: false, message: "Chưa có thông tin học viên." },

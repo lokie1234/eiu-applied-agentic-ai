@@ -17,6 +17,7 @@ import {
   chunksToContext,
   chunksToSources,
   createResponseCacheKey,
+  createQueryEmbeddingReader,
   getCachedAiAnswer,
   getSemanticCachedAiAnswer,
   normalizeQuery,
@@ -97,8 +98,8 @@ export async function POST(request: Request) {
 
     const ai = getGeminiClient();
     const kb = await getOrCreateActiveKnowledgeBase(ai);
-    const rules = await getKnowledgeBaseRules(kb.id);
     const supabase = getSupabaseAdmin();
+    const embedQuery = createQueryEmbeddingReader(ai);
 
     // Check ready documents
     const readyDocsQuery = supabase
@@ -108,7 +109,8 @@ export async function POST(request: Request) {
       .eq("status", "READY")
       .eq("folder", selectedFolder)
       .eq("subfolder", selectedSubfolder);
-    let { data: readyDocs, error: docsError } = await readyDocsQuery;
+    const [rules, docsResult] = await Promise.all([getKnowledgeBaseRules(kb.id), readyDocsQuery]);
+    let { data: readyDocs, error: docsError } = docsResult;
 
     if (docsError && !selectedSubfolder) {
       const fallbackResult = await supabase
@@ -166,6 +168,7 @@ export async function POST(request: Request) {
     if (!hitCacheAnswer && mayUseResponseCache && isFastMode) {
       hitCacheAnswer = await getSemanticCachedAiAnswer({
         ai,
+        embedQuery,
         knowledgeBaseId: kb.id,
         folder: selectedFolder,
         subfolder: selectedSubfolder,
@@ -205,6 +208,7 @@ export async function POST(request: Request) {
     const vectorChunks = isFastMode
       ? await retrieveDocumentChunks({
           ai,
+          embedQuery,
           knowledgeBaseId: kb.id,
           query: message,
           folder: selectedFolder,
@@ -373,6 +377,7 @@ export async function POST(request: Request) {
                   setCachedAiAnswer(cacheKey, cleanedText, finalSources, kb.id),
                   setSemanticCachedAiAnswer({
                     ai,
+                    embedQuery,
                     cacheKey,
                     knowledgeBaseId: kb.id,
                     folder: selectedFolder,
@@ -500,6 +505,7 @@ export async function POST(request: Request) {
         setCachedAiAnswer(cacheKey, cleanedAnswer, finalSources, kb.id),
         setSemanticCachedAiAnswer({
           ai,
+          embedQuery,
           cacheKey,
           knowledgeBaseId: kb.id,
           folder: selectedFolder,
