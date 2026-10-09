@@ -2,9 +2,15 @@
 
 import { useRef, useState, type FormEvent } from "react";
 import styles from "./SignInCard.module.css";
+import type { IdentityField } from "@/lib/learningIdentity";
+import LearnerInformationDialog from "./LearnerInformationDialog";
 
 export type SignInCardProps = {
   passcode: string;
+  identityFields?: IdentityField[];
+  information?: Record<string, string>;
+  onInformationChange?: (id: string, value: string) => void;
+  onInformationCancel?: () => void;
   setPasscode: (value: string) => void;
   loading: boolean;
   error?: string;
@@ -24,7 +30,7 @@ function GoogleLogo() {
   </svg>;
 }
 
-export default function SignInCard({ passcode, setPasscode, loading, error = "", onSubmit, onInputFocus, onInputBlur, onInputChange, onMethodChange }: SignInCardProps) {
+export default function SignInCard({ passcode, setPasscode, identityFields = [], information = {}, onInformationChange, onInformationCancel, loading, error = "", onSubmit, onInputFocus, onInputBlur, onInputChange, onMethodChange }: SignInCardProps) {
   const [method, setMethod] = useState<"passcode" | "google" | null>(null);
   const passcodeChoice = useRef<HTMLButtonElement>(null);
   function choose(next: "passcode" | "google" | null) {
@@ -38,7 +44,7 @@ export default function SignInCard({ passcode, setPasscode, loading, error = "",
     <header className={styles.heading}>
       <div className={styles.headingCopy}>
     <h2 id="sign-in-heading">{method === "passcode" ? "Sign in with passcode" : method === "google" ? "Sign in with Google" : "Welcome back"}</h2>
-    <p className={styles.intro}>{method === "passcode" ? "Use your folder or section passcode." : method === "google" ? "Administrator access with your EIU Google account." : "Choose how you would like to sign in."}</p>
+    <p className={styles.intro}>{method === "passcode" ? "Use your folder or course passcode." : method === "google" ? "Administrator access with your EIU Google account." : "Choose how you would like to sign in."}</p>
       </div>
       <span className={styles.headingMark} aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M5 8h8l3 3 3-3h8v17h-8l-3 2-3-2H5V8Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/><path d="M16 11v16M9 13h3M9 17h3M20 13h3M20 17h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg></span>
     </header>
@@ -47,7 +53,7 @@ export default function SignInCard({ passcode, setPasscode, loading, error = "",
       <button className={styles.choice} type="button" disabled={loading} onClick={() => choose("google")}><span className={styles.choiceIcon}><GoogleLogo /></span><span><strong>Google</strong><small>Administrator account only</small></span><span className={styles.arrow} aria-hidden="true">→</span></button>
     </div>}
     {method === "passcode" && <form noValidate className={styles.form} onSubmit={onSubmit} aria-busy={loading}>
-      <label htmlFor="hero-passcode-input">Passcode<input id="hero-passcode-input" aria-invalid={Boolean(error)} aria-describedby={error ? "sign-in-error" : undefined} type="password" value={passcode} disabled={loading} onChange={event => { setPasscode(event.target.value); onInputChange?.(); }} onFocus={onInputFocus} onBlur={onInputBlur} placeholder="Enter your folder or section passcode" autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={32} autoFocus aria-required="true" /></label>
+      <label htmlFor="hero-passcode-input">Passcode<input id="hero-passcode-input" aria-invalid={Boolean(error)} aria-describedby={error && !identityFields.length ? "sign-in-error" : undefined} type="password" value={passcode} disabled={loading} onChange={event => { setPasscode(event.target.value); onInputChange?.(); }} onFocus={onInputFocus} onBlur={onInputBlur} placeholder="Enter your folder or course passcode" autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={32} autoFocus aria-required="true" /></label>
       <button id="landing-access-button" className={styles.primary} type="submit" disabled={loading || !passcode.trim()}>{loading ? <><span className={styles.spinner} aria-hidden="true" />Signing in…</> : <>Sign in<span aria-hidden="true">→</span></>}</button>
     </form>}
     {method === "google" && <div className={styles.googlePanel}>
@@ -55,7 +61,7 @@ export default function SignInCard({ passcode, setPasscode, loading, error = "",
       <a className={styles.googleButton} href="/api/admin/drive/connect?mode=login" aria-disabled={loading || undefined} onClick={event => { if (loading) event.preventDefault(); }}><GoogleLogo /><span>Continue with Google</span></a>
       <p className={styles.googleNote}>Only the authorized administrator Google account can continue.</p>
     </div>}
-    {error && <div id="sign-in-error" className={styles.error} role="alert">
+    {error && !identityFields.length && <div id="sign-in-error" className={styles.error} role="alert">
       <span className={styles.errorIcon} aria-hidden="true">!</span>
       <div className={styles.errorContent}>
         <strong>Unable to sign in</strong>
@@ -63,5 +69,6 @@ export default function SignInCard({ passcode, setPasscode, loading, error = "",
       </div>
     </div>}
     <div className={styles.footer}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Secure access · Eastern International University</span></div>
+    {identityFields.length > 0 && <LearnerInformationDialog fields={identityFields} information={information} onChange={onInformationChange} onSubmit={onSubmit} onCancel={onInformationCancel} loading={loading} error={error} />}
   </section>;
 }

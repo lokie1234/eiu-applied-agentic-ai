@@ -1,3 +1,4 @@
+import { recordLearnerActivity } from "@/lib/learnerActivity";
 import { NextResponse } from "next/server";
 import { currentRole, canFacilitateSection } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
@@ -68,13 +69,14 @@ export async function POST(request: Request) {
       );
     }
 
-    const { error } = await getSupabaseAdmin().from("ideas").insert({
+    const { data: saved, error } = await getSupabaseAdmin().from("ideas").insert({
       section: "section1",
       name: profile.name,
       email: profile.email,
       idea,
-    });
+    }).select("id").single();
     if (error) throw error;
+    await recordLearnerActivity(profile.identity, "IDEA_SUBMITTED", "section1", saved.id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Idea submit error:", error);

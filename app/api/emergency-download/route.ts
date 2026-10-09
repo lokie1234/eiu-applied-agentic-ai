@@ -4,8 +4,7 @@ import path from "node:path";
 export const runtime = "nodejs";
 
 const FILES = {
-  config: { source: "GEM_CONFIG.txt", download: "GEM_CONFIG.txt" },
-  knowledge: { source: "KNOWLEDGE_ALL.txt", download: "KNOWLEDGE_ALL.txt" },
+  config: { source: "SKILL.md", download: "SKILL.md" },
 } as const;
 
 type FileKey = keyof typeof FILES;

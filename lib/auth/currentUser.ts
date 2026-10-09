@@ -3,6 +3,8 @@ import { currentAccessSession } from "./session";
 import { getCoursesAndSectionsData } from "./courseAccessStorage";
 import { resolvePasscode, resolveFreeAccess } from "./passcodes";
 import { FIXED_ADMIN_EMAIL, type AppUserAccess } from "./types";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+import type { LearnerIdentity } from "@/lib/learningIdentity";
 
 export async function currentUserAccess(): Promise<AppUserAccess | null> {
   const session = await currentAccessSession();
@@ -10,6 +12,12 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
   const catalog = await getCoursesAndSectionsData();
   const resolved = session.role === "admin" ? catalog : session.role === "guest" ? resolveFreeAccess(catalog) : resolvePasscode(catalog, session.credentialHash);
   if (!resolved) return null;
+  let identity: LearnerIdentity | undefined;
+  if (session.role === "passcode" && session.identityLogId) {
+    const { data, error } = await getSupabaseAdmin().from("access_audit_logs").select("details").eq("id", session.identityLogId).eq("action", "PASSCODE_LOGIN").single();
+    if (error || !data || data.details?.sessionId !== session.sessionId) return null;
+    identity = data.details as LearnerIdentity;
+  }
   const sections = resolved.sections.filter(section => section.status === "active").map(section => ({
     id: section.id, courseId: section.course_id, sectionKey: section.section_key,
     title: section.title, position: section.position, contentType: section.content_type,
@@ -19,8 +27,9 @@ export async function currentUserAccess(): Promise<AppUserAccess | null> {
   }));
   return {
     authUserId: session.role === "admin" ? "admin" : session.sessionId,
-    email: session.role === "admin" ? FIXED_ADMIN_EMAIL : `${session.sessionId}@passcode.eiu`,
-    displayName: session.role === "admin" ? "Son Lam (Admin)" : sections.some(section => section.canFacilitate) ? "Facilitator" : `Learner ${session.sessionId.slice(0, 6)}`,
+    learnerIdentity: identity,
+    email: session.role === "admin" ? FIXED_ADMIN_EMAIL : identity?.email || `${session.sessionId}@passcode.eiu`,
+    displayName: session.role === "admin" ? "Son Lam (Admin)" : identity?.name || (sections.some(section => section.canFacilitate) ? "Facilitator" : `Learner ${session.sessionId.slice(0, 6)}`),
     avatarUrl: null, isAdmin: session.role === "admin", isActive: true,
     canFacilitate: session.role === "admin" || sections.some(section => section.canFacilitate),
     courses: resolved.courses.filter(course => course.status === "active").map(course => ({

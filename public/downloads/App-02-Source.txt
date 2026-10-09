@@ -2,7 +2,7 @@
 APP 02 SOURCE BUNDLE — Leave Management Web App
 ==============================================================================
 Purpose: Reference source for Gemini to compare two internal business web apps
-and extract a reusable AI Business Framework / Gemini Gem.
+and extract a reusable AI Business Framework / Gemini SKILL.
 
 IMPORTANT READING RULES
 - Treat every FILE START / FILE END block as one original project file.

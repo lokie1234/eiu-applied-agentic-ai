@@ -45,7 +45,7 @@ function buildSectionOneExportList(): SectionOneExportItem[] {
   return items;
 }
 
-const SECTION_TWO_PAGES = Array.from({ length: 35 }, (_, index) => index + 1);
+const SECTION_TWO_PAGES = Array.from({ length: 36 }, (_, index) => index + 1);
 
 type Props = {
   searchParams: Promise<{ section?: string }>;

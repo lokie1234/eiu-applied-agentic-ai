@@ -37,6 +37,7 @@ export type SectionAccess = {
 };
 
 export type AppUserAccess = {
+  learnerIdentity?: import("@/lib/learningIdentity").LearnerIdentity;
   authUserId: string;
   email: string;
   displayName: string;

@@ -3,6 +3,8 @@ import { useState } from "react";
 import type { AccessCodes, AccessMode } from "@/lib/auth/passcodes";
 import EiuConfirmDialog, { type EiuDialogState } from "./EiuConfirmDialog";
 import styles from "./PasscodeManager.module.css";
+import LearnerInformationSettings from "./LearnerInformationSettings";
+import type { LearningIdentityPolicy } from "@/lib/learningIdentity";
 
 type Course = { folderGroupId?: string; id: string; title: string; metadata: { hidden?: boolean; hiddenSectionIds?: string[]; passcode?: string; facilitatorPasscode?: string } };
 type Folder = { hidden?: boolean; id: string; name: string; accessCodes?: AccessCodes };
@@ -25,7 +27,7 @@ function CodeEditor({ target, mode, onSave, disabled = false }: { target: Target
     <span className={styles.badge}>{current ? "CODE ACTIVE" : mode === "facilitator" ? "NOT CONFIGURED" : target.kind === "global" ? "NOT CONFIGURED" : target.parentLocked ? "INHERITED LOCK" : "FREE ACCESS"}</span>
     <h3>{mode === "learner" ? "Learning access" : "Teaching access"}</h3>
     <p>{mode === "learner" ? "Lessons, interactions, and quizzes." : "Open quizzes and view interactions. No admin or content-management access."}</p>
-    <label>Passcode<input aria-label={`${target.kind === "global" ? "global " : ""}${mode} passcode`} value={code} onChange={event => setCode(event.target.value)} maxLength={32} autoComplete="off" spellCheck={false} disabled={busy || disabled} placeholder={mode === "learner" && target.kind !== "global" ? "Leave blank for free access" : "Not configured"} /></label>
+    <label>Passcode<input aria-label={`${target.kind === "global" ? "global " : ""}${mode} passcode`} value={code} onChange={event => setCode(event.target.value)} maxLength={32} autoComplete="off" spellCheck={false} disabled={busy || disabled} placeholder={mode === "learner" && target.kind !== "global" ? "Free" : "Not set"} /></label>
     <small>{current ? "Active in this scope. Changing or clearing this code revokes its sessions." : target.kind === "global" ? "Opens all visible courses, including courses added later." : mode === "facilitator" ? "Teaching requires a teaching code; a parent teaching code also applies." : target.parentLocked ? "A parent Learning code still protects this scope." : "No lock at this level. Child Learning codes still apply to free browsing."}</small>
     <div className={styles.actions}>
       <button type="button" disabled={disabled || busy || !code.trim() || code === current} onClick={() => void save()}>Save</button>
@@ -37,7 +39,7 @@ function CodeEditor({ target, mode, onSave, disabled = false }: { target: Target
   </article>;
 }
 
-export default function PasscodeManager({ courses, folders, globalCodes = {}, onSave }: { courses: Course[]; folders: Folder[]; globalCodes?: AccessCodes; onSave: Save }) {
+export default function PasscodeManager({ courses, folders, globalCodes = {}, identityPolicy, onSave }: { courses: Course[]; folders: Folder[]; globalCodes?: AccessCodes; identityPolicy?: LearningIdentityPolicy; onSave: Save }) {
   const targets: Target[] = folders.flatMap(folder => [
     { kind: "folder" as const, id: folder.id, label: folder.name, codes: folder.accessCodes || {}, path: "Folder", hidden: Boolean(folder.hidden || courses.some(course => course.folderGroupId === folder.id && (course.metadata.hidden || course.metadata.hiddenSectionIds?.length))) },
     ...courses.filter(course => course.folderGroupId === folder.id || (!course.folderGroupId && folder === folders[0])).map(course => ({
@@ -83,7 +85,10 @@ export default function PasscodeManager({ courses, folders, globalCodes = {}, on
   const editors = (item: Target) => (["learner", "facilitator"] as const).map(mode => <CodeEditor key={`${item.kind}:${item.id}:${mode}:${item.codes[mode] || ""}`} target={item} mode={mode} onSave={save} disabled={busy} />);
   return <section className={styles.manager}>
     <header className={styles.heading}><span>EIU · ACCESS CONTROL</span><h2>Passcode management</h2><p>Global codes open all visible courses. Folder codes cover their courses; course codes cover every section. Google remains administrator-only.</p></header>
-    <section className={styles.global} aria-labelledby="global-codes-heading"><div className={styles.sectionHeading}><h3 id="global-codes-heading">Global access</h3><span>ALL COURSES</span></div><div className={styles.codeGrid}>{editors(globalTarget)}</div></section>
+    <div className={styles.overview}>
+      <section className={styles.global} aria-labelledby="global-codes-heading"><div className={styles.sectionHeading}><h3 id="global-codes-heading">Global access</h3><span>ALL COURSES</span></div><div className={styles.codeGrid}>{editors(globalTarget)}</div></section>
+      <LearnerInformationSettings key={JSON.stringify(identityPolicy)} policy={identityPolicy} onSave={onSave} />
+    </div>
     <div className={styles.sectionHeading}><h3>Folder & course access</h3><span>{targets.length} SCOPES</span></div>
     <p className={styles.rule}>Learning access is free when neither the folder nor the course has a Learning code. Teaching always requires a code.</p>
     <div className={styles.bulkToolbar} aria-label="Bulk passcode actions"><strong>{chosen.length} selected</strong><button type="button" disabled={busy || !filtered.length} onClick={() => setSelected(current => filtered.every(item => current.includes(`${item.kind}:${item.id}`)) ? current.filter(key => !filtered.some(item => key === `${item.kind}:${item.id}`)) : [...new Set([...current, ...filtered.map(item => `${item.kind}:${item.id}`)])])}>Select / clear visible</button><label>Access type<select aria-label="Bulk access type" value={bulkMode} disabled={busy} onChange={event => setBulkMode(event.target.value as typeof bulkMode)}><option value="both">Learning & Teaching</option><option value="learner">Learning only</option><option value="facilitator">Teaching only</option></select></label><button type="button" disabled={busy || !chosen.length} onClick={() => void bulk("generate")}>Generate selected</button><button type="button" className={styles.danger} disabled={busy || !chosen.length} onClick={() => void bulk("clear")}>Clear selected codes</button></div>

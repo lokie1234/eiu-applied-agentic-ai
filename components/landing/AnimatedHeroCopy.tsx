@@ -2,10 +2,15 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import SignInCard from "./SignInCard";
+import type { IdentityField } from "@/lib/learningIdentity";
 
 interface AnimatedHeroCopyProps {
   stage: number;
   passcode: string;
+  identityFields?: IdentityField[];
+  information?: Record<string, string>;
+  onInformationChange?: (id: string, value: string) => void;
+  onInformationCancel?: () => void;
   setPasscode: (val: string) => void;
   loading: boolean;
   error?: string;
@@ -50,6 +55,10 @@ function SplitHeadline({
 export default function AnimatedHeroCopy({
   stage,
   passcode,
+  identityFields,
+  information,
+  onInformationChange,
+  onInformationCancel,
   setPasscode,
   loading,
   error = "",
@@ -218,6 +227,7 @@ export default function AnimatedHeroCopy({
         style={{ marginTop: 26, width: "100%", maxWidth: 460 }}
       >
         <SignInCard passcode={passcode} setPasscode={setPasscode}
+          identityFields={identityFields} information={information} onInformationChange={onInformationChange} onInformationCancel={onInformationCancel}
           loading={loading} error={error} onSubmit={onSubmit}
           onInputFocus={onInputFocus} onInputBlur={onInputBlur} onInputChange={onInputChange} onMethodChange={onMethodChange} />
       </motion.div>

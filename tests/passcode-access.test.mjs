@@ -9,11 +9,117 @@ const require = createRequire(import.meta.url);
 function load(path, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, { exports, require: name => dependencies[name] ?? require(name), Buffer, console, Date, process, URL });
+  vm.runInNewContext(code, { exports, require: name => dependencies[name] ?? (name === "@/lib/learningIdentity" ? load("lib/learningIdentity.ts") : name === "@/lib/reportLearners" ? load("lib/reportLearners.ts") : require(name)), Buffer, console, Date, process, URL, Response });
   return exports;
 }
 const response = { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200, cookies: { set(name, value) { this.value = value; } } }) } };
 const request = body => ({ json: async () => body, headers: new Headers() });
+
+test("learner sheets combine login scopes, repeated actions and older participants without duplicates", () => {
+  const { collectReportLearners } = load("lib/reportLearners.ts");
+  const details = { sessionId: "one", name: "Alice", email: "alice@example.test", information: { department: "IT" } };
+  const logs = [
+    { action: "PASSCODE_LOGIN", created_at: "2026-10-09T01:00:00Z", details: { ...details, sectionKeys: ["section1", "section2"] } },
+    { action: "QUIZ_COMPLETED", created_at: "2026-10-09T02:00:00Z", details: { ...details, section: "section2" } },
+    { action: "FEEDBACK_SUBMITTED", created_at: "2026-10-09T03:00:00Z", details: { ...details, section: "section2" } },
+    { action: "PASSCODE_LOGIN", details: { ...details, sessionId: "teacher", accessMode: "facilitator", sectionKeys: ["section2"] } },
+  ];
+  const rows = collectReportLearners([{ section: "section2", name: "Alice", email: "alice@example.test" }], logs, [{ section: "section2", name: "Bob", email: "bob@example.test", completed_at: "2026-10-08T01:00:00Z" }]);
+  assert.equal(rows.length, 3); assert.equal(rows.filter(row => row.name === "Alice").length, 2);
+  const section2 = rows.find(row => row.sessionId === "one" && row.section === "section2");
+  assert.equal(section2.information.department, "IT"); assert.equal(section2.created_at, "2026-10-09T01:00:00Z"); assert.equal(section2.updated_at, "2026-10-09T03:00:00Z");
+  assert.ok(rows.some(row => row.name === "Bob")); assert.ok(!rows.some(row => row.sessionId === "teacher"));
+});
+
+test("number fields preserve inclusive limits and reject invalid or out-of-range input", () => {
+  const identity = load("lib/learningIdentity.ts");
+  const policy = identity.parseIdentityPolicy({ enabled: true, fields: [{ id: "age", label: "Age", type: "number", min: 18, max: 65 }] });
+  assert.equal(policy.fields[0].min, 18); assert.equal(policy.fields[0].max, 65);
+  for (const value of ["18", "65", "20.5"]) assert.equal(identity.validateIdentityInformation(policy, { age: value }).values.age, value);
+  for (const value of ["17", "66", "Infinity", "0x20", "NaN", "", "text", "1e999"]) assert.ok(identity.validateIdentityInformation(policy, { age: value }).error, value);
+  for (const limits of [{ min: 10, max: 2 }, { min: Infinity }, { max: "65" }]) assert.equal(identity.parseIdentityPolicy({ fields: [{ id: "age", label: "Age", type: "number", ...limits }] }).fields.length, 0);
+  const unlimited = identity.parseIdentityPolicy({ fields: [{ id: "value", label: "Value", type: "number" }] });
+  assert.equal(identity.validateIdentityInformation(unlimited, { value: "-1.25" }).values.value, "-1.25");
+});
+
+test("learning sign-in requires configured fields, ignores spoofed identity, and excludes Teaching", async () => {
+  const f = fixture();
+  f.catalog.learningIdentityPolicy = { enabled: true, fields: [{ id: "name", label: "Name", type: "text" }, { id: "email", label: "Email", type: "email" }, { id: "department", label: "Department", type: "text" }] };
+  const logs = [];
+  const db = { from: () => ({ select() { return this; }, eq() { return this; }, contains() { return this; }, gte: async () => ({ count: 0 }), insert(row) { logs.push(row); return this; }, single: async () => ({ data: { id: logs.length } }) }) };
+  const auth = load("app/api/auth/access/route.ts", { "next/server": response, "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "@/lib/auth/courseAccessStorage": f.storage, "@/lib/auth/passcodes": f.codes, "@/lib/auth/session": { ACCESS_SESSION_COOKIE: "session", createAccessSession: body => body, sessionCookieOptions: () => ({}) } });
+  const required = await auth.POST(request({ passcode: "CL01234", role: "admin" }));
+  assert.equal(required.data.requiresInformation, true); assert.equal(required.cookies.value, undefined); assert.equal(logs.length, 0);
+  assert.equal((await auth.POST(request({ passcode: "CL01234", information: { name: "Alice", email: "bad", department: "IT" } }))).status, 400);
+  assert.equal((await auth.POST(request({ passcode: "CL01234", information: { name: "Alice", email: "alice@example.test" } }))).status, 400);
+  const signed = await auth.POST(request({ passcode: "CL01234", sessionId: "spoofed", information: { name: " Alice ", email: "Alice@Example.test", department: "IT", admin: "true" } }));
+  assert.equal(signed.data.success, true); assert.equal(signed.cookies.value.identityLogId, 1);
+  assert.notEqual(signed.cookies.value.sessionId, "spoofed"); assert.equal(signed.cookies.value.role, "passcode");
+  assert.equal(logs[0].details.name, "Alice"); assert.equal(logs[0].details.email, "alice@example.test"); assert.equal(logs[0].details.information.department, "IT"); assert.equal(logs[0].details.information.admin, undefined);
+  assert.equal((await auth.POST(request({ passcode: "CT01234" }))).data.success, true);
+  f.catalog.learningIdentityPolicy.enabled = false;
+  assert.equal((await auth.POST(request({ passcode: "CL01234" }))).data.success, true);
+});
+
+test("the signed session loads its stored identity and cannot use another session's profile", async () => {
+  const f = fixture();
+  const session = { role: "passcode", credentialHash: f.codes.hashPasscode("CL01234"), sessionId: "session-one", identityLogId: 1 };
+  const identity = { sessionId: "session-one", name: "Alice", email: "alice@example.test", information: { department: "IT" } };
+  const db = { from: () => ({ select() { return this; }, eq() { return this; }, single: async () => ({ data: { details: identity } }) }) };
+  const access = load("lib/auth/currentUser.ts", { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "./session": { currentAccessSession: async () => session }, "./courseAccessStorage": f.storage, "./passcodes": f.codes, "./types": { FIXED_ADMIN_EMAIL: "admin@example.test" } });
+  const user = await access.currentUserAccess();
+  assert.equal(user.displayName, "Alice"); assert.equal(user.email, "alice@example.test"); assert.equal(user.learnerIdentity.information.department, "IT"); assert.equal(user.isAdmin, false);
+  identity.sessionId = "other-session";
+  assert.equal(await access.currentUserAccess(), null);
+});
+
+test("submitted activity retains the original session, extra information and record ID", async () => {
+  let saved;
+  const activity = load("lib/learnerActivity.ts", { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => ({ from: () => ({ insert: async row => { saved = row; return {}; } }) }) } });
+  for (const action of ["IDEA_SUBMITTED", "SHOWCASE_SUBMITTED", "QUIZ_COMPLETED", "FEEDBACK_SUBMITTED"]) {
+    await activity.recordLearnerActivity({ sessionId: "one", name: "Alice", email: "alice@example.test", information: { department: "IT" } }, action, "section2", "record-one");
+    assert.equal(saved.action, action); assert.equal(saved.details.sessionId, "one"); assert.equal(saved.details.recordId, "record-one"); assert.equal(saved.details.information.department, "IT");
+  }
+});
+
+test("submission endpoints use server identity for both the record and its activity", async () => {
+  for (const [route, action, section, body] of [
+    ["ideas", "IDEA_SUBMITTED", "section1", { idea: "New app" }],
+    ["showcase", "SHOWCASE_SUBMITTED", "section2", { url: "https://example.test/app" }],
+    ["quiz-results", "QUIZ_COMPLETED", "section2", { score: 10, total: 10, answers: Array.from({ length: 10 }, () => ({ question: "Q", selected: "A", correct: "A", isCorrect: true })) }],
+    ["quiz-feedback", "FEEDBACK_SUBMITTED", "section2", { feedback: "Useful lesson" }],
+  ]) {
+    let record, activity;
+    const identity = { sessionId: "learner-session", name: "Alice", email: "alice@example.test", information: { department: "IT" } };
+    const db = { from: () => ({ insert(row) { record = row; return this; }, select() { return this; }, single: async () => ({ data: { ...record, id: "saved-record", shared_at: new Date().toISOString() } }) }) };
+    const endpoint = load(`app/api/${route}/route.ts`, { "next/server": response, "@/lib/quizProgress": { readQuizProgress: async () => null }, "@/lib/currentRole": { currentRole: async () => section }, "@/lib/currentLearnerProfile": { currentLearnerProfile: async () => ({ name: identity.name, email: identity.email, section, identity }) }, "@/lib/sectionSession": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "@/lib/learnerActivity": { recordLearnerActivity: async (...args) => { activity = args; } } });
+    const result = await endpoint.POST(request({ ...body, section, name: "Fake", email: "fake@example.test", information: { department: "Fake" } }));
+    assert.equal(result.data.success, true, route); assert.equal(record.name, "Alice"); assert.equal(record.email, "alice@example.test");
+    if (route === "quiz-results") { assert.equal(result.data.learner.name, "Alice"); assert.equal(result.data.learner.email, "alice@example.test"); assert.equal(result.data.learner.information.department, "IT"); }
+    assert.equal(activity[0].information.department, "IT"); assert.equal(activity[1], action); assert.equal(activity[2], section); assert.equal(activity[3], "saved-record");
+  }
+});
+
+test("activity report removes identifiers and email outside learner sheets and formats local times", async () => {
+  const ExcelJS = require("exceljs");
+  const records = { section_state: [{ section: "section2" }], feedback: [{ id: "record-one", section: "section2", name: "Alice", email: "alice@example.test", feedback: "Useful" }], access_audit_logs: [{ action: "FEEDBACK_SUBMITTED", created_at: "2026-10-09T12:08:09.536Z", details: { sessionId: "session-one", section: "section2", recordId: "record-one", name: "Alice", email: "alice@example.test", information: { department: "IT" }, fields: [{ id: "department", label: "Department" }] } }] };
+  const db = { from: table => ({ select() { return this; }, order() { return this; }, range: async () => ({ data: records[table] || [] }) }) };
+  const report = load("app/api/admin/report/route.ts", { exceljs: { default: ExcelJS }, "@/lib/currentRole": { currentRole: async () => "admin" }, "@/lib/supabase/server": { getSupabaseAdmin: () => db } });
+  const response = await report.GET(new Request("http://localhost/api/admin/report?section=section2"));
+  assert.equal(response.status, 200);
+  const workbook = new ExcelJS.Workbook(); await workbook.xlsx.load(Buffer.from(await response.arrayBuffer()));
+  const sheet = workbook.getWorksheet("Learner activity");
+  assert.equal(sheet.getCell("A2").value, "Alice"); assert.equal(sheet.getCell("D2").value, "Department: IT");
+  assert.equal(sheet.getCell("E2").value, "09/10/2026 19:08:09");
+  assert.equal(workbook.getWorksheet("S2 - Feedback").getCell("A2").value, "Alice");
+  const learners = workbook.getWorksheet("S2 - Hoc vien");
+  assert.equal(learners.getCell("A2").value, "Alice"); assert.equal(learners.getCell("B2").value, "alice@example.test"); assert.equal(learners.getCell("C2").value, "Department: IT");
+  for (const worksheet of workbook.worksheets) {
+    const headers = worksheet.getRow(1).values.join("|");
+    assert.doesNotMatch(headers, /Session ID|Record ID|UTC/);
+    if (!worksheet.name.endsWith("Hoc vien")) assert.doesNotMatch(headers, /Email/);
+  }
+});
 function fixture() {
   const catalog = {
     folderGroups: [{ id: "f1", name: "First", accessCodes: { learner: "FL1234", facilitator: "FT1234" } }, { id: "f2", name: "Other" }],
@@ -98,7 +204,7 @@ test("admin section visibility changes preserve access codes and invalidate the 
 
 test("facilitators cannot access administration or modify course content, and revoked sessions stop resolving", async () => {
   const f = fixture(); const session = { role: "passcode", credentialHash: f.codes.hashPasscode("CT01234"), sessionId: "first-learner" };
-  const access = load("lib/auth/currentUser.ts", { "server-only": {}, "./session": { currentAccessSession: async () => session }, "./courseAccessStorage": f.storage, "./passcodes": f.codes, "./types": { FIXED_ADMIN_EMAIL: "admin@example.test" } });
+  const access = load("lib/auth/currentUser.ts", { "server-only": {}, "@/lib/supabase/server": {}, "./session": { currentAccessSession: async () => session }, "./courseAccessStorage": f.storage, "./passcodes": f.codes, "./types": { FIXED_ADMIN_EMAIL: "admin@example.test" } });
   const user = await access.currentUserAccess();
   assert.equal(user.isAdmin, false); assert.equal(user.canFacilitate, true);
   assert.equal(user.sections.length, 2); assert.equal(user.courses[0].passcode, undefined);
@@ -143,7 +249,7 @@ test("signed sessions reject old username, teacher and password admin tokens", a
 
 test("passcode login rejects usernames, rate-limits failures and gives each learner a distinct identity", async () => {
   const f = fixture(); let failures = 0; let audit;
-  const db = { from: () => ({ select() { return this; }, eq() { return this; }, contains() { return this; }, gte: async () => ({ count: failures }), insert: async row => { audit = row; failures++; return {}; } }) };
+  const db = { from: () => ({ select() { return this; }, eq() { return this; }, contains() { return this; }, gte: async () => ({ count: failures }), insert(row) { audit = row; if (row.action === "PASSCODE_LOGIN_FAILED") failures++; return this; }, single: async () => ({ data: { id: 1 } }) }) };
   const auth = load("app/api/auth/access/route.ts", { "next/server": response, "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "@/lib/auth/courseAccessStorage": f.storage, "@/lib/auth/passcodes": f.codes, "@/lib/auth/session": { ACCESS_SESSION_COOKIE: "session", createAccessSession: body => body, sessionCookieOptions: () => ({}) } });
   assert.equal((await auth.POST(request({ email: "old@example.test" }))).status, 400);
   const first = await auth.POST(request({ passcode: "CL01234" }));
@@ -205,7 +311,7 @@ test("free entrance creates separate learner sessions and cannot expose locked c
   assert.equal(first.cookies.value.role, "guest");
   assert.notEqual(first.cookies.value.sessionId, second.cookies.value.sessionId);
   const session = first.cookies.value;
-  const access = load("lib/auth/currentUser.ts", { "server-only": {}, "./session": { currentAccessSession: async () => session }, "./courseAccessStorage": f.storage, "./passcodes": f.codes, "./types": { FIXED_ADMIN_EMAIL: "admin@example.test" } });
+  const access = load("lib/auth/currentUser.ts", { "server-only": {}, "@/lib/supabase/server": {}, "./session": { currentAccessSession: async () => session }, "./courseAccessStorage": f.storage, "./passcodes": f.codes, "./types": { FIXED_ADMIN_EMAIL: "admin@example.test" } });
   assert.equal((await access.currentUserAccess()).sections.map(s => s.id).join(","), "s4");
   assert.equal((await access.currentUserAccess()).canFacilitate, false);
   assert.equal(await access.requireAdminAccess(), null);

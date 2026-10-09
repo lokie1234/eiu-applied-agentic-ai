@@ -6,7 +6,7 @@ import { APPLIED_AGENTIC_AI_SLUG, isLearningSection } from "@/lib/auth/types";
 
 export const metadata = { title: "EIU · Learning Space" };
 
-export default async function LearningPage({ searchParams }: { searchParams: Promise<{ courseId?: string; sectionId?: string }> }) {
+export default async function LearningPage({ searchParams }: { searchParams: Promise<{ courseId?: string; sectionId?: string; view?: string }> }) {
   const [access, query] = await Promise.all([currentUserAccess(), searchParams]);
   if (!access) redirect("/");
   if (!access.isActive) return <NoCourseAccess />;
@@ -24,7 +24,7 @@ export default async function LearningPage({ searchParams }: { searchParams: Pro
   const requestedCourse = courseFolders.find(course => course.id === query.courseId && (access.isAdmin || course.isUnlocked));
   const requestedSection = requestedCourse?.sections.find(section => section.id === query.sectionId);
   const initialSection = requestedCourse
-    ? requestedCourse.slug === APPLIED_AGENTIC_AI_SLUG && isLearningSection(requestedSection?.sectionKey) && allowedSections.includes(requestedSection.sectionKey) ? requestedSection.sectionKey : null
+    ? query.view !== "file" && requestedCourse.slug === APPLIED_AGENTIC_AI_SLUG && isLearningSection(requestedSection?.sectionKey) && allowedSections.includes(requestedSection.sectionKey) ? requestedSection.sectionKey : null
     : null;
   return <LessonPortal canFacilitate={access.canFacilitate} isAdmin={access.isAdmin} courseFolders={courseFolders}
     initialCourseId={requestedCourse?.id} initialSectionId={requestedSection?.id} initialSection={initialSection} initialProfile={{ name: access.displayName, email: access.email, section: initialSection ?? allowedSections[0] ?? "section1" }} />;

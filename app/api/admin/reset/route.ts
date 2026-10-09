@@ -5,6 +5,39 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 export const runtime = "nodejs";
 
 const RESET_CONFIRMATION = "Lovekjng123@@";
+const LEARNING_ACTIONS = ["PASSCODE_LOGIN", "IDEA_SUBMITTED", "SHOWCASE_SUBMITTED", "QUIZ_COMPLETED", "FEEDBACK_SUBMITTED"];
+
+async function resetLearningActivity(supabase: ReturnType<typeof getSupabaseAdmin>, section: string) {
+  if (section === "all") {
+    const { error } = await supabase.from("access_audit_logs").delete().in("action", LEARNING_ACTIONS);
+    if (error) throw error;
+    return;
+  }
+
+  const { error } = await supabase.from("access_audit_logs").delete()
+    .in("action", LEARNING_ACTIONS.filter(action => action !== "PASSCODE_LOGIN"))
+    .eq("details->>section", section);
+  if (error) throw error;
+
+  // A global/folder login can appear in several learner sheets. Remove only
+  // this section from its scope, retaining the identity for other sections.
+  const logins: Array<{ id: number; details: Record<string, unknown> }> = [];
+  for (let offset = 0; ; offset += 1000) {
+    const { data, error: readError } = await supabase.from("access_audit_logs").select("id,details")
+      .eq("action", "PASSCODE_LOGIN").contains("details", { sectionKeys: [section] })
+      .order("id").range(offset, offset + 999);
+    if (readError) throw readError;
+    logins.push(...(data || []));
+    if (!data || data.length < 1000) break;
+  }
+  for (const login of logins) {
+    const remaining = (login.details.sectionKeys as string[]).filter(key => key !== section);
+    const result = remaining.length
+      ? await supabase.from("access_audit_logs").update({ details: { ...login.details, sectionKeys: remaining } }).eq("id", login.id)
+      : await supabase.from("access_audit_logs").delete().eq("id", login.id);
+    if (result.error) throw result.error;
+  }
+}
 
 function formatSectionLabel(section: string): string {
   const match = section.match(/^section\s*(\d+)$/i);
@@ -58,15 +91,8 @@ export async function POST(request: Request) {
     const quizDelete = supabase.from("quiz_results").delete();
     const feedbackDelete = supabase.from("feedback").delete();
     const presenceDelete = supabase.from("presence_sessions").delete();
-    const sectionStateUpdate = supabase.from("section_state").update({
-      quiz_open: false,
-      quiz_opened_at: null,
-      session_started_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    });
-
     const resetAll = requestedSection === "all";
-    const [r1, r2, r3, r4, r5, r6, r7] = await Promise.all([
+    const results = await Promise.all([
       resetAll
         ? learnerDelete.neq("email", "")
         : learnerDelete.eq("section", requestedSection),
@@ -81,16 +107,27 @@ export async function POST(request: Request) {
       resetAll
         ? presenceDelete.neq("client_id", "")
         : presenceDelete.eq("section", requestedSection),
-      resetAll
-        ? sectionStateUpdate.neq("section", "")
-        : sectionStateUpdate.eq("section", requestedSection),
     ]);
 
-    const errors = [r1.error, r2.error, r3.error, r4.error, r5.error, r6.error, r7.error].filter(Boolean);
+    const errors = results.map(result => result.error).filter(Boolean);
     if (errors.length > 0) {
       console.error("Reset data errors:", errors);
       throw new Error(errors[0]?.message || "Unable to delete data from Supabase.");
     }
+
+    await resetLearningActivity(supabase, requestedSection);
+    const resetAt = new Date().toISOString();
+    const sectionStateUpdate = supabase.from("section_state").update({
+      quiz_open: false,
+      quiz_opened_at: null,
+      termination_token: crypto.randomUUID(),
+      session_started_at: resetAt,
+      updated_at: resetAt,
+    });
+    const { error: stateError } = await (resetAll
+      ? sectionStateUpdate.neq("section", "")
+      : sectionStateUpdate.eq("section", requestedSection));
+    if (stateError) throw stateError;
 
     const scopeLabel = resetAll ? "all sections" : formatSectionLabel(requestedSection);
     return NextResponse.json({

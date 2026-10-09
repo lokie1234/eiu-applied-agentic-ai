@@ -4,6 +4,7 @@ import vm from "node:vm";
 import test from "node:test";
 import { createRequire } from "node:module";
 import ts from "typescript";
+import learningIdentity from "./helpers/learning-identity.mjs";
 
 const require = createRequire(import.meta.url);
 function fixture() {
@@ -31,6 +32,7 @@ function fixture() {
   } };
   const exports = {};
   const dependencies = {
+    "@/lib/learningIdentity": learningIdentity,
     "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => db },
     "@/lib/auth/types": { FIXED_ADMIN_EMAIL: "admin@example.test", APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai", normalizeEmail: value => String(value).toLowerCase(), isValidEmail: value => value.includes("@") },
   };
@@ -158,4 +160,15 @@ test("global codes persist in the shared catalog through unrelated folder and se
   assert.equal(catalog.globalAccessCodes.facilitator, "TEACH1234");
   await storage.updateCourseMetadata("core", current => ({ ...current, globalAccessCodes: { ...current.globalAccessCodes, learner: "" } }));
   assert.equal((await storage.getCoursesAndSectionsData()).globalAccessCodes.learner, "");
+});
+
+test("learner information policy survives unrelated edits and can be switched off", async () => {
+  const { storage } = fixture();
+  await storage.updateCourseMetadata("core", current => ({ ...current, learningIdentityPolicy: { enabled: true, fields: [{ id: "department", label: "Department", type: "text" }] } }));
+  await storage.createFolderGroup("New folder");
+  await storage.updateCourseSummary("core", "Changed summary");
+  const policy = (await storage.getCoursesAndSectionsData()).learningIdentityPolicy;
+  assert.equal(policy.enabled, true); assert.equal(policy.fields[0].label, "Department");
+  await storage.updateCourseMetadata("core", current => ({ ...current, learningIdentityPolicy: { ...current.learningIdentityPolicy, enabled: false } }));
+  assert.equal((await storage.getCoursesAndSectionsData()).learningIdentityPolicy.enabled, false);
 });

@@ -7,12 +7,16 @@ import ts from "typescript";
 import React, { act } from "react";
 import { Window } from "happy-dom";
 import { renderToStaticMarkup } from "react-dom/server";
+import learningIdentity from "./helpers/learning-identity.mjs";
 const require = createRequire(import.meta.url);
 function component(path, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;
-  vm.runInNewContext(code, { exports, console, Date, window: globalThis.window, document: globalThis.document, fetch: (...args) => globalThis.fetch(...args), require: name => {
+  vm.runInNewContext(code, { exports, console, Date, crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, fetch: (...args) => globalThis.fetch(...args), require: name => {
+    if (name === "./LearnerInformationDialog") return { __esModule: true, default: component("components/landing/LearnerInformationDialog.tsx") };
     if (name === "./EiuConfirmDialog") return { __esModule: true, default: component("components/admin/EiuConfirmDialog.tsx") };
+    if (name === "./LearnerInformationSettings") return { __esModule: true, default: component("components/admin/LearnerInformationSettings.tsx", { "@/lib/learningIdentity": learningIdentity }) };
+    if (name === "@/lib/deckLocation") return { rememberDeckSelection() {} };
     if (name.endsWith(".css")) return new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) });
     return dependencies[name] ?? require(name);
   } });
@@ -24,6 +28,139 @@ test("landing offers passcode and admin Google sign-in without username login", 
   const html = renderToStaticMarkup(React.createElement(SignIn, { passcode: "", setPasscode() {}, onSubmit() {}, loading: false }));
   assert.match(html, /Passcode/); assert.match(html, /Learner or facilitator access/);
   assert.match(html, /Administrator account only/); assert.doesNotMatch(html, /Username|registered account/);
+});
+
+test("completed quiz shows the identity confirmed by the server, including custom fields", async () => {
+  const window = new Window({ url: "http://localhost" });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async url => ({ ok: true, json: async () => url.startsWith("/api/quiz-control") ? { isOpen: true } : { success: true, learner: { name: "Alice", email: "alice@example.test", information: { name: "Alice", email: "alice@example.test", department: "IT" }, fields: [{ id: "department", label: "Department" }] } } });
+  const originalTimeout = window.setTimeout.bind(window);
+  window.setTimeout = (callback, delay, ...args) => originalTimeout(callback, delay === 620 ? 0 : delay, ...args);
+  const Quiz = component("components/QuizSlide.tsx", { "@/lib/supabase/browser": { getSupabaseBrowserClient: () => null } });
+  const container = window.document.createElement("div"); window.document.body.append(container); const root = createRoot(container);
+  try {
+    await act(async () => { root.render(React.createElement(Quiz, { scale: 1 })); await new Promise(resolve => setTimeout(resolve, 10)); });
+    await act(async () => new Promise(resolve => setTimeout(resolve, 10)));
+    for (let i = 0; i < 10; i++) await act(async () => { container.querySelector(".option").click(); await new Promise(resolve => setTimeout(resolve, 10)); });
+    const summary = container.querySelector(".submittedInfo");
+    assert.ok(summary); assert.match(summary.textContent, /Alice/); assert.match(summary.textContent, /alice@example.test/); assert.match(summary.textContent, /Department:IT/);
+    assert.doesNotMatch(summary.textContent, /Đã nhận từ phiên đăng nhập/);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = previousFetch; await window.happyDOM.close(); }
+});
+
+test("completed quiz restores on remount even when closed and keeps feedback inside the quiz", async () => {
+  const window = new Window({ url: "http://localhost" });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const previousFetch = globalThis.fetch;
+  let posts = 0, feedbackSubmitted = false;
+  globalThis.fetch = async (url, options) => {
+    if (options?.method === "POST") posts++;
+    return { ok: true, json: async () => url.startsWith("/api/quiz-control") ? { isOpen: false } : { success: true, result: { answers: Array.from({ length: 10 }, (_, i) => ({ isCorrect: i < 8 })), learner: { name: "Alice", email: "alice@example.test", information: {}, fields: [] }, feedbackSubmitted } } };
+  };
+  const Quiz = component("components/QuizSlide.tsx", { "@/lib/supabase/browser": { getSupabaseBrowserClient: () => null } });
+  const container = window.document.createElement("div"); window.document.body.append(container); const root = createRoot(container);
+  try {
+    for (const key of ["refresh", "back"]) {
+      await act(async () => { root.render(React.createElement(Quiz, { scale: 1, key })); await new Promise(resolve => setTimeout(resolve, 20)); });
+      await act(async () => new Promise(resolve => setTimeout(resolve, 20)));
+      assert.equal(container.querySelector(".score strong").textContent, "8");
+      assert.equal(container.querySelector(".option"), null);
+      assert.ok(container.querySelector(".inlineFeedbackForm textarea"));
+      assert.equal(container.querySelector('[role="dialog"]'), null);
+    }
+    feedbackSubmitted = true;
+    await act(async () => { root.render(React.createElement(Quiz, { scale: 1, key: "feedback-refresh" })); await new Promise(resolve => setTimeout(resolve, 20)); });
+    await act(async () => new Promise(resolve => setTimeout(resolve, 20)));
+    assert.equal(container.querySelector("textarea"), null); assert.equal(posts, 0);
+  } finally { await act(async () => root.unmount()); globalThis.fetch = previousFetch; await window.happyDOM.close(); }
+});
+
+test("learner information opens a separate modal with focus, submission, and cancel controls", async () => {
+  const window = new Window({ url: "http://localhost" });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const SignIn = component("components/landing/SignInCard.tsx");
+  const container = window.document.createElement("div"); window.document.body.append(container);
+  const root = createRoot(container);
+  let fields = [], cancelled = 0, submitted = 0;
+  const render = () => root.render(React.createElement(SignIn, { passcode: "123456", setPasscode() {}, identityFields: fields, information: { name: "Alice" }, loading: false, onSubmit: e => { e.preventDefault(); submitted++; }, onInformationCancel: () => { cancelled++; fields = []; render(); } }));
+  try {
+    await act(async () => render());
+    await act(async () => Array.from(container.querySelectorAll("button")).find(b => b.textContent.includes("Passcode")).click());
+    fields = [{ id: "name", label: "Name", type: "text" }];
+    await act(async () => render());
+    const dialog = window.document.querySelector("dialog");
+    assert.equal(dialog.open, true); assert.equal(dialog.parentElement, window.document.body); assert.equal(container.querySelector("#learner-name"), null);
+    assert.equal(window.document.activeElement.id, "learner-name");
+    await act(async () => dialog.querySelector('button[type="submit"]').click()); assert.equal(submitted, 1);
+    await act(async () => dialog.querySelector('[aria-label="Close learner information"]').click());
+    assert.equal(cancelled, 1); assert.equal(window.document.querySelector("dialog"), null); assert.equal(container.querySelector("#hero-passcode-input").value, "123456");
+    fields = [{ id: "name", label: "Name", type: "text" }]; await act(async () => render());
+    await act(async () => window.document.querySelector("dialog").dispatchEvent(new window.Event("cancel", { cancelable: true })));
+    assert.equal(cancelled, 2); assert.equal(window.document.querySelector("dialog"), null);
+  } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
+});
+
+test("admin can enable required learner information and choose fields without changing passcodes", async () => {
+  const window = new Window({ url: "http://localhost/admin/access" });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const Manager = component("components/admin/PasscodeManager.tsx");
+  const calls = []; const container = window.document.createElement("div"); const root = createRoot(container);
+  const click = text => Array.from(container.querySelectorAll("button")).find(button => button.textContent === text).click();
+  try {
+    await act(async () => root.render(React.createElement(Manager, { folders: [], courses: [], onSave: async body => { calls.push(body); return true; } })));
+    await act(async () => container.querySelector('.identityToggle input').click());
+    await act(async () => click("Save settings"));
+    assert.equal(calls[0].action, "set_learning_identity_policy"); assert.equal(calls[0].policy.enabled, true); assert.equal(calls[0].policy.fields.map(f => f.id).join(","), "name,email");
+    await act(async () => container.querySelector('[aria-label="Remove Email"]').click());
+    await act(async () => click("Save settings")); assert.equal(calls[1].policy.fields.length, 1);
+    await act(async () => click("Add field"));
+    assert.equal(Array.from(container.querySelectorAll("button")).find(b => b.textContent === "Save settings").disabled, true);
+    assert.equal(container.querySelectorAll('.identityRow').length, 2);
+    assert.doesNotMatch(container.textContent, /Add Name|Add Email|Required when enabled/);
+    await act(async () => container.querySelector('[aria-label="Remove field"]').click());
+    await act(async () => container.querySelector('.identityToggle input').click());
+    await act(async () => click("Save settings")); assert.equal(calls[2].policy.enabled, false);
+  } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
+});
+
+test("admin can choose Number, save its limits, and cannot save reversed bounds", async () => {
+  const window = new Window({ url: "http://localhost/admin/access" });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const Settings = component("components/admin/LearnerInformationSettings.tsx", { "@/lib/learningIdentity": learningIdentity });
+  const container = window.document.createElement("div"); window.document.body.append(container);
+  const root = createRoot(container); const saved = [];
+  const setInput = async (label, value) => act(async () => {
+    const input = container.querySelector(`[aria-label="${label}"]`);
+    Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(input, value);
+    input.dispatchEvent(new window.Event("input", { bubbles: true }));
+  });
+  try {
+    await act(async () => root.render(React.createElement(Settings, { policy: { enabled: true, fields: [{ id: "age", label: "Age", type: "text" }] }, onSave: async body => { saved.push(body); return true; } })));
+    await act(async () => { const select = container.querySelector("select"); select.value = "number"; select.dispatchEvent(new window.Event("change", { bubbles: true })); });
+    await setInput("Age minimum", "18"); await setInput("Age maximum", "65");
+    const save = () => Array.from(container.querySelectorAll("button")).find(b => b.textContent === "Save settings");
+    await act(async () => save().click());
+    assert.equal(saved[0].policy.fields[0].type, "number"); assert.equal(saved[0].policy.fields[0].min, 18); assert.equal(saved[0].policy.fields[0].max, 65);
+    await setInput("Age minimum", "70"); assert.equal(save().disabled, true); assert.match(container.querySelector('[role="alert"]').textContent, /Minimum must not exceed maximum/);
+    await setInput("Age minimum", ""); await setInput("Age maximum", ""); await act(async () => save().click());
+    assert.equal(saved[1].policy.fields[0].min, undefined); assert.equal(saved[1].policy.fields[0].max, undefined);
+  } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
 });
 
 test("admin passcode manager exposes two independent permission types for each target", () => {

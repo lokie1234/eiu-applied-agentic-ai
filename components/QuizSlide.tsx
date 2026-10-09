@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import styles from "./QuizSlide.module.css";
+import type { IdentityField } from "@/lib/learningIdentity";
 
 type Question = {
   question: string;
@@ -62,8 +63,8 @@ type Props = { scale: number; variant?: QuizVariant; isAdmin?: boolean };
 export default function QuizSlide({ scale, variant = "section1", isAdmin = false }: Props) {
   const questions = variant === "section2" ? SECTION_TWO_QUESTIONS : SECTION_ONE_QUESTIONS;
   const handoutHref = variant === "section2"
-    ? "/downloads/eiu-applied-agentic-ai-section-2-handout.pdf"
-    : "/downloads/eiu-applied-agentic-ai-section-1-handout.pdf";
+    ? "/api/handout?section=section2"
+    : "/api/handout?section=section1";
   const handoutName = variant === "section2"
     ? "EIU_Applied_Agentic_AI_Section2_Handout.pdf"
     : "EIU_Applied_Agentic_AI_Section1_Handout.pdf";
@@ -74,8 +75,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
   const [finished, setFinished] = useState(false);
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
-  const [feedbackCountdown, setFeedbackCountdown] = useState(5);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [recordedLearner, setRecordedLearner] = useState<{ name: string; email: string; information: Record<string, string>; fields: IdentityField[] } | null>(null);
   const [feedbackText, setFeedbackText] = useState("");
   const [feedbackStatus, setFeedbackStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [feedbackMessage, setFeedbackMessage] = useState("");
@@ -95,7 +95,20 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
 
   const loadQuizState = useCallback(async () => {
     try {
-      const response = await fetch(`/api/quiz-control?section=${variant}`, { cache: "no-store" });
+      const [response, progressResponse] = await Promise.all([
+        fetch(`/api/quiz-control?section=${variant}`, { cache: "no-store" }),
+        isAdmin ? Promise.resolve(null) : fetch(`/api/quiz-results?section=${variant}`, { cache: "no-store" }),
+      ]);
+      if (progressResponse && !progressResponse.ok) throw new Error("Unable to restore quiz progress.");
+      const progress = progressResponse ? await progressResponse.json() : null;
+      if (progress?.result && !autoSubmitStartedRef.current) {
+        autoSubmitStartedRef.current = true;
+        setAnswers(progress.result.answers);
+        setFinished(true);
+        setStatus("success");
+        setRecordedLearner(progress.result.learner);
+        setFeedbackSubmitted(progress.result.feedbackSubmitted);
+      }
       const payload = (await response.json().catch(() => ({}))) as {
         isOpen?: boolean;
         completedLearners?: CompletedLearner[];
@@ -205,6 +218,9 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
       });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.message || "Không thể gửi kết quả.");
+      setRecordedLearner(payload.learner || null);
+      if (payload.answers) setAnswers(payload.answers);
+      if (payload.feedbackSubmitted) setFeedbackSubmitted(true);
       setStatus("success");
       setMessage("Kết quả đã được ghi nhận.");
     } catch (error) {
@@ -218,22 +234,6 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
     autoSubmitStartedRef.current = true;
     void submitResult();
   }, [finished, isAdmin, submitResult]);
-
-  useEffect(() => {
-    if (status !== "success") return;
-
-    let remaining = 5;
-    const countdownTimer = window.setInterval(() => {
-      remaining -= 1;
-      setFeedbackCountdown(remaining);
-      if (remaining === 0) {
-        window.clearInterval(countdownTimer);
-        setShowFeedbackModal(true);
-      }
-    }, 1000);
-
-    return () => window.clearInterval(countdownTimer);
-  }, [status]);
 
   async function submitFeedback(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -257,30 +257,11 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
       setFeedbackStatus("success");
       setFeedbackSubmitted(true);
       setFeedbackMessage("Cảm ơn bạn đã gửi ý kiến đóng góp!");
-      setTimeout(() => {
-        setShowFeedbackModal(false);
-      }, 1500);
+
     } catch (error) {
       setFeedbackStatus("error");
       setFeedbackMessage(error instanceof Error ? error.message : "Không thể gửi phản hồi.");
     }
-  }
-
-  function restart() {
-    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-    setIndex(0);
-    setSelected(null);
-    setAnswers([]);
-    setFinished(false);
-    autoSubmitStartedRef.current = false;
-    setStatus("idle");
-    setMessage("");
-    setFeedbackCountdown(5);
-    setShowFeedbackModal(false);
-    setFeedbackText("");
-    setFeedbackStatus("idle");
-    setFeedbackMessage("");
-    setFeedbackSubmitted(false);
   }
 
   const sectionLabel = variant === "section2" ? "Section 2" : "Section 1";
@@ -307,7 +288,6 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
             <span className={styles.adminKicker}>ADMIN CONTROL · {sectionLabel}</span>
             <h1>Quiz chưa được mở</h1>
             <p>Học viên đang chờ tại màn hình Quiz time.</p>
-
             {quizStateStatus === "error" ? (
               <button type="button" className={styles.stateRetryButton} onClick={() => void loadQuizState()}>
                 Thử tải lại trạng thái
@@ -391,7 +371,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
     );
   }
 
-  if (!quizOpen) {
+  if ((!quizOpen || quizStateStatus !== "ready") && !finished) {
     return (
       <section
         className={styles.root}
@@ -482,40 +462,24 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
             <div className={styles.score}><strong>{score}</strong><span>/ {questions.length}</span></div>
             <h2>{resultLabel(score)}</h2>
             <p>Bạn đã hoàn thành 10 câu hỏi của {variant === "section2" ? "Section 2" : "Section 1"}.</p>
-            <button
-              type="button"
-              className={styles.retry}
-              onClick={restart}
-              disabled={status === "idle" || status === "sending" || (status === "success" && feedbackCountdown > 0)}
-            >
-              Làm lại
-            </button>
-          </div>
+            {recordedLearner && <div className={styles.submittedInfo}>
+              <div><span>Học viên:</span><strong>{recordedLearner.name}</strong></div>
+              {!recordedLearner.email.endsWith("@passcode.eiu") && <div><span>Email:</span><strong>{recordedLearner.email}</strong></div>}
+              {Object.entries(recordedLearner.information || {}).filter(([id]) => id !== "name" && id !== "email").map(([id, value]) => <div key={id}><span>{recordedLearner.fields.find(field => field.id === id)?.label || id}:</span><strong>{value}</strong></div>)}
+            </div>}
+        </div>
 
           {status === "success" ? (
             <div className={styles.submittedCard} aria-live="polite">
-              <span className={styles.formKicker}>Ghi nhận kết quả</span>
-              <h3>Kết quả đã được ghi nhận.</h3>
-              <div className={styles.submittedInfo}>
-                <div><span>Học viên:</span> <strong>Đã nhận từ phiên đăng nhập</strong></div>
-                <div><span>Điểm số:</span> <strong>{score} / {questions.length}</strong></div>
-              </div>
-              <p className={styles.submittedNotice}>
-                {feedbackSubmitted
-                  ? "✓ Cảm ơn bạn đã gửi ý kiến đóng góp cho bài học!"
-                  : feedbackCountdown > 0
-                    ? `Tự động chuyển sang màn hình feedback sau ${feedbackCountdown} giây.`
-                    : "Đang chuyển sang màn hình feedback..."}
-              </p>
-              {feedbackCountdown === 0 && !showFeedbackModal && !feedbackSubmitted && (
-                <button
-                  type="button"
-                  className={styles.openFeedbackBtn}
-                  onClick={() => setShowFeedbackModal(true)}
-                >
-                  Mở lại màn hình feedback
-                </button>
-              )}
+              <span className={styles.formKicker}>Góp ý & Phản hồi</span>
+              <h3>{feedbackSubmitted ? "Cảm ơn bạn đã hoàn thành!" : "Gửi feedback bài học"}</h3>
+              <p className={styles.submittedNotice}>Kết quả quiz đã được ghi nhận.</p>
+              {feedbackSubmitted ? <p className={styles.submittedNotice}>✓ Feedback của bạn đã được lưu. Bạn có thể quay lại các slide để xem bài.</p> : <form className={styles.inlineFeedbackForm} onSubmit={submitFeedback}>
+                <label htmlFor="quiz-feedback">Ý kiến của bạn giúp cải thiện chất lượng khóa học.</label>
+                <textarea id="quiz-feedback" className={styles.feedbackTextarea} value={feedbackText} onChange={event => setFeedbackText(event.target.value)} placeholder="Nhập góp ý hoặc phản hồi của bạn..." rows={4} maxLength={2000} required disabled={feedbackStatus === "sending"} />
+                <button type="submit" className={styles.submitFeedbackBtn} disabled={feedbackStatus === "sending" || !feedbackText.trim()}>{feedbackStatus === "sending" ? "Đang gửi..." : "Gửi feedback"}</button>
+                {feedbackMessage && <p className={styles.message} role="status">{feedbackMessage}</p>}
+              </form>}
             </div>
           ) : (
             <div className={styles.formCard} aria-live="polite">
@@ -536,73 +500,6 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
         </div>
       )}
 
-      {showFeedbackModal && (
-        <div
-          className={styles.modalOverlay}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="feedback-title"
-        >
-          <div className={styles.feedbackModal}>
-            <div className={styles.feedbackHeader}>
-              <div>
-                <span className={styles.eyebrow}>
-                  Góp ý & Phản hồi · {variant === "section2" ? "Section 2" : "Section 1"}
-                </span>
-                <h2 id="feedback-title">Gửi feedback bài học</h2>
-              </div>
-              <button
-                type="button"
-                className={styles.closeBtn}
-                onClick={() => setShowFeedbackModal(false)}
-                aria-label="Đóng cửa sổ feedback"
-              >
-                ✕
-              </button>
-            </div>
-
-            <p className={styles.feedbackSub}>
-              Ý kiến của bạn giúp ban tổ chức hoàn thiện và nâng cao chất lượng khóa học.
-            </p>
-
-            <form className={styles.feedbackForm} onSubmit={submitFeedback}>
-              <textarea
-                className={styles.feedbackTextarea}
-                value={feedbackText}
-                onChange={(e) => setFeedbackText(e.target.value)}
-                placeholder="Nhập ý kiến đóng góp, phản hồi hoặc cảm nghĩ của bạn tại đây..."
-                rows={4}
-                maxLength={2000}
-                required
-                autoFocus
-              />
-
-              <div className={styles.feedbackActions}>
-                <button
-                  type="submit"
-                  className={styles.submitFeedbackBtn}
-                  disabled={feedbackStatus === "sending" || feedbackStatus === "success"}
-                >
-                  {feedbackStatus === "sending" ? "Đang gửi..." : feedbackStatus === "success" ? "Đã gửi feedback" : "Gửi feedback"}
-                </button>
-                <button
-                  type="button"
-                  className={styles.skipBtn}
-                  onClick={() => setShowFeedbackModal(false)}
-                >
-                  {feedbackStatus === "success" ? "Đóng" : "Bỏ qua"}
-                </button>
-              </div>
-
-              {feedbackMessage && (
-                <p className={`${styles.message} ${feedbackStatus === "error" ? styles.error : ""}`} role="status">
-                  {feedbackMessage}
-                </p>
-              )}
-            </form>
-          </div>
-        </div>
-      )}
     </section>
   );
 }

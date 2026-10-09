@@ -1,0 +1,48 @@
+.chooseLayout { position:relative; z-index:2; display:grid; height:382px; margin:0 5px; gap:18px; }
+.chooseLayout { grid-template-columns:220px 30px 1fr; align-items:center; }
+.menu,.manager,.uploadWindow { color:#dadce0; background:#101010; border:1px solid #333; border-radius:14px; overflow:hidden; font-family:Arial,sans-serif; }
+.menu { background:#202020; padding:6px; }
+.menu > div { display:flex; align-items:center; gap:8px; height:24px; padding:0 8px; border:1px solid transparent; border-radius:7px; font-size:10px; }
+.menu > div > span { width:16px; font-size:15px; }
+.menu b { margin-left:auto; color:#e9ca8b; font-size:16px; }
+.menu .selected { color:#fff; border-color:#b39159; background:#373020; }
+.arrow { text-align:center; font-size:27px; color:#a78958; }
+.manager { display:flex; flex-direction:column; height:382px; padding:16px 23px; }
+.manager h2 { margin:0 0 5px; font-size:21px; font-weight:500; }
+.manager > p { font-size:10px; line-height:1.4; margin:0; max-width:480px; }
+.actions { display:flex; gap:7px; margin-top:15px; align-items:center; }
+.actions > span { padding:9px 12px; background:#202020; border-radius:22px; font-size:10px; font-weight:600; white-space:nowrap; }
+.actions > span:first-child { background:#263ea8; color:#fff; }
+.actions .uploadAction { padding:6px 10px; font-size:19px; color:#e9ca8b; outline:1px solid #b39159; }
+.empty { flex:1; min-height:45px; margin:12px -6px 10px; border:1px solid #232323; border-radius:22px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:7px; text-align:center; }
+.empty strong { font-size:13px; color:#999; }
+.empty small { font-size:9px; color:#999; }
+.recommended { display:block; font-size:10px; margin-bottom:8px; }
+.recommendations { display:grid; gap:4px; }
+.recommendations > div { background:#1b1b1b; border-radius:8px; padding:4px 10px; }
+.recommendations b { display:block; font-size:10px; }
+.recommendations small { display:block; font-size:8px; color:#999; margin-top:2px; }
+
+.uploadLesson { position:relative; z-index:2; }
+.uploadWindow { position:relative; width:650px; height:306px; margin:0 auto; }
+.dimmed { opacity:.3; }
+.dimmed .manager { border:0; border-radius:0; }
+.uploadDialog { color:#dadce0; font-family:Arial,sans-serif; padding:17px 18px; background:#202020; border:1px solid #303030; border-radius:20px; box-shadow:0 15px 45px #0004; }
+.uploadWindow .uploadDialog { position:absolute; inset:25px 140px 12px; }
+.uploadDialog h3 { margin:0 0 10px; font-size:15px; font-weight:500; }
+.uploadDialog p { margin:8px 0; font-size:10px; line-height:1.35; }
+.uploadDialog ul { margin:5px 0 10px; padding-left:16px; font-size:9px; line-height:1.6; }
+.dropZone { height:121px; margin-top:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; border:1px dashed #555; border-radius:18px; }
+.dropZone strong { font-size:10px; font-weight:500; text-decoration:underline; }
+.dropZone small { font-size:9px; color:#aaa; }
+.uploadEmphasis { margin:24px 0 0; text-align:center; font-size:32px; font-weight:750; color:#143c64; line-height:1.3; white-space:nowrap; }
+.uploadEmphasis strong { display:inline-block; color:#9d7944; border-bottom:3px solid #b39159; animation:uploadFileEmphasis 4s ease-in-out infinite; }
+.comparison { position:relative; z-index:2; }
+.planNote { margin:-10px 0 16px; color:#94713d; font-size:18px; font-weight:650; }
+.planGrid { display:grid; grid-template-columns:1fr 1fr; gap:24px; }
+.planGrid article > h2 { margin:0 0 10px; font-size:18px; color:#143c64; }
+.planGrid .uploadDialog { height:297px; padding:18px 22px; }
+.planGrid .dropZone { height:132px; }
+.planGrid article > p { margin:12px 0 0; font-size:14px; line-height:1.45; color:#143c64; }
+@keyframes uploadFileEmphasis { 0%,100% { transform:translateY(0); opacity:1; } 50% { transform:translateY(-3px); opacity:.8; } }
+@media (prefers-reduced-motion:reduce) { .uploadEmphasis strong { animation:none; } }

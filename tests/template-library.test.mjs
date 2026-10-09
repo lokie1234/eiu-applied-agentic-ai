@@ -4,11 +4,12 @@ import fs from "node:fs";
 import vm from "node:vm";
 import { createRequire } from "node:module";
 import ts from "typescript";
+import learningIdentity from "./helpers/learning-identity.mjs";
 const require = createRequire(import.meta.url);
 function load(file, dependencies) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, { exports, Buffer, Date, console, require: name => dependencies[name] ?? require(name) });
+  vm.runInNewContext(code, { exports, Buffer, Date, console, require: name => dependencies[name] ?? (name === "@/lib/learningIdentity" ? learningIdentity : require(name)) });
   return exports;
 }
 function fixture(role = "admin") {
@@ -63,7 +64,7 @@ test("hidden courses and folders are excluded from both passcode roles while adm
   const storage = { getCoursesAndSectionsData: async () => catalog };
   const codes = load("lib/auth/passcodes.ts", { "server-only": {}, "./courseAccessStorage": storage, "./types": { APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai" } });
   const access = load("lib/auth/currentUser.ts", {
-    "server-only": {}, "./session": { currentAccessSession: async () => ({ role, credentialHash, sessionId: "learner" }) },
+    "server-only": {}, "@/lib/supabase/server": {}, "./session": { currentAccessSession: async () => ({ role, credentialHash, sessionId: "learner" }) },
     "./courseAccessStorage": storage, "./passcodes": codes, "./types": { FIXED_ADMIN_EMAIL: "admin@example.test" },
   });
   for (const code of ["learn1234", "teach1234"]) {

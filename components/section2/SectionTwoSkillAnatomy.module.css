@@ -1,0 +1,25 @@
+.grid { position:relative; z-index:2; display:grid; grid-template-columns:1fr; gap:15px; margin:25px 22px 0; color:#143c64; }
+.grid article { display:grid; grid-template-columns:190px 48px minmax(0,1fr); align-items:center; gap:24px; min-height:88px; padding:17px 25px; border:1px solid #143c6420; border-radius:16px; background:linear-gradient(155deg,#fff,#f7f4ed); box-shadow:0 12px 28px #0829450e; }
+.cardHead { display:flex; align-items:center; gap:11px; padding-right:16px; border-right:1px solid #143c641a; }
+.cardHead > span { display:grid; place-items:center; width:34px; height:34px; flex-shrink:0; border-radius:9px; background:#b391591f; color:#a78958; font-size:12px; font-weight:850; }
+.cardHead h2 { margin:0; font-size:16px; letter-spacing:.3px; font-weight:800; }
+.cardIcon { display:grid; place-items:center; width:48px; height:48px; margin:0; border:1px solid #b391593d; border-radius:13px; background:#f0e9dc; color:#9d7944; font:700 25px/1 Georgia,serif; }
+.cardBody { display:block; margin:0; font-size:20px; line-height:1.4; font-weight:700; }
+.phrase { white-space:nowrap; }
+.grid .instructions { background:linear-gradient(155deg,#123f68,#082945); border-color:#b3915955; color:white; box-shadow:0 14px 30px #08294525; }
+.instructions .cardHead { border-right-color:#ffffff24; }
+.instructions .cardHead > span { background:#e9ca8b26; color:#e9ca8b; }
+.instructions .cardIcon { background:#e9ca8b16; color:#e9ca8b; border-color:#e9ca8b44; }
+.grid article button { display:inline-block; margin:0 0 0 6px; padding:7px 12px; border:1px solid #b39159; border-radius:8px; background:#fff9ed; color:#143c64; font:inherit; font-size:18px; cursor:pointer; }
+.exampleButton { position:relative; z-index:2; display:block; margin:30px auto 0; min-width:170px; padding:13px 36px; border:1px solid #b39159; border-radius:999px; background:#15406a; color:white; font-family:inherit; font-size:17px; font-weight:700; cursor:pointer; box-shadow:0 8px 20px #08294516; }
+.grid button:focus-visible,.exampleButton:focus-visible,.modal button:focus-visible { outline:3px solid #b39159; outline-offset:3px; }
+.overlay { position:absolute; inset:0; z-index:80; display:grid; place-items:center; background:#041c31b8; }
+.modal { width:760px; max-height:492px; overflow:auto; border:1px solid #b39159; border-radius:20px; background:#faf8f2; box-shadow:0 25px 65px #0005; color:#143c64; }
+.modal header { display:flex; justify-content:space-between; align-items:center; padding:16px 24px; border-bottom:1px solid #e4d8c4; }
+.modal h2 { margin:0; font-size:24px; }
+.modal header button { border:0; border-radius:8px; padding:10px 16px; color:white; background:#15406a; font-family:inherit; font-weight:700; cursor:pointer; }
+.modal pre { margin:0; padding:20px 26px; white-space:pre-wrap; overflow-wrap:anywhere; font:14px/1.5 Consolas,monospace; }
+.kebab { padding:18px 26px; }
+.kebab p { margin:0 0 16px; font-size:17px; line-height:1.5; }
+.kebab p:last-child { margin:18px 0 0; }
+.kebab code { display:block; padding:11px 16px; margin:9px 0; border-left:3px solid #b39159; border-radius:5px; background:#eee6d8; font:16px Consolas,monospace; }

@@ -1,3 +1,4 @@
+import { recordLearnerActivity } from "@/lib/learnerActivity";
 import { NextResponse } from "next/server";
 import { currentRole } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
@@ -30,14 +31,15 @@ export async function POST(request: Request) {
 
     const requestedAt = new Date(String(body.submittedAt ?? ""));
     const submittedAt = Number.isNaN(requestedAt.getTime()) ? new Date().toISOString() : requestedAt.toISOString();
-    const { error } = await getSupabaseAdmin().from("feedback").insert({
+    const { data: saved, error } = await getSupabaseAdmin().from("feedback").insert({
       section,
       name: profile.name,
       email: profile.email,
       feedback,
       submitted_at: submittedAt,
-    });
+    }).select("id").single();
     if (error) throw error;
+    await recordLearnerActivity(profile.identity, "FEEDBACK_SUBMITTED", section, saved.id);
 
     return NextResponse.json({ success: true });
   } catch (error) {

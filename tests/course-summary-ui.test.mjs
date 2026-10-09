@@ -6,6 +6,7 @@ import { createRequire } from "node:module";
 import { Window } from "happy-dom";
 import ts from "typescript";
 import React, { act } from "react";
+import learningIdentity from "./helpers/learning-identity.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -36,6 +37,7 @@ test("admin can clear a summary and reopen or cancel the editor without restorin
   vm.runInNewContext(code, {
     exports, fetch, window, document: window.document, console,
     require: name => {
+      if (name === "@/lib/learningIdentity") return learningIdentity;
       if (name.endsWith(".css")) return new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) });
       if (name === "@/lib/uploadQueue") return { createUploadQueue: () => task => task() };
       if (name === "@/lib/uploadSectionFile") return {};

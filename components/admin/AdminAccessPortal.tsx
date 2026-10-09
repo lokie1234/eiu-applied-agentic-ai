@@ -1,6 +1,7 @@
 "use client";
 import PasscodeManager from "./PasscodeManager";
 import type { AccessCodes } from "@/lib/auth/passcodes";
+import { DEFAULT_IDENTITY_POLICY, type LearningIdentityPolicy } from "@/lib/learningIdentity";
 import TemplateLibrary from "./TemplateLibrary";
 import VisibilityToggle from "./VisibilityToggle";
 import type { SlideTemplate } from "@/lib/auth/courseAccessStorage";
@@ -90,6 +91,7 @@ type Section = {
 };
 
 type Payload = {
+  learningIdentityPolicy?: LearningIdentityPolicy;
   globalAccessCodes?: AccessCodes;
   success: boolean;
   message?: string;
@@ -316,6 +318,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
     } catch (error) {setError(error instanceof Error ? error.message : "Unable to move this file.");} finally {setProcessingMessage(null);}
   }
   const [globalAccessCodes, setGlobalAccessCodes] = useState<AccessCodes>({});
+  const [learningIdentityPolicy, setLearningIdentityPolicy] = useState<LearningIdentityPolicy>(DEFAULT_IDENTITY_POLICY);
   const [folderGroups, setFolderGroups] = useState<CourseFolderGroup[]>([
     { id: "fg-ai-agentic", name: "Chương Trình AI & Agentic", order: 1 },
   ]);
@@ -352,6 +355,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
     }
     if (payload.sections) setSections(payload.sections);
     if (payload.globalAccessCodes) setGlobalAccessCodes(payload.globalAccessCodes);
+    if (payload.learningIdentityPolicy) setLearningIdentityPolicy(payload.learningIdentityPolicy);
     if (payload.folderGroups) setFolderGroups(payload.folderGroups);
   }, [isAdmin]);
 
@@ -1111,7 +1115,8 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
       <div className={`${styles.scrollArea} ${tab === "courses" ? styles.scrollAreaCourses : tab === "layouts" ? styles.scrollAreaLayouts : ""}`}>
         {tab === "layouts" ? templateError ? <div className={styles.error} role="alert">{templateError}</div> : <TemplateLibrary key="admin" isAdmin={isAdmin} initialTemplates={templates} onTemplatesChange={setTemplates} /> : loading ? (
           <div className={styles.loading}>Loading your workspace…</div>
-        ) : tab === "passcodes" ? <PasscodeManager globalCodes={globalAccessCodes} courses={courses} folders={folderGroups} onSave={body => {
+        ) : tab === "passcodes" ? <PasscodeManager globalCodes={globalAccessCodes} identityPolicy={learningIdentityPolicy} courses={courses} folders={folderGroups} onSave={body => {
+          if (body.action === "set_learning_identity_policy") return mutate(body, "learner-information", "Learner information settings saved.", "Loading… Saving learner information settings...");
           const bulk = body.action === "bulk_access_passcodes";
           const generating = body.generate === true || body.operation === "generate";
           const clearing = body.operation === "clear" || (!generating && body.code === "");

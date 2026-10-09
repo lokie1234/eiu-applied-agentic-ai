@@ -5,6 +5,9 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties, type FormEven
 import { SLIDE_STORAGE_KEYS, getSlideStorage, setSlideStorage } from "@/lib/slideStorage";
 import SlideTwentyEightEmergency from "./SlideTwentyEightEmergency";
 import SlideThirtyFiveDynamicDashboard from "./SlideThirtyFiveDynamicDashboard";
+import SectionTwoSkillsSetup, { SkillsUploadComparison } from "./SectionTwoSkillsSetup";
+import SectionTwoSkillAnatomy from "./SectionTwoSkillAnatomy";
+import SectionTwoSaveShare from "./SectionTwoSaveShare";
 import styles from "./SectionTwoSlide.module.css";
 
 type Props = { pageNumber: number; isFinalState?: boolean };
@@ -569,7 +572,7 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
                 <span className={styles.outcomeHighlightTag}>✦ TRỌNG TÂM</span>
               </div>
               <p className={styles.outcomeText}>
-                Xây <strong>AI Framework</strong>, đóng gói thành <strong>Gem trong Gemini</strong>
+                Xây <strong>AI Framework</strong>, đóng gói thành <strong>SKILL trong Gemini</strong>
               </p>
               <div className={styles.outcomeHighlightBar} />
             </div>
@@ -796,44 +799,43 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
     case 18:
       return <Shell motion={20}><Title>Phần có thể tái sử dụng</Title><p className={styles.subtitle}>Khi tách được phần dùng chung, AI không cần bắt đầu từ một trang trắng.</p><div className={styles.coreFlow}>{["Kiến trúc hệ thống", "Tiêu chuẩn giao diện người dùng", "Quy tắc viết code", "Quy tắc thiết kế cơ sở dữ liệu", "Kiểm thử", "Triển khai"].map((item, index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}>{item}</div>)}</div></Shell>;
     case 19:
-      return <Shell dark motion={21}><div className={styles.gemDefinition}><MiniTitle>GEMINI GEMS</MiniTitle><Title>Gem là gì?</Title><p>Một phiên bản Gemini được tùy chỉnh để làm theo các hướng dẫn, ngữ cảnh lặp lại.</p><em>Các nền tảng AI khác cũng có khái niệm tương tự, dù tên gọi khác nhau.</em></div></Shell>;
+      return <Shell dark motion={21}><div className={styles.gemDefinition}><MiniTitle>GEMINI SKILLS</MiniTitle><Title>SKILL là gì?</Title><p>Một bộ hướng dẫn và ngữ cảnh có thể tái sử dụng, giúp Gemini thực hiện một loại công việc theo quy trình bạn thiết lập.</p></div></Shell>;
     case 20:
-      return <Shell motion={22}><div className={styles.centerLight}><MiniTitle>GEM THỰC CHẤT LÀ GÌ?</MiniTitle><p>Không phải Code. Không phải Plugin.</p><h2>Mà là một bộ hướng dẫn để AI luôn làm đúng.</h2></div></Shell>;
+      return <Shell motion={22}><div className={styles.centerLight}><MiniTitle>SKILL THỰC CHẤT LÀ GÌ?</MiniTitle><p>Hướng dẫn + Ngữ cảnh + Tài liệu tham chiếu.</p><h2>Đóng gói cách làm việc để AI có thể dùng lại.</h2></div></Shell>;
     case 21:
-      return <Shell motion={23}><Title>Framework và Gem</Title><div className={styles.frameworkGem}>
+      return <Shell motion={23}><Title>Framework và SKILL</Title><div className={styles.frameworkGem}>
         <div><MiniTitle>AI BUSINESS FRAMEWORK</MiniTitle><h2>Nội dung tiêu chuẩn</h2><p>Kiến trúc hệ thống, giao diện người dùng (UI), mã nguồn, cơ sở dữ liệu, bảo mật, kiểm thử và quy trình triển khai vận hành.</p></div>
         <div className={styles.arrowLarge}>→</div>
-        <div className={styles.navyCard}><MiniTitle>GEM</MiniTitle><h2>Cách đóng gói</h2><p>Instructions và Knowledge định hướng Gemini áp dụng chính xác Framework khi tiếp nhận yêu cầu dự án mới.</p></div>
+        <div className={styles.navyCard}><MiniTitle>SKILL</MiniTitle><h2>Cách đóng gói</h2><p>SKILL.md chứa hướng dẫn và các file tham chiếu giúp Gemini áp dụng Framework khi tiếp nhận yêu cầu dự án mới.</p></div>
       </div></Shell>;
     case 22:
-      return <Shell motion={24}><Title>Bên trong một Gem</Title><div className={styles.gemGrid}>{[["NAME","Tên và mục đích"],["INSTRUCTIONS","Vai trò và quy tắc"],["KNOWLEDGE","Tài liệu tham chiếu"],["PREVIEW","Kiểm thử trước khi lưu"]].map(([head,body], index) => <div className={index === 1 ? styles.navyCard : ""} key={head}><MiniTitle>{head}</MiniTitle><strong>{body}</strong></div>)}</div></Shell>;
+      return <Shell motion={24}><Title>Bên trong một SKILL</Title><SectionTwoSkillAnatomy /></Shell>;
     case 23:
-      return <Shell motion={25}><Title>Công thức Instructions cho Gem</Title><div className={styles.formula}>{["Persona", "Task", "Context", "Format"].map((item, index) => <div key={item} className={index % 2 === 0 ? styles.navyTile : ""}>{item}{index < 3 && <span>+</span>}</div>)}</div><div className={styles.frameworkBar}>+ AI Business Framework</div></Shell>;
+      return <Shell motion={25}><Title>Công thức Instructions cho SKILL</Title><div className={styles.formula}>{["Persona", "Task", "Context", "Format"].map((item, index) => <div key={item} className={index % 2 === 0 ? styles.navyTile : ""}>{item}{index < 3 && <span>+</span>}</div>)}</div><div className={styles.frameworkBar}>+ AI Business Framework</div></Shell>;
     case 24:
-      return <Shell motion={26}><div className={styles.builderHeader}><MiniTitle>EIU · AI BUSINESS FRAMEWORK</MiniTitle><Title>Business Internal Web App Builder</Title></div><div className={styles.builderExample}><section><span>REQUIREMENT MỚI</span><p>“Tạo hệ thống đặt phòng họp.”</p><i aria-hidden="true">→</i></section><div><small>GEM TỰ ÁP DỤNG TIÊU CHUẨN</small><div>{["Responsive UI", "Google Sheets Database", "Google Apps Script", "Validation", "Dashboard", "Deployment Guide"].map((item, index) => <b key={item}><span>0{index + 1}</span>{item}<i aria-hidden="true">✓</i></b>)}</div></div></div></Shell>;
+      return <Shell motion={26}><div className={styles.builderHeader}><MiniTitle>EIU · AI BUSINESS FRAMEWORK</MiniTitle><Title>Business Internal Web App Builder</Title></div><div className={styles.builderExample}><section><span>REQUIREMENT MỚI</span><p>“Tạo hệ thống đặt phòng họp.”</p><i aria-hidden="true">→</i></section><div><small>SKILL TỰ ÁP DỤNG TIÊU CHUẨN</small><div>{["Responsive UI", "Google Sheets Database", "Google Apps Script", "Validation", "Dashboard", "Deployment Guide"].map((item, index) => <b key={item}><span>0{index + 1}</span>{item}<i aria-hidden="true">✓</i></b>)}</div></div></div></Shell>;
     case 25:
       return <Shell dark motion={27}><div className={styles.requirementTransition}><MiniTitle>Phần thay đổi chính</MiniTitle><h1>Requirement</h1><p>Framework giữ tiêu chuẩn chung. Ngoại lệ phải được mô tả rõ trong từng yêu cầu.</p></div></Shell>;
     case 26:
-      return <Shell dark motion={28}><div className={styles.labCover}><MiniTitle>GEMINI GEMS</MiniTitle><h1>Lab 2</h1><p>Xây một Gem áp dụng AI Business Framework của doanh nghiệp.</p></div></Shell>;
+      return <Shell dark motion={28}><div className={styles.labCover}><MiniTitle>GEMINI SKILLS</MiniTitle><h1>Lab 2</h1><p>Xây một SKILL áp dụng AI Business Framework của doanh nghiệp.</p></div></Shell>;
     case 27:
       return (
         <Shell motion={29}>
           <div className={styles.roadmapHeader}>
-            <MiniTitle>GEMINI GEMS · LAB 2</MiniTitle>
+            <MiniTitle>GEMINI SKILLS · LAB 2</MiniTitle>
             <Title>Lộ trình</Title>
           </div>
           <div className={styles.roadmapGrid}>
             {[
-              "Phân tích app, tách Framework, tạo Gem",
-              "Cài đặt Gem",
+              "Phân tích app, tách Framework, tạo SKILL",
+              "Cài đặt SKILL",
               "Kiểm tra",
               "Lưu & Chia sẻ",
             ].map((item, index) => (
               <article key={item} className={styles.roadmapCard}>
                 <div className={styles.roadmapCardTop}>
                   <div className={styles.roadmapBadgeWrap}>
-                    <span className={styles.roadmapNumber}>0{index + 1}</span>
-                    <span className={styles.roadmapStepTag}>BƯỚC 0{index + 1}</span>
+                    <span className={styles.roadmapStepTag}>Bước {index + 1}</span>
                   </div>
                   <span className={styles.roadmapFlowArrow} aria-hidden="true">
                     {index < 3 ? "→" : "✓"}
@@ -847,20 +849,22 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
         </Shell>
       );
     case 28:
-      return <Shell motion={30}><Title>Bước 1 · Phân tích, tách Framework, tạo Gem</Title><p className={styles.subtitle}>Bỏ bộ 3 file thực hành đã tạo sẵn vào Gemini, rồi yêu cầu:</p><Quote><p>{requirementPrompt}</p><button type="button" data-interactive="true" onClick={copyPrompt}>{copied ? "Đã copy" : "Copy Prompt"}</button></Quote><button type="button" data-interactive="true" className={styles.labFilesDownload} onClick={downloadLabFiles}><span aria-hidden="true">↓</span><span><strong>Tải bộ 3 file thực hành</strong><small>Gemini-Prompt.txt · App-01-Source.txt · App-02-Source.txt</small></span></button><SlideTwentyEightEmergency /></Shell>;
+      return <Shell motion={30}><Title>Bước 1 · Phân tích, tách Framework, tạo SKILL</Title><p className={styles.subtitle}>Bỏ bộ 3 file thực hành đã tạo sẵn vào Gemini, rồi yêu cầu:</p><Quote><p>{requirementPrompt}</p><button type="button" data-interactive="true" onClick={copyPrompt}>{copied ? "Đã copy" : "Copy Prompt"}</button></Quote><button type="button" data-interactive="true" className={styles.labFilesDownload} onClick={downloadLabFiles}><span aria-hidden="true">↓</span><span><strong>Tải bộ 3 file thực hành</strong><small>Gemini-Prompt.txt · App-01-Source.txt · App-02-Source.txt</small></span></button><div className={styles.labAppNames}>{["Quản lý nghỉ phép", "Báo cáo sự cố"].map((name, index) => <div key={name}><span aria-hidden="true">{index === 0 ? "▦" : "⚑"}</span><strong>{name}</strong></div>)}</div><SlideTwentyEightEmergency /></Shell>;
     case 29:
       return <Shell motion={31}><Title>Ví dụ - Nguyên tắc thiết kế</Title><div className={styles.principles}>{["Responsive", "Có Dashboard", "Có giao diện dùng được cho điện thoại", "Kèm theo hướng dẫn", "Sử dụng Google Sheets", "Tách riêng HTML / CSS / JS"].map(item => <span key={item}>▪ {item}</span>)}</div><p className={styles.bottomNote}>...và các nguyên tắc riêng của doanh nghiệp bạn.</p></Shell>;
     case 30:
-      return <Shell motion={32}><Title>Bước 2 · Cài đặt Gem</Title><div className={styles.screenshotPair}><div><Image src="/section2/gemini-step-001.png" alt="Mở mục Gems trong Gemini" fill sizes="240px" /><span className={`${styles.gemHighlight} ${styles.gemHighlightMenu}`} aria-hidden="true" /></div><div><Image src="/section2/gemini-step-000.png" alt="Gem manager và nút New Gem" fill sizes="650px" /><span className={`${styles.gemHighlight} ${styles.gemHighlightNew}`} aria-hidden="true" /></div></div></Shell>;
+      return <Shell motion={32}><Title>Bước 2 · Cài đặt SKILL</Title><SectionTwoSkillsSetup /></Shell>;
     case 31:
-      return <Shell motion={33}><Title>Bước 2 · Cài đặt Gem</Title><div className={styles.gemSetupLayout}><div className={styles.tallScreenshot}><Image src="/section2/gemini-step-002.png" alt="Các trường cài đặt New Gem" fill sizes="420px" /></div><div className={styles.gemSetupCallout}><MiniTitle>GEM SETTINGS</MiniTitle><p>Tiến hành điền và upload các trường dữ liệu cần thiết từ hướng dẫn của Gemini.</p><div><span>01</span><strong>Name</strong></div><div><span>02</span><strong>Instructions</strong></div><div><span>03</span><strong>Knowledge files</strong></div></div></div></Shell>;
+      return <Shell motion={33}><Title>Bước 2 · Cài đặt SKILL</Title><SectionTwoSkillsSetup upload /></Shell>;
     case 32:
-      return <Shell motion={34}><Title>Tiến hành thử nghiệm với 1 prompt rút gọn</Title><p className={styles.condensedPromptLead}>Tạo app để...</p><div className={`${styles.practiceList} ${styles.condensedPromptPractice}`}>{["Đặt xe công tác", "Đặt phòng họp", "Báo cáo sự cố", "Xin nghỉ phép", "Quản lý tài sản", "Đề xuất mua hàng", "Onboarding nhân sự", "Phê duyệt chi phí", "Theo dõi công việc"].map((item,index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</div>)}</div><p className={styles.geminiInstructionNote}>Lưu ý: Phải làm theo đúng hướng dẫn mà Gemini đưa ra!</p></Shell>;
+      return <Shell motion={33}><Title>Lưu ý · Quy tắc tải file theo gói AI</Title><SkillsUploadComparison /></Shell>;
     case 33:
-      return <Shell motion={35}><Title>Bước 4 - Lưu và chia sẻ</Title><div className={styles.saveFlow}>{[["SAVE","Lưu Gem sau khi kiểm tra"],["SHARE","Chia sẻ Viewer hoặc Editor"],["USE","Mở New Chat và thử yêu cầu mới"]].map(([head,body], index) => <div className={index === 1 ? styles.navyCard : ""} key={head}><strong className={styles.saveFlowLabel}>{head}</strong><p>{body}</p>{index < 2 && <span>→</span>}</div>)}</div></Shell>;
+      return <Shell motion={34}><Title>Bước 3 · Kiểm tra</Title><p className={styles.condensedPromptLead}>Tạo app để...</p><div className={`${styles.practiceList} ${styles.condensedPromptPractice}`}>{["Đặt xe công tác", "Đặt phòng họp", "Báo cáo sự cố", "Xin nghỉ phép", "Quản lý tài sản", "Đề xuất mua hàng", "Onboarding nhân sự", "Phê duyệt chi phí", "Theo dõi công việc"].map((item,index) => <div className={index % 2 === 0 ? styles.navyTile : ""} key={item}><span>{String(index + 1).padStart(2, "0")}</span>{item}</div>)}</div><p className={styles.geminiInstructionNote}>Lưu ý: Phải làm theo đúng hướng dẫn mà Gemini đưa ra!</p></Shell>;
     case 34:
-      return <Shell dark motion={37}><div className={styles.finalMessage}><MiniTitle>Thông điệp</MiniTitle><p>Đừng xây <strong>100 ứng dụng.</strong></p><h1>Hãy xây 01 AI Business Framework</h1><div className={styles.goldRule} /><p>để AI có thể tạo 100 ứng dụng<br />theo tiêu chuẩn của doanh nghiệp.</p></div></Shell>;
+      return <Shell motion={35}><Title>Bước 4 · Lưu và chia sẻ</Title><SectionTwoSaveShare /></Shell>;
     case 35:
+      return <Shell dark motion={37}><div className={styles.finalMessage}><MiniTitle>Thông điệp</MiniTitle><p>Đừng xây <strong>100 ứng dụng.</strong></p><h1>Hãy xây 01 AI Business Framework</h1><div className={styles.goldRule} /><p>để AI có thể tạo 100 ứng dụng<br />theo tiêu chuẩn của doanh nghiệp.</p></div></Shell>;
+    case 36:
       return <Shell motion={38}><SlideThirtyFiveDynamicDashboard /></Shell>;
     default:
       return <Shell />;

@@ -1,4 +1,5 @@
 import type { AccessCodes } from "./passcodes";
+import { parseIdentityPolicy, type LearningIdentityPolicy } from "@/lib/learningIdentity";
 import "server-only";
 
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -29,6 +30,7 @@ const DEFAULT_FOLDER_GROUPS: CourseFolderGroup[] = [
 ];
 
 export type CourseMetadata = {
+  learningIdentityPolicy?: LearningIdentityPolicy;
   globalAccessCodes?: AccessCodes;
   hiddenSectionIds?: string[];
   hidden?: boolean;
@@ -170,6 +172,7 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
       return {
         summary,
         globalAccessCodes: parseAccessCodes(parsed.globalAccessCodes),
+        learningIdentityPolicy: parseIdentityPolicy(parsed.learningIdentityPolicy),
         allowedEmails: Array.from(new Set(emails)),
         passcode,
         sectionPasscodes,
@@ -213,6 +216,7 @@ export function serializeCourseMetadata(metadata: CourseMetadata): string {
   }
   return JSON.stringify({
     globalAccessCodes: metadata.globalAccessCodes || {},
+    learningIdentityPolicy: parseIdentityPolicy(metadata.learningIdentityPolicy),
     hidden: Boolean(metadata.hidden),
     hiddenSectionIds: metadata.hiddenSectionIds || [],
     ...(metadata.templateKey !== undefined ? { templateKey: metadata.templateKey } : {}),
@@ -320,7 +324,7 @@ export async function getCoursesAndSectionsData() {
     };
   });
 
-  return { courses, sections, folderGroups, globalAccessCodes: coreMeta?.globalAccessCodes || {} };
+  return { courses, sections, folderGroups, globalAccessCodes: coreMeta?.globalAccessCodes || {}, learningIdentityPolicy: parseIdentityPolicy(coreMeta?.learningIdentityPolicy) };
 }
 
 /**
@@ -504,15 +508,6 @@ export async function deleteFolderGroup(id: string): Promise<void> {
             if (paths.length > 0) await supabase.storage.from("course-section-content").remove(paths);
           } catch {}
           await supabase.from("course_sections").delete().eq("course_id", c.id);
-          try {
-            await supabase.from("course_passcodes").delete().eq("course_id", c.id);
-          } catch {}
-          try {
-            await supabase.from("user_unlocked_courses").delete().eq("course_id", c.id);
-          } catch {}
-          try {
-            await supabase.from("course_folder_allowed_emails").delete().eq("course_id", c.id);
-          } catch {}
           await supabase.from("courses").delete().eq("id", c.id);
         }
       }

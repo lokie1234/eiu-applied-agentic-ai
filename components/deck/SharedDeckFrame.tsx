@@ -4,6 +4,7 @@ import Image from "next/image";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DeckSideAmbient from "@/components/DeckSideAmbient";
 import WorkshopLaunchButton from "@/components/WorkshopLaunchButton";
+import { rememberSlide, restoredSlide } from "@/lib/deckLocation";
 
 const SLIDE_ASPECT_RATIO = 16 / 9;
 
@@ -36,7 +37,7 @@ export default function SharedDeckFrame({
   const [zoom, setZoom] = useState(1);
   const [viewerWidth, setViewerWidth] = useState(0);
   const stageRef = useRef<HTMLDivElement | null>(null);
-  const pageRef = useRef(1);
+  const pageRef = useRef(pageNumber);
   const totalRef = useRef(safeTotal);
   const wheelAccumulatorRef = useRef(0);
   const wheelDirectionRef = useRef(0);
@@ -62,10 +63,16 @@ export default function SharedDeckFrame({
     pageRef.current = next;
     setPageNumber(next);
     setPageInput(String(next));
+    rememberSlide(next);
   }, []);
 
   const nextPage = useCallback(() => goToPage(pageRef.current + 1), [goToPage]);
   const previousPage = useCallback(() => goToPage(pageRef.current - 1), [goToPage]);
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => goToPage(restoredSlide(totalRef.current)));
+    return () => window.cancelAnimationFrame(frame);
+  }, [goToPage]);
 
   useEffect(() => {
     function handleKeyboard(event: KeyboardEvent) {

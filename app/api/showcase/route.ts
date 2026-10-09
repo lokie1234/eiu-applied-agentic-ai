@@ -1,3 +1,4 @@
+import { recordLearnerActivity } from "@/lib/learnerActivity";
 import { NextResponse } from "next/server";
 import { currentRole } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
@@ -107,6 +108,7 @@ export async function POST(request: Request) {
       .single();
     if (error) throw error;
 
+    await recordLearnerActivity(profile.identity, "SHOWCASE_SUBMITTED", section, data.id);
     return NextResponse.json({ success: true, item: toItem(data as ShowcaseRow) });
   } catch (error) {
     console.error("Showcase POST error:", error);

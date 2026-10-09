@@ -4,6 +4,7 @@ import Image from "next/image";
 import { Fragment, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { SLIDE_STORAGE_KEYS, getSlideStorage, setSlideStorage } from "@/lib/slideStorage";
 import styles from "./SectionOneNativeSlide.module.css";
+import SectionOneSlide11 from "./SectionOneSlide11";
 
 type Props = {
   page: number;
@@ -103,13 +104,6 @@ const RESTAURANT_MAP = [
   { title: "Business Logic", answer: "Bếp nấu ăn" },
   { title: "Database", answer: "Kho nguyên liệu" },
   { title: "Integrations", answer: "GrabFood" },
-];
-
-const BUSINESS_MAP = [
-  { title: "Frontend", answer: "Form xin nghỉ" },
-  { title: "Business Logic", answer: "Kiểm tra phép · Gửi duyệt" },
-  { title: "Database", answer: "Google Sheets" },
-  { title: "Integrations", answer: "Gmail · Google Drive" },
 ];
 
 const PROMPT_LINES = [
@@ -420,17 +414,6 @@ function NativeSlides({ page, isFinalState = false, courseTitle = "Applied Agent
     }
     return [false, false, false, false];
   });
-  const [businessRevealed, setBusinessRevealed] = useState<boolean[]>(() => {
-    if (isFinalState) return [true, true, true, true];
-    const saved = getSlideStorage(SLIDE_STORAGE_KEYS.s1_business);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      } catch {}
-    }
-    return [false, false, false, false];
-  });
   const [revealedStageCount, setRevealedStageCount] = useState(() => {
     if (isFinalState) return SOFTWARE_STAGES.length;
     const saved = getSlideStorage(SLIDE_STORAGE_KEYS.s1_stages);
@@ -445,14 +428,6 @@ function NativeSlides({ page, isFinalState = false, courseTitle = "Applied Agent
     setRestaurantRevealed((current) => {
       const next = current.map((item, itemIndex) => (itemIndex === index ? true : item));
       setSlideStorage(SLIDE_STORAGE_KEYS.s1_restaurant, JSON.stringify(next));
-      return next;
-    });
-  }
-
-  function revealBusiness(index: number) {
-    setBusinessRevealed((current) => {
-      const next = current.map((item, itemIndex) => (itemIndex === index ? true : item));
-      setSlideStorage(SLIDE_STORAGE_KEYS.s1_business, JSON.stringify(next));
       return next;
     });
   }
@@ -663,7 +638,7 @@ function NativeSlides({ page, isFinalState = false, courseTitle = "Applied Agent
       case 11:
         return (
           <Shell title="Ví dụ cụ thể" eyebrow="" className={styles.noEyebrow}>
-            <RevealAnswerGrid items={BUSINESS_MAP} revealed={businessRevealed} onReveal={revealBusiness} />
+            <SectionOneSlide11 />
           </Shell>
         );
       case 12:

@@ -195,7 +195,7 @@ Không hỏi:
 
 Trình bày bảng ngắn:
 
-| Trường dữ liệu | Gem đề xuất | Chọn |
+| Trường dữ liệu | SKILL đề xuất | Chọn |
 |---|---|---|
 | Họ tên | Search | Search / Dropdown / Không filter |
 | Giới tính | Dropdown | Search / Dropdown / Không filter |
@@ -217,7 +217,7 @@ Nếu số cột filterable nhiều:
 
 ## Recommendation logic
 
-Gem chỉ ĐỀ XUẤT, không tự quyết định cuối cùng.
+SKILL chỉ ĐỀ XUẤT, không tự quyết định cuối cùng.
 
 Gợi ý mặc định:
 - Họ tên / Full Name / Name semantic => Search
@@ -303,7 +303,7 @@ Với cột mới:
 
 Về filter cho cột mới:
 - dashboard runtime không tự thêm UI filter trái với cấu hình người dùng
-- khi Gem sinh lại project từ schema mới, cột mới phải được đưa vào Filter Interview nếu filterable
+- khi SKILL sinh lại project từ schema mới, cột mới phải được đưa vào Filter Interview nếu filterable
 - nếu user yêu cầu runtime auto-filter cho cột mới, chỉ áp dụng recommendation rule đã được user cho phép
 
 # DATA MODEL

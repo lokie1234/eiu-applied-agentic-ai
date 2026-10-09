@@ -1,4 +1,4 @@
-Bạn là Gemini Gem Designer và Senior Google Apps Script Engineer.
+Bạn là Gemini SKILL Designer và Senior Google Apps Script Engineer.
 
 Tôi cung cấp 3 file:
 1. Gemini-Prompt.txt — yêu cầu chính.
@@ -9,13 +9,13 @@ Hãy đọc đầy đủ 3 file trước khi làm.
 
 MỤC TIÊU
 
-Từ hai app mẫu, chỉ rút ra kiến trúc và các thành phần có thể tái sử dụng để tạo một Gemini Gem tên theo vai trò “Business Internal Web App Builder”.
+Từ hai app mẫu, chỉ rút ra kiến trúc và các thành phần có thể tái sử dụng để tạo một Gemini SKILL tên theo vai trò “Business Internal Web App Builder”.
 
 Không sao chép nghiệp vụ riêng của từng app mẫu.
 Không trộn dữ liệu nghiệp vụ giữa hai app.
 Không sử dụng cơ chế chuyển role giả lập của app demo.
 
-Gem sau này sẽ nhận Requirement mới và tạo Web App nội bộ bằng:
+SKILL sau này sẽ nhận Requirement mới và tạo Web App nội bộ bằng:
 - Google Apps Script.
 - Google Sheets.
 - HTML/CSS/Bootstrap 5/JavaScript.
@@ -26,7 +26,7 @@ Gem sau này sẽ nhận Requirement mới và tạo Web App nội bộ bằng:
 1. REUSABLE CORE BẮT BUỘC
 ==================================================
 
-Các app do Gem tạo phải ưu tiên các nguyên tắc sau:
+Các app do SKILL tạo phải ưu tiên các nguyên tắc sau:
 
 - Có trang Login riêng.
 - Người chưa đăng nhập không được xem ứng dụng.
@@ -55,7 +55,7 @@ Các app do Gem tạo phải ưu tiên các nguyên tắc sau:
 - Các hành động quan trọng phải ghi AuditLogs.
 - Không yêu cầu Google Workspace Login nếu Requirement không yêu cầu.
 
-Trong mọi app do Gem tạo phải thông báo:
+Trong mọi app do SKILL tạo phải thông báo:
 
 TÀI KHOẢN ADMIN MẶC ĐỊNH
 Tài khoản: EIU8888
@@ -63,37 +63,37 @@ Mật khẩu: EIU123
 Khuyến nghị: Đổi mật khẩu ngay sau lần đăng nhập đầu tiên.
 
 ==================================================
-2. TẠO ĐÚNG 2 FILE CHO YÊU CẦU HIỆN TẠI
+2. TẠO ĐÚNG 1 FILE SKILL.md CHO YÊU CẦU HIỆN TẠI
 ==================================================
 
-Tạo đúng 2 file TXT:
+Tạo đúng 1 file Markdown SKILL.md, tích hợp toàn bộ Instructions và 5 phần kiến thức tái sử dụng vào chính file này.
 
-1. GEM_CONFIG.txt
-2. KNOWLEDGE_ALL.txt
+1. SKILL.md
 
-Nếu giao diện Gemini hỗ trợ tạo file tải xuống, hãy tạo hai file dưới dạng file đính kèm/file card có thể bấm Download.
+BẮT BUỘC tạo và đính kèm đúng 1 file có thể tải xuống với tên chính xác SKILL.md (định dạng Markdown .md). Không thay thế bằng TXT, ZIP, thư mục hoặc chỉ dán nội dung trong chat. Nếu không thể tạo file SKILL.md, phải thông báo rõ không thể hoàn thành yêu cầu; không được tự ý đổi định dạng đầu ra.
 
 Không cần hiển thị code hoặc quá trình tạo file trong chat.
 
 ------------------------------
-FILE 1 — GEM_CONFIG.txt
+FILE — SKILL.md
 ------------------------------
 
 Nội dung gồm:
 
-NAME:
-Tên Gem ngắn gọn và phù hợp dùng lâu dài.
+File phải bắt đầu bằng YAML frontmatter hợp lệ:
+---
+name: business-web-app-builder
+description: Mô tả 1–2 câu về nhiệm vụ và khi nào sử dụng SKILL.
+---
 
-DESCRIPTION:
-Mô tả 1–2 câu.
+Tên SKILL phải dùng chữ thường, phân tách các từ bằng dấu gạch nối (kebab-case).
+Sau frontmatter là hướng dẫn Markdown hoàn chỉnh, ngắn gọn và rõ ràng.
+Đặt SKILL.md ở cấp gốc để có thể upload trực tiếp vào Gemini SKILLS mà không cần file tham chiếu riêng.
 
-INSTRUCTIONS:
-Một bộ Instructions hoàn chỉnh, ngắn gọn và rõ ràng để copy vào Gemini Gem.
-
-Instructions phải quy định rằng khi người dùng đưa Requirement mới, Gem phải:
+Instructions phải quy định rằng khi người dùng đưa Requirement mới, SKILL phải:
 
 1. Hiểu nghiệp vụ.
-2. Áp dụng REUSABLE CORE từ KNOWLEDGE_ALL.txt.
+2. Áp dụng REUSABLE CORE từ phần kiến thức được tích hợp ngay trong SKILL.md.
 3. Thiết kế data model, quyền, workflow và UI theo Requirement.
 4. Tạo đúng 2 file code hoàn chỉnh:
    - Code.gs
@@ -126,10 +126,10 @@ Instructions phải quy định rằng khi người dùng đưa Requirement mớ
 11. Khi hệ thống hỗ trợ tạo file, xuất Code.gs và Index.html thành file tải xuống.
 
 ------------------------------
-FILE 2 — KNOWLEDGE_ALL.txt
+PHẦN KIẾN THỨC TÍCH HỢP TRONG SKILL.md
 ------------------------------
 
-Gộp kiến thức tái sử dụng thành 5 phần:
+Trong chính SKILL.md, sau phần Instructions, gộp kiến thức tái sử dụng thành 5 phần:
 
 PART 1 — KNOWLEDGE_AI_FRAMEWORK
 - Quy trình:
@@ -204,19 +204,18 @@ Phần chat chỉ hiển thị theo đúng cấu trúc sau:
 A. BRIEF — PHẦN CÓ THỂ TÁI SỬ DỤNG
 - Tối đa 8 bullet ngắn về kiến trúc chung đã rút ra.
 
-B. TÀI KHOẢN ADMIN MẶC ĐỊNH CỦA CÁC APP DO GEM TẠO
+B. TÀI KHOẢN ADMIN MẶC ĐỊNH CỦA CÁC APP DO SKILL TẠO
 - Tài khoản: EIU8888
 - Mật khẩu: EIU123
 - Khuyến nghị đổi mật khẩu ngay sau lần đăng nhập đầu tiên.
 
-C. HAI FILE TẢI XUỐNG
-- GEM_CONFIG.txt
-- KNOWLEDGE_ALL.txt
+C. MỘT FILE TẢI XUỐNG
+- SKILL.md
 
 Không hiển thị:
 - quá trình phân tích,
 - code dùng để tạo file,
 - stdout/log,
-- toàn bộ nội dung hai file trong chat.
+- toàn bộ nội dung file SKILL.md trong chat.
 
-Ưu tiên hoàn thành nội dung chính xác và tạo được hai file hơn là tuân theo các quy tắc trình bày phức tạp.
+Ưu tiên hoàn thành nội dung chính xác và tạo được đúng một file SKILL.md hơn là tuân theo các quy tắc trình bày phức tạp.

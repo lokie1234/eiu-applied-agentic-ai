@@ -20,6 +20,7 @@ import {
 } from "@/lib/auth/courseAccessStorage";
 
 import { saveAccessPasscode, saveAccessPasscodes } from "@/lib/auth/passcodes";
+import { parseIdentityPolicy } from "@/lib/learningIdentity";
 
 export const runtime = "nodejs";
 
@@ -73,7 +74,14 @@ export async function POST(request: Request) {
     let createdCourseIds: string[] | undefined;
     let createdFolderGroupId: string | undefined;
 
-    if (action === "set_course_template") {
+    if (action === "set_learning_identity_policy") {
+      const policy = parseIdentityPolicy(body.policy);
+      if (typeof body.policy?.enabled !== "boolean" || !Array.isArray(body.policy.fields) || body.policy.fields.length !== policy.fields.length || (policy.enabled && !policy.fields.length)) return NextResponse.json({ message: "Choose up to six valid fields, with at least one field when enabled." }, { status: 400 });
+      const catalog = await getCoursesAndSectionsData();
+      const core = catalog.courses.find(course => course.slug === APPLIED_AGENTIC_AI_SLUG);
+      if (!core) throw new Error("Core course not found.");
+      await updateCourseMetadata(core.id, current => ({ ...current, learningIdentityPolicy: policy }));
+    } else if (action === "set_course_template") {
       const templateKey = String(body.templateKey ?? "");
       if (templateKey && !(await getSlideTemplates()).some(template => template.id === templateKey)) return NextResponse.json({ message: "Template no longer exists. Refresh and choose another layout." }, { status: 400 });
       await updateCourseMetadata(String(body.courseId), current => ({ ...current, templateKey }));
@@ -162,7 +170,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "Course names must be distinct." }, { status: 400 });
       }
       const rows = titles.map((courseTitle, index) => ({
-        created_by: null,
         title: courseTitle,
         slug: slugs[index],
         status: "active",
@@ -276,15 +283,6 @@ export async function POST(request: Request) {
       await removeSectionFiles((courseSectionFiles ?? []).flatMap((item) => [item.content_path, item.original_content_path]));
       // Delete associated sections first
       await supabase.from("course_sections").delete().eq("course_id", courseId);
-      try {
-        await supabase.from("course_passcodes").delete().eq("course_id", courseId);
-      } catch {}
-      try {
-        await supabase.from("user_unlocked_courses").delete().eq("course_id", courseId);
-      } catch {}
-      try {
-        await supabase.from("course_folder_allowed_emails").delete().eq("course_id", courseId);
-      } catch {}
       const { error } = await supabase.from("courses").delete().eq("id", courseId);
       if (error) throw error;
     } else if (action === "delete_courses") {
@@ -310,15 +308,6 @@ export async function POST(request: Request) {
         .in("course_id", validCourseIds);
       await removeSectionFiles((batchSectionFiles ?? []).flatMap((item) => [item.content_path, item.original_content_path]));
       await supabase.from("course_sections").delete().in("course_id", validCourseIds);
-      try {
-        await supabase.from("course_passcodes").delete().in("course_id", validCourseIds);
-      } catch {}
-      try {
-        await supabase.from("user_unlocked_courses").delete().in("course_id", validCourseIds);
-      } catch {}
-      try {
-        await supabase.from("course_folder_allowed_emails").delete().in("course_id", validCourseIds);
-      } catch {}
       const { error } = await supabase.from("courses").delete().in("id", validCourseIds);
       if (error) throw error;
     } else if (action === "create_section") {
@@ -344,7 +333,6 @@ export async function POST(request: Request) {
       if (positionError) throw positionError;
       const stamp = Date.now().toString(36);
       const rows = titles.map((sectionTitle: string, index: number) => ({
-        created_by: null,
         course_id: courseId,
         section_key: `${course.slug}-${slugify(sectionTitle)}-${stamp}-${index}`,
         title: sectionTitle,
@@ -425,9 +413,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "The default Section 1 and Section 2 of core course cannot be deleted." }, { status: 400 });
       }
 
-      try {
-        await supabase.from("course_passcodes").delete().eq("section_key", section.section_key);
-      } catch {}
 
       if (parentCourse?.description) {
         try {
@@ -475,11 +460,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "Default core sections cannot be deleted." }, { status: 400 });
       }
       const validIds = validSecs.map((s) => s.id);
-      const validKeys = validSecs.map((s) => s.section_key);
 
-      try {
-        await supabase.from("course_passcodes").delete().in("section_key", validKeys);
-      } catch {}
 
       const courseIds = [...new Set(validSecs.map((s) => s.course_id))];
       for (const cId of courseIds) {
@@ -531,10 +512,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Admin update error:", error);
-    const databaseError = error as { code?: string; message?: string; details?: string } | null;
-    if (databaseError?.code === "23503" && /created_by/.test(`${databaseError.message} ${databaseError.details}`)) {
-      return NextResponse.json({ success: false, errorCode: "COURSE_OWNERSHIP_NOT_CONFIGURED", message: "Course ownership setup needs an administrator update. Please contact your administrator before trying again." }, { status: 409 });
-    }
     const message = error instanceof Error && /duplicate|unique/i.test(error.message)
       ? "Duplicate item or entry already exists."
       : "Unable to update workspace data.";

@@ -7,6 +7,7 @@ import { motion, useReducedMotion } from "motion/react";
 import styles from "./LandingExperience.module.css";
 import AnimatedHeroCopy from "./landing/AnimatedHeroCopy";
 import EntranceBootOverlay from "./landing/EntranceBootOverlay";
+import type { IdentityField } from "@/lib/learningIdentity";
 // Keep original SVG bot for reduced-motion fallback
 import EiuAgentBot from "./EiuAgentBot";
 
@@ -24,12 +25,16 @@ const HeroScene = dynamic(() => import("./landing/HeroScene"), {
 export default function LandingPage({ googleResult }: { googleResult?: string } = {}) {
   // ── Auth & Robot state ──
   const [passcode, setPasscode] = useState("");
+  const [identityFields, setIdentityFields] = useState<IdentityField[]>([]);
+  const [information, setInformation] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(googleResult && googleResult !== "connected" ? googleResult === "wrong-account" ? "Google sign-in is available only for the administrator account." : "Google sign-in did not complete. Please try again." : "");
   const [robotState, setRobotState] = useState<RobotInteractionState>("idle");
 
   function changePasscode(value: string) {
     setPasscode(value);
+    setIdentityFields([]);
+    setInformation({});
     setError("");
   }
 
@@ -50,9 +55,16 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
       const response = await fetch("/api/auth/access", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ passcode: cleanPasscode }),
+        body: JSON.stringify({ passcode: cleanPasscode, ...(identityFields.length ? { information } : {}) }),
       });
-      const payload = (await response.json()) as { success?: boolean; message?: string; destination?: string };
+      const payload = (await response.json()) as { success?: boolean; message?: string; destination?: string; requiresInformation?: boolean; fields?: IdentityField[] };
+      if (payload.requiresInformation && payload.fields?.length) {
+        setIdentityFields(payload.fields);
+        setLoading(false);
+        setRobotState("idle");
+        setError(payload.message || "");
+        return;
+      }
       if (!response.ok || !payload.success) {
         throw new Error(payload.message || "Unable to sign in. Please check your passcode.");
       }
@@ -225,11 +237,15 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
             stage={stage}
             passcode={passcode}
             setPasscode={changePasscode}
+              identityFields={identityFields}
+              information={information}
+              onInformationChange={(id, value) => { setInformation(current => ({ ...current, [id]: value })); setError(""); }}
+              onInformationCancel={() => { setIdentityFields([]); setInformation({}); setError(""); }}
 
             loading={loading}
             error={error}
             onSubmit={submit}
-            onMethodChange={() => { setError(""); setPasscode(""); }}
+              onMethodChange={() => { setError(""); setPasscode(""); setIdentityFields([]); setInformation({}); }}
             onInputFocus={() => {
               setIsCtaHovered(true);
               setRobotState((prev) => (prev === "loading" || prev === "processing" || prev === "restricted" ? prev : "lookingAtAccess"));

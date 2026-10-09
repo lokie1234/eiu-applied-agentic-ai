@@ -1,7 +1,9 @@
+import { recordLearnerActivity } from "@/lib/learnerActivity";
 import { NextResponse } from "next/server";
 import { currentRole } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { readQuizProgress } from "@/lib/quizProgress";
 
 type SectionId = "section1" | "section2";
 type AnswerRecord = {
@@ -25,6 +27,17 @@ function normalizeAnswers(value: unknown): AnswerRecord[] | null {
   return answers.every((answer) => answer.question && answer.selected && answer.correct)
     ? answers
     : null;
+}
+
+export async function GET(request: Request) {
+  try {
+    const section = new URL(request.url).searchParams.get("section");
+    const profile = await currentLearnerProfile();
+    if (!profile || profile.section !== section) return NextResponse.json({ message: "Access denied." }, { status: 403 });
+    return NextResponse.json({ success: true, result: await readQuizProgress(profile.identity, section) }, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    return NextResponse.json({ message: "Unable to restore your quiz result." }, { status: 500 });
+  }
 }
 
 export async function POST(request: Request) {
@@ -55,9 +68,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Chi tiết câu trả lời không hợp lệ." }, { status: 400 });
     }
 
+    const previous = await readQuizProgress(profile.identity, section);
+    if (previous) return NextResponse.json({ success: true, ...previous });
     const requestedAt = new Date(String(body.completedAt ?? ""));
     const completedAt = Number.isNaN(requestedAt.getTime()) ? new Date().toISOString() : requestedAt.toISOString();
-    const { error } = await getSupabaseAdmin().from("quiz_results").insert({
+    const { data: saved, error } = await getSupabaseAdmin().from("quiz_results").insert({
       section,
       name: profile.name,
       email: profile.email,
@@ -65,10 +80,11 @@ export async function POST(request: Request) {
       total,
       answers,
       completed_at: completedAt,
-    });
+    }).select("id").single();
     if (error) throw error;
+    await recordLearnerActivity(profile.identity, "QUIZ_COMPLETED", section, saved.id);
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, learner: { name: profile.name, email: profile.email, information: profile.identity.information, fields: profile.identity.fields || [] } });
   } catch (error) {
     console.error("Quiz result API error:", error);
     return NextResponse.json(

@@ -4,8 +4,7 @@ import { useState } from "react";
 import styles from "./SlideTwentyEightEmergency.module.css";
 
 const EMERGENCY_FILES = [
-  { key: "config", label: "CONFIG", filename: "GEM_CONFIG.txt" },
-  { key: "knowledge", label: "KNOWLEDGE", filename: "KNOWLEDGE_ALL.txt" },
+  { key: "config", label: "SKILL", filename: "SKILL.md" },
 ] as const;
 
 export default function SlideTwentyEightEmergency() {

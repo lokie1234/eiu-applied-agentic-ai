@@ -35,3 +35,23 @@
 .headingMark svg { width:28px; height:28px; }
 @media(max-width:480px) { .heading { padding:16px 13px; gap:10px; }.card .heading h2 { font-size:23px; }.headingMark { flex-basis:34px; height:34px; }.headingMark svg { width:23px; height:23px; } }
 
+.identityDialog { width:min(520px,calc(100vw - 32px)); box-sizing:border-box; max-height:calc(100dvh - 40px); overflow:auto; padding:26px; border:1px solid #d6c6a8; border-top:4px solid #b39159; border-radius:22px; background:#fbfaf7; color:#17324a; box-shadow:0 24px 80px #041c3159; font-family:inherit; }
+.identityDialog::backdrop { background:#041c31b8; backdrop-filter:blur(5px); }
+.dialogHeader { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:22px; }
+.dialogClose { display:grid; place-items:center; width:34px; height:34px; padding:0; border:1px solid #d7d0c5; border-radius:9px; background:#fff; color:#082945; font:inherit; font-size:24px; cursor:pointer; }
+.dialogHeading { display:flex; align-items:center; gap:14px; margin-bottom:24px; }
+.dialogMark { display:grid; place-items:center; flex:0 0 48px; height:48px; border:1px solid #dcc9a5; border-radius:14px; color:#9d7944; background:#f2ecdf; }
+.dialogMark svg { width:28px; height:28px; }
+.dialogHeading h2 { margin:0 0 7px; color:#082945; font-size:26px; line-height:1.2; letter-spacing:-.035em; }
+.dialogHeading p,.dialogNote { margin:0; color:#687987; font-size:13px; line-height:1.5; }
+.dialogFields { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; }
+.numberHint { color:#9d7944; font-size:11px; font-weight:500; }
+.dialogFields label:first-child:last-child,.dialogFields label:last-child:nth-child(odd) { grid-column:1/-1; }
+.dialogNote { padding:12px 14px; border-left:3px solid #b39159; border-radius:0 8px 8px 0; background:#f2ecdf; font-size:12px; }
+.dialogActions { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding-top:4px; }
+.dialogActions .primary { min-width:150px; }
+.dialogCancel { min-height:48px; padding:12px 18px; border:1px solid #d7d0c5; border-radius:12px; background:#fff; color:#17324a; font:inherit; font-size:14px; cursor:pointer; }
+.dialogError { padding:12px 14px; border:1px solid #e7beb4; border-radius:10px; background:#fff1eb; color:#773728; font-size:13px; line-height:1.5; }
+.identityDialog :is(input,button):focus-visible { outline:3px solid #b39159; outline-offset:3px; }
+.identityDialog button:disabled { opacity:.55; cursor:default; }
+@media(max-width:480px) { .identityDialog { padding:20px; }.dialogFields { grid-template-columns:1fr; }.dialogHeading { align-items:flex-start; }.dialogHeading h2 { font-size:23px; }.dialogMark { flex-basis:40px; height:40px; } }

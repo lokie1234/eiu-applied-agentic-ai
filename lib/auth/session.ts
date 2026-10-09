@@ -10,7 +10,7 @@ const SESSION_MAX_AGE = 60 * 60 * 12;
 export type CreateSessionPayload =
   | { role: "admin"; email?: string; sessionVersion?: number; authMethod: "google" }
   | { role: "guest"; sessionId: string }
-  | { role: "passcode"; credentialHash: string; sessionId: string };
+  | { role: "passcode"; credentialHash: string; sessionId: string; identityLogId?: number };
 export type AccessSession = CreateSessionPayload & { expiresAt: number };
 
 function secret() {
@@ -44,7 +44,7 @@ function verifyAccessSession(value: string | undefined): AccessSession | null {
     if (!Number.isFinite(parsed.expiresAt) || parsed.expiresAt <= Date.now()) return null;
     if (parsed.role === "admin" && parsed.authMethod === "google") return parsed;
     if (parsed.role === "guest" && typeof parsed.sessionId === "string" && /^[a-f0-9-]{36}$/.test(parsed.sessionId)) return parsed;
-    if (parsed.role === "passcode" && /^[a-f0-9]{64}$/.test(parsed.credentialHash) && typeof parsed.sessionId === "string" && /^[a-f0-9-]{36}$/.test(parsed.sessionId)) return parsed;
+    if (parsed.role === "passcode" && /^[a-f0-9]{64}$/.test(parsed.credentialHash) && typeof parsed.sessionId === "string" && /^[a-f0-9-]{36}$/.test(parsed.sessionId) && (parsed.identityLogId === undefined || (Number.isSafeInteger(parsed.identityLogId) && parsed.identityLogId > 0))) return parsed;
     return null;
   } catch {
     return null;

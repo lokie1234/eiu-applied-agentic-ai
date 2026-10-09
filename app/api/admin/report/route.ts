@@ -1,6 +1,7 @@
 import ExcelJS from "exceljs";
 import { currentRole } from "@/lib/currentRole";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { collectReportLearners } from "@/lib/reportLearners";
 
 export const runtime = "nodejs";
 
@@ -66,7 +67,12 @@ async function fetchAll(
 
 function iso(value: unknown) {
   const date = new Date(String(value ?? ""));
-  return Number.isNaN(date.getTime()) ? String(value ?? "") : date.toISOString();
+  return Number.isNaN(date.getTime()) ? "" : new Intl.DateTimeFormat("en-GB", { timeZone: "Asia/Ho_Chi_Minh", day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" }).format(date).replace(", ", " ");
+}
+
+function reportInformation(row: Row, omitEmail = false) {
+  const fields = (row.fields || []) as Array<{ id: string; label: string; type?: string }>;
+  return Object.entries((row.information || {}) as Record<string, string>).filter(([id]) => id !== "name" && id !== "email" && (!omitEmail || fields.find(field => field.id === id)?.type !== "email")).map(([id, value]) => `${fields.find(field => field.id === id)?.label || id}: ${value}`).join("\n");
 }
 
 function styleHeader(row: ExcelJS.Row) {
@@ -93,7 +99,12 @@ function addSheet(
   styleHeader(sheet.getRow(1));
   sheet.autoFilter = { from: "A1", to: { row: 1, column: columns.length } };
   sheet.eachRow((row, rowNumber) => {
-    if (rowNumber > 1) row.alignment = { vertical: "top", wrapText: true };
+    if (rowNumber > 1) {
+      row.alignment = { vertical: "top", wrapText: true };
+      let lines = 1;
+      row.eachCell(cell => { if (typeof cell.value === "string") lines = Math.max(lines, cell.value.split("\n").length); });
+      row.height = Math.max(20, lines * 15 + 6);
+    }
   });
   return sheet;
 }
@@ -160,7 +171,7 @@ export async function GET(request: Request) {
         ? getDateBounds(dateParam, Number.isFinite(tzOffsetMinutes) ? tzOffsetMinutes : -420)
         : null;
 
-    const [learners, ideas, showcase, quiz, feedback, sectionStates] = await Promise.all([
+    const [legacyLearners, ideas, showcase, quiz, feedback, sectionStates, activity] = await Promise.all([
       fetchAll(
         "learner_profiles",
         "updated_at",
@@ -187,8 +198,10 @@ export async function GET(request: Request) {
         dateBounds ? { column: "submitted_at", startIso: dateBounds.startIso, endIso: dateBounds.endIso } : null,
       ),
       fetchAll("section_state", "updated_at"),
+      fetchAll("access_audit_logs", "created_at", dateBounds ? { column: "created_at", startIso: dateBounds.startIso, endIso: dateBounds.endIso } : null),
     ]);
 
+    const learners = collectReportLearners(legacyLearners, activity, [...ideas, ...showcase, ...quiz, ...feedback]);
     const availableSections = collectSections(
       [learners, ideas, showcase, quiz, feedback],
       sectionStates.map((row) => row.section),
@@ -241,7 +254,7 @@ export async function GET(request: Request) {
       ? `Ngày ${dateBounds.dateStr.split("-").reverse().join("/")} (Giờ VN - UTC+7)`
       : "Tất cả thời gian";
     summary.addRow(["Phạm vi báo cáo", filterLabel]);
-    summary.addRow(["Xuất lúc (UTC)", generatedAt]);
+    summary.addRow(["Xuất lúc (GMT+7)", generatedAt]);
     summary.addRow([]);
     summary.addRow(["Loại dữ liệu", ...sections.map(sectionLabel), "Tổng"]);
     styleHeader(summary.getRow(5));
@@ -263,51 +276,62 @@ export async function GET(request: Request) {
 
       addSheet(workbook, `${prefix} - Hoc vien`, [
         { header: "Họ tên", key: "name", width: 30 },
-        { header: "Email EIU", key: "email", width: 36 },
-        { header: "Tạo lúc (UTC)", key: "createdAt", width: 26 },
-        { header: "Cập nhật lúc (UTC)", key: "updatedAt", width: 26 },
+        { header: "Email", key: "email", width: 36 },
+        ...(sectionLearners.some(row => reportInformation(row)) ? [{ header: "Learner information", key: "information", width: 60 }] : []),
+        { header: "Tạo lúc (GMT+7)", key: "createdAt", width: 26 },
+        { header: "Cập nhật lúc (GMT+7)", key: "updatedAt", width: 26 },
       ], sectionLearners.map((row) => ({
+        sessionId: String(row.sessionId || ""),
+        information: reportInformation(row),
         name: String(row.name ?? ""), email: String(row.email ?? ""), createdAt: iso(row.created_at), updatedAt: iso(row.updated_at),
       })));
 
       addSheet(workbook, `${prefix} - Y tuong`, [
         { header: "Họ tên", key: "name", width: 28 },
-        { header: "Email EIU", key: "email", width: 34 },
         { header: "Ý tưởng", key: "idea", width: 80 },
-        { header: "Gửi lúc (UTC)", key: "submittedAt", width: 26 },
+        { header: "Gửi lúc (GMT+7)", key: "submittedAt", width: 26 },
       ], sectionIdeas.map((row) => ({
         name: String(row.name ?? ""), email: String(row.email ?? ""), idea: String(row.idea ?? ""), submittedAt: iso(row.submitted_at),
       })));
 
       addSheet(workbook, `${prefix} - Bai lam`, [
         { header: "Họ tên", key: "name", width: 28 },
-        { header: "Email EIU", key: "email", width: 34 },
         { header: "URL", key: "url", width: 70 },
-        { header: "Chia sẻ lúc (UTC)", key: "sharedAt", width: 26 },
+        { header: "Chia sẻ lúc (GMT+7)", key: "sharedAt", width: 26 },
       ], sectionShowcase.map((row) => ({
         name: String(row.name ?? ""), email: String(row.email ?? ""), url: String(row.url ?? ""), sharedAt: iso(row.shared_at),
       })));
 
       addSheet(workbook, `${prefix} - Quiz`, [
         { header: "Họ tên", key: "name", width: 28 },
-        { header: "Email", key: "email", width: 34 },
         { header: "Điểm", key: "score", width: 10 },
         { header: "Tổng điểm", key: "total", width: 12 },
-        { header: "Hoàn thành lúc (UTC)", key: "completedAt", width: 26 },
+        { header: "Hoàn thành lúc (GMT+7)", key: "completedAt", width: 26 },
       ], sectionQuiz.map((row) => ({
         name: String(row.name ?? ""), email: String(row.email ?? ""), score: Number(row.score ?? 0), total: Number(row.total ?? 0), completedAt: iso(row.completed_at),
       })));
 
       addSheet(workbook, `${prefix} - Feedback`, [
         { header: "Họ tên", key: "name", width: 28 },
-        { header: "Email", key: "email", width: 34 },
         { header: "Nội dung phản hồi", key: "feedback", width: 80 },
-        { header: "Gửi lúc (UTC)", key: "submittedAt", width: 26 },
+        { header: "Gửi lúc (GMT+7)", key: "submittedAt", width: 26 },
       ], sectionFeedback.map((row) => ({
         name: String(row.name ?? ""), email: String(row.email ?? ""), feedback: String(row.feedback ?? ""), submittedAt: iso(row.submitted_at),
       })));
     });
 
+    const activityRows = activity.filter(row => ["PASSCODE_LOGIN", "IDEA_SUBMITTED", "SHOWCASE_SUBMITTED", "QUIZ_COMPLETED", "FEEDBACK_SUBMITTED"].includes(String(row.action))).filter(row => requestedSection === "all" || (row.details as Row)?.section === requestedSection);
+    addSheet(workbook, "Learner activity", [
+      { header: "Name", key: "name", width: 28 },
+      { header: "Action", key: "action", width: 26 },
+      { header: "Section", key: "section", width: 16 },
+      ...(activityRows.some(row => reportInformation((row.details || {}) as Row, true)) ? [{ header: "Learner information", key: "information", width: 60 }] : []),
+      { header: "Time (GMT+7)", key: "createdAt", width: 26 },
+    ], activityRows.map(row => {
+      const details = (row.details || {}) as Row;
+      const information = reportInformation(details, true);
+      return { sessionId: String(details.sessionId || ""), name: String(details.name || ""), email: String(details.email || ""), action: String(row.action), section: String(details.section || ""), recordId: String(details.recordId || ""), information, createdAt: iso(row.created_at) };
+    }));
     const output = await workbook.xlsx.writeBuffer();
     const dateSuffix = dateBounds ? dateBounds.dateStr : "all-time";
     const sectionSuffix = requestedSection === "all" ? "all-sections" : requestedSection;

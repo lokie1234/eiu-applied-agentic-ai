@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
+import { rememberDeckSelection } from "@/lib/deckLocation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
 import UploadedSectionDeck from "./deck/UploadedSectionDeck";
@@ -612,6 +613,7 @@ export default function LessonPortal({
       body: JSON.stringify({ section: nextSection }),
     });
     if (response.ok) {
+      rememberDeckSelection(selectedCourse?.id, selectedCourse?.sections.find(item => item.sectionKey === nextSection)?.id);
       setActiveUploadedSection(null);
       setAdminSection(nextSection);
     }
@@ -817,7 +819,7 @@ export default function LessonPortal({
                             type="button"
                             className={styles.courseFolder}
                             key={course.id}
-                            onClick={() => setSelectedCourseId(course.id)}
+                            onClick={() => { rememberDeckSelection(course.id); setSelectedCourseId(course.id); }}
                           >
                             <div className={styles.courseCardBody}>
                               <div className={styles.courseCardTopRow}>
@@ -975,7 +977,7 @@ export default function LessonPortal({
         <div className={styles.grid} aria-hidden="true" />
 
         <div className={styles.selectorActions}>
-          <button type="button" onClick={() => setSelectedCourseId(null)}>← Courses</button>
+          <button type="button" onClick={() => { rememberDeckSelection(); setSelectedCourseId(null); }}>← Courses</button>
           {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
           {isAdmin && (
@@ -1045,7 +1047,7 @@ export default function LessonPortal({
                   : null;
               const hasUploadedDeck = courseSection.contentType === "pdf" || courseSection.contentType === "tsx" || courseSection.contentType === "pptx";
               const canOpen = Boolean(coreSection || hasUploadedDeck);
-              const count = coreSection === "section1" ? 41 : coreSection === "section2" ? 37 : courseSection.slideCount;
+              const count = coreSection === "section1" ? 41 : coreSection === "section2" ? 38 : courseSection.slideCount;
               return (
                 <div key={courseSection.id} className={styles.courseSectionCard}>
                 <button
@@ -1053,7 +1055,7 @@ export default function LessonPortal({
                   disabled={!canOpen}
                   onClick={() => {
                     if (coreSection) void chooseSection(coreSection);
-                    else if (hasUploadedDeck) setActiveUploadedSection(courseSection);
+                    else if (hasUploadedDeck) { rememberDeckSelection(selectedCourse.id, courseSection.id, true); setActiveUploadedSection(courseSection); }
                   }}
                 >
                   <span>SECTION {courseSection.position}</span>
@@ -1070,7 +1072,7 @@ export default function LessonPortal({
                   <i>{canOpen ? "→" : "…"}</i>
                 </button>
                 {coreSection && courseSection.contentType === "pptx" && (
-                  <button type="button" className={styles.sectionFilePreview} onClick={() => { setAdminSection(null); setActiveUploadedSection(courseSection); }}>
+                  <button type="button" className={styles.sectionFilePreview} onClick={() => { rememberDeckSelection(selectedCourse.id, courseSection.id, true); setAdminSection(null); setActiveUploadedSection(courseSection); }}>
                     View file
                   </button>
                 )}
@@ -1267,7 +1269,7 @@ export default function LessonPortal({
               <div className={styles.dangerWarningBox}>
                 <strong>This action cannot be undone:</strong>
                 It permanently deletes {resetSectionLabel} data from Supabase, including learner
-                profiles, ideas, showcase entries, quiz results, feedback, and active sessions.
+                profiles, activity logs, ideas, showcase entries, quiz results, feedback, and active sessions.
               </div>
 
               <label className={styles.resetPasswordField}>
@@ -1336,6 +1338,7 @@ export default function LessonPortal({
         currentSection={section}
         statusNotice={isAdmin ? terminateNotice : undefined}
         onChooseSection={() => {
+          rememberDeckSelection();
           setAdminSection(null);
           setActiveUploadedSection(null);
           setSelectedCourseId(null);

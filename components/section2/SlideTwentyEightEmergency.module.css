@@ -137,7 +137,7 @@
 
 .error { margin: 8px 0 0; color: #b33a3a; font-size: 11px; font-weight: 700; }
 
-.downloads { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.downloads { display: grid; grid-template-columns: 1fr; gap: 12px; }
 
 .downloads button {
   display: grid;
