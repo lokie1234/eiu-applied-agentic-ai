@@ -22,7 +22,7 @@ function fixture(role = "admin") {
   return { state, get: route.GET, post: body => route.POST({ headers: { get: () => null }, json: async () => body }) };
 }
 
-test("teachers can view layouts but cannot add/delete them; unauthenticated reads are blocked", async () => {
+test("facilitators can view layouts but cannot add/delete them; unauthenticated reads are blocked", async () => {
   const teacher = fixture("teacher");
   assert.equal((await teacher.get()).data.templates.length, 1);
   for (const action of ["create", "delete"]) assert.equal((await teacher.post({ action, id: "eiu-business-v1" })).status, 403);
@@ -49,23 +49,25 @@ test("invalid layout uploads and failed persistence never report successful chan
   assert.equal(f.state.templates.length, 1);
 });
 
-test("hidden courses/folders disappear from teacher and learner access while admins retain them", async () => {
-  let role = "teacher";
-  const courses = [
-    { id: "shown", title: "Visible", status: "active", description: JSON.stringify({ summary: "Shown", folderGroupId: "visible", templateKey: "custom" }) },
-    { id: "hidden-course", title: "Hidden", status: "active", description: JSON.stringify({ hidden: true, folderGroupId: "visible" }) },
-    { id: "hidden-folder", title: "Hidden folder course", status: "active", description: JSON.stringify({ folderGroupId: "hidden" }) },
-  ];
-  const sections = courses.map(c => ({ id: c.id + "-section", course_id: c.id, section_key: "lecture", position: 1 }));
-  const db = { from: table => ({ select() { return this; }, eq() { return this; }, order() { return this; }, then: resolve => Promise.resolve({ data: table === "courses" ? courses : sections }).then(resolve) }) };
+test("hidden courses and folders are excluded from both passcode roles while admin retains them", async () => {
+  let role = "passcode", credentialHash;
+  const catalog = {
+    folderGroups: [{ id: "visible" }, { id: "hidden", hidden: true }],
+    courses: [
+      { id: "shown", status: "active", folderGroupId: "visible", metadata: { passcode: "learn1234", facilitatorPasscode: "teach1234", summary: "Shown", templateKey: "custom" } },
+      { id: "hidden-course", status: "active", folderGroupId: "visible", metadata: { passcode: "learn1234", facilitatorPasscode: "teach1234", hidden: true } },
+      { id: "hidden-folder", status: "active", folderGroupId: "hidden", metadata: { passcode: "learn1234", facilitatorPasscode: "teach1234" } },
+    ],
+    sections: ["shown", "hidden-course", "hidden-folder"].map(id => ({ id: id + "-section", course_id: id, status: "active", section_key: "lecture", position: 1 })),
+  };
+  const storage = { getCoursesAndSectionsData: async () => catalog };
+  const codes = load("lib/auth/passcodes.ts", { "server-only": {}, "./courseAccessStorage": storage, "./types": { APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai" } });
   const access = load("lib/auth/currentUser.ts", {
-    "server-only": {}, "./teachers": { currentTeacher: async () => ({ id: "teacher", email: "teacher@example.test", must_change_password: false }), teacherByEmail: async () => null },
-    "@/lib/auth/session": { currentAccessSession: async () => ({ role, email: "learner@example.test" }) },
-    "@/lib/supabase/server": { getSupabaseAdmin: () => db },
-    "@/lib/auth/types": { FIXED_ADMIN_EMAIL: "admin@example.test" },
-    "@/lib/auth/courseAccessStorage": { parseCourseMetadata: raw => JSON.parse(raw), getUserUnlockedCourses: async () => [], getCoursesAndSectionsData: async () => ({ folderGroups: [{ id: "visible" }, { id: "hidden", hidden: true }] }) },
+    "server-only": {}, "./session": { currentAccessSession: async () => ({ role, credentialHash, sessionId: "learner" }) },
+    "./courseAccessStorage": storage, "./passcodes": codes, "./types": { FIXED_ADMIN_EMAIL: "admin@example.test" },
   });
-  for (role of ["teacher", "learner"]) {
+  for (const code of ["learn1234", "teach1234"]) {
+    credentialHash = codes.hashPasscode(code);
     const result = await access.currentUserAccess();
     assert.deepEqual(Array.from(result.courses, course => course.id), ["shown"]);
     assert.deepEqual(Array.from(result.sections, section => section.id), ["shown-section"]);

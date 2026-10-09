@@ -1,4 +1,3 @@
-import { randomInt } from "node:crypto";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { requireCourseManager } from "@/lib/auth/currentUser";
@@ -8,30 +7,19 @@ import {
   getSlideTemplates,
   updateCourseMetadata,
   setFolderGroupHidden,
-  clearAllAuthorizedEmails,
-  clearCourseEmails,
   createFolderGroup,
   deleteFolderGroup,
-  generateNewCoursePasscode,
-  getAllAuthorizedEmails,
   getCoursesAndSectionsData,
   parseCourseMetadata,
-  removeAuthorizedEmails,
-  removeCourseEmail,
   serializeCourseMetadata,
-  setAllCoursesUnlocked,
-  setAuthorizedEmailsBulk,
-  setCourseEmailsBulk,
   setCourseFolderGroup,
-  setCoursePasscode,
-  setCourseUnlocked,
-  setFolderGroupUnlocked,
-  setSectionPasscode,
   setSectionTemplate,
   updateCourseSummary,
   updateCourseSystemIcons,
   updateFolderGroup,
 } from "@/lib/auth/courseAccessStorage";
+
+import { saveAccessPasscode, saveAccessPasscodes } from "@/lib/auth/passcodes";
 
 export const runtime = "nodejs";
 
@@ -39,7 +27,7 @@ const LANGUAGE_LABELS = new Set(["vi", "en", "vi_en"]);
 const SECTION_CONTENT_BUCKET = "course-section-content";
 
 async function removeSectionFiles(paths: Array<string | null | undefined>) {
-  const cleanPaths = [...new Set(paths.filter((path): path is string => Boolean(path)))];
+  const cleanPaths = [...new Set(paths.filter((path): path is string => Boolean(path) && !path?.startsWith("drive:")))];
   if (cleanPaths.length === 0) return;
   await getSupabaseAdmin().storage.from(SECTION_CONTENT_BUCKET).remove(cleanPaths);
 }
@@ -60,10 +48,9 @@ export async function GET() {
     return NextResponse.json({ success: false, message: "Course management access required." }, { status: 403 });
   }
   try {
-    if (!actor.isAdmin) return NextResponse.json({ success: true, ...await teacherData(actor.authUserId) });
+
     const data = await getCoursesAndSectionsData();
-    const authorizedEmails = await getAllAuthorizedEmails(data.courses);
-    return NextResponse.json({ success: true, ...data, authorizedEmails });
+    return NextResponse.json({ success: true, ...data });
   } catch (error) {
     console.error("Load admin data error:", error);
     return NextResponse.json({ success: false, message: "Unable to load workspace data." }, { status: 500 });
@@ -80,70 +67,8 @@ export async function POST(request: Request) {
     const body = await request.json();
     const action = String(body.action ?? "");
     const supabase = getSupabaseAdmin();
-    if (!actor.isAdmin) {
-      const allowed = ["update_folder_group", "delete_folder_group", "delete_folder_groups", "create_folder_group", "set_course_folder_group", "set_course_template", "create_course", "create_section", "delete_section", "delete_sections", "rename_section", "reorder_sections", "update_course_title", "update_course_summary", "update_course_description", "update_course_system_icons", "set_course_language", "delete_course", "delete_courses", "reorder_courses"];
-      if (!allowed.includes(action)) return NextResponse.json({ message: "Administrator access required for this action." }, { status: 403 });
-      if (["update_folder_group", "delete_folder_group", "delete_folder_groups"].includes(action)) {
-        const ids: string[] = action === "delete_folder_groups" && Array.isArray(body.folderGroupIds) ? body.folderGroupIds.map(String) : [String(body.id ?? "")];
-        const catalog = await getCoursesAndSectionsData();
-        if (!ids.length || new Set(ids).size !== ids.length || ids.some(id => !catalog.folderGroups.some(group => group.id === id && group.createdBy === actor.authUserId))) return NextResponse.json({ message: "You can only manage your own folders." }, { status: 403 });
-        if (action !== "update_folder_group") {
-          const members = catalog.courses.filter(course => ids.includes(course.folderGroupId));
-          if (members.length) {
-            const courseIds = members.map(course => course.id);
-            const { data: owned, error } = await supabase.from("courses").select("id,created_by").in("id", courseIds);
-            if (error) throw error;
-            if (owned?.length !== courseIds.length || owned.some(course => course.created_by !== actor.authUserId)) return NextResponse.json({ message: "This folder contains courses owned by another user." }, { status: 403 });
-            const { count, error: sectionError } = await supabase.from("course_sections").select("id", { count: "exact", head: true }).in("course_id", courseIds).or('created_by.is.null,created_by.neq.' + actor.authUserId);
-            if (sectionError) throw sectionError;
-            if (count) return NextResponse.json({ message: "This folder contains sections owned by another user." }, { status: 403 });
-          }
-        }
-      } else if (["delete_courses", "reorder_courses"].includes(action)) {
-        const ids: string[] = Array.isArray(body.courseIds) ? body.courseIds.map(String).filter(Boolean) : [];
-        if (!ids.length || new Set(ids).size !== ids.length) return NextResponse.json({ message: "Choose distinct courses to manage." }, { status: 400 });
-        const { data, error } = await supabase.from("courses").select("id,created_by").in("id", ids);
-        if (error) throw error;
-        if (data?.length !== ids.length || data.some(course => course.created_by !== actor.authUserId)) return NextResponse.json({ message: "You can only manage your own courses." }, { status: 403 });
-        if (action === "delete_courses") {
-          const { count, error: sectionError } = await supabase.from("course_sections").select("id", { count: "exact", head: true }).in("course_id", ids).or('created_by.is.null,created_by.neq.' + actor.authUserId);
-          if (sectionError) throw sectionError;
-          if (count) return NextResponse.json({ message: "These courses contain sections owned by another user." }, { status: 403 });
-        }
-      } else if (["delete_section", "delete_sections", "rename_section"].includes(action)) {
-        const ids = action === "delete_sections" && Array.isArray(body.sectionIds) ? body.sectionIds.map(String) : [String(body.sectionId ?? "")];
-        const { data, error } = await supabase.from("course_sections").select("id,created_by,course_id").in("id", ids);
-        if (error) throw error;
-        if (!ids.length || data?.length !== new Set(ids).size || data.some(section => section.created_by !== actor.authUserId)) return NextResponse.json({ message: "You can only edit your own sections." }, { status: 403 });
-        const courseIds = [...new Set(data.map(section => String(section.course_id)))];
-        const { data: parents, error: parentError } = await supabase.from("courses").select("id,created_by").in("id", courseIds);
-        if (parentError) throw parentError;
-        if (parents?.length !== courseIds.length || parents.some(course => course.created_by !== actor.authUserId)) return NextResponse.json({ message: "You can only edit sections in your own courses." }, { status: 403 });
-      } else if (!["create_course", "create_folder_group"].includes(action)) {
-        const courseId = String(body.courseId ?? "");
-        const { data: course, error } = await supabase.from("courses").select("created_by").eq("id", courseId).maybeSingle();
-        if (error) throw error;
-        if (!course || course.created_by !== actor.authUserId) return NextResponse.json({ message: "You can only manage your own courses." }, { status: 403 });
-        if (["delete_course", "reorder_sections"].includes(action)) {
-          const { count, error: sectionError } = await supabase.from("course_sections").select("id", { count: "exact", head: true }).eq("course_id", courseId).or('created_by.is.null,created_by.neq.' + actor.authUserId);
-          if (sectionError) throw sectionError;
-          if (count) return NextResponse.json({ message: "This course contains sections owned by another user." }, { status: 403 });
-        }
-      }
-    }
-    if (!actor.isAdmin) {
-      const catalog = await getCoursesAndSectionsData();
-      const hiddenCourses = new Set(catalog.courses.filter(course => {
-        const metadata = parseCourseMetadata(course.description);
-        return course.metadata?.hidden || metadata.hidden || catalog.folderGroups.some(group => group.id === course.folderGroupId && group.hidden);
-      }).map(course => course.id));
-      const courseIds = [String(body.courseId ?? ""), ...(Array.isArray(body.courseIds) ? body.courseIds.map(String) : [])];
-      const sectionIds = [String(body.sectionId ?? ""), ...(Array.isArray(body.sectionIds) ? body.sectionIds.map(String) : [])];
-      const folderIds = [String(body.folderGroupId ?? ""), String(body.id ?? ""), ...(Array.isArray(body.folderGroupIds) ? body.folderGroupIds.map(String) : [])];
-      if (courseIds.some(id => hiddenCourses.has(id)) || catalog.sections.some(section => sectionIds.includes(section.id) && hiddenCourses.has(section.course_id)) || catalog.folderGroups.some(group => group.hidden && folderIds.includes(group.id))) {
-        return NextResponse.json({ message: "This folder or course has been hidden by the administrator." }, { status: 403 });
-      }
-    }
+
+
     let generatedCode: string | undefined;
     let createdCourseIds: string[] | undefined;
     let createdFolderGroupId: string | undefined;
@@ -158,79 +83,35 @@ export async function POST(request: Request) {
     } else if (action === "set_folder_group_hidden") {
       if (typeof body.hidden !== "boolean") return NextResponse.json({ message: "Invalid visibility." }, { status: 400 });
       await setFolderGroupHidden(String(body.folderGroupId), body.hidden);
-    } else if (action === "grant_emails_bulk") {
-      const rawEmails = body.emails ?? body.rawEmails ?? "";
-      const mode = body.mode === "replace" ? "replace" : "append";
-      await setAuthorizedEmailsBulk(rawEmails, mode);
-    } else if (action === "remove_emails") {
-      const emails = Array.isArray(body.emails)
-        ? body.emails
-        : [String(body.email ?? "")].filter(Boolean);
-      await removeAuthorizedEmails(emails);
-    } else if (action === "clear_emails") {
-      await clearAllAuthorizedEmails();
-    } else if (action === "set_course_unlocked") {
-      const unlocked = Boolean(body.unlocked);
-      const courseIds: string[] = Array.isArray(body.courseIds)
-        ? (body.courseIds as unknown[]).map(String).filter(Boolean)
-        : body.courseId ? [String(body.courseId)] : [];
-      if (courseIds.length === 0) {
-        return NextResponse.json({ success: false, message: "Missing course ID." }, { status: 400 });
+    } else if (action === "set_section_hidden") {
+      if (typeof body.hidden !== "boolean" || typeof body.sectionId !== "string") return NextResponse.json({ message: "Invalid section visibility." }, { status: 400 });
+      const catalog = await getCoursesAndSectionsData();
+      const section = catalog.sections.find(section => section.id === body.sectionId);
+      if (!section) return NextResponse.json({ message: "Section not found." }, { status: 404 });
+      await updateCourseMetadata(section.course_id, current => ({
+        ...current,
+        hiddenSectionIds: body.hidden ? [...new Set([...(current.hiddenSectionIds || []), section.id])] : (current.hiddenSectionIds || []).filter(id => id !== section.id),
+      }));
+    } else if (action === "bulk_access_passcodes") {
+      if (!Array.isArray(body.targets) || !body.targets.length || body.targets.length > 200 || body.targets.some((target: { kind?: unknown; id?: unknown } | null) => !target || !["folder", "course"].includes(String(target.kind)) || typeof target.id !== "string") || !Array.isArray(body.modes) || !body.modes.length || body.modes.some((mode: unknown) => !["learner", "facilitator"].includes(String(mode))) || !["generate", "clear"].includes(body.operation)) {
+        return NextResponse.json({ success: false, message: "Invalid bulk passcode request." }, { status: 400 });
       }
-      for (const id of courseIds) {
-        await setCourseUnlocked(id, unlocked);
+      try {
+        await saveAccessPasscodes(body.targets, body.modes, body.operation === "generate" ? null : "", body.unhide === true);
+      } catch (error) {
+        revalidatePath("/learn");
+        return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Unable to update passcodes.", ...await getCoursesAndSectionsData() }, { status: 409 });
       }
-    } else if (action === "set_all_courses_unlocked") {
-      const unlocked = Boolean(body.unlocked);
-      await setAllCoursesUnlocked(unlocked);
-    } else if (action === "generate_course_passcode") {
-      const courseId = String(body.courseId ?? "");
-      if (!courseId) {
-        return NextResponse.json({ success: false, message: "Missing course ID." }, { status: 400 });
+    } else if (action === "set_access_passcode") {
+      if (!["global", "folder", "course"].includes(body.kind) || !["learner", "facilitator"].includes(body.mode) || typeof body.id !== "string" || (body.generate !== true && typeof body.code !== "string")) {
+        return NextResponse.json({ success: false, message: "Invalid passcode scope or access type." }, { status: 400 });
       }
-      generatedCode = await generateNewCoursePasscode(courseId);
-    } else if (action === "set_course_passcode") {
-      const courseId = String(body.courseId ?? "");
-      const code = String(body.code ?? "").trim();
-      if (!courseId || !code) {
-        return NextResponse.json({ success: false, message: "Invalid passcode." }, { status: 400 });
+      try {
+        generatedCode = await saveAccessPasscode({ kind: body.kind, id: body.id }, body.mode, body.generate === true ? null : body.code, body.unhide === true);
+      } catch (error) {
+        revalidatePath("/learn");
+        return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Unable to save passcode.", ...await getCoursesAndSectionsData() }, { status: 409 });
       }
-      await setCoursePasscode(courseId, code);
-    } else if (action === "generate_section_passcode") {
-      const courseId = String(body.courseId ?? "");
-      generatedCode = await generateNewCoursePasscode(courseId);
-    } else if (action === "set_section_passcode") {
-      const courseId = String(body.courseId ?? "");
-      const code = String(body.code ?? "").trim();
-      if (!courseId || !code) {
-        return NextResponse.json({ success: false, message: "Invalid passcode." }, { status: 400 });
-      }
-      await setCoursePasscode(courseId, code);
-    } else if (action === "delete_section_passcode") {
-      const courseId = String(body.courseId ?? "");
-      const sectionKey = String(body.sectionKey ?? "");
-      await setSectionPasscode(courseId, sectionKey, "");
-    } else if (action === "grant_course_emails_bulk") {
-      const courseId = String(body.courseId ?? "");
-      const rawEmails = body.emails ?? body.rawEmails ?? "";
-      const mode = body.mode === "replace" ? "replace" : "append";
-      if (!courseId) {
-        return NextResponse.json({ success: false, message: "Missing course ID." }, { status: 400 });
-      }
-      await setCourseEmailsBulk(courseId, rawEmails, mode);
-    } else if (action === "remove_course_email") {
-      const courseId = String(body.courseId ?? "");
-      const email = String(body.email ?? "").trim();
-      if (!courseId || !email) {
-        return NextResponse.json({ success: false, message: "Missing email to remove." }, { status: 400 });
-      }
-      await removeCourseEmail(courseId, email);
-    } else if (action === "clear_course_emails") {
-      const courseId = String(body.courseId ?? "");
-      if (!courseId) {
-        return NextResponse.json({ success: false, message: "Missing course ID." }, { status: 400 });
-      }
-      await clearCourseEmails(courseId);
     } else if (action === "set_course_language") {
       const courseId = String(body.courseId ?? "");
       const languageLabel = String(body.languageLabel ?? "");
@@ -271,14 +152,8 @@ export async function POST(request: Request) {
       const title = String(body.title ?? "").trim();
       const titles: string[] = Array.isArray(body.titles) ? body.titles.map((value: unknown) => String(value).trim()) : [title];
       const folderGroupId = String(body.folderGroupId ?? "fg-ai-agentic").trim();
-      let folderGroupName = String(body.folderGroupName ?? "Chương Trình AI & Agentic").trim();
-      if (!actor.isAdmin) {
-        const { folderGroups } = await getCoursesAndSectionsData();
-        const folder = folderGroups.find(group => group.id === folderGroupId);
-        if (!folder) return NextResponse.json({ success: false, message: "Folder not found. Refresh your workspace and choose another folder." }, { status: 400 });
-        if (folder.createdBy !== actor.authUserId) return NextResponse.json({ message: "You can only add or move courses into your own folders." }, { status: 403 });
-        folderGroupName = folder.name;
-      }
+      const folderGroupName = String(body.folderGroupName ?? "Chương Trình AI & Agentic").trim();
+
       const slugs = titles.map(slugify);
       if (!titles.length || titles.length > 100 || titles.some((value) => !value || value.length > 120) || slugs.some((slug) => !slug)) {
         return NextResponse.json({ success: false, message: "Invalid course title." }, { status: 400 });
@@ -287,13 +162,16 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: "Course names must be distinct." }, { status: 400 });
       }
       const rows = titles.map((courseTitle, index) => ({
-        created_by: actor.isTeacher ? actor.authUserId : null,
+        created_by: null,
         title: courseTitle,
         slug: slugs[index],
         status: "active",
         language_label: "vi_en",
         description: JSON.stringify({
         summary: courseTitle,
+        passcode: "",
+        facilitatorPasscode: "",
+        sectionAccessCodes: {},
         allowedEmails: [actor.email],
         sectionPasscodes: {},
         unlocked: false,
@@ -316,7 +194,7 @@ export async function POST(request: Request) {
       if (!name || name.length > 120 || (description?.length ?? 0) > 2000) {
         return NextResponse.json({ success: false, message: "Enter a folder name of up to 120 characters and a description of up to 2000 characters." }, { status: 400 });
       }
-      const folder = await createFolderGroup(name, description, actor.isAdmin ? undefined : actor.authUserId);
+      const folder = await createFolderGroup(name, description, undefined);
       createdFolderGroupId = folder.id;
     } else if (action === "update_folder_group") {
       const id = String(body.id ?? "");
@@ -346,7 +224,6 @@ export async function POST(request: Request) {
       const folderId = String(body.folderGroupId ?? "");
       const ids: string[] = Array.isArray(body.courseIds) ? body.courseIds.map(String) : [];
       const data = await getCoursesAndSectionsData();
-      if (!actor.isAdmin && !data.folderGroups.some(group => group.id === folderId && group.createdBy === actor.authUserId)) return NextResponse.json({ message: "You can only reorder courses in your own folders." }, { status: 403 });
       const members = data.courses.filter((course) => course.status === "active" && course.folderGroupId === folderId);
       if (!folderId || !ids.length || new Set(ids).size !== ids.length || ids.length !== members.length ||
           members.some((course) => !ids.includes(course.id))) {
@@ -379,22 +256,7 @@ export async function POST(request: Request) {
       if (!courseId || !folderGroupId) {
         return NextResponse.json({ success: false, message: "Course ID and folder ID are required." }, { status: 400 });
       }
-      if (!actor.isAdmin) {
-        const { folderGroups } = await getCoursesAndSectionsData();
-        const folder = folderGroups.find(group => group.id === folderGroupId);
-        if (!folder) return NextResponse.json({ success: false, message: "Folder not found. Refresh your workspace and choose another folder." }, { status: 400 });
-        if (folder.createdBy !== actor.authUserId) return NextResponse.json({ message: "You can only add or move courses into your own folders." }, { status: 403 });
-        await setCourseFolderGroup(courseId, folder.id, folder.name);
-      } else {
-        await setCourseFolderGroup(courseId, folderGroupId, folderGroupName);
-      }
-    } else if (action === "set_folder_group_unlocked") {
-      const folderGroupId = String(body.folderGroupId ?? "");
-      const unlocked = Boolean(body.unlocked);
-      if (!folderGroupId) {
-        return NextResponse.json({ success: false, message: "Folder ID is required." }, { status: 400 });
-      }
-      await setFolderGroupUnlocked(folderGroupId, unlocked);
+      await setCourseFolderGroup(courseId, folderGroupId, folderGroupName);
     } else if (action === "delete_course") {
       const courseId = String(body.courseId ?? "");
       const { data: course, error: readError } = await supabase
@@ -482,7 +344,7 @@ export async function POST(request: Request) {
       if (positionError) throw positionError;
       const stamp = Date.now().toString(36);
       const rows = titles.map((sectionTitle: string, index: number) => ({
-        created_by: actor.isTeacher ? actor.authUserId : null,
+        created_by: null,
         course_id: courseId,
         section_key: `${course.slug}-${slugify(sectionTitle)}-${stamp}-${index}`,
         title: sectionTitle,
@@ -502,10 +364,6 @@ export async function POST(request: Request) {
         }
       }
 
-      // Assign initial 4-digit code for the new section
-      for (const row of rows) {
-        await setSectionPasscode(courseId, row.section_key, randomInt(1000, 9999).toString());
-      }
     } else if (action === "reorder_sections") {
       const courseId = String(body.courseId ?? "");
       const ids: string[] = Array.isArray(body.sectionIds) ? body.sectionIds.map(String) : [];
@@ -574,9 +432,10 @@ export async function POST(request: Request) {
       if (parentCourse?.description) {
         try {
           const meta = parseCourseMetadata(parentCourse.description);
-          if (meta.sectionPasscodes && (meta.sectionPasscodes[section.section_key] || meta.sectionPasscodes[section.id])) {
-            delete meta.sectionPasscodes[section.section_key];
-            delete meta.sectionPasscodes[section.id];
+          if (meta.sectionAccessCodes?.[section.id] || meta.sectionPasscodes?.[section.section_key] || meta.sectionPasscodes?.[section.id]) {
+            if (meta.sectionAccessCodes) delete meta.sectionAccessCodes[section.id];
+            if (meta.sectionPasscodes) delete meta.sectionPasscodes[section.section_key];
+            if (meta.sectionPasscodes) delete meta.sectionPasscodes[section.id];
             await supabase.from("courses").update({
               description: serializeCourseMetadata(meta),
               updated_at: new Date().toISOString(),
@@ -630,6 +489,10 @@ export async function POST(request: Request) {
             const meta = parseCourseMetadata(c.description);
             let changed = false;
             for (const s of validSecs.filter((sec) => sec.course_id === cId)) {
+              if (meta.sectionAccessCodes?.[s.id]) {
+                delete meta.sectionAccessCodes[s.id];
+                changed = true;
+              }
               if (meta.sectionPasscodes?.[s.section_key]) {
                 delete meta.sectionPasscodes[s.section_key];
                 changed = true;
@@ -656,13 +519,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Unsupported action." }, { status: 400 });
     }
 
-    if (!actor.isAdmin) return NextResponse.json({ success: true, ...await teacherData(actor.authUserId), ...(createdCourseIds ? { createdCourseIds } : {}), ...(createdFolderGroupId ? { createdFolderGroupId } : {}) });
+
+    revalidatePath("/learn");
     const updatedData = await getCoursesAndSectionsData();
-    const authorizedEmails = await getAllAuthorizedEmails(updatedData.courses);
     return NextResponse.json({
       success: true,
       ...updatedData,
-      authorizedEmails,
       ...(generatedCode ? { generatedCode } : {}),
       ...(createdCourseIds ? { createdCourseIds } : {}),
       ...(createdFolderGroupId ? { createdFolderGroupId } : {}),
@@ -678,37 +540,4 @@ export async function POST(request: Request) {
       : "Unable to update workspace data.";
     return NextResponse.json({ success: false, message }, { status: 500 });
   }
-}
-
-async function teacherData(actorId: string) {
-  const db = getSupabaseAdmin();
-  const [courses, sections, catalog] = await Promise.all([
-    db.from("courses").select("id,slug,title,description,language_label,created_by").eq("status", "active").order("title"),
-    db.from("course_sections").select("id,course_id,section_key,title,created_by,position,content_type,content_path,source_filename,slide_count").eq("status", "active").order("position"),
-    getCoursesAndSectionsData(),
-  ]);
-  if (courses.error) throw courses.error;
-  if (sections.error) throw sections.error;
-  const visibleCourseIds = new Set(courses.data.filter(c => {
-    const meta = parseCourseMetadata(c.description);
-    return !meta.hidden && !catalog.folderGroups.some(group => group.id === meta.folderGroupId && group.hidden);
-  }).map(c => c.id));
-  return {
-    folderGroups: catalog.folderGroups.filter(group => !group.hidden).map(group => ({ ...group, canEdit: group.createdBy === actorId })),
-    courses: courses.data.filter(c => {
-      const meta = parseCourseMetadata(c.description);
-      return !meta.hidden && !catalog.folderGroups.some(group => group.id === meta.folderGroupId && group.hidden);
-    }).map(c => {
-      const meta = parseCourseMetadata(c.description, c.title);
-      const folder = catalog.folderGroups.find(group => group.id === meta.folderGroupId) ?? catalog.folderGroups[0];
-      return { id: c.id, slug: c.slug, title: c.title, summary: meta.summary, description: meta.summary,
-        status: "active", languageLabel: c.language_label, language_label: c.language_label,
-        folderGroupId: folder?.id, folderGroupName: folder?.name, folderOrder: meta.folderOrder ?? 0,
-        systemIcons: meta.systemIcons || [], unlocked: Boolean(meta.unlocked),
-        metadata: { sectionTemplates: meta.sectionTemplates, templateKey: meta.templateKey, summary: meta.summary, unlocked: Boolean(meta.unlocked), systemIcons: meta.systemIcons || [] },
-        canEdit: c.created_by === actorId,
-        canDelete: c.created_by === actorId && sections.data.filter(s => s.course_id === c.id).every(s => s.created_by === actorId) };
-    }).sort((a, b) => (a.folderOrder || Number.MAX_SAFE_INTEGER) - (b.folderOrder || Number.MAX_SAFE_INTEGER)),
-    sections: sections.data.filter(s => visibleCourseIds.has(s.course_id)).map(s => ({ ...s, status: "active", content_type: s.content_type || "builtin", canEdit: s.created_by === actorId && courses.data.some(c => c.id === s.course_id && c.created_by === actorId) })),
-  };
 }

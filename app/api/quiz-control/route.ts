@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentRole } from "@/lib/currentRole";
+import { currentRole, canFacilitateSection } from "@/lib/currentRole";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 type SectionId = "section1" | "section2";
@@ -16,7 +16,8 @@ export async function GET(request: Request) {
     if (!isSectionId(section)) {
       return NextResponse.json({ success: false, message: "Section không hợp lệ." }, { status: 400 });
     }
-    if (role !== "admin" && role !== section) {
+    const teaching = await canFacilitateSection(section);
+    if (!teaching && role !== section) {
       return NextResponse.json({ success: false, message: "Không có quyền truy cập Quiz này." }, { status: 403 });
     }
 
@@ -29,7 +30,7 @@ export async function GET(request: Request) {
     if (stateError) throw stateError;
 
     const isOpen = state?.quiz_open === true;
-    if (role !== "admin") {
+    if (!teaching) {
       return NextResponse.json(
         { success: true, section, isOpen },
         { headers: { "Cache-Control": "no-store, max-age=0" } },
@@ -75,14 +76,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    if ((await currentRole()) !== "admin") {
-      return NextResponse.json({ success: false, message: "Chỉ admin mới có quyền mở Quiz." }, { status: 403 });
-    }
-
     const body = await request.json();
     const section = String(body.section ?? "");
     if (!isSectionId(section)) {
       return NextResponse.json({ success: false, message: "Section không hợp lệ." }, { status: 400 });
+    }
+
+    if (!(await canFacilitateSection(section))) {
+      return NextResponse.json({ success: false, message: "Teaching access required for this section." }, { status: 403 });
     }
 
     const openedAt = new Date().toISOString();

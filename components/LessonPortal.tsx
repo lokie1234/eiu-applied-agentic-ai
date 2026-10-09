@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
@@ -19,6 +20,7 @@ type TerminateStatus = "idle" | "sending" | "success" | "error";
 type ReportStatus = "idle" | "exporting" | "error";
 type ReportSectionOption = { value: string; label: string };
 type CourseFolderSection = {
+  canFacilitate?: boolean;
   id: string;
   sectionKey: string;
   title: string;
@@ -134,6 +136,7 @@ function ActiveUsersTaskbarWidget({
 function DeckShell({
   children,
   isAdmin,
+  canFacilitate,
   presenceCounts,
   currentSection,
   statusNotice,
@@ -144,6 +147,7 @@ function DeckShell({
 }: {
   children: ReactNode;
   isAdmin: boolean;
+  canFacilitate: boolean;
   presenceCounts: PresenceCounts;
   currentSection?: SectionId | null;
   statusNotice?: string;
@@ -160,11 +164,11 @@ function DeckShell({
         <div className={styles.actionBarIdentity} aria-live="polite">
           <span>EIU · {courseTitle.toUpperCase()}</span>
           <strong>
-            {statusNotice || (isAdmin ? "Admin mode" : "Learning session")}
+            {statusNotice || (isAdmin ? "Admin mode" : canFacilitate ? "Teaching mode" : "Learning session")}
           </strong>
         </div>
 
-        {isAdmin && presenceCounts && (
+        {canFacilitate && presenceCounts && (
           <ActiveUsersTaskbarWidget
             counts={presenceCounts}
             currentSection={currentSection}
@@ -220,7 +224,7 @@ function DeckShell({
 
 export default function LessonPortal({
   isAdmin,
-  isTeacher,
+  canFacilitate = false,
   courseFolders,
   initialSection,
   initialProfile,
@@ -228,13 +232,30 @@ export default function LessonPortal({
   initialSectionId,
 }: {
   isAdmin: boolean;
-  isTeacher?: boolean;
+  canFacilitate?: boolean;
   courseFolders: CourseFolder[];
   initialSection: SectionId | null;
   initialProfile: LearnerProfile | null;
   initialCourseId?: string;
   initialSectionId?: string;
 }) {
+  const router = useRouter();
+  useEffect(() => {
+    let lastRefresh = 0;
+    const refreshCatalog = () => {
+      if (document.visibilityState !== "visible" || Date.now() - lastRefresh < 2_000) return;
+      lastRefresh = Date.now();
+      router.refresh();
+    };
+    window.addEventListener("focus", refreshCatalog);
+    document.addEventListener("visibilitychange", refreshCatalog);
+    const interval = window.setInterval(refreshCatalog, 30_000);
+    return () => {
+      window.removeEventListener("focus", refreshCatalog);
+      document.removeEventListener("visibilitychange", refreshCatalog);
+      window.clearInterval(interval);
+    };
+  }, [router]);
   const appliedCourseId = courseFolders.find(
     (course) => course.slug === APPLIED_AGENTIC_AI_SLUG,
   )?.id ?? null;
@@ -242,7 +263,7 @@ export default function LessonPortal({
     initialCourseId ?? (initialSection ? appliedCourseId : null),
   );
   const [adminSection, setAdminSection] = useState<SectionId | null>(initialSection);
-  const [activeUploadedSection, setActiveUploadedSection] = useState<CourseFolderSection | null>(() => initialSection ? null : courseFolders.find(course => course.id === initialCourseId)?.sections.find(item => item.id === initialSectionId && ["pdf", "tsx", "pptx"].includes(item.contentType)) ?? null);
+  const [uploadedSection, setActiveUploadedSection] = useState<CourseFolderSection | null>(() => initialSection ? null : courseFolders.find(course => course.id === initialCourseId)?.sections.find(item => item.id === initialSectionId && ["pdf", "tsx", "pptx"].includes(item.contentType)) ?? null);
   const [showTerminate, setShowTerminate] = useState(false);
   const [terminateStatus, setTerminateStatus] =
     useState<TerminateStatus>("idle");
@@ -264,26 +285,6 @@ export default function LessonPortal({
   const [resetNotice, setResetNotice] = useState("");
   const learnerProfile = initialProfile;
   const [deckSessionKey, setDeckSessionKey] = useState(0);
-
-  // Unlocked courses state & course passcode modal
-  const [unlockedCourseIds, setUnlockedCourseIds] = useState<Set<string>>(() => {
-    return new Set(courseFolders.filter((c) => c.isUnlocked).map((c) => c.id));
-  });
-
-  useEffect(() => {
-    setUnlockedCourseIds((prev) => {
-      const next = new Set(prev);
-      for (const c of courseFolders) {
-        if (c.isUnlocked) next.add(c.id);
-      }
-      return next;
-    });
-  }, [courseFolders]);
-
-  const [passcodeModalCourse, setPasscodeModalCourse] = useState<CourseFolder | null>(null);
-  const [inputPasscode, setInputPasscode] = useState("");
-  const [passcodeError, setPasscodeError] = useState("");
-  const [isSubmittingPasscode, setIsSubmittingPasscode] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -327,45 +328,10 @@ export default function LessonPortal({
     setGroupPages((prev) => ({ ...prev, [groupId]: newPage }));
   };
 
-  async function handleUnlockCourseSubmit(e: FormEvent) {
-    e.preventDefault();
-    if (!passcodeModalCourse || isSubmittingPasscode) return;
-    const code = inputPasscode.trim();
-    if (!code) {
-      setPasscodeError("Please enter the course passcode.");
-      return;
-    }
-
-    setIsSubmittingPasscode(true);
-    setPasscodeError("");
-
-    try {
-      const response = await fetch("/api/auth/unlock-course", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          courseId: passcodeModalCourse.id,
-          passcode: code,
-        }),
-      });
-
-      const payload = (await response.json()) as { success?: boolean; message?: string };
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.message || "Incorrect passcode. Please try again.");
-      }
-
-      setUnlockedCourseIds((prev) => new Set(prev).add(passcodeModalCourse.id));
-      setSelectedCourseId(passcodeModalCourse.id);
-      setPasscodeModalCourse(null);
-      setInputPasscode("");
-    } catch (err) {
-      setPasscodeError(err instanceof Error ? err.message : "Incorrect passcode.");
-    } finally {
-      setIsSubmittingPasscode(false);
-    }
-  }
-  const section = adminSection;
   const selectedCourse = courseFolders.find((course) => course.id === selectedCourseId) ?? null;
+  const section = selectedCourse?.sections.some(item => item.sectionKey === adminSection) ? adminSection : null;
+  const activeUploadedSection = selectedCourse?.sections.find(item => item.id === uploadedSection?.id) ?? null;
+  const canFacilitateCurrent = isAdmin || Boolean(selectedCourse?.sections.find(item => item.sectionKey === section)?.canFacilitate);
   const resetSectionLabel =
     resetSection === "all"
       ? "all sections"
@@ -415,7 +381,7 @@ export default function LessonPortal({
   // Presence is refreshed by Supabase Realtime signals, with a slow fallback
   // for expired tabs that cannot send a pagehide beacon.
   useEffect(() => {
-    if (!isAdmin) return;
+    if (!isAdmin && !canFacilitate) return;
 
     let disposed = false;
     let refreshTimer: number | undefined;
@@ -454,7 +420,7 @@ export default function LessonPortal({
       window.clearInterval(interval);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [isAdmin]);
+  }, [isAdmin, canFacilitate]);
 
   // Learner heartbeat tracking
   useEffect(() => {
@@ -561,7 +527,7 @@ export default function LessonPortal({
 
     if (!resetPassword.trim()) {
       setResetStatus("error");
-      setResetNotice("Enter RESET to confirm.");
+      setResetNotice("Enter the confirmation passcode.");
       return;
     }
 
@@ -573,7 +539,7 @@ export default function LessonPortal({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          password: resetPassword.trim(),
+          password: resetPassword,
           section: resetSection,
         }),
       });
@@ -721,7 +687,6 @@ export default function LessonPortal({
       <main className={styles.portal}>
         <div className={styles.grid} aria-hidden="true" />
         <div className={styles.selectorActions}>
-          {isTeacher && <Link href="/teacher">Manage courses</Link>}
           {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
           <button type="button" onClick={signOut}>Sign out</button>
@@ -846,34 +811,13 @@ export default function LessonPortal({
                       style={{ "--col-count": colCount } as React.CSSProperties}
                     >
                       {paginatedCourses.map((course) => {
-                        const isCourseUnlocked = Boolean(isAdmin || course.isUnlocked || unlockedCourseIds.has(course.id));
+                        const isCourseUnlocked = true;
                         return (
                           <button
                             type="button"
                             className={styles.courseFolder}
                             key={course.id}
-                            onClick={() => {
-                              if (isCourseUnlocked) {
-                                setSelectedCourseId(course.id);
-                                if (!isAdmin && course.id) {
-                                  void fetch("/api/auth/unlock-course", {
-                                    method: "POST",
-                                    headers: { "Content-Type": "application/json" },
-                                    body: JSON.stringify({ courseId: course.id, isFreeAccess: true }),
-                                  })
-                                    .then((res) => {
-                                      if (res.ok) {
-                                        setUnlockedCourseIds((prev) => new Set(prev).add(course.id));
-                                      }
-                                    })
-                                    .catch(() => {});
-                                }
-                              } else {
-                                setPasscodeModalCourse(course);
-                                setInputPasscode("");
-                                setPasscodeError("");
-                              }
-                            }}
+                            onClick={() => setSelectedCourseId(course.id)}
                           >
                             <div className={styles.courseCardBody}>
                               <div className={styles.courseCardTopRow}>
@@ -1020,95 +964,7 @@ export default function LessonPortal({
         </section>
 
         {/* Course Passcode Modal */}
-        {passcodeModalCourse && (
-          <div
-            className={styles.modalLayer}
-            role="dialog"
-            aria-modal="true"
-            onMouseDown={(e) => {
-              if (e.target === e.currentTarget && !isSubmittingPasscode) {
-                setPasscodeModalCourse(null);
-                setInputPasscode("");
-                setPasscodeError("");
-              }
-            }}
-          >
-            <div className={styles.modal}>
-              <div className={styles.modalBrandRow}>
-                <span className={styles.modalEyebrow}>EIU · COURSE ACCESS VERIFICATION</span>
-                <button
-                  type="button"
-                  className={styles.modalCloseX}
-                  onClick={() => {
-                    setPasscodeModalCourse(null);
-                    setInputPasscode("");
-                    setPasscodeError("");
-                  }}
-                  disabled={isSubmittingPasscode}
-                  aria-label="Close"
-                >
-                  ×
-                </button>
-              </div>
 
-              <h2 className={styles.modalCourseTitle}>{passcodeModalCourse.title}</h2>
-              <p className={styles.modalCourseSummary}>
-                {passcodeModalCourse.description ?? ""}
-              </p>
-
-              <form onSubmit={handleUnlockCourseSubmit} className={styles.passcodeFormWrapper}>
-                <div className={styles.passcodeFieldContainer}>
-                  <label htmlFor="course-passcode-input" className={styles.passcodeLabel}>
-                    COURSE PASSCODE
-                  </label>
-                  <div className={styles.passcodeSecureInputWrapper}>
-                    <input
-                      id="course-passcode-input"
-                      type="text"
-                      value={inputPasscode}
-                      onChange={(e) => {
-                        setInputPasscode(e.target.value.slice(0, 10));
-                        setPasscodeError("");
-                      }}
-                      placeholder="e.g. 1611"
-                      autoFocus
-                      required
-                      className={styles.passcodeStyledInput}
-                      style={{ borderColor: passcodeError ? "#dc2626" : undefined }}
-                    />
-                  </div>
-                  {passcodeError && (
-                    <p className={styles.resetErrorNotice} role="alert">
-                      {passcodeError}
-                    </p>
-                  )}
-                </div>
-
-                <div className={styles.modalActions}>
-                  <button
-                    type="button"
-                    className={styles.cancelButton}
-                    onClick={() => {
-                      setPasscodeModalCourse(null);
-                      setInputPasscode("");
-                      setPasscodeError("");
-                    }}
-                    disabled={isSubmittingPasscode}
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    className={styles.confirmReportButton}
-                    disabled={isSubmittingPasscode || !inputPasscode.trim()}
-                  >
-                    {isSubmittingPasscode ? "Verifying…" : "Access Course →"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
       </main>
     );
   }
@@ -1120,7 +976,6 @@ export default function LessonPortal({
 
         <div className={styles.selectorActions}>
           <button type="button" onClick={() => setSelectedCourseId(null)}>← Courses</button>
-          {isTeacher && <Link href="/teacher">Manage courses</Link>}
           {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
           {isAdmin && (
@@ -1208,7 +1063,7 @@ export default function LessonPortal({
                       ? `${count ? `${count} slide · ` : ""}${coreSection ? "Interactive" : courseSection.contentType.toUpperCase()}`
                       : "Content has not been uploaded yet"}
                   </small>
-                  {isAdmin && coreSection && <div className={styles.cardLiveUsers}>
+                  {(isAdmin || courseSection.canFacilitate) && coreSection && <div className={styles.cardLiveUsers}>
                     <span className={styles.liveDot} />
                     <span>{presenceCounts[coreSection]} active learners</span>
                   </div>}
@@ -1416,16 +1271,17 @@ export default function LessonPortal({
               </div>
 
               <label className={styles.resetPasswordField}>
-                <span>Enter RESET to confirm</span>
+                <span>Confirmation passcode</span>
                 <input
-                  type="text"
+                  type="password"
                   className={styles.resetPasswordInput}
                   value={resetPassword}
                   onChange={(e) => {
                     setResetPassword(e.target.value);
                     if (resetStatus === "error") setResetNotice("");
                   }}
-                  placeholder="RESET"
+                  placeholder="Enter confirmation passcode"
+                  autoComplete="off"
                   autoFocus
                   required
                 />
@@ -1475,6 +1331,7 @@ export default function LessonPortal({
     <>
       <DeckShell
         isAdmin={isAdmin}
+        canFacilitate={canFacilitateCurrent}
         presenceCounts={presenceCounts}
         currentSection={section}
         statusNotice={isAdmin ? terminateNotice : undefined}
@@ -1508,14 +1365,14 @@ export default function LessonPortal({
         ) : section === "section2" ? (
           <SectionTwoDeck
             key={`${section}-${deckSessionKey}`}
-            isAdmin={isAdmin}
+            isAdmin={canFacilitateCurrent}
             courseTitle={selectedCourse.title}
             sectionTitle={selectedCourse.sections.find((item) => item.sectionKey === "section2")?.title || "Section 2"}
           />
         ) : (
           <SectionOneDeck
             key={`${section}-${deckSessionKey}`}
-            isAdmin={isAdmin}
+            isAdmin={canFacilitateCurrent}
             courseTitle={selectedCourse.title}
             sectionTitle={selectedCourse.sections.find((item) => item.sectionKey === "section1")?.title || "Section 1"}
           />

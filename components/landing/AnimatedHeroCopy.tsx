@@ -5,14 +5,11 @@ import SignInCard from "./SignInCard";
 
 interface AnimatedHeroCopyProps {
   stage: number;
-  email: string;
-  setEmail: (val: string) => void;
-  adminPassword?: string;
-  setAdminPassword?: (val: string) => void;
-  isAdminEmail?: boolean;
-  requiresPassword?: boolean;
+  passcode: string;
+  setPasscode: (val: string) => void;
   loading: boolean;
   error?: string;
+  onFreeAccess?: () => void;
   onSubmit: (e: React.FormEvent) => void;
   onInputFocus?: () => void;
   onInputBlur?: () => void;
@@ -53,15 +50,12 @@ function SplitHeadline({
 
 export default function AnimatedHeroCopy({
   stage,
-  email,
-  setEmail,
-  adminPassword = "",
-  setAdminPassword,
-  isAdminEmail = false,
-  requiresPassword = isAdminEmail,
+  passcode,
+  setPasscode,
   loading,
   error = "",
   onSubmit,
+  onFreeAccess,
   onInputFocus,
   onInputBlur,
   onInputChange,
@@ -225,8 +219,9 @@ export default function AnimatedHeroCopy({
         onMouseLeave={() => onCtaHover(false)}
         style={{ marginTop: 26, width: "100%", maxWidth: 460 }}
       >
-        <SignInCard email={email} setEmail={setEmail} adminPassword={adminPassword} setAdminPassword={setAdminPassword}
-          isAdminEmail={isAdminEmail} requiresPassword={requiresPassword} loading={loading} error={error} onSubmit={onSubmit}
+        <SignInCard passcode={passcode} setPasscode={setPasscode}
+          loading={loading} error={error} onSubmit={onSubmit}
+          onFreeAccess={onFreeAccess}
           onInputFocus={onInputFocus} onInputBlur={onInputBlur} onInputChange={onInputChange} onMethodChange={onMethodChange} />
       </motion.div>
     </div>

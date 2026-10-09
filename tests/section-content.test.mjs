@@ -20,11 +20,12 @@ function handlers(options = {}) {
   const state = {
     admin: true,
     section: { id: "section-id", course_id: "course-id", section_key: "custom", status: "active", content_path: null },
-    access: { isActive: true, isAdmin: false, courses: [{ id: "course-id", isUnlocked: true }] },
-    stored: new Map(), removed: [], afterTasks: [], ...options,
+    access: { isActive: true, isAdmin: false, sections: [{ id: "section-id", courseId: "course-id" }], courses: [{ id: "course-id", isUnlocked: true }] },
+    stored: new Map(), removed: [], afterTasks: [], supabaseUploads:0, driveUploads:0, ...options,
   };
   const storage = {
     async upload(name, bytes, metadata) {
+      state.supabaseUploads++;
       state.uploadMetadata = metadata;
       state.stored.set(name, Buffer.from(bytes));
       return { error: null };
@@ -69,6 +70,20 @@ function handlers(options = {}) {
         canManageSection: async () => state.admin,
         currentUserAccess: async () => state.access,
       };
+      if (name === "next/cache") return { revalidatePath() {} };
+      if (name === "@/lib/sectionContent") return load("lib/sectionContent.ts");
+      if (name === "@/lib/drive/sectionContent") return {
+        async uploadDriveSection(input) {
+          state.driveUploads++;state.uploadMetadata={contentType:input.mimeType};
+          const id="drive-test-file-"+state.driveUploads;
+          state.stored.set("drive:"+id,Buffer.from(input.bytes));return id;
+        },
+        async readDriveFile(value) {
+          const key=value.startsWith("drive:") ? value : "drive:"+value;
+          const bytes=state.stored.get(key);if(!bytes) throw Error("Drive unavailable");
+          return {id:key.slice(6),name:state.driveName || state.section.source_filename || "slides.pdf",bytes:new Uint8Array(bytes)};
+        },
+      };
       if (name === "@/lib/supabase/server") return { getSupabaseAdmin: () => supabase };
       return nativeRequire(name);
     };
@@ -87,6 +102,7 @@ function handlers(options = {}) {
     async upload(bytes, name, extra = {}) {
       const form = new FormData();
       form.set("file", new File([bytes], name));
+      form.set("destinationId","destination-test");
       for (const [key, value] of Object.entries(extra)) form.set(key, value);
       return post(new Request("http://localhost/api/admin/sections/section-id/content", { method: "POST", body: form }), context);
     },
@@ -121,6 +137,8 @@ test("PPTX upload and download preserve every byte, media, animation, add-in par
   assert.equal(payload.sourceFilename, filename);
   assert.equal(payload.contentPath, api.state.section.content_path);
   assert.equal(api.state.uploadMetadata.contentType, PPTX_MIME);
+  assert.equal(api.state.supabaseUploads,0);
+  assert.match(payload.contentPath,/^drive:/);
   const downloaded = await api.download();
   assert.equal(downloaded.status, 200);
   assert.equal(downloaded.headers.get("content-type"), PPTX_MIME);
@@ -193,14 +211,15 @@ test("built-in sections accept PPTX attachments and still reject PDF/TSX replace
   assert.equal((await api.download()).status, 200);
 });
 
-test("PPTX downloads require an active session and an unlocked authorized course", async () => {
+test("PPTX downloads require an active session and explicit access to the requested section", async () => {
   const api = handlers();
   await api.upload(await presentation(), "slides.pptx");
   for (const [access, expected] of [
     [null, 401],
+    [{ isActive: true, isAdmin: false, sections: [{ id: "sibling", courseId: "course-id" }], courses: [{ id: "course-id", isUnlocked: true }] }, 403],
     [{ isActive: false }, 401],
-    [{ isActive: true, isAdmin: false, courses: [{ id: "course-id", isUnlocked: false }] }, 403],
-    [{ isActive: true, isAdmin: false, courses: [] }, 403],
+    [{ isActive: true, isAdmin: false, sections: [], courses: [{ id: "course-id", isUnlocked: false }] }, 403],
+    [{ isActive: true, isAdmin: false, sections: [], courses: [] }, 403],
   ]) {
     api.state.access = access;
     assert.equal((await api.download()).status, expected);
@@ -209,7 +228,7 @@ test("PPTX downloads require an active session and an unlocked authorized course
   assert.equal((await api.download()).status, 200);
 });
 
-test("replacement removes only the previous file after saving section metadata", async () => {
+test("Drive replacement preserves the previous Drive file after saving section metadata", async () => {
   const api = handlers();
   const original = await presentation();
   await api.upload(original, "first.pptx");
@@ -218,15 +237,17 @@ test("replacement removes only the previous file after saving section metadata",
   assert.equal(api.state.removed.length, 0);
   assert.equal(api.state.section.source_filename, "second.pptx");
   await api.flushAfter();
-  assert.deepEqual(api.state.removed, [previousPath]);
-  assert.equal(api.state.stored.size, 1);
+  assert.deepEqual(api.state.removed, []);
+  assert.equal(api.state.stored.size, 2);
   assert.deepEqual(api.state.stored.get(api.state.section.content_path), original);
 });
 
-test("replacement responds with saved metadata before old-file cleanup runs", async () => {
+test("migration removes legacy storage only after the Drive reference is saved", async () => {
   const api = handlers();
   const bytes = await presentation();
-  await api.upload(bytes, "original.pptx");
+  const legacyPath="course-id/section-id/original.pptx";
+  api.state.section={...api.state.section,content_path:legacyPath,content_type:"pptx",source_filename:"original.pptx"};
+  api.state.stored.set(legacyPath,bytes);
   const response = await api.upload(bytes, "replacement.pptx");
   assert.equal(response.status, 200);
   const payload = await response.json();
@@ -237,17 +258,17 @@ test("replacement responds with saved metadata before old-file cleanup runs", as
   await api.flushAfter();
 });
 
-test("a metadata failure cleans up the new upload and retains the previous file", async () => {
+test("a metadata failure retains the previous lesson and leaves the Drive upload recoverable", async () => {
   const api = handlers();
   const bytes = await presentation();
   await api.upload(bytes, "first.pptx");
   const previousPath = api.state.section.content_path;
   api.state.updateError = { message: "Simulated metadata failure" };
-  assert.equal((await api.upload(bytes, "second.pptx")).status, 500);
+  assert.equal((await api.upload(bytes, "second.pptx")).status, 502);
   assert.equal(api.state.section.content_path, previousPath);
   assert.deepEqual(api.state.stored.get(previousPath), bytes);
-  assert.equal(api.state.stored.size, 1);
-  assert.notEqual(api.state.removed[0], previousPath);
+  assert.equal(api.state.stored.size, 2);
+  assert.equal(api.state.removed.length,0);
 });
 
 test("PDF still uploads and downloads unchanged, inline", async () => {
@@ -274,15 +295,42 @@ test("TSX still compiles and downloads as JavaScript, inline", async () => {
   assert.match(await downloaded.text(), /h\("div", null, "Interactive slide"\)/);
 });
 
-test("TSX original is preserved separately and rollback cleans both uploaded files", async () => {
+test("TSX keeps one original on Drive and compiles only when the deck requests it", async () => {
   const original = "// Keep original source\nexport default [<div>Original</div>];";
   const api = handlers();
   assert.equal((await api.upload(original, "original.tsx")).status, 200);
   assert.equal(api.state.stored.get(api.state.section.original_content_path).toString(), original);
-  assert.notEqual(api.state.section.content_path, api.state.section.original_content_path);
+  assert.equal(api.state.section.content_path, api.state.section.original_content_path);
+  assert.equal(api.state.supabaseUploads,0);
+  assert.equal(await (await api.download("?download=1")).text(),original);
   const previousOriginal = api.state.section.original_content_path;
   api.state.updateError = { message: "metadata failure" };
-  assert.equal((await api.upload(original, "replacement.tsx")).status, 500);
+  assert.equal((await api.upload(original, "replacement.tsx")).status, 502);
   assert.equal(api.state.stored.size, 2);
   assert.equal(api.state.stored.get(previousOriginal).toString(), original);
+});
+
+
+test("linking a Drive PDF changes only section metadata and does not upload or copy the file", async () => {
+ const api=handlers();const bytes=Buffer.from("%PDF-1.4\nDrive source");api.state.stored.set("drive:existing-drive-file",bytes);api.state.driveName="from-drive.pdf";
+ const response=await api.submit(new Request("http://localhost/api/admin/sections/section-id/content",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"link",fileId:"existing-drive-file"})}));
+ assert.equal(response.status,200);assert.equal(api.state.section.content_path,"drive:existing-drive-file");assert.equal(api.state.supabaseUploads,0);assert.equal(api.state.driveUploads,0);
+ assert.deepEqual(Buffer.from(await (await api.download()).arrayBuffer()),bytes);
+});
+
+test("missing or inaccessible Drive files leave the current lesson unchanged", async () => {
+ const api=handlers();const response=await api.submit(new Request("http://localhost/api/admin/sections/section-id/content",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"link",fileId:"missing-drive-file"})}));
+ assert.equal(response.status,502);assert.equal(api.state.section.content_path,null);assert.equal(api.state.driveUploads,0);
+});
+
+test("moving legacy PDF uploads to Drive and then schedules storage cleanup", async () => {
+ const api=handlers();const legacy="course-id/section-id/legacy.pdf",bytes=Buffer.from("%PDF-1.4\nLegacy");api.state.stored.set(legacy,bytes);api.state.section={...api.state.section,content_path:legacy,content_type:"pdf",source_filename:"legacy.pdf"};
+ const response=await api.submit(new Request("http://localhost/api/admin/sections/section-id/content",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"migrate",destinationId:"destination-test"})}));
+ assert.equal(response.status,200);assert.match(api.state.section.content_path,/^drive:/);assert.ok(api.state.stored.has(legacy));await api.flushAfter();assert.equal(api.state.stored.has(legacy),false);
+ assert.deepEqual(Buffer.from(await (await api.download()).arrayBuffer()),bytes);
+});
+
+test("legacy PDF sections still read from Supabase without requiring Drive",async()=>{
+ const api=handlers();const path="course-id/section-id/legacy.pdf",bytes=Buffer.from("%PDF-1.4");api.state.stored.set(path,bytes);api.state.section={...api.state.section,content_path:path,content_type:"pdf",source_filename:"legacy.pdf"};
+ assert.deepEqual(Buffer.from(await(await api.download()).arrayBuffer()),bytes);
 });

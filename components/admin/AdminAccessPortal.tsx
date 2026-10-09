@@ -1,5 +1,6 @@
 "use client";
-import TeacherAccounts from "./TeacherAccounts";
+import PasscodeManager from "./PasscodeManager";
+import type { AccessCodes } from "@/lib/auth/passcodes";
 import TemplateLibrary from "./TemplateLibrary";
 import VisibilityToggle from "./VisibilityToggle";
 import type { SlideTemplate } from "@/lib/auth/courseAccessStorage";
@@ -10,7 +11,7 @@ import styles from "./AdminAccessPortal.module.css";
 import { createUploadQueue } from "@/lib/uploadQueue";
 import { uploadSectionFile } from "@/lib/uploadSectionFile";
 import SectionBatchUpload from "./SectionBatchUpload";
-import DriveExport from "./DriveExport";
+import DriveLoad from "./DriveLoad";
 import SectionSourceLibrary from "./SectionSourceLibrary";
 import CourseSystemIcons from "./CourseSystemIcons";
 import EiuConfirmDialog from "./EiuConfirmDialog";
@@ -18,6 +19,7 @@ import EiuConfirmDialog from "./EiuConfirmDialog";
 type LanguageLabel = "vi" | "en" | "vi_en";
 
 export type CourseFolderGroup = {
+  accessCodes?: AccessCodes;
   hidden?: boolean;
   canEdit?: boolean;
   id: string;
@@ -40,6 +42,8 @@ type CourseMetadata = {
   summary: string;
   allowedEmails: string[];
   passcode?: string;
+  facilitatorPasscode?: string;
+  sectionAccessCodes?: Record<string, AccessCodes>;
   sectionPasscodes?: Record<string, string>;
   unlocked?: boolean;
   folderGroupId?: string;
@@ -70,6 +74,7 @@ type Course = {
 };
 
 type Section = {
+  hidden?: boolean;
   canEdit?: boolean;
   id: string;
   course_id: string;
@@ -85,12 +90,12 @@ type Section = {
 };
 
 type Payload = {
+  globalAccessCodes?: AccessCodes;
   success: boolean;
   message?: string;
   courses?: Course[];
   sections?: Section[];
   folderGroups?: CourseFolderGroup[];
-  authorizedEmails?: string[];
   generatedCode?: string;
   createdCourseIds?: string[];
   createdFolderGroupId?: string;
@@ -114,7 +119,6 @@ const languageOptions: Array<{ value: LanguageLabel; label: string }> = [
   { value: "vi_en", label: "Vietnamese & English" },
 ];
 
-const FIXED_ADMIN_EMAIL = "son.lam@eiu.edu.vn";
 
 function DraggableScrollArea({
   title,
@@ -176,12 +180,11 @@ function DraggableScrollArea({
   );
 }
 
-export default function AdminAccessPortal({ adminEmail, role = "admin", initialTab }: { adminEmail: string; role?: "admin" | "teacher"; initialTab?: "layouts" }) {
-  const isAdmin = role === "admin";
-  const [tab, setTab] = useState<"emails" | "courses" | "teachers" | "layouts">(initialTab ?? (isAdmin ? "emails" : "courses"));
+export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEmail: string; initialTab?: "layouts" }) {
+  const isAdmin = true;
+  const [tab, setTab] = useState<"passcodes" | "courses" | "layouts">(initialTab ?? "courses");
   const [courses, setCourses] = useState<Course[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
-  const [authorizedEmails, setAuthorizedEmails] = useState<string[]>([]);
   const [courseId, setCourseId] = useState("");
 
 
@@ -255,9 +258,6 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
   }, []);
 
   // Email management state
-  const [bulkEmailText, setBulkEmailText] = useState("");
-  const [emailSearch, setEmailSearch] = useState("");
-  const [selectedEmails, setSelectedEmails] = useState<Set<string>>(new Set());
 
   // Multi-course selection state for unlock/lock and batch delete
   const [selectedCourses, setSelectedCourses] = useState<Set<string>>(new Set());
@@ -271,8 +271,6 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
   // Course settings state
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState("");
-  const [editingCoursePasscode, setEditingCoursePasscode] = useState(false);
-  const [customCoursePasscode, setCustomCoursePasscode] = useState("");
   const [editingDescription, setEditingDescription] = useState(false);
   const [descriptionValue, setDescriptionValue] = useState("");
   const [newSectionTitle, setNewSectionTitle] = useState("");
@@ -299,6 +297,25 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
   const [targetFolderForCourse, setTargetFolderForCourse] = useState<string>("fg-ai-agentic");
 
   // Folder groups state (Folder Lớn)
+  const [driveDestinations, setDriveDestinations] = useState<{ id: string; label: string }[]>([]);
+  const [driveDestinationId, setDriveDestinationId] = useState("");
+  useEffect(() => { void fetch("/api/admin/drive/destinations", { cache: "no-store" }).then(async response => { const data = await response.json(); if (response.ok) { setDriveDestinations(data.destinations || []); setDriveDestinationId(data.destinations?.[0]?.id || ""); } }).catch(() => {}); }, []);
+  async function refreshDriveCatalog() {
+    const response = await fetch("/api/admin/access", { cache: "no-store" });
+    const payload = await response.json();
+    if (!response.ok || !payload.success) throw Error("Unable to refresh course setup.");
+    apply(payload);
+  }
+  async function moveSectionToDrive(section: Section) {
+    if (!driveDestinationId || processingMessage) return;
+    setProcessingMessage("loading..... Moving file to Drive and verifying the deck...");setError("");setNotice("");
+    try {
+      const response = await fetch(`/api/admin/sections/${encodeURIComponent(section.id)}/content`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "migrate", destinationId: driveDestinationId }) });
+      const data = await response.json(); if (!response.ok || !data.success) throw Error(data.message);
+      await refreshDriveCatalog();setNotice("File moved to Drive and verified. The deck now loads from Drive.");
+    } catch (error) {setError(error instanceof Error ? error.message : "Unable to move this file.");} finally {setProcessingMessage(null);}
+  }
+  const [globalAccessCodes, setGlobalAccessCodes] = useState<AccessCodes>({});
   const [folderGroups, setFolderGroups] = useState<CourseFolderGroup[]>([
     { id: "fg-ai-agentic", name: "Chương Trình AI & Agentic", order: 1 },
   ]);
@@ -334,8 +351,8 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
       setCollapsedFolders(current => new Set([...current].filter(id => id !== payload.createdFolderGroupId)));
     }
     if (payload.sections) setSections(payload.sections);
+    if (payload.globalAccessCodes) setGlobalAccessCodes(payload.globalAccessCodes);
     if (payload.folderGroups) setFolderGroups(payload.folderGroups);
-    if (payload.authorizedEmails) setAuthorizedEmails(payload.authorizedEmails);
   }, [isAdmin]);
 
   function toggleFolderCollapse(folderId: string) {
@@ -351,7 +368,8 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
     return fetch("/api/admin/access", { cache: "no-store" })
       .then(async (response) => {
         const payload = (await response.json()) as Payload;
-        if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to load your workspace.");
+        if (payload.courses && payload.sections && payload.folderGroups) apply(payload);
+      if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to load your workspace.");
         apply(payload);
       });
   }, [apply]);
@@ -370,18 +388,17 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
     };
   }, [loadData]);
 
-  const [ownCoursesOnly, setOwnCoursesOnly] = useState(false);
 
-  const activeCourses = useMemo(() => courses.filter((c) => c.status === "active" && (isAdmin || !ownCoursesOnly || c.canEdit)), [courses, isAdmin, ownCoursesOnly]);
-  const effectiveCourseId = activeCourses.some((c) => c.id === courseId) ? courseId : (!isAdmin ? activeCourses.find(course => course.canEdit)?.id : undefined) ?? activeCourses[0]?.id ?? "";
+  const activeCourses = useMemo(() => courses.filter((c) => c.status === "active"), [courses]);
+  const effectiveCourseId = activeCourses.some((c) => c.id === courseId) ? courseId : activeCourses[0]?.id ?? "";
   const selectedCourse = activeCourses.find((c) => c.id === effectiveCourseId) ?? null;
-  const canEditFolder = (group: CourseFolderGroup) => isAdmin || group.canEdit === true;
+  const canEditFolder = (..._items: unknown[]) => true;
   const editableFolders = folderGroups.filter(canEditFolder);
-  const canDeleteFolder = (group: CourseFolderGroup) => isAdmin || (group.canEdit === true && courses.filter(course => course.folderGroupId === group.id).every(course => course.canEdit && course.canDelete !== false));
-  const canEditCourse = Boolean(selectedCourse && (isAdmin || selectedCourse.canEdit));
-  const canEditSection = (section: Section) => isAdmin || Boolean(canEditCourse && section.canEdit);
-  const canSelectCourse = (course: Course) => isAdmin || Boolean(course.canEdit && course.canDelete !== false && course.slug !== "applied-agentic-ai");
-  const canReorderCourses = (items: Course[]) => isAdmin || (items.length > 0 && items.every(course => course.canEdit && folderGroups.some(group => group.id === course.folderGroupId && group.canEdit)));
+  const canDeleteFolder = (..._items: unknown[]) => true;
+  const canEditCourse = Boolean(selectedCourse);
+  const canEditSection = (..._items: unknown[]) => true;
+  const canSelectCourse = (..._items: unknown[]) => true;
+  const canReorderCourses = (..._items: unknown[]) => true;
   const courseSections = useMemo(
     () => sections.filter((s) => s.course_id === effectiveCourseId && s.status === "active").sort((a, b) => a.position - b.position),
     [sections, effectiveCourseId]
@@ -412,8 +429,6 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
     setEditingTitle(false);
     setDescriptionValue(selectedCourse?.metadata?.summary ?? selectedCourse?.description ?? "");
     setEditingDescription(false);
-    setEditingCoursePasscode(false);
-    setCustomCoursePasscode("");
   }, [
     effectiveCourseId,
     selectedCourse?.title,
@@ -477,6 +492,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
         body: JSON.stringify(body),
       });
       const payload = (await response.json()) as Payload;
+      if (payload.courses && payload.sections && payload.folderGroups) apply(payload);
       if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to save changes.");
       apply(payload);
       setNotice(successMessage);
@@ -498,233 +514,10 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
   // EMAIL MANAGEMENT HANDLERS (Add nhiều, Xóa nhiều, Search)
   // =========================================================================
 
-  const filteredEmails = useMemo(() => {
-    const q = emailSearch.trim().toLowerCase();
-    if (!q) return authorizedEmails;
-    return authorizedEmails.filter((e) => e.toLowerCase().includes(q));
-  }, [authorizedEmails, emailSearch]);
-
-  const selectableEmails = useMemo(() => {
-    return filteredEmails.filter((e) => e.toLowerCase() !== FIXED_ADMIN_EMAIL.toLowerCase());
-  }, [filteredEmails]);
-
-  const isAllSelected = selectableEmails.length > 0 && selectableEmails.every((e) => selectedEmails.has(e));
-
-  function handleToggleSelectAll() {
-    if (isAllSelected) {
-      // Unselect all in current filtered list
-      setSelectedEmails((prev) => {
-        const next = new Set(prev);
-        for (const e of selectableEmails) next.delete(e);
-        return next;
-      });
-    } else {
-      // Select all in current filtered list
-      setSelectedEmails((prev) => {
-        const next = new Set(prev);
-        for (const e of selectableEmails) next.add(e);
-        return next;
-      });
-    }
-  }
-
-  function handleToggleEmail(email: string) {
-    if (email.toLowerCase() === FIXED_ADMIN_EMAIL.toLowerCase()) return;
-    setSelectedEmails((prev) => {
-      const next = new Set(prev);
-      if (next.has(email)) {
-        next.delete(email);
-      } else {
-        next.add(email);
-      }
-      return next;
-    });
-  }
-
-  async function handleBulkAddEmails() {
-    if (!bulkEmailText.trim()) return;
-    const ok = await mutate(
-      {
-        action: "grant_emails_bulk",
-        rawEmails: bulkEmailText,
-        mode: "append",
-      },
-      "bulk-add-emails",
-      "Successfully authorized student emails.",
-      "loading..... Adding learner emails to platform..."
-    );
-    if (ok) setBulkEmailText("");
-  }
-
-  async function handleBulkReplaceEmails() {
-    if (!bulkEmailText.trim()) return;
-    showConfirm({
-      title: "Replace All Learner Emails",
-      message: "This action will replace the ENTIRE current learner emails whitelist with the new entries provided above.",
-      detail: "The fixed admin email (son.lam@eiu.edu.vn) will always be preserved safely.",
-      confirmLabel: "Replace All",
-      cancelLabel: "Keep Existing List",
-      variant: "danger",
-      onConfirm: async () => {
-        const ok = await mutate(
-          {
-            action: "grant_emails_bulk",
-            rawEmails: bulkEmailText,
-            mode: "replace",
-          },
-          "bulk-replace-emails",
-          "Replaced platform authorized emails list.",
-          "loading..... Replacing authorized learner emails list..."
-        );
-        if (ok) {
-          setBulkEmailText("");
-          setSelectedEmails(new Set());
-        }
-      },
-    });
-  }
-
-  async function handleDeleteSelectedEmails() {
-    if (selectedEmails.size === 0) return;
-    const count = selectedEmails.size;
-    showConfirm({
-      title: "Revoke Selected Learner Access",
-      message: `Are you sure you want to revoke access for ${count} selected learner email(s)?`,
-      detail: "These accounts will immediately lose platform access.",
-      confirmLabel: `Delete ${count} Emails`,
-      variant: "danger",
-      onConfirm: async () => {
-        const emailsToDelete = Array.from(selectedEmails);
-        const ok = await mutate(
-          {
-            action: "remove_emails",
-            emails: emailsToDelete,
-          },
-          "delete-selected-emails",
-          `Removed ${emailsToDelete.length} email(s) from platform access.`,
-          `loading..... Deleting ${emailsToDelete.length} selected emails...`
-        );
-        if (ok) {
-          setSelectedEmails((prev) => {
-            const next = new Set(prev);
-            for (const e of emailsToDelete) next.delete(e);
-            return next;
-          });
-        }
-      },
-    });
-  }
-
-  async function handleRemoveSingleEmail(email: string) {
-    if (email.toLowerCase() === FIXED_ADMIN_EMAIL.toLowerCase()) {
-      showAlert({
-        title: "Protected Administrator",
-        message: "The fixed admin email (son.lam@eiu.edu.vn) is protected and cannot be removed.",
-      });
-      return;
-    }
-    showConfirm({
-      title: "Revoke Learner Access",
-      message: `Are you sure you want to revoke platform access for “${email}”?`,
-      confirmLabel: "Revoke Access",
-      variant: "danger",
-      onConfirm: async () => {
-        const ok = await mutate(
-          {
-            action: "remove_emails",
-            emails: [email],
-          },
-          `remove-email:${email}`,
-          `Revoked access for ${email}.`,
-          `loading..... Revoking access for ${email}...`
-        );
-        if (ok) {
-          setSelectedEmails((prev) => {
-            const next = new Set(prev);
-            next.delete(email);
-            return next;
-          });
-        }
-      },
-    });
-  }
-
-  async function handleClearAllEmails() {
-    showConfirm({
-      title: "Revoke All Learner Access",
-      message: "Are you sure you want to revoke access for ALL learner emails across the platform?",
-      detail: "The fixed admin account will remain unaffected. All learner emails will be cleared.",
-      confirmLabel: "Clear All Learners",
-      variant: "danger",
-      onConfirm: async () => {
-        const ok = await mutate(
-          { action: "clear_emails" },
-          "clear-all-emails",
-          "Cleared all learner emails from platform access.",
-          "loading..... Clearing all learner emails..."
-        );
-        if (ok) setSelectedEmails(new Set());
-      },
-    });
-  }
-
   // =========================================================================
   // COURSE SETUP & PASSCODE BYPASS HANDLERS
   // =========================================================================
 
-  async function handleSetAllCoursesUnlocked(unlocked: boolean) {
-    showConfirm({
-      title: unlocked ? "Unlock All Courses" : "Lock All Courses",
-      message: unlocked
-        ? "Are you sure you want to UNLOCK all courses? Logged-in learners can access and study directly without passcodes."
-        : "Are you sure you want to LOCK all courses? Learners will need to enter the course passcode to access.",
-      confirmLabel: unlocked ? "Unlock All Courses" : "Lock All Courses",
-      variant: unlocked ? "gold" : "warning",
-      onConfirm: async () => {
-        await mutate(
-          { action: "set_all_courses_unlocked", unlocked },
-          "unlock-all",
-          unlocked ? "All courses are now UNLOCKED (no passcode required)." : "All courses are now LOCKED (passcode required).",
-          unlocked ? "loading..... Unlocking all courses..." : "loading..... Locking all courses..."
-        );
-      },
-    });
-  }
-
-  async function handleSetSelectedCoursesUnlocked(unlocked: boolean) {
-    if (selectedCourses.size === 0) return;
-    const courseIds = Array.from(selectedCourses);
-    await mutate(
-      {
-        action: "set_course_unlocked",
-        courseIds,
-        unlocked,
-      },
-      "unlock-selected",
-      unlocked
-        ? `Unlocked ${courseIds.length} course(s) (no passcode required).`
-        : `Locked ${courseIds.length} course(s) (passcode required).`,
-      unlocked
-        ? `loading..... Unlocking ${courseIds.length} selected course(s)...`
-        : `loading..... Locking ${courseIds.length} selected course(s)...`
-    );
-  }
-
-  async function handleToggleSingleCourseUnlocked(course: Course) {
-    const nextUnlocked = !(course.unlocked ?? course.metadata?.unlocked ?? false);
-    await mutate(
-      {
-        action: "set_course_unlocked",
-        courseId: course.id,
-        unlocked: nextUnlocked,
-      },
-      `unlock-course:${course.id}`,
-      nextUnlocked
-        ? `Course “${course.title}” is now UNLOCKED (no passcode required).`
-        : `Course “${course.title}” is now LOCKED (passcode required).`,
-      nextUnlocked ? `loading..... Unlocking “${course.title}”...` : `loading..... Locking “${course.title}”...`
-    );
-  }
 
   // =========================================================================
   // FOLDER GROUP (FOLDER LỚN) HANDLERS
@@ -850,27 +643,6 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
     );
   }
 
-  async function handleToggleFolderGroupUnlocked(group: CourseFolderGroup, unlocked: boolean) {
-    const label = unlocked ? "Unlock All in" : "Lock All in";
-    showConfirm({
-      title: `${label} “${group.name}”`,
-      message: `Are you sure you want to ${unlocked ? "unlock" : "lock"} all courses in parent folder “${group.name}”?`,
-      confirmLabel: unlocked ? "Unlock All Courses" : "Lock All Courses",
-      variant: unlocked ? "gold" : "warning",
-      onConfirm: async () => {
-        await mutate(
-          { action: "set_folder_group_unlocked", folderGroupId: group.id, unlocked },
-          `unlock-folder:${group.id}`,
-          unlocked
-            ? `Unlocked all courses in folder “${group.name}”.`
-            : `Locked all courses in folder “${group.name}”.`,
-          unlocked
-            ? `loading..... Unlocking all courses in folder “${group.name}”...`
-            : `loading..... Locking all courses in folder “${group.name}”...`
-        );
-      },
-    });
-  }
 
   function handleToggleCourseSelection(id: string) {
     if (!activeCourses.some(course => course.id === id && canSelectCourse(course))) return;
@@ -975,52 +747,6 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
     if (ok) setEditingDescription(false);
   }
 
-  async function handleGenerateCoursePasscode() {
-    const key = `gen-pass:${effectiveCourseId}`;
-    setBusy((current) => new Set(current).add(key));
-    setError("");
-    setNotice("");
-    try {
-      const response = await fetch("/api/admin/access", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "generate_course_passcode",
-          courseId: effectiveCourseId,
-        }),
-      });
-      const payload = (await response.json()) as Payload;
-      if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to generate passcode.");
-      apply(payload);
-      setNotice(`Generated new folder passcode: ${payload.generatedCode}`);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to generate passcode.");
-    } finally {
-      setBusy((current) => {
-        const next = new Set(current);
-        next.delete(key);
-        return next;
-      });
-    }
-  }
-
-  async function handleSaveCoursePasscode() {
-    const code = customCoursePasscode.trim();
-    if (!code) return;
-    const ok = await mutate(
-      {
-        action: "set_course_passcode",
-        courseId: effectiveCourseId,
-        code,
-      },
-      `set-pass:${effectiveCourseId}`,
-      `Updated folder passcode to ${code}.`
-    );
-    if (ok) {
-      setEditingCoursePasscode(false);
-      setCustomCoursePasscode("");
-    }
-  }
 
   async function setLanguage(languageLabel: LanguageLabel) {
     await mutate(
@@ -1177,6 +903,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
   async function handleSectionContentUpload(section: Section, file: File | undefined, onProgress?: (value: number) => void): Promise<boolean> {
     if (!canEditSection(section)) return false;
     if (!file) return false;
+    if (!driveDestinationId) { setError("Choose a Drive destination before uploading."); return false; }
     if (file.size > 50 * 1024 * 1024) {
       setError("The maximum file size is 50 MB.");
       setNotice("");
@@ -1190,7 +917,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
     setError("");
     setNotice("");
     try {
-      const payload = (await uploadSectionFile(`/api/admin/sections/${encodeURIComponent(section.id)}/content`, file, onProgress)) as {
+      const payload = (await uploadSectionFile(`/api/admin/sections/${encodeURIComponent(section.id)}/content`, file, onProgress, driveDestinationId)) as {
         success?: boolean;
         message?: string;
         contentType: Section["content_type"];
@@ -1206,8 +933,8 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
         slide_count: payload.slideCount,
       } : item));
       setNotice(file.name.toLowerCase().endsWith(".pptx")
-        ? `Uploaded "${file.name}" with all package content preserved. Open the section to preview or download the file.`
-        : `Uploaded "${file.name}". The section now opens in the shared presentation frame.`);
+        ? `Uploaded "${file.name}" to Drive with all package content preserved. Open the section to preview or download the file.`
+        : `Uploaded "${file.name}" to Drive. The section now opens in the shared presentation frame.`);
       return true;
     } catch (caught) {
       setError(caught instanceof Error && caught.name === "TimeoutError"
@@ -1304,22 +1031,12 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
 
   return (
     <main className={styles.page}>
-      <CourseManagerHeader role={role} identity={adminEmail} onSignOut={() => void signOut()} />
+      <CourseManagerHeader identity={adminEmail} onSignOut={() => void signOut()} />
 
       {/* EIU Luxury Top Control Row: Segmented Tabs (Left) + Master Access Toolbar (Right) */}
       <div className={styles.topControlRow}>
         <div className={styles.tabsTrack} role="tablist">
-          {isAdmin && (<button
-            type="button"
-            className={`${styles.tabBtn} ${tab === "emails" ? styles.tabBtnActive : ""}`}
-            onClick={() => setTab("emails")}
-            role="tab"
-            aria-selected={tab === "emails"}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-            <span>Authorized Emails</span>
-            <span className={styles.tabBadge}>{authorizedEmails.length}</span>
-          </button>)}
+          <button type="button" role="tab" aria-selected={tab === "passcodes"} className={`${styles.tabBtn} ${tab === "passcodes" ? styles.tabBtnActive : ""}`} onClick={() => setTab("passcodes")}>Passcodes</button>
           <button
             type="button"
             className={`${styles.tabBtn} ${tab === "courses" ? styles.tabBtnActive : ""}`}
@@ -1335,136 +1052,14 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M3 9h18M9 9v9M8 22h8M12 18v4"/></svg>
             <span>Slide Layouts</span><span className={styles.tabBadge}>{templates.length}</span>
           </button>
-          {isAdmin && (<button type="button" className={`${styles.tabBtn} ${tab === "teachers" ? styles.tabBtnActive : ""}`} onClick={() => setTab("teachers")} role="tab" aria-selected={tab === "teachers"}>
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 21v-3a6 6 0 0 1 12 0v3M16 5a3 3 0 0 1 0 6M21 21v-3a6 6 0 0 0-4-5"/></svg>
-            <span>Teacher Accounts</span>
-          </button>)}
+
         </div>
 
-        {tab === "courses" && (
-          (isAdmin ? <div className={styles.masterAccessToolbar}>
-            <div className={styles.masterAccessLeft}>
-              <div className={styles.masterAccessBrand}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-                <span>ACCESS BYPASS CONTROL</span>
-              </div>
-              <div className={styles.masterAccessDivider} />
-              <label className={styles.unlockSelectAllLabel}>
-                <input
-                  type="checkbox"
-                  checked={selectedCourses.size > 0 && selectedCourses.size === activeCourses.length}
-                  onChange={handleSelectAllCoursesToggle}
-                  className={styles.unlockCheckbox}
-                />
-                <span>Select All ({selectedCourses.size}/{activeCourses.length})</span>
-              </label>
-            </div>
 
-            <div className={styles.masterAccessRight}>
-              {/* Global Unlock / Lock All */}
-              <div className={styles.masterGlobalBtns}>
-                <button
-                  type="button"
-                  className={styles.btnUnlockAllCompact}
-                  onClick={() => void handleSetAllCoursesUnlocked(true)}
-                  disabled={busy.has("unlock-all") || Boolean(processingMessage)}
-                  title="Unlock all courses for free access"
-                >
-                  {busy.has("unlock-all") ? (
-                    <span className={styles.btnLoadingRow}>
-                      <span className={styles.btnSpinnerSm} />
-                      <span>loading...</span>
-                    </span>
-                  ) : (
-                    <>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-                      <span>Unlock All</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  type="button"
-                  className={styles.btnLockAllCompact}
-                  onClick={() => void handleSetAllCoursesUnlocked(false)}
-                  disabled={busy.has("unlock-all") || Boolean(processingMessage)}
-                  title="Require passcode for all courses"
-                >
-                  {busy.has("unlock-all") ? (
-                    <span className={styles.btnLoadingRow}>
-                      <span className={styles.btnSpinnerSm} />
-                      <span>loading...</span>
-                    </span>
-                  ) : (
-                    <>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                      <span>Lock All</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
-              {/* Batch Selective Actions (When courses are selected) */}
-              {selectedCourses.size > 0 && (
-                <div className={styles.selectiveActionBtnsCompact}>
-                  <button
-                    type="button"
-                    className={`${styles.btnSelectiveActionCompact} ${styles.btnSelectiveUnlock}`}
-                    onClick={() => void handleSetSelectedCoursesUnlocked(true)}
-                    disabled={busy.has("unlock-selected") || Boolean(processingMessage)}
-                    title="Unlock selected courses"
-                  >
-                    {busy.has("unlock-selected") ? (
-                      <span className={styles.btnLoadingRow}><span className={styles.btnSpinnerSm} /><span>loading...</span></span>
-                    ) : (
-                      <>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-                        <span>Unlock ({selectedCourses.size})</span>
-                      </>
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.btnSelectiveActionCompact} ${styles.btnSelectiveLock}`}
-                    onClick={() => void handleSetSelectedCoursesUnlocked(false)}
-                    disabled={busy.has("unlock-selected") || Boolean(processingMessage)}
-                    title="Lock selected courses"
-                  >
-                    {busy.has("unlock-selected") ? (
-                      <span className={styles.btnLoadingRow}><span className={styles.btnSpinnerSm} /><span>loading...</span></span>
-                    ) : (
-                      <>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                        <span>Lock ({selectedCourses.size})</span>
-                      </>
-                    )}
-                  </button>
-                  <button
-                    type="button"
-                    className={`${styles.btnSelectiveActionCompact} ${styles.btnSelectiveDelete}`}
-                    onClick={() => void handleDeleteSelectedCourses()}
-                    disabled={busy.has("delete-selected-courses") || Boolean(processingMessage)}
-                    title="Permanently delete selected courses"
-                  >
-                    {busy.has("delete-selected-courses") ? (
-                      <span className={styles.btnLoadingRow}><span className={styles.btnSpinnerSm} /><span>loading...</span></span>
-                    ) : (
-                      <>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                        <span>Delete ({selectedCourses.size})</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div> : null)
-        )}
       </div>
 
-      {!isAdmin && <div className={styles.teacherBulkToolbar}>
-        <label><input type="checkbox" checked={activeCourses.filter(canSelectCourse).length > 0 && activeCourses.filter(canSelectCourse).every(course => selectedCourses.has(course.id))} onChange={handleSelectAllCoursesToggle} disabled={!activeCourses.some(canSelectCourse) || Boolean(processingMessage)} />Select my courses</label>
-        <button type="button" className={styles.btnDanger} disabled={!selectedCourses.size || Boolean(processingMessage)} onClick={() => void handleDeleteSelectedCourses()}>Delete selected ({selectedCourses.size})</button>
-      </div>}
+
+      {tab === "courses" && <div className={styles.courseBulkToolbar}><button type="button" className={styles.btnSecondary} onClick={handleSelectAllCoursesToggle} disabled={Boolean(processingMessage)}>Select / clear all courses</button><button type="button" className={styles.btnDangerOutline} onClick={() => void handleDeleteSelectedCourses()} disabled={!selectedCourses.size || Boolean(processingMessage)}>Delete selected ({selectedCourses.size})</button></div>}
       {/* FLOATING HUD OVERLAY (loading..... trực quan nổi bật trên cùng) */}
       {processingMessage && (
         <div className={styles.globalLoadingOverlay} role="status" aria-live="polite">
@@ -1504,7 +1099,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
               </span>
             </div>
             <span className={styles.processingSub}>
-              Synchronizing updates with Supabase database, please wait a moment...
+              Please wait while your changes are saved.
             </span>
           </div>
         </div>
@@ -1514,219 +1109,19 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
       {notice && !processingMessage && <div className={styles.notice} role="status">{notice}</div>}
 
       <div className={`${styles.scrollArea} ${tab === "courses" ? styles.scrollAreaCourses : tab === "layouts" ? styles.scrollAreaLayouts : ""}`}>
-        {tab === "layouts" ? templateError ? <div className={styles.error} role="alert">{templateError}</div> : <TemplateLibrary key={role} isAdmin={isAdmin} initialTemplates={templates} onTemplatesChange={setTemplates} /> : tab === "teachers" ? <TeacherAccounts /> : loading ? (
+        {tab === "layouts" ? templateError ? <div className={styles.error} role="alert">{templateError}</div> : <TemplateLibrary key="admin" isAdmin={isAdmin} initialTemplates={templates} onTemplatesChange={setTemplates} /> : loading ? (
           <div className={styles.loading}>Loading your workspace…</div>
-        ) : tab === "emails" ? (
-          /* =========================================================================
-             FRAME 1: DEDICATED AUTHORIZED EMAIL MANAGEMENT FRAME (Add nhiều, Xóa nhiều, Search)
-             ========================================================================= */
-          <div className={styles.emailManagementLayout}>
-            {/* Left Column: Bulk Add / Replace Input */}
-            <div className={styles.emailFrameCard}>
-              <div className={styles.emailFrameHead}>
-                <span>BATCH ENROLLMENT</span>
-                <h2>Add Authorized Emails</h2>
-                <p>
-                  Paste Gmail or EIU email addresses (separated by commas, spaces, or newlines). Anyone listed can sign in with their email to view all courses.
-                </p>
-              </div>
-
-              <textarea
-                className={styles.bulkTextarea}
-                rows={10}
-                value={bulkEmailText}
-                onChange={(e) => setBulkEmailText(e.target.value)}
-                placeholder={"student1@gmail.com\nstudent2@eiu.edu.vn\nstudent3@gmail.com"}
-              />
-
-              <div className={styles.bulkActions}>
-                <button
-                  type="button"
-                  className={styles.btnPrimary}
-                  onClick={() => void handleBulkAddEmails()}
-                  disabled={!bulkEmailText.trim() || busy.has("bulk-add-emails") || Boolean(processingMessage)}
-                >
-                  {busy.has("bulk-add-emails") ? (
-                    <span className={styles.btnLoadingRow}>
-                      <span className={styles.btnSpinner} />
-                      <span>Adding emails...</span>
-                    </span>
-                  ) : (
-                    "+ Add to List (Bulk Add)"
-                  )}
-                </button>
-                <button
-                  type="button"
-                  className={styles.btnSecondary}
-                  onClick={() => void handleBulkReplaceEmails()}
-                  disabled={!bulkEmailText.trim() || busy.has("bulk-replace-emails") || Boolean(processingMessage)}
-                >
-                  {busy.has("bulk-replace-emails") ? (
-                    <span className={styles.btnLoadingRow}>
-                      <span className={styles.btnSpinner} />
-                      <span>Replacing...</span>
-                    </span>
-                  ) : (
-                    "Replace All"
-                  )}
-                </button>
-                <button
-                  type="button"
-                  className={styles.btnSecondary}
-                  onClick={() => setBulkEmailText("")}
-                  disabled={!bulkEmailText || Boolean(processingMessage)}
-                >
-                  Clear Input
-                </button>
-              </div>
-            </div>
-
-            {/* Right Column: Searchable, Multi-Select Email Directory */}
-            <div className={styles.emailFrameCard}>
-              <div className={styles.emailFrameHead}>
-                <span>ACCESS DIRECTORY &amp; PERMISSIONS</span>
-                <h2>Active Learner Access List</h2>
-                <p>
-                  Search, multi-select checkboxes for batch delete, or manage individual learner permissions.
-                </p>
-              </div>
-
-              {/* Real-time Search Box with Icon */}
-              <div className={styles.emailSearchWrapper}>
-                <span className={styles.emailSearchIcon}>
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-                </span>
-                <input
-                  type="text"
-                  className={styles.emailSearchInput}
-                  placeholder="Search emails in list (e.g. gmail, eiu, student name)…"
-                  value={emailSearch}
-                  onChange={(e) => setEmailSearch(e.target.value)}
-                />
-              </div>
-
-              {/* Multi-Select Action Toolbar */}
-              <div className={styles.emailToolbar}>
-                <label className={styles.emailSelectAllBox}>
-                  <input
-                    type="checkbox"
-                    checked={isAllSelected}
-                    onChange={handleToggleSelectAll}
-                    disabled={selectableEmails.length === 0}
-                    className={styles.emailRowCheckbox}
-                  />
-                  <span>Select All ({selectableEmails.length})</span>
-                </label>
-
-                <div className={styles.emailBatchActions}>
-                  <span className={styles.emailCountBadge}>
-                    Selected: {selectedEmails.size}
-                  </span>
-
-                  <button
-                    type="button"
-                    className={styles.btnDanger}
-                    style={{ padding: "6px 14px", fontSize: "11px", borderRadius: "8px", fontWeight: "750" }}
-                    onClick={() => void handleDeleteSelectedEmails()}
-                    disabled={selectedEmails.size === 0 || busy.has("delete-selected-emails") || Boolean(processingMessage)}
-                  >
-                    {busy.has("delete-selected-emails") ? (
-                      <span className={styles.btnLoadingRow}>
-                        <span className={styles.btnSpinner} />
-                        <span>Deleting {selectedEmails.size} email(s)...</span>
-                      </span>
-                    ) : (
-                      `Delete Selected (${selectedEmails.size})`
-                    )}
-                  </button>
-
-                  {authorizedEmails.length > 1 && (
-                    <button
-                      type="button"
-                      className={styles.btnSecondary}
-                      style={{ padding: "6px 10px", fontSize: "11px", borderRadius: "8px" }}
-                      onClick={() => void handleClearAllEmails()}
-                      disabled={busy.has("clear-all-emails") || Boolean(processingMessage)}
-                    >
-                      {busy.has("clear-all-emails") ? (
-                        <span className={styles.btnLoadingRow}>
-                          <span className={styles.btnSpinner} />
-                          <span>Clearing all...</span>
-                        </span>
-                      ) : (
-                        "Clear All Learners"
-                      )}
-                    </button>
-                  )}
-                </div>
-              </div>
-
-              {/* Scrollable Email List */}
-              <div className={styles.emailListScroll} style={{ maxHeight: "420px" }}>
-                {Boolean(processingMessage) && (
-                  <div className={styles.emailListProcessingBar}>
-                    <span className={styles.btnSpinnerSm} />
-                    <span>Synchronizing learner access list...</span>
-                  </div>
-                )}
-                {filteredEmails.length === 0 ? (
-                  <div className={styles.noEmailMessage}>
-                    {emailSearch ? `No emails match “${emailSearch}”.` : "No authorized student emails found."}
-                  </div>
-                ) : (
-                  filteredEmails.map((email) => {
-                    const isAdmin = email.toLowerCase() === FIXED_ADMIN_EMAIL.toLowerCase();
-                    const isSelected = selectedEmails.has(email);
-                    return (
-                      <div
-                        key={email}
-                        className={`${styles.emailRow} ${isSelected ? styles.emailRowSelected : ""}`}
-                      >
-                        <div className={styles.emailRowLeft}>
-                          {!isAdmin ? (
-                            <input
-                              type="checkbox"
-                              checked={isSelected}
-                              onChange={() => handleToggleEmail(email)}
-                              className={styles.emailRowCheckbox}
-                              aria-label={`Select ${email}`}
-                            />
-                          ) : (
-                            <span style={{ width: "16px", display: "inline-block" }} />
-                          )}
-                          <span style={{ fontSize: "13px" }}>{email}</span>
-                        </div>
-
-                        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          {isAdmin ? (
-                            <span className={styles.adminTag}>FIXED ADMIN</span>
-                          ) : (
-                            <button
-                              type="button"
-                              className={styles.removeBtn}
-                              onClick={() => void handleRemoveSingleEmail(email)}
-                              disabled={busy.has(`remove-email:${email}`) || Boolean(processingMessage)}
-                              title={`Revoke access for ${email}`}
-                            >
-                              {busy.has(`remove-email:${email}`) ? (
-                                <span className={styles.rowRemovingState}>
-                                  <span className={styles.btnSpinnerSm} />
-                                  <span>Deleting...</span>
-                                </span>
-                              ) : (
-                                "Remove"
-                              )}
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          </div>
-        ) : (
+        ) : tab === "passcodes" ? <PasscodeManager globalCodes={globalAccessCodes} courses={courses} folders={folderGroups} onSave={body => {
+          const bulk = body.action === "bulk_access_passcodes";
+          const generating = body.generate === true || body.operation === "generate";
+          const clearing = body.operation === "clear" || (!generating && body.code === "");
+          const count = Array.isArray(body.targets) ? body.targets.length : 1;
+          const operation = generating ? "Generating" : clearing ? "Clearing" : "Saving";
+          const message = body.unhide === true
+            ? `loading..... Unhiding content and ${operation.toLowerCase()} passcodes...`
+            : `loading..... ${operation} ${bulk ? `passcodes for ${count} selected scopes` : "passcode"}...`;
+          return mutate(body, "access-code", bulk ? "Selected passcodes updated." : "Passcode updated.", message);
+        }} /> : (
           /* =========================================================================
              FRAME 2: COURSE SETUP & STRUCTURE FRAME (Dual Independent Scroll Panes)
              ========================================================================= */
@@ -1745,10 +1140,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                 </button>
               </div>
 
-              {!isAdmin && <div className={styles.teacherCourseScope} role="group" aria-label="Course filter">
-                <button type="button" aria-pressed={!ownCoursesOnly} onClick={() => setOwnCoursesOnly(false)}>All courses</button>
-                <button type="button" aria-pressed={ownCoursesOnly} onClick={() => setOwnCoursesOnly(true)}>My courses</button>
-              </div>}
+
               {/* Real-time Search Box */}
               <div className={styles.courseSearchWrapper}>
                 <svg className={styles.courseSearchIcon} width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1884,8 +1276,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                             ))
                       : groupCourses;
 
-                    const allUnlocked = childCourses.length > 0 && childCourses.every((c) => Boolean(c.unlocked ?? c.metadata?.unlocked));
-                    const isFolderBusy = busy.has(`unlock-folder:${group.id}`);
+
                     const isFolderChecked = selectedFolderGroups.has(group.id);
 
                     return (
@@ -1966,25 +1357,9 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
 
                             {/* Quick Folder Actions (Compact Icons) */}
                             {canEditFolder(group) && (<div className={styles.folderGroupActions} onClick={(e) => e.stopPropagation()}>
-                              {isAdmin && <DriveExport groupId={group.id} label="Save folder to Drive" />}
+                              {isAdmin && <DriveLoad sections={sections.filter(section => courses.some(course => course.id === section.course_id && course.folderGroupId === group.id)).map(section => ({...section, courseTitle:courses.find(course => course.id === section.course_id)?.title}))} onLoaded={refreshDriveCatalog} label="Load from Drive" />}
                               {isAdmin && <VisibilityToggle hidden={Boolean(group.hidden)} label={`folder ${group.name}`} busy={busy.has(`hide-folder:${group.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-folder:${group.id}`)} onToggle={() => void mutate({ action: "set_folder_group_hidden", folderGroupId: group.id, hidden: !group.hidden }, `hide-folder:${group.id}`, "Folder visibility updated.")} />}
-                              {childCourses.length > 0 && (
-                                (isAdmin ? <button
-                                  type="button"
-                                  className={allUnlocked ? styles.folderBtnLockIcon : styles.folderBtnUnlockIcon}
-                                  onClick={() => void handleToggleFolderGroupUnlocked(group, !allUnlocked)}
-                                  disabled={isFolderBusy || Boolean(processingMessage)}
-                                  title={allUnlocked ? `Lock all in ${group.name}` : `Unlock all in ${group.name}`}
-                                >
-                                  {isFolderBusy ? (
-                                    <span className={styles.btnSpinnerSm} />
-                                  ) : allUnlocked ? (
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><path d="M7 11V7a5 5 0 0 1 10 0v4"/><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/></svg>
-                                  ) : (
-                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-                                  )}
-                                </button> : null)
-                              )}
+
 
                               <button
                                 type="button"
@@ -2037,7 +1412,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                                     const countSecs = sections.filter((s) => s.course_id === course.id && s.status === "active").length;
                                     const isSelected = effectiveCourseId === course.id;
                                     const isChecked = selectedCourses.has(course.id);
-                                    const isUnlocked = Boolean(course.unlocked ?? course.metadata?.unlocked);
+
 
                                     return (
                                       <div
@@ -2094,8 +1469,8 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                                           </span>
                                           <div className={styles.compactCourseMetaGroup}>
                                             <span className={styles.compactCourseSecCount}>{countSecs}s</span>
-                                            <span className={isUnlocked ? styles.compactPillUnlocked : styles.compactPillLocked}>
-                                              {!isAdmin ? course.canEdit ? "YOUR COURSE" : "READ ONLY" : isUnlocked ? "UNLOCKED" : "PASS"}
+                                            <span className={styles.compactPillLocked}>
+                                              PASSCODE
                                             </span>
                                           </div>
                                         </button>
@@ -2225,11 +1600,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                   <>
                     {/* UNIFIED COURSE COMMAND HUB (Gộp toàn bộ layout hiển thị & điều khiển nhanh) */}
                     <div className={styles.courseCommandHub}>
-                      {!isAdmin && <div className={styles.teacherOwnership}>
-                        <span>{canEditCourse ? "Your course" : "Read only"}</span>
-                        <p>{canEditCourse ? "Add sections and manage your learning materials here." : "This course belongs to the admin or another teacher. You can view and download its learning materials."}</p>
-                        <a href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}`}>Open Learning Space</a>
-                      </div>}
+
                       <div className={styles.templateSetup}>
                         <div className={styles.templateSetupCopy}><label htmlFor="course-slide-template"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>Slide template</label><p>Layout for existing and future PPTX, PDF and TSX slides.</p></div>
                         <select id="course-slide-template" aria-label="Slide template" value={selectedCourse.metadata?.templateKey ?? (Object.keys(selectedCourse.metadata?.sectionTemplates ?? {}).length ? "__legacy" : "")} disabled={!canEditCourse || Boolean(processingMessage) || busy.has(`template:${effectiveCourseId}`) || Boolean(templateError)} onChange={event => void mutate({ action: "set_course_template", courseId: effectiveCourseId, templateKey: event.target.value }, `template:${effectiveCourseId}`, "Course template updated.")}>
@@ -2269,32 +1640,9 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                             )}
                           </div>
 
-                          {isAdmin && <DriveExport courseId={selectedCourse.id} label="Save course to Drive" />}
+                          {isAdmin && <DriveLoad sections={courseSections} onLoaded={refreshDriveCatalog} />}
                           {/* Instant 1-Click Toggle Passcode Requirement */}
-                          {isAdmin && (<button
-                            type="button"
-                            className={Boolean(selectedCourse.unlocked ?? selectedCourse.metadata?.unlocked) ? styles.unlockToggleBtnUnlocked : styles.unlockToggleBtnLocked}
-                            onClick={() => void handleToggleSingleCourseUnlocked(selectedCourse)}
-                            disabled={busy.has(`unlock-course:${selectedCourse.id}`) || Boolean(processingMessage)}
-                            title="Click to toggle Unlocked / Passcode Protected"
-                          >
-                            {busy.has(`unlock-course:${selectedCourse.id}`) ? (
-                              <span className={styles.btnLoadingRow}>
-                                <span className={styles.btnSpinnerSm} />
-                                <span>loading.....</span>
-                              </span>
-                            ) : Boolean(selectedCourse.unlocked ?? selectedCourse.metadata?.unlocked) ? (
-                              <>
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
-                                <span>UNLOCKED (Free Access)</span>
-                              </>
-                            ) : (
-                              <>
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                <span>PASSCODE PROTECTED</span>
-                              </>
-                            )}
-                          </button>)}
+
                         </div>
 
                         {/* Language Selector Pill */}
@@ -2431,88 +1779,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                       </div>
 
                       {/* Passcode Quick Strip */}
-                      {isAdmin && (<div className={styles.commandHubPasscodeStrip}>
-                        <div className={styles.passcodeStripLeft}>
-                          <span className={styles.passcodeStripLabel}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><circle cx="12" cy="16" r="1.5"/></svg>
-                            PASSCODE:
-                          </span>
-                          {editingCoursePasscode ? (
-                            <div className={styles.passcodeEditInline}>
-                              <input
-                                type="text"
-                                value={customCoursePasscode}
-                                onChange={(e) => setCustomCoursePasscode(e.target.value.slice(0, 10))}
-                                placeholder="e.g. 1611"
-                                className={styles.passcodeInputCompact}
-                                autoFocus
-                              />
-                              <button
-                                type="button"
-                                className={styles.btnPasscodeSave}
-                                onClick={() => void handleSaveCoursePasscode()}
-                                disabled={busy.has(`set-pass:${effectiveCourseId}`)}
-                              >
-                                {busy.has(`set-pass:${effectiveCourseId}`) ? "..." : "Save"}
-                              </button>
-                              <button
-                                type="button"
-                                className={styles.btnPasscodeCancel}
-                                onClick={() => {
-                                  setEditingCoursePasscode(false);
-                                  setCustomCoursePasscode("");
-                                }}
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          ) : (
-                            <div className={styles.passcodePillDisplay}>
-                              <span className={styles.passcodeNumberCompact}>
-                                {selectedCourse.passcode || selectedCourse.metadata?.passcode || "1611"}
-                              </span>
-                              <span className={styles.passcodeStatusPill}>ACTIVE</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {!editingCoursePasscode && (
-                          <div className={styles.passcodeStripActions}>
-                            <button
-                              type="button"
-                              className={styles.passcodeActionBtn}
-                              onClick={() => {
-                                const code = selectedCourse.passcode || selectedCourse.metadata?.passcode || "1611";
-                                void navigator.clipboard.writeText(code);
-                                setNotice(`Passcode ${code} copied to clipboard.`);
-                              }}
-                              title="Copy passcode to clipboard"
-                            >
-                              📋 Copy
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.passcodeActionBtn}
-                              onClick={() => {
-                                setCustomCoursePasscode(selectedCourse.passcode || selectedCourse.metadata?.passcode || "1611");
-                                setEditingCoursePasscode(true);
-                              }}
-                              title="Set custom passcode"
-                            >
-                              ✎ Edit Code
-                            </button>
-                            <button
-                              type="button"
-                              className={styles.passcodeActionBtnPrimary}
-                              onClick={() => void handleGenerateCoursePasscode()}
-                              disabled={busy.has(`gen-pass:${effectiveCourseId}`)}
-                              title="Generate random 4-digit code"
-                            >
-                              {busy.has(`gen-pass:${effectiveCourseId}`) ? "Generating..." : "🎲 Generate New"}
-                            </button>
-                          </div>
-                        )}
-                      </div>)}
+                      {isAdmin && (<div className={styles.commandHubPasscodeStrip}><span>Learner &amp; Facilitator access</span><button type="button" className={styles.btnSecondary} onClick={() => setTab("passcodes")}>Manage passcodes</button></div>)}
                     </div>
 
                     {/* COURSE WORKSPACE SPLIT: Khung Section (Màu Đỏ - Trái) & Khung Icon (Màu Đen - Phải) */}
@@ -2534,7 +1801,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                       </div>
 
                       <p className={styles.sectionUploadHelp}>
-                        PDF / TSX / PPTX · Up to 50 MB. PPTX files stay unchanged; download and open in PowerPoint for audio, animations, and add-ins.
+                        Load PDF, TSX or PPTX from Drive, or upload new files to Drive. Up to 50 MB per file. PowerPoint downloads preserve audio, animations and add-ins.
                       </p>
 
                       {/* Multi-Section Batch Action Toolbar */}
@@ -2581,7 +1848,8 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                       )}
 
                       {/* Section List */}
-                      {editableSections.length > 0 && (<SectionBatchUpload key={effectiveCourseId} sections={editableSections} disabled={Boolean(processingMessage)} coreCourse={selectedCourse.slug === "applied-agentic-ai"}
+                      <label className={styles.driveDestination}>Upload destination<select aria-label="Drive upload destination" value={driveDestinationId} onChange={event => setDriveDestinationId(event.target.value)} disabled={Boolean(processingMessage)}><option value="">Choose a Drive destination</option>{driveDestinations.map(destination => <option key={destination.id} value={destination.id}>{destination.label}</option>)}</select><a href="/admin/drive">Manage Drive destinations</a></label>
+                      {editableSections.length > 0 && (<SectionBatchUpload key={effectiveCourseId} sections={editableSections} disabled={Boolean(processingMessage) || !driveDestinationId} coreCourse={selectedCourse.slug === "applied-agentic-ai"}
                         upload={(target, file, progress) => {
                           const section = courseSections.find((item) => item.id === target.id);
                           return section ? handleSectionContentUpload(section, file, progress) : Promise.resolve(false);
@@ -2673,7 +1941,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                                     )}
                                     <span className={styles.sectionContentMeta}>
                                       {section.source_filename
-                                        ? `${isDefault ? "Built-in deck + PPTX attachment" : section.content_type.toUpperCase()} · ${section.source_filename}`
+                                        ? `${isDefault ? "Built-in deck + PPTX attachment" : section.content_type.toUpperCase()} · ${section.content_path?.startsWith("drive:") ? "Drive" : "Legacy file"} · ${section.source_filename}`
                                         : isDefault
                                           ? "Built-in interactive deck"
                                           : "No presentation file"}
@@ -2681,7 +1949,9 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                                   </DraggableScrollArea>
                                 </div>
                                 <div className={styles.sectionItemRight}>
-                                  {isAdmin && <DriveExport sectionId={section.id} />}
+                                  <VisibilityToggle hidden={Boolean(section.hidden)} label={`section ${section.title}`} busy={busy.has(`hide-section:${section.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-section:${section.id}`)} onToggle={() => void mutate({ action: "set_section_hidden", sectionId: section.id, hidden: !section.hidden }, `hide-section:${section.id}`, "Section visibility updated.")} />
+                                  {isAdmin && <DriveLoad sections={[section]} onLoaded={refreshDriveCatalog} />}
+                                  {isAdmin && section.content_path && !section.content_path.startsWith("drive:") && <button type="button" className={styles.btnSecondary} disabled={!driveDestinationId || Boolean(processingMessage)} onClick={() => void moveSectionToDrive(section)}>Move existing file to Drive</button>}
                                   {isAdmin && <SectionSourceLibrary sectionId={section.id} sectionTitle={section.title} />}
                                   <a className={styles.sectionUploadButton} href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}&sectionId=${encodeURIComponent(section.id)}`}>View</a>
                                   {!editable && <span className={styles.compactPillLocked}>Read only</span>}
@@ -2690,7 +1960,7 @@ export default function AdminAccessPortal({ adminEmail, role = "admin", initialT
                                       className={styles.sectionUploadButton}
                                       href={`/api/sections/${encodeURIComponent(section.id)}/content?download=1`}
                                       download={section.source_filename}
-                                      title="Download the uploaded file"
+                                      title="Download the original file"
                                     >
                                       Download
                                     </a>

@@ -6,9 +6,9 @@ import { createRequire } from "node:module";
 import ts from "typescript";
 const require = createRequire(import.meta.url);
 
-async function page(role, query) {
+async function page(role, query, options = {}) {
   const access = {
-    isActive: true, isAdmin: role === "admin", isTeacher: role === "teacher", email: "user@example.test", displayName: "User",
+    isActive: true, isAdmin: role === "admin", canFacilitate: role === "facilitator", email: "user@example.test", displayName: "User",
     courses: [
       { id: "core", slug: "applied-agentic-ai", title: "Core", isUnlocked: true },
       { id: "other", slug: "analytics", title: "Analytics", isUnlocked: role !== "learner", sectionTemplates: { lesson: "eiu-business-v1" } },
@@ -18,8 +18,10 @@ async function page(role, query) {
       { id: "uploaded", courseId: "other", sectionKey: "lesson", position: 1, contentType: "tsx" },
     ],
   };
+  if (options.hiddenCourse) access.courses.find(course => course.id === options.hiddenCourse).hidden = true;
+  if (options.hiddenSection) access.sections.find(section => section.id === options.hiddenSection).hidden = true;
   const dependencies = {
-    "next/headers": { cookies: async () => ({ get: () => undefined }) },
+    "next/headers": { cookies: async () => ({ get: () => ({ value: options.savedSection }) }) },
     "next/navigation": { redirect: url => { throw new Error(url); } },
     "@/components/LessonPortal": { __esModule: true, default: () => null },
     "@/components/NoCourseAccess": { __esModule: true, default: () => null },
@@ -32,8 +34,8 @@ async function page(role, query) {
   return (await exports.default({ searchParams: Promise.resolve(query) })).props;
 }
 
-test("teacher View links open another owner's uploaded section and preserve its template selection", async () => {
-  const props = await page("teacher", { courseId: "other", sectionId: "uploaded" });
+test("facilitator View links open another owner's uploaded section and preserve its template selection", async () => {
+  const props = await page("facilitator", { courseId: "other", sectionId: "uploaded" });
   assert.equal(props.initialCourseId, "other");
   assert.equal(props.initialSectionId, "uploaded");
   assert.equal(props.initialSection, null);
@@ -44,7 +46,7 @@ test("View links do not grant a learner access to a locked course or select a se
   const denied = await page("learner", { courseId: "other", sectionId: "uploaded" });
   assert.equal(denied.initialCourseId, undefined);
   assert.equal(denied.initialSectionId, undefined);
-  const mismatched = await page("teacher", { courseId: "core", sectionId: "uploaded" });
+  const mismatched = await page("facilitator", { courseId: "core", sectionId: "uploaded" });
   assert.equal(mismatched.initialCourseId, "core");
   assert.equal(mismatched.initialSectionId, undefined);
 });
@@ -52,4 +54,26 @@ test("View links do not grant a learner access to a locked course or select a se
 test("View links still open built-in platform sections", async () => {
   const props = await page("admin", { courseId: "core", sectionId: "builtin" });
   assert.equal(props.initialSection, "section1");
+});
+
+test("learner and teaching logins start at the folder chooser despite an old active-section cookie", async () => {
+  for (const role of ["learner", "facilitator"]) {
+    const props = await page(role, {}, { savedSection: "section1" });
+    assert.equal(props.initialSection, null);
+    assert.equal(props.initialCourseId, undefined);
+    assert.equal(props.initialSectionId, undefined);
+    assert.ok(props.courseFolders.length);
+  }
+});
+
+test("the learning catalog hides courses and sections for admin and both passcode roles, including deep links", async () => {
+  for (const role of ["admin", "learner", "facilitator"]) {
+    const courseHidden = await page(role, { courseId: "core", sectionId: "builtin" }, { hiddenCourse: "core" });
+    assert.equal(courseHidden.courseFolders.some(course => course.id === "core"), false);
+    assert.equal(courseHidden.initialCourseId, undefined);
+    const props = await page(role, { courseId: "core", sectionId: "builtin" }, { hiddenSection: "builtin" });
+    assert.equal(props.courseFolders.some(course => course.sections.some(section => section.id === "builtin")), false);
+    assert.equal(props.initialSection, null);
+    assert.equal(props.initialSectionId, undefined);
+  }
 });

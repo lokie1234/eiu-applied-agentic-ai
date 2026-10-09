@@ -4,17 +4,19 @@ import styles from "./AdminAccessPortal.module.css";
 export type EiuDialogState = {
   isOpen: boolean; title: string; message: string; detail?: string;
   confirmLabel?: string; cancelLabel?: string; variant?: "danger" | "gold" | "warning" | "info";
+  onCancel?: () => void;
   isAlert?: boolean; onConfirm?: () => void | Promise<void>;
 };
 export default function EiuConfirmDialog({ dialog, onClose }: { dialog: EiuDialogState; onClose: () => void }) {
+  const { isOpen, onCancel } = dialog;
   const card = useRef<HTMLDivElement>(null);
   const titleId = useId(); const messageId = useId();
   useEffect(() => {
-    if (!dialog.isOpen) return;
+    if (!isOpen) return;
     const previous = document.activeElement as HTMLElement | null;
     card.current?.querySelector<HTMLButtonElement>('[data-confirm="true"]')?.focus();
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") { event.preventDefault(); onClose(); }
+      if (event.key === "Escape") { event.preventDefault(); onCancel?.(); onClose(); }
       if (event.key !== "Tab") return;
       const buttons = card.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)');
       if (!buttons?.length) return;
@@ -24,9 +26,9 @@ export default function EiuConfirmDialog({ dialog, onClose }: { dialog: EiuDialo
     };
     document.addEventListener("keydown", onKey);
     return () => { document.removeEventListener("keydown", onKey); previous?.focus(); };
-  }, [dialog.isOpen, onClose]);
+  }, [isOpen, onCancel, onClose]);
   return <>      {dialog.isOpen && (
-        <div className={styles.eiuModalBackdrop} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={messageId} onClick={onClose}>
+        <div className={styles.eiuModalBackdrop} role="dialog" aria-modal="true" aria-labelledby={titleId} aria-describedby={messageId} onClick={() => { dialog.onCancel?.(); onClose(); }}>
           <div ref={card} className={styles.eiuModalCard} onClick={(e) => e.stopPropagation()}>
             <div className={styles.eiuModalHeader}>
               <div className={styles.eiuModalBadgeRow}>
@@ -62,7 +64,7 @@ export default function EiuConfirmDialog({ dialog, onClose }: { dialog: EiuDialo
                 <button
                   type="button"
                   className={styles.eiuModalBtnCancel}
-                  onClick={onClose}
+                  onClick={() => { dialog.onCancel?.(); onClose(); }}
                 >
                   {dialog.cancelLabel || "Cancel"}
                 </button>

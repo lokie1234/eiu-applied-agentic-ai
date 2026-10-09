@@ -14,7 +14,7 @@ function fixture() {
   const db = { from(table) {
     const filters = []; let update;
     const result = () => {
-      const data = (table === "courses" ? state.courses : []).filter(row => filters.every(filter => filter(row)));
+      const data = (table === "courses" ? state.courses : table === "course_sections" ? state.sections || [] : []).filter(row => filters.every(filter => filter(row)));
       if (update && state.writeError) return { data: null, error: state.writeError };
       if (update) data.forEach(row => Object.assign(row, update));
       return { data, error: null };
@@ -51,6 +51,17 @@ test("folder creation persists in the shared admin catalog and preserves course 
   const reloaded = await storage.getCoursesAndSectionsData();
   assert.ok(reloaded.folderGroups.some(folder => folder.id === created.id));
   assert.equal(reloaded.courses[0].folderGroupId, "fg-ai-agentic");
+});
+
+test("section visibility survives unrelated metadata changes and is reflected in the admin catalog", async () => {
+  const { state, storage } = fixture();
+  state.sections = [{ id: "lesson-id", course_id: "core", section_key: "lesson", title: "Lesson", status: "active", position: 1 }];
+  await storage.updateCourseMetadata("core", current => ({ ...current, hiddenSectionIds: ["lesson-id"] }));
+  await storage.updateCourseSummary("core", "New summary");
+  assert.equal((await storage.getCoursesAndSectionsData()).sections[0].hidden, true);
+  assert.equal(JSON.parse(state.courses[0].description).passcode, "1234");
+  await storage.updateCourseMetadata("core", current => ({ ...current, hiddenSectionIds: [] }));
+  assert.equal((await storage.getCoursesAndSectionsData()).sections[0].hidden, false);
 });
 
 test("folder creation reports a failed database write and leaves the catalog unchanged", async () => {
@@ -127,14 +138,24 @@ test("course template and folder visibility survive unrelated writes and hidden 
   await storage.updateCourseMetadata("core", current => ({ ...current, templateKey: "custom", hidden: true }));
   await storage.updateCourseSummary("core", "Course description");
   assert.equal(JSON.parse(state.courses[0].description).templateKey, "custom");
-  assert.equal(await storage.verifyCoursePasscode("core", "1234"), false);
   await storage.updateCourseMetadata("core", current => ({ ...current, hidden: false }));
   await storage.setFolderGroupHidden("fg-ai-agentic", true);
   assert.equal((await storage.getCoursesAndSectionsData()).folderGroups[0].hidden, true);
-  assert.equal(await storage.verifyCoursePasscode("core", "1234"), false);
   await storage.updateFolderGroup("fg-ai-agentic", "Renamed");
   assert.equal((await storage.getCoursesAndSectionsData()).folderGroups[0].hidden, true);
   await storage.setFolderGroupHidden("fg-ai-agentic", false);
-  assert.equal(await storage.verifyCoursePasscode("core", "1234"), true);
   assert.equal(JSON.parse(state.courses[0].description).templateKey, "custom");
+});
+
+
+test("global codes persist in the shared catalog through unrelated folder and section edits", async () => {
+  const { storage } = fixture();
+  await storage.updateCourseMetadata("core", current => ({ ...current, globalAccessCodes: { learner: "GLOBAL1234", facilitator: "TEACH1234" } }));
+  await storage.createFolderGroup("New folder");
+  await storage.updateCourseSummary("core", "New title");
+  const catalog = await storage.getCoursesAndSectionsData();
+  assert.equal(catalog.globalAccessCodes.learner, "GLOBAL1234");
+  assert.equal(catalog.globalAccessCodes.facilitator, "TEACH1234");
+  await storage.updateCourseMetadata("core", current => ({ ...current, globalAccessCodes: { ...current.globalAccessCodes, learner: "" } }));
+  assert.equal((await storage.getCoursesAndSectionsData()).globalAccessCodes.learner, "");
 });

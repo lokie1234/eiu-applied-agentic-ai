@@ -1,5 +1,5 @@
 /** Report actual bytes sent, then wait for storage and metadata confirmation. */
-export function uploadSectionFile(url: string, file: File, onProgress?: (value: number) => void): Promise<Record<string, unknown>> {
+export function uploadSectionFile(url: string, file: File, onProgress?: (value: number) => void, destinationId?: string): Promise<Record<string, unknown>> {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
     request.open("POST", url);
@@ -18,6 +18,7 @@ export function uploadSectionFile(url: string, file: File, onProgress?: (value: 
     };
     const data = new FormData();
     data.set("file", file);
+    if (destinationId) data.set("destinationId", destinationId);
     request.send(data);
   });
 }

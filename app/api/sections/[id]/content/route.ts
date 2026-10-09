@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 import { currentUserAccess } from "@/lib/auth/currentUser";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
+import { readDriveFile } from "@/lib/drive/sectionContent";
+import { compileTsx } from "@/lib/sectionContent";
+
 export const runtime = "nodejs";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
@@ -21,13 +24,21 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       return NextResponse.json({ message: "This section does not have uploaded content." }, { status: 404 });
     }
     const course = access.courses.find((item) => item.id === String(section.course_id));
-    const canAccess = Boolean(access.isAdmin || course?.isUnlocked);
+    const canAccess = Boolean(access.isAdmin || access.sections.some(item => item.id === id && item.courseId === String(section.course_id)));
     if (!course || !canAccess) return NextResponse.json({ message: "Course access required." }, { status: 403 });
 
-    const { data, error: downloadError } = await supabase.storage
-      .from("course-section-content")
-      .download(String(section.content_path));
-    if (downloadError) throw downloadError;
+    const attachmentRequested = new URL(request.url).searchParams.get("download") === "1";
+    let data: Blob;
+    if (String(section.content_path).startsWith("drive:")) {
+      const file = await readDriveFile(String(section.content_path));
+      data = section.content_type === "tsx" && !attachmentRequested
+        ? new Blob([compileTsx(new TextDecoder().decode(file.bytes))])
+        : new Blob([file.bytes as Uint8Array<ArrayBuffer>]);
+    } else {
+      const stored = await supabase.storage.from("course-section-content").download(String(section.content_path));
+      if (stored.error || !stored.data) throw Error("Stored content unavailable.");
+      data = stored.data;
+    }
     const isPptx = section.content_type === "pptx";
     const attachment = isPptx || new URL(request.url).searchParams.get("download") === "1";
     const filename = String(section.source_filename || `section.${section.content_type}`);
@@ -38,14 +49,14 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       headers: {
         "Content-Type": isPptx
           ? "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-          : section.content_type === "pdf" ? "application/pdf" : "text/javascript; charset=utf-8",
+          : section.content_type === "pdf" ? "application/pdf" : attachmentRequested && String(section.content_path).startsWith("drive:") ? "text/plain; charset=utf-8" : "text/javascript; charset=utf-8",
         "Content-Disposition": `${attachment ? "attachment" : "inline"}; filename="${fallbackFilename}"; filename*=UTF-8''${encodedFilename}`,
         "X-Content-Type-Options": "nosniff",
-        "Cache-Control": "private, max-age=300",
+        "Cache-Control": "private, no-store",
       },
     });
   } catch (error) {
-    console.error("Section content download error:", error);
+    void error;
     return NextResponse.json({ message: "Unable to load section content." }, { status: 500 });
   }
 }

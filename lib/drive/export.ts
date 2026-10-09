@@ -64,6 +64,12 @@ export async function exportDocument(client: OAuth2Client, input: { sectionId: s
   const type = sectionSourceType(section.source_filename);
   const storagePath = type === "tsx" ? section.original_content_path : section.content_path;
   if (!storagePath) throw new Error("Original TSX unavailable. Re-upload the original file first.");
+  if (storagePath.startsWith("drive:")) {
+    const fileId = storagePath.slice(6);
+    if (!/^[\w-]{10,200}$/.test(fileId)) throw new Error("Invalid Drive file reference.");
+    const copy = await client.request<{ id: string }>({ url: "https://www.googleapis.com/drive/v3/files/" + encodeURIComponent(fileId) + "/copy", method: "POST", timeout: 30000, params: { supportsAllDrives: true, fields: "id" }, data: { name: driveDocumentName(input.name ?? "", section.source_filename, type), parents: [input.folderId] } });
+    return copy.data.id;
+  }
   if (!storagePath.startsWith(section.course_id + "/" + section.id + "/")) throw new Error("Invalid stored document path.");
   const { data: file, error: downloadError } = await db.storage.from("course-section-content").download(storagePath);
   if (downloadError || !file) throw new Error("Unable to read the stored document.");

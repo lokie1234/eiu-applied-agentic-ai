@@ -46,8 +46,8 @@ export default function SectionBatchUpload({ sections, coreCourse, upload, disab
       onDragOver={(event) => { event.preventDefault(); if (!running && !disabled) setDragging(true); }}
       onDragLeave={() => setDragging(false)}
       onDrop={(event) => { event.preventDefault(); setDragging(false); select(event.dataTransfer.files); }}>
-      <div><strong>Add files to sections</strong><p>Drop files here. Files are sorted by name and paired with empty sections first.</p></div>
-      <label className={styles.sectionUploadButton}>Choose files<input type="file" multiple hidden accept=".pdf,.tsx,.pptx" disabled={running || disabled}
+      <div><strong>Upload files to Drive</strong><p>Files are saved to your selected Drive destination and connected to sections. Empty sections are paired first.</p></div>
+      <label className={styles.sectionUploadButton}>Choose local files<input type="file" multiple hidden accept=".pdf,.tsx,.pptx" disabled={running || disabled}
         onChange={(event) => { if (event.currentTarget.files) select(event.currentTarget.files); event.currentTarget.value = ""; }} /></label>
     </div>
     {items.length > 0 && <>
@@ -60,7 +60,7 @@ export default function SectionBatchUpload({ sections, coreCourse, upload, disab
         <span role="status">{item.state === "uploading" ? item.progress < 100 ? `${item.progress}%` : "Saving…" : { ready: "Ready", queued: "Queued", done: "✓ Done", error: "Failed · retry" }[item.state]}</span>
       </div>)}</div>
       <div className={styles.batchActions}><span>{items.filter((item) => item.state === "done").length}/{items.length} complete · 1 file per section</span>
-        <button type="button" className={styles.addSectionButton} disabled={!valid || running || disabled} onClick={() => void start()}>{running ? "Uploading…" : `Upload ${pending.length} files`}</button>
+        <button type="button" className={styles.addSectionButton} disabled={!valid || running || disabled} onClick={() => void start()}>{running ? "Uploading…" : `Upload ${pending.length} files to Drive`}</button>
         <button type="button" className={styles.removeBtn} disabled={running} onClick={() => setItems([])}>Clear</button>
       </div>
       {!valid && pending.length > 0 && <p>Choose a different section for each file. PDF / TSX / PPTX, up to 50 MB each; built-in lessons accept PPTX.</p>}

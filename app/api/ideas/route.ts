@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentRole } from "@/lib/currentRole";
+import { currentRole, canFacilitateSection } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
 import { getSectionSessionStartedAt } from "@/lib/sectionSession";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -12,7 +12,7 @@ function toItem(row: IdeaRow) {
 
 export async function GET() {
   try {
-    if ((await currentRole()) !== "admin") {
+    if (!(await canFacilitateSection("section1"))) {
       return NextResponse.json(
         { success: false, message: "Chỉ admin mới có quyền xem danh sách ý tưởng." },
         { status: 403 },
@@ -87,7 +87,7 @@ export async function POST(request: Request) {
 
 export async function DELETE() {
   try {
-    if ((await currentRole()) !== "admin") {
+    if (!(await canFacilitateSection("section1"))) {
       return NextResponse.json(
         { success: false, message: "Chỉ admin mới có quyền xóa ý tưởng." },
         { status: 403 },

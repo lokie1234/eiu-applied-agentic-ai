@@ -1,6 +1,6 @@
+import type { AccessCodes } from "./passcodes";
 import "server-only";
 
-import { createHash, randomInt } from "node:crypto";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { FIXED_ADMIN_EMAIL, isValidEmail, normalizeEmail, APPLIED_AGENTIC_AI_SLUG, type CourseSystemIcon } from "@/lib/auth/types";
 export type { CourseSystemIcon };
@@ -12,6 +12,7 @@ export const DEFAULT_SLIDE_TEMPLATES: SlideTemplate[] = [{ id: "eiu-business-v1"
 export type CourseFolderGroup = {
   hidden?: boolean;
   createdBy?: string;
+  accessCodes?: AccessCodes;
   id: string;
   name: string;
   description?: string;
@@ -28,12 +29,16 @@ const DEFAULT_FOLDER_GROUPS: CourseFolderGroup[] = [
 ];
 
 export type CourseMetadata = {
+  globalAccessCodes?: AccessCodes;
+  hiddenSectionIds?: string[];
   hidden?: boolean;
   templateKey?: string;
   slideTemplates?: SlideTemplate[];
   summary: string;
   allowedEmails: string[];
-  passcode: string; // 1 passcode for the whole course folder
+  passcode: string;
+  facilitatorPasscode?: string;
+  sectionAccessCodes?: Record<string, AccessCodes>;
   sectionPasscodes?: Record<string, string>; // retained for backward compatibility
   sectionTemplates?: Record<string, string>;
   unlocked?: boolean; // When true, course can be accessed without a passcode
@@ -62,6 +67,7 @@ export type CourseWithDetails = {
 };
 
 type SectionWithPasscode = {
+  hidden?: boolean;
   id: string;
   course_id: string;
   section_key: string;
@@ -74,6 +80,12 @@ type SectionWithPasscode = {
   source_filename: string | null;
   slide_count: number | null;
 };
+
+function parseAccessCodes(value: unknown): AccessCodes {
+  if (!value || typeof value !== "object") return {};
+  const row = value as Record<string, unknown>;
+  return Object.fromEntries(["learner", "facilitator"].flatMap(mode => typeof row[mode] === "string" ? [[mode, row[mode].trim()]] : []));
+}
 
 export function parseCourseMetadata(raw: string | null | undefined, defaultSummary = ""): CourseMetadata {
   if (!raw) {
@@ -115,7 +127,7 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
       let passcode = typeof (parsed as { passcode?: unknown }).passcode === "string"
         ? String((parsed as { passcode: string }).passcode).trim()
         : "";
-      if (!passcode) {
+      if (typeof parsed.passcode !== "string") {
         passcode = sectionPasscodes.section1 || Object.values(sectionPasscodes)[0] || "1611";
       }
 
@@ -157,10 +169,14 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
 
       return {
         summary,
+        globalAccessCodes: parseAccessCodes(parsed.globalAccessCodes),
         allowedEmails: Array.from(new Set(emails)),
         passcode,
         sectionPasscodes,
+        facilitatorPasscode: typeof parsed.facilitatorPasscode === "string" ? parsed.facilitatorPasscode.trim() : "",
+        sectionAccessCodes: parsed.sectionAccessCodes && typeof parsed.sectionAccessCodes === "object" ? Object.fromEntries(Object.entries(parsed.sectionAccessCodes).map(([id, codes]) => [id, parseAccessCodes(codes)])) : {},
         hidden: parsed.hidden === true,
+        hiddenSectionIds: Array.isArray(parsed.hiddenSectionIds) ? [...new Set<string>(parsed.hiddenSectionIds.filter((id: unknown): id is string => typeof id === "string"))] : [],
         templateKey: typeof parsed.templateKey === "string" ? parsed.templateKey : undefined,
         slideTemplates: Array.isArray(parsed.slideTemplates) ? parsed.slideTemplates : undefined,
         sectionTemplates: Object.fromEntries(Object.entries(parsed.sectionTemplates ?? {}).filter(([, value]) => typeof value === "string").map(([key, value]) => [key, String(value)])),
@@ -169,7 +185,7 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
         folderGroupId,
         folderGroupName,
         folderOrder,
-        folderGroups: folderGroups.length > 0 ? folderGroups : undefined,
+        folderGroups: folderGroups.length > 0 ? folderGroups.map(group => ({ ...group, accessCodes: parseAccessCodes(group.accessCodes) })) : undefined,
         systemIcons,
       };
     }
@@ -196,12 +212,16 @@ export function serializeCourseMetadata(metadata: CourseMetadata): string {
     emails.unshift(FIXED_ADMIN_EMAIL);
   }
   return JSON.stringify({
+    globalAccessCodes: metadata.globalAccessCodes || {},
     hidden: Boolean(metadata.hidden),
+    hiddenSectionIds: metadata.hiddenSectionIds || [],
     ...(metadata.templateKey !== undefined ? { templateKey: metadata.templateKey } : {}),
     ...(metadata.slideTemplates !== undefined ? { slideTemplates: metadata.slideTemplates } : {}),
     summary: metadata.summary || "",
     allowedEmails: emails,
-    passcode: metadata.passcode || "1611",
+    passcode: metadata.passcode,
+    facilitatorPasscode: metadata.facilitatorPasscode || "",
+    sectionAccessCodes: metadata.sectionAccessCodes || {},
     sectionPasscodes: metadata.sectionPasscodes || {},
     sectionTemplates: metadata.sectionTemplates || {},
     unlocked: Boolean(metadata.unlocked),
@@ -219,21 +239,13 @@ export function serializeCourseMetadata(metadata: CourseMetadata): string {
  */
 export async function getCoursesAndSectionsData() {
   const supabase = getSupabaseAdmin();
-  const [coursesResult, sectionsResult, passcodesResult] = await Promise.all([
+  const [coursesResult, sectionsResult] = await Promise.all([
     supabase.from("courses").select("id, slug, title, description, status, language_label").neq("status", "archived").order("title"),
     supabase.from("course_sections").select("id, course_id, section_key, title, position, status, content_type, content_path, source_filename, slide_count").neq("status", "archived").order("position"),
-    supabase.from("course_passcodes").select("id, course_id, code_hint, status").eq("status", "active"),
   ]);
 
   if (coursesResult.error) throw coursesResult.error;
   if (sectionsResult.error) throw sectionsResult.error;
-
-  const legacyPasscodeMap = new Map<string, string>();
-  for (const item of passcodesResult.data ?? []) {
-    if (item.course_id && item.code_hint) {
-      legacyPasscodeMap.set(String(item.course_id), String(item.code_hint));
-    }
-  }
 
   // 1. Authoritative master folder groups (defined primarily in the core course)
   const coreCourse = (coursesResult.data ?? []).find((c) => c.slug === APPLIED_AGENTIC_AI_SLUG);
@@ -253,14 +265,7 @@ export async function getCoursesAndSectionsData() {
 
   const courses: CourseWithDetails[] = (coursesResult.data ?? []).map((course) => {
     const metadata = parseCourseMetadata(course.description, course.description || "");
-    let code = metadata.passcode;
-    if (!code && legacyPasscodeMap.has(String(course.id))) {
-      code = legacyPasscodeMap.get(String(course.id))!;
-    }
-    if (!code) {
-      code = course.slug === "applied-agentic-ai" ? "1611" : "2026";
-    }
-    metadata.passcode = code;
+    const code = metadata.passcode;
 
     // Ensure folderGroupId is mapped to valid group or default
     let fId = metadata.folderGroupId || "";
@@ -297,19 +302,11 @@ export async function getCoursesAndSectionsData() {
 
   const sections: SectionWithPasscode[] = (sectionsResult.data ?? []).map((section) => {
     const parentCourse = courses.find((c) => c.id === section.course_id);
-    let code = parentCourse?.passcode || parentCourse?.metadata.passcode
-      || parentCourse?.metadata.sectionPasscodes?.[section.section_key]
-      || parentCourse?.metadata.sectionPasscodes?.[section.id];
-
-    if (!code && section.section_key === "section1" && parentCourse && legacyPasscodeMap.has(parentCourse.id)) {
-      code = legacyPasscodeMap.get(parentCourse.id);
-    }
-    if (!code) {
-      code = parentCourse?.passcode || "1611";
-    }
+    const code = parentCourse?.passcode || "";
 
     return {
       id: String(section.id),
+      hidden: Boolean(parentCourse?.metadata.hiddenSectionIds?.includes(String(section.id))),
       course_id: String(section.course_id),
       section_key: String(section.section_key),
       title: String(section.title),
@@ -323,7 +320,7 @@ export async function getCoursesAndSectionsData() {
     };
   });
 
-  return { courses, sections, folderGroups };
+  return { courses, sections, folderGroups, globalAccessCodes: coreMeta?.globalAccessCodes || {} };
 }
 
 /**
@@ -371,107 +368,8 @@ export async function updateCourseSummary(courseId: string, summary: string) {
   }));
 }
 
-/**
- * Bulk add or replace allowed emails for a course folder.
- */
-export async function setCourseEmailsBulk(
-  courseId: string,
-  rawEmails: string[] | string,
-  mode: "append" | "replace" = "append"
-) {
-  const inputList = Array.isArray(rawEmails)
-    ? rawEmails
-    : String(rawEmails).split(/[\r\n,;\s]+/);
 
-  const cleanList = inputList
-    .map(normalizeEmail)
-    .filter(isValidEmail);
-
-  return updateCourseMetadata(courseId, (current) => {
-    let nextEmails: string[];
-    if (mode === "replace") {
-      nextEmails = cleanList;
-    } else {
-      nextEmails = [...current.allowedEmails, ...cleanList];
-    }
-    if (!nextEmails.includes(FIXED_ADMIN_EMAIL)) {
-      nextEmails.unshift(FIXED_ADMIN_EMAIL);
-    }
-    return {
-      ...current,
-      allowedEmails: [...new Set(nextEmails)],
-    };
-  });
-}
-
-/**
- * Remove a single email from a course folder.
- */
-export async function removeCourseEmail(courseId: string, email: string) {
-  const target = normalizeEmail(email);
-  return updateCourseMetadata(courseId, (current) => ({
-    ...current,
-    allowedEmails: current.allowedEmails.filter((e) => e !== target && e !== target.toLowerCase()),
-  }));
-}
-
-/**
- * Clear all learner emails from a course folder (keeps fixed admin).
- */
-export async function clearCourseEmails(courseId: string) {
-  return updateCourseMetadata(courseId, (current) => ({
-    ...current,
-    allowedEmails: [FIXED_ADMIN_EMAIL],
-  }));
-}
-
-/**
- * Set the single passcode for a course folder.
- */
-export async function setCoursePasscode(courseId: string, code: string) {
-  const trimmed = code.trim();
-  const supabase = getSupabaseAdmin();
-
-  // Try syncing to course_passcodes table if present
-  try {
-    const hash = createHash("sha256").update(trimmed).digest("hex");
-    await supabase.from("course_passcodes").upsert(
-      {
-        course_id: courseId,
-        code_hash: hash,
-        code_hint: trimmed,
-        label: "Folder Passcode",
-        status: "active",
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "course_id" }
-    );
-  } catch {
-    // Continue even if schema has different constraints
-  }
-
-  return updateCourseMetadata(courseId, (current) => ({
-    ...current,
-    passcode: trimmed,
-    sectionPasscodes: {
-      ...current.sectionPasscodes,
-      section1: trimmed,
-    },
-  }));
-}
-
-/**
- * Generate a new random 4-digit passcode for a course folder.
- */
-export async function generateNewCoursePasscode(courseId: string): Promise<string> {
-  const code = randomInt(1000, 9999).toString();
-  await setCoursePasscode(courseId, code);
-  return code;
-}
-
-/**
- * Backward compatibility: set section passcode (now updates folder passcode as well).
- */
+/** Apply or remove the built-in layout for sections. */
 export async function setSectionTemplate(courseId: string, sectionKeys: string[], enabled: boolean) {
   return updateCourseMetadata(courseId, (current) => {
     const sectionTemplates = { ...current.sectionTemplates };
@@ -483,211 +381,11 @@ export async function setSectionTemplate(courseId: string, sectionKeys: string[]
   });
 }
 
-export async function setSectionPasscode(courseId: string, sectionKey: string, code: string) {
-  return setCoursePasscode(courseId, code);
-}
-
-/**
- * Get all authorized emails across the entire platform.
- */
-export async function getAllAuthorizedEmails(preloadedCourses?: CourseWithDetails[]): Promise<string[]> {
-  const courses = preloadedCourses ?? (await getCoursesAndSectionsData()).courses;
-  const set = new Set<string>();
-  set.add(FIXED_ADMIN_EMAIL);
-  for (const c of courses) {
-    for (const email of c.metadata.allowedEmails) {
-      if (isValidEmail(email)) set.add(normalizeEmail(email));
-    }
-  }
-  return Array.from(set);
-}
-
-/**
- * Checks if an email is on the authorized list.
- */
-export async function isEmailAuthorized(email: string): Promise<boolean> {
-  const norm = normalizeEmail(email);
-  if (norm === FIXED_ADMIN_EMAIL) return true;
-  const allEmails = await getAllAuthorizedEmails();
-  return allEmails.includes(norm);
-}
-
-/**
- * Bulk add or replace authorized emails across the system.
- */
-export async function setAuthorizedEmailsBulk(
-  rawEmails: string[] | string,
-  mode: "append" | "replace" = "append"
-): Promise<string[]> {
-  const inputList = Array.isArray(rawEmails)
-    ? rawEmails
-    : String(rawEmails).split(/[\r\n,;\s]+/);
-
-  const cleanList = inputList.map(normalizeEmail).filter(isValidEmail);
-  const current = await getAllAuthorizedEmails();
-
-  let nextEmails: string[];
-  if (mode === "replace") {
-    nextEmails = cleanList;
-  } else {
-    nextEmails = [...current, ...cleanList];
-  }
-  if (!nextEmails.includes(FIXED_ADMIN_EMAIL)) {
-    nextEmails.unshift(FIXED_ADMIN_EMAIL);
-  }
-  const deduplicated = Array.from(new Set(nextEmails));
-
-  // Sync to all active courses in parallel
-  const supabase = getSupabaseAdmin();
-  const { data: courses } = await supabase.from("courses").select("id, description").neq("status", "archived");
-
-  if (courses && courses.length > 0) {
-    await Promise.all(
-      courses.map((c) => {
-        const meta = parseCourseMetadata(c.description);
-        meta.allowedEmails = deduplicated;
-        return supabase.from("courses").update({
-          description: serializeCourseMetadata(meta),
-          updated_at: new Date().toISOString(),
-        }).eq("id", c.id);
-      })
-    );
-
-    // Also sync to course_folder_allowed_emails table in a single batch upsert
-    try {
-      const rows: Array<{ course_id: string; email: string; granted_by: string }> = [];
-      for (const c of courses) {
-        for (const email of deduplicated) {
-          rows.push({ course_id: c.id, email, granted_by: "admin" });
-        }
-      }
-      if (rows.length > 0) {
-        const chunkSize = 500;
-        for (let i = 0; i < rows.length; i += chunkSize) {
-          const chunk = rows.slice(i, i + chunkSize);
-          await supabase.from("course_folder_allowed_emails").upsert(
-            chunk,
-            { onConflict: "course_id,email" }
-          );
-        }
-      }
-    } catch {
-      // Non-fatal if course_folder_allowed_emails table is not configured
-    }
-  }
-
-  return deduplicated;
-}
-
-/**
- * Remove one or more emails from the authorized email list.
- */
-export async function removeAuthorizedEmails(emailsToRemove: string[]): Promise<string[]> {
-  const targets = new Set(emailsToRemove.map(normalizeEmail));
-  const current = await getAllAuthorizedEmails();
-  const updated = current.filter((e) => !targets.has(e) || e === FIXED_ADMIN_EMAIL);
-
-  const supabase = getSupabaseAdmin();
-  const { data: courses } = await supabase.from("courses").select("id, description").neq("status", "archived");
-
-  if (courses && courses.length > 0) {
-    await Promise.all(
-      courses.map((c) => {
-        const meta = parseCourseMetadata(c.description);
-        meta.allowedEmails = updated;
-        return supabase.from("courses").update({
-          description: serializeCourseMetadata(meta),
-          updated_at: new Date().toISOString(),
-        }).eq("id", c.id);
-      })
-    );
-
-    try {
-      const emailsToDelete = Array.from(targets).filter((e) => e !== FIXED_ADMIN_EMAIL);
-      if (emailsToDelete.length > 0) {
-        await supabase.from("course_folder_allowed_emails").delete().in("email", emailsToDelete);
-      }
-    } catch {
-      // Non-fatal if course_folder_allowed_emails table is not configured
-    }
-  }
-
-  return updated;
-}
-
-/**
- * Clear all learner emails (keeps fixed admin).
- */
-export async function clearAllAuthorizedEmails(): Promise<string[]> {
-  return removeAuthorizedEmails((await getAllAuthorizedEmails()).filter((e) => e !== FIXED_ADMIN_EMAIL));
-}
-
-/**
- * Set unlocked status for a single course.
- */
-export async function setCourseUnlocked(courseId: string, unlocked: boolean) {
-  return updateCourseMetadata(courseId, (current) => ({
-    ...current,
-    unlocked: Boolean(unlocked),
-  }));
-}
-
-/**
- * Set unlocked status for ALL active courses (Unlock all courses function).
- */
-export async function setAllCoursesUnlocked(unlocked: boolean) {
-  const supabase = getSupabaseAdmin();
-  const { data: courses, error } = await supabase
-    .from("courses")
-    .select("id, description")
-    .neq("status", "archived");
-
-  if (error) throw error;
-
-  if (courses && courses.length > 0) {
-    await Promise.all(
-      courses.map((c) => {
-        const meta = parseCourseMetadata(c.description);
-        meta.unlocked = Boolean(unlocked);
-        return supabase.from("courses").update({
-          description: serializeCourseMetadata(meta),
-          updated_at: new Date().toISOString(),
-        }).eq("id", c.id);
-      })
-    );
-  }
-}
-
-/**
- * Verifies if an entered passcode is correct for a specific course.
- * Automatically returns true if the course is unlocked.
- */
-export async function verifyCoursePasscode(courseId: string, code: string): Promise<boolean> {
-  const { courses } = await getCoursesAndSectionsData();
-  const course = courses.find((c) => c.id === courseId);
-  if (!course || course.metadata.hidden) return false;
-  const { folderGroups } = await getCoursesAndSectionsData();
-  if (folderGroups.some(group => group.id === course.folderGroupId && group.hidden)) return false;
-  if (course.unlocked || course.metadata.unlocked) return true;
-
-  const trimmed = code.trim();
-  if (!trimmed) return false;
-
-  if (course.passcode === trimmed || course.metadata.passcode === trimmed) return true;
-
-  if (course.metadata.sectionPasscodes) {
-    for (const p of Object.values(course.metadata.sectionPasscodes)) {
-      if (p === trimmed) return true;
-    }
-  }
-
-  return false;
-}
 
 /**
  * Persists master folder groups across courses (primarily in the core course).
  */
-async function saveFolderGroups(groups: CourseFolderGroup[]) {
+export async function saveFolderGroups(groups: CourseFolderGroup[]) {
   const supabase = getSupabaseAdmin();
   const { data: coreCourse, error: readError } = await supabase
     .from("courses")
@@ -802,7 +500,7 @@ export async function deleteFolderGroup(id: string): Promise<void> {
               .from("course_sections")
               .select("content_path")
               .eq("course_id", c.id);
-            const paths = (sectionFiles ?? []).map((item) => item.content_path).filter((path): path is string => Boolean(path));
+            const paths = (sectionFiles ?? []).map((item) => item.content_path).filter((path): path is string => Boolean(path) && !path?.startsWith("drive:"));
             if (paths.length > 0) await supabase.storage.from("course-section-content").remove(paths);
           } catch {}
           await supabase.from("course_sections").delete().eq("course_id", c.id);
@@ -837,138 +535,6 @@ export async function setCourseFolderGroup(courseId: string, folderGroupId: stri
   }));
 }
 
-/**
- * Lock or unlock ALL courses inside a specific Folder Lớn.
- */
-export async function setFolderGroupUnlocked(folderGroupId: string, unlocked: boolean) {
-  const supabase = getSupabaseAdmin();
-  const { data: courses, error } = await supabase
-    .from("courses")
-    .select("id, description")
-    .neq("status", "archived");
-
-  if (error) throw error;
-
-  if (courses && courses.length > 0) {
-    await Promise.all(
-      courses.map((c) => {
-        const meta = parseCourseMetadata(c.description);
-        if (meta.folderGroupId === folderGroupId) {
-          meta.unlocked = Boolean(unlocked);
-          return supabase.from("courses").update({
-            description: serializeCourseMetadata(meta),
-            updated_at: new Date().toISOString(),
-          }).eq("id", c.id);
-        }
-        return Promise.resolve();
-      })
-    );
-  }
-}
-
-/**
- * Retrieves all course IDs that a specific user email has unlocked.
- * Checks both public.user_unlocked_courses table and course metadata fallback.
- */
-export async function getUserUnlockedCourses(email: string): Promise<string[]> {
-  const norm = normalizeEmail(email);
-  if (!norm || !isValidEmail(norm)) return [];
-  if (norm === FIXED_ADMIN_EMAIL) {
-    const { courses } = await getCoursesAndSectionsData();
-    return courses.map((c) => c.id);
-  }
-
-  const unlockedSet = new Set<string>();
-
-  // 1. Query Supabase table public.user_unlocked_courses
-  try {
-    const supabase = getSupabaseAdmin();
-    const { data, error } = await supabase
-      .from("user_unlocked_courses")
-      .select("course_id")
-      .eq("email", norm);
-    if (!error && Array.isArray(data)) {
-      for (const row of data) {
-        if (row.course_id) unlockedSet.add(String(row.course_id));
-      }
-    }
-  } catch {
-    // Graceful fallback if table does not exist yet
-  }
-
-  // 2. Query course metadata fallback and globally unlocked courses
-  try {
-    const { courses } = await getCoursesAndSectionsData();
-    for (const c of courses) {
-      if (c.unlocked || c.metadata.unlocked) {
-        unlockedSet.add(c.id);
-      } else if (c.metadata.unlockedEmails && c.metadata.unlockedEmails.includes(norm)) {
-        unlockedSet.add(c.id);
-      }
-    }
-  } catch {
-    // Ignore fallback errors
-  }
-
-  return Array.from(unlockedSet);
-}
-
-/**
- * Records that a user email has unlocked a course (via passcode or free access).
- * Persists in public.user_unlocked_courses and updates course metadata fallback.
- */
-export async function recordUserUnlockedCourse(
-  email: string,
-  courseId: string,
-  unlockedVia: "passcode" | "free_access" | "admin_grant" = "passcode"
-): Promise<void> {
-  const norm = normalizeEmail(email);
-  if (!norm || !isValidEmail(norm) || !courseId) return;
-
-  // 1. Persist in public.user_unlocked_courses table
-  try {
-    const supabase = getSupabaseAdmin();
-    await supabase.from("user_unlocked_courses").upsert(
-      {
-        email: norm,
-        course_id: courseId,
-        unlocked_via: unlockedVia,
-        unlocked_at: new Date().toISOString(),
-      },
-      { onConflict: "email,course_id" }
-    );
-  } catch {
-    // Table might not exist yet; fallback below ensures zero downtime
-  }
-
-  // 2. Persist in course metadata fallback
-  try {
-    const supabase = getSupabaseAdmin();
-    const { data: courseRow } = await supabase
-      .from("courses")
-      .select("id, description")
-      .eq("id", courseId)
-      .maybeSingle();
-
-    if (courseRow) {
-      const meta = parseCourseMetadata(courseRow.description);
-      const currentList = new Set(meta.unlockedEmails || []);
-      if (!currentList.has(norm)) {
-        currentList.add(norm);
-        meta.unlockedEmails = Array.from(currentList);
-        await supabase
-          .from("courses")
-          .update({
-            description: serializeCourseMetadata(meta),
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", courseId);
-      }
-    }
-  } catch (err) {
-    console.warn("Notice: course metadata unlockedEmails update skipped:", err);
-  }
-}
 
 export async function getSlideTemplates(): Promise<SlideTemplate[]> {
   const { data, error } = await getSupabaseAdmin().from("courses").select("description").eq("slug", APPLIED_AGENTIC_AI_SLUG).maybeSingle();

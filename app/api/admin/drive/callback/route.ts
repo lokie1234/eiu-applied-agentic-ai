@@ -44,7 +44,7 @@ export async function GET(request: Request) {
     await saveDriveToken(config.accountEmail, tokens.refresh_token);
     if (pending.mode === "login") {
       const credential = await getAdminCredential();
-      store.set(ACCESS_SESSION_COOKIE, createAccessSession({ role: "admin", email: FIXED_ADMIN_EMAIL, sessionVersion: credential?.session_version ?? 0 }), sessionCookieOptions());
+      store.set(ACCESS_SESSION_COOKIE, createAccessSession({ role: "admin", authMethod: "google", email: FIXED_ADMIN_EMAIL, sessionVersion: credential?.session_version ?? 0 }), sessionCookieOptions());
       destination = new URL("/admin/access", config.redirectUri);
     }
     result = "connected";

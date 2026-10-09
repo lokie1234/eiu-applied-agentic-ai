@@ -76,31 +76,6 @@
   transform: translateY(-1px);
 }
 
-.tabs {
-  flex: 0 0 auto;
-  display: flex;
-  gap: 8px;
-  margin: 12px 0 10px;
-}
-
-.tabs button {
-  padding: 9px 18px;
-  border: 1px solid rgba(23, 50, 74, 0.14);
-  border-radius: 10px;
-  background: #fff;
-  color: #556977;
-  font-size: 13px;
-  font-weight: 750;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.tabs .active {
-  border-color: #082945;
-  background: #082945;
-  color: #fff;
-}
-
 .error,
 .notice {
   flex: 0 0 auto;
@@ -239,17 +214,6 @@
   gap: 6px;
 }
 
-.btnSpinner {
-  width: 13px;
-  height: 13px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
-  border-radius: 50%;
-  animation: adminSpin 0.7s linear infinite;
-  display: inline-block;
-  flex-shrink: 0;
-}
-
 .btnSpinnerSm {
   width: 11px;
   height: 11px;
@@ -259,31 +223,6 @@
   animation: adminSpin 0.7s linear infinite;
   display: inline-block;
   flex-shrink: 0;
-}
-
-.rowRemovingState {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  color: #a52f36;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.emailListProcessingBar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 14px;
-  background: #fcf8ee;
-  border-bottom: 1px solid #ebd9b8;
-  color: #8c672b;
-  font-size: 11.5px;
-  font-weight: 700;
-  position: sticky;
-  top: 0;
-  z-index: 5;
-  animation: fadeInNotice 0.2s ease;
 }
 
 .scrollArea {
@@ -336,59 +275,6 @@
   max-height: calc(100dvh - 230px);
 }
 
-.courseListHeading {
-  display: block;
-  margin: 4px 8px 10px;
-  color: #9d7944;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.courseItem {
-  width: 100%;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  border: 1px solid transparent;
-  border-radius: 10px;
-  background: transparent;
-  color: #17324a;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.courseItem:hover {
-  background: #f7f4ed;
-}
-
-.selectedCourse {
-  background: #082945 !important;
-  color: #fff !important;
-  box-shadow: 0 4px 14px rgba(8, 41, 69, 0.15);
-}
-
-.courseItemTitle {
-  font-size: 13px;
-  font-weight: 750;
-  line-height: 1.3;
-}
-
-.courseItemMeta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 10px;
-  color: #8b99a4;
-}
-
-.selectedCourse .courseItemMeta {
-  color: rgba(255, 255, 255, 0.65);
-}
-
 .workspace {
   border: 1px solid rgba(23, 50, 74, 0.1);
   border-radius: 16px;
@@ -405,35 +291,6 @@
   box-sizing: border-box;
 }
 
-.workspaceHead {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 20px;
-  padding-bottom: 18px;
-  border-bottom: 1px solid #eeeae2;
-  flex-wrap: wrap;
-}
-
-.workspaceHeadTitle span {
-  color: #9d7944;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.workspaceHeadTitle h2 {
-  margin: 6px 0 4px;
-  font-size: clamp(22px, 2.5vw, 30px);
-  letter-spacing: -0.04em;
-  color: #082945;
-}
-
-.courseTitleRow {
-  margin: 6px 0 10px;
-}
-
 .titleDisplayRow {
   display: flex;
   align-items: center;
@@ -448,30 +305,6 @@
   color: #082945;
   font-weight: 800;
   line-height: 1.2;
-}
-
-.titleEditBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #f0ebe1;
-  border: 1px solid rgba(157, 121, 68, 0.25);
-  color: #082945;
-  font-size: 11px;
-  font-weight: 750;
-  cursor: pointer;
-  padding: 5px 11px;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-  line-height: 1.4;
-  user-select: none;
-  align-self: center;
-}
-
-.titleEditBtn:hover {
-  background: #e6dfd1;
-  border-color: rgba(157, 121, 68, 0.45);
-  transform: translateY(-1px);
 }
 
 .titleEditBox {
@@ -503,71 +336,12 @@
   box-shadow: 0 0 0 3px rgba(157, 121, 68, 0.18);
 }
 
-.workspaceHeadTitle p {
-  margin: 0;
-  color: #687987;
-  font-size: 13px;
-}
-
-.workspaceDescriptionRow {
-  margin: 12px 0 8px;
-  background: #fbfaf7;
-  border: 1px solid #e7e2d8;
-  border-radius: 12px;
-  padding: 12px 16px;
-}
-
-.descHeaderRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 6px;
-}
-
-.descCardLabel {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: #9d7944;
-  text-transform: uppercase;
-}
-
-.descDisplayBox {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
 .workspaceDescText {
   margin: 0 !important;
   color: #082945 !important;
   font-size: 15px !important;
   font-weight: 700 !important;
   line-height: 1.4 !important;
-}
-
-.descEditBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: #f0ebe1;
-  border: 1px solid rgba(157, 121, 68, 0.25);
-  color: #082945;
-  font-size: 11px;
-  font-weight: 750;
-  cursor: pointer;
-  padding: 5px 11px;
-  border-radius: 6px;
-  transition: all 0.15s ease;
-  line-height: 1.4;
-  user-select: none;
-}
-
-.descEditBtn:hover {
-  background: #e6dfd1;
-  border-color: rgba(157, 121, 68, 0.45);
-  transform: translateY(-1px);
 }
 
 .descEditBox {
@@ -614,121 +388,6 @@
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-}
-
-.folderPasscodeCard {
-  border: 1px solid #dbe2ea;
-  border-radius: 12px;
-  background: #fff;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  flex-wrap: wrap;
-  box-shadow: 0 2px 10px rgba(8, 41, 69, 0.04);
-}
-
-.passcodeMainInfo {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.passcodeCardLabel {
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: #798b98;
-  text-transform: uppercase;
-}
-
-.passcodeDisplayRow {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.passcodeNumber {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 34px;
-  font-weight: 800;
-  letter-spacing: 0.18em;
-  color: #082945;
-  line-height: 1;
-}
-
-.passcodeStatusBadge {
-  font-size: 10px;
-  font-weight: 800;
-  color: #17734d;
-  background: #e6f6ee;
-  padding: 4px 10px;
-  border-radius: 999px;
-  letter-spacing: 0.08em;
-}
-
-.passcodeEditRow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.passcodeInput {
-  width: 140px;
-  height: 42px;
-  padding: 0 12px;
-  border-radius: 8px;
-  border: 2px solid #082945;
-  font: 800 20px ui-monospace, monospace;
-  letter-spacing: 0.12em;
-  color: #082945;
-}
-
-.folderPasscodeActions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.folderPasscodeActions button {
-  padding: 9px 16px;
-  border-radius: 9px;
-  font-size: 12px;
-  font-weight: 750;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.workspaceMetaBar {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.statusDot {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid #e3dfd7;
-  border-radius: 999px;
-  color: #556977;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  background: #faf8f5;
-}
-
-.statusDot i {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #56b58d;
-  box-shadow: 0 0 0 3px rgba(86, 181, 141, 0.15);
 }
 
 .langSelector {
@@ -925,164 +584,7 @@
   box-sizing: border-box;
 }
 
-.passcodeStripLeft {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.passcodeStripLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12px;
-  font-weight: 850;
-  letter-spacing: 0.08em;
-  color: #9d7944;
-  text-transform: uppercase;
-}
-
-.passcodeStripLabel svg {
-  color: #b39159;
-}
-
-.passcodePillDisplay {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.passcodeNumberCompact {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 20px;
-  font-weight: 850;
-  letter-spacing: 0.12em;
-  color: #082945;
-  background: #ffffff;
-  padding: 1px 7px;
-  border-radius: 4px;
-  border: 1px solid rgba(179, 145, 89, 0.4);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
-}
-
-.passcodeStatusPill {
-  font-size: 11px;
-  font-weight: 850;
-  color: #17734d;
-  background: #e6f6ee;
-  border: 1px solid rgba(23, 115, 77, 0.25);
-  padding: 1px 6px;
-  border-radius: 999px;
-  letter-spacing: 0.06em;
-}
-
-.passcodeEditInline {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.passcodeInputCompact {
-  width: 90px;
-  height: 26px;
-  padding: 0 8px;
-  border-radius: 5px;
-  border: 1.5px solid #082945;
-  font: 800 13px ui-monospace, monospace;
-  letter-spacing: 0.1em;
-  color: #082945;
-  background: #fff;
-}
-
-.btnPasscodeSave {
-  padding: 3px 10px;
-  border-radius: 5px;
-  background: #082945;
-  color: #f4dfb0;
-  font-size: 10.5px;
-  font-weight: 800;
-  border: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btnPasscodeSave:hover {
-  background: #0e3d64;
-}
-
-.btnPasscodeCancel {
-  padding: 3px 8px;
-  border-radius: 5px;
-  background: #e6dfd1;
-  color: #556977;
-  font-size: 10.5px;
-  font-weight: 700;
-  border: none;
-  cursor: pointer;
-}
-
-.passcodeStripActions {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  flex-shrink: 0;
-  flex-wrap: wrap;
-}
-
-.passcodeActionBtn {
-  padding: 3px 8px;
-  border-radius: 5px;
-  background: #fff;
-  border: 1px solid rgba(23, 50, 74, 0.14);
-  color: #082945;
-  font-size: 13px;
-  font-weight: 750;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-}
-
-.passcodeActionBtn:hover {
-  background: #f7f2e7;
-  border-color: #082945;
-}
-
-.passcodeActionBtnPrimary {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 3px 9px;
-  border-radius: 5px;
-  border: 1px solid rgba(233, 202, 139, 0.4);
-  background: #082945;
-  color: #f4dfb0;
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  white-space: nowrap;
-}
-
-.passcodeActionBtnPrimary:hover:not(:disabled) {
-  background: #0d385e;
-  transform: translateY(-1px);
-}
-
 /* Section Passcodes Block */
-.sectionBlock {
-  border: 1px solid #e8e4dc;
-  border-radius: 14px;
-  background: #fbfaf7;
-  padding: 18px 20px;
-}
-
-.sectionBlockHeader {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-}
 
 .badgeIndex {
   width: 28px;
@@ -1096,160 +598,7 @@
   font-weight: 800;
 }
 
-.sectionBlockHeader h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 750;
-  color: #082945;
-}
-
-.sectionBlockHeader p {
-  margin: 2px 0 0;
-  font-size: 12px;
-  color: #687987;
-}
-
-.sectionPasscodeGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-  margin-top: 10px;
-}
-
-.sectionPasscodeCard {
-  border: 1px solid #e2ddd4;
-  border-radius: 12px;
-  background: #fff;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
-}
-
-.sectionCardTitle {
-  font-size: 13px;
-  font-weight: 750;
-  color: #123f68;
-}
-
-.passcodeDisplay {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  border: 1px solid #dfe6ed;
-  border-radius: 8px;
-  background: #f4f8fb;
-}
-
-.passcodeText {
-  font-family: ui-monospace, monospace;
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: 0.15em;
-  color: #082945;
-}
-
-.passcodeActions {
-  display: flex;
-  gap: 6px;
-}
-
-.passcodeActions button {
-  padding: 6px 10px;
-  border: 1px solid #d0d7de;
-  border-radius: 6px;
-  background: #fff;
-  color: #17324a;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.passcodeActions button:hover {
-  background: #f0f4f8;
-  border-color: #082945;
-}
-
-.passcodeActions .primaryBtn {
-  background: #082945;
-  color: #fff;
-  border-color: #082945;
-}
-
-.passcodeActions .primaryBtn:hover {
-  background: #123f68;
-}
-
 /* Email Access (Bulk function) Block */
-.emailBlock {
-  border: 1px solid #e8e4dc;
-  border-radius: 14px;
-  background: #fbfaf7;
-  padding: 18px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.emailLayout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
-  gap: 18px;
-}
-
-.bulkBox {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.bulkBox label {
-  font-size: 11px;
-  font-weight: 800;
-  color: #123f68;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.bulkTextarea {
-  width: 100%;
-  height: 140px;
-  padding: 12px;
-  border: 1px solid rgba(23, 50, 74, 0.16);
-  border-radius: 10px;
-  outline: 0;
-  background: #fff;
-  color: #082945;
-  font-size: 13px;
-  font-family: inherit;
-  line-height: 1.5;
-  resize: vertical;
-  box-sizing: border-box;
-}
-
-.bulkTextarea:focus {
-  border-color: #2d7fb4;
-  box-shadow: 0 0 0 3px rgba(45, 127, 180, 0.1);
-}
-
-.bulkActions {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.bulkActions button {
-  padding: 8px 14px;
-  border: 0;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 750;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
 
 .btnPrimary {
   background: #082945;
@@ -1280,86 +629,6 @@
   background: #ffe3e3 !important;
 }
 
-.emailListBox {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  min-width: 0;
-}
-
-.emailListHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.emailListHeader span {
-  font-size: 11px;
-  font-weight: 800;
-  color: #123f68;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.emailSearchInput {
-  height: 36px;
-  padding: 0 12px;
-  border: 1px solid #dce2e6;
-  border-radius: 8px;
-  font-size: 12px;
-  outline: 0;
-  background: #fff;
-  box-sizing: border-box;
-  width: 100%;
-}
-
-.emailSearchInput:focus {
-  border-color: #2d7fb4;
-}
-
-.emailListScroll {
-  max-height: 220px;
-  overflow-y: auto;
-  border: 1px solid #e2ddd4;
-  border-radius: 10px;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-}
-
-.emailRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  border-bottom: 1px solid #f0ece3;
-  font-size: 12px;
-  gap: 8px;
-}
-
-.emailRow:last-child {
-  border-bottom: 0;
-}
-
-.emailRow span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 600;
-  color: #17324a;
-}
-
-.adminTag {
-  padding: 2px 7px;
-  border-radius: 999px;
-  background: #e9ca8b;
-  color: #041c31;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
 .removeBtn {
   border: 0;
   background: transparent;
@@ -1383,122 +652,6 @@
 }
 
 /* Catalog tab */
-.catalog {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.newCourse {
-  display: grid;
-  grid-template-columns: 1fr minmax(240px, 380px) auto;
-  align-items: end;
-  gap: 12px;
-  padding: 20px;
-  border: 1px solid rgba(23, 50, 74, 0.1);
-  border-radius: 16px;
-  background: #fff;
-}
-
-.newCourse h2 {
-  margin: 4px 0 0;
-  font-size: 22px;
-  color: #082945;
-}
-
-.newCourse input,
-.newSection input {
-  height: 42px;
-  padding: 0 14px;
-  border: 1px solid rgba(23, 50, 74, 0.16);
-  border-radius: 9px;
-  outline: 0;
-  background: #fff;
-  font-size: 13px;
-  box-sizing: border-box;
-}
-
-.newCourse button {
-  height: 42px;
-  padding: 0 20px;
-  border: 0;
-  border-radius: 9px;
-  background: #082945;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 750;
-  cursor: pointer;
-}
-
-.courseGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-  gap: 16px;
-}
-
-.courseCard {
-  border: 1px solid #e8e4dc;
-  border-radius: 14px;
-  background: #fff;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.courseHead {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 12px;
-}
-
-.courseHead h3 {
-  margin: 4px 0 2px;
-  font-size: 16px;
-  color: #082945;
-}
-
-.courseHead small {
-  color: #8b99a4;
-  font-size: 11px;
-}
-
-.sectionList {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.sectionItem {
-  display: grid;
-  grid-template-columns: 28px 1fr auto;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: #fbfaf7;
-  font-size: 12px;
-}
-
-.newSection {
-  display: flex;
-  gap: 8px;
-}
-
-.newSection input {
-  flex: 1;
-}
-
-.newSection button {
-  width: 42px;
-  border: 0;
-  border-radius: 9px;
-  background: #123f68;
-  color: #fff;
-  font-size: 18px;
-  cursor: pointer;
-}
 
 /* Responsiveness */
 @media (max-width: 980px) {
@@ -1509,12 +662,6 @@
     flex-direction: column;
     overflow-x: hidden;
     max-height: none;
-  }
-  .courseItem {
-    min-width: 200px;
-  }
-  .emailLayout {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -1531,9 +678,6 @@
     width: 100%;
     justify-content: flex-start;
   }
-  .newCourse {
-    grid-template-columns: 1fr;
-  }
 }
 
 /* ==========================================================================
@@ -1547,12 +691,6 @@
   justify-content: space-between;
   gap: 12px;
   flex-wrap: wrap;
-}
-
-.tabsNavWrapper {
-  flex: 0 0 auto;
-  margin: 10px 0 10px;
-  display: flex;
 }
 
 .tabsTrack {
@@ -1612,119 +750,6 @@
 /* ==========================================================================
    Frame 1: Dedicated Authorized Email Management Frame
    ========================================================================== */
-.emailManagementLayout {
-  display: grid;
-  grid-template-columns: minmax(340px, 440px) minmax(0, 1fr);
-  gap: 20px;
-  min-height: 100%;
-}
-
-.emailFrameCard {
-  border: 1px solid #e8e4dc;
-  border-radius: 16px;
-  background: #fff;
-  box-shadow: 0 6px 24px rgba(4, 28, 49, 0.04);
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.emailFrameHead {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid #f0ece3;
-}
-
-.emailFrameHead span {
-  color: #9d7944;
-  font-size: 10px;
-  font-weight: 850;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.emailFrameHead h2 {
-  margin: 2px 0 0;
-  font-size: 20px;
-  font-weight: 750;
-  color: #082945;
-  letter-spacing: -0.02em;
-}
-
-.emailFrameHead p {
-  margin: 0;
-  font-size: 12.5px;
-  color: #687987;
-  line-height: 1.45;
-}
-
-.emailSearchWrapper {
-  position: relative;
-  width: 100%;
-}
-
-.emailSearchIcon {
-  position: absolute;
-  left: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #8b99a4;
-  pointer-events: none;
-  display: flex;
-  align-items: center;
-}
-
-.emailSearchInput {
-  width: 100%;
-  height: 42px;
-  padding: 0 14px 0 40px;
-  border: 1px solid rgba(23, 50, 74, 0.16);
-  border-radius: 10px;
-  font-size: 13px;
-  outline: 0;
-  background: #fbfaf7;
-  color: #082945;
-  box-sizing: border-box;
-  transition: all 0.2s ease;
-}
-
-.emailSearchInput:focus {
-  background: #fff;
-  border-color: #082945;
-  box-shadow: 0 0 0 3px rgba(157, 121, 68, 0.15);
-}
-
-.emailToolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
-  padding: 10px 14px;
-  background: #fbfaf7;
-  border: 1px solid #eee8df;
-  border-radius: 10px;
-}
-
-.emailSelectAllBox {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  font-weight: 750;
-  color: #082945;
-  cursor: pointer;
-  user-select: none;
-}
-
-.emailBatchActions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
 
 .emailCountBadge {
   display: inline-flex;
@@ -1738,47 +763,6 @@
   letter-spacing: 0.04em;
 }
 
-.emailListScroll {
-  max-height: 420px;
-  overflow-y: auto;
-  border: 1px solid #e8e4dc;
-  border-radius: 12px;
-  background: #fff;
-  display: flex;
-  flex-direction: column;
-}
-
-.emailRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 14px;
-  border-bottom: 1px solid #f4f0e8;
-  font-size: 13px;
-  gap: 10px;
-  transition: background 0.15s ease;
-}
-
-.emailRow:hover {
-  background: #fdfbf7;
-}
-
-.emailRowSelected {
-  background: #f4f8fb !important;
-}
-
-.emailRow:last-child {
-  border-bottom: 0;
-}
-
-.emailRowLeft {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-  flex: 1;
-}
-
 .emailRowCheckbox {
   width: 17px;
   height: 17px;
@@ -1787,485 +771,11 @@
   border-radius: 4px;
 }
 
-.emailText {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-weight: 650;
-  color: #17324a;
-}
-
-.adminTag {
-  padding: 3px 9px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #e9ca8b, #c99f55);
-  color: #041c31;
-  font-size: 9.5px;
-  font-weight: 850;
-  letter-spacing: 0.08em;
-  box-shadow: 0 2px 6px rgba(201, 159, 85, 0.3);
-  white-space: nowrap;
-}
-
 /* ==========================================================================
    Frame 2: Course Passcode Bypass (Unlock All Courses) Banner
 /* ==========================================================================
    Frame 2: Master Access Toolbar (Compact Ribbon - EIU Luxury Design)
    ========================================================================== */
-.masterAccessToolbar {
-  display: inline-flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 5px 14px;
-  margin: 0;
-  background: linear-gradient(135deg, #041c31 0%, #07253e 50%, #093356 100%);
-  border: 1.5px solid rgba(233, 202, 139, 0.45);
-  border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(4, 28, 49, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.1);
-  color: #fff;
-  flex-wrap: wrap;
-}
-
-.masterAccessLeft {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.masterAccessBrand {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  color: #f4dfb0;
-  font-size: 11px;
-  font-weight: 850;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.masterAccessBrand svg {
-  color: #e9ca8b;
-}
-
-.masterAccessDivider {
-  width: 1px;
-  height: 18px;
-  background: rgba(233, 202, 139, 0.25);
-}
-
-.masterAccessRight {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.masterGlobalBtns {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btnUnlockAllCompact {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  background: linear-gradient(135deg, #f4dfb0 0%, #e9ca8b 50%, #c99f55 100%);
-  color: #082945;
-  font-size: 13px;
-  font-weight: 850;
-  cursor: pointer;
-  box-shadow: 0 2px 8px rgba(201, 159, 85, 0.35);
-  transition: all 0.15s ease;
-}
-
-.btnUnlockAllCompact:hover:not(:disabled) {
-  transform: translateY(-1px);
-  filter: brightness(1.08);
-}
-
-.btnLockAllCompact {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 8px;
-  border: 1px solid rgba(233, 202, 139, 0.35);
-  background: rgba(255, 255, 255, 0.08);
-  color: #f4dfb0;
-  font-size: 13px;
-  font-weight: 750;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.btnLockAllCompact:hover:not(:disabled) {
-  background: rgba(233, 202, 139, 0.18);
-  color: #fff;
-  transform: translateY(-1px);
-}
-
-.selectiveActionBtnsCompact {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding-left: 8px;
-  border-left: 1px solid rgba(233, 202, 139, 0.25);
-}
-
-.btnSelectiveActionCompact {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 6px 12px;
-  border-radius: 7px;
-  font-size: 11px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  user-select: none;
-}
-
-.unlockBanner {
-  border: 1.5px solid rgba(157, 121, 68, 0.35);
-  border-top: 3px solid #e9ca8b;
-  border-radius: 16px;
-  background: radial-gradient(120% 120% at 100% 0%, rgba(157, 121, 68, 0.16) 0%, transparent 60%),
-              linear-gradient(135deg, #051e34 0%, #082945 55%, #0b375e 100%);
-  color: #fff;
-  padding: 22px 26px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 28px rgba(4, 28, 49, 0.16);
-  position: relative;
-  overflow: hidden;
-}
-
-.unlockBanner::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 220px;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(233, 202, 139, 0.04));
-  pointer-events: none;
-}
-
-.unlockBannerHead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.unlockBannerTitle {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.unlockBannerTitle span {
-  color: #e9ca8b;
-  font-size: 10.5px;
-  font-weight: 850;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.unlockBannerTitle h3 {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 800;
-  color: #fff;
-  letter-spacing: -0.02em;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.unlockBannerTitle h3 svg {
-  color: #f4dfb0;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-.unlockBannerTitle p {
-  margin: 0;
-  font-size: 12.5px;
-  color: rgba(244, 223, 176, 0.85);
-  line-height: 1.45;
-}
-
-.unlockMasterButtons {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.btnUnlockAll {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  background: linear-gradient(135deg, #f4dfb0 0%, #e9ca8b 45%, #c99f55 100%);
-  color: #082945;
-  font-size: 12.5px;
-  font-weight: 850;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(201, 159, 85, 0.4);
-  transition: all 0.2s ease;
-  letter-spacing: 0.01em;
-}
-
-.btnUnlockAll svg {
-  color: #082945;
-}
-
-.btnUnlockAll:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(201, 159, 85, 0.55);
-  background: linear-gradient(135deg, #faebd0 0%, #f0d59e 45%, #dfb66f 100%);
-}
-
-.btnLockAll {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 20px;
-  border-radius: 10px;
-  border: 1.5px solid rgba(233, 202, 139, 0.4);
-  background: rgba(255, 255, 255, 0.08);
-  color: #f4dfb0;
-  font-size: 12.5px;
-  font-weight: 750;
-  cursor: pointer;
-  backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
-}
-
-.btnLockAll:hover:not(:disabled) {
-  background: rgba(233, 202, 139, 0.16);
-  border-color: #f4dfb0;
-  color: #fff;
-  transform: translateY(-1px);
-}
-
-.unlockSelectiveRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 11px 18px;
-  background: rgba(4, 22, 38, 0.55);
-  border: 1px solid rgba(233, 202, 139, 0.2);
-  border-radius: 11px;
-  flex-wrap: wrap;
-}
-
-.unlockSelectiveLeft {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.unlockSelectAllLabel {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12.5px;
-  font-weight: 800;
-  cursor: pointer;
-  color: #f4dfb0;
-  user-select: none;
-}
-
-.unlockCheckbox {
-  width: 17px;
-  height: 17px;
-  accent-color: #e9ca8b;
-  cursor: pointer;
-  border-radius: 4px;
-}
-
-.unlockSelectiveDivider {
-  color: rgba(233, 202, 139, 0.4);
-  font-size: 14px;
-}
-
-.unlockSelectiveLabel {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.72);
-}
-
-.selectiveActionBtns {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btnSelectiveAction {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 15px;
-  border-radius: 8px;
-  font-size: 11.5px;
-  font-weight: 750;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  user-select: none;
-}
-
-.btnSelectiveUnlock {
-  background: linear-gradient(135deg, #e9ca8b 0%, #c99f55 100%);
-  color: #082945;
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  box-shadow: 0 2px 8px rgba(201, 159, 85, 0.25);
-  font-weight: 800;
-}
-
-.btnSelectiveUnlock svg {
-  color: #082945;
-}
-
-.btnSelectiveUnlock:hover:not(:disabled) {
-  transform: translateY(-1px);
-  filter: brightness(1.08);
-}
-
-.btnSelectiveUnlock:disabled {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.btnSelectiveUnlock:disabled svg {
-  color: rgba(255, 255, 255, 0.3);
-}
-
-.btnSelectiveLock {
-  background: rgba(255, 255, 255, 0.09);
-  color: #f4dfb0;
-  border: 1px solid rgba(233, 202, 139, 0.35);
-}
-
-.btnSelectiveLock:hover:not(:disabled) {
-  background: rgba(233, 202, 139, 0.18);
-  border-color: #e9ca8b;
-  color: #fff;
-  transform: translateY(-1px);
-}
-
-.btnSelectiveLock:disabled {
-  background: rgba(255, 255, 255, 0.06);
-  color: rgba(255, 255, 255, 0.3);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: not-allowed;
-}
-
-.btnSelectiveDelete {
-  background: rgba(220, 38, 38, 0.15);
-  color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.4);
-}
-
-.btnSelectiveDelete:hover:not(:disabled) {
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-  border-color: #ef4444;
-  color: #fff;
-  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
-  transform: translateY(-1px);
-}
-
-.btnSelectiveDelete:disabled {
-  background: rgba(255, 255, 255, 0.05);
-  color: rgba(255, 255, 255, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  cursor: not-allowed;
-  box-shadow: none;
-}
-
-.pillUnlocked {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(52, 211, 153, 0.12);
-  color: #1e5a3f;
-  border: 1px solid rgba(52, 211, 153, 0.35);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.pillLocked {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(157, 121, 68, 0.12);
-  color: #816234;
-  border: 1px solid rgba(157, 121, 68, 0.28);
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.unlockToggleBtnUnlocked {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  border-radius: 9px;
-  border: 1px solid rgba(40, 114, 81, 0.35);
-  background: #e8f7f0;
-  color: #1e5a3f;
-  font-size: 13px;
-  font-weight: 750;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.unlockToggleBtnUnlocked:hover {
-  background: #d4f0e2;
-}
-
-.unlockToggleBtnLocked {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 7px 14px;
-  border-radius: 9px;
-  border: 1px solid rgba(157, 121, 68, 0.35);
-  background: #fdfbf7;
-  color: #816234;
-  font-size: 13px;
-  font-weight: 750;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.unlockToggleBtnLocked:hover {
-  background: #f5eedf;
-}
 
 /* ==========================================================================
    Merged Course Sections Block
@@ -2610,12 +1120,6 @@
   background: #fbfaf7;
 }
 
-@media (max-width: 980px) {
-  .emailManagementLayout {
-    grid-template-columns: 1fr;
-  }
-}
-
 /* ==========================================================================
    GLOBAL FLOATING HUD OVERLAY (loading..... trực quan nổi bật trên cùng)
    ========================================================================== */
@@ -2808,13 +1312,6 @@
   cursor: pointer;
 }
 
-.folderGroupsListWrapper {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
 .folderGroupCard {
   flex-shrink: 0;
   border: 1px solid #e2ddd4;
@@ -2903,74 +1400,6 @@
   align-items: center;
   gap: 3px;
   flex-shrink: 0;
-}
-
-.folderBtnLock,
-.folderBtnUnlock {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 8px;
-  border-radius: 6px;
-  font-size: 10px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  border: 1px solid;
-}
-
-.folderBtnLock {
-  background: #fdfbf7;
-  color: #816234;
-  border-color: rgba(157, 121, 68, 0.35);
-}
-
-.folderBtnLock:hover:not(:disabled) {
-  background: #f7ede0;
-}
-
-.folderBtnUnlock {
-  background: #e8f7f0;
-  color: #1e5a3f;
-  border-color: rgba(40, 114, 81, 0.35);
-}
-
-.folderBtnUnlock:hover:not(:disabled) {
-  background: #d5f2e3;
-}
-
-.folderBtnLockIcon,
-.folderBtnUnlockIcon {
-  width: 20px;
-  height: 20px;
-  display: grid;
-  place-items: center;
-  border-radius: 5px;
-  border: 1px solid;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  padding: 0;
-  flex-shrink: 0;
-}
-
-.folderBtnLockIcon {
-  background: #fdfbf7;
-  color: #816234;
-  border-color: rgba(157, 121, 68, 0.35);
-}
-
-.folderBtnLockIcon:hover:not(:disabled) {
-  background: #f7ede0;
-}
-
-.folderBtnUnlockIcon {
-  background: #e8f7f0;
-  color: #1e5a3f;
-  border-color: rgba(40, 114, 81, 0.35);
-}
-
-.folderBtnUnlockIcon:hover:not(:disabled) {
-  background: #d5f2e3;
 }
 
 .folderActionIconBtn {
@@ -3196,19 +1625,6 @@
   font-family: ui-monospace, monospace;
 }
 
-.compactPillUnlocked {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 4px;
-  border-radius: 3px;
-  background: #e6f6ee;
-  color: #1e5a3f;
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 0.04em;
-  border: 1px solid rgba(30, 90, 63, 0.2);
-}
-
 .compactPillLocked {
   display: inline-flex;
   align-items: center;
@@ -3279,45 +1695,6 @@
 /* ==========================================================================
    PARENT FOLDER SELECTOR IN SELECTED COURSE WORKSPACE
    ========================================================================== */
-.parentFolderSelectRow {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 4px 10px;
-  background: #fdfbf7;
-  border: 1px solid rgba(179, 145, 89, 0.35);
-  border-radius: 8px;
-}
-
-.parentFolderSelectLabel {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 850;
-  color: #9d7944;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.parentFolderDropdown {
-  height: 28px;
-  padding: 0 8px;
-  border: 1px solid rgba(23, 50, 74, 0.15);
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 750;
-  background: #fff;
-  color: #082945;
-  outline: none;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.parentFolderDropdown:focus {
-  border-color: #082945;
-  box-shadow: 0 0 0 2px rgba(179, 145, 89, 0.2);
-}
 
 .movingFolderBadge {
   display: inline-flex;
@@ -3936,49 +2313,6 @@
   height: 16px;
 }
 
-.iconLoadingSpinnerSmall {
-  width: 14px;
-  height: 14px;
-}
-
-.iconLoadingDots {
-  display: inline-flex;
-  gap: 2px;
-  margin-left: 3px;
-  vertical-align: middle;
-}
-
-.iconLoadingDots i {
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: #b39159;
-  animation: iconDotPulse 1s ease-in-out infinite;
-}
-
-.iconLoadingDots i:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.iconLoadingDots i:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-.systemIconItemLoading {
-  border-style: dashed;
-  border-color: rgba(179, 145, 89, 0.5);
-  animation: iconRowFadeIn 0.2s ease-out;
-}
-
-.iconSkeletonBar {
-  flex: 1 1 0;
-  height: 10px;
-  border-radius: 5px;
-  background: linear-gradient(90deg, #eef2f6 0%, #f8fafc 50%, #eef2f6 100%);
-  background-size: 200% 100%;
-  animation: iconZoneShimmer 1.2s linear infinite;
-}
-
 @keyframes iconSpin {
   to {
     transform: rotate(360deg);
@@ -4096,29 +2430,6 @@
   background: rgba(244, 223, 176, 0.25);
 }
 
-.systemIconMagicBtn {
-  width: 22px;
-  height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid rgba(179, 145, 89, 0.35);
-  border-radius: 5px;
-  background: #fefcf8;
-  color: #b39159;
-  font-size: 11px;
-  cursor: pointer;
-  padding: 0;
-  transition: all 120ms ease;
-  flex-shrink: 0;
-}
-
-.systemIconMagicBtn:hover:not(:disabled) {
-  background: #f7eedb;
-  border-color: #b39159;
-  transform: scale(1.08);
-}
-
 .systemIconDeleteBtn {
   width: 24px;
   height: 24px;
@@ -4153,17 +2464,10 @@
 
 
 /* Content-sized panels keep the controls close to the content they manage. */
-.teacherCourseScope { display: flex; gap: 6px; padding: 0 0 12px; }
-.teacherCourseScope button { flex: 1; border: 1px solid #d7e0e7; border-radius: 8px; padding: 9px; background: #fff; color: #082945; font: inherit; font-size: 12px; cursor: pointer; }
-.teacherCourseScope button[aria-pressed="true"] { background: #082945; color: #fff; border-color: #082945; }
-.teacherOwnership { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; font-size: 12px; color: #526778; }
-.teacherOwnership > span { padding: 5px 9px; border-radius: 6px; background: #edf2f6; color: #082945; font-weight: 750; }
-.teacherOwnership p { flex: 1 1 220px; margin: 0; line-height: 1.5; }
-.teacherOwnership a { color: #082945; font-weight: 700; }
-.teacherBulkToolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 0 0 14px; padding: 10px 14px; background: #fff; border: 1px solid #d7e0e7; border-radius: 10px; font-size: 12px; color: #082945; }
-.teacherBulkToolbar label { display: flex; align-items: center; gap: 7px; }
-.teacherBulkToolbar button { border-radius: 6px; padding: 7px 10px; font: inherit; font-weight: 700; }
-.teacherBulkToolbar button:disabled { opacity: .45; cursor: default; }
+.courseBulkToolbar { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin: 0 0 14px; padding: 10px 14px; background: #fff; border: 1px solid #d7e0e7; border-radius: 10px; font-size: 12px; color: #082945; }
+.courseBulkToolbar label { display: flex; align-items: center; gap: 7px; }
+.courseBulkToolbar button { border-radius: 6px; padding: 7px 10px; font: inherit; font-weight: 700; }
+.courseBulkToolbar button:disabled { opacity: .45; cursor: default; }
 .compactCourseMain { flex-direction: column; align-items: flex-start; gap: 6px; }
 .compactCourseTitle { white-space: normal; overflow-wrap: anywhere; width: 100%; line-height: 1.4; }
 @media (max-width: 1200px) {
@@ -4188,9 +2492,6 @@
   .headerTitleGroup p { line-height: 1.5; overflow-wrap: anywhere; }
   .tabsTrack { flex-wrap: wrap; width: 100%; }
   .tabBtn { flex: 1 1 auto; justify-content: center; padding: 10px 12px; }
-  .masterAccessToolbar { width: 100%; padding: 12px; }
-  .masterAccessDivider { display: none; }
-  .masterAccessRight, .masterGlobalBtns, .selectiveActionBtnsCompact { flex-wrap: wrap; }
   .commandHubTopLeft, .langSelector { max-width: 100%; }
   .titleInput, .descInput { min-width: 0; width: 100%; }
   .titleEditBox, .descEditBox, .addSectionForm { flex-wrap: wrap; }
@@ -4235,3 +2536,5 @@
   .passcodeLayout { grid-template-columns: minmax(0,1fr); }
   .scrollAreaLayouts { display: block; overflow: visible; }
 }
+
+.driveDestination {display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0;font-size:12px;color:#17324a}.driveDestination select {min-width:200px;padding:10px;border:1px solid #d9cebb;border-radius:8px;background:#fff;color:#17324a}.driveDestination a {color:#9d7944}

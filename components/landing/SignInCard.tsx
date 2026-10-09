@@ -4,14 +4,11 @@ import { useRef, useState, type FormEvent } from "react";
 import styles from "./SignInCard.module.css";
 
 export type SignInCardProps = {
-  email: string;
-  setEmail: (value: string) => void;
-  adminPassword?: string;
-  setAdminPassword?: (value: string) => void;
-  isAdminEmail?: boolean;
-  requiresPassword?: boolean;
+  passcode: string;
+  setPasscode: (value: string) => void;
   loading: boolean;
   error?: string;
+  onFreeAccess?: () => void;
   onSubmit: (event: FormEvent) => void;
   onInputFocus?: () => void;
   onInputBlur?: () => void;
@@ -28,44 +25,43 @@ function GoogleLogo() {
   </svg>;
 }
 
-export default function SignInCard({ email, setEmail, adminPassword = "", setAdminPassword, isAdminEmail = false, requiresPassword = isAdminEmail, loading, error = "", onSubmit, onInputFocus, onInputBlur, onInputChange, onMethodChange }: SignInCardProps) {
-  const [method, setMethod] = useState<"username" | "google" | null>(null);
-  const unregisteredEmail = error.match(/^Email "([^"]+)" has not been granted access\./)?.[1];
-  const usernameChoice = useRef<HTMLButtonElement>(null);
-  function choose(next: "username" | "google" | null) {
+export default function SignInCard({ passcode, setPasscode, loading, error = "", onSubmit, onFreeAccess, onInputFocus, onInputBlur, onInputChange, onMethodChange }: SignInCardProps) {
+  const [method, setMethod] = useState<"passcode" | "google" | null>(null);
+  const passcodeChoice = useRef<HTMLButtonElement>(null);
+  function choose(next: "passcode" | "google" | null) {
     if (loading) return;
     onMethodChange?.();
     setMethod(next);
-    if (next === null) requestAnimationFrame(() => usernameChoice.current?.focus());
+    if (next === null) requestAnimationFrame(() => passcodeChoice.current?.focus());
   }
   return <section className={styles.card} aria-labelledby="sign-in-heading">
     <div className={styles.topline}><span className={styles.eyebrow}>EIU LEARNING SPACE</span>{method && <button className={styles.back} type="button" disabled={loading} onClick={() => choose(null)} aria-label="Back to sign-in options"><span aria-hidden="true">←</span> Back</button>}</div>
     <header className={styles.heading}>
       <div className={styles.headingCopy}>
-    <h2 id="sign-in-heading">{method === "username" ? "Sign in with username" : method === "google" ? "Sign in with Google" : "Welcome back"}</h2>
-    <p className={styles.intro}>{method === "username" ? "Use your registered email as your username." : method === "google" ? "Administrator access with your EIU Google account." : "Choose how you would like to sign in."}</p>
+    <h2 id="sign-in-heading">{method === "passcode" ? "Sign in with passcode" : method === "google" ? "Sign in with Google" : "Welcome back"}</h2>
+    <p className={styles.intro}>{method === "passcode" ? "Use your folder or section passcode." : method === "google" ? "Administrator access with your EIU Google account." : "Choose how you would like to sign in."}</p>
       </div>
       <span className={styles.headingMark} aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M5 8h8l3 3 3-3h8v17h-8l-3 2-3-2H5V8Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round"/><path d="M16 11v16M9 13h3M9 17h3M20 13h3M20 17h3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></svg></span>
     </header>
     {!method && <div className={styles.choices}>
-      <button ref={usernameChoice} className={styles.choice} type="button" disabled={loading} onClick={() => choose("username")}><span className={styles.choiceIcon} aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg></span><span><strong>Username</strong><small>Sign in with your registered account</small></span><span className={styles.arrow} aria-hidden="true">→</span></button>
+      <button ref={passcodeChoice} className={styles.choice} type="button" disabled={loading} onClick={() => choose("passcode")}><span className={styles.choiceIcon} aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7"><circle cx="12" cy="8" r="3.5"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg></span><span><strong>Passcode</strong><small>Learner or facilitator access</small></span><span className={styles.arrow} aria-hidden="true">→</span></button>
       <button className={styles.choice} type="button" disabled={loading} onClick={() => choose("google")}><span className={styles.choiceIcon}><GoogleLogo /></span><span><strong>Google</strong><small>Administrator account only</small></span><span className={styles.arrow} aria-hidden="true">→</span></button>
     </div>}
-    {method === "username" && <form noValidate className={styles.form} onSubmit={onSubmit} aria-busy={loading}>
-      <label htmlFor="hero-email-input">Username<input id="hero-email-input" aria-invalid={Boolean(error)} aria-describedby={error ? "sign-in-error" : undefined} type="email" value={email} disabled={loading} onChange={event => { setEmail(event.target.value); onInputChange?.(); }} onFocus={onInputFocus} onBlur={onInputBlur} placeholder="Your registered email address" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} autoFocus aria-required="true" /></label>
-      {requiresPassword && <label htmlFor="hero-admin-pass-input">{isAdminEmail ? "Administrator password" : "Teacher password"}<input id="hero-admin-pass-input" type="password" value={adminPassword} disabled={loading} onChange={event => { setAdminPassword?.(event.target.value); onInputChange?.(); }} onFocus={onInputFocus} onBlur={onInputBlur} placeholder="Enter your password" autoComplete="current-password" aria-required="true" /></label>}
-      <button id="landing-access-button" className={styles.primary} type="submit" disabled={loading || !email.trim() || Boolean(requiresPassword && !adminPassword.length)}>{loading ? <><span className={styles.spinner} aria-hidden="true" />Signing in…</> : <>Sign in<span aria-hidden="true">→</span></>}</button>
+    {method === "passcode" && <form noValidate className={styles.form} onSubmit={onSubmit} aria-busy={loading}>
+      <label htmlFor="hero-passcode-input">Passcode<input id="hero-passcode-input" aria-invalid={Boolean(error)} aria-describedby={error ? "sign-in-error" : undefined} type="password" value={passcode} disabled={loading} onChange={event => { setPasscode(event.target.value); onInputChange?.(); }} onFocus={onInputFocus} onBlur={onInputBlur} placeholder="Enter your folder or section passcode" autoComplete="off" autoCapitalize="none" autoCorrect="off" spellCheck={false} maxLength={32} autoFocus aria-required="true" /></label>
+      <button id="landing-access-button" className={styles.primary} type="submit" disabled={loading || !passcode.trim()}>{loading ? <><span className={styles.spinner} aria-hidden="true" />Signing in…</> : <>Sign in<span aria-hidden="true">→</span></>}</button>
     </form>}
     {method === "google" && <div className={styles.googlePanel}>
       <div className={styles.accountNote}><span className={styles.accountMark}><GoogleLogo /></span><div><strong>EIU administrator</strong><p>Your Google sign-in also connects Drive.</p></div></div>
       <a className={styles.googleButton} href="/api/admin/drive/connect?mode=login" aria-disabled={loading || undefined} onClick={event => { if (loading) event.preventDefault(); }}><GoogleLogo /><span>Continue with Google</span></a>
       <p className={styles.googleNote}>Only the authorized administrator Google account can continue.</p>
     </div>}
+    {onFreeAccess && method !== "google" && <button type="button" className={styles.freeAccess} disabled={loading} onClick={onFreeAccess}>{loading ? "Opening…" : "Browse free courses"}<span aria-hidden="true">→</span></button>}
     {error && <div id="sign-in-error" className={styles.error} role="alert">
       <span className={styles.errorIcon} aria-hidden="true">!</span>
       <div className={styles.errorContent}>
-        <strong>{unregisteredEmail ? "Account not registered" : "Unable to sign in"}</strong>
-        {unregisteredEmail ? <><span className={styles.errorEmail}>{unregisteredEmail}</span><p>This email has not been granted access. Please contact your instructor or administrator to register your account.</p></> : <p>{error}</p>}
+        <strong>Unable to sign in</strong>
+        <p>{error}</p>
       </div>
     </div>}
     <div className={styles.footer}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>Secure access · Eastern International University</span></div>

@@ -2,17 +2,7 @@
 import { useEffect, useState } from "react";
 import styles from "./page.module.css";
 type Destination = { id: string; label: string; folder_id: string };
-let pickerLoading: Promise<void> | null = null;
-function loadPicker() {
-  if (typeof google !== "undefined" && google.picker) return Promise.resolve();
-  if (!pickerLoading) pickerLoading = new Promise<void>((resolve, reject) => {
-    const init = () => gapi.load("picker", { callback: resolve, onerror: () => reject(new Error("Unable to load Google Picker.")), timeout: 15000, ontimeout: () => reject(new Error("Google Picker timed out.")) });
-    if (typeof gapi !== "undefined") return init();
-    const script = document.createElement("script"); script.src = "https://apis.google.com/js/api.js"; script.async = true;
-    script.onload = init; script.onerror = () => reject(new Error("Unable to load Google Picker.")); document.head.appendChild(script);
-  }).catch(error => { pickerLoading = null; throw error; });
-  return pickerLoading;
-}
+import { loadPicker } from "@/lib/googlePicker";
 export default function FolderPicker({ configured }: { configured: boolean }) {
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [id, setId] = useState(""); const [label, setLabel] = useState(""); const [link, setLink] = useState("");

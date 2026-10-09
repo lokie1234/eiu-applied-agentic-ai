@@ -20,3 +20,15 @@ export async function currentRole() {
     ? section
     : null;
 }
+
+export async function teachingSections() {
+  const access = await currentUserAccess();
+  if (!access?.isActive) return [];
+  if (access.isAdmin) return ["section1", "section2"] as const;
+  const courseIds = new Set(access.courses.filter(course => course.slug === APPLIED_AGENTIC_AI_SLUG).map(course => course.id));
+  return access.sections.filter(section => section.canFacilitate && courseIds.has(section.courseId) && isLearningSection(section.sectionKey)).map(section => section.sectionKey);
+}
+
+export async function canFacilitateSection(section: string) {
+  return (await teachingSections()).some(allowed => allowed === section);
+}

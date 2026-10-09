@@ -1,126 +1,42 @@
-import { teacherByEmail, matchesPassword } from "@/lib/auth/teachers";
-import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { getAdminCredential, verifyAdminPassword } from "@/lib/auth/adminPassword";
+import { createHash, randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
-import {
-  ACCESS_SESSION_COOKIE,
-  createAccessSession,
-  sessionCookieOptions,
-} from "@/lib/auth/session";
-import {
-  isEmailAuthorized,
-  getUserUnlockedCourses,
-} from "@/lib/auth/courseAccessStorage";
-import {
-  FIXED_ADMIN_EMAIL,
-  isValidEmail,
-  normalizeEmail,
-} from "@/lib/auth/types";
+import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { getCoursesAndSectionsData } from "@/lib/auth/courseAccessStorage";
+import { hashPasscode, resolvePasscode, resolveFreeAccess } from "@/lib/auth/passcodes";
+import { ACCESS_SESSION_COOKIE, createAccessSession, sessionCookieOptions } from "@/lib/auth/session";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   try {
     const body = await request.json().catch(() => ({}));
-    const rawEmail = String(body.email ?? "").trim();
-    const adminPassword = String(body.adminPassword ?? body.code ?? "");
-
-    if (!rawEmail || !isValidEmail(rawEmail)) {
-      return NextResponse.json(
-        { success: false, message: "Please enter a valid email address." },
-        { status: 400 }
-      );
-    }
-
-    const email = normalizeEmail(rawEmail);
-    if (adminPassword.length > 1024) return NextResponse.json({ message: "Password is too long." }, { status: 400 });
-    const teacher = email === FIXED_ADMIN_EMAIL ? null : await teacherByEmail(email);
-    if (teacher) {
-      // Email discovery is not a failed password attempt, even during a lockout.
-      if (!adminPassword) {
-        return NextResponse.json(
-          { success: false, requireTeacherPassword: true, message: "Please enter your teacher password." },
-          { status: 401 }
-        );
-      }
-      const db = getSupabaseAdmin();
-      const { count, error } = await db.from("access_audit_logs").select("id", { count: "exact", head: true }).eq("action", "TEACHER_LOGIN_FAILED").eq("target_email", email).gte("created_at", new Date(Date.now() - 15 * 60 * 1000).toISOString());
-      if (error) throw error;
-      if ((count ?? 0) >= 5) return NextResponse.json({ message: "Too many attempts. Try again in 15 minutes." }, { status: 429 });
-      if (teacher.status !== "active" || !await matchesPassword(adminPassword, teacher.password_hash)) {
-        const { error: auditError } = await db.from("access_audit_logs").insert({ action: "TEACHER_LOGIN_FAILED", target_email: email });
-        if (auditError) throw auditError;
-        return NextResponse.json({ message: "Incorrect email or password, or account suspended." }, { status: 401 });
-      }
-      const response = NextResponse.json({ success: true, destination: teacher.must_change_password ? "/change-password" : "/teacher" });
-      response.cookies.set(ACCESS_SESSION_COOKIE, createAccessSession({ role: "teacher", email, accountId: teacher.id, sessionVersion: teacher.session_version }), sessionCookieOptions());
+    if (body.freeAccess === true) {
+      if (!resolveFreeAccess(await getCoursesAndSectionsData())) return NextResponse.json({ success: false, message: "No free courses are available right now." }, { status: 403 });
+      const response = NextResponse.json({ success: true, destination: "/learn" });
+      response.cookies.set(ACCESS_SESSION_COOKIE, createAccessSession({ role: "guest", sessionId: randomUUID() }), sessionCookieOptions());
       return response;
     }
-
-    // Case 1: son.lam@eiu.edu.vn admin login
-    if (email === FIXED_ADMIN_EMAIL) {
-      if (!adminPassword) {
-        return NextResponse.json(
-          { success: false, requireAdminPassword: true, message: "Please enter your administrator password." },
-          { status: 401 }
-        );
-      }
-
-      const credential = await getAdminCredential();
-      if (await verifyAdminPassword(adminPassword, credential)) {
-        const response = NextResponse.json({ success: true, destination: "/admin/access" });
-        response.cookies.set(
-          ACCESS_SESSION_COOKIE,
-          createAccessSession({ role: "admin", email: FIXED_ADMIN_EMAIL, sessionVersion: credential?.session_version ?? 0 }),
-          sessionCookieOptions()
-        );
-        return response;
-      }
-
-      return NextResponse.json(
-        { success: false, message: "Incorrect administrator password." },
-        { status: 401 }
-      );
+    const passcode = typeof body.passcode === "string" ? body.passcode.trim() : "";
+    if (!/^[A-Za-z0-9-]{4,32}$/.test(passcode)) return NextResponse.json({ success: false, message: "Please enter a valid passcode." }, { status: 400 });
+    const db = getSupabaseAdmin();
+    const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
+    const fingerprint = createHash("sha256").update(ip).digest("hex");
+    const { count, error } = await db.from("access_audit_logs").select("id", { count: "exact", head: true })
+      .eq("action", "PASSCODE_LOGIN_FAILED").contains("details", { fingerprint })
+      .gte("created_at", new Date(Date.now() - 15 * 60 * 1000).toISOString());
+    if (error) throw error;
+    if ((count ?? 0) >= 10) return NextResponse.json({ success: false, message: "Too many attempts. Please try again in 15 minutes." }, { status: 429 });
+    const credentialHash = hashPasscode(passcode);
+    const access = resolvePasscode(await getCoursesAndSectionsData(), credentialHash);
+    if (!access) {
+      const { error: auditError } = await db.from("access_audit_logs").insert({ action: "PASSCODE_LOGIN_FAILED", details: { fingerprint } });
+      if (auditError) throw auditError;
+      return NextResponse.json({ success: false, message: "Incorrect or inactive passcode. Please contact your instructor." }, { status: 401 });
     }
-
-    // Case 2: Learner Login with authorized email
-    // Check if email has been granted access in admin
-    const isAllowed = await isEmailAuthorized(email);
-    if (!isAllowed) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: `Email "${email}" has not been granted access. Please contact your instructor or administrator.`,
-        },
-        { status: 403 }
-      );
-    }
-
-    // Email is authorized! Grant session to access course library in /learn
-    // Retrieve any courses this learner has already unlocked previously
-    const previouslyUnlocked = await getUserUnlockedCourses(email);
-
-    const response = NextResponse.json({
-      success: true,
-      destination: "/learn",
-    });
-
-    response.cookies.set(
-      ACCESS_SESSION_COOKIE,
-      createAccessSession({
-        role: "learner",
-        email,
-        unlockedCourses: previouslyUnlocked,
-      }),
-      sessionCookieOptions()
-    );
-
+    const response = NextResponse.json({ success: true, destination: "/learn" });
+    response.cookies.set(ACCESS_SESSION_COOKIE, createAccessSession({ role: "passcode", credentialHash, sessionId: randomUUID() }), sessionCookieOptions());
     return response;
-  } catch (error) {
-    console.error("Access verification error:", error);
-    return NextResponse.json(
-      { success: false, message: "Unable to verify access at this moment. Please try again later." },
-      { status: 500 }
-    );
+  } catch {
+    return NextResponse.json({ success: false, message: "Unable to sign in right now. Please try again later." }, { status: 500 });
   }
 }

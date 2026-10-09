@@ -24,6 +24,7 @@ export type CourseAccess = {
 };
 
 export type SectionAccess = {
+  hidden?: boolean;
   id: string;
   courseId: string;
   sectionKey: string;
@@ -32,6 +33,7 @@ export type SectionAccess = {
   contentType: "builtin" | "pdf" | "tsx" | "pptx";
   sourceFilename: string | null;
   slideCount: number | null;
+  canFacilitate?: boolean;
 };
 
 export type AppUserAccess = {
@@ -40,8 +42,7 @@ export type AppUserAccess = {
   displayName: string;
   avatarUrl: string | null;
   isAdmin: boolean;
-  isTeacher?: boolean;
-  mustChangePassword?: boolean;
+  canFacilitate?: boolean;
   isActive: boolean;
   courses: CourseAccess[];
   sections: SectionAccess[];

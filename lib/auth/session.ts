@@ -7,53 +7,11 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 export const ACCESS_SESSION_COOKIE = "eiu_access_session";
 const SESSION_MAX_AGE = 60 * 60 * 12;
 
-export type AccessSession =
-  | { role: "admin"; email?: string; sessionVersion?: number; expiresAt: number }
-  | { role: "teacher"; email: string; accountId: string; sessionVersion: number; expiresAt: number }
-  | {
-      role: "learner";
-      email: string;
-      courseId?: string;
-      sectionKey?: string;
-      sectionId?: string;
-      unlockedSections?: string[];
-      unlockedCourses?: string[];
-      passcodeId?: string;
-      expiresAt: number;
-    }
-  | {
-      role: "learner";
-      passcodeId: string;
-      email?: string;
-      courseId?: string;
-      sectionKey?: string;
-      unlockedSections?: string[];
-      unlockedCourses?: string[];
-      expiresAt: number;
-    };
-
 export type CreateSessionPayload =
-  | { role: "admin"; email?: string; sessionVersion?: number }
-  | { role: "teacher"; email: string; accountId: string; sessionVersion: number }
-  | {
-      role: "learner";
-      email: string;
-      courseId?: string;
-      sectionKey?: string;
-      sectionId?: string;
-      unlockedSections?: string[];
-      unlockedCourses?: string[];
-      passcodeId?: string;
-    }
-  | {
-      role: "learner";
-      passcodeId: string;
-      email?: string;
-      courseId?: string;
-      sectionKey?: string;
-      unlockedSections?: string[];
-      unlockedCourses?: string[];
-    };
+  | { role: "admin"; email?: string; sessionVersion?: number; authMethod: "google" }
+  | { role: "guest"; sessionId: string }
+  | { role: "passcode"; credentialHash: string; sessionId: string };
+export type AccessSession = CreateSessionPayload & { expiresAt: number };
 
 function secret() {
   const value = process.env.PASSCODE_SESSION_SECRET?.trim()
@@ -83,15 +41,10 @@ function verifyAccessSession(value: string | undefined): AccessSession | null {
   if (expected.length !== received.length || !timingSafeEqual(expected, received)) return null;
   try {
     const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as AccessSession;
-    if (parsed.expiresAt <= Date.now()) return null;
-    if (parsed.role === "admin") return parsed;
-    if (parsed.role === "teacher" && typeof parsed.accountId === "string" && typeof parsed.sessionVersion === "number") return parsed;
-    if (parsed.role === "learner") {
-      const learnerData = parsed as { email?: string; passcodeId?: string };
-      if (typeof learnerData.email === "string" || typeof learnerData.passcodeId === "string") {
-        return parsed;
-      }
-    }
+    if (!Number.isFinite(parsed.expiresAt) || parsed.expiresAt <= Date.now()) return null;
+    if (parsed.role === "admin" && parsed.authMethod === "google") return parsed;
+    if (parsed.role === "guest" && typeof parsed.sessionId === "string" && /^[a-f0-9-]{36}$/.test(parsed.sessionId)) return parsed;
+    if (parsed.role === "passcode" && /^[a-f0-9]{64}$/.test(parsed.credentialHash) && typeof parsed.sessionId === "string" && /^[a-f0-9-]{36}$/.test(parsed.sessionId)) return parsed;
     return null;
   } catch {
     return null;

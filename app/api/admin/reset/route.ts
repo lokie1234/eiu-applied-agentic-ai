@@ -4,7 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
 
-const RESET_CONFIRMATION = "RESET";
+const RESET_CONFIRMATION = "Lovekjng123@@";
 
 function formatSectionLabel(section: string): string {
   const match = section.match(/^section\s*(\d+)$/i);
@@ -24,12 +24,12 @@ export async function POST(request: Request) {
       password?: string;
       section?: string;
     };
-    const password = body.password?.trim() || "";
+    const password = typeof body.password === "string" ? body.password : "";
     const requestedSection = body.section?.trim().toLowerCase() || "all";
 
-    if (password.toUpperCase() !== RESET_CONFIRMATION) {
+    if (password !== RESET_CONFIRMATION) {
       return NextResponse.json(
-        { success: false, message: "Enter RESET to confirm." },
+        { success: false, message: "Incorrect confirmation passcode." },
         { status: 401 },
       );
     }

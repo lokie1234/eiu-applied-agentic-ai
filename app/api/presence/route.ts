@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { currentRole } from "@/lib/currentRole";
+import { currentRole, teachingSections } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
@@ -10,7 +10,7 @@ function validSection(value: string): value is TrackedSection {
   return value === "section1" || value === "section2";
 }
 
-async function getPresenceCounts() {
+async function getPresenceCounts(allowed: readonly string[]) {
   const supabase = getSupabaseAdmin();
   const cutoff = new Date(Date.now() - PRESENCE_TTL_MS).toISOString();
 
@@ -28,8 +28,8 @@ async function getPresenceCounts() {
     .gt("last_seen_at", cutoff);
 
   const [section1Result, section2Result] = await Promise.all([
-    countSection("section1"),
-    countSection("section2"),
+    allowed.includes("section1") ? countSection("section1") : { count: 0, error: null },
+    allowed.includes("section2") ? countSection("section2") : { count: 0, error: null },
   ]);
   if (section1Result.error) throw section1Result.error;
   if (section2Result.error) throw section2Result.error;
@@ -41,12 +41,13 @@ async function getPresenceCounts() {
 
 export async function GET() {
   try {
-    if ((await currentRole()) !== "admin") {
+    const allowed = await teachingSections();
+    if (!allowed.length) {
       return NextResponse.json({ success: false, message: "Chỉ admin mới xem được số người đang học." }, { status: 403 });
     }
 
     return NextResponse.json(
-      { success: true, counts: await getPresenceCounts() },
+      { success: true, counts: await getPresenceCounts(allowed) },
       { headers: { "Cache-Control": "no-store, max-age=0" } },
     );
   } catch (error) {
