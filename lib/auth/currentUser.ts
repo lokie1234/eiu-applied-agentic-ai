@@ -1,4 +1,5 @@
 import "server-only";
+import { createHash } from "node:crypto";
 import { currentAccessSession } from "./session";
 import { getCoursesAndSectionsData } from "./courseAccessStorage";
 import { resolvePasscode, resolveFreeAccess } from "./passcodes";
@@ -25,6 +26,7 @@ export async function currentUserAccess(signal?: AbortSignal): Promise<AppUserAc
     id: section.id, courseId: section.course_id, sectionKey: section.section_key,
     title: section.title, position: section.position, contentType: section.content_type,
     sourceFilename: section.source_filename, slideCount: section.slide_count,
+    contentRevision: section.content_path ? createHash("sha256").update(section.content_path).digest("hex").slice(0, 16) : null,
     hidden: Boolean(section.hidden),
     canFacilitate: session.role === "admin" || ("canFacilitate" in section && section.canFacilitate === true),
   }));

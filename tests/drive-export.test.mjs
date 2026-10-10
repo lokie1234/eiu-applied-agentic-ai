@@ -7,7 +7,7 @@ import ts from "typescript";
 const require = createRequire(import.meta.url);
 function load(file, dependencies) {
   const exports = {};
-  vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, Buffer, URL, Uint8Array, process, require: name => name in dependencies ? dependencies[name] : require(name) });
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, Buffer, URL, Uint8Array, process, TextDecoder, require: name => name in dependencies ? dependencies[name] : require(name) });
   return exports;
 }
 function fixture() {
@@ -15,8 +15,8 @@ function fixture() {
   const state = { section, downloads: [], uploads: [], requests: [], original: "export default [<h1>Original TSX</h1>];" };
   const catalog = { folderGroups: [{ id: "group", name: "MIS 301" }], courses: [{ id: "course", title: "MIS 301", folderGroupId: "group" }], sections: [section] };
   state.catalog = catalog;
-  const db = { from: table => { const query = { select() { return this; }, eq() { return this; }, in() { return this; }, maybeSingle: async () => ({ data: section, error: null }), then: resolve => Promise.resolve({ data: table === "course_sections" ? [section] : [], error: null }).then(resolve) }; return query; }, storage: { from: () => ({ download: async p => { state.downloads.push(p); return { data: new Blob([state.original]), error: null }; } }) } };
-  const api = load("lib/drive/export.ts", { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "@/lib/auth/courseAccessStorage": { getCoursesAndSectionsData: async () => catalog }, "@/lib/sectionSourceFiles": load("lib/sectionSourceFiles.ts", {}), "./destinations": { driveFolderId: id => id }, "./localOriginal": load("lib/drive/localOriginal.ts", { "server-only": {} }), "./sourceUpload": { saveDriveOriginal: async (_client, input) => { state.uploads.push(input); return "uploaded"; } } });
+  const db = { from: table => { let updating; const query = { update(value) { updating = value; return this; }, is() { return this; }, select() { return this; }, eq() { return this; }, in() { return this; }, maybeSingle: async () => { if(updating) { state.published = updating; return { data: state.conflict ? null : section, error: null }; } return { data: section, error: null }; }, then: resolve => Promise.resolve({ data: table === "course_sections" ? [section] : [], error: null }).then(resolve) }; return query; }, storage: { from: () => ({ download: async p => { state.downloads.push(p); return { data: new Blob([state.original]), error: null }; } }) } };
+  const api = load("lib/drive/export.ts", { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "@/lib/auth/courseAccessStorage": { getCoursesAndSectionsData: async () => catalog }, "@/lib/sectionSourceFiles": load("lib/sectionSourceFiles.ts", {}), "./destinations": { driveFolderId: id => id }, "./localOriginal": load("lib/drive/localOriginal.ts", { "server-only": {} }), "./sectionContent": { readDriveFile: async () => ({ bytes: state.corrupt ? new Uint8Array([0]) : state.uploads.at(-1).body }) }, "@/lib/sectionContent": load("lib/sectionContent.ts", {}), "./sourceUpload": { saveDriveOriginal: async (_client, input) => { state.uploads.push(input); return "uploaded-file-123"; } } });
   const client = { request: async input => { state.requests.push(input); return { data: input.method === "POST" ? { id: "web-folder" } : { files: state.existingFolder ? [{ id: "web-folder", name: "Old name" }] : [] } }; } };
   return { state, api, client };
 }
@@ -62,7 +62,7 @@ test("PDF and PPTX export stored bytes without regeneration", async () => {
 });
 test("export API rejects learners, teachers and cross-origin callers before Drive access", async () => {
   let admin = false; let calls = 0;
-  const route = load("app/api/admin/drive/export/route.ts", { "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200 }) } }, "@/lib/auth/currentUser": { requireAdminAccess: async () => admin }, "@/lib/drive/connection": { driveConfig: () => ({ redirectUri: "https://example.com/api/admin/drive/callback" }), authorizedDriveClient: async () => { calls++; } }, "@/lib/drive/destinations": {}, "@/lib/drive/export": {}, "@/lib/drive/builtinExport": {} });
+  const route = load("app/api/admin/drive/export/route.ts", { "next/cache": { revalidatePath() {} }, "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200 }) } }, "@/lib/auth/currentUser": { requireAdminAccess: async () => admin }, "@/lib/drive/connection": { driveConfig: () => ({ redirectUri: "https://example.com/api/admin/drive/callback" }), authorizedDriveClient: async () => { calls++; } }, "@/lib/drive/destinations": {}, "@/lib/drive/export": {}, "@/lib/drive/builtinExport": {} });
   const request = origin => ({ headers: new Headers({ origin }), json: async () => ({}) });
   assert.equal((await route.POST(request("https://example.com"))).status, 403);
   admin = true;
@@ -78,7 +78,7 @@ test("course exports create a folder named after the selected course", async () 
   await assert.rejects(f.api.exportPlan(undefined, undefined, "missing"), /Course not found/);
 });
 
-test("Pandas exports recover the exact bundled TSX without changing section storage", async () => {
+test("Pandas exports recover the exact bundled TSX and publish a Drive source", async () => {
   const f = fixture();
   Object.assign(f.state.section, {
     id: "71c4d32e-7d80-4ae6-9576-13a0840ccd45", course_id: "5e9700b6-d498-4ce7-b7b5-3cabca3fe8d5",
@@ -91,9 +91,40 @@ test("Pandas exports recover the exact bundled TSX without changing section stor
   await f.api.exportDocument(f.client, { sectionId: f.state.section.id, folderId: "target" });
   assert.deepEqual(Buffer.from(f.state.uploads[0].body), fs.readFileSync("course-content/mis301/PandasPracticePart2.tsx"));
   assert.equal(f.state.downloads.length, 0);
+  assert.equal(f.state.published.content_path, "drive:uploaded-file-123");
+  assert.equal(f.state.published.original_content_path, "drive:uploaded-file-123");
   assert.equal(f.state.section.original_content_path, null);
   f.state.section.content_path = "course/section/other.bin";
   await assert.rejects(f.api.exportDocument(f.client, { sectionId: f.state.section.id, folderId: "target" }), /Original TSX unavailable/);
+});
+
+test("verified legacy export switches subsequent exports to Drive without another Storage read", async () => {
+  const f = fixture();
+  await f.api.exportDocument(f.client, { sectionId: "section", folderId: "parent" });
+  assert.equal(f.state.published.content_path, "drive:uploaded-file-123");
+  Object.assign(f.state.section, f.state.published);
+  await f.api.exportDocument(f.client, { sectionId: "section", folderId: "another-target" });
+  assert.equal(f.state.downloads.length, 1);
+  assert.match(f.state.requests.at(-1).url, /uploaded-file-123\/copy$/);
+});
+
+test("Drive verification failure or concurrent edits cannot replace the live source", async () => {
+  const corrupted = fixture(); corrupted.state.corrupt = true;
+  await assert.rejects(corrupted.api.exportDocument(corrupted.client, { sectionId: "section", folderId: "parent" }), /verification failed/);
+  assert.equal(corrupted.state.published, undefined);
+  const conflict = fixture(); conflict.state.conflict = true;
+  await assert.rejects(conflict.api.exportDocument(conflict.client, { sectionId: "section", folderId: "parent" }), /section changed/);
+  assert.equal(conflict.state.section.content_path, "course/section/compiled.js");
+});
+
+test("legacy runtime JavaScript exports and publishes as JS rather than pretending to be TSX", async () => {
+  const f = fixture(); f.state.section.original_content_path = null;
+  f.state.original = "module.exports.default=[h('h1',{},'Legacy content')];";
+  await f.api.exportDocument(f.client, { sectionId: "section", folderId: "parent" });
+  assert.match(f.state.published.source_filename, /\.js$/);
+  assert.equal(f.state.published.original_content_path, null);
+  Object.assign(f.state.section, f.state.published);
+  assert.match((await f.api.exportPlan("group"))[0].name, /\.js$/);
 });
 
 test("folder plans include built-in snapshots and stored attachments", async () => {
@@ -110,7 +141,7 @@ test("folder plans include built-in snapshots and stored attachments", async () 
 test("folder exports nest course folders and validate built-in membership before saving", async () => {
   const folders = []; const saves = [];
   const route = load("app/api/admin/drive/export/route.ts", {
-    "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200 }) } },
+    "next/cache": { revalidatePath() {} }, "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200 }) } },
     "@/lib/auth/currentUser": { requireAdminAccess: async () => true },
     "@/lib/drive/connection": { driveConfig: () => ({ redirectUri: "https://example.com/api/admin/drive/callback" }), authorizedDriveClient: async () => ({}) },
     "@/lib/drive/destinations": { selectedDestination: async () => ({ folder_id: "target" }), verifyDriveFolder: async () => {} },

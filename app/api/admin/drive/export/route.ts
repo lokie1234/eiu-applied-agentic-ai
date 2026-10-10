@@ -4,6 +4,7 @@ import { authorizedDriveClient, driveConfig } from "@/lib/drive/connection";
 import { selectedDestination, verifyDriveFolder } from "@/lib/drive/destinations";
 import { exportDocument, exportPlan, webFolder } from "@/lib/drive/export";
 import { saveBuiltinSection } from "@/lib/drive/builtinExport";
+import { revalidatePath } from "next/cache";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 export async function POST(request: Request) {
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
     const fileId = input.action === "save_builtin"
       ? await saveBuiltinSection(client, { sectionId: input.sectionId, folderId })
       : await exportDocument(client, { sectionId: input.sectionId, sourceId: input.sourceId, folderId, name: input.name });
+    revalidatePath("/learn");
     return NextResponse.json({ success: true, fileId, folderId });
-  } catch { return NextResponse.json({ message: "Unable to save this document. Check Drive folder access and stored source availability, then retry." }, { status: 502 }); }
+  } catch (error) { return NextResponse.json({ message: error instanceof Error && /^(File saved to Drive, but|Drive file verification failed)/.test(error.message) ? error.message : "Unable to save this document. Check Drive folder access and stored source availability, then retry." }, { status: 502 }); }
 }

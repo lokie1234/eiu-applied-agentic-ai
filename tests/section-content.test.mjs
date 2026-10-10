@@ -42,8 +42,9 @@ function handlers(options = {}) {
     from(table) {
       let update;
       return {
-        select() { return this; }, eq() { return this; },
+        select() { return this; }, eq() { return this; }, is() { return this; },
         async maybeSingle() {
+          if (update) { if (!state.updateError) state.section = { ...state.section, ...update }; return { data: state.updateError ? null : state.section, error: state.updateError || null }; }
           return { data: table === "courses" ? { slug: state.courseSlug || "custom-course" } : state.section, error: null };
         },
         update(value) { update = value; return this; },
@@ -325,4 +326,12 @@ test("retired Drive import and migration requests cannot change or delete web co
 test("legacy PDF sections still read from Supabase without requiring Drive",async()=>{
  const api=handlers();const path="course-id/section-id/legacy.pdf",bytes=Buffer.from("%PDF-1.4");api.state.stored.set(path,bytes);api.state.section={...api.state.section,content_path:path,content_type:"pdf",source_filename:"legacy.pdf"};
  assert.deepEqual(Buffer.from(await(await api.download()).arrayBuffer()),bytes);
+});
+
+test("Drive-backed legacy JS is served unchanged without TSX recompilation or Storage reads", async () => {
+ const api=handlers(); const path="drive:runtime-file-12345";
+ const bytes=Buffer.from("module.exports.default=[h('h1',{},'Existing JS')];");
+ api.state.stored.set(path,bytes); api.state.section={...api.state.section,content_path:path,content_type:"tsx",source_filename:"Section 1.js"};
+ const response=await api.download(); assert.equal(response.status,200);
+ assert.equal(await response.text(),bytes.toString());
 });

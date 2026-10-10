@@ -7,6 +7,9 @@ import { driveDocumentName, driveSectionName, sectionSourceType } from "@/lib/se
 import { saveDriveOriginal } from "./sourceUpload";
 import { driveFolderId } from "./destinations";
 import { localOriginalPath, readLocalOriginal } from "./localOriginal";
+import { readDriveFile } from "./sectionContent";
+import { compileTsx } from "@/lib/sectionContent";
+function fileType(name: string) { return /\.js$/i.test(name) ? "js" as const : sectionSourceType(name); }
 function usesCompiledJs(section: Parameters<typeof localOriginalPath>[0] & { original_content_path?: string | null }) {
   return !section.original_content_path && !localOriginalPath(section) &&
     !section.content_path?.startsWith("drive:") && /\.js$/i.test(section.content_path ?? "");
@@ -45,7 +48,7 @@ export async function exportPlan(groupId?: string, sectionId?: string, courseId?
     const builtin = courses.some(course => course.id === section.course_id && course.slug === "applied-agentic-ai") && ["section1", "section2"].includes(section.section_key);
     if (builtin) tasks.push({ sectionId: section.id, courseId: section.course_id, builtin: true, name: driveSectionName(section.position, section.title, "tsx") });
     if (row?.content_path && row.source_filename) {
-      const type = sectionSourceType(row.source_filename);
+      const type = fileType(row.source_filename);
       const compiled = type === "tsx" && usesCompiledJs(row);
       tasks.push({ sectionId: section.id, courseId: section.course_id, name: driveSectionName(section.position, section.title, compiled ? "js" : type),
         ...(compiled ? { note: "JavaScript version currently displayed on the web." } : type === "tsx" && !row.original_content_path && !localOriginalPath(row) ? { unavailable: "Original TSX is unavailable. Re-upload the TSX file to preserve its original source." } : {}) });
@@ -68,22 +71,40 @@ export async function exportDocument(client: OAuth2Client, input: { sectionId: s
     return copy.data.id;
   }
   if (!section.source_filename || !section.content_path) throw new Error("This section has no stored document.");
-  const sourceType = sectionSourceType(section.source_filename);
+  const sourceType = fileType(section.source_filename);
   const type = sourceType === "tsx" && usesCompiledJs(section) ? "js" : sourceType;
   const name = input.name?.trim() ? driveDocumentName(input.name, section.source_filename, type) : driveSectionName(section.position, section.title, type);
   const storagePath = type === "tsx" ? section.original_content_path : section.content_path;
+  const previous = { id: section.id, content_path: section.content_path, original_content_path: section.original_content_path };
+  // Publish only after verifying Drive bytes and comparing the original source
+  // reference, so a concurrent edit cannot be replaced by an older export.
+  async function publish(fileId: string, body: Uint8Array) {
+    const verified = await readDriveFile(fileId, client);
+    if (createHash("sha256").update(verified.bytes).digest("hex") !== createHash("sha256").update(body).digest("hex")) throw new Error("Drive file verification failed. The existing lesson is unchanged.");
+    if (type === "tsx") compileTsx(new TextDecoder().decode(body));
+    let update = db.from("course_sections").update({
+      content_path: "drive:" + fileId, original_content_path: type === "tsx" ? "drive:" + fileId : null,
+      source_filename: name, updated_at: new Date().toISOString(),
+    }).eq("id", previous.id).eq("content_path", previous.content_path);
+    update = previous.original_content_path ? update.eq("original_content_path", previous.original_content_path) : update.is("original_content_path", null);
+    const result = await update.select("id").maybeSingle();
+    if (result.error || !result.data) throw new Error("File saved to Drive, but the section changed or could not be updated. Reload and retry; the current lesson is unchanged.");
+    return fileId;
+  }
   const recovered = type === "tsx" && !storagePath ? await readLocalOriginal(section) : null;
   if (!storagePath && !recovered) throw new Error("Original TSX unavailable. Re-upload the original file first.");
   if (recovered) {
     const hash = createHash("sha256").update(`local-original:${section.id}`).digest("hex").slice(0, 32);
     const sourceId = `${hash.slice(0,8)}-${hash.slice(8,12)}-${hash.slice(12,16)}-${hash.slice(16,20)}-${hash.slice(20)}`;
-    return saveDriveOriginal(client, { sourceId, sectionId: section.id, folderId: input.folderId, name, sha256: createHash("sha256").update(recovered).digest("hex"), body: recovered, mimeType: "text/plain" });
+    const fileId = await saveDriveOriginal(client, { sourceId, sectionId: section.id, folderId: input.folderId, name, sha256: createHash("sha256").update(recovered).digest("hex"), body: recovered, mimeType: "text/plain" });
+    return publish(fileId, recovered);
   }
   if (!storagePath) throw new Error("Original TSX unavailable.");
   if (storagePath.startsWith("drive:")) {
     const fileId = storagePath.slice(6);
     if (!/^[\w-]{10,200}$/.test(fileId)) throw new Error("Invalid Drive file reference.");
     const copy = await client.request<{ id: string }>({ url: "https://www.googleapis.com/drive/v3/files/" + encodeURIComponent(fileId) + "/copy", method: "POST", timeout: 30000, params: { supportsAllDrives: true, fields: "id" }, data: { name, parents: [input.folderId] } });
+    // Already Drive-backed: exporting a copy must not change the live source.
     return copy.data.id;
   }
   if (!storagePath.startsWith(section.course_id + "/" + section.id + "/")) throw new Error("Invalid stored document path.");
@@ -94,5 +115,6 @@ export async function exportDocument(client: OAuth2Client, input: { sectionId: s
   const sha256 = createHash("sha256").update(body).digest("hex");
   const hash = createHash("sha256").update(section.id + ":" + storagePath).digest("hex").slice(0, 32);
   const sourceId = hash.slice(0,8) + "-" + hash.slice(8,12) + "-" + hash.slice(12,16) + "-" + hash.slice(16,20) + "-" + hash.slice(20);
-  return saveDriveOriginal(client, { sourceId, sectionId: section.id, folderId: input.folderId, name, sha256, body, mimeType: type === "pdf" ? "application/pdf" : type === "pptx" ? "application/vnd.openxmlformats-officedocument.presentationml.presentation" : "text/plain" });
+  const fileId = await saveDriveOriginal(client, { sourceId, sectionId: section.id, folderId: input.folderId, name, sha256, body, mimeType: type === "pdf" ? "application/pdf" : type === "pptx" ? "application/vnd.openxmlformats-officedocument.presentationml.presentation" : "text/plain" });
+  return publish(fileId, body);
 }

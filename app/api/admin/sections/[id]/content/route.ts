@@ -35,8 +35,10 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     }
     const driveId = await uploadDriveSection({ sectionId:id, destinationId, name, bytes, mimeType:validated.mimeType });
     const contentPath = "drive:" + driveId;
-    const updated = await db.from("course_sections").update({content_type:validated.contentType,content_path:contentPath,original_content_path:validated.contentType === "tsx" ? contentPath : null,source_filename:name,slide_count:validated.slideCount,updated_at:new Date().toISOString()}).eq("id",id);
-    if (updated.error) throw Error("The file is on Drive, but the section could not be updated. The existing lesson is unchanged; retry saving the original file.");
+    let update = db.from("course_sections").update({content_type:validated.contentType,content_path:contentPath,original_content_path:validated.contentType === "tsx" ? contentPath : null,source_filename:name,slide_count:validated.slideCount,updated_at:new Date().toISOString()}).eq("id",id);
+    update = section.content_path ? update.eq("content_path", section.content_path) : update.is("content_path", null);
+    const updated = await update.select("id").maybeSingle();
+    if (updated.error || !updated.data) throw Error("The file is on Drive, but the section changed or could not be updated. The existing lesson is unchanged; reload and retry.");
     // Drive files remain owned by the administrator. Only obsolete web-storage copies are removed.
     const obsolete = [...new Set([section.content_path, section.original_content_path].filter((path): path is string => typeof path === "string" && path.startsWith(`${section.course_id}/${section.id}/`)))];
     if (obsolete.length) after(async () => { const result = await db.storage.from(BUCKET).remove(obsolete); if (result.error) console.error("Legacy section file cleanup failed."); });

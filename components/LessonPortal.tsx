@@ -29,6 +29,7 @@ type CourseFolderSection = {
   contentType: "builtin" | "pdf" | "tsx" | "pptx";
   templateKey?: string;
   sourceFilename: string | null;
+  contentRevision?: string | null;
   slideCount: number | null;
 };
 type CourseFolder = {
@@ -1399,7 +1400,7 @@ export default function LessonPortal({
       >
         {activeUploadedSection ? (
           <UploadedSectionDeck
-            key={`${activeUploadedSection.id}-${activeUploadedSection.templateKey ?? ""}-${deckSessionKey}`}
+            key={`${activeUploadedSection.id}-${activeUploadedSection.contentRevision ?? ""}-${activeUploadedSection.templateKey ?? ""}-${deckSessionKey}`}
             sectionId={activeUploadedSection.id}
             templateKey={activeUploadedSection.templateKey}
             contentType={activeUploadedSection.contentType === "pptx" ? "pptx" : activeUploadedSection.contentType === "pdf" ? "pdf" : "tsx"}

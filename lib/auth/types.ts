@@ -32,6 +32,7 @@ export type SectionAccess = {
   position: number;
   contentType: "builtin" | "pdf" | "tsx" | "pptx";
   sourceFilename: string | null;
+  contentRevision?: string | null;
   slideCount: number | null;
   canFacilitate?: boolean;
 };

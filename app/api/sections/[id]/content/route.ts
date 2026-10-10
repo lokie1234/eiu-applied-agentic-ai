@@ -31,7 +31,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     let data: Blob;
     if (String(section.content_path).startsWith("drive:")) {
       const file = await readDriveFile(String(section.content_path));
-      data = section.content_type === "tsx" && !attachmentRequested
+      data = section.content_type === "tsx" && !attachmentRequested && !/\.js$/i.test(String(section.source_filename))
         ? new Blob([compileTsx(new TextDecoder().decode(file.bytes))])
         : new Blob([file.bytes as Uint8Array<ArrayBuffer>]);
     } else {

@@ -1291,7 +1291,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
 
                             {/* Quick Folder Actions (Compact Icons) */}
                             {canEditFolder(group) && (<div className={styles.folderGroupActions} onClick={(e) => e.stopPropagation()}>
-                              {isAdmin && <DriveExport groupId={group.id} label={`Save folder ${group.name} to Drive`} compact disabled={Boolean(processingMessage)} />}
+                              {isAdmin && <DriveExport groupId={group.id} label={`Save folder ${group.name} to Drive`} onSaved={loadData} compact disabled={Boolean(processingMessage)} />}
                               {isAdmin && <VisibilityToggle hidden={Boolean(group.hidden)} label={`folder ${group.name}`} busy={busy.has(`hide-folder:${group.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-folder:${group.id}`)} onToggle={() => void mutate({ action: "set_folder_group_hidden", folderGroupId: group.id, hidden: !group.hidden }, `hide-folder:${group.id}`, "Folder visibility updated.")} />}
 
 
@@ -1595,7 +1595,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                         )}
 
                           <div className={styles.courseFileActions} role="group" aria-label="Course Drive files">
-                          {isAdmin && <DriveExport courseId={selectedCourse.id} label="Save course files to Drive" disabled={Boolean(processingMessage)} />}
+                          {isAdmin && <DriveExport courseId={selectedCourse.id} label="Save course files to Drive" onSaved={loadData} disabled={Boolean(processingMessage)} />}
                           </div>
                         </div>
 
@@ -1828,7 +1828,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                 </div>
                                 <div className={styles.sectionItemRight}>
                                   <VisibilityToggle hidden={Boolean(section.hidden)} label={`section ${section.title}`} busy={busy.has(`hide-section:${section.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-section:${section.id}`)} onToggle={() => void mutate({ action: "set_section_hidden", sectionId: section.id, hidden: !section.hidden }, `hide-section:${section.id}`, "Section visibility updated.")} />
-                                  {isAdmin && <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} disabled={Boolean(processingMessage)} />}
+                                  {isAdmin && <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} allowReplace={!isDefault} onSaved={loadData} disabled={Boolean(processingMessage)} />}
                                   <a className={styles.sectionUploadButton} href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}&sectionId=${encodeURIComponent(section.id)}`}>View</a>
                                   {!editable && <span className={styles.compactPillLocked}>Read only</span>}
                                   {editable && (<button

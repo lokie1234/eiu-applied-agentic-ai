@@ -13,6 +13,8 @@
 .field input,.field select { width:100%; min-width:0; padding:10px 12px; border:1px solid #d9cbb6; border-radius:9px; background:#fff; color:#0b2b40; font:inherit; font-weight:400; }
 .field :is(input,select):focus-visible, .dialog button:focus-visible { outline:3px solid #b39159; outline-offset:2px; }
 .setup { display:inline-block; margin-top:10px; color:#98733b; font-size:12px; }
+.replacement { margin-top:16px; padding:12px; border:1px solid #e6ddd0; border-radius:12px; background:#fff; }
+.replacement p { margin:10px 0 0; }
 .list { list-style:none; padding:0; margin:18px 0 0; display:grid; gap:10px; }
 .list li { background:#fff; padding:12px; border:1px solid #e6ddd0; border-radius:12px; }
 .fileStatus,.failure { display:block; margin-top:7px; font-size:11px; line-height:1.5; overflow-wrap:anywhere; }
