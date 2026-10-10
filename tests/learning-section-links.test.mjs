@@ -66,8 +66,8 @@ test("learner and teaching logins start at the folder chooser despite an old act
   }
 });
 
-test("the learning catalog hides courses and sections for admin and both passcode roles, including deep links", async () => {
-  for (const role of ["admin", "learner", "facilitator"]) {
+test("hidden content remains unavailable to learner and facilitator deep links", async () => {
+  for (const role of ["learner", "facilitator"]) {
     const courseHidden = await page(role, { courseId: "core", sectionId: "builtin" }, { hiddenCourse: "core" });
     assert.equal(courseHidden.courseFolders.some(course => course.id === "core"), false);
     assert.equal(courseHidden.initialCourseId, undefined);
@@ -76,4 +76,28 @@ test("the learning catalog hides courses and sections for admin and both passcod
     assert.equal(props.initialSection, null);
     assert.equal(props.initialSectionId, undefined);
   }
+});
+
+test("admin View links open hidden built-in and uploaded sections without changing visibility", async () => {
+  for (const [courseId, sectionId, expectedBuiltin] of [["core", "builtin", "section1"], ["other", "uploaded", null]]) {
+    for (const options of [{hiddenCourse:courseId}, {hiddenSection:sectionId}, {hiddenCourse:courseId, hiddenSection:sectionId}]) {
+      const props = await page("admin", {courseId, sectionId}, options);
+      assert.equal(props.initialCourseId, courseId);
+      assert.equal(props.initialSectionId, sectionId);
+      assert.equal(props.initialSection, expectedBuiltin);
+      const course = props.courseFolders.find(item => item.id === courseId);
+      assert.equal(Boolean(course.hidden), Boolean(options.hiddenCourse));
+      assert.equal(Boolean(course.sections.find(item => item.id === sectionId).hidden), Boolean(options.hiddenSection));
+    }
+  }
+});
+
+test("admin catalog still hides content unless a matching section View link is provided", async () => {
+  const catalog = await page("admin", {}, {hiddenCourse:"core", hiddenSection:"uploaded"});
+  assert.equal(catalog.courseFolders.some(course => course.id === "core"), false);
+  assert.equal(catalog.courseFolders.some(course => course.sections.some(section => section.id === "uploaded")), false);
+  const mismatched = await page("admin", {courseId:"core",sectionId:"uploaded"}, {hiddenCourse:"core",hiddenSection:"uploaded"});
+  assert.equal(mismatched.initialCourseId, undefined);
+  assert.equal(mismatched.initialSectionId, undefined);
+  assert.equal(mismatched.courseFolders.some(course => course.id === "core"), false);
 });

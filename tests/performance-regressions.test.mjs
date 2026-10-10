@@ -125,12 +125,16 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     await act(async () => render());
     assert.equal(requests.length, 3);
     await act(async () => {
-      for (let i = 0; i < 3; i++) { intervals.get(10_000)(); intervals.get(15_000)(); intervals.get(30_000)(); }
+      for (let i = 0; i < 3; i++) { intervals.get(20_000)(); intervals.get(15_000)(); intervals.get(30_000)(); }
       render();
     });
     assert.equal(requests.length, 3, "pending requests and refreshed profile objects must not create more requests");
     await act(async () => requests.forEach(request => request.resolve({ ok: false })));
-    await act(async () => { intervals.get(10_000)(); intervals.get(15_000)(); intervals.get(30_000)(); });
+    Object.defineProperty(window.document, "visibilityState", { configurable: true, value: "hidden" });
+    await act(async () => { intervals.get(20_000)(); intervals.get(15_000)(); intervals.get(30_000)(); });
+    assert.equal(requests.length, 3, "hidden tabs do not poll or heartbeat");
+    Object.defineProperty(window.document, "visibilityState", { configurable: true, value: "visible" });
+    await act(async () => { intervals.get(20_000)(); intervals.get(15_000)(); intervals.get(30_000)(); });
     assert.equal(requests.length, 6, "polling resumes after requests settle");
     window.dispatchEvent(new window.Event("beforeunload"));
     window.dispatchEvent(new window.Event("pagehide"));
@@ -139,6 +143,71 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     await act(async () => root.unmount());
     assert.ok(requests.every(request => request.options.signal.aborted));
     assert.equal(beacons, 1, "unmount must not send an already queued leave again");
+    assert.equal(intervals.size, 0);
+    await window.happyDOM.close();
+  }
+});
+
+test("heartbeat writes retain shared pending catalog reads, while permission writes invalidate them", async () => {
+  const f = transportFixture();
+  const first = f.fetch(f.url);
+  const heartbeat = f.fetch("https://example.test/rest/v1/presence_sessions", { method: "POST", body: "{}" });
+  const second = f.fetch(f.url);
+  assert.equal(f.calls.length, 2, "a heartbeat must not duplicate a catalog read");
+  f.calls[1].resolve(Response.json({ success: true })); await heartbeat;
+  const third = f.fetch(f.url);
+  assert.equal(f.calls.length, 2, "heartbeat completion must not invalidate the read either");
+  f.calls[0].resolve(Response.json({ courses: [] })); await Promise.all([first, second, third]);
+});
+
+test("slow periodic refreshes do not queue an endless follow-up, while explicit refreshes still do", async () => {
+  const { createRefreshRunner } = load("lib/liveRefresh.ts", {});
+  const calls = [];
+  const runner = createRefreshRunner(signal => new Promise(resolve => calls.push({ signal, resolve })));
+  const active = runner.refresh(false);
+  for (let i = 0; i < 35; i++) runner.refresh(false);
+  calls[0].resolve(); await active;
+  assert.equal(calls.length, 1);
+  const next = runner.refresh(false);
+  runner.refresh();
+  calls[1].resolve(); await new Promise(resolve => setImmediate(resolve));
+  assert.equal(calls.length, 3);
+  calls[2].resolve(); await next; runner.dispose();
+});
+
+test("AI processing polls share the initial read, skip slow/hidden requests and abort on unmount", async () => {
+  const window = new Window({ url: "http://localhost/admin/ai" });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const intervals = new Map(), requests = [];
+  window.setInterval = (callback, delay) => { intervals.set(delay, callback); return delay; };
+  window.clearInterval = delay => intervals.delete(delay);
+  const globals = { window, document: window.document, fetch: (url, options) => new Promise(resolve => requests.push({ url, options, resolve })) };
+  const Component = load("components/admin/AdminAiPortal.tsx", {
+    "next/image": { __esModule: true, default: () => null },
+    "./AdminWorkspaceNav": { __esModule: true, default: () => null },
+    "@/lib/ai/types": load("lib/ai/types.ts", {}),
+    "@/lib/liveRefresh": load("lib/liveRefresh.ts", {}, globals),
+  }, globals).default;
+  const container = window.document.createElement("div"), root = createRoot(container);
+  try {
+    await act(async () => root.render(React.createElement(Component)));
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 10)); });
+    assert.equal(requests.length, 2);
+    await act(async () => requests.find(r => r.url.endsWith("documents")).resolve({ ok: true, json: async () => ({ success: true, documents: [{ id: "doc", filename: "document.pdf", folder: "Knowledge", status: "PROCESSING" }] }) }));
+    await act(async () => { for (let i = 0; i < 35; i++) intervals.get(4000)(); });
+    assert.equal(requests.length, 3);
+    await act(async () => requests[2].resolve({ ok: true, json: async () => ({ success: true, documents: [{ id: "doc", filename: "document.pdf", folder: "Knowledge", status: "PROCESSING" }] }) }));
+    assert.equal(requests.length, 3, "poll ticks must not queue another slow request");
+    Object.defineProperty(window.document, "visibilityState", { configurable: true, value: "hidden" });
+    await act(async () => intervals.get(4000)()); assert.equal(requests.length, 3);
+    Object.defineProperty(window.document, "visibilityState", { configurable: true, value: "visible" });
+    await act(async () => window.document.dispatchEvent(new window.Event("visibilitychange"))); assert.equal(requests.length, 4);
+  } finally {
+    await act(async () => root.unmount());
+    assert.ok(requests.filter(r => [requests[1], requests[3]].includes(r)).every(r => r.options.signal.aborted));
     assert.equal(intervals.size, 0);
     await window.happyDOM.close();
   }

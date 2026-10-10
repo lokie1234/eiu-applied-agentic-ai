@@ -76,10 +76,13 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
       ?.channel(`eiu:showcase:${section}`)
       .on("broadcast", { event: "showcase_changed" }, () => void loadItems())
       .subscribe();
-    const fallbackTimer = window.setInterval(() => void loadItems(), 60_000);
+    const poll = () => { if (document.visibilityState === "visible") void loadItems(false); };
+    const fallbackTimer = window.setInterval(poll, 60_000);
+    document.addEventListener("visibilitychange", poll);
     return () => {
       window.clearTimeout(timer);
       window.clearInterval(fallbackTimer);
+      document.removeEventListener("visibilitychange", poll);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
   }, [loadItems, section]);

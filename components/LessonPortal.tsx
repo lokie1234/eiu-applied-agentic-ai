@@ -399,7 +399,7 @@ export default function LessonPortal({
     const controller = new AbortController();
 
     async function fetchCounts() {
-      if (disposed) return;
+      if (disposed || document.visibilityState !== "visible") return;
       if (inFlight) { refreshQueued = true; return; }
       inFlight = true;
       try {
@@ -435,12 +435,15 @@ export default function LessonPortal({
       })
       .subscribe();
     const interval = window.setInterval(() => void fetchCounts(), 15_000);
+    const resumeCounts = () => { if (document.visibilityState === "visible") void fetchCounts(); };
+    document.addEventListener("visibilitychange", resumeCounts);
 
     return () => {
       disposed = true;
       controller.abort();
       window.clearTimeout(refreshTimer);
       window.clearInterval(interval);
+      document.removeEventListener("visibilitychange", resumeCounts);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
   }, [isAdmin, canFacilitate]);
@@ -456,7 +459,7 @@ export default function LessonPortal({
     const controller = new AbortController();
 
     async function sendHeartbeat() {
-      if (disposed || inFlight) return;
+      if (disposed || inFlight || document.visibilityState !== "visible") return;
       inFlight = true;
       leaveSent = false;
       await fetch("/api/presence", {
@@ -468,7 +471,9 @@ export default function LessonPortal({
     }
 
     void sendHeartbeat();
-    const heartbeatTimer = window.setInterval(() => void sendHeartbeat(), 10_000);
+    const heartbeatTimer = window.setInterval(() => void sendHeartbeat(), 20_000);
+    const resumeHeartbeat = () => { if (document.visibilityState === "visible") void sendHeartbeat(); };
+    document.addEventListener("visibilitychange", resumeHeartbeat);
 
     const onLeave = () => {
       if (!leaveSent && navigator.sendBeacon) {
@@ -486,6 +491,7 @@ export default function LessonPortal({
       disposed = true;
       controller.abort();
       clearInterval(heartbeatTimer);
+      document.removeEventListener("visibilitychange", resumeHeartbeat);
       window.removeEventListener("pagehide", onLeave);
       window.removeEventListener("beforeunload", onLeave);
       onLeave();
@@ -659,7 +665,7 @@ export default function LessonPortal({
     const controller = new AbortController();
 
     async function checkTermination() {
-      if (disposed || inFlight) return;
+      if (disposed || inFlight || document.visibilityState !== "visible") return;
       inFlight = true;
       try {
         const response = await fetch(`/api/section-control?section=${section}`, {

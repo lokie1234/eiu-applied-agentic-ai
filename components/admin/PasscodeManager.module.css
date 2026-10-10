@@ -1,4 +1,4 @@
-.manager { padding:20px 22px; color:#17324a; width:100%; }
+.manager { padding:24px; color:#17324a; width:100%; min-width:0; box-sizing:border-box; font-family:"Inter","Noto Sans","Segoe UI",Arial,sans-serif; background:#fbfaf7; border:1px solid #e4dccd; border-radius:22px; box-shadow:0 8px 24px #041c3106; }
 .heading { margin-bottom:18px; }.heading>span,.detailHeading>span {color:#9d7944;font-size:10px;letter-spacing:.12em;font-weight:800}.heading h2 {margin:6px 0;font-size:26px;color:#082945}.heading p,.rule {margin:5px 0;color:#526674;font-size:13px;line-height:1.6}
 .global {padding:16px;border:1px solid #d9cebb;border-radius:14px;background:#f5f1e9;margin-bottom:22px}.sectionHeading {display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.sectionHeading h3 {margin:0;font-size:17px}.sectionHeading>span {font-size:10px;font-weight:800;color:#9d7944;letter-spacing:.08em;white-space:nowrap}
 .codeGrid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.codeCard {min-width:0;padding:16px;border:1px solid #e2d8c7;border-radius:12px;background:#fff}.teaching {border-top:3px solid #b39159}.badge {color:#9d7944;font-size:9px;font-weight:800;letter-spacing:.08em;white-space:nowrap}.codeCard h3 {margin:5px 0;font-size:17px;color:#082945}.codeCard p {margin:0 0 12px;color:#526674;font-size:12px;line-height:1.5}.codeCard label {display:grid;gap:6px;font-size:12px;font-weight:700}.codeCard input {width:100%;padding:10px 12px;border:1px solid #d9cebb;border-radius:8px;background:#fbfaf7;color:#082945;font:600 17px ui-monospace,monospace;min-width:0}.codeCard input::placeholder {font:400 12px Arial,sans-serif;color:#687987}.codeCard small {display:block;margin-top:8px;font-size:11px;line-height:1.5;color:#526674}.actions {display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}.actions button {border:1px solid #d9cebb;border-radius:7px;padding:8px 12px;background:#fff;color:#082945;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap}.actions button:first-child {background:#082945;color:#fff;border-color:#082945}.actions button:disabled {opacity:.45;cursor:default}.notice {margin-top:8px;font-size:12px;color:#526674}
@@ -42,3 +42,21 @@
 @media(max-width:1050px) { .overview { grid-template-columns:minmax(0,1fr) 310px; }.detail .codeGrid { grid-template-columns:1fr; } }
 @media(max-width:820px) { .overview { grid-template-columns:1fr; }.identitySettings { width:auto; }.codeCard h3 { padding-right:110px; } }
 @media(max-width:480px) { .codeCard { grid-template-columns:1fr; }.codeCard label { grid-column:1; }.codeCard .actions { grid-column:1; }.codeCard h3 { font-size:16px; }.codeCard .badge { font-size:8px; }.workspace { grid-template-columns:1fr; } }
+.global { background:linear-gradient(135deg,#f7f4ed,#f4dfb020); border-radius:18px; }
+.codeCard,.catalog,.identitySettings { border-radius:18px; box-shadow:0 4px 14px #041c3105; }
+.codeCard { gap:12px; padding:18px; }
+.codeCard h3 { font-size:18px; }
+.heading p,.rule,.codeCard p,.codeCard small,.detailHeading p { font-size:14px; line-height:1.55; }
+.codeCard label,.identityRow input,.identityRow select,.catalog>input { font-size:14px; font-family:inherit; }
+.codeCard input,.identityRow input,.identityRow select,.catalog>input { border-radius:12px; min-height:40px; }
+.actions button,.global .actions button,.bulkToolbar button,.bulkToolbar select { min-height:40px; padding:9px 12px; border-radius:12px; font-family:inherit; font-size:13px; font-weight:700; transition:background 200ms ease; }
+.actions button:first-child { background:linear-gradient(135deg,#123f68,#082945); color:#f4dfb0; }
+.actions button:hover:not(:disabled) { background:#f7f4ed; }
+.actions button:first-child:hover:not(:disabled) { background:#18547f; }
+.target { border-radius:12px; padding:11px 12px; }
+.target strong { font-size:14px; }.target small { font-size:12px; }
+.bulkToolbar { border-radius:14px; background:#f7f4ed; }
+.identityNote,.notice { font-size:13px; }
+@media(max-width:1100px) { .codeCard { grid-template-columns:1fr; }.codeCard .actions { grid-column:1; }.codeCard h3 { grid-column:1; } }
+@media(max-width:700px) { .manager { padding:16px; }.codeCard { padding:14px; }.codeCard h3 { padding-right:0; }.codeCard .badge { position:static; grid-column:1/-1; }.sectionHeading { flex-wrap:wrap; } }
+@media(prefers-reduced-motion:reduce) { .actions button,.bulkToolbar button,.bulkToolbar select { transition:none; } }

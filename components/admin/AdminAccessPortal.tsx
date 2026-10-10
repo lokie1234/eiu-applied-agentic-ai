@@ -9,11 +9,7 @@ import type { SlideTemplate } from "@/lib/auth/courseAccessStorage";
 import CourseManagerHeader from "./CourseManagerHeader";
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styles from "./AdminAccessPortal.module.css";
-import { createUploadQueue } from "@/lib/uploadQueue";
-import { uploadSectionFile } from "@/lib/uploadSectionFile";
-import SectionBatchUpload from "./SectionBatchUpload";
-import DriveLoad from "./DriveLoad";
-import SectionSourceLibrary from "./SectionSourceLibrary";
+import DriveExport from "./DriveExport";
 import CourseSystemIcons from "./CourseSystemIcons";
 import EiuConfirmDialog from "./EiuConfirmDialog";
 
@@ -299,24 +295,6 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   const [targetFolderForCourse, setTargetFolderForCourse] = useState<string>("fg-ai-agentic");
 
   // Folder groups state (Folder Lớn)
-  const [driveDestinations, setDriveDestinations] = useState<{ id: string; label: string }[]>([]);
-  const [driveDestinationId, setDriveDestinationId] = useState("");
-  useEffect(() => { void fetch("/api/admin/drive/destinations", { cache: "no-store" }).then(async response => { const data = await response.json(); if (response.ok) { setDriveDestinations(data.destinations || []); setDriveDestinationId(data.destinations?.[0]?.id || ""); } }).catch(() => {}); }, []);
-  async function refreshDriveCatalog() {
-    const response = await fetch("/api/admin/access", { cache: "no-store" });
-    const payload = await response.json();
-    if (!response.ok || !payload.success) throw Error("Unable to refresh course setup.");
-    apply(payload);
-  }
-  async function moveSectionToDrive(section: Section) {
-    if (!driveDestinationId || processingMessage) return;
-    setProcessingMessage("loading..... Moving file to Drive and verifying the deck...");setError("");setNotice("");
-    try {
-      const response = await fetch(`/api/admin/sections/${encodeURIComponent(section.id)}/content`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "migrate", destinationId: driveDestinationId }) });
-      const data = await response.json(); if (!response.ok || !data.success) throw Error(data.message);
-      await refreshDriveCatalog();setNotice("File moved to Drive and verified. The deck now loads from Drive.");
-    } catch (error) {setError(error instanceof Error ? error.message : "Unable to move this file.");} finally {setProcessingMessage(null);}
-  }
   const [globalAccessCodes, setGlobalAccessCodes] = useState<AccessCodes>({});
   const [learningIdentityPolicy, setLearningIdentityPolicy] = useState<LearningIdentityPolicy>(DEFAULT_IDENTITY_POLICY);
   const [folderGroups, setFolderGroups] = useState<CourseFolderGroup[]>([
@@ -330,8 +308,6 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   const [editingFolderName, setEditingFolderName] = useState("");
 
   const [busy, setBusy] = useState<Set<string>>(new Set());
-  const sectionUploadQueue = useRef(createUploadQueue());
-  const pendingSectionUploads = useRef(new Set<string>());
   const draggedSection = useRef<string | null>(null);
   const [sectionDropTarget, setSectionDropTarget] = useState<string | null>(null);
   const draggedCourse = useRef<{ id: string; folderId: string } | null>(null);
@@ -340,6 +316,8 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   const [loading, setLoading] = useState(true);
   const [notice, setNotice] = useState("");
   const [error, setError] = useState("");
+  const [languageFeedback, setLanguageFeedback] = useState<{ courseId: string; message: string; failed: boolean } | null>(null);
+  const languageSaving = useRef(false);
 
   const [courseSearch, setCourseSearch] = useState("");
 
@@ -396,6 +374,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   const activeCourses = useMemo(() => courses.filter((c) => c.status === "active"), [courses]);
   const effectiveCourseId = activeCourses.some((c) => c.id === courseId) ? courseId : activeCourses[0]?.id ?? "";
   const selectedCourse = activeCourses.find((c) => c.id === effectiveCourseId) ?? null;
+  const courseSummary = (selectedCourse?.metadata?.summary ?? selectedCourse?.description ?? "").trim();
   const canEditFolder = (..._items: unknown[]) => true;
   const editableFolders = folderGroups.filter(canEditFolder);
   const canDeleteFolder = (..._items: unknown[]) => true;
@@ -408,7 +387,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
     [sections, effectiveCourseId]
   );
 
-  const editableSections = courseSections.filter(canEditSection);
+
   const canReorderSections = isAdmin || (canEditCourse && courseSections.every(section => section.canEdit));
 
   const normalizedCourseSearch = courseSearch.trim().toLowerCase();
@@ -459,7 +438,8 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
     body: Record<string, unknown>,
     key: string,
     successMessage: string,
-    processingText?: string
+    processingText?: string,
+    localFeedback?: (message: string, failed: boolean) => void
   ) {
     if (!isAdmin) {
       const action = String(body.action);
@@ -481,14 +461,20 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
         const ids = body.courseIds as string[];
         permitted = Boolean(ids?.length) && ids.every(id => courses.some(course => course.id === id && course.canEdit && (action !== "delete_courses" || course.canDelete !== false)));
       }
-      if (!permitted) { setError("You can only manage your own courses and sections."); return false; }
+      if (!permitted) {
+        if (localFeedback) localFeedback("You can only manage your own courses and sections.", true);
+        else setError("You can only manage your own courses and sections.");
+        return false;
+      }
     }
     setBusy((current) => new Set(current).add(key));
     if (processingText) {
       setProcessingMessage(processingText);
     }
-    setError("");
-    setNotice("");
+    if (!localFeedback) {
+      setError("");
+      setNotice("");
+    }
     try {
       const response = await fetch("/api/admin/access", {
         method: "POST",
@@ -499,13 +485,16 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
       if (payload.courses && payload.sections && payload.folderGroups) apply(payload);
       if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to save changes.");
       apply(payload);
-      setNotice(successMessage);
+      if (localFeedback) localFeedback(successMessage, false);
+      else setNotice(successMessage);
       return true;
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "An error occurred.");
+      const message = caught instanceof Error ? caught.message : "An error occurred.";
+      if (localFeedback) localFeedback(message, true);
+      else setError(message);
       return false;
     } finally {
-      setProcessingMessage(null);
+      if (!localFeedback) setProcessingMessage(null);
       setBusy((current) => {
         const next = new Set(current);
         next.delete(key);
@@ -631,23 +620,6 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
     });
   }
 
-  async function handleMoveCourseFolder(targetCourseId: string, folderGroupId: string) {
-    const targetGroup = folderGroups.find((g) => g.id === folderGroupId);
-    const targetName = targetGroup?.name || "AI & Agentic Programs";
-    await mutate(
-      {
-        action: "set_course_folder_group",
-        courseId: targetCourseId,
-        folderGroupId,
-        folderGroupName: targetName,
-      },
-      `move-course:${targetCourseId}`,
-      `Moved course to folder “${targetName}”.`,
-      `loading..... Moving course to folder “${targetName}”...`
-    );
-  }
-
-
   function handleToggleCourseSelection(id: string) {
     if (!activeCourses.some(course => course.id === id && canSelectCourse(course))) return;
     setSelectedCourses((prev) => {
@@ -753,11 +725,21 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
 
 
   async function setLanguage(languageLabel: LanguageLabel) {
-    await mutate(
-      { action: "set_course_language", courseId: effectiveCourseId, languageLabel },
-      `lang:${effectiveCourseId}`,
-      "Updated course folder language label."
-    );
+    if (!canEditCourse || languageSaving.current || selectedCourse?.language_label === languageLabel) return;
+    const savingCourseId = effectiveCourseId;
+    languageSaving.current = true;
+    setLanguageFeedback({ courseId: savingCourseId, message: "Saving language…", failed: false });
+    try {
+      await mutate(
+        { action: "set_course_language", courseId: savingCourseId, languageLabel },
+        `lang:${savingCourseId}`,
+        "Language saved.",
+        undefined,
+        (message, failed) => setLanguageFeedback({ courseId: savingCourseId, message, failed })
+      );
+    } finally {
+      languageSaving.current = false;
+    }
   }
 
   // =========================================================================
@@ -903,59 +885,6 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
     );
     if (ok) setEditingSectionId(null);
   }
-
-  async function handleSectionContentUpload(section: Section, file: File | undefined, onProgress?: (value: number) => void): Promise<boolean> {
-    if (!canEditSection(section)) return false;
-    if (!file) return false;
-    if (!driveDestinationId) { setError("Choose a Drive destination before uploading."); return false; }
-    if (file.size > 50 * 1024 * 1024) {
-      setError("The maximum file size is 50 MB.");
-      setNotice("");
-      return false;
-    }
-    const key = `upload-section:${section.id}`;
-    if (pendingSectionUploads.current.has(key)) return false;
-    pendingSectionUploads.current.add(key);
-    setBusy((current) => new Set(current).add(key));
-    return sectionUploadQueue.current(async () => {
-    setError("");
-    setNotice("");
-    try {
-      const payload = (await uploadSectionFile(`/api/admin/sections/${encodeURIComponent(section.id)}/content`, file, onProgress, driveDestinationId)) as {
-        success?: boolean;
-        message?: string;
-        contentType: Section["content_type"];
-        contentPath: string;
-        sourceFilename: string;
-        slideCount: number | null;
-      };
-      setSections((current) => current.map((item) => item.id === section.id ? {
-        ...item,
-        content_type: payload.contentType,
-        content_path: payload.contentPath,
-        source_filename: payload.sourceFilename,
-        slide_count: payload.slideCount,
-      } : item));
-      setNotice(file.name.toLowerCase().endsWith(".pptx")
-        ? `Uploaded "${file.name}" to Drive with all package content preserved. Open the section to preview or download the file.`
-        : `Uploaded "${file.name}" to Drive. The section now opens in the shared presentation frame.`);
-      return true;
-    } catch (caught) {
-      setError(caught instanceof Error && caught.name === "TimeoutError"
-        ? `Upload of "${file.name}" timed out. Refresh to check whether it was saved before retrying.`
-        : `Upload of "${file.name}" failed: ${caught instanceof Error ? caught.message : "Unable to upload section content."}`);
-      return false;
-    } finally {
-      pendingSectionUploads.current.delete(key);
-      setBusy((current) => {
-        const next = new Set(current);
-        next.delete(key);
-        return next;
-      });
-    }
-    });
-  }
-
 
   async function handleDeleteSection(section: Section) {
     if (selectedCourse?.slug === "applied-agentic-ai" && ["section1", "section2"].includes(section.section_key)) {
@@ -1362,7 +1291,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
 
                             {/* Quick Folder Actions (Compact Icons) */}
                             {canEditFolder(group) && (<div className={styles.folderGroupActions} onClick={(e) => e.stopPropagation()}>
-                              {isAdmin && <DriveLoad sections={sections.filter(section => courses.some(course => course.id === section.course_id && course.folderGroupId === group.id)).map(section => ({...section, courseTitle:courses.find(course => course.id === section.course_id)?.title}))} onLoaded={refreshDriveCatalog} label="Load from Drive" />}
+                              {isAdmin && <DriveExport groupId={group.id} label={`Save folder ${group.name} to Drive`} compact disabled={Boolean(processingMessage)} />}
                               {isAdmin && <VisibilityToggle hidden={Boolean(group.hidden)} label={`folder ${group.name}`} busy={busy.has(`hide-folder:${group.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-folder:${group.id}`)} onToggle={() => void mutate({ action: "set_folder_group_hidden", folderGroupId: group.id, hidden: !group.hidden }, `hide-folder:${group.id}`, "Folder visibility updated.")} />}
 
 
@@ -1606,68 +1535,9 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                     {/* UNIFIED COURSE COMMAND HUB (Gộp toàn bộ layout hiển thị & điều khiển nhanh) */}
                     <div className={styles.courseCommandHub}>
 
-                      <div className={styles.templateSetup}>
-                        <div className={styles.templateSetupCopy}><label htmlFor="course-slide-template"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>Slide template</label><p>Layout for existing and future PPTX, PDF and TSX slides.</p></div>
-                        <select id="course-slide-template" aria-label="Slide template" value={selectedCourse.metadata?.templateKey ?? (Object.keys(selectedCourse.metadata?.sectionTemplates ?? {}).length ? "__legacy" : "")} disabled={!canEditCourse || Boolean(processingMessage) || busy.has(`template:${effectiveCourseId}`) || Boolean(templateError)} onChange={event => void mutate({ action: "set_course_template", courseId: effectiveCourseId, templateKey: event.target.value }, `template:${effectiveCourseId}`, "Course template updated.")}>
-                          <option value="">Original slides (no template)</option>
-                          {selectedCourse.metadata?.templateKey === undefined && Object.keys(selectedCourse.metadata?.sectionTemplates ?? {}).length > 0 && <option disabled value="__legacy">Existing section layouts</option>}
-                          {selectedCourse.metadata?.templateKey && !templates.some(template => template.id === selectedCourse.metadata.templateKey) && <option value={selectedCourse.metadata.templateKey}>Deleted layout - choose another</option>}
-                          {templates.map(template => <option key={template.id} value={template.id}>{template.name}</option>)}
-                        </select>
-                        {templateError && <p role="alert">{templateError}</p>}
-                      </div>
-                      {/* Top Bar: Parent Folder, Course Status, and Language */}
-                      <div className={styles.commandHubTopRow}>
-                        <div className={styles.commandHubTopLeft}>
-                          {/* Folder Pill */}
-                          <div className={styles.parentFolderPill}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="#b39159">
-                              <path d="M20 5h-9.586L8.707 3.293A.997.997 0 0 0 8 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/>
-                            </svg>
-                            <span className={styles.parentFolderLabel}>Folder:</span>
-                            <select
-                              value={selectedCourse.folderGroupId || "fg-ai-agentic"}
-                              onChange={(e) => void handleMoveCourseFolder(selectedCourse.id, e.target.value)}
-                              disabled={!canEditCourse || busy.has(`move-course:${selectedCourse.id}`) || Boolean(processingMessage)}
-                              className={styles.parentFolderSelect}
-                            >
-                              {!editableFolders.some(group => group.id === selectedCourse.folderGroupId) && <option value={selectedCourse.folderGroupId || "fg-ai-agentic"}>{folderGroups.find(group => group.id === selectedCourse.folderGroupId)?.name || "Current folder"}</option>}
-                              {editableFolders.map((g) => (
-                                <option key={g.id} value={g.id}>
-                                  📁 {g.name}
-                                </option>
-                              ))}
-                            </select>
-                            {busy.has(`move-course:${selectedCourse.id}`) && (
-                              <span className={styles.movingFolderBadge}>
-                                <span className={styles.btnSpinnerSm} />
-                              </span>
-                            )}
-                          </div>
-
-                          {isAdmin && <DriveLoad sections={courseSections} onLoaded={refreshDriveCatalog} />}
-                          {/* Instant 1-Click Toggle Passcode Requirement */}
-
-                        </div>
-
-                        {/* Language Selector Pill */}
-                        <div className={styles.langSelector}>
-                          {languageOptions.map((opt) => (
-                            <button
-                              key={opt.value}
-                              type="button"
-                              className={`${styles.langBtn} ${selectedCourse.language_label === opt.value ? styles.langActive : ""}`}
-                              onClick={() => void setLanguage(opt.value)}
-                              disabled={!canEditCourse || busy.has(`lang:${effectiveCourseId}`)}
-                            >
-                              {opt.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
                       {/* Main Course Info (Title & Description inline) */}
                       <div className={styles.commandHubTitleBox}>
+                        <div className={styles.courseHeading}>
                         {editingTitle ? (
                           <div className={styles.titleEditBox}>
                             <input
@@ -1724,11 +1594,18 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                           </div>
                         )}
 
-                        {/* Inline Description */}
+                          <div className={styles.courseFileActions} role="group" aria-label="Course Drive files">
+                          {isAdmin && <DriveExport courseId={selectedCourse.id} label="Save course files to Drive" disabled={Boolean(processingMessage)} />}
+                          </div>
+                        </div>
+
+                        <section className={styles.summaryPanel} aria-label="Course summary">
+                        <span className={styles.summaryLabel}>Summary</span>
                         {editingDescription ? (
-                          <div className={styles.descEditBox} style={{ marginTop: "4px" }}>
+                          <div className={styles.descEditBox}>
                             <input
                               type="text"
+                              aria-label="Course summary"
                               value={descriptionValue}
                               onChange={(e) => setDescriptionValue(e.target.value)}
                               onKeyDown={(e) => {
@@ -1740,7 +1617,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                   setEditingDescription(false);
                                 }
                               }}
-                              placeholder="Course description (e.g. Gemini -> Google sheets -> GAS -> Web App)..."
+                              placeholder="Add a short overview of this course…"
                               className={styles.descInput}
                               autoFocus
                             />
@@ -1765,8 +1642,8 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                           </div>
                         ) : (
                           <div className={styles.descInlineRow}>
-                            <p className={styles.workspaceDescText}>
-                              {selectedCourse.metadata?.summary ?? selectedCourse.description ?? ""}
+                            <p className={`${styles.workspaceDescText} ${courseSummary ? "" : styles.summaryEmpty}`}>
+                              {courseSummary || "No summary yet."}
                             </p>
                             {canEditCourse && (<button
                               type="button"
@@ -1781,10 +1658,11 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                             </button>)}
                           </div>
                         )}
+                        </section>
                       </div>
 
                       {/* Passcode Quick Strip */}
-                      {isAdmin && (<div className={styles.commandHubPasscodeStrip}><span>Learner &amp; Facilitator access</span><button type="button" className={styles.btnSecondary} onClick={() => setTab("passcodes")}>Manage passcodes</button></div>)}
+                      {isAdmin && (<div className={styles.commandHubPasscodeStrip}><span>Learner &amp; Facilitator access</span><button type="button" className={styles.managePasscodesButton} onClick={() => setTab("passcodes")}>Manage passcodes</button></div>)}
                     </div>
 
                     {/* COURSE WORKSPACE SPLIT: Khung Section (Màu Đỏ - Trái) & Khung Icon (Màu Đen - Phải) */}
@@ -1806,7 +1684,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                       </div>
 
                       <p className={styles.sectionUploadHelp}>
-                        Load PDF, TSX or PPTX from Drive, or upload new files to Drive. Up to 50 MB per file. PowerPoint downloads preserve audio, animations and add-ins.
+                        Choose a Drive icon to save web section files. Select the destination in the popup.
                       </p>
 
                       {/* Multi-Section Batch Action Toolbar */}
@@ -1853,12 +1731,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                       )}
 
                       {/* Section List */}
-                      <label className={styles.driveDestination}>Upload destination<select aria-label="Drive upload destination" value={driveDestinationId} onChange={event => setDriveDestinationId(event.target.value)} disabled={Boolean(processingMessage)}><option value="">Choose a Drive destination</option>{driveDestinations.map(destination => <option key={destination.id} value={destination.id}>{destination.label}</option>)}</select><a href="/admin/drive">Manage Drive destinations</a></label>
-                      {editableSections.length > 0 && (<SectionBatchUpload key={effectiveCourseId} sections={editableSections} disabled={Boolean(processingMessage) || !driveDestinationId} coreCourse={selectedCourse.slug === "applied-agentic-ai"}
-                        upload={(target, file, progress) => {
-                          const section = courseSections.find((item) => item.id === target.id);
-                          return section ? handleSectionContentUpload(section, file, progress) : Promise.resolve(false);
-                        }} />)}
+
                       <div className={styles.sectionItemsContainer}>
                         {courseSections.length === 0 ? (
                           <div className={styles.noEmailMessage}>
@@ -1955,41 +1828,32 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                 </div>
                                 <div className={styles.sectionItemRight}>
                                   <VisibilityToggle hidden={Boolean(section.hidden)} label={`section ${section.title}`} busy={busy.has(`hide-section:${section.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-section:${section.id}`)} onToggle={() => void mutate({ action: "set_section_hidden", sectionId: section.id, hidden: !section.hidden }, `hide-section:${section.id}`, "Section visibility updated.")} />
-                                  {isAdmin && <DriveLoad sections={[section]} onLoaded={refreshDriveCatalog} />}
-                                  {isAdmin && section.content_path && !section.content_path.startsWith("drive:") && <button type="button" className={styles.btnSecondary} disabled={!driveDestinationId || Boolean(processingMessage)} onClick={() => void moveSectionToDrive(section)}>Move existing file to Drive</button>}
-                                  {isAdmin && <SectionSourceLibrary sectionId={section.id} sectionTitle={section.title} />}
+                                  {isAdmin && <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} disabled={Boolean(processingMessage)} />}
                                   <a className={styles.sectionUploadButton} href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}&sectionId=${encodeURIComponent(section.id)}`}>View</a>
                                   {!editable && <span className={styles.compactPillLocked}>Read only</span>}
-                                  {section.source_filename && (
-                                    <a
-                                      className={styles.sectionUploadButton}
-                                      href={`/api/sections/${encodeURIComponent(section.id)}/content?download=1`}
-                                      download={section.source_filename}
-                                      title="Download the original file"
-                                    >
-                                      Download
-                                    </a>
-                                  )}
                                   {editable && (<button
                                     type="button"
-                                    className={styles.addSectionButton}
+                                    className={`${styles.addSectionButton} ${styles.sectionActionIcon}`}
+                                    aria-label={`Rename section ${section.title}`}
+                                    title="Rename section"
                                     onClick={() => {
                                       setEditingSectionId(section.id);
                                       setSectionTitleValue(section.title);
                                     }}
                                     disabled={Boolean(processingMessage) || editingSectionId === section.id}
                                   >
-                                    Rename
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m16 3 5 5-13 13H3v-5ZM14 5l5 5" /></svg>
                                   </button>)}
                                   {editable && !isDefault && (
                                     <button
                                       type="button"
-                                      className={styles.removeBtn}
+                                      className={`${styles.removeBtn} ${styles.sectionActionIcon}`}
+                                      aria-label={`Delete section ${section.title}`}
                                       onClick={() => void handleDeleteSection(section)}
                                       disabled={busy.has(`sec:${section.id}`)}
                                       title={`Delete section “${section.title}”`}
                                     >
-                                      Delete
+                                      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7" /></svg>
                                     </button>
                                   )}
                                 </div>
@@ -2026,10 +1890,52 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                       </>}
                     </div>
 
+                      <aside className={styles.courseSettingsRail} aria-label="Course appearance">
                       <CourseSystemIcons key={effectiveCourseId}
                         icons={selectedCourse.systemIcons || selectedCourse.metadata?.systemIcons || []}
                         editable={canEditCourse} disabled={Boolean(processingMessage) || busy.has(`icons:${effectiveCourseId}`)}
                         onSave={saveSystemIcons} />
+                      <div className={styles.templateSetup}>
+                        <div className={styles.systemIconsHeader}>
+                          <div className={styles.systemIconsTitleArea}>
+                            <span className={styles.badgeIndex}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg></span>
+                            <div><h3><label htmlFor="course-slide-template">Slide template</label></h3><p>Layout for PPTX, PDF and TSX slides.</p></div>
+                          </div>
+                        </div>
+                        <select id="course-slide-template" aria-label="Slide template" value={selectedCourse.metadata?.templateKey ?? (Object.keys(selectedCourse.metadata?.sectionTemplates ?? {}).length ? "__legacy" : "")} disabled={!canEditCourse || Boolean(processingMessage) || busy.has(`template:${effectiveCourseId}`) || Boolean(templateError)} onChange={event => void mutate({ action: "set_course_template", courseId: effectiveCourseId, templateKey: event.target.value }, `template:${effectiveCourseId}`, "Course template updated.")}>
+                          <option value="">Original slides (no template)</option>
+                          {selectedCourse.metadata?.templateKey === undefined && Object.keys(selectedCourse.metadata?.sectionTemplates ?? {}).length > 0 && <option disabled value="__legacy">Existing section layouts</option>}
+                          {selectedCourse.metadata?.templateKey && !templates.some(template => template.id === selectedCourse.metadata.templateKey) && <option value={selectedCourse.metadata.templateKey}>Deleted layout - choose another</option>}
+                          {templates.map(template => <option key={template.id} value={template.id}>{template.name}</option>)}
+                        </select>
+                        {templateError && <p role="alert">{templateError}</p>}
+                      </div>
+                      <section className={styles.courseLanguage} aria-labelledby="course-language-heading">
+                        <div className={styles.systemIconsHeader}>
+                          <div className={styles.systemIconsTitleArea}>
+                            <span className={styles.badgeIndex}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><path d="M3 12h18"/></svg></span>
+                            <div><h3 id="course-language-heading">Language</h3><p>Language label for this course.</p></div>
+                          </div>
+                        </div>
+                        <div className={styles.langSelector} role="group" aria-label="Course language">
+                          {languageOptions.map((opt) => (
+                            <button
+                              key={opt.value}
+                              type="button"
+                              aria-pressed={selectedCourse.language_label === opt.value}
+                              className={`${styles.langBtn} ${selectedCourse.language_label === opt.value ? styles.langActive : ""}`}
+                              onClick={() => void setLanguage(opt.value)}
+                              disabled={!canEditCourse || busy.has(`lang:${effectiveCourseId}`)}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                        <p className={`${styles.languageFeedback} ${languageFeedback?.courseId === effectiveCourseId && languageFeedback.failed ? styles.languageFeedbackError : ""}`} role="status" aria-live="polite">
+                          {languageFeedback?.courseId === effectiveCourseId ? languageFeedback.message : ""}
+                        </p>
+                      </section>
+                      </aside>
                     </div>
                   </>
                 ) : (

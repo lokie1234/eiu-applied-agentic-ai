@@ -10,13 +10,17 @@ export function createSupabaseFetch(fetcher: typeof fetch = fetch, requestSignal
     const method = (init?.method ?? request?.method ?? "GET").toUpperCase();
     const reading = method === "GET" || method === "HEAD";
     const rest = url.pathname.startsWith("/rest/v1/");
+    const table = url.pathname.split("/").at(-1) ?? "";
     const signal = init?.signal ?? request?.signal;
     const consumerSignal = signal && requestSignal ? AbortSignal.any([signal, requestSignal]) : signal ?? requestSignal;
     consumerSignal?.throwIfAborted();
     const shareable = rest && reading && shareableTables.has(url.pathname.split("/").at(-1) ?? "") && pending.size < 100;
     const headers = new Headers(init?.headers ?? request?.headers);
     const key = JSON.stringify([method, url.href, [...headers.entries()].sort()]);
-    if (!reading) pending.clear();
+    // Heartbeats/audit writes do not change catalog permissions. Only mutations
+    // to shared tables invalidate pending shared reads, before and after writing.
+    const invalidatesReads = rest && !reading && shareableTables.has(table);
+    if (invalidatesReads) pending.clear();
 
     const run = (controller?: AbortController) => {
       const timeout = rest ? reading ? 15_000 : 30_000 : 90_000;
@@ -27,7 +31,7 @@ export function createSupabaseFetch(fetcher: typeof fetch = fetch, requestSignal
     };
     if (!shareable) {
       try { return await run(); }
-      finally { if (!reading) pending.clear(); }
+      finally { if (invalidatesReads) pending.clear(); }
     }
 
     let entry = pending.get(key);

@@ -1,8 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
-import { type FormEvent, type KeyboardEvent, useEffect, useRef, useState } from "react";
+import { cancelledRefresh, useLiveRefresh } from "@/lib/liveRefresh";
+import AdminWorkspaceNav from "./AdminWorkspaceNav";
+import { type FormEvent, type KeyboardEvent, useCallback, useEffect, useRef, useState } from "react";
 import type { AiDocument, AiRules, AISource } from "@/lib/ai/types";
 import {
   DEFAULT_FALLBACK_MESSAGE,
@@ -182,29 +183,32 @@ export default function AdminAiPortal() {
   }, [messages, isSending, activeTab]);
 
   // Load documents
-  async function loadDocuments() {
+  const readDocuments = useCallback(async (signal: AbortSignal) => {
     try {
       setLoadingDocs(true);
-      const res = await fetch("/api/ai/documents", { cache: "no-store" });
+      const res = await fetch("/api/ai/documents", { cache: "no-store", signal });
       if (!res.ok) throw new Error("Unable to load documents.");
       const data = await res.json();
+      signal.throwIfAborted();
       if (data.success && Array.isArray(data.documents)) {
         setDocuments(data.documents);
       }
     } catch (err) {
-      console.error(err);
+      if (!cancelledRefresh(signal)) console.error(err);
     } finally {
-      setLoadingDocs(false);
+      if (!cancelledRefresh(signal)) setLoadingDocs(false);
     }
-  }
+  }, []);
+  const loadDocuments = useLiveRefresh(readDocuments);
 
   // Load rules
-  async function loadRules() {
+  const readRules = useCallback(async (signal: AbortSignal) => {
     try {
       setLoadingRules(true);
-      const res = await fetch("/api/ai/rules", { cache: "no-store" });
+      const res = await fetch("/api/ai/rules", { cache: "no-store", signal });
       if (!res.ok) throw new Error("Unable to load AI rules.");
       const data = await res.json();
+      signal.throwIfAborted();
       if (data.success && data.rules) {
         const r: AiRules = data.rules;
         setSystemPrompt(r.system_prompt || DEFAULT_SYSTEM_PROMPT);
@@ -212,53 +216,26 @@ export default function AdminAiPortal() {
         setRequireCitation(r.require_citation ?? true);
       }
     } catch (err) {
-      console.error(err);
+      if (!cancelledRefresh(signal)) console.error(err);
     } finally {
-      setLoadingRules(false);
+      if (!cancelledRefresh(signal)) setLoadingRules(false);
     }
-  }
+  }, [setSystemPrompt, setFallbackMessage, setRequireCitation]);
+  const loadRules = useLiveRefresh(readRules);
 
   useEffect(() => {
-    let active = true;
-    fetch("/api/ai/documents", { cache: "no-store" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (active && data?.success && Array.isArray(data.documents)) {
-          setDocuments(data.documents);
-        }
-      })
-      .catch(() => undefined);
+    const timer = window.setTimeout(() => { void loadDocuments(); void loadRules(); }, 0);
+    return () => window.clearTimeout(timer);
+  }, [loadDocuments, loadRules]);
 
-    fetch("/api/ai/rules", { cache: "no-store" })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((data) => {
-        if (active && data?.success && data.rules) {
-          const r: AiRules = data.rules;
-          setSystemPrompt(r.system_prompt || DEFAULT_SYSTEM_PROMPT);
-          setFallbackMessage(r.fallback_message || DEFAULT_FALLBACK_MESSAGE);
-          setRequireCitation(r.require_citation ?? true);
-        }
-      })
-      .catch(() => undefined);
-
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  // Poll for document processing updates
+  const hasPendingDocuments = documents.some(d => d.status === "PROCESSING" || d.status === "UPLOADING");
   useEffect(() => {
-    const hasPending = documents.some(
-      (d) => d.status === "PROCESSING" || d.status === "UPLOADING"
-    );
-    if (!hasPending) return;
-
-    const interval = setInterval(() => {
-      void loadDocuments();
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [documents]);
+    if (!hasPendingDocuments) return;
+    const poll = () => { if (document.visibilityState === "visible") void loadDocuments(false); };
+    const interval = window.setInterval(poll, 4000);
+    document.addEventListener("visibilitychange", poll);
+    return () => { window.clearInterval(interval); document.removeEventListener("visibilitychange", poll); };
+  }, [hasPendingDocuments, loadDocuments]);
 
   // Sign out handler
   async function handleSignOut() {
@@ -743,14 +720,7 @@ export default function AdminAiPortal() {
           </div>
         </div>
 
-        <div className={styles.headerActions}>
-          <Link href="/" className={styles.backLink}>
-            ← Learning space
-          </Link>
-          <button type="button" className={styles.signOutBtn} onClick={handleSignOut}>
-            Sign out
-          </button>
-        </div>
+        <AdminWorkspaceNav showAdmin onSignOut={handleSignOut} />
       </header>
 
       {/* Main Container */}

@@ -311,23 +311,15 @@ test("TSX keeps one original on Drive and compiles only when the deck requests i
 });
 
 
-test("linking a Drive PDF changes only section metadata and does not upload or copy the file", async () => {
- const api=handlers();const bytes=Buffer.from("%PDF-1.4\nDrive source");api.state.stored.set("drive:existing-drive-file",bytes);api.state.driveName="from-drive.pdf";
- const response=await api.submit(new Request("http://localhost/api/admin/sections/section-id/content",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"link",fileId:"existing-drive-file"})}));
- assert.equal(response.status,200);assert.equal(api.state.section.content_path,"drive:existing-drive-file");assert.equal(api.state.supabaseUploads,0);assert.equal(api.state.driveUploads,0);
- assert.deepEqual(Buffer.from(await (await api.download()).arrayBuffer()),bytes);
-});
-
-test("missing or inaccessible Drive files leave the current lesson unchanged", async () => {
- const api=handlers();const response=await api.submit(new Request("http://localhost/api/admin/sections/section-id/content",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"link",fileId:"missing-drive-file"})}));
- assert.equal(response.status,502);assert.equal(api.state.section.content_path,null);assert.equal(api.state.driveUploads,0);
-});
-
-test("moving legacy PDF uploads to Drive and then schedules storage cleanup", async () => {
- const api=handlers();const legacy="course-id/section-id/legacy.pdf",bytes=Buffer.from("%PDF-1.4\nLegacy");api.state.stored.set(legacy,bytes);api.state.section={...api.state.section,content_path:legacy,content_type:"pdf",source_filename:"legacy.pdf"};
- const response=await api.submit(new Request("http://localhost/api/admin/sections/section-id/content",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action:"migrate",destinationId:"destination-test"})}));
- assert.equal(response.status,200);assert.match(api.state.section.content_path,/^drive:/);assert.ok(api.state.stored.has(legacy));await api.flushAfter();assert.equal(api.state.stored.has(legacy),false);
- assert.deepEqual(Buffer.from(await (await api.download()).arrayBuffer()),bytes);
+test("retired Drive import and migration requests cannot change or delete web content", async () => {
+ const api=handlers();const legacy="course-id/section-id/legacy.pdf",bytes=Buffer.from("%PDF-1.4\nLegacy");
+ api.state.stored.set(legacy,bytes);api.state.section={...api.state.section,content_path:legacy,content_type:"pdf",source_filename:"legacy.pdf"};
+ for(const action of ["link","migrate"]) {
+  const response=await api.submit(new Request("http://localhost/api/admin/sections/section-id/content",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,fileId:"existing-drive-file",destinationId:"destination-test"})}));
+  assert.equal(response.status,410);assert.match((await response.json()).message,/no longer supported/);
+  assert.equal(api.state.section.content_path,legacy);assert.equal(api.state.driveUploads,0);
+ }
+ await api.flushAfter();assert.ok(api.state.stored.has(legacy));assert.equal(api.state.removed.length,0);
 });
 
 test("legacy PDF sections still read from Supabase without requiring Drive",async()=>{

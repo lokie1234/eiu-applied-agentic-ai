@@ -43,7 +43,12 @@ export function describeSectionSource(input: {
   return { type, driveFolderId: SECTION_SOURCE_DESTINATIONS[type] as string, name };
 }
 
-export function driveDocumentName(value: string, defaultName: string, type: SectionSourceType) {
-  const stem = value.trim() ? value.trim().replace(/\.(pdf|pptx|tsx)$/i, "") : defaultName.replace(/\.(pdf|pptx|tsx)$/i, "");
+export function driveDocumentName(value: string, defaultName: string, type: SectionSourceType | "js") {
+  const stem = value.trim() ? value.trim().replace(/\.(pdf|pptx|tsx|js)$/i, "") : defaultName.replace(/\.(pdf|pptx|tsx|js)$/i, "");
   return label(stem, "Document", 150) + `.${type}`;
+}
+
+export function driveSectionName(position: number, title: string, type: SectionSourceType | "js") {
+  if (!Number.isInteger(position) || position < 1) throw new Error("Invalid section position.");
+  return driveDocumentName("", `Section ${position} — ${title}`, type);
 }

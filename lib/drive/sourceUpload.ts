@@ -7,12 +7,18 @@ export async function saveDriveOriginal(client: OAuth2Client, input: {
   mimeType: string; sha256: string; body: Uint8Array;
 }) {
   if (!/^[a-f0-9-]{36}$/i.test(input.sourceId)) throw new Error("Invalid source ID.");
-  const existing = await client.request<{ files: { id: string; appProperties?: Record<string, string> }[] }>({
+  const existing = await client.request<{ files: { id: string; name?: string; appProperties?: Record<string, string> }[] }>({
     url: "https://www.googleapis.com/drive/v3/files", timeout: 10000,
-    params: { q: `'${input.folderId}' in parents and trashed = false and appProperties has { key='eiuSourceId' and value='${input.sourceId}' }`, fields: "files(id,appProperties)", pageSize: 10 },
+    params: { q: `'${input.folderId}' in parents and trashed = false and appProperties has { key='eiuSourceId' and value='${input.sourceId}' }`, fields: "files(id,name,appProperties)", pageSize: 10 },
   });
   const recovered = existing.data.files.find(file => file.appProperties?.eiuSha256 === input.sha256 && file.appProperties?.eiuSectionId === input.sectionId);
-  if (recovered) return recovered.id;
+  if (recovered) {
+    if (recovered.name !== input.name) await client.request({
+      url: "https://www.googleapis.com/drive/v3/files/" + encodeURIComponent(recovered.id), method: "PATCH", timeout: 10000,
+      params: { supportsAllDrives: true }, data: { name: input.name },
+    });
+    return recovered.id;
+  }
   const start = await client.request({
     url: "https://www.googleapis.com/upload/drive/v3/files", method: "POST", timeout: 15000,
     params: { uploadType: "resumable", supportsAllDrives: true, fields: "id" },

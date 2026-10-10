@@ -28,6 +28,26 @@ test("refresh URL keeps the course, section, and slide; returning to each sectio
   await window.happyDOM.close();
 });
 
+test("deck navigation updates the router canonical URL instead of reusing Next private history state", async () => {
+  const window = new Window({ url: "http://localhost/learn" });
+  const original = window.history.replaceState.bind(window.history);
+  let canonical = window.location.href;
+  window.history.replaceState = (state, title, url) => {
+    // Match Next's behavior: private __NA entries skip router synchronization.
+    if (!state?.__NA) canonical = new URL(url, window.location.href).href;
+    original({ __NA: true }, title, url);
+  };
+  original({ __NA: true }, "", window.location.href);
+  const deck = load("lib/deckLocation.ts", { window });
+  deck.rememberDeckSelection("course", "section1");
+  deck.rememberSlide(41);
+  assert.equal(new URL(canonical).searchParams.get("sectionId"), "section1");
+  assert.equal(new URL(canonical).searchParams.get("slide"), "41");
+  deck.rememberDeckSelection();
+  assert.equal(new URL(canonical).search, "");
+  await window.happyDOM.close();
+});
+
 test("quiz restoration uses the signed session and section, checks the result still exists, and restores feedback", async () => {
   const calls = [];
   let missing = false;

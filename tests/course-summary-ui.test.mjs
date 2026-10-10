@@ -62,18 +62,18 @@ test("admin can clear a summary and reopen or cancel the editor without restorin
     await act(async () => container.querySelector(".descSaveBtn").click());
     assert.equal(calls.at(-1).action, "update_course_description");
     assert.equal(calls.at(-1).summary, "");
-    assert.equal(container.querySelector(".workspaceDescText").textContent, "");
+    assert.equal(container.querySelector(".workspaceDescText").textContent, "No summary yet.");
     await edit();
     assert.equal(input().value, "");
     await act(async () => container.querySelector(".descCancelBtn").click());
-    assert.equal(container.querySelector(".workspaceDescText").textContent, "");
+    assert.equal(container.querySelector(".workspaceDescText").textContent, "No summary yet.");
     await act(async () => root.unmount());
     await act(async () => {
       root = createRoot(container);
       root.render(React.createElement(exports.default, { adminEmail: "admin@example.test" }));
     });
     await act(async () => [...container.querySelectorAll('[role="tab"]')].find(tab => tab.textContent.includes("Course")).click());
-    assert.equal(container.querySelector(".workspaceDescText").textContent, "");
+    assert.equal(container.querySelector(".workspaceDescText").textContent, "No summary yet.");
     const option = container.querySelector('[aria-label="Slide template"]');
     assert.equal(option.value, "");
     assert.equal(container.querySelector('a[href="/templates/eiu-business-v1/template.pdf"]'), null);

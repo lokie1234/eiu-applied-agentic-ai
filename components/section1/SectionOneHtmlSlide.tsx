@@ -256,10 +256,13 @@ function IdeaResults() {
       ?.channel("eiu:ideas")
       .on("broadcast", { event: "ideas_changed" }, () => void loadIdeas())
       .subscribe();
-    const fallbackTimer = window.setInterval(() => void loadIdeas(), 60_000);
+    const poll = () => { if (document.visibilityState === "visible") void loadIdeas(false); };
+    const fallbackTimer = window.setInterval(poll, 60_000);
+    document.addEventListener("visibilitychange", poll);
     return () => {
       window.clearTimeout(firstLoad);
       window.clearInterval(fallbackTimer);
+      document.removeEventListener("visibilitychange", poll);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
   }, [loadIdeas]);

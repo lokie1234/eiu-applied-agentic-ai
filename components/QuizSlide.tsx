@@ -139,12 +139,15 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
       .on("broadcast", { event: "quiz_state_changed" }, refresh)
       .on("broadcast", { event: "quiz_results_changed" }, refresh)
       .subscribe();
-    const fallbackTimer = window.setInterval(() => void loadQuizState(), 8_000);
+    const poll = () => { if (document.visibilityState === "visible") void loadQuizState(false); };
+    const fallbackTimer = window.setInterval(poll, 8_000);
+    document.addEventListener("visibilitychange", poll);
 
     return () => {
       window.clearTimeout(initialTimer);
       window.clearTimeout(refreshTimer);
       window.clearInterval(fallbackTimer);
+      document.removeEventListener("visibilitychange", poll);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
   }, [loadQuizState, variant, isAdmin]);

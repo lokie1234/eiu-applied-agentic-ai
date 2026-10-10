@@ -9,9 +9,9 @@ export function createRefreshRunner(load: (signal: AbortSignal) => Promise<void>
   let queued = false;
   let disposed = false;
   return {
-    refresh(): Promise<void> {
+    refresh(queueIfBusy = true): Promise<void> {
       if (disposed) return Promise.resolve();
-      if (active) { queued = true; return active; }
+      if (active) { if (queueIfBusy) queued = true; return active; }
       active = (async () => {
         do {
           queued = false;
@@ -32,7 +32,7 @@ export function useLiveRefresh(load: (signal: AbortSignal) => Promise<void>) {
     runner.current = current;
     return () => { current.dispose(); if (runner.current === current) runner.current = null; };
   }, [load]);
-  return useCallback(() => runner.current?.refresh() ?? Promise.resolve(), []);
+  return useCallback((queueIfBusy = true) => runner.current?.refresh(queueIfBusy) ?? Promise.resolve(), []);
 }
 
 export function cancelledRefresh(signal: AbortSignal) {

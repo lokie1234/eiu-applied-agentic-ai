@@ -19,16 +19,15 @@ export async function POST(request: Request) {
     }
     const passcode = typeof body.passcode === "string" ? body.passcode.trim() : "";
     if (!/^[A-Za-z0-9-]{4,32}$/.test(passcode)) return NextResponse.json({ success: false, message: "Please enter a valid passcode." }, { status: 400 });
-    const db = getSupabaseAdmin();
+    const db = getSupabaseAdmin(request.signal);
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
     const fingerprint = createHash("sha256").update(ip).digest("hex");
-    const { count, error } = await db.from("access_audit_logs").select("id", { count: "exact", head: true })
+    const [{ count, error }, catalog] = await Promise.all([db.from("access_audit_logs").select("id", { count: "exact", head: true })
       .eq("action", "PASSCODE_LOGIN_FAILED").contains("details", { fingerprint })
-      .gte("created_at", new Date(Date.now() - 15 * 60 * 1000).toISOString());
+      .gte("created_at", new Date(Date.now() - 15 * 60 * 1000).toISOString()), getCoursesAndSectionsData(request.signal)]);
     if (error) throw error;
     if ((count ?? 0) >= 10) return NextResponse.json({ success: false, message: "Too many attempts. Please try again in 15 minutes." }, { status: 429 });
     const credentialHash = hashPasscode(passcode);
-    const catalog = await getCoursesAndSectionsData();
     const access = resolvePasscode(catalog, credentialHash);
     if (!access) {
       const { error: auditError } = await db.from("access_audit_logs").insert({ action: "PASSCODE_LOGIN_FAILED", details: { fingerprint } });

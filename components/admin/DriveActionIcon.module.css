@@ -1,0 +1,9 @@
+.button { display:inline-grid; place-items:center; width:36px; height:36px; flex:0 0 36px; padding:4px; box-sizing:border-box; border:1px solid #d2bc96; border-radius:10px; background:#fff; cursor:pointer; transition:background 200ms ease,border-color 200ms ease; }
+.button:hover:not(:disabled) { background:#f7f4ed; border-color:#b39159; }
+.button:focus-visible { outline:3px solid #b39159; outline-offset:2px; }
+.button:disabled { opacity:.45; cursor:default; }
+.icon { display:block; position:relative; width:27px; height:27px; }
+.icon img { position:absolute; top:0; left:0; }
+.icon svg { position:absolute; right:-1px; bottom:-1px; width:17px; height:17px; border:1px solid currentColor; border-radius:5px; background:#fff; padding:1px; }
+.outbound { color:#b42332; }
+@media(prefers-reduced-motion:reduce) { .button { transition:none; } }
