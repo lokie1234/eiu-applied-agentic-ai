@@ -1745,7 +1745,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                             return (
                               <div
                                 key={section.id}
-                                className={`${styles.sectionItemRow} ${isChecked ? styles.sectionItemRowSelected : ""} ${sectionDropTarget === section.id ? styles.sectionDropTarget : ""}`}
+                                className={`${styles.sectionItemRow} ${isChecked ? styles.sectionItemRowSelected : ""} ${sectionDropTarget === section.id ? styles.sectionDropTarget : ""} ${editingSectionId === section.id ? styles.sectionItemRowEditing : ""}`}
                                 onDragOver={(event) => {
                                   if (!canReorderSections || !draggedSection.current || processingMessage) return;
                                   event.preventDefault();
@@ -1796,7 +1796,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                     title={`${section.title} (kéo qua lại để xem hết)`}
                                   >
                                     {editingSectionId === section.id ? (
-                                      <form onSubmit={(event) => void handleRenameSection(event, section)} className={styles.addSectionForm}>
+                                      <form onSubmit={(event) => void handleRenameSection(event, section)} className={`${styles.addSectionForm} ${styles.sectionRenameForm}`}>
                                         <input
                                           className={styles.addSectionInput}
                                           aria-label="Section name"

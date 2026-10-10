@@ -969,6 +969,31 @@
   flex-shrink: 0;
 }
 
+.sectionRenameForm {
+  width: 100%;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sectionRenameForm .addSectionInput {
+  flex: 1 1 320px;
+}
+
+.sectionItemRowEditing .sectionItemLeft {
+  flex-basis: 100%;
+}
+
+@media (max-width: 700px) {
+  .sectionItemRowEditing .sectionItemLeft {
+    flex-wrap: wrap;
+  }
+
+  .sectionItemRowEditing .sectionTitleScrollArea {
+    flex-basis: 100%;
+  }
+}
+
 .bulkSectionOption {
   display: flex;
   align-items: center;

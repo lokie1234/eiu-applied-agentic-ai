@@ -1,0 +1,1043 @@
+{
+  "title": "AI-Powered Web App Development & Deployment",
+  "summary": "Hiểu công cụ, làm chủ quy trình và sử dụng AI để phát triển, quản lý, triển khai ứng dụng web.",
+  "prompts": {
+    "project": "Bối cảnh: Tôi đang học phát triển ứng dụng quản lý yêu cầu công việc, đã mở project mẫu trong VS Code. Mục tiêu: hiểu project trước khi chỉnh sửa. Hãy giải thích chức năng của thư mục, các file quan trọng và cách chạy bản xem thử. Không thay đổi file hay đọc nội dung chứa khóa bí mật. Chỉ ra nơi sửa giao diện và nơi xử lý dữ liệu. Kết quả cần có: bản đồ project, các bước chạy và dấu hiệu chạy thành công. Nếu bạn không có quyền xem file, hãy yêu cầu tôi cung cấp cây thư mục và các file đã loại bỏ thông tin nhạy cảm. Cuối cùng, hướng dẫn tôi xác nhận đã mở đúng project và nhìn thấy đúng giao diện.",
+    "edit": "Bối cảnh: Project quản lý yêu cầu đang chạy tốt trên máy. Mục tiêu: làm nút tạo yêu cầu rõ ràng hơn và thêm thông báo khi lưu thành công. Hãy giải thích kế hoạch, liệt kê file cần sửa rồi thực hiện nếu có quyền; nếu không, cung cấp bản sửa và hướng dẫn tôi áp dụng. Giữ nguyên đăng nhập, dữ liệu và quy trình tạo yêu cầu. Không thêm dịch vụ trả phí hay thay đổi quyền truy cập. Kết quả: giao diện dễ dùng và không mất tính năng cũ. Hướng dẫn kiểm tra nút, thông báo, tải lại trang và trường hợp lưu thất bại; báo rõ những kiểm tra bạn chưa chạy.",
+    "git": "Bối cảnh: Tôi có project mẫu đã kiểm tra trên máy và muốn quản lý bằng GitHub. Hãy kiểm tra đúng thư mục và repository trước. Giải thích các bước kiểm tra thay đổi, loại trừ file chứa bí mật, Commit và Push bằng ngôn ngữ đơn giản. Không tự ghi đè lịch sử, xóa file hay thực hiện thao tác phá hủy. Nếu cần quyền tài khoản, hướng dẫn tôi tự đăng nhập và xác nhận. Kết quả: mã nguồn được lưu đúng repository với thông điệp Commit rõ ràng. Hướng dẫn kiểm tra phiên bản mới trên GitHub và cách xử lý nếu Push bị từ chối.",
+    "review": "Bối cảnh: AI vừa chỉnh sửa tính năng tạo yêu cầu. Mục tiêu: kiểm tra trước khi ghi nhận phiên bản. Hãy đọc phần thay đổi và chỉ ra file bị tác động, tính năng có thể ảnh hưởng, thông tin bí mật có nguy cơ bị đưa vào mã nguồn và các kiểm tra cần chạy. Không sửa file ngoài phạm vi hoặc Push tự động. Kết quả: danh sách vấn đề và kế hoạch kiểm tra thực tế. Hãy thử tạo yêu cầu, sửa trạng thái, kiểm tra đăng nhập và thông báo lỗi; báo rõ kết quả thực tế và những mục chưa xác minh.",
+    "schema": "Bối cảnh: Ứng dụng quản lý yêu cầu cần lưu tiêu đề, trạng thái, người tạo và thời điểm tạo. Mục tiêu: thiết kế dữ liệu trên Supabase. Hãy đề xuất tên bảng, cột, kiểu dữ liệu, ID duy nhất và quan hệ cần thiết; giải thích bằng ví dụ gần với bảng Excel. Mỗi người chỉ được đọc và sửa yêu cầu của mình, trừ vai trò quản lý được cấp quyền. Không dùng khóa có đặc quyền ở trình duyệt. Nếu cần SQL, hãy tạo mã và giải thích trước để tôi xác nhận; không tự thực thi hay xóa dữ liệu. Kết quả: cấu trúc tối giản và nguyên tắc phân quyền. Hướng dẫn kiểm tra dữ liệu hợp lệ, dữ liệu thiếu và hai tài khoản khác nhau.",
+    "connect": "Bối cảnh: Tôi đã có project chạy local và bảng yêu cầu trên Supabase. Mục tiêu: kết nối chức năng tạo và đọc yêu cầu. Hãy kiểm tra cấu trúc project, chỉ ra biến môi trường cần thiết bằng tên, không yêu cầu tôi dán giá trị secret. Dùng loại khóa phù hợp; khóa có đặc quyền chỉ nằm ở phía máy chủ. Giữ nguyên giao diện và dữ liệu đang có. Giải thích file cần sửa rồi thực hiện trong phạm vi nếu có quyền. Kết quả: lưu yêu cầu thành công và đọc lại sau khi tải lại trang. Hướng dẫn thử hai tài khoản để xác nhận RLS, thử lỗi kết nối và dữ liệu không hợp lệ; báo rõ kiểm tra chưa chạy.",
+    "drive": "Bối cảnh: Ứng dụng quản lý yêu cầu cần tham chiếu một tài liệu hướng dẫn trên Google Drive. Mục tiêu: chọn phương án đơn giản, giữ quyền truy cập phù hợp. Hãy so sánh lưu liên kết, dùng Google Apps Script và tích hợp API/OAuth; đề xuất mức cơ bản trước. Không công khai tài liệu nhạy cảm hoặc đưa token vào mã nguồn. Giữ nguyên cơ sở dữ liệu và chức năng hiện tại. Kết quả: yêu cầu có liên kết tài liệu, người được cấp quyền mở được. Hướng dẫn kiểm tra bằng tài khoản có quyền và không có quyền; nêu rõ phần nào tôi phải tự chia sẻ và xác nhận.",
+    "deploy": "Bối cảnh: Project quản lý yêu cầu đã chạy local và có trên GitHub. Mục tiêu: triển khai lên Vercel. Hãy kiểm tra repository, nhánh, framework, thư mục gốc và lệnh build. Liệt kê tên biến môi trường cần cấu hình, không yêu cầu cung cấp secret trong hội thoại. Giữ nguyên dữ liệu Supabase và quyền truy cập Drive. Đề xuất các bước; thao tác liên quan tài khoản hoặc xuất bản phải được tôi xác nhận. Kết quả: URL hoạt động, tạo và đọc dữ liệu đúng. Hướng dẫn thử bằng cửa sổ mới, kiểm tra kết nối, một lần cập nhật và bản triển khai mới; giải thích phần nào bạn chưa xác minh.",
+    "debug": "Bối cảnh: Project hoạt động local nhưng lần triển khai Vercel thất bại. Tôi cung cấp thông báo lỗi đã loại bỏ token, mật khẩu và giá trị biến môi trường. Mục tiêu: tìm nguyên nhân trước khi sửa. Hãy phân biệt lỗi build, cấu hình, kết nối dữ liệu và phân quyền; yêu cầu thông tin còn thiếu bằng tên. Giữ nguyên các tính năng và dữ liệu hiện tại; không tắt kiểm tra hay mở quyền công khai để né lỗi. Kết quả: nguyên nhân có bằng chứng, bản sửa nhỏ nhất và cách khôi phục khi cần. Hướng dẫn build lại, kiểm tra URL và thử chức năng gây lỗi; báo rõ mức độ chắc chắn.",
+    "workflow": "Bối cảnh: Tôi muốn tạo ứng dụng [mô tả ý tưởng], cho [đối tượng], cần [dữ liệu] và [tài liệu]. Mục tiêu: chọn công cụ đủ dùng và lên kế hoạch với AI. Hãy đề xuất vai trò của VS Code, GitHub, Supabase, Google Drive và Vercel; giải thích công cụ nào chưa cần. Không mặc định phải trả phí hoặc dùng mọi công cụ. Giữ dữ liệu nhạy cảm riêng tư và không yêu cầu dán secret. Kết quả: sơ đồ quy trình, các bước triển khai và phần tôi phải xác nhận. Hướng dẫn kiểm tra chức năng, lưu dữ liệu, quyền truy cập và URL; đề xuất cách đo hiệu năng trước khi tối ưu."
+  },
+  "slides": [
+    {
+      "section": 1,
+      "number": 1,
+      "title": "Làm chủ VS Code và GitHub",
+      "minutes": 5,
+      "message": "Từ chỉnh sửa trên máy đến mã nguồn được quản lý rõ ràng.",
+      "cards": [
+        {
+          "title": "VS Code",
+          "text": "Chỉnh sửa dự án và chạy thử cùng AI."
+        },
+        {
+          "title": "Git",
+          "text": "Theo dõi thay đổi, ghi Commit và quản lý nhánh trên máy."
+        },
+        {
+          "title": "GitHub",
+          "text": "Lưu kho mã nguồn từ xa và cộng tác qua Pull Request."
+        }
+      ],
+      "visual": "cover",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Từ chỉnh sửa trên máy đến mã nguồn được quản lý rõ ràng.",
+      "objective": "Từ chỉnh sửa trên máy đến mã nguồn được quản lý rõ ràng.",
+      "visualConcept": "Ba icon VS Code, Git phối bốn màu và GitHub nối thành vòng animation; cột mô tả và ba khung mục tiêu ở bên trái."
+    },
+    {
+      "section": 1,
+      "number": 2,
+      "title": "Sau phần này, bạn sẽ làm được",
+      "minutes": 5,
+      "message": "Sản phẩm đạt yêu cầu: ứng dụng chạy được và phiên bản được lưu đúng trên GitHub.",
+      "cards": [
+        {
+          "title": "Mở và hiểu dự án",
+          "text": "Mở đúng dự án và nhận diện cấu trúc mã nguồn."
+        },
+        {
+          "title": "Chỉnh sửa và kiểm tra",
+          "text": "Chỉnh sửa cùng AI, chạy thử và kiểm tra chức năng."
+        },
+        {
+          "title": "Quản lý phiên bản",
+          "text": "Đọc thay đổi, Commit và Push đúng kho mã nguồn."
+        },
+        {
+          "title": "Cộng tác có kiểm soát",
+          "text": "Tạo nhánh và gửi Pull Request để xem xét."
+        }
+      ],
+      "visual": "outcomes",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Sản phẩm đạt yêu cầu: ứng dụng chạy được và phiên bản được lưu đúng trên GitHub.",
+      "objective": "Sản phẩm đạt yêu cầu: ứng dụng chạy được và phiên bản được lưu đúng trên GitHub.",
+      "visualConcept": "Bốn khung dọc theo ảnh tham chiếu: timeline số bên trái, icon navy–vàng, tiêu đề viết hoa, mô tả rõ và nhãn thao tác bên phải; khung 2 nền navy."
+    },
+    {
+      "section": 1,
+      "number": 3,
+      "title": "VS Code, Git và GitHub: ba vai trò",
+      "minutes": 5,
+      "message": "",
+      "cards": [
+        {
+          "title": "VS Code · nơi làm việc",
+          "text": "Trình soạn thảo: mở file, tìm mã, chạy tác vụ, đọc lỗi và làm việc với trợ lý AI."
+        },
+        {
+          "title": "Git · lịch sử trên máy",
+          "text": "Ghi nhận nhóm thay đổi thành Commit, quản lý nhánh và so sánh các phiên bản."
+        },
+        {
+          "title": "GitHub · kho mã nguồn từ xa",
+          "text": "Repository lưu mã và lịch sử đã gửi lên; hỗ trợ nhánh, Pull Request và trao đổi công việc."
+        }
+      ],
+      "visual": "roles",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "VS Code là nơi làm việc; Git theo dõi phiên bản; GitHub lưu và phối hợp từ xa.",
+      "objective": "VS Code là nơi làm việc; Git theo dõi phiên bản; GitHub lưu và phối hợp từ xa.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 4,
+      "title": "Tính năng cụ thể",
+      "minutes": 5,
+      "message": "",
+      "cards": [
+        {
+          "title": "VS Code",
+          "text": "Cây file, tìm kiếm, terminal, tiện ích và kiểm soát thay đổi."
+        },
+        {
+          "title": "Git",
+          "text": "Commit, nhánh, so sánh thay đổi và tích hợp mã."
+        },
+        {
+          "title": "GitHub",
+          "text": "Kho mã nguồn, lịch sử, nhánh, Pull Request và Issues."
+        }
+      ],
+      "visual": "features",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Chọn một tính năng để biết dùng khi nào và kiểm tra kết quả ra sao.",
+      "objective": "Chọn một tính năng để biết dùng khi nào và kiểm tra kết quả ra sao.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 5,
+      "title": "Một lần sửa mã đi qua những bước nào?",
+      "minutes": 5,
+      "message": "",
+      "cards": [
+        {
+          "title": "Chỉnh sửa",
+          "text": "Giao yêu cầu cho AI và đọc phần mã được sửa trong VS Code."
+        },
+        {
+          "title": "Kiểm tra",
+          "text": "Chạy ứng dụng; thử tính năng mới và chức năng cũ trên máy."
+        },
+        {
+          "title": "Chọn thay đổi",
+          "text": "Chọn file hoặc phần sửa sẽ đưa vào lần Commit này."
+        },
+        {
+          "title": "Commit",
+          "text": "Ghi phiên bản trên máy với thông điệp mô tả rõ thay đổi."
+        },
+        {
+          "title": "Push",
+          "text": "Gửi các Commit lên đúng kho mã nguồn và nhánh trên GitHub."
+        },
+        {
+          "title": "Xác nhận",
+          "text": "Mở GitHub, kiểm tra nhánh và phiên bản mới đã được gửi lên."
+        }
+      ],
+      "visual": "fixed-process",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Đọc thay đổi và chạy thử trước khi lưu phiên bản lên GitHub.",
+      "objective": "Đọc thay đổi và chạy thử trước khi lưu phiên bản lên GitHub.",
+      "visualConcept": "Quy trình 6 bước cố định, ba khung mỗi hàng; mũi tên chuyển động nối 1→2→3↓4→5→6. Không có thao tác sắp xếp. Chọn thay đổi là chọn file hoặc phần sửa đưa vào Commit."
+    },
+    {
+      "section": 1,
+      "number": 6,
+      "title": "VS Code: nhận diện các vùng làm việc",
+      "minutes": 7,
+      "message": "Biết vùng nào hiển thị file, mã, lỗi và tác vụ đang chạy.",
+      "cards": [
+        {
+          "title": "Cây file",
+          "text": "Explorer hiển thị cấu trúc dự án; chọn file để mở trong vùng soạn thảo."
+        },
+        {
+          "title": "Vùng soạn thảo",
+          "text": "Đọc và chỉnh mã; xem nhiều file cạnh nhau khi cần so sánh."
+        },
+        {
+          "title": "Terminal và tiện ích",
+          "text": "Chạy tác vụ trong terminal; cài tiện ích phù hợp để bổ sung chức năng."
+        }
+      ],
+      "visual": "editor",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Biết vùng nào hiển thị file, mã, lỗi và tác vụ đang chạy.",
+      "objective": "Biết vùng nào hiển thị file, mã, lỗi và tác vụ đang chạy.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 7,
+      "title": "Mở đúng dự án, hiểu đúng cấu trúc",
+      "minutes": 7,
+      "message": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
+      "cards": [
+        {
+          "title": "Mở thư mục gốc",
+          "text": "Chọn Open Folder để thấy toàn bộ dự án, thay vì chỉ mở một file rời."
+        },
+        {
+          "title": "Đọc cấu hình chạy",
+          "text": "package.json thường liệt kê tác vụ của dự án web; nhờ AI giải thích tác vụ cần dùng."
+        },
+        {
+          "title": "Phân biệt mã và cấu hình",
+          "text": "Trang, thành phần và tài nguyên có vai trò khác nhau; không chia sẻ giá trị bí mật trong .env.local."
+        }
+      ],
+      "visual": "files",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
+      "objective": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 8,
+      "title": "Tìm kiếm, tiện ích và chạy thử",
+      "minutes": 6,
+      "message": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
+      "cards": [
+        {
+          "title": "Tìm kiếm trong dự án",
+          "text": "Search tìm chữ trên nhiều file. Đọc từng kết quả trước khi thay thế hàng loạt."
+        },
+        {
+          "title": "Tiện ích mở rộng",
+          "text": "Extensions bổ sung hỗ trợ ngôn ngữ, GitHub hoặc AI. Kiểm tra nhà phát hành và quyền cần dùng."
+        },
+        {
+          "title": "Terminal và bản xem thử",
+          "text": "Chạy đúng tác vụ tại thư mục dự án; đọc lỗi và mở địa chỉ localhost được thông báo."
+        }
+      ],
+      "visual": "cards",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
+      "objective": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 9,
+      "title": "Làm việc với AI ngay trong dự án",
+      "minutes": 6,
+      "message": "AI hỗ trợ thực hiện; bạn chịu trách nhiệm xác nhận kết quả.",
+      "cards": [
+        {
+          "title": "Mô tả rõ thay đổi",
+          "text": "Nêu tình trạng, mục tiêu, phạm vi file và điều cần giữ nguyên."
+        },
+        {
+          "title": "Đọc đề xuất và bản sửa",
+          "text": "Xác định file bị tác động; yêu cầu AI giải thích đoạn khó hiểu trước khi chấp nhận."
+        },
+        {
+          "title": "Kiểm tra bằng thao tác thật",
+          "text": "Chạy ứng dụng, thử tính năng mới và chức năng cũ; đọc lỗi trước khi sửa tiếp."
+        }
+      ],
+      "visual": "cycle",
+      "prompt": "Bối cảnh: AI vừa chỉnh sửa tính năng tạo yêu cầu. Mục tiêu: kiểm tra trước khi ghi nhận phiên bản. Hãy đọc phần thay đổi và chỉ ra file bị tác động, tính năng có thể ảnh hưởng, thông tin bí mật có nguy cơ bị đưa vào mã nguồn và các kiểm tra cần chạy. Không sửa file ngoài phạm vi hoặc Push tự động. Kết quả: danh sách vấn đề và kế hoạch kiểm tra thực tế. Hãy thử tạo yêu cầu, sửa trạng thái, kiểm tra đăng nhập và thông báo lỗi; báo rõ kết quả thực tế và những mục chưa xác minh.",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "AI hỗ trợ thực hiện; bạn chịu trách nhiệm xác nhận kết quả.",
+      "objective": "AI hỗ trợ thực hiện; bạn chịu trách nhiệm xác nhận kết quả.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 10,
+      "title": "Demo: mở, đọc và chạy dự án",
+      "minutes": 8,
+      "message": "Hiểu nơi sửa trước khi yêu cầu AI thay đổi mã.",
+      "cards": [
+        {
+          "title": "Chuẩn bị",
+          "text": "Dự án mẫu quản lý yêu cầu đã có mã nguồn; mở thư mục gốc trong VS Code."
+        },
+        {
+          "title": "Thao tác",
+          "text": "Nhờ AI giải thích cây file, xác định biểu mẫu và hướng dẫn chạy bản xem thử."
+        },
+        {
+          "title": "Xác nhận",
+          "text": "Mở localhost; thấy đúng biểu mẫu và biết file sẽ chỉnh khi đổi nút tạo yêu cầu."
+        }
+      ],
+      "visual": "demo",
+      "prompt": "Bối cảnh: Tôi đang học phát triển ứng dụng quản lý yêu cầu công việc, đã mở project mẫu trong VS Code. Mục tiêu: hiểu project trước khi chỉnh sửa. Hãy giải thích chức năng của thư mục, các file quan trọng và cách chạy bản xem thử. Không thay đổi file hay đọc nội dung chứa khóa bí mật. Chỉ ra nơi sửa giao diện và nơi xử lý dữ liệu. Kết quả cần có: bản đồ project, các bước chạy và dấu hiệu chạy thành công. Nếu bạn không có quyền xem file, hãy yêu cầu tôi cung cấp cây thư mục và các file đã loại bỏ thông tin nhạy cảm. Cuối cùng, hướng dẫn tôi xác nhận đã mở đúng project và nhìn thấy đúng giao diện.",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Hiểu nơi sửa trước khi yêu cầu AI thay đổi mã.",
+      "objective": "Hiểu nơi sửa trước khi yêu cầu AI thay đổi mã.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 11,
+      "title": "Giao yêu cầu để AI sửa đúng phạm vi",
+      "minutes": 6,
+      "message": "Một yêu cầu tốt có bối cảnh, mục tiêu, giới hạn và cách xác nhận.",
+      "cards": [
+        {
+          "title": "Bối cảnh",
+          "text": "Ứng dụng đang làm gì, bạn gặp vấn đề ở đâu và tính năng nào đã chạy tốt."
+        },
+        {
+          "title": "Phạm vi",
+          "text": "Nêu file hoặc màn hình cần sửa; giữ đăng nhập, dữ liệu và chức năng đang có."
+        },
+        {
+          "title": "Kết quả",
+          "text": "Yêu cầu giải thích bản sửa và các thao tác kiểm tra, kể cả trường hợp thất bại."
+        }
+      ],
+      "visual": "prompt-choice",
+      "prompt": "Bối cảnh: Project quản lý yêu cầu đang chạy tốt trên máy. Mục tiêu: làm nút tạo yêu cầu rõ ràng hơn và thêm thông báo khi lưu thành công. Hãy giải thích kế hoạch, liệt kê file cần sửa rồi thực hiện nếu có quyền; nếu không, cung cấp bản sửa và hướng dẫn tôi áp dụng. Giữ nguyên đăng nhập, dữ liệu và quy trình tạo yêu cầu. Không thêm dịch vụ trả phí hay thay đổi quyền truy cập. Kết quả: giao diện dễ dùng và không mất tính năng cũ. Hướng dẫn kiểm tra nút, thông báo, tải lại trang và trường hợp lưu thất bại; báo rõ những kiểm tra bạn chưa chạy.",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Một yêu cầu tốt có bối cảnh, mục tiêu, giới hạn và cách xác nhận.",
+      "objective": "Một yêu cầu tốt có bối cảnh, mục tiêu, giới hạn và cách xác nhận.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 12,
+      "title": "GitHub: đọc một kho mã nguồn",
+      "minutes": 8,
+      "message": "Một repository cần giúp người khác hiểu mã, lịch sử và cách bắt đầu.",
+      "cards": [
+        {
+          "title": "Code và README",
+          "text": "Xem cây file của nhánh đang chọn. README giải thích mục tiêu, cách chạy và cấu hình cần có."
+        },
+        {
+          "title": "Commits và lịch sử",
+          "text": "Đọc thông điệp, người thực hiện và khác biệt từng phiên bản để truy tìm một thay đổi."
+        },
+        {
+          "title": "Issues và Pull Requests",
+          "text": "Issues theo dõi việc cần làm; Pull Request đề nghị xem xét thay đổi trước khi hợp nhất."
+        }
+      ],
+      "visual": "github-features",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Một repository cần giúp người khác hiểu mã, lịch sử và cách bắt đầu.",
+      "objective": "Một repository cần giúp người khác hiểu mã, lịch sử và cách bắt đầu.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 13,
+      "title": "Chọn thay đổi, Commit, Push và Pull",
+      "minutes": 9,
+      "message": "Commit ghi trên máy; Push gửi lên GitHub; Pull nhận và tích hợp thay đổi.",
+      "cards": [
+        {
+          "title": "Chọn thay đổi",
+          "text": "Chọn file hoặc phần sửa cho lần Commit; không gom các việc không liên quan."
+        },
+        {
+          "title": "Commit · ghi nhận",
+          "text": "Ghi thông điệp mô tả thay đổi đã kiểm tra, chẳng hạn: thêm thông báo lưu yêu cầu."
+        },
+        {
+          "title": "Push và Pull",
+          "text": "Push gửi commit lên kho từ xa; Pull nhận và tích hợp. Kiểm tra đúng kho và nhánh trước khi thao tác."
+        }
+      ],
+      "visual": "git",
+      "prompt": "Bối cảnh: Tôi có project mẫu đã kiểm tra trên máy và muốn quản lý bằng GitHub. Hãy kiểm tra đúng thư mục và repository trước. Giải thích các bước kiểm tra thay đổi, loại trừ file chứa bí mật, Commit và Push bằng ngôn ngữ đơn giản. Không tự ghi đè lịch sử, xóa file hay thực hiện thao tác phá hủy. Nếu cần quyền tài khoản, hướng dẫn tôi tự đăng nhập và xác nhận. Kết quả: mã nguồn được lưu đúng repository với thông điệp Commit rõ ràng. Hướng dẫn kiểm tra phiên bản mới trên GitHub và cách xử lý nếu Push bị từ chối.",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Commit ghi trên máy; Push gửi lên GitHub; Pull nhận và tích hợp thay đổi.",
+      "objective": "Commit ghi trên máy; Push gửi lên GitHub; Pull nhận và tích hợp thay đổi.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 14,
+      "title": "Nhánh và Pull Request: sửa mà có người xem",
+      "minutes": 9,
+      "message": "Tách thay đổi trên nhánh riêng; xem xét và kiểm tra trước khi hợp nhất.",
+      "cards": [
+        {
+          "title": "Nhánh · đường làm việc riêng",
+          "text": "Tạo nhánh từ phiên bản phù hợp để thực hiện một tính năng mà chưa thay đổi nhánh chính."
+        },
+        {
+          "title": "Pull Request · đề nghị xem xét",
+          "text": "Sau khi Push nhánh, mô tả mục tiêu và cách kiểm tra; đọc khác biệt và trao đổi trên GitHub."
+        },
+        {
+          "title": "Hợp nhất và phục hồi",
+          "text": "Merge khi đã được xem xét. Nếu phát sinh lỗi, đối chiếu lịch sử và chọn cách phục hồi phù hợp; không ghi đè lịch sử tùy tiện."
+        }
+      ],
+      "visual": "branches",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Tách thay đổi trên nhánh riêng; xem xét và kiểm tra trước khi hợp nhất.",
+      "objective": "Tách thay đổi trên nhánh riêng; xem xét và kiểm tra trước khi hợp nhất.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 15,
+      "title": "Kiểm tra trước khi gửi mã lên GitHub",
+      "minutes": 9,
+      "message": "Đúng kho, đúng nhánh, không có bí mật và tính năng đã được kiểm tra.",
+      "cards": [
+        {
+          "title": "Đọc khác biệt",
+          "text": "Diff cho biết dòng thêm/xóa; bảo đảm không đưa file không liên quan vào Commit."
+        },
+        {
+          "title": "Loại trừ bí mật",
+          "text": "Dùng .gitignore phù hợp; nếu khóa đã bị lộ, cần thay khóa, không chỉ xóa dòng chứa khóa."
+        },
+        {
+          "title": "Xử lý thay đổi từ xa",
+          "text": "Nếu Push bị từ chối, xem nguyên nhân và đồng bộ có kiểm soát; đọc xung đột trước khi xử lý."
+        }
+      ],
+      "visual": "mistakes",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Đúng kho, đúng nhánh, không có bí mật và tính năng đã được kiểm tra.",
+      "objective": "Đúng kho, đúng nhánh, không có bí mật và tính năng đã được kiểm tra.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 16,
+      "title": "Thực hành 1: chỉnh sửa bằng VS Code và AI",
+      "minutes": 30,
+      "message": "Hoàn thành một thay đổi nhỏ và chứng minh tính năng vẫn hoạt động.",
+      "cards": [
+        {
+          "title": "Chuẩn bị và sản phẩm",
+          "text": "Dự án mẫu quản lý yêu cầu, VS Code và trợ lý AI phù hợp; sản phẩm là nút tạo rõ ràng và thông báo lưu thành công."
+        }
+      ],
+      "visual": "lab",
+      "prompt": "Bối cảnh: Project quản lý yêu cầu đang chạy tốt trên máy. Mục tiêu: làm nút tạo yêu cầu rõ ràng hơn và thêm thông báo khi lưu thành công. Hãy giải thích kế hoạch, liệt kê file cần sửa rồi thực hiện nếu có quyền; nếu không, cung cấp bản sửa và hướng dẫn tôi áp dụng. Giữ nguyên đăng nhập, dữ liệu và quy trình tạo yêu cầu. Không thêm dịch vụ trả phí hay thay đổi quyền truy cập. Kết quả: giao diện dễ dùng và không mất tính năng cũ. Hướng dẫn kiểm tra nút, thông báo, tải lại trang và trường hợp lưu thất bại; báo rõ những kiểm tra bạn chưa chạy.",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Hoàn thành một thay đổi nhỏ và chứng minh tính năng vẫn hoạt động.",
+      "checks": [
+        "Đã mở đúng thư mục dự án",
+        "Đã tìm file cần sửa",
+        "Đã mô tả yêu cầu rõ cho AI",
+        "Đã đọc khác biệt của bản sửa",
+        "Đã chạy và thử tính năng mới",
+        "Chức năng cũ vẫn hoạt động"
+      ],
+      "objective": "Hoàn thành một thay đổi nhỏ và chứng minh tính năng vẫn hoạt động.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 17,
+      "title": "Thực hành 2: lưu và cộng tác trên GitHub",
+      "minutes": 30,
+      "message": "Lưu phiên bản đúng kho và trình bày được thay đổi cho người khác xem.",
+      "cards": [
+        {
+          "title": "Chuẩn bị và sản phẩm",
+          "text": "Dự án đã kiểm tra, Git và tài khoản GitHub; sản phẩm là một nhánh có Commit đã Push và đề nghị xem xét thay đổi."
+        }
+      ],
+      "visual": "lab",
+      "prompt": "Bối cảnh: Tôi có project mẫu đã kiểm tra trên máy và muốn quản lý bằng GitHub. Hãy kiểm tra đúng thư mục và repository trước. Giải thích các bước kiểm tra thay đổi, loại trừ file chứa bí mật, Commit và Push bằng ngôn ngữ đơn giản. Không tự ghi đè lịch sử, xóa file hay thực hiện thao tác phá hủy. Nếu cần quyền tài khoản, hướng dẫn tôi tự đăng nhập và xác nhận. Kết quả: mã nguồn được lưu đúng repository với thông điệp Commit rõ ràng. Hướng dẫn kiểm tra phiên bản mới trên GitHub và cách xử lý nếu Push bị từ chối. Sau khi kiểm tra, hướng dẫn tôi tạo nhánh và mở Pull Request, mô tả mục tiêu cùng cách xác nhận; không tự Merge.",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Lưu phiên bản đúng kho và trình bày được thay đổi cho người khác xem.",
+      "checks": [
+        "Đã kiểm tra đúng repository",
+        "Đã tạo nhánh cho thay đổi",
+        "Đã chọn file cần Commit",
+        "Không đưa khóa bí mật vào mã",
+        "Đã Commit với thông điệp rõ",
+        "Đã Push đúng nhánh",
+        "Đã kiểm tra phiên bản trên GitHub",
+        "Đã mô tả đề nghị xem xét"
+      ],
+      "objective": "Lưu phiên bản đúng kho và trình bày được thay đổi cho người khác xem.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 1,
+      "number": 18,
+      "title": "Tự kiểm tra: VS Code và GitHub",
+      "minutes": 20,
+      "message": "Bạn biết nơi sửa mã, cách kiểm tra và cách quản lý thay đổi.",
+      "cards": [
+        {
+          "title": "VS Code",
+          "text": "Chỉ ra cây file, vùng soạn thảo, terminal và nơi xem khác biệt."
+        },
+        {
+          "title": "Git và GitHub",
+          "text": "Phân biệt Commit, Push, Pull; giải thích nhánh và Pull Request."
+        },
+        {
+          "title": "Minh chứng",
+          "text": "Ứng dụng chạy trên máy, lịch sử rõ nghĩa và bản sửa không chứa khóa bí mật."
+        }
+      ],
+      "visual": "quiz",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Bạn biết nơi sửa mã, cách kiểm tra và cách quản lý thay đổi.",
+      "objective": "Bạn biết nơi sửa mã, cách kiểm tra và cách quản lý thay đổi.",
+      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+    },
+    {
+      "section": 2,
+      "number": 1,
+      "title": "Kết nối dữ liệu, tài liệu và website",
+      "minutes": 5,
+      "message": "Supabase lưu dữ liệu · Google Drive quản lý tài liệu · Vercel triển khai website.",
+      "cards": [
+        {
+          "title": "Supabase",
+          "text": "Dữ liệu có cấu trúc và quyền truy cập."
+        },
+        {
+          "title": "Google Drive",
+          "text": "Tài liệu và file được chia sẻ đúng quyền."
+        },
+        {
+          "title": "Vercel",
+          "text": "Triển khai và cập nhật website từ mã nguồn."
+        }
+      ],
+      "visual": "cover",
+      "note": "Nhắc lại sản phẩm phần 1: project trên máy và repository trên GitHub. Phần 2 hoàn thiện truy cập, dữ liệu và tài liệu.",
+      "verify": "Nêu được ba nhiệm vụ mới và công cụ tương ứng.",
+      "objective": "Nêu được ba nhiệm vụ mới và công cụ tương ứng.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 2,
+      "title": "Chạy trên máy vẫn chưa đủ",
+      "minutes": 5,
+      "message": "Hosting giúp truy cập; database giúp lưu dữ liệu bền vững.",
+      "cards": [
+        {
+          "title": "Đồng nghiệp không mở được",
+          "text": "Bạn đang dùng localhost: cần một bản triển khai phù hợp."
+        },
+        {
+          "title": "Dữ liệu mất khi tải lại",
+          "text": "Cần kiểm tra nơi lưu; giao diện chưa chứng minh đã ghi database."
+        },
+        {
+          "title": "Hai vấn đề độc lập",
+          "text": "Có website công khai vẫn chưa đảm bảo dữ liệu đã được lưu."
+        }
+      ],
+      "visual": "missing",
+      "note": "Cho học viên chọn công cụ còn thiếu trong hai tình huống. Nếu dữ liệu chỉ trong bộ nhớ, tải lại có thể mất; database phải thực sự được kết nối và kiểm tra.",
+      "verify": "Phân biệt thiếu hosting và thiếu lưu dữ liệu.",
+      "objective": "Phân biệt thiếu hosting và thiếu lưu dữ liệu.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 3,
+      "title": "Các công cụ phối hợp như thế nào?",
+      "minutes": 5,
+      "message": "Website có thể kết nối dịch vụ dữ liệu và tài liệu khi cần.",
+      "cards": [
+        {
+          "title": "Quản lý mã",
+          "text": "VS Code → GitHub."
+        },
+        {
+          "title": "Đưa lên Internet",
+          "text": "GitHub → Vercel → người dùng."
+        },
+        {
+          "title": "Dịch vụ của ứng dụng",
+          "text": "Supabase cho dữ liệu; Drive cho tài liệu và file."
+        }
+      ],
+      "visual": "architecture",
+      "note": "Mũi tên dữ liệu không có nghĩa Drive luôn trực tiếp phục vụ file công khai. Cách truy cập tùy quyền và cách tích hợp.",
+      "verify": "Chỉ đúng đường mã nguồn và đường dữ liệu.",
+      "objective": "Chỉ đúng đường mã nguồn và đường dữ liệu.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 4,
+      "title": "Supabase: dịch vụ phía sau ứng dụng",
+      "minutes": 7,
+      "message": "Database lưu dữ liệu; đăng nhập và kho file là các dịch vụ riêng.",
+      "cards": [
+        {
+          "title": "Database · cơ sở dữ liệu",
+          "text": "Lưu yêu cầu, trạng thái, người tạo và thời điểm."
+        },
+        {
+          "title": "Authentication · xác thực",
+          "text": "Xác định người dùng đang đăng nhập."
+        },
+        {
+          "title": "Storage · kho file",
+          "text": "Lưu file cùng chính sách truy cập phù hợp."
+        }
+      ],
+      "visual": "cards",
+      "note": "Backend là phần xử lý và dịch vụ phía sau giao diện. Khóa này tập trung database; không cần dùng mọi dịch vụ của Supabase.",
+      "verify": "Phân biệt dòng dữ liệu, người dùng và file.",
+      "objective": "Phân biệt dòng dữ liệu, người dùng và file.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 5,
+      "title": "Database: bảng dữ liệu có quy trình",
+      "minutes": 8,
+      "message": "Bảng có hàng, cột và ID; ứng dụng đọc và cập nhật theo quy tắc.",
+      "cards": [
+        {
+          "title": "Table · bảng",
+          "text": "requests: nhóm dữ liệu về yêu cầu."
+        },
+        {
+          "title": "Row và Column · hàng và cột",
+          "text": "Một yêu cầu là một hàng; tiêu đề và trạng thái là các cột."
+        },
+        {
+          "title": "ID · mã định danh",
+          "text": "Phân biệt chính xác từng yêu cầu, kể cả khi trùng tiêu đề."
+        }
+      ],
+      "visual": "database",
+      "note": "Bảng mô phỏng có thể thêm hàng và đổi trạng thái ngay trong slide; đây là ví dụ để hiểu cấu trúc. Excel vẫn phù hợp nhiều tác vụ; database hữu ích khi ứng dụng cần truy vấn và phân quyền.",
+      "verify": "Chỉ đúng hàng, cột và ID; giải thích trạng thái được cập nhật.",
+      "objective": "Chỉ đúng hàng, cột và ID; giải thích trạng thái được cập nhật.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 6,
+      "title": "Dữ liệu đi từ biểu mẫu đến database",
+      "minutes": 8,
+      "message": "Thấy dữ liệu trên màn hình chưa đủ; phải đọc lại từ nơi lưu.",
+      "cards": [
+        {
+          "title": "Tạo và đọc",
+          "text": "Gửi yêu cầu mới; truy vấn để hiển thị danh sách."
+        },
+        {
+          "title": "Sửa và xóa",
+          "text": "Cập nhật trạng thái; xóa theo quyền được cấp."
+        },
+        {
+          "title": "CRUD · bốn thao tác",
+          "text": "Tạo, đọc, sửa, xóa; kiểm tra dữ liệu sau khi tải lại."
+        }
+      ],
+      "visual": "crud",
+      "note": "Mô phỏng đường đi để giảng viên phân biệt phản hồi giao diện với lưu thật. Khi demo trực tiếp cần reload và đọc lại từ Supabase.",
+      "verify": "Tạo một yêu cầu rồi tải lại ứng dụng thật vẫn đọc được.",
+      "objective": "Tạo một yêu cầu rồi tải lại ứng dụng thật vẫn đọc được.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 7,
+      "title": "Kết nối đúng, phân quyền đúng",
+      "minutes": 8,
+      "message": "Khóa công khai không thay thế phân quyền; khóa có đặc quyền phải giữ bí mật.",
+      "cards": [
+        {
+          "title": "Biến môi trường",
+          "text": "Cấu hình kết nối theo môi trường; không dán secret vào prompt."
+        },
+        {
+          "title": "Loại khóa",
+          "text": "Publishable key dùng phía client theo thiết kế; secret/service_role chỉ ở môi trường an toàn."
+        },
+        {
+          "title": "RLS · quyền theo từng hàng",
+          "text": "Quy tắc quyết định ai được đọc hoặc sửa mỗi dòng dữ liệu."
+        }
+      ],
+      "visual": "permissions",
+      "note": "Dùng hai tài khoản để kiểm tra người B không thấy yêu cầu riêng của người A. RLS phải bật và có chính sách đúng; việc giấu nút trên giao diện không đủ.",
+      "verify": "Tài khoản có quyền đọc được; tài khoản khác bị từ chối.",
+      "objective": "Tài khoản có quyền đọc được; tài khoản khác bị từ chối.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 8,
+      "title": "Nhờ AI thiết kế database",
+      "minutes": 8,
+      "message": "Mô tả dữ liệu và quyền truy cập trước khi tạo bảng.",
+      "cards": [
+        {
+          "title": "Nhu cầu",
+          "text": "Yêu cầu gồm tiêu đề, trạng thái, người tạo, ngày tạo."
+        },
+        {
+          "title": "AI đề xuất",
+          "text": "Tên bảng/cột, kiểu dữ liệu, ID và SQL nếu cần."
+        },
+        {
+          "title": "Bạn kiểm tra",
+          "text": "Đủ trường, kiểu hợp lý, quyền đúng; xác nhận trước khi thực thi."
+        }
+      ],
+      "visual": "schema",
+      "prompt": "Bối cảnh: Ứng dụng quản lý yêu cầu cần lưu tiêu đề, trạng thái, người tạo và thời điểm tạo. Mục tiêu: thiết kế dữ liệu trên Supabase. Hãy đề xuất tên bảng, cột, kiểu dữ liệu, ID duy nhất và quan hệ cần thiết; giải thích bằng ví dụ gần với bảng Excel. Mỗi người chỉ được đọc và sửa yêu cầu của mình, trừ vai trò quản lý được cấp quyền. Không dùng khóa có đặc quyền ở trình duyệt. Nếu cần SQL, hãy tạo mã và giải thích trước để tôi xác nhận; không tự thực thi hay xóa dữ liệu. Kết quả: cấu trúc tối giản và nguyên tắc phân quyền. Hướng dẫn kiểm tra dữ liệu hợp lệ, dữ liệu thiếu và hai tài khoản khác nhau.",
+      "note": "Học viên không cần tự viết SQL. Giảng viên giải thích ý nghĩa đề xuất; tránh chạy mã chưa hiểu hoặc lệnh xóa dữ liệu.",
+      "verify": "Tên bảng rõ; ID duy nhất; trạng thái hợp lệ; có nguyên tắc RLS.",
+      "objective": "Tên bảng rõ; ID duy nhất; trạng thái hợp lệ; có nguyên tắc RLS.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 9,
+      "title": "Demo: kết nối và kiểm tra Supabase",
+      "minutes": 11,
+      "message": "Lưu thành công, đọc lại được và quyền truy cập đúng mới là kết nối hoàn chỉnh.",
+      "cards": [
+        {
+          "title": "Chuẩn bị",
+          "text": "Project mẫu, bảng và quyền truy cập; cấu hình môi trường phù hợp."
+        },
+        {
+          "title": "Thực hiện",
+          "text": "Nhờ AI nối biểu mẫu → lưu một yêu cầu → tải lại → đọc lại."
+        },
+        {
+          "title": "Xác minh",
+          "text": "Thử tài khoản khác, dữ liệu thiếu và lỗi kết nối."
+        }
+      ],
+      "visual": "demo",
+      "prompt": "Bối cảnh: Tôi đã có project chạy local và bảng yêu cầu trên Supabase. Mục tiêu: kết nối chức năng tạo và đọc yêu cầu. Hãy kiểm tra cấu trúc project, chỉ ra biến môi trường cần thiết bằng tên, không yêu cầu tôi dán giá trị secret. Dùng loại khóa phù hợp; khóa có đặc quyền chỉ nằm ở phía máy chủ. Giữ nguyên giao diện và dữ liệu đang có. Giải thích file cần sửa rồi thực hiện trong phạm vi nếu có quyền. Kết quả: lưu yêu cầu thành công và đọc lại sau khi tải lại trang. Hướng dẫn thử hai tài khoản để xác nhận RLS, thử lỗi kết nối và dữ liệu không hợp lệ; báo rõ kiểm tra chưa chạy.",
+      "note": "Nếu lỗi: kiểm tra tên biến, khởi động lại môi trường khi cần, cấu trúc bảng và chính sách. Không đưa secret phía client hoặc tắt RLS để né lỗi.",
+      "verify": "Yêu cầu còn sau reload; không đọc được dữ liệu ngoài quyền.",
+      "objective": "Yêu cầu còn sau reload; không đọc được dữ liệu ngoài quyền.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 10,
+      "title": "Google Drive: nơi quản lý tài liệu",
+      "minutes": 5,
+      "message": "Một tài liệu là file; một yêu cầu công việc là dòng dữ liệu.",
+      "cards": [
+        {
+          "title": "Tài liệu",
+          "text": "PDF, hình ảnh, biên bản, báo cáo và hướng dẫn."
+        },
+        {
+          "title": "Dữ liệu có cấu trúc",
+          "text": "Người tạo, trạng thái, thời điểm và mã yêu cầu."
+        },
+        {
+          "title": "Có thể kết hợp",
+          "text": "Database lưu mã/liên kết; Drive quản lý tài liệu đính kèm."
+        }
+      ],
+      "visual": "storage",
+      "note": "Ví dụ một yêu cầu có dòng dữ liệu và đường dẫn PDF. Drive không thay thế trực tiếp database của ứng dụng.",
+      "verify": "Phân biệt dữ liệu mô tả với file được đính kèm.",
+      "objective": "Phân biệt dữ liệu mô tả với file được đính kèm.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 11,
+      "title": "Supabase và Google Drive",
+      "minutes": 5,
+      "message": "Chọn nơi lưu theo loại dữ liệu và cách sử dụng.",
+      "cards": [
+        {
+          "title": "Supabase",
+          "text": "Truy vấn, cập nhật dòng dữ liệu; có Authentication và Storage riêng."
+        },
+        {
+          "title": "Google Drive",
+          "text": "Lưu và chia sẻ tài liệu; quyền xem/sửa theo file hoặc thư mục."
+        },
+        {
+          "title": "Giới hạn dịch vụ",
+          "text": "Kiểm tra dung lượng, transfer, lượt gọi và điều kiện gói tại thời điểm dùng."
+        }
+      ],
+      "visual": "storage-compare",
+      "note": "Hình đối lập giữa bảng dữ liệu và thư mục tài liệu. Không dùng số quota cố định; đối chiếu dashboard và tài liệu dịch vụ trước khi quyết định.",
+      "verify": "Chọn giải pháp theo nhu cầu, không theo tên công cụ quen thuộc.",
+      "objective": "Chọn giải pháp theo nhu cầu, không theo tên công cụ quen thuộc.",
+      "visualConcept": "Bảng dữ liệu và thư mục tài liệu đặt đối lập; bảng so sánh nhu cầu."
+    },
+    {
+      "section": 2,
+      "number": 12,
+      "title": "Có liên kết chưa chắc mở được file",
+      "minutes": 5,
+      "message": "Liên kết là địa chỉ; quyền truy cập quyết định ai được xem.",
+      "cards": [
+        {
+          "title": "Riêng tư",
+          "text": "Chỉ tài khoản được cấp quyền truy cập."
+        },
+        {
+          "title": "Chia sẻ phù hợp",
+          "text": "Chọn người cần xem hoặc sửa; ưu tiên quyền tối thiểu."
+        },
+        {
+          "title": "Kiểm tra bằng tài khoản khác",
+          "text": "Thử người có quyền và người không có quyền."
+        }
+      ],
+      "visual": "drive-access",
+      "note": "Không công khai dữ liệu nhạy cảm để sửa lỗi truy cập. Quyền file và tài khoản đang đăng nhập đều ảnh hưởng kết quả.",
+      "verify": "Người được cấp quyền mở được; người khác không mở được.",
+      "objective": "Người được cấp quyền mở được; người khác không mở được.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 13,
+      "title": "Ba mức kết nối Google Drive",
+      "minutes": 5,
+      "message": "Trong khóa học này, lưu và mở liên kết là mức thực hành bắt buộc.",
+      "cards": [
+        {
+          "title": "Mức 1 · liên kết",
+          "text": "Database lưu địa chỉ tài liệu; người dùng mở theo quyền Drive."
+        },
+        {
+          "title": "Mức 2 · tự động hóa",
+          "text": "Google Apps Script hoặc dịch vụ trung gian xử lý một số tác vụ."
+        },
+        {
+          "title": "Mức 3 · API và OAuth",
+          "text": "Ứng dụng truy cập theo phạm vi quyền, token và tài khoản được cấp."
+        }
+      ],
+      "visual": "levels",
+      "prompt": "Bối cảnh: Ứng dụng quản lý yêu cầu cần tham chiếu một tài liệu hướng dẫn trên Google Drive. Mục tiêu: chọn phương án đơn giản, giữ quyền truy cập phù hợp. Hãy so sánh lưu liên kết, dùng Google Apps Script và tích hợp API/OAuth; đề xuất mức cơ bản trước. Không công khai tài liệu nhạy cảm hoặc đưa token vào mã nguồn. Giữ nguyên cơ sở dữ liệu và chức năng hiện tại. Kết quả: yêu cầu có liên kết tài liệu, người được cấp quyền mở được. Hướng dẫn kiểm tra bằng tài khoản có quyền và không có quyền; nêu rõ phần nào tôi phải tự chia sẻ và xác nhận.",
+      "note": "Mức 2/3 là hướng phát triển thêm, không yêu cầu hoàn thành trong 6 giờ. Tích hợp API phức tạp hơn chia sẻ link; phải quản lý quyền và bí mật đúng.",
+      "verify": "Chọn được mức đơn giản nhất đáp ứng nhu cầu.",
+      "objective": "Chọn được mức đơn giản nhất đáp ứng nhu cầu.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 14,
+      "title": "Bạn sẽ lưu ở đâu?",
+      "minutes": 5,
+      "message": "Không cần database nếu ứng dụng chưa có dữ liệu cần lưu.",
+      "cards": [
+        {
+          "title": "Bốn tình huống",
+          "text": "Nhân viên, tài liệu, yêu cầu có file, website giới thiệu."
+        },
+        {
+          "title": "Chọn và giải thích",
+          "text": "Supabase, Drive, cả hai hoặc chưa cần dịch vụ lưu dữ liệu."
+        }
+      ],
+      "visual": "storage-quiz",
+      "note": "Một file PDF cũng có thể dùng Supabase Storage. Trong hoạt động này, chọn Drive cho nhu cầu cộng tác tài liệu đã nêu; giải thích điều kiện thay vì khẳng định chỉ có một công cụ lưu file.",
+      "verify": "Giải thích lựa chọn cho cả bốn tình huống.",
+      "objective": "Giải thích lựa chọn cho cả bốn tình huống.",
+      "visualConcept": "Bốn tình huống và lựa chọn lưu trữ có giải thích."
+    },
+    {
+      "section": 2,
+      "number": 15,
+      "title": "Vercel: đưa ứng dụng lên Internet",
+      "minutes": 7,
+      "message": "Triển khai tạo bản website để người khác truy cập qua URL.",
+      "cards": [
+        {
+          "title": "Localhost",
+          "text": "Bản xem thử trên môi trường phát triển."
+        },
+        {
+          "title": "Deployment · bản triển khai",
+          "text": "Một phiên bản ứng dụng được build và đưa lên nền tảng."
+        },
+        {
+          "title": "Production · bản đang phục vụ",
+          "text": "Website chính thức với cấu hình và quyền phù hợp."
+        }
+      ],
+      "visual": "local",
+      "note": "Hosting là nơi vận hành ứng dụng. Public URL không có nghĩa mọi dữ liệu bên trong phải công khai; đăng nhập và quyền vẫn cần thiết.",
+      "verify": "Phân biệt bản xem thử, bản triển khai và website chính thức.",
+      "objective": "Phân biệt bản xem thử, bản triển khai và website chính thức.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 16,
+      "title": "Từ GitHub đến Vercel",
+      "minutes": 8,
+      "message": "Repository đúng và cấu hình đúng giúp build tạo bản triển khai đúng.",
+      "cards": [
+        {
+          "title": "Nguồn mã",
+          "text": "Đúng repository, nhánh và thư mục gốc."
+        },
+        {
+          "title": "Build · tạo bản chạy",
+          "text": "Đúng framework, tác vụ build và biến môi trường."
+        },
+        {
+          "title": "Kiểm tra URL",
+          "text": "Trang mở được; dữ liệu và quyền truy cập hoạt động."
+        }
+      ],
+      "visual": "deployment",
+      "prompt": "Bối cảnh: Project quản lý yêu cầu đã chạy local và có trên GitHub. Mục tiêu: triển khai lên Vercel. Hãy kiểm tra repository, nhánh, framework, thư mục gốc và lệnh build. Liệt kê tên biến môi trường cần cấu hình, không yêu cầu cung cấp secret trong hội thoại. Giữ nguyên dữ liệu Supabase và quyền truy cập Drive. Đề xuất các bước; thao tác liên quan tài khoản hoặc xuất bản phải được tôi xác nhận. Kết quả: URL hoạt động, tạo và đọc dữ liệu đúng. Hướng dẫn thử bằng cửa sổ mới, kiểm tra kết nối, một lần cập nhật và bản triển khai mới; giải thích phần nào bạn chưa xác minh.",
+      "note": "Build không phải là lưu database. Thay đổi biến môi trường cần bản triển khai mới tương ứng; xác nhận môi trường preview hay production.",
+      "verify": "Đối chiếu commit, cấu hình và phiên bản website.",
+      "objective": "Đối chiếu commit, cấu hình và phiên bản website.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 17,
+      "title": "Từ máy cá nhân đến website mới",
+      "minutes": 8,
+      "message": "Push là cập nhật mã; website chỉ cập nhật khi triển khai thành công.",
+      "cards": [
+        {
+          "title": "AI và VS Code",
+          "text": "Sửa nút tạo yêu cầu, kiểm tra trên máy."
+        },
+        {
+          "title": "GitHub",
+          "text": "Commit và Push đúng nhánh đã kết nối Vercel."
+        },
+        {
+          "title": "Vercel và website",
+          "text": "Build → kiểm tra → triển khai; xác nhận phiên bản mới."
+        }
+      ],
+      "visual": "live",
+      "note": "CI/CD là quy trình kiểm tra/tích hợp và triển khai tự động. Tự động triển khai phụ thuộc cấu hình repository/nhánh. Mô phỏng có nhánh build lỗi: website đang hoạt động giữ bản cũ.",
+      "verify": "Website thể hiện thay đổi đúng; build thất bại không được coi là cập nhật thành công.",
+      "objective": "Website thể hiện thay đổi đúng; build thất bại không được coi là cập nhật thành công.",
+      "visualConcept": "Bốn chặng AI + VS Code, GitHub, Vercel, website; trạng thái và lỗi build có thể mô phỏng."
+    },
+    {
+      "section": 2,
+      "number": 18,
+      "title": "Nhờ AI phân tích lỗi, rồi kiểm tra lại",
+      "minutes": 7,
+      "message": "Cung cấp lỗi đã che bí mật và yêu cầu sửa đúng nguyên nhân.",
+      "cards": [
+        {
+          "title": "Phân loại",
+          "text": "Lỗi build, biến môi trường, kết nối, phân quyền hoặc tải chậm."
+        },
+        {
+          "title": "Thông tin cần gửi",
+          "text": "Thông báo đã che secret, bước tái hiện, tên cấu hình và thay đổi gần nhất."
+        },
+        {
+          "title": "Xác minh",
+          "text": "Sửa nhỏ → chạy lại → thử đúng thao tác gây lỗi."
+        }
+      ],
+      "visual": "debug",
+      "prompt": "Bối cảnh: Project hoạt động local nhưng lần triển khai Vercel thất bại. Tôi cung cấp thông báo lỗi đã loại bỏ token, mật khẩu và giá trị biến môi trường. Mục tiêu: tìm nguyên nhân trước khi sửa. Hãy phân biệt lỗi build, cấu hình, kết nối dữ liệu và phân quyền; yêu cầu thông tin còn thiếu bằng tên. Giữ nguyên các tính năng và dữ liệu hiện tại; không tắt kiểm tra hay mở quyền công khai để né lỗi. Kết quả: nguyên nhân có bằng chứng, bản sửa nhỏ nhất và cách khôi phục khi cần. Hướng dẫn build lại, kiểm tra URL và thử chức năng gây lỗi; báo rõ mức độ chắc chắn.",
+      "note": "Không tắt RLS hay mở file công khai chỉ để hết lỗi. Vercel không tự giải quyết mọi vấn đề tốc độ; đo request, truy vấn và kích thước nội dung trước khi tối ưu.",
+      "verify": "Có bằng chứng nguyên nhân và kiểm tra sau khi sửa.",
+      "objective": "Có bằng chứng nguyên nhân và kiểm tra sau khi sửa.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 19,
+      "title": "Thực hành: đưa ứng dụng lên Internet",
+      "minutes": 45,
+      "message": "Ứng dụng cần mở được, lưu dữ liệu đúng và cập nhật được một lần.",
+      "cards": [
+        {
+          "title": "Chuẩn bị",
+          "text": "Project phần 1, GitHub, Supabase, Vercel; Drive tùy chọn."
+        },
+        {
+          "title": "Làm theo quy trình",
+          "text": "Kiểm tra dữ liệu → Push → cấu hình → triển khai → thử URL."
+        },
+        {
+          "title": "Sản phẩm",
+          "text": "Website hoạt động, dữ liệu còn sau reload, một cập nhật được xác minh."
+        }
+      ],
+      "visual": "lab",
+      "prompt": "Bối cảnh: Project quản lý yêu cầu đã chạy local và có trên GitHub. Mục tiêu: triển khai lên Vercel. Hãy kiểm tra repository, nhánh, framework, thư mục gốc và lệnh build. Liệt kê tên biến môi trường cần cấu hình, không yêu cầu cung cấp secret trong hội thoại. Giữ nguyên dữ liệu Supabase và quyền truy cập Drive. Đề xuất các bước; thao tác liên quan tài khoản hoặc xuất bản phải được tôi xác nhận. Kết quả: URL hoạt động, tạo và đọc dữ liệu đúng. Hướng dẫn thử bằng cửa sổ mới, kiểm tra kết nối, một lần cập nhật và bản triển khai mới; giải thích phần nào bạn chưa xác minh.",
+      "note": "Chia 10 phút dữ liệu, 15 phút cấu hình/triển khai, 10 phút kiểm tra URL, 10 phút cập nhật. Học viên tự đăng nhập và xác nhận quyền. Nếu lỗi dùng prompt phân tích, kiểm tra cấu hình, quyền và bản build; tránh dựng project từ đầu.",
+      "verify": "URL mở từ cửa sổ mới; tạo/đọc dữ liệu; quyền đúng; tài liệu mở theo quyền; website đổi sau lần cập nhật.",
+      "checks": [
+        "Project chạy local",
+        "Lưu và đọc dữ liệu sau reload",
+        "GitHub có commit đúng",
+        "Môi trường Vercel đã cấu hình",
+        "URL mở từ cửa sổ mới",
+        "Phân quyền đã kiểm tra",
+        "Đã thử một lần cập nhật",
+        "Nếu có Drive: đã thử quyền file"
+      ],
+      "objective": "URL mở từ cửa sổ mới; tạo/đọc dữ liệu; quyền đúng; tài liệu mở theo quyền; website đổi sau lần cập nhật.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    },
+    {
+      "section": 2,
+      "number": 20,
+      "title": "Ý tưởng của bạn, hệ sinh thái của bạn",
+      "minutes": 15,
+      "message": "Hiểu công cụ, giao việc rõ và kiểm soát kết quả để biến ý tưởng thành sản phẩm.",
+      "cards": [
+        {
+          "title": "Chọn ý tưởng",
+          "text": "Một ứng dụng phục vụ công việc của bạn."
+        },
+        {
+          "title": "Thiết kế đủ dùng",
+          "text": "Mã nguồn, dữ liệu, tài liệu và cách triển khai."
+        },
+        {
+          "title": "Giao việc cho AI",
+          "text": "Nêu mục tiêu, giới hạn và tiêu chí kiểm tra."
+        }
+      ],
+      "visual": "planner",
+      "prompt": "Bối cảnh: Tôi muốn tạo ứng dụng [mô tả ý tưởng], cho [đối tượng], cần [dữ liệu] và [tài liệu]. Mục tiêu: chọn công cụ đủ dùng và lên kế hoạch với AI. Hãy đề xuất vai trò của VS Code, GitHub, Supabase, Google Drive và Vercel; giải thích công cụ nào chưa cần. Không mặc định phải trả phí hoặc dùng mọi công cụ. Giữ dữ liệu nhạy cảm riêng tư và không yêu cầu dán secret. Kết quả: sơ đồ quy trình, các bước triển khai và phần tôi phải xác nhận. Hướng dẫn kiểm tra chức năng, lưu dữ liệu, quyền truy cập và URL; đề xuất cách đo hiệu năng trước khi tối ưu.",
+      "note": "10 phút thiết kế phương án cá nhân, 5 phút chia sẻ. Không dùng tất cả công cụ chỉ vì đã học; chọn theo nhu cầu. Không chấm theo độ phức tạp hoặc cú pháp.",
+      "verify": "Giải thích được công cụ cần, công cụ chưa cần và cách kiểm tra sản phẩm.",
+      "objective": "Giải thích được công cụ cần, công cụ chưa cần và cách kiểm tra sản phẩm.",
+      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+    }
+  ]
+}

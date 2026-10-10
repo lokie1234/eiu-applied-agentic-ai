@@ -16,13 +16,10 @@ export default async function LearningPage({ searchParams }: { searchParams: Pro
     : access.sections
         .filter((section) => section.courseId === appliedCourse?.id && isLearningSection(section.sectionKey))
         .map((section) => section.sectionKey as "section1" | "section2");
-  // An explicit admin View link can preview hidden content without publishing it.
-  const previewSection = access.isAdmin
-    ? access.sections.find(section => section.courseId === query.courseId && section.id === query.sectionId)
-    : undefined;
-  const courseFolders = access.courses.filter(course => !course.hidden || course.id === previewSection?.courseId).map((course) => ({
+  // Visibility controls learner and teacher access; admins retain the full catalog.
+  const courseFolders = access.courses.filter(course => access.isAdmin || !course.hidden).map((course) => ({
     ...course,
-    sections: access.sections.filter((section) => section.courseId === course.id && (!section.hidden || section.id === previewSection?.id)).sort((a, b) => a.position - b.position).map(section => ({ ...section, templateKey: course.templateKey !== undefined ? course.templateKey : course.sectionTemplates?.[section.sectionKey] })),
+    sections: access.sections.filter((section) => section.courseId === course.id && (access.isAdmin || !section.hidden)).sort((a, b) => a.position - b.position).map(section => ({ ...section, templateKey: course.templateKey !== undefined ? course.templateKey : course.sectionTemplates?.[section.sectionKey] })),
   })).filter((course) => access.isAdmin || course.sections.length > 0);
   if (courseFolders.length === 0) return <NoCourseAccess />;
   const requestedCourse = courseFolders.find(course => course.id === query.courseId && (access.isAdmin || course.isUnlocked));

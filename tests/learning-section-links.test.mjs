@@ -92,12 +92,16 @@ test("admin View links open hidden built-in and uploaded sections without changi
   }
 });
 
-test("admin catalog still hides content unless a matching section View link is provided", async () => {
+test("admin sees the complete hidden catalog without a section View link", async () => {
   const catalog = await page("admin", {}, {hiddenCourse:"core", hiddenSection:"uploaded"});
-  assert.equal(catalog.courseFolders.some(course => course.id === "core"), false);
-  assert.equal(catalog.courseFolders.some(course => course.sections.some(section => section.id === "uploaded")), false);
+  assert.equal(catalog.courseFolders.find(course => course.id === "core").hidden, true);
+  assert.equal(catalog.courseFolders.find(course => course.id === "core").sections[0].id, "builtin");
+  assert.equal(catalog.courseFolders.find(course => course.id === "other").sections[0].hidden, true);
+  const courseOnly = await page("admin", {courseId:"other"}, {hiddenCourse:"other",hiddenSection:"uploaded"});
+  assert.equal(courseOnly.initialCourseId, "other");
+  assert.equal(courseOnly.courseFolders.find(course => course.id === "other").sections[0].id, "uploaded");
   const mismatched = await page("admin", {courseId:"core",sectionId:"uploaded"}, {hiddenCourse:"core",hiddenSection:"uploaded"});
-  assert.equal(mismatched.initialCourseId, undefined);
+  assert.equal(mismatched.initialCourseId, "core");
   assert.equal(mismatched.initialSectionId, undefined);
-  assert.equal(mismatched.courseFolders.some(course => course.id === "core"), false);
+  assert.equal(mismatched.courseFolders.some(course => course.id === "core"), true);
 });
