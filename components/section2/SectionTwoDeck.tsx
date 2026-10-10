@@ -6,9 +6,9 @@ import ShowcaseSlide from "@/components/ShowcaseSlide";
 import SectionTwoSlide from "./SectionTwoSlide";
 import styles from "./SectionTwoDeck.module.css";
 
-const CONTENT_SLIDES = 36;
-const SHOWCASE_SLIDE = 37;
-const QUIZ_SLIDE = 38;
+const CONTENT_SLIDES = 37;
+const SHOWCASE_SLIDE = 38;
+const QUIZ_SLIDE = 39;
 const TOTAL_SLIDES = QUIZ_SLIDE;
 const SLIDE_WIDTH = 960;
 

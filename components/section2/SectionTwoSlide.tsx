@@ -8,6 +8,7 @@ import SlideThirtyFiveDynamicDashboard from "./SlideThirtyFiveDynamicDashboard";
 import SectionTwoSkillsSetup, { SkillsUploadComparison } from "./SectionTwoSkillsSetup";
 import SectionTwoSkillAnatomy from "./SectionTwoSkillAnatomy";
 import SectionTwoSaveShare from "./SectionTwoSaveShare";
+import SectionTwoGemsSkills from "./SectionTwoGemsSkills";
 import styles from "./SectionTwoSlide.module.css";
 
 type Props = { pageNumber: number; isFinalState?: boolean };
@@ -863,8 +864,10 @@ export default function SectionTwoSlide({ pageNumber, isFinalState = false }: Pr
     case 34:
       return <Shell motion={35}><Title>Bước 4 · Lưu và chia sẻ</Title><SectionTwoSaveShare /></Shell>;
     case 35:
-      return <Shell dark motion={37}><div className={styles.finalMessage}><MiniTitle>Thông điệp</MiniTitle><p>Đừng xây <strong>100 ứng dụng.</strong></p><h1>Hãy xây 01 AI Business Framework</h1><div className={styles.goldRule} /><p>để AI có thể tạo 100 ứng dụng<br />theo tiêu chuẩn của doanh nghiệp.</p></div></Shell>;
+      return <Shell><Title>Gems và Skills</Title><SectionTwoGemsSkills isFinalState={isFinalState} /></Shell>;
     case 36:
+      return <Shell dark motion={37}><div className={styles.finalMessage}><MiniTitle>Thông điệp</MiniTitle><p>Đừng xây <strong>100 ứng dụng.</strong></p><h1>Hãy xây 01 AI Business Framework</h1><div className={styles.goldRule} /><p>để AI có thể tạo 100 ứng dụng<br />theo tiêu chuẩn của doanh nghiệp.</p></div></Shell>;
+    case 37:
       return <Shell motion={38}><SlideThirtyFiveDynamicDashboard /></Shell>;
     default:
       return <Shell />;

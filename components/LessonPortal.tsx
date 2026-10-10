@@ -1083,7 +1083,7 @@ export default function LessonPortal({
                   : null;
               const hasUploadedDeck = courseSection.contentType === "pdf" || courseSection.contentType === "tsx" || courseSection.contentType === "pptx";
               const canOpen = Boolean(coreSection || hasUploadedDeck);
-              const count = coreSection === "section1" ? 41 : coreSection === "section2" ? 38 : courseSection.slideCount;
+              const count = coreSection === "section1" ? 41 : coreSection === "section2" ? 39 : courseSection.slideCount;
               return (
                 <div key={courseSection.id} className={styles.courseSectionCard}>
                 <button
