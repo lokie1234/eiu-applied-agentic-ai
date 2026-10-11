@@ -22,7 +22,7 @@ export default function HairlineFolder({ selected }: { selected: boolean }) {
     void loadHairlineFigure("course-folder").then(({ runtime, figure }) => {
       if (disposed) return;
       stage.setAttribute("data-hairline", figure.name);
-      const svg = runtime.mk("svg", { viewBox: "0 0 400 320", "aria-hidden": "true" }, stage);
+      const svg = runtime.mk("svg", { viewBox: "30 20 340 280", "aria-hidden": "true" }, stage);
       handleRef.current = figure.mount({ stage, svg, read }, selectionRef.current ? 38 : 18);
       const cover = svg.querySelector("[data-logo-transform]");
       if (cover) {
@@ -39,6 +39,7 @@ export default function HairlineFolder({ selected }: { selected: boolean }) {
       button?.addEventListener("pointerleave", leave);
       button?.addEventListener("focusin", enter);
       button?.addEventListener("focusout", leave);
+      if (button?.matches(":hover, :focus-within")) enter();
       detachInteraction = () => {
         button?.removeEventListener("pointerenter", enter);
         button?.removeEventListener("pointerleave", leave);

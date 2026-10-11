@@ -12,9 +12,10 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
 import styles from "./LessonPortal.module.css";
 import HairlineFolder from "./HairlineFolder";
-import HairlineEnter from "./HairlineEnter";
-import HairlineMouse from "./HairlineMouse";
+import HairlineBook from "./HairlineBook";
+import HairlinePage from "./HairlinePage";
 import HairlineLoading from "./HairlineLoading";
+import CourseToolRow from "./CourseToolRow";
 import { useSectionOpening } from "./useSectionOpening";
 
 const SectionOneDeck = dynamic(() => import("./PdfDeck"), { ssr: false, loading: () => <HairlineLoading /> });
@@ -23,9 +24,19 @@ const UploadedSectionDeck = dynamic(() => import("./deck/UploadedSectionDeck"), 
 
 type SectionId = "section1" | "section2";
 
-function NatureAccent() {
-  return <svg className={styles.natureAccent} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
-    <path d="M12 21V12M12 14C5 14 3 10 3 5c6 0 9 3 9 9ZM12 12c0-7 4-10 9-10 0 6-3 10-9 10Z" />
+function LearningAccent({ kind = "book" }: { kind?: "library" | "collection" | "book" | "page" }) {
+  return <svg className={styles.learningAccent} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    {kind === "library" ? <>
+      <path d="M12 6C9 4 5 4 2 5v14c3-1 7-1 10 1 3-2 7-2 10-1V5c-3-1-7-1-10 1Zm0 0v14" />
+      <path d="M5 8c2-.4 3-.2 4 .3m-4 4c2-.4 3-.2 4 .3m6-4c1-.5 2-.7 4-.3m-4 4c1-.5 2-.7 4-.3" />
+    </> : kind === "collection" ? <>
+      <path d="m3 7 10-4 8 4-10 4Zm0 0v4l8 4 10-4V7M3 15v4l8 3 10-4v-3M11 11v4m0 4v3" />
+      <path d="m3 15 8 4 10-4-4-2" />
+    </> : kind === "page" ? <>
+      <path d="M14 3H6a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Zm0 0v6h6M8 13h8m-8 4h6" />
+    </> : <>
+      <rect x="4" y="3" width="16" height="19" rx="2" /><path d="M8 3v19m4-19v8l2-2 2 2V3" />
+    </>}
   </svg>;
 }
 type TerminateStatus = "idle" | "sending" | "success" | "error";
@@ -818,8 +829,8 @@ export default function LessonPortal({
         </button>
         <div className={styles.inlineSectionsHeader}>
           <div>
-            <span>{course.folderGroupName || openFolder?.name} / SECTIONS<NatureAccent /></span>
-            <h2>{course.title}</h2>
+            <span>{course.folderGroupName || openFolder?.name} / SECTIONS</span>
+            <h2 className={styles.illustratedTitle}><LearningAccent /><span>{course.title}</span></h2>
             {course.description && <p>{course.description}</p>}
           </div>
           <span className={styles.sectionTotal}>{course.sections.length} sections</span>
@@ -852,7 +863,7 @@ export default function LessonPortal({
                   }}
                 >
                   <span>SECTION {courseSection.position}</span>
-                  <strong>{courseSection.title}</strong>
+                  <strong className={styles.illustratedTitle}><LearningAccent kind="page" /><span>{courseSection.title}</span></strong>
                   <small>
                     {canOpen
                       ? `${count ? `${count} slide · ` : ""}${coreSection ? "Interactive" : courseSection.contentType.toUpperCase()}`
@@ -865,8 +876,7 @@ export default function LessonPortal({
                   {openingSection === courseSection.sectionKey ? <span className={styles.sectionLoadingCue}>
                     <HairlineLoading compact label="Opening section" />
                   </span> : canOpen && <span className={styles.sectionClickCue} aria-hidden="true">
-                    <HairlineMouse />
-                    <span className={styles.sectionClickLabel}>Click</span>
+                    <HairlinePage />
                   </span>}
                 </button>
                 {coreSection && courseSection.contentType === "pptx" && (
@@ -950,7 +960,7 @@ export default function LessonPortal({
 
           <div className={styles.libraryHeaderToolbar}>
             <div className={styles.libraryHeaderTitleArea}>
-              <h1 className={styles.libraryHeaderTitle}>Choose a <span className={styles.titleWord}>course</span><NatureAccent /></h1>
+              <h1 className={styles.libraryHeaderTitle}>Choose a <span className={styles.titleWord}>course</span><LearningAccent kind="library" /></h1>
             </div>
 
             <div className={styles.librarySearchArea}>
@@ -1000,7 +1010,7 @@ export default function LessonPortal({
           <div className={styles.libraryWorkspace}>
             <button type="button" id="mobile-folder-toggle" className={styles.mobileFolderToggle} aria-expanded={mobileFoldersOpen}
               aria-controls="folder-navigation" onClick={() => setMobileFoldersOpen(value => !value)}>
-              <span><strong>{openFolder?.name || "Course folders"}</strong></span>
+              <span><strong className={styles.illustratedTitle}><LearningAccent kind="collection" /><span>{openFolder?.name || "Course folders"}</span></strong></span>
               <span aria-hidden="true">{mobileFoldersOpen ? "−" : "+"}</span>
             </button>
             <aside id="folder-navigation"
@@ -1020,9 +1030,9 @@ export default function LessonPortal({
                     <HairlineFolder selected={!isSearchingCourses && openFolder?.id === group.id} />
                     {!isSearchingCourses && openFolder?.id === group.id && <span className={styles.folderSelectedMark} aria-hidden="true">✓</span>}
                     <span className={styles.folderChoiceText}>
-                      <strong>{group.name}</strong>
-                      <span>{group.courses.length} {group.courses.length === 1 ? "course" : "courses"}</span>
+                      <strong className={styles.illustratedTitle}><LearningAccent kind="collection" /><span className={styles.folderNameText}>{group.name}</span></strong>
                     </span>
+                    <span className={styles.folderCourseCount}>{group.courses.length} {group.courses.length === 1 ? "course" : "courses"}</span>
                   </button>
                 ))}
               </div>
@@ -1085,22 +1095,12 @@ export default function LessonPortal({
                     <div className={styles.courseFolderGrid} ref={!isSearchingCourses ? courseGridRef : undefined}>
                       {paginatedCourses.map(course => (
                         <article className={styles.courseFolder} key={course.id} aria-labelledby={`course-title-${course.id}`}>
+                          <h3 className={`${styles.courseTitle} ${styles.illustratedTitle}`} id={`course-title-${course.id}`} title={course.title}><LearningAccent /><span className={styles.courseNameText}>{course.title}</span></h3>
                           <div className={styles.courseCardMain}>
                             <div className={styles.courseCardBody}>
-                              <div className={styles.courseCardHeading}>
-                                <h3 className={styles.courseTitle} id={`course-title-${course.id}`}>{course.title}</h3>
-                              </div>
                               <p className={styles.courseDesc}>{course.description ?? ""}</p>
+                              <CourseToolRow tools={course.systemIcons} />
                             </div>
-                            <button type="button" className={styles.courseEnterButton} id={`course-choice-${course.id}`}
-                              aria-label={`Enter ${course.title}`} onClick={() => {
-                                courseScrollTop.current = (isSearchingCourses ? coursePaneRef.current : courseGridRef.current)?.scrollTop ?? 0;
-                                rememberDeckSelection(course.id);
-                                setSelectedCourseId(course.id);
-                                setMobileFoldersOpen(false);
-                              }}>
-                              <HairlineEnter />
-                            </button>
                           </div>
                           <div className={styles.folderBadgesRow}>
                             <span className={styles.courseSectionBadge}>
@@ -1113,7 +1113,15 @@ export default function LessonPortal({
                               <i className={styles.dotUnlocked} aria-hidden="true" /><span>UNLOCKED</span>
                             </span>
                           </div>
-                          {Boolean(course.systemIcons?.length) && <div className={styles.courseFooter}>{renderCourseTools(course)}</div>}
+                          <button type="button" className={styles.courseEnterButton} id={`course-choice-${course.id}`}
+                            aria-label={`Open sections for ${course.title}`} onClick={() => {
+                              courseScrollTop.current = (isSearchingCourses ? coursePaneRef.current : courseGridRef.current)?.scrollTop ?? 0;
+                              rememberDeckSelection(course.id);
+                              setSelectedCourseId(course.id);
+                              setMobileFoldersOpen(false);
+                            }}>
+                            <HairlineBook />
+                          </button>
                         </article>
                       ))}
                     </div>
