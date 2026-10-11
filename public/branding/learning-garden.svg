@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1100" fill="none">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1100" gradientUnits="userSpaceOnUse"><stop stop-color="#123c56"/><stop offset=".52" stop-color="#477d85"/><stop offset="1" stop-color="#b6cbb0"/></linearGradient>
+    <radialGradient id="light"><stop stop-color="#f4e7b5" stop-opacity=".45"/><stop offset="1" stop-color="#f4e7b5" stop-opacity="0"/></radialGradient>
+    <linearGradient id="hill" x1="0" y1="700" x2="0" y2="1100" gradientUnits="userSpaceOnUse"><stop stop-color="#477e70"/><stop offset="1" stop-color="#17483f"/></linearGradient>
+    <g id="tree"><path d="M0 0v-220m0 110-34-35m34 5 36-37" stroke="#173e38" stroke-width="7" stroke-linecap="round"/><path d="M-7-294C-68-301-100-254-84-216c-47 34-23 91 24 91 10 35 85 40 103 5 56 7 85-45 58-76 20-42-7-80-40-79-12-23-37-30-68-19Z" fill="currentColor"/><path d="M-35-263c-30 8-37 27-30 48m80-55c26 3 38 16 37 37" stroke="#b1d0a0" stroke-opacity=".18" stroke-width="3" stroke-linecap="round"/></g>
+    <g id="pine"><path d="M0 0v-230" stroke="#153e36" stroke-width="6"/><path d="m0-300-50 100h25l-45 75h33l-50 83H87l-50-83h33l-45-75h25Z" fill="currentColor"/></g>
+    <g id="leaf"><path d="M0 0C-55-10-77-49-66-81-27-77-2-44 0 0Z" fill="currentColor"/><path d="M0 0-52-62" stroke="#a8c399" stroke-opacity=".2" stroke-width="2"/></g>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h1800v1100H0z"/>
+  <ellipse cx="1370" cy="220" rx="470" ry="370" fill="url(#light)"/>
+  <circle cx="1400" cy="208" r="49" fill="#f2e6b7" opacity=".65"/>
+  <g stroke="#d5e7dc" stroke-opacity=".15" stroke-width="2"><path d="M80 165h270m-210 15h95m1200 190h210m-145 16h205"/></g>
+  <g stroke="#183e4c" stroke-opacity=".65" stroke-width="2" stroke-linecap="round"><path d="M1240 156q10-9 20 0 10-9 20 0m-85 35q7-7 14 0 7-7 14 0m285-76q8-8 16 0 8-8 16 0"/></g>
+  <path d="M0 660Q210 430 430 650T870 610T1350 590T1800 560V1100H0Z" fill="#80a89a" opacity=".55"/>
+  <path d="M0 730Q260 580 480 745T980 690T1480 750T1800 640V1100H0Z" fill="#548b79"/>
+  <path d="M0 865Q280 670 540 850T1130 800T1800 790V1100H0Z" fill="url(#hill)"/>
+  <g color="#386f59"><use href="#pine" transform="translate(110 810) scale(.7)"/><use href="#pine" transform="translate(260 780) scale(.48)"/><use href="#tree" transform="translate(1600 850) scale(.8)"/><use href="#pine" transform="translate(1740 815) scale(.7)"/></g>
+  <path d="M0 980Q200 865 440 980T950 1025T1470 950T1800 975V1100H0Z" fill="#204e40"/>
+  <g color="#235743"><use href="#tree" transform="translate(70 990) scale(1.7)"/><use href="#tree" transform="translate(220 1030) scale(1.12)"/><use href="#tree" transform="translate(1760 1030) scale(1.9)"/><use href="#pine" transform="translate(1590 1030) scale(1.05)"/></g>
+  <path d="M0 1100v-58q190-85 360 58m1080 0q240-140 360-70v70" fill="#123a31"/>
+  <g color="#387356"><use href="#leaf" transform="translate(68 1090) scale(2)"/><use href="#leaf" transform="translate(110 1120) rotate(80) scale(1.8)"/><use href="#leaf" transform="translate(1730 1120) rotate(25) scale(2.5)"/><use href="#leaf" transform="translate(1690 1100) rotate(85) scale(1.8)"/></g>
+</svg>

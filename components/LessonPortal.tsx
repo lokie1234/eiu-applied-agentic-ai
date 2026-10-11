@@ -11,12 +11,23 @@ import { rememberDeckSelection } from "@/lib/deckLocation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
 import styles from "./LessonPortal.module.css";
+import HairlineFolder from "./HairlineFolder";
+import HairlineEnter from "./HairlineEnter";
+import HairlineMouse from "./HairlineMouse";
+import HairlineLoading from "./HairlineLoading";
+import { useSectionOpening } from "./useSectionOpening";
 
-const SectionOneDeck = dynamic(() => import("./PdfDeck"), { ssr: false });
-const SectionTwoDeck = dynamic(() => import("./section2/SectionTwoDeck"), { ssr: false });
-const UploadedSectionDeck = dynamic(() => import("./deck/UploadedSectionDeck"), { ssr: false });
+const SectionOneDeck = dynamic(() => import("./PdfDeck"), { ssr: false, loading: () => <HairlineLoading /> });
+const SectionTwoDeck = dynamic(() => import("./section2/SectionTwoDeck"), { ssr: false, loading: () => <HairlineLoading /> });
+const UploadedSectionDeck = dynamic(() => import("./deck/UploadedSectionDeck"), { ssr: false, loading: () => <HairlineLoading /> });
 
 type SectionId = "section1" | "section2";
+
+function NatureAccent() {
+  return <svg className={styles.natureAccent} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    <path d="M12 21V12M12 14C5 14 3 10 3 5c6 0 9 3 9 9ZM12 12c0-7 4-10 9-10 0 6-3 10-9 10Z" />
+  </svg>;
+}
 type TerminateStatus = "idle" | "sending" | "success" | "error";
 type ReportStatus = "idle" | "exporting" | "error";
 type ReportSectionOption = { value: string; label: string };
@@ -224,6 +235,23 @@ function DeckShell({
   );
 }
 
+function groupCourseFolders(courses: CourseFolder[]) {
+    const groups: Array<{ id: string; name: string; courses: CourseFolder[] }> = [];
+    const groupMap = new Map<string, { id: string; name: string; courses: CourseFolder[] }>();
+
+    for (const course of courses) {
+      const gId = course.folderGroupId || "fg-ai-agentic";
+      const gName = course.folderGroupName || "Chương Trình AI & Agentic";
+      if (!groupMap.has(gId)) {
+        const item = { id: gId, name: gName, courses: [] };
+        groupMap.set(gId, item);
+        groups.push(item);
+      }
+      groupMap.get(gId)!.courses.push(course);
+    }
+    return groups;
+}
+
 export default function LessonPortal({
   isAdmin,
   canFacilitate = false,
@@ -272,6 +300,7 @@ export default function LessonPortal({
   );
   const [adminSection, setAdminSection] = useState<SectionId | null>(initialSection);
   const [uploadedSection, setActiveUploadedSection] = useState<CourseFolderSection | null>(() => initialSection ? null : courseFolders.find(course => course.id === initialCourseId)?.sections.find(item => item.id === initialSectionId && ["pdf", "tsx", "pptx"].includes(item.contentType)) ?? null);
+  const { openingSection, sectionOpenError, openSection, cancelSectionOpening } = useSectionOpening();
   const [showTerminate, setShowTerminate] = useState(false);
   const [terminateStatus, setTerminateStatus] =
     useState<TerminateStatus>("idle");
@@ -308,39 +337,93 @@ export default function LessonPortal({
     });
   }, [courseFolders, searchQuery]);
 
-  // Group courses by parent folder (Folder Lớn)
-  const groupedCourses = useMemo(() => {
-    const groups: Array<{ id: string; name: string; courses: CourseFolder[] }> = [];
-    const groupMap = new Map<string, { id: string; name: string; courses: CourseFolder[] }>();
+  const groupedCourses = useMemo(() => groupCourseFolders(filteredCourseFolders), [filteredCourseFolders]);
+  const allCourseGroups = useMemo(() => groupCourseFolders(courseFolders), [courseFolders]);
 
-    for (const course of filteredCourseFolders) {
-      const gId = course.folderGroupId || "fg-ai-agentic";
-      const gName = course.folderGroupName || "Chương Trình AI & Agentic";
-      if (!groupMap.has(gId)) {
-        const item = { id: gId, name: gName, courses: [] };
-        groupMap.set(gId, item);
-        groups.push(item);
-      }
-      groupMap.get(gId)!.courses.push(course);
-    }
-    return groups;
-  }, [filteredCourseFolders]);
+  const [openFolderId, setOpenFolderId] = useState<string | null>(() =>
+    courseFolders.find(course => course.id === initialCourseId)?.folderGroupId ?? null);
+  const sectionListRef = useRef<HTMLDivElement>(null);
+  const coursePaneRef = useRef<HTMLDivElement>(null);
+  const courseGridRef = useRef<HTMLDivElement>(null);
+  const restoreCourseFocus = useRef<string | null>(null);
+  const restoreFolderFocus = useRef(false);
+  const courseScrollTop = useRef(0);
+  const [mobileFoldersOpen, setMobileFoldersOpen] = useState(false);
 
-  const COURSES_PER_PAGE = 4;
-  const [groupPages, setGroupPages] = useState<Record<string, number>>({});
+  const openFolder = allCourseGroups.find(group => group.id === openFolderId) ?? allCourseGroups[0];
+  const isSearchingCourses = searchQuery.trim().length > 0;
+  const visibleCourseGroups = isSearchingCourses ? groupedCourses : openFolder ? [openFolder] : [];
+
+  const COURSES_PER_PAGE = 6;
+  const FOLDERS_PER_PAGE = 6;
+  const folderTotalPages = Math.max(1, Math.ceil(allCourseGroups.length / FOLDERS_PER_PAGE));
+  const folderPage = Math.floor(Math.max(0, allCourseGroups.findIndex(group => group.id === openFolder?.id)) / FOLDERS_PER_PAGE) + 1;
+  const paginatedFolders = allCourseGroups.slice((folderPage - 1) * FOLDERS_PER_PAGE, folderPage * FOLDERS_PER_PAGE);
+  function changeFolderPage(page: number) {
+    const firstGroup = allCourseGroups[(page - 1) * FOLDERS_PER_PAGE];
+    if (firstGroup) chooseFolder(firstGroup.id);
+  }
+  const [groupPages, setGroupPages] = useState<Record<string, number>>(() => {
+    const course = courseFolders.find(item => item.id === initialCourseId);
+    if (!course) return {};
+    const groupId = course.folderGroupId || "fg-ai-agentic";
+    const index = courseFolders.filter(item => (item.folderGroupId || "fg-ai-agentic") === groupId).findIndex(item => item.id === course.id);
+    return { [groupId]: Math.floor(index / COURSES_PER_PAGE) + 1 };
+  });
+
+  function closeCourse(restoreFocus = false) {
+    cancelSectionOpening();
+    if (restoreFocus) restoreCourseFocus.current = selectedCourseId;
+    if (selectedCourseId) rememberDeckSelection();
+    setSelectedCourseId(null);
+  }
+
+  function chooseFolder(groupId: string) {
+    restoreFolderFocus.current = mobileFoldersOpen;
+    closeCourse();
+    setOpenFolderId(groupId);
+    setSearchQuery("");
+    setMobileFoldersOpen(false);
+    if (coursePaneRef.current) coursePaneRef.current.scrollTop = 0;
+  }
 
   function changeSearchQuery(value: string) {
+    closeCourse();
     setSearchQuery(value);
     setGroupPages({});
   }
 
   const handlePageChange = (groupId: string, newPage: number) => {
+    closeCourse();
+    if (courseGridRef.current) courseGridRef.current.scrollTop = 0;
     setGroupPages((prev) => ({ ...prev, [groupId]: newPage }));
   };
 
   const selectedCourse = courseFolders.find((course) => course.id === selectedCourseId) ?? null;
   const section = selectedCourse?.sections.some(item => item.sectionKey === adminSection) ? adminSection : null;
   const activeUploadedSection = selectedCourse?.sections.find(item => item.id === uploadedSection?.id) ?? null;
+
+  useEffect(() => {
+    if (section || activeUploadedSection) return;
+    const pane = coursePaneRef.current;
+    if (selectedCourseId) {
+      if (pane) pane.scrollTop = 0;
+      sectionListRef.current?.focus({ preventScroll: true });
+    } else if (restoreCourseFocus.current) {
+      const scrollTarget = isSearchingCourses ? pane : courseGridRef.current;
+      if (scrollTarget) scrollTarget.scrollTop = courseScrollTop.current;
+      document.getElementById(`course-choice-${restoreCourseFocus.current}`)?.focus({ preventScroll: true });
+      restoreCourseFocus.current = null;
+    }
+  }, [selectedCourseId, section, activeUploadedSection, isSearchingCourses]);
+
+  useEffect(() => {
+    if (!mobileFoldersOpen && restoreFolderFocus.current) {
+      coursePaneRef.current?.focus({ preventScroll: true });
+      restoreFolderFocus.current = false;
+    }
+  }, [mobileFoldersOpen, openFolder?.id]);
+
   const canFacilitateCurrent = isAdmin || Boolean(selectedCourse?.sections.find(item => item.sectionKey === section)?.canFacilitate);
   const resetSectionLabel =
     resetSection === "all"
@@ -642,19 +725,6 @@ export default function LessonPortal({
     }
   }
 
-  async function chooseSection(nextSection: SectionId) {
-    const response = await fetch("/api/session/section", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ section: nextSection }),
-    });
-    if (response.ok) {
-      rememberDeckSelection(selectedCourse?.id, selectedCourse?.sections.find(item => item.sectionKey === nextSection)?.id);
-      setActiveUploadedSection(null);
-      setAdminSection(nextSection);
-    }
-  }
-
   // Admin section termination polling listener
   useEffect(() => {
     if (isAdmin || !section) return;
@@ -727,13 +797,136 @@ export default function LessonPortal({
     };
   }, [isAdmin, section]);
 
-  if (!selectedCourse) {
+  function renderCourseTools(course: CourseFolder) {
+    return <div className={styles.staticIconsTrack} aria-label="Course tools">
+      {course.systemIcons?.map(icon => (
+        <span key={icon.id} data-course-tool className={styles.courseCardIconBox} title={icon.name || undefined}>
+          <img src={icon.url} draggable={false} alt={icon.name || "Course tool"} width={24} height={24}
+            loading="lazy" decoding="async" className={styles.courseCardIconImg} />
+        </span>
+      ))}
+    </div>;
+  }
+
+  function renderCourseSections(course: CourseFolder) {
     return (
-      <main className={styles.portal}>
-        <div className={styles.grid} aria-hidden="true" />
+      <div id={`course-sections-${course.id}`} className={styles.inlineSections}
+        role="region" aria-label={`${course.title} sections`} tabIndex={-1} ref={sectionListRef}
+        onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); closeCourse(true); } }}>
+        <button type="button" className={styles.backToCourses} onClick={() => closeCourse(true)} aria-label="Back to courses">
+          <span aria-hidden="true">←</span> Courses
+        </button>
+        <div className={styles.inlineSectionsHeader}>
+          <div>
+            <span>{course.folderGroupName || openFolder?.name} / SECTIONS<NatureAccent /></span>
+            <h2>{course.title}</h2>
+            {course.description && <p>{course.description}</p>}
+          </div>
+          <span className={styles.sectionTotal}>{course.sections.length} sections</span>
+        </div>
+        {Boolean(course.systemIcons?.length) && <div className={styles.sectionTools}>{renderCourseTools(course)}</div>}
+        {sectionOpenError && <p role="alert" className={styles.sectionOpenError}>{sectionOpenError}</p>}
+          <div className={styles.cards}>
+            {course.sections.map((courseSection) => {
+              const coreSection = course.slug === APPLIED_AGENTIC_AI_SLUG &&
+                (courseSection.sectionKey === "section1" || courseSection.sectionKey === "section2")
+                  ? courseSection.sectionKey as SectionId
+                  : null;
+              const hasUploadedDeck = courseSection.contentType === "pdf" || courseSection.contentType === "tsx" || courseSection.contentType === "pptx";
+              const canOpen = Boolean(coreSection || hasUploadedDeck);
+              const count = coreSection === "section1" ? 41 : coreSection === "section2" ? 39 : courseSection.slideCount;
+              return (
+                <div key={courseSection.id} className={styles.courseSectionCard}>
+                <button
+                  type="button"
+                  className={styles.sectionLaunchButton}
+                  disabled={!canOpen || Boolean(openingSection)}
+                  aria-busy={openingSection === courseSection.sectionKey}
+                  onClick={() => {
+                    if (coreSection) void openSection(coreSection, () => {
+                      rememberDeckSelection(course.id, courseSection.id);
+                      setActiveUploadedSection(null);
+                      setAdminSection(coreSection);
+                    });
+                    else if (hasUploadedDeck) { rememberDeckSelection(course.id, courseSection.id, true); setActiveUploadedSection(courseSection); }
+                  }}
+                >
+                  <span>SECTION {courseSection.position}</span>
+                  <strong>{courseSection.title}</strong>
+                  <small>
+                    {canOpen
+                      ? `${count ? `${count} slide · ` : ""}${coreSection ? "Interactive" : courseSection.contentType.toUpperCase()}`
+                      : "Content has not been uploaded yet"}
+                  </small>
+                  {(isAdmin || courseSection.canFacilitate) && coreSection && <div className={styles.cardLiveUsers}>
+                    <span className={styles.liveDot} />
+                    <span>{presenceCounts[coreSection]} active learners</span>
+                  </div>}
+                  {openingSection === courseSection.sectionKey ? <span className={styles.sectionLoadingCue}>
+                    <HairlineLoading compact label="Opening section" />
+                  </span> : canOpen && <span className={styles.sectionClickCue} aria-hidden="true">
+                    <HairlineMouse />
+                    <span className={styles.sectionClickLabel}>Click</span>
+                  </span>}
+                </button>
+                {coreSection && courseSection.contentType === "pptx" && (
+                  <button type="button" className={styles.sectionFilePreview} disabled={Boolean(openingSection)} onClick={() => { rememberDeckSelection(course.id, courseSection.id, true); setAdminSection(null); setActiveUploadedSection(courseSection); }}>
+                    View file
+                  </button>
+                )}
+                {coreSection && courseSection.contentType === "pptx" && (
+                  <a
+                    className={styles.sectionPptxLink}
+                    href={`/api/sections/${encodeURIComponent(courseSection.id)}/content?download=1`}
+                    download={courseSection.sourceFilename || "Presentation.pptx"}
+                    title="Download the original attachment and open it in PowerPoint for audio, animations, and add-ins"
+                  >
+                    Download
+                  </a>
+                )}
+                </div>
+              );
+            })}
+            {course.sections.length === 0 && <p>This course does not have any sections yet.</p>}
+          </div>
+      </div>
+    );
+  }
+
+  if (!selectedCourse || (!section && !activeUploadedSection)) {
+    return (
+      <main className={`${styles.portal} ${styles.gardenPortal}`}>
+        <div className={styles.gardenBackdrop} aria-hidden="true" />
         <div className={styles.selectorActions}>
           {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
+          {isAdmin && (
+            <button
+              type="button"
+              className={styles.reportButton}
+              onClick={() => {
+                setReportNotice("");
+                setShowExportModal(true);
+              }}
+              disabled={reportStatus === "exporting"}
+            >
+              {reportStatus === "exporting" ? "Exporting…" : "Export Excel report"}
+            </button>
+          )}
+          {isAdmin && (
+            <button
+              type="button"
+              className={styles.resetDataButton}
+              onClick={() => {
+                setResetPassword("");
+                setResetStatus("idle");
+                setResetNotice("");
+                setShowResetModal(true);
+              }}
+            >
+              Reset data
+            </button>
+          )}
           <button type="button" onClick={signOut}>Sign out</button>
         </div>
 
@@ -757,8 +950,7 @@ export default function LessonPortal({
 
           <div className={styles.libraryHeaderToolbar}>
             <div className={styles.libraryHeaderTitleArea}>
-              <span className={styles.libraryHeaderTag}>COURSE LIBRARY</span>
-              <h1 className={styles.libraryHeaderTitle}>Choose a course</h1>
+              <h1 className={styles.libraryHeaderTitle}>Choose a <span className={styles.titleWord}>course</span><NatureAccent /></h1>
             </div>
 
             <div className={styles.librarySearchArea}>
@@ -797,7 +989,7 @@ export default function LessonPortal({
                   </button>
                 )}
               </div>
-              <span className={styles.searchStatsBadge}>
+              <span className={styles.searchStatsBadge} role="status">
                 {searchQuery
                   ? `${filteredCourseFolders.length} found`
                   : `${courseFolders.length} ${courseFolders.length === 1 ? "course" : "courses"}`}
@@ -805,8 +997,48 @@ export default function LessonPortal({
             </div>
           </div>
 
-          <div className={styles.libraryFolderSections}>
-            {groupedCourses.length === 0 ? (
+          <div className={styles.libraryWorkspace}>
+            <button type="button" id="mobile-folder-toggle" className={styles.mobileFolderToggle} aria-expanded={mobileFoldersOpen}
+              aria-controls="folder-navigation" onClick={() => setMobileFoldersOpen(value => !value)}>
+              <span><strong>{openFolder?.name || "Course folders"}</strong></span>
+              <span aria-hidden="true">{mobileFoldersOpen ? "−" : "+"}</span>
+            </button>
+            <aside id="folder-navigation"
+              className={`${styles.folderNavigation} ${mobileFoldersOpen ? styles.mobileFoldersOpen : ""}`} aria-label="Folder navigation"
+              onKeyDown={event => {
+                if (event.key === "Escape" && mobileFoldersOpen) {
+                  setMobileFoldersOpen(false);
+                  document.getElementById("mobile-folder-toggle")?.focus({ preventScroll: true });
+                }
+              }}>
+              <div className={styles.folderShelf} role="group" aria-label="Course folders">
+                {paginatedFolders.map(group => (
+                  <button type="button" key={group.id}
+                    className={`${styles.folderChoice} ${!isSearchingCourses && openFolder?.id === group.id ? styles.folderChoiceSelected : ""}`}
+                    aria-pressed={!isSearchingCourses && openFolder?.id === group.id} aria-controls="course-folder-content" title={group.name}
+                    onClick={() => chooseFolder(group.id)}>
+                    <HairlineFolder selected={!isSearchingCourses && openFolder?.id === group.id} />
+                    {!isSearchingCourses && openFolder?.id === group.id && <span className={styles.folderSelectedMark} aria-hidden="true">✓</span>}
+                    <span className={styles.folderChoiceText}>
+                      <strong>{group.name}</strong>
+                      <span>{group.courses.length} {group.courses.length === 1 ? "course" : "courses"}</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+              {folderTotalPages > 1 && (
+                <nav className={styles.folderPageNav} aria-label="Folder pages">
+                  <span>{folderPage} / {folderTotalPages}</span>
+                  <div>
+                    <button type="button" disabled={folderPage === 1} onClick={() => changeFolderPage(folderPage - 1)} aria-label="Previous folder page">←</button>
+                    <button type="button" disabled={folderPage === folderTotalPages} onClick={() => changeFolderPage(folderPage + 1)} aria-label="Next folder page">→</button>
+                  </div>
+                </nav>
+              )}
+            </aside>
+            <div className={`${styles.libraryFolderSections} ${!selectedCourse && !isSearchingCourses ? styles.catalogPane : ""}`} id="course-folder-content" ref={coursePaneRef}
+              tabIndex={-1} role="region" aria-label={isSearchingCourses ? "Course library" : `${openFolder?.name || "Course library"} courses`}>
+            {selectedCourse ? renderCourseSections(selectedCourse) : groupedCourses.length === 0 ? (
               <div className={styles.emptySearch}>
                 <div className={styles.emptySearchIcon} aria-hidden="true">
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#e9ca8b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -825,17 +1057,16 @@ export default function LessonPortal({
                 </button>
               </div>
             ) : (
-              groupedCourses.map((group) => {
+              visibleCourseGroups.map((group) => {
                 const totalCourses = group.courses.length;
                 const totalPages = Math.max(1, Math.ceil(totalCourses / COURSES_PER_PAGE));
                 const currentPage = Math.min(Math.max(1, groupPages[group.id] || 1), totalPages);
                 const startIndex = (currentPage - 1) * COURSES_PER_PAGE;
                 const paginatedCourses = group.courses.slice(startIndex, startIndex + COURSES_PER_PAGE);
-                const colCount = Math.min(totalCourses, COURSES_PER_PAGE);
 
                 return (
-                  <div key={group.id} className={styles.libraryFolderGroup}>
-                    {(groupedCourses.length > 1 || totalPages > 1 || searchQuery) && (
+                  <div key={group.id} className={`${styles.libraryFolderGroup} ${!isSearchingCourses ? styles.singleCourseGroup : ""}`}>
+                    {isSearchingCourses && (
                       <div className={styles.libraryFolderHeader}>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="#e9ca8b" aria-hidden="true">
@@ -851,119 +1082,40 @@ export default function LessonPortal({
                       </div>
                     )}
 
-                    <div
-                      className={styles.courseFolderGrid}
-                      style={{ "--col-count": colCount } as React.CSSProperties}
-                    >
-                      {paginatedCourses.map((course) => {
-                        const isCourseUnlocked = true;
-                        return (
-                          <button
-                            type="button"
-                            className={styles.courseFolder}
-                            key={course.id}
-                            onClick={() => { rememberDeckSelection(course.id); setSelectedCourseId(course.id); }}
-                          >
+                    <div className={styles.courseFolderGrid} ref={!isSearchingCourses ? courseGridRef : undefined}>
+                      {paginatedCourses.map(course => (
+                        <article className={styles.courseFolder} key={course.id} aria-labelledby={`course-title-${course.id}`}>
+                          <div className={styles.courseCardMain}>
                             <div className={styles.courseCardBody}>
-                              <div className={styles.courseCardTopRow}>
-                                <div className={styles.courseCardHeading}>
-                                  <strong className={styles.courseTitle}>{course.title}</strong>
-                                  <span className={styles.sectionCountText}>
-                                    {course.sections.length} {course.sections.length === 1 ? "SECTION" : "SECTIONS"}
-                                  </span>
-                                </div>
-                                <b aria-hidden="true" className={isCourseUnlocked ? styles.folderArrowUnlocked : styles.folderArrowLocked}>
-                                  {isCourseUnlocked ? (
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                                  ) : (
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                                  )}
-                                </b>
+                              <div className={styles.courseCardHeading}>
+                                <h3 className={styles.courseTitle} id={`course-title-${course.id}`}>{course.title}</h3>
                               </div>
-
-                              <em className={styles.courseDesc}>
-                                {course.description ?? ""}
-                              </em>
-
-                              <div className={styles.folderBadgesRow}>
-                                <span className={styles.folderLanguage}>
-                                  {course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}
-                                </span>
-                                {isCourseUnlocked ? (
-                                  <span className={styles.unlockedFolderBadge}>
-                                    <i className={styles.dotUnlocked} aria-hidden="true" />
-                                    <span>UNLOCKED</span>
-                                  </span>
-                                ) : (
-                                  <span className={styles.lockedFolderBadge}>
-                                    <i className={styles.dotLocked} aria-hidden="true" />
-                                    <span>PASSCODE REQUIRED</span>
-                                  </span>
-                                )}
-                              </div>
+                              <p className={styles.courseDesc}>{course.description ?? ""}</p>
                             </div>
-
-                            {/* Tech Stack Icons: Thanh hiển thị ngang riêng biệt bên dưới, tự lặp vô tận khi > 5 icon */}
-                            {course.systemIcons && course.systemIcons.length > 0 && (
-                              <div className={styles.courseCardIconsArea} title="Course Tech Stack">
-                                {course.systemIcons.length > 5 ? (
-                                  <div className={styles.marqueeContainer}>
-                                    <div className={styles.marqueeTrack}>
-                                      {course.systemIcons.map((icon, idx) => (
-                                        <div
-                                          key={`a-${icon.id}-${idx}`}
-                                          className={styles.courseCardIconBox}
-                                          style={{ animationDelay: `${(idx % 6) * 0.45}s` }}
-                                          title={icon.name && icon.name.toLowerCase() !== "system" ? icon.name : undefined}
-                                        >
-                                          <img
-                                            src={icon.url}
-                                            alt={icon.name || "Icon"}
-                                            className={styles.courseCardIconImg}
-                                          />
-                                        </div>
-                                      ))}
-                                    </div>
-                                    <div className={styles.marqueeTrack} aria-hidden="true">
-                                      {course.systemIcons.map((icon, idx) => (
-                                        <div
-                                          key={`b-${icon.id}-${idx}`}
-                                          className={styles.courseCardIconBox}
-                                          style={{ animationDelay: `${((idx + 2) % 6) * 0.45}s` }}
-                                          title={icon.name && icon.name.toLowerCase() !== "system" ? icon.name : undefined}
-                                        >
-                                          <img
-                                            src={icon.url}
-                                            alt={icon.name || "Icon"}
-                                            className={styles.courseCardIconImg}
-                                          />
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                ) : (
-                                  <div className={styles.staticIconsTrack}>
-                                    {course.systemIcons.map((icon, idx) => (
-                                      <div
-                                        key={icon.id}
-                                        className={styles.courseCardIconBox}
-                                        style={{ animationDelay: `${idx * 0.45}s` }}
-                                        title={icon.name && icon.name.toLowerCase() !== "system" ? icon.name : undefined}
-                                      >
-                                        <img
-                                          src={icon.url}
-                                          alt={icon.name || "Icon"}
-                                          className={styles.courseCardIconImg}
-                                        />
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                          </button>
-                        );
-                      })}
+                            <button type="button" className={styles.courseEnterButton} id={`course-choice-${course.id}`}
+                              aria-label={`Enter ${course.title}`} onClick={() => {
+                                courseScrollTop.current = (isSearchingCourses ? coursePaneRef.current : courseGridRef.current)?.scrollTop ?? 0;
+                                rememberDeckSelection(course.id);
+                                setSelectedCourseId(course.id);
+                                setMobileFoldersOpen(false);
+                              }}>
+                              <HairlineEnter />
+                            </button>
+                          </div>
+                          <div className={styles.folderBadgesRow}>
+                            <span className={styles.courseSectionBadge}>
+                              {course.sections.length} {course.sections.length === 1 ? "SECTION" : "SECTIONS"}
+                            </span>
+                            <span className={styles.folderLanguage}>
+                              {course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}
+                            </span>
+                            <span className={styles.unlockedFolderBadge}>
+                              <i className={styles.dotUnlocked} aria-hidden="true" /><span>UNLOCKED</span>
+                            </span>
+                          </div>
+                          {Boolean(course.systemIcons?.length) && <div className={styles.courseFooter}>{renderCourseTools(course)}</div>}
+                        </article>
+                      ))}
                     </div>
 
                     {totalPages > 1 && (
@@ -1005,134 +1157,7 @@ export default function LessonPortal({
                 );
               })
             )}
-          </div>
-        </section>
-
-        {/* Course Passcode Modal */}
-
-      </main>
-    );
-  }
-
-  if (!section && !activeUploadedSection) {
-    return (
-      <main className={styles.portal}>
-        <div className={styles.grid} aria-hidden="true" />
-
-        <div className={styles.selectorActions}>
-          <button type="button" onClick={() => { rememberDeckSelection(); setSelectedCourseId(null); }}>← Courses</button>
-          {isAdmin && <Link href="/admin/access">Access settings</Link>}
-          {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
-          {isAdmin && (
-            <button
-              type="button"
-              className={styles.reportButton}
-              onClick={() => {
-                setReportNotice("");
-                setShowExportModal(true);
-              }}
-              disabled={reportStatus === "exporting"}
-            >
-              {reportStatus === "exporting" ? "Exporting…" : "Export Excel report"}
-            </button>
-          )}
-          {isAdmin && (
-            <button
-              type="button"
-              className={styles.resetDataButton}
-              onClick={() => {
-                setResetPassword("");
-                setResetStatus("idle");
-                setResetNotice("");
-                setShowResetModal(true);
-              }}
-            >
-              Reset data
-            </button>
-          )}
-          <button type="button" onClick={signOut}>
-            Sign out
-          </button>
-        </div>
-
-        <section className={styles.panel}>
-          <div className={styles.brand}>
-            <div className={styles.logoWindow}>
-              <Image
-                src="/branding/EIU-logo-white.png"
-                alt="EIU"
-                width={2048}
-                height={2048}
-                priority
-                unoptimized
-              />
             </div>
-            <div>
-              <span>{isAdmin ? "ADMIN ACCESS" : "MY COURSE"}</span>
-              <strong>{selectedCourse.title}</strong>
-            </div>
-          </div>
-
-          <div className={styles.heading}>
-            <span>{selectedCourse.title.toUpperCase()}</span>
-            <h1>Choose what you want to learn</h1>
-            {selectedCourse.description && <p>{selectedCourse.description}</p>}
-            {reportStatus === "error" && reportNotice && (
-              <p className={styles.reportError} role="alert">{reportNotice}</p>
-            )}
-          </div>
-
-          <div className={styles.cards}>
-            {selectedCourse.sections.map((courseSection) => {
-              const coreSection = selectedCourse.slug === APPLIED_AGENTIC_AI_SLUG &&
-                (courseSection.sectionKey === "section1" || courseSection.sectionKey === "section2")
-                  ? courseSection.sectionKey as SectionId
-                  : null;
-              const hasUploadedDeck = courseSection.contentType === "pdf" || courseSection.contentType === "tsx" || courseSection.contentType === "pptx";
-              const canOpen = Boolean(coreSection || hasUploadedDeck);
-              const count = coreSection === "section1" ? 41 : coreSection === "section2" ? 39 : courseSection.slideCount;
-              return (
-                <div key={courseSection.id} className={styles.courseSectionCard}>
-                <button
-                  type="button"
-                  disabled={!canOpen}
-                  onClick={() => {
-                    if (coreSection) void chooseSection(coreSection);
-                    else if (hasUploadedDeck) { rememberDeckSelection(selectedCourse.id, courseSection.id, true); setActiveUploadedSection(courseSection); }
-                  }}
-                >
-                  <span>SECTION {courseSection.position}</span>
-                  <strong>{courseSection.title}</strong>
-                  <small>
-                    {canOpen
-                      ? `${count ? `${count} slide · ` : ""}${coreSection ? "Interactive" : courseSection.contentType.toUpperCase()}`
-                      : "Content has not been uploaded yet"}
-                  </small>
-                  {(isAdmin || courseSection.canFacilitate) && coreSection && <div className={styles.cardLiveUsers}>
-                    <span className={styles.liveDot} />
-                    <span>{presenceCounts[coreSection]} active learners</span>
-                  </div>}
-                  <i>{canOpen ? "→" : "…"}</i>
-                </button>
-                {coreSection && courseSection.contentType === "pptx" && (
-                  <button type="button" className={styles.sectionFilePreview} onClick={() => { rememberDeckSelection(selectedCourse.id, courseSection.id, true); setAdminSection(null); setActiveUploadedSection(courseSection); }}>
-                    View file
-                  </button>
-                )}
-                {coreSection && courseSection.contentType === "pptx" && (
-                  <a
-                    className={styles.sectionPptxLink}
-                    href={`/api/sections/${encodeURIComponent(courseSection.id)}/content?download=1`}
-                    download={courseSection.sourceFilename || "Presentation.pptx"}
-                    title="Download the original attachment and open it in PowerPoint for audio, animations, and add-ins"
-                  >
-                    Download
-                  </a>
-                )}
-                </div>
-              );
-            })}
-            {selectedCourse.sections.length === 0 && <p>This course does not have any sections yet.</p>}
           </div>
         </section>
 
@@ -1368,9 +1393,11 @@ export default function LessonPortal({
             </form>
           </div>
         )}
+
       </main>
     );
   }
+
 
   return (
     <>

@@ -6,11 +6,14 @@ import SharedDeckFrame from "./SharedDeckFrame";
 import EiuTemplateFrame from "./EiuTemplateFrame";
 import styles from "./UploadedSectionDeck.module.css";
 import { fitPptxTables } from "@/lib/pptxTableLayout";
+import HairlineLoading from "@/components/HairlineLoading";
 
 function PreviewSlide({ viewer, page, width }: { viewer: PptxViewer; page: number; width: number }) {
   const container = useRef<HTMLDivElement>(null);
   const [error, setError] = useState("");
   const scale = width / viewer.slideWidth;
+  const renderKey = `${page}:${scale}`;
+  const [readyRender, setReadyRender] = useState("");
   useEffect(() => {
     if (!container.current) return;
     const target = container.current;
@@ -29,7 +32,7 @@ function PreviewSlide({ viewer, page, width }: { viewer: PptxViewer; page: numbe
       const slide = handle.element;
       void handle.ready.then(async () => {
         await document.fonts.ready;
-        if (!disposed) fitPptxTables(slide);
+        if (!disposed) { fitPptxTables(slide); setReadyRender(`${page}:${scale}`); }
       }).catch(() => { if (!disposed) setError("This slide could not be rendered."); });
     } catch {
       queueMicrotask(() => { if (!disposed) setError("This slide could not be rendered."); });
@@ -46,7 +49,10 @@ function PreviewSlide({ viewer, page, width }: { viewer: PptxViewer; page: numbe
       if ((event.target as Element).closest("a")) event.preventDefault();
     }}>
       {error ? <div className={styles.message}>{error}</div> :
-        <div ref={container} style={{ position: "relative", flexShrink: 0, width: viewer.slideWidth * scale, height: viewer.slideHeight * scale }} />}
+        <>
+          <div ref={container} style={{ position: "relative", flexShrink: 0, width: viewer.slideWidth * scale, height: viewer.slideHeight * scale }} />
+          {readyRender !== renderKey && <div className={styles.loadingOverlay}><HairlineLoading label="Loading slide" /></div>}
+        </>}
     </div>
   );
 }
@@ -90,7 +96,7 @@ export default function PptxSectionDeck({ sectionId, courseTitle, sectionTitle, 
         frameClassName={styles.frame} transitionClassName={styles.slide}
         renderSlide={(page, width) => viewer
           ? useTemplate ? <EiuTemplateFrame page={page} background={templateImage}><PreviewSlide viewer={viewer} page={page} width={Math.min(width * .888, width * 9 / 16 * .774 * viewer.slideWidth / viewer.slideHeight)} /></EiuTemplateFrame> : <PreviewSlide viewer={viewer} page={page} width={width} />
-          : <div className={styles.message} role={error ? "alert" : "status"}>{error || "Loading presentation preview…"}</div>} />
+          : error ? <div className={styles.message} role="alert">{error}</div> : <HairlineLoading label="Loading presentation" />} />
     </div>
   );
 }

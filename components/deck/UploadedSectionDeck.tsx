@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import dynamic from "next/dynamic";
 import SharedDeckFrame from "@/components/deck/SharedDeckFrame";
+import HairlineLoading from "@/components/HairlineLoading";
 import styles from "./UploadedSectionDeck.module.css";
-const PptxSectionDeck = dynamic(() => import("./PptxSectionDeck"), { ssr: false });
-const UploadedPdfDeck = dynamic(() => import("./UploadedPdfDeck"), { ssr: false });
+const PptxSectionDeck = dynamic(() => import("./PptxSectionDeck"), { ssr: false, loading: () => <HairlineLoading /> });
+const UploadedPdfDeck = dynamic(() => import("./UploadedPdfDeck"), { ssr: false, loading: () => <HairlineLoading /> });
 
 type Props = {
   sectionId: string;
@@ -40,6 +41,7 @@ function createTsxDocument(compiledCode: string, pageNumber: number, templateIma
 export default function UploadedSectionDeck({ sectionId, contentType, slideCount, courseTitle, sectionTitle, templateKey }: Props) {
   const [totalSlides, setTotalSlides] = useState(slideCount ?? 1);
   const [tsxCode, setTsxCode] = useState("");
+  const [tsxReady, setTsxReady] = useState(false);
   const [templateImage, setTemplateImage] = useState("");
   const useTemplate = Boolean(templateImage);
   const [templateLoading, setTemplateLoading] = useState(Boolean(templateKey));
@@ -75,7 +77,10 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
         if (!response.ok) throw new Error("Unable to load TSX section content.");
         return response.text();
       })
-      .then((code) => { if (!disposed) setTsxCode(code); })
+      .then((code) => {
+        if (!code.trim()) throw new Error("This section has no slide content yet.");
+        if (!disposed) setTsxCode(code);
+      })
       .catch((reason) => { if (!disposed) setError(reason instanceof Error ? reason.message : "Unable to load content."); });
     return () => { disposed = true; controller.abort(); };
   }, [contentType, contentUrl]);
@@ -95,7 +100,7 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
     return createTsxDocument(tsxCode, 1, useTemplate ? templateImage : "", templateKey);
   }, [tsxCode, useTemplate, templateImage, templateKey]);
 
-  if (templateLoading) return <div className={styles.message}>Loading slide layout...</div>;
+  if (templateLoading) return <HairlineLoading label="Loading slide layout" />;
   if (error) return <div className={styles.message} role="alert">{error}</div>;
   if (contentType === "pptx") {
     return <PptxSectionDeck templateImage={templateImage} useTemplate={useTemplate} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} />;
@@ -113,14 +118,18 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
       transitionClassName={styles.slide}
       renderSlide={(pageNumber) => {
         if (error) return <div className={styles.message}>{error}</div>;
-        if (!tsxCode || (useTemplate && !templateImage)) return <div className={styles.message}>Loading TSX section…</div>;
+        if (!tsxCode || (useTemplate && !templateImage)) return <HairlineLoading />;
         return (
+          <div className={styles.loadingFrame}>
           <iframe
             className={styles.tsxFrame}
             sandbox="allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox"
             title={`${sectionTitle} · slide ${pageNumber}`}
             srcDoc={pageNumber === 1 ? frameDocument : createTsxDocument(tsxCode, pageNumber, useTemplate ? templateImage : "", templateKey)}
+            onLoad={() => setTsxReady(true)}
           />
+          {!tsxReady && <div className={styles.loadingOverlay}><HairlineLoading /></div>}
+          </div>
         );
       }}
     />

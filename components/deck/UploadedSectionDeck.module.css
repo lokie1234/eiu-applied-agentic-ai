@@ -50,4 +50,6 @@
 .templateContent { position: absolute; inset: 11.5% 5.6% 11.1%; overflow: hidden; font-family: Arial, Helvetica, sans-serif; color: #144069; }
 .templateNumber { position: absolute; left: 93.711%; top: 95.152%; width: 2.664%; height: 4.736%; display: grid; place-items: center; color: #144069; font: 600 clamp(6px, .9vw, 18px) Arial, sans-serif; }
 .pptxPreviewShell > :last-child { flex: 1; min-height: 0; }
-.pptxSlide { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff; }
+.pptxSlide { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; background: #fff; }
+.loadingFrame { position: relative; width: 100%; height: 100%; }
+.loadingOverlay { position: absolute; inset: 0; z-index: 1; }

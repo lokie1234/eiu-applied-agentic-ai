@@ -1,3 +1,205 @@
+/* Campus background and the two-pane course library. */
+.portal.gardenPortal { isolation: isolate; height: 100dvh; min-height: 0; flex-direction: column; gap: 12px; overflow: hidden; padding: 12px clamp(16px, 2.5vw, 48px) 20px; background: #123f68; }
+.gardenBackdrop { position: fixed; z-index: -1; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(4, 28, 49, .14), rgba(4, 28, 49, .34)), url('/branding/eiu-campus.webp') center / cover no-repeat; }
+.gardenPortal .learningSpacePanel { z-index: 1; width: min(1560px, 100%); max-width: 1560px; min-width: 0; min-height: 0; max-height: 100%; flex: 1 1 auto; margin: 0; padding: clamp(20px, 2vw, 30px); border-color: rgba(197, 225, 199, .26); border-radius: 28px; background: #092b38; box-shadow: 0 24px 70px rgba(6, 30, 31, .28); backdrop-filter: none; }
+.gardenPortal .brand { gap: 22px; }
+.gardenPortal .brand span { color: #bad1bf; }
+.gardenPortal .logoWindow { width: 132px; height: 40px; flex-shrink: 0; }
+.gardenPortal .selectorActions { position: static; align-self: flex-end; flex-shrink: 0; z-index: 2; flex-wrap: wrap; }
+.gardenPortal .selectorActions a, .gardenPortal .selectorActions button { background: #0c303d; min-height: 40px; }
+.gardenPortal .libraryHeaderToolbar { align-items: center; padding: 18px 0; margin: 14px 0 12px; border-top: 1px solid #36515a; border-bottom: none; }
+.gardenPortal .libraryHeaderTitleArea { gap: 7px; }
+.gardenPortal .libraryHeaderTitle { font-size: clamp(32px, 3.2vw, 46px); font-weight: 650; letter-spacing: -.045em; line-height: 1.15; animation: headingArrive 700ms cubic-bezier(.22, 1, .36, 1) both; }
+.titleWord { position: relative; display: inline-block; color: #e9ca8b; }
+.titleWord::after { content: ''; position: absolute; left: 0; right: 0; bottom: -5px; height: 2px; background: currentColor; transform-origin: left; animation: headingUnderline 6s ease-in-out infinite; }
+@keyframes headingArrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes headingUnderline { 0%, 100% { transform: scaleX(.45); } 50% { transform: scaleX(1); } }
+.gardenPortal .librarySearchArea { flex: 0 1 420px; }
+.gardenPortal .searchBarWrapper { width: 100%; }
+.gardenPortal .searchInput { height: 44px; border-radius: 12px; background: #153946; border-color: #47606b; backdrop-filter: none; }
+.gardenPortal .searchInput::placeholder { color: #b1c2c8; }
+.gardenPortal .searchStatsBadge { height: 30px; color: #d0ddb9; border-color: #526858; background: #233f40; }
+
+.libraryWorkspace { position: relative; display: grid; grid-template-columns: clamp(280px, 23vw, 320px) minmax(0, 1fr); gap: 24px; flex: 1; min-height: 0; overflow: hidden; }
+.mobileFolderToggle { display: none; }
+.folderNavigation { min-height: 0; display: flex; flex-direction: column; border-right: 1px solid #36515a; padding-right: 20px; }
+.folderShelf { display: grid; grid-template-rows: repeat(6, minmax(0, 1fr)); align-content: start; gap: 8px; flex: 1; min-height: 0; max-height: 640px; padding: 2px; }
+.folderChoice { position: relative; display: grid; grid-template-columns: 100px minmax(0, 1fr); align-items: center; gap: 4px; min-width: 0; min-height: 0; padding: 4px 24px 4px 0; border: 1px solid #405965; border-radius: 14px; color: #e8eee5; background: #153946; text-align: left; cursor: pointer; transition: background-color 180ms, border-color 180ms; }
+.folderChoice:hover { border-color: #a8c398; }
+.folderChoiceSelected, .folderChoiceSelected:hover { border-color: #e9ca8b; background: #2a5056; box-shadow: inset 4px 0 #e9ca8b; }
+.folderSelectedMark { position: absolute; top: 9px; right: 8px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #e9ca8b; color: #092b38; font-size: 12px; font-weight: 800; }
+.folderChoice:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 1px; }
+.folderArtwork { position: relative; display: block; width: 100px; height: min(80px, 100%); min-height: 0; pointer-events: none; }
+.folderStage { display: block; width: 100%; height: 100%; }
+.folderChoiceText { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.folderChoiceText strong { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; font-size: 20px; line-height: 1.2; font-weight: 650; }
+.folderChoiceText > span { color: #b6c9c6; font-size: 12px; }
+.folderPageNav { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 2px 0; margin-top: auto; min-height: 44px; color: #b6c9c6; font-size: 12px; }
+.folderPageNav > div { display: flex; align-items: center; gap: 8px; }
+.folderPageNav button { min-width: 34px; height: 32px; border: 1px solid #536b70; border-radius: 8px; background: #153946; color: #e8eee5; cursor: pointer; }
+.folderPageNav button:disabled { opacity: .35; cursor: default; }
+.folderPageNav button:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 2px; }
+
+.gardenPortal .libraryFolderSections { display: block; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 2px 8px 6px 2px; scrollbar-gutter: stable; }
+.gardenPortal .libraryFolderGroup + .libraryFolderGroup { margin-top: 24px; }
+.gardenPortal .catalogPane { overflow: hidden; }
+.gardenPortal .singleCourseGroup { height: 100%; min-height: 0; }
+.gardenPortal .singleCourseGroup .courseFolderGrid { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; align-content: start; grid-auto-rows: max-content; padding: 2px; }
+.gardenPortal .libraryFolderSections:focus { outline: none; }
+.gardenPortal .libraryFolderHeader { flex-shrink: 0; padding: 0 0 12px; margin-bottom: 0; border-bottom: 1px solid #36515a; }
+.gardenPortal .groupPaginationFooter { flex-shrink: 0; padding-top: 8px; margin-top: 0; border-top: 1px solid #36515a; gap: 8px; }
+.gardenPortal .libraryFolderTitle { color: #e5ebd9; font-size: 23px; font-weight: 600; }
+.gardenPortal .libraryFolderHeader svg { fill: #b8ccaa; width: 18px; }
+.gardenPortal .libraryFolderBadge { color: #bcd4b6; background: transparent; border-color: #476052; font-size: 10px; font-weight: 600; }
+.gardenPortal .courseFolderGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.gardenPortal .courseFolder { position: relative; min-height: 172px; padding: 14px; gap: 10px; border-radius: 16px; border-color: #405965; background: #193b48; box-shadow: none; cursor: default; transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
+.gardenPortal .courseFolder::before { content: ''; position: absolute; inset: 12px auto 12px 0; width: 2px; border-radius: 2px; background: #b9cf9d; opacity: .7; }
+.gardenPortal .courseFolder:hover, .gardenPortal .courseFolder:focus-within { transform: translateY(-2px); border-color: #b6ceaa; background: #254a57; box-shadow: inset 0 0 0 1px rgba(200, 221, 174, .16), 0 5px 14px rgba(0, 16, 27, .2); }
+.gardenPortal .courseFolder:hover::before, .gardenPortal .courseFolder:focus-within::before { opacity: 1; background: #e9ca8b; }
+.courseCardMain { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1; }
+.gardenPortal .courseCardBody { flex: 1; gap: 8px; }
+.gardenPortal .courseCardHeading { gap: 5px; }
+.gardenPortal .courseTitle { display: block; margin: 0; overflow: visible; background: none; -webkit-text-fill-color: currentColor; color: #fff; font-size: 17px; font-weight: 600; line-height: 1.3; animation: none; overflow-wrap: anywhere; }
+.gardenPortal .courseFolder:hover .courseTitle { transform: none; filter: none; }
+.gardenPortal .sectionCountText { color: #c4d2bc; font-size: 9px; font-weight: 600; }
+.gardenPortal .courseDesc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: #d0dfe2; font-size: 16px; line-height: 1.55; margin: 0; }
+.gardenPortal .courseDesc:empty { display: none; }
+.gardenPortal .folderBadgesRow { margin-top: 2px; gap: 5px; }
+.courseSectionBadge { display: inline-flex; align-items: center; padding: 4px 7px; border: 1px solid #ba9b57; border-radius: 99px; background: #4b4431; color: #ffe2a0; font-size: 9px; line-height: 1; font-weight: 600; text-transform: uppercase; white-space: nowrap; }
+.gardenPortal .folderLanguage { color: #e3d4b1; font-size: 9px; font-weight: 600; padding: 4px 7px; }
+.gardenPortal .unlockedFolderBadge { color: #9de3c1; font-size: 9px; font-weight: 600; padding: 4px 7px; background: #204c47; }
+.courseFooter { padding-top: 9px; border-top: 1px solid #405965; }
+.gardenPortal .staticIconsTrack { width: auto; min-width: 0; flex-wrap: wrap; gap: 5px; }
+.gardenPortal .courseCardIconBox { width: 26px; height: 26px; border-radius: 7px; background: #294753; border-color: #47636b; animation: none; will-change: auto; box-shadow: none; cursor: default; }
+.gardenPortal .courseFolder:hover .courseCardIconBox { transform: none; box-shadow: none; }
+.gardenPortal .courseCardIconImg { width: 19px; height: 19px; }
+.courseEnterButton { flex-shrink: 0; width: 156px; height: 112px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 12px; background: transparent; color: #ffe4a6; cursor: pointer; opacity: 0; transform: translateY(5px); pointer-events: none; transition: opacity 180ms ease, transform 180ms ease; }
+.gardenPortal .courseFolder:hover .courseEnterButton, .gardenPortal .courseFolder:focus-within .courseEnterButton { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.courseEnterButton:hover, .courseEnterButton:focus-visible { background: transparent; }
+.courseEnterButton:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 3px; }
+.enterArtwork { position: relative; display: block; width: 156px; height: 112px; pointer-events: none; }
+.enterArtwork .enterKeyLabel { fill: #ffe4a6; stroke: none; font-size: 42px; font-weight: 700; font-family: inherit; letter-spacing: -.02em; }
+.enterFallback { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); font-size: 16px; font-weight: 650; }
+.enterArtwork .folderStage:has(text) + .enterFallback { display: none; }
+
+.inlineSections { min-width: 0; }
+.inlineSections:focus { outline: none; }
+.backToCourses { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #506a70; border-radius: 9px; background: #153946; color: #dae5ce; font-size: 13px; cursor: pointer; }
+.backToCourses:hover { border-color: #bcd39d; }
+.backToCourses:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 2px; }
+.inlineSectionsHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 0 16px; border-bottom: 1px solid #36515a; }
+.inlineSectionsHeader > div > span { color: #bcd0b4; font-size: 10px; letter-spacing: .08em; }
+.inlineSectionsHeader h2 { margin: 8px 0 0; color: #f1f5e9; font-size: clamp(23px, 2vw, 30px); line-height: 1.2; overflow-wrap: anywhere; }
+.inlineSectionsHeader p { margin: 10px 0 0; color: #bed0d5; font-size: 13px; line-height: 1.5; }
+.sectionTotal { flex-shrink: 0; padding: 6px 10px; border: 1px solid #536e65; border-radius: 99px; color: #c7dcb7; font-size: 11px; }
+.sectionTools { padding: 14px 0 0; }
+.inlineSections .cards { margin-top: 20px; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.inlineSections .cards button { min-height: 148px; padding: 18px; border-radius: 14px; background: #1c414d; }
+.inlineSections .cards button:hover { transform: none; border-color: #b8ccaa; background: #244e58; }
+.inlineSections .cards .sectionLaunchButton { min-height: 164px; transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
+.inlineSections .cards .sectionLaunchButton:hover:not(:disabled), .inlineSections .cards .sectionLaunchButton:focus-visible { transform: translateY(-2px); border-color: #e9ca8b; background: #2d5661; box-shadow: inset 0 0 0 1px rgba(233, 202, 139, .15), 0 5px 14px rgba(0, 16, 27, .2); }
+.inlineSections .cards .sectionLaunchButton:disabled:hover { transform: none; border-color: rgba(244, 223, 176, .15); background: #1c414d; box-shadow: none; }
+.inlineSections .cards .sectionLaunchButton:not(:disabled) strong, .inlineSections .cards .sectionLaunchButton:not(:disabled) small { padding-right: 96px; }
+.inlineSections .cards .sectionLaunchButton .cardLiveUsers { padding-right: 82px; }
+.inlineSections .cards .sectionClickCue { position: absolute; right: 12px; bottom: 12px; display: flex; flex-direction: column; align-items: center; width: 84px; gap: 0; opacity: 0; transform: translateY(5px); pointer-events: none; color: #ffe4a6; letter-spacing: 0; transition: opacity 180ms ease, transform 180ms ease; }
+.sectionClickArtwork { display: block; width: 84px; height: 64px; pointer-events: none; }
+.sectionClickLabel { display: block; font-size: 13px; font-weight: 650; line-height: 1.3; letter-spacing: .04em; }
+.inlineSections .cards .sectionLoadingCue { position: absolute; right: 12px; bottom: 12px; width: 84px; letter-spacing: 0; pointer-events: none; }
+.inlineSections .cards .sectionLaunchButton[aria-busy="true"] { opacity: 1; cursor: wait; border-color: #b8d398; }
+.inlineSections .cards .sectionLaunchButton[aria-busy="true"] strong, .inlineSections .cards .sectionLaunchButton[aria-busy="true"] small { padding-right: 96px; }
+.sectionOpenError { padding: 12px 16px; border: 1px solid #c98f70; border-radius: 10px; color: #ffe1c9; background: #493c38; font-size: 13px; }
+.inlineSections .cards .sectionLaunchButton:hover:not(:disabled) .sectionClickCue, .inlineSections .cards .sectionLaunchButton:focus-visible .sectionClickCue { opacity: 1; transform: translateY(0); }
+.sectionLaunchButton:hover:not(:disabled) .sectionClickLabel, .sectionLaunchButton:focus-visible .sectionClickLabel { animation: sectionClickNudge 420ms ease-out both; }
+@keyframes sectionClickNudge { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-3px); } }
+.inlineSections .cards button:disabled { opacity: .6; cursor: default; }
+.inlineSections .cards button:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 2px; }
+.inlineSections .cards button > span { color: #c8ddae; }
+.inlineSections .cards button strong { margin-top: 10px; max-width: none; padding-right: 24px; font-size: 19px; line-height: 1.35; overflow-wrap: anywhere; }
+.inlineSections .cards button small { padding-top: 12px; padding-right: 32px; color: #bed0d5; }
+.inlineSections .cards .sectionFilePreview { min-height: 36px; padding: 10px 14px; font-size: 12px; }
+.inlineSections .sectionPptxLink { padding: 10px 14px; font-size: 12px; }
+
+@media (max-width: 1080px) and (min-width: 761px) {
+  .libraryWorkspace { grid-template-columns: 255px minmax(0, 1fr); gap: 18px; }
+  .folderNavigation { padding-right: 16px; }
+  .folderChoice { grid-template-columns: 86px minmax(0, 1fr); gap: 4px; }
+  .folderArtwork { width: 86px; }
+  .folderChoiceText strong { font-size: 18px; }
+  .gardenPortal .courseFolderGrid, .inlineSections .cards { grid-template-columns: 1fr; }
+}
+@media (max-width: 760px) {
+  .portal.gardenPortal { padding: 12px; gap: 10px; }
+  .gardenBackdrop { background-image: linear-gradient(180deg, rgba(4, 28, 49, .14), rgba(4, 28, 49, .34)), url('/branding/eiu-campus-mobile.webp'); }
+  .gardenPortal .learningSpacePanel { padding: 18px 14px; border-radius: 22px; }
+  .gardenPortal .selectorActions { justify-content: flex-end; gap: 6px; }
+  .gardenPortal .selectorActions a, .gardenPortal .selectorActions button { padding: 8px 10px; font-size: 10px; }
+  .gardenPortal .brand > div:last-child { display: flex; padding-left: 12px; }
+  .gardenPortal .brand { gap: 12px; }
+  .gardenPortal .brand span { font-size: 8px; }
+  .gardenPortal .brand strong { font-size: 11px; }
+  .gardenPortal .logoWindow { width: 88px; height: 30px; }
+  .gardenPortal .libraryHeaderToolbar { align-items: stretch; gap: 16px; padding: 16px 0; margin-bottom: 8px; }
+  .gardenPortal .librarySearchArea { flex: none; }
+  .gardenPortal .libraryHeaderTitle { font-size: 32px; }
+  .libraryWorkspace { display: flex; flex-direction: column; gap: 12px; }
+  .mobileFolderToggle { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border: 1px solid #516e66; border-radius: 12px; background: #153946; color: #e4edd9; text-align: left; cursor: pointer; }
+  .mobileFolderToggle > span:first-child { display: flex; flex-direction: column; gap: 4px; }
+  .mobileFolderToggle small { font-size: 8px; color: #b8d0b4; letter-spacing: .1em; }
+  .mobileFolderToggle strong { font-size: 18px; }
+  .mobileFolderToggle:focus-visible { outline: 2px solid #e9ca8b; outline-offset: -2px; }
+  .folderNavigation { display: none; }
+  .folderNavigation.mobileFoldersOpen { position: absolute; z-index: 3; inset: 60px 0 auto; display: flex; height: min(550px, calc(100% - 60px)); padding: 12px; border: 1px solid #637b6b; border-radius: 12px; background: #0e303d; box-shadow: 0 12px 24px rgba(0, 0, 0, .25); }
+  .folderShelf { grid-template-rows: repeat(6, 64px); overflow-y: auto; overscroll-behavior: contain; }
+  .folderChoice { grid-template-columns: 76px minmax(0, 1fr); }
+  .folderArtwork { width: 76px; }
+  .folderPageNav { min-height: 42px; padding-top: 10px; }
+  .folderChoiceText strong { font-size: 19px; }
+  .gardenPortal .libraryFolderSections { flex: 1; padding-right: 3px; scrollbar-gutter: auto; }
+  .gardenPortal .libraryFolderTitle { font-size: 21px; }
+  .gardenPortal .libraryFolderHeader { flex-direction: row; align-items: center; }
+  .gardenPortal .libraryFolderHeaderRight { width: auto; }
+  .gardenPortal .courseFolderGrid, .inlineSections .cards { grid-template-columns: 1fr; }
+  .gardenPortal .courseTitle { font-size: 16px; }
+  .courseCardMain { gap: 10px; }
+  .courseEnterButton { width: 116px; height: 94px; }
+  .enterArtwork { width: 116px; height: 94px; }
+  .inlineSectionsHeader { gap: 12px; flex-wrap: wrap; }
+  .inlineSections .cards button strong { font-size: 18px; }
+}
+@media (max-height: 620px) and (max-width: 760px) {
+  .gardenPortal .brand { display: none; }
+  .gardenPortal .libraryHeaderToolbar { margin-top: 0; padding: 8px 0; }
+  .gardenPortal .libraryHeaderTitle { font-size: 26px; }
+}
+@media (max-height: 780px) and (min-width: 761px) {
+  .portal.gardenPortal { gap: 8px; padding-top: 8px; padding-bottom: 12px; }
+  .gardenPortal .learningSpacePanel { padding: 18px 24px; }
+  .gardenPortal .logoWindow { width: 110px; height: 32px; }
+  .gardenPortal .libraryHeaderToolbar { padding: 10px 0; margin-top: 8px; margin-bottom: 10px; }
+  .gardenPortal .libraryHeaderTitle { font-size: 34px; }
+  .folderShelf { gap: 6px; }
+  .folderChoice { grid-template-columns: 76px minmax(0, 1fr); }
+  .folderArtwork { width: 76px; height: min(60px, 100%); }
+  .folderChoiceText { gap: 3px; }
+  .folderChoiceText strong { font-size: 18px; line-height: 1.1; }
+  .folderChoiceText > span { font-size: 11px; }
+}
+@media (max-width: 380px) {
+  .gardenPortal .folderBadgesRow { gap: 3px; }
+  .gardenPortal .folderBadgesRow > span { padding-left: 3px; padding-right: 3px; }
+}
+@media (hover: none) {
+  .courseEnterButton { opacity: 1; transform: none; pointer-events: auto; }
+  .inlineSections .cards .sectionClickCue { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .courseEnterButton { transform: none; }
+  .gardenPortal *, .gardenPortal *::before, .gardenPortal *::after { animation: none !important; transition: none !important; }
+  .gardenPortal .courseFolder:hover, .gardenPortal .courseFolder:focus-within, .inlineSections .cards .sectionLaunchButton:hover:not(:disabled), .inlineSections .cards .sectionLaunchButton:focus-visible { transform: none; }
+}
+.natureAccent { display: inline-block; width: 20px; height: 20px; margin-left: 10px; vertical-align: middle; color: #a9c99a; flex-shrink: 0; }
+.inlineSectionsHeader .natureAccent { width: 14px; height: 14px; margin-left: 8px; }
+
 .portal {
   position: relative;
   width: 100vw;
@@ -199,11 +401,11 @@
 }
 
 .learningSpacePanel {
-  width: fit-content;
+  width: min(1120px, 100%);
   min-width: min(720px, 94vw);
   max-width: min(1280px, 96vw);
   height: auto;
-  max-height: calc(100dvh - 36px);
+  max-height: none;
   padding: clamp(18px, 2.2vw, 24px) clamp(20px, 2.5vw, 28px);
   border-radius: 22px;
   display: flex;

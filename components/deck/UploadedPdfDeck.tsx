@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
 import SharedDeckFrame from "./SharedDeckFrame";
 import EiuTemplateFrame from "./EiuTemplateFrame";
+import HairlineLoading from "@/components/HairlineLoading";
 import styles from "./UploadedSectionDeck.module.css";
 
 pdfjs.GlobalWorkerOptions.workerSrc = new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url).toString();
@@ -23,13 +24,17 @@ export default function UploadedPdfDeck({ contentUrl, slideCount, courseTitle, s
         <Document
           className={styles.pdfDocument}
           file={contentUrl}
-          loading={<div className={styles.message}>Loading PDF…</div>}
-          error={<div className={styles.message}>Unable to display this PDF.</div>}
+          suspense={false}
+          loading={<HairlineLoading label="Loading PDF" />}
+          error={<div className={styles.message} role="alert">Unable to display this PDF.</div>}
           onLoadSuccess={({ numPages }) => setTotalSlides(numPages)}
         >{children}</Document>
       )}
       renderSlide={(pageNumber, renderWidth) => {
         const page = <Page className={styles.pdfPage} pageNumber={pageNumber}
+          suspense={false}
+          loading={<HairlineLoading label="Loading slide" />}
+          error={<div className={styles.message} role="alert">Unable to display this slide.</div>}
           width={templateImage ? renderWidth * .888 : renderWidth}
           renderTextLayer={false} renderAnnotationLayer />;
         return templateImage

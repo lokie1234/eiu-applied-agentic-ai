@@ -1,0 +1,15 @@
+.artwork {
+  --hairline-plate: #102d37;
+  --hairline-hi: #ffe4a6;
+  --hairline-edge: #d7b76c;
+  --hairline-mid: #b49a5e;
+  --hairline-lo: #806e48;
+}
+
+.artwork svg { filter: drop-shadow(0 3px 3px rgba(0, 12, 16, .24)); }
+.artwork [data-part] { fill: #102d37; }
+.artwork [data-part="folder-back"], .artwork [data-part="key-socket"] { fill: #071d26; }
+.artwork [data-part="folder-paper"], .artwork [data-part="key-cap"] { fill: #173740; }
+.artwork [data-part="key-sleeve"], .artwork [data-part="mouse-right"] { fill: #0c2630; }
+.artwork [data-part="mouse-left"], .artwork [data-part="loading-bead"] { fill: #173740; }
+.artwork [data-part="mouse-wheel"] { fill: #23434a; }

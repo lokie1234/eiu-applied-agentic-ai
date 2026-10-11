@@ -1,0 +1,9 @@
+.loading { width: 100%; height: 100%; min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 20px; background: #0d303a; color: #dceacb; text-align: center; }
+.artwork { display: block; position: relative; width: 176px; height: 60px; pointer-events: none; }
+.stage { display: block; width: 100%; height: 100%; }
+.fallback { position: absolute; inset: 0; display: grid; place-items: center; color: #ffe4a6; font-size: 28px; letter-spacing: 8px; }
+.stage:has(svg) + .fallback { display: none; }
+.label { font-size: 13px; font-weight: 600; line-height: 1.4; }
+.compact { min-height: 0; height: auto; padding: 0; gap: 2px; background: transparent; }
+.compact .artwork { width: 84px; height: 30px; }
+.compact .label { font-size: 11px; }
