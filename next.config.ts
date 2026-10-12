@@ -2,8 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
+    "/api/sections/*/content": ["./course-content/**/*.tsx"],
     "/api/handout": ["./public/downloads/eiu-applied-agentic-ai-section-*-handout.pdf"],
-    "/api/admin/drive/export": ["./lib/drive/builtin-decks/*.tsx.txt", "./course-content/mis301/PandasPracticePart2.tsx"],
+    "/api/admin/drive/export": ["./lib/drive/builtin-decks/*.tsx.txt", "./course-content/**/*.tsx"],
   },
   experimental: {
     // Proxy buffers request bodies before route handlers read FormData.

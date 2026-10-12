@@ -16,7 +16,7 @@ function fixture() {
   const catalog = { folderGroups: [{ id: "group", name: "MIS 301" }], courses: [{ id: "course", title: "MIS 301", folderGroupId: "group" }], sections: [section] };
   state.catalog = catalog;
   const db = { from: table => { let updating; const query = { update(value) { updating = value; return this; }, is() { return this; }, select() { return this; }, eq() { return this; }, in() { return this; }, maybeSingle: async () => { if(updating) { state.published = updating; return { data: state.conflict ? null : section, error: null }; } return { data: section, error: null }; }, then: resolve => Promise.resolve({ data: table === "course_sections" ? [section] : [], error: null }).then(resolve) }; return query; }, storage: { from: () => ({ download: async p => { state.downloads.push(p); return { data: new Blob([state.original]), error: null }; } }) } };
-  const api = load("lib/drive/export.ts", { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "@/lib/auth/courseAccessStorage": { getCoursesAndSectionsData: async () => catalog }, "@/lib/sectionSourceFiles": load("lib/sectionSourceFiles.ts", {}), "./destinations": { driveFolderId: id => id }, "./localOriginal": load("lib/drive/localOriginal.ts", { "server-only": {} }), "./sectionContent": { readDriveFile: async () => ({ bytes: state.corrupt ? new Uint8Array([0]) : state.uploads.at(-1).body }) }, "@/lib/sectionContent": load("lib/sectionContent.ts", {}), "./sourceUpload": { saveDriveOriginal: async (_client, input) => { state.uploads.push(input); return "uploaded-file-123"; } } });
+  const api = load("lib/drive/export.ts", { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "@/lib/auth/courseAccessStorage": { getCoursesAndSectionsData: async () => catalog }, "@/lib/sectionSourceFiles": load("lib/sectionSourceFiles.ts", {}), "./destinations": { driveFolderId: id => id }, "./localOriginal": load("lib/drive/localOriginal.ts", { "server-only": {} }), "./sectionContent": { readDriveFile: async () => ({ bytes: state.corrupt ? new Uint8Array([0]) : state.uploads.at(-1).body }) }, "@/lib/localSectionContent": load("lib/localSectionContent.ts", { "server-only": {}, "@/course-content/sources.json": JSON.parse(fs.readFileSync("course-content/sources.json", "utf8")) }), "@/lib/sectionContent": load("lib/sectionContent.ts", {}), "./sourceUpload": { saveDriveOriginal: async (_client, input) => { state.uploads.push(input); return "uploaded-file-123"; } } });
   const client = { request: async input => { state.requests.push(input); return { data: input.method === "POST" ? { id: "web-folder" } : { files: state.existingFolder ? [{ id: "web-folder", name: "Old name" }] : [] } }; } };
   return { state, api, client };
 }
@@ -164,3 +164,18 @@ test("folder exports nest course folders and validate built-in membership before
   assert.equal((await route.POST(request("builtin", "save"))).status, 400);
   assert.equal(saves.length, 2);
 });
+
+for (const filename of ["Section1.tsx", "Section2.tsx"]) {
+ test("project " + filename + " exports current slide bytes without changing its source", async () => {
+  const f = fixture(); f.state.catalog.courses[0] = { id: "a857595d-def0-4543-9216-a680c6abfe26", title: "Renamed course", folderGroupId: "group" };
+  Object.assign(f.state.section, { id: filename === "Section1.tsx" ? "47c1183e-a26e-4c5d-9937-88ec5a755a32" : "2faaf285-a215-4874-a367-82c84ce46b2e", course_id: "a857595d-def0-4543-9216-a680c6abfe26", content_type: "tsx", source_filename: "Renamed source.tsx", content_path: "drive:stale-copy-123", original_content_path: null });
+  const plan = await f.api.exportPlan("group"); assert.equal(plan[0].unavailable, undefined); assert.match(plan[0].note, /Current project TSX/);
+  for (const target of ["first-target", "second-target"]) await f.api.exportDocument(f.client, { sectionId: f.state.section.id, folderId: target, name: "Renamed backup" });
+  const original = fs.readFileSync("course-content/web-app-development/" + filename);
+  assert.equal(f.state.uploads.length, 2); for (const upload of f.state.uploads) { assert.deepEqual(Buffer.from(upload.body), original); assert.equal(upload.name, "Renamed backup.tsx"); }
+  assert.equal(f.state.downloads.length, 0); assert.equal(f.state.requests.length, 0); assert.equal(f.state.published, undefined);
+  assert.equal(f.state.section.source_filename, "Renamed source.tsx"); assert.equal(f.state.section.content_path, "drive:stale-copy-123");
+  f.state.corrupt = true; await assert.rejects(f.api.exportDocument(f.client, { sectionId: "section", folderId: "target" }), /verification failed/);
+  assert.equal(f.state.published, undefined);
+ });
+}

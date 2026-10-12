@@ -16,7 +16,7 @@ test("edited TSX uses multipart Drive upload, requires a target and retains the 
   const fetch = async (url, options) => {
     if (url.includes("/sections/")) {
       uploads++; sent.push(options.body);
-      return { ok: uploads > 1, json: async () => uploads > 1 ? { success: true } : { message: "Drive unavailable" } };
+      return { ok: uploads > 1, json: async () => uploads > 1 ? { success: true, contentSource: uploads > 2 ? "project-tsx" : "uploaded" } : { message: "Drive unavailable" } };
     }
     return { ok: true, json: async () => options?.body ? { tasks: [] } : { destinations: [{ id: "destination", label: "Target" }] } };
   };
@@ -40,6 +40,11 @@ test("edited TSX uses multipart Drive upload, requires a target and retains the 
     assert.equal(sent[0].get("destinationId"), "destination");
     assert.equal(await sent[0].get("file").text(), await file.text());
     assert.match(container.textContent, /This section now uses the new file/);
+    await act(async () => input.dispatchEvent(new window.Event("change", { bubbles: true })));
+    await act(async () => button().click());
+    assert.equal(saved, 2);
+    assert.match(container.textContent, /Slides continue to use the TSX in the project/);
+    assert.doesNotMatch(container.textContent, /This section now uses the new file/);
   } finally { await act(async () => root.unmount()); window.happyDOM.abort(); }
 });
 test("folder export reviews names and retries only failed files", async () => {

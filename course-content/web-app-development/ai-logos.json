@@ -1,0 +1,62 @@
+{
+  "Antigravity": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=Google.google-antigravity",
+    "url": "https://Google.gallerycdn.vsassets.io/extensions/google/google-antigravity/1.7.0/1791208187977/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "GitHub Copilot": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=GitHub.copilot",
+    "url": "https://GitHub.gallerycdn.vsassets.io/extensions/github/copilot/1.388.0/1761326434179/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "Claude Code": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code",
+    "url": "https://anthropic.gallerycdn.vsassets.io/extensions/anthropic/claude-code/2.1.296/1791574289266/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "Cline": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=saoudrizwan.claude-dev",
+    "url": "https://saoudrizwan.gallerycdn.vsassets.io/extensions/saoudrizwan/claude-dev/4.1.23/1791358079193/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "Codex": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=OpenAI.chatgpt",
+    "url": "https://openai.gallerycdn.vsassets.io/extensions/openai/chatgpt/26.51007.21434/1791508178385/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "Gemini Code Assist": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=Google.geminicodeassist",
+    "url": "https://Google.gallerycdn.vsassets.io/extensions/google/geminicodeassist/2.104.0/1791471760626/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "Amazon Q": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.amazon-q-vscode",
+    "url": "https://AmazonWebServices.gallerycdn.vsassets.io/extensions/amazonwebservices/amazon-q-vscode/2.8.0/1790895094921/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "Continue": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=Continue.continue",
+    "url": "https://Continue.gallerycdn.vsassets.io/extensions/continue/continue/2.1.0/1781829387808/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "Augment": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=augment.vscode-augment",
+    "url": "https://augment.gallerycdn.vsassets.io/extensions/augment/vscode-augment/0.904.1/1791402738735/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "Kilo Code": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=kilocode.Kilo-Code",
+    "url": "https://kilocode.gallerycdn.vsassets.io/extensions/kilocode/kilo-code/7.8.8/1791371095316/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "Qodo": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=Codium.codium",
+    "url": "https://Codium.gallerycdn.vsassets.io/extensions/codium/codium/2.2.7/1791630996651/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "Bito": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=Bito.Bito",
+    "url": "https://Bito.gallerycdn.vsassets.io/extensions/bito/bito/1.7.0/1786519427818/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "CodeGeeX": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=aminer.codegeex",
+    "url": "https://aminer.gallerycdn.vsassets.io/extensions/aminer/codegeex/2.27.6/1756716402649/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "Tabby": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=TabbyML.vscode-tabby",
+    "url": "https://TabbyML.gallerycdn.vsassets.io/extensions/tabbyml/vscode-tabby/1.28.0/1746007600382/Microsoft.VisualStudio.Services.Icons.Default"
+  },
+  "CodeGPT": {
+    "page": "https://marketplace.visualstudio.com/items?itemName=DanielSanMedium.dscodegpt",
+    "url": "https://DanielSanMedium.gallerycdn.vsassets.io/extensions/danielsanmedium/dscodegpt/3.24.77/1791236960223/Microsoft.VisualStudio.Services.Icons.Default"
+  }
+}

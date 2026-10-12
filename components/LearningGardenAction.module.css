@@ -1,0 +1,61 @@
+.icon { position: relative; display: block; flex-shrink: 0; pointer-events: none; }
+.icon svg { display: block; width: 100%; height: 100%; }
+.shadow { fill: #97b68b; opacity: .22; }
+.trunk { fill: #97b68b; stroke: #c2e5b4; stroke-width: 3; }
+.leaf, .canopy { fill: #97b68b; stroke: #c2e5b4; stroke-width: 2; }
+.lightLeaf { fill: #c2e5b4; stroke: #e0efd9; stroke-width: 2; }
+.vein { stroke: #e0efd9; stroke-width: 1.5; opacity: .8; }
+.leafRing { transform-origin: 55px 54px; }
+.ringLeaf { fill: #97b68b; stroke: #c2e5b4; stroke-width: 1; }
+.ringLeafDark { fill: #668e72; stroke: #97b68b; stroke-width: 1; }
+.ringLeafLight { fill: #c2e5b4; stroke: #e0efd9; stroke-width: 1; }
+.ringVein { stroke: #e0efd9; stroke-width: .8; opacity: .55; }
+.goText { fill: #c2e5b4; font: 750 22px Arial, sans-serif; }
+:global(article:is(:hover, :focus-within)) .course .leafRing { animation: leafRingSpin 8s linear infinite; }
+.fruitStem { stroke: #c2e5b4; stroke-width: 1.5; }
+.fruitLeaf { fill: #c2e5b4; }
+.apple { fill: #e9ca8b; stroke: #ffe4a6; stroke-width: 1.2; }
+.fruitShine { stroke: #fff0c9; stroke-width: 1.2; }
+.clickText { fill: #c2e5b4; font: 700 12px Arial, sans-serif; }
+/* Continue falling fruit while the clicked section is opening, even if disabled. */
+:global(button:not(:disabled):is(:hover, :focus-visible)) .harvest .fallingFruit,
+.harvest[data-active] .fallingFruit { animation: orchardFruitFall 1900ms ease-in infinite; }
+:global(button:not(:disabled):is(:hover, :focus-visible)) .harvest .fruitLeft,
+.harvest[data-active] .fruitLeft { animation-delay: -650ms; }
+:global(button:not(:disabled):is(:hover, :focus-visible)) .harvest .fruitRight,
+.harvest[data-active] .fruitRight { animation-delay: -1250ms; }
+@keyframes leafRingSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+@keyframes orchardFruitFall { 0%, 20% { opacity: 1; transform: translateY(0) rotate(0); } 65% { opacity: 1; transform: translateY(34px) rotate(20deg); } 77% { opacity: 1; transform: translateY(29px) rotate(26deg); } 88% { opacity: 0; transform: translateY(34px) rotate(30deg); } 89%, 100% { opacity: 0; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) {
+  .icon * { animation: none !important; transition: none !important; }
+}
+
+/* Hover grows the plant; the selected folder stays grown after pointer leave. */
+.plotHalo { fill: #97b68b; opacity: .04; transition: opacity 900ms; }
+.soilBed { fill: #315c52; stroke: #97b68b; stroke-width: 1.5; }
+.soilSurface { fill: #537e69; stroke: #97b68b; stroke-width: 1.5; }
+.soilContour { stroke: #97b68b; stroke-width: 1; opacity: .45; }
+.soilGrains { stroke: #c2e5b4; stroke-width: 1.5; opacity: .5; }
+.seedPocket { fill: #193f3d; opacity: .7; }
+.seedLeft, .seedRight { fill: #a9c99a; stroke: #e0efd9; stroke-width: 1.3; transform-origin: 55px 78px; transition: transform 600ms ease, fill 600ms; }
+.seedRight { fill: #97b68b; }
+.seedHighlight { fill: none; stroke: #e0efd9; stroke-width: 1.5; }
+.plotRoots { stroke: #bfd5ce; stroke-width: 1.3; opacity: 0; transform: scaleY(0); transform-origin: 55px 77px; transition: opacity 350ms, transform 500ms; }
+.growingPlant { opacity: 0; transform: translateY(9px) scale(.08); transform-origin: 55px 78px; transition: transform 650ms cubic-bezier(.22,1,.36,1), opacity 400ms 150ms; }
+.plotStem { stroke: #c2e5b4; stroke-width: 3; }
+.plotFoliage { transform-origin: 55px 78px; }
+.lowerLeaves, .upperLeaves { transform: scale(.12); transform-origin: 55px 59px; transition: transform 450ms cubic-bezier(.22,1,.36,1); }
+.upperLeaves { transform-origin: 55px 35px; transition-delay: 0ms; }
+.growthGlints { stroke: #e0efd9; stroke-width: 1.5; opacity: 0; }
+:global(button:not(:disabled):is(:hover, :focus-visible, [aria-pressed="true"])) .grow .plotHalo { opacity: .12; }
+:global(button:not(:disabled):is(:hover, :focus-visible, [aria-pressed="true"])) .grow .seedLeft { transform: translate(-6px,3px) rotate(-38deg) scale(.62); fill: #537e69; }
+:global(button:not(:disabled):is(:hover, :focus-visible, [aria-pressed="true"])) .grow .seedRight { transform: translate(6px,3px) rotate(38deg) scale(.62); fill: #537e69; }
+:global(button:not(:disabled):is(:hover, :focus-visible, [aria-pressed="true"])) .grow .plotRoots { opacity: .55; transform: scaleY(1); transition: opacity 600ms 250ms, transform 900ms 250ms; }
+:global(button:not(:disabled):is(:hover, :focus-visible, [aria-pressed="true"])) .grow .growingPlant { opacity: 1; transform: translateY(0) scale(1); transition: transform 1200ms 200ms cubic-bezier(.22,1,.36,1), opacity 400ms 200ms; }
+:global(button:not(:disabled):is(:hover, :focus-visible, [aria-pressed="true"])) .grow .lowerLeaves, :global(button:not(:disabled):is(:hover, :focus-visible, [aria-pressed="true"])) .grow .upperLeaves { transform: scale(1); transition-duration: 950ms; transition-delay: 500ms; }
+:global(button:not(:disabled):is(:hover, :focus-visible, [aria-pressed="true"])) .grow .upperLeaves { transition-delay: 750ms; }
+:global(button:not(:disabled):is(:hover, :focus-visible, [aria-pressed="true"])) .grow .growthGlints { animation: growthCelebrate 1500ms 800ms ease-out both; }
+:global(button:not(:disabled):is(:hover, :focus-visible)) .grow .plotFoliage { animation: plotBreeze 2400ms 1400ms ease-in-out infinite; }
+@keyframes growthCelebrate { 0%, 100% { opacity: 0; } 35% { opacity: .85; } }
+@keyframes plotBreeze { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-4deg); } 70% { transform: rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .grow * { animation: none !important; transition: none !important; } }

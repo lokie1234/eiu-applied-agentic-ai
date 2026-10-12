@@ -5,6 +5,7 @@ import { Fragment, useEffect, useState, type CSSProperties, type ReactNode } fro
 import { SLIDE_STORAGE_KEYS, getSlideStorage, setSlideStorage } from "@/lib/slideStorage";
 import styles from "./SectionOneNativeSlide.module.css";
 import SectionOneSlide11 from "./SectionOneSlide11";
+import SectionOneReality from "./SectionOneReality";
 
 type Props = {
   page: number;
@@ -654,6 +655,7 @@ function NativeSlides({ page, isFinalState = false, courseTitle = "Applied Agent
                 <span>Không cần Server</span>
                 <span>Không cần Hosting</span>
               </div>
+              <SectionOneReality />
             </div>
             <div className={styles.labWave} aria-hidden="true" />
           </Shell>
@@ -950,7 +952,7 @@ function NativeSlides({ page, isFinalState = false, courseTitle = "Applied Agent
 
 export default function SectionOneNativeSlide({ page, scale, isFinalState = false, courseTitle }: Props) {
   return (
-    <div className={styles.scaledCanvas} style={{ transform: `scale(${scale})` }}>
+    <div data-section-one-canvas="true" className={styles.scaledCanvas} style={{ transform: `scale(${scale})` }}>
       <NativeSlides page={page} isFinalState={isFinalState} courseTitle={courseTitle} />
     </div>
   );

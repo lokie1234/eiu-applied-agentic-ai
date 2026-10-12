@@ -45,7 +45,7 @@ function handlers(options = {}) {
         select() { return this; }, eq() { return this; }, is() { return this; },
         async maybeSingle() {
           if (update) { if (!state.updateError) state.section = { ...state.section, ...update }; return { data: state.updateError ? null : state.section, error: state.updateError || null }; }
-          return { data: table === "courses" ? { slug: state.courseSlug || "custom-course" } : state.section, error: null };
+          return { data: table === "courses" ? { slug: state.courseSlug || "custom-course", title: state.courseTitle || "Custom course" } : state.section, error: null };
         },
         update(value) { update = value; return this; },
         then(resolve, reject) {
@@ -72,6 +72,9 @@ function handlers(options = {}) {
         currentUserAccess: async () => state.access,
       };
       if (name === "next/cache") return { revalidatePath() {} };
+      if (name === "server-only") return {};
+      if (name === "@/course-content/sources.json") return JSON.parse(fs.readFileSync("course-content/sources.json", "utf8"));
+      if (name === "@/lib/localSectionContent") return load("lib/localSectionContent.ts");
       if (name === "@/lib/sectionContent") return load("lib/sectionContent.ts");
       if (name === "@/lib/drive/sectionContent") return {
         async uploadDriveSection(input) {
@@ -93,21 +96,21 @@ function handlers(options = {}) {
   }
   const post = load("app/api/admin/sections/[id]/content/route.ts").POST;
   const get = load("app/api/sections/[id]/content/route.ts").GET;
-  const context = { params: Promise.resolve({ id: "section-id" }) };
+  const context = () => ({ params: Promise.resolve({ id: state.section.id }) });
   return {
     state,
     flushAfter: async () => {
       for (const task of state.afterTasks.splice(0)) await task();
     },
-    submit: (request) => post(request, context),
+    submit: (request) => post(request, context()),
     async upload(bytes, name, extra = {}) {
       const form = new FormData();
       form.set("file", new File([bytes], name));
       form.set("destinationId","destination-test");
       for (const [key, value] of Object.entries(extra)) form.set(key, value);
-      return post(new Request("http://localhost/api/admin/sections/section-id/content", { method: "POST", body: form }), context);
+      return post(new Request("http://localhost/api/admin/sections/section-id/content", { method: "POST", body: form }), context());
     },
-    download: (query = "") => get(new Request(`http://localhost/api/sections/section-id/content${query}`), context),
+    download: (query = "") => get(new Request(`http://localhost/api/sections/section-id/content${query}`), context()),
   };
 }
 
@@ -334,4 +337,49 @@ test("Drive-backed legacy JS is served unchanged without TSX recompilation or St
  api.state.stored.set(path,bytes); api.state.section={...api.state.section,content_path:path,content_type:"tsx",source_filename:"Section 1.js"};
  const response=await api.download(); assert.equal(response.status,200);
  assert.equal(await response.text(),bytes.toString());
+});
+
+
+const webAppTitle = "AI-Powered Web App Development & Deployment";
+for (const filename of ["Section1.tsx", "Section2.tsx"]) {
+  test(filename + " displays and downloads the project TSX without accessing Drive", async () => {
+    const api = handlers();
+    api.state.access.courses[0] = { id: "a857595d-def0-4543-9216-a680c6abfe26", title: "Renamed course" };
+    api.state.access.sections[0] = { id: filename === "Section1.tsx" ? "47c1183e-a26e-4c5d-9937-88ec5a755a32" : "2faaf285-a215-4874-a367-82c84ce46b2e", courseId: "a857595d-def0-4543-9216-a680c6abfe26" };
+    api.state.section = { ...api.state.section, id: api.state.access.sections[0].id, course_id: "a857595d-def0-4543-9216-a680c6abfe26", content_type: "tsx", content_path: "drive:unavailable-old-copy", source_filename: "Renamed exported section.tsx" };
+    const original = fs.readFileSync("course-content/web-app-development/" + filename, "utf8");
+    const displayed = await api.download();
+    assert.equal(displayed.status, 200);
+    assert.equal(displayed.headers.get("x-eiu-content-source"), "project-tsx");
+    assert.equal(displayed.headers.get("cache-control"), "private, no-store");
+    assert.equal(await displayed.text(), ts.transpileModule(original, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, jsxFactory: "h", jsxFragmentFactory: "Fragment", esModuleInterop: true }, fileName: "section.tsx" }).outputText);
+    const downloaded = await api.download("?download=1");
+    assert.equal(downloaded.headers.get("content-type"), "text/plain; charset=utf-8");
+    assert.equal(await downloaded.text(), original);
+    api.state.access.sections = [];
+    assert.equal((await api.download()).status, 403);
+    api.state.access = null;
+    assert.equal((await api.download()).status, 401);
+  });
+}
+test("same TSX filename in another course retains its uploaded source", async () => {
+  const api = handlers();
+  const uploaded = "export default [h('div',{},'Other course')];";
+  api.state.access.courses[0].title = "Another course";
+  api.state.section = { ...api.state.section, content_type: "tsx", content_path: "course-id/section-id/Section1.js", source_filename: "Section1.tsx" };
+  api.state.stored.set(api.state.section.content_path, Buffer.from(uploaded));
+  const response = await api.download();
+  assert.equal(response.status, 200);
+  assert.equal(response.headers.get("x-eiu-content-source"), "uploaded");
+  assert.equal(await response.text(), uploaded);
+});
+
+test("upload reports when registered project TSX remains the displayed source", async () => {
+ const api = handlers({ courseTitle: "AI-Powered Web App Development & Deployment" });
+ api.state.access.courses[0] = { id: "a857595d-def0-4543-9216-a680c6abfe26", title: "Renamed course" };
+ api.state.access.sections[0] = { id: "47c1183e-a26e-4c5d-9937-88ec5a755a32", courseId: "a857595d-def0-4543-9216-a680c6abfe26" };
+ api.state.section = { ...api.state.section, id: "47c1183e-a26e-4c5d-9937-88ec5a755a32", course_id: "a857595d-def0-4543-9216-a680c6abfe26" };
+ const response = await api.upload("export default [<div>Uploaded copy</div>];", "Section1.tsx");
+ assert.equal(response.status, 200); const result = await response.json(); assert.equal(result.contentSource, "project-tsx"); assert.match(result.message, /Slides continue/);
+ const slide = await api.download(); assert.equal(slide.headers.get("x-eiu-content-source"), "project-tsx"); assert.doesNotMatch(await slide.text(), /Uploaded copy/);
 });

@@ -11,9 +11,8 @@ import { rememberDeckSelection } from "@/lib/deckLocation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
 import styles from "./LessonPortal.module.css";
-import HairlineFolder from "./HairlineFolder";
-import HairlineBook from "./HairlineBook";
-import HairlinePage from "./HairlinePage";
+import LearningGrowthIcon from "./LearningGrowthIcon";
+import LearningGardenAction from "./LearningGardenAction";
 import HairlineLoading from "./HairlineLoading";
 import CourseToolRow from "./CourseToolRow";
 import { useSectionOpening } from "./useSectionOpening";
@@ -25,19 +24,8 @@ const UploadedSectionDeck = dynamic(() => import("./deck/UploadedSectionDeck"), 
 type SectionId = "section1" | "section2";
 
 function LearningAccent({ kind = "book" }: { kind?: "library" | "collection" | "book" | "page" }) {
-  return <svg className={styles.learningAccent} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
-    {kind === "library" ? <>
-      <path d="M12 6C9 4 5 4 2 5v14c3-1 7-1 10 1 3-2 7-2 10-1V5c-3-1-7-1-10 1Zm0 0v14" />
-      <path d="M5 8c2-.4 3-.2 4 .3m-4 4c2-.4 3-.2 4 .3m6-4c1-.5 2-.7 4-.3m-4 4c1-.5 2-.7 4-.3" />
-    </> : kind === "collection" ? <>
-      <path d="m3 7 10-4 8 4-10 4Zm0 0v4l8 4 10-4V7M3 15v4l8 3 10-4v-3M11 11v4m0 4v3" />
-      <path d="m3 15 8 4 10-4-4-2" />
-    </> : kind === "page" ? <>
-      <path d="M14 3H6a2 2 0 0 0-2 2v15a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9Zm0 0v6h6M8 13h8m-8 4h6" />
-    </> : <>
-      <rect x="4" y="3" width="16" height="19" rx="2" /><path d="M8 3v19m4-19v8l2-2 2 2V3" />
-    </>}
-  </svg>;
+  const growthKind = kind === "library" ? "forest" : kind === "collection" ? "seed" : kind === "page" ? "tree" : "sapling";
+  return <LearningGrowthIcon kind={growthKind} className={styles.learningAccent} />;
 }
 type TerminateStatus = "idle" | "sending" | "success" | "error";
 type ReportStatus = "idle" | "exporting" | "error";
@@ -873,10 +861,8 @@ export default function LessonPortal({
                     <span className={styles.liveDot} />
                     <span>{presenceCounts[coreSection]} active learners</span>
                   </div>}
-                  {openingSection === courseSection.sectionKey ? <span className={styles.sectionLoadingCue}>
-                    <HairlineLoading compact label="Opening section" />
-                  </span> : canOpen && <span className={styles.sectionClickCue} aria-hidden="true">
-                    <HairlinePage />
+                  {canOpen && <span className={styles.sectionClickCue} aria-hidden="true">
+                    <LearningGardenAction kind="harvest" className={styles.sectionClickArtwork} active={openingSection === courseSection.sectionKey} />
                   </span>}
                 </button>
                 {coreSection && courseSection.contentType === "pptx" && (
@@ -960,7 +946,11 @@ export default function LessonPortal({
 
           <div className={styles.libraryHeaderToolbar}>
             <div className={styles.libraryHeaderTitleArea}>
-              <h1 className={styles.libraryHeaderTitle}>Choose a <span className={styles.titleWord}>course</span><LearningAccent kind="library" /></h1>
+              <h1 className={styles.libraryHeaderTitle}>
+                <LearningGrowthIcon kind="forest" className={styles.titleForestLeft} />
+                <span className={styles.titleForestText}>Choose a <span className={styles.titleWord}>course</span></span>
+                <LearningGrowthIcon kind="forest" className={styles.titleForestRight} />
+              </h1>
             </div>
 
             <div className={styles.librarySearchArea}>
@@ -1027,7 +1017,7 @@ export default function LessonPortal({
                     className={`${styles.folderChoice} ${!isSearchingCourses && openFolder?.id === group.id ? styles.folderChoiceSelected : ""}`}
                     aria-pressed={!isSearchingCourses && openFolder?.id === group.id} aria-controls="course-folder-content" title={group.name}
                     onClick={() => chooseFolder(group.id)}>
-                    <HairlineFolder selected={!isSearchingCourses && openFolder?.id === group.id} />
+                    <LearningGardenAction kind="grow" className={styles.folderArtwork} />
                     {!isSearchingCourses && openFolder?.id === group.id && <span className={styles.folderSelectedMark} aria-hidden="true">✓</span>}
                     <span className={styles.folderChoiceText}>
                       <strong className={styles.illustratedTitle}><LearningAccent kind="collection" /><span className={styles.folderNameText}>{group.name}</span></strong>
@@ -1079,9 +1069,7 @@ export default function LessonPortal({
                     {isSearchingCourses && (
                       <div className={styles.libraryFolderHeader}>
                         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="#e9ca8b" aria-hidden="true">
-                            <path d="M20 5h-9.586L8.707 3.293A.997.997 0 0 0 8 3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2z"/>
-                          </svg>
+                          <LearningAccent kind="collection" />
                           <h2 className={styles.libraryFolderTitle}>{group.name}</h2>
                         </div>
                         <div className={styles.libraryFolderHeaderRight}>
@@ -1120,7 +1108,7 @@ export default function LessonPortal({
                               setSelectedCourseId(course.id);
                               setMobileFoldersOpen(false);
                             }}>
-                            <HairlineBook />
+                            <LearningGardenAction kind="course" className={styles.enterArtwork} />
                           </button>
                         </article>
                       ))}

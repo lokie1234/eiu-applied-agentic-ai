@@ -4,6 +4,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 import { readDriveFile } from "@/lib/drive/sectionContent";
 import { compileTsx } from "@/lib/sectionContent";
+import { readLocalSectionSource } from "@/lib/localSectionContent";
 
 export const runtime = "nodejs";
 
@@ -20,7 +21,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       .eq("status", "active")
       .maybeSingle();
     if (error) throw error;
-    if (!section?.content_path || !["pdf", "tsx", "pptx"].includes(section.content_type)) {
+    if (!section || !["pdf", "tsx", "pptx"].includes(section.content_type)) {
       return NextResponse.json({ message: "This section does not have uploaded content." }, { status: 404 });
     }
     const course = access.courses.find((item) => item.id === String(section.course_id));
@@ -28,8 +29,15 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     if (!course || !canAccess) return NextResponse.json({ message: "Course access required." }, { status: 403 });
 
     const attachmentRequested = new URL(request.url).searchParams.get("download") === "1";
+    const localSource = await readLocalSectionSource(course, section);
     let data: Blob;
-    if (String(section.content_path).startsWith("drive:")) {
+    if (localSource) {
+      data = attachmentRequested
+        ? new Blob([new Uint8Array(localSource)])
+        : new Blob([compileTsx(localSource.toString("utf8"))]);
+    } else if (!section.content_path) {
+      return NextResponse.json({ message: "This section does not have uploaded content." }, { status: 404 });
+    } else if (String(section.content_path).startsWith("drive:")) {
       const file = await readDriveFile(String(section.content_path));
       data = section.content_type === "tsx" && !attachmentRequested && !/\.js$/i.test(String(section.source_filename))
         ? new Blob([compileTsx(new TextDecoder().decode(file.bytes))])
@@ -49,10 +57,11 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       headers: {
         "Content-Type": isPptx
           ? "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-          : section.content_type === "pdf" ? "application/pdf" : attachmentRequested && String(section.content_path).startsWith("drive:") ? "text/plain; charset=utf-8" : "text/javascript; charset=utf-8",
+          : section.content_type === "pdf" ? "application/pdf" : attachmentRequested && (localSource || String(section.content_path).startsWith("drive:")) ? "text/plain; charset=utf-8" : "text/javascript; charset=utf-8",
         "Content-Disposition": `${attachment ? "attachment" : "inline"}; filename="${fallbackFilename}"; filename*=UTF-8''${encodedFilename}`,
         "X-Content-Type-Options": "nosniff",
         "Cache-Control": "private, no-store",
+        "X-EIU-Content-Source": localSource ? "project-tsx" : "uploaded",
       },
     });
   } catch (error) {

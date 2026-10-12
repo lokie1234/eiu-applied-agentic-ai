@@ -164,23 +164,35 @@
       "section": 1,
       "number": 6,
       "title": "VS Code: nhận diện các vùng làm việc",
-      "minutes": 7,
+      "minutes": 3,
       "message": "Biết vùng nào hiển thị file, mã, lỗi và tác vụ đang chạy.",
       "cards": [
         {
-          "title": "Cây file",
-          "text": "Explorer hiển thị cấu trúc dự án; chọn file để mở trong vùng soạn thảo."
+          "title": "Thanh menu",
+          "text": "Mở file hoặc thư mục, chỉnh sửa, đổi cách hiển thị và chạy tác vụ qua các menu."
         },
         {
-          "title": "Vùng soạn thảo",
-          "text": "Đọc và chỉnh mã; xem nhiều file cạnh nhau khi cần so sánh."
+          "title": "Thanh công cụ",
+          "text": "Chuyển nhanh giữa Explorer, Search, Source Control, Run & Debug và Extensions."
         },
         {
-          "title": "Terminal và tiện ích",
-          "text": "Chạy tác vụ trong terminal; cài tiện ích phù hợp để bổ sung chức năng."
+          "title": "Explorer",
+          "text": "Xem cấu trúc dự án; mở, tạo và quản lý file hoặc thư mục trong workspace."
+        },
+        {
+          "title": "Vùng làm việc",
+          "text": "Mở và chỉnh sửa mã trong các tab. Ảnh đang ở tab Welcome; chọn file từ Explorer để viết mã."
+        },
+        {
+          "title": "Terminal",
+          "text": "Chạy lệnh tại thư mục dự án, xem log và lỗi; mở địa chỉ localhost khi chạy bản xem thử."
+        },
+        {
+          "title": "Codex / Chat",
+          "text": "Giao việc cho AI, hỏi về mã và xem đề xuất. Đọc thay đổi, kiểm tra kết quả trước khi chấp nhận."
         }
       ],
-      "visual": "editor",
+      "visual": "workspace-map",
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Biết vùng nào hiển thị file, mã, lỗi và tác vụ đang chạy.",
       "objective": "Biết vùng nào hiển thị file, mã, lỗi và tác vụ đang chạy.",
@@ -189,6 +201,706 @@
     {
       "section": 1,
       "number": 7,
+      "title": "Thanh menu · các nhóm lệnh chính",
+      "minutes": 4,
+      "message": "Chọn lệnh theo nhóm tác vụ.",
+      "cards": [
+        {
+          "title": "File · Tệp và dự án",
+          "text": "New File, Open File, Open Folder; Save, Save As, Auto Save và mở lại dự án gần đây."
+        },
+        {
+          "title": "Edit · Chỉnh sửa",
+          "text": "Undo / Redo, Cut / Copy / Paste; Find và Replace nội dung trong file đang mở."
+        },
+        {
+          "title": "Selection · Vùng chọn",
+          "text": "Chọn tất cả, mở rộng / thu hẹp vùng chọn; thêm con trỏ để sửa nhiều vị trí cùng lúc."
+        },
+        {
+          "title": "View · Hiển thị",
+          "text": "Mở Command Palette, Explorer, Search hoặc Terminal; đổi bố cục, zoom và Zen Mode."
+        },
+        {
+          "title": "Go · Điều hướng",
+          "text": "Đi tới file, dòng, symbol hoặc definition; quay lại / tiến tới vị trí đã xem."
+        },
+        {
+          "title": "Run · Chạy và gỡ lỗi",
+          "text": "Start Debugging, Run Without Debugging; tạo cấu hình chạy, đặt và quản lý breakpoint."
+        },
+        {
+          "title": "Terminal · Lệnh và tác vụ",
+          "text": "New Terminal, Split Terminal; chạy task hoặc build task đã được cấu hình trong dự án."
+        },
+        {
+          "title": "Help · Trợ giúp",
+          "text": "Mở tài liệu, hướng dẫn bắt đầu, ghi chú phát hành và thông tin phiên bản VS Code."
+        }
+      ],
+      "visual": "workspace-region",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Giải thích và thực hiện được các thao tác chính của VÙNG 01 · MENU.",
+      "objective": "Chọn lệnh theo nhóm tác vụ.",
+      "visualConcept": "VÙNG 01 · MENU | Chọn lệnh theo nhóm tác vụ."
+    },
+    {
+      "section": 1,
+      "number": 8,
+      "title": "Thanh công cụ · Activity Bar",
+      "minutes": 3,
+      "message": "Chuyển nhanh giữa các nhóm công cụ.",
+      "cards": [
+        {
+          "title": "Explorer · File và thư mục",
+          "text": "Mở cây dự án, xem file đang mở và truy cập các vùng như Outline hoặc Timeline."
+        },
+        {
+          "title": "Search · Tìm toàn dự án",
+          "text": "Tìm / thay thế qua nhiều file; lọc thư mục, phân biệt hoa thường hoặc dùng biểu thức chính quy."
+        },
+        {
+          "title": "Source Control · Quản lý Git",
+          "text": "Xem phần đã sửa, so sánh diff, stage và commit; thao tác với nhánh và remote khi đã thiết lập Git."
+        },
+        {
+          "title": "Run & Debug · Gỡ lỗi",
+          "text": "Chọn cấu hình chạy, đặt breakpoint; theo dõi biến và call stack khi chương trình tạm dừng."
+        },
+        {
+          "title": "Extensions · Tiện ích",
+          "text": "Tìm, cài, cập nhật, tắt hoặc gỡ tiện ích; xem nhà phát hành và yêu cầu quyền trước khi cài."
+        },
+        {
+          "title": "Accounts & Manage · Cá nhân hóa",
+          "text": "Quản lý đăng nhập / đồng bộ; mở Settings, phím tắt, theme và profile qua biểu tượng phía dưới."
+        }
+      ],
+      "visual": "workspace-region",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Giải thích và thực hiện được các thao tác chính của VÙNG 02 · ACTIVITY BAR.",
+      "objective": "Chuyển nhanh giữa các nhóm công cụ.",
+      "visualConcept": "VÙNG 02 · ACTIVITY BAR | Chuyển nhanh giữa các nhóm công cụ."
+    },
+    {
+      "section": 1,
+      "number": 9,
+      "title": "Explorer · quản lý cấu trúc dự án",
+      "minutes": 3,
+      "message": "Làm việc với đúng file trong đúng thư mục.",
+      "cards": [
+        {
+          "title": "Cây thư mục",
+          "text": "Mở / thu gọn thư mục; quan sát cấu trúc dự án và các file nằm trong workspace."
+        },
+        {
+          "title": "Tạo và sắp xếp",
+          "text": "New File / New Folder, đổi tên, di chuyển hoặc xóa từ menu chuột phải; kiểm tra nơi lưu trước khi thao tác."
+        },
+        {
+          "title": "Mở file và Open Editors",
+          "text": "Chọn file để xem; nhấp đúp để giữ tab mở. Open Editors liệt kê các file đang được mở."
+        },
+        {
+          "title": "Đường dẫn và terminal",
+          "text": "Copy Path / Copy Relative Path; Open in Integrated Terminal để chạy lệnh tại thư mục đã chọn."
+        },
+        {
+          "title": "Outline · Cấu trúc trong file",
+          "text": "Xem và nhảy tới hàm, lớp hoặc symbol trong file, tùy hỗ trợ của ngôn ngữ và tiện ích."
+        },
+        {
+          "title": "Timeline · Lịch sử file",
+          "text": "Xem lịch sử liên quan tới file, như Git hoặc Local History; mở các mốc để đối chiếu thay đổi."
+        }
+      ],
+      "visual": "workspace-region",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Giải thích và thực hiện được các thao tác chính của VÙNG 03 · EXPLORER.",
+      "objective": "Làm việc với đúng file trong đúng thư mục.",
+      "visualConcept": "VÙNG 03 · EXPLORER | Làm việc với đúng file trong đúng thư mục."
+    },
+    {
+      "section": 1,
+      "number": 10,
+      "title": "Editor · đọc và chỉnh sửa mã",
+      "minutes": 3,
+      "message": "Soạn thảo, điều hướng và kiểm tra thay đổi.",
+      "cards": [
+        {
+          "title": "Tab và nhóm editor",
+          "text": "Mở nhiều file, ghim tab hoặc chia editor để đọc / sửa hai file cạnh nhau."
+        },
+        {
+          "title": "IntelliSense · Gợi ý mã",
+          "text": "Gợi ý tên, tham số và tài liệu khi gõ; mức hỗ trợ phụ thuộc ngôn ngữ và extension."
+        },
+        {
+          "title": "Find / Replace trong file",
+          "text": "Tìm chữ hoặc thay thế có kiểm soát; dùng tùy chọn hoa thường, nguyên từ hoặc biểu thức chính quy."
+        },
+        {
+          "title": "Multi-cursor · Sửa nhiều chỗ",
+          "text": "Thêm con trỏ hoặc chọn các lần xuất hiện của một từ để chỉnh nhiều vị trí cùng lúc."
+        },
+        {
+          "title": "Format và Code Actions",
+          "text": "Định dạng tài liệu / vùng chọn; dùng Quick Fix hoặc refactor khi công cụ ngôn ngữ có hỗ trợ."
+        },
+        {
+          "title": "Điều hướng và so sánh",
+          "text": "Go to Definition, Find References, breadcrumbs; xem diff để biết chính xác dòng nào đã đổi."
+        }
+      ],
+      "visual": "workspace-region",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Giải thích và thực hiện được các thao tác chính của VÙNG 04 · EDITOR.",
+      "objective": "Soạn thảo, điều hướng và kiểm tra thay đổi.",
+      "visualConcept": "VÙNG 04 · EDITOR | Soạn thảo, điều hướng và kiểm tra thay đổi."
+    },
+    {
+      "section": 1,
+      "number": 11,
+      "title": "Terminal & Panel · chạy và chẩn đoán",
+      "minutes": 3,
+      "message": "Chạy tác vụ và đọc đúng loại thông tin trả về.",
+      "cards": [
+        {
+          "title": "Terminal · Chạy lệnh",
+          "text": "Thực thi lệnh trong shell tích hợp. Kiểm tra thư mục hiện tại và script của dự án trước khi chạy."
+        },
+        {
+          "title": "Nhiều terminal và profile",
+          "text": "Tạo, chia hoặc đổi tên terminal; chọn shell như PowerShell. Dừng tiến trình bằng Ctrl+C khi phù hợp."
+        },
+        {
+          "title": "Log và đường dẫn",
+          "text": "Đọc lỗi, cuộn hoặc tìm trong output terminal; mở liên kết file / localhost xuất hiện trong kết quả."
+        },
+        {
+          "title": "Problems · Lỗi và cảnh báo",
+          "text": "Xem chẩn đoán từ ngôn ngữ hoặc tác vụ; chọn lỗi để đi tới vị trí tương ứng trong mã."
+        },
+        {
+          "title": "Output & Debug Console",
+          "text": "Output hiển thị log theo kênh; Debug Console xem kết quả và đánh giá biểu thức trong phiên debug."
+        },
+        {
+          "title": "Ports · Cổng ứng dụng",
+          "text": "Xem / chuyển tiếp cổng khi môi trường hỗ trợ. Đây là tab của Panel, không phải lệnh trong terminal."
+        }
+      ],
+      "visual": "workspace-region",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Giải thích và thực hiện được các thao tác chính của VÙNG 05 · TERMINAL / PANEL.",
+      "objective": "Chạy tác vụ và đọc đúng loại thông tin trả về.",
+      "visualConcept": "VÙNG 05 · TERMINAL / PANEL | Chạy tác vụ và đọc đúng loại thông tin trả về."
+    },
+    {
+      "section": 1,
+      "number": 12,
+      "title": "Codex / Chat · làm việc cùng AI",
+      "minutes": 3,
+      "message": "Giao việc có ngữ cảnh, rồi đọc và kiểm tra kết quả.",
+      "cards": [
+        {
+          "title": "Đặt yêu cầu cụ thể",
+          "text": "Nêu mục tiêu, phạm vi thay đổi và tiêu chí hoàn thành; gửi yêu cầu hoặc câu hỏi trong cuộc trò chuyện."
+        },
+        {
+          "title": "Bổ sung ngữ cảnh",
+          "text": "Đưa file, đoạn mã được chọn hoặc ảnh tham chiếu vào yêu cầu để trợ lý hiểu phần đang làm."
+        },
+        {
+          "title": "Đọc và giải thích dự án",
+          "text": "Yêu cầu giải thích luồng xử lý, tìm file liên quan, phân tích lỗi hoặc đề xuất cách thực hiện."
+        },
+        {
+          "title": "Sửa mã và chạy kiểm tra",
+          "text": "Trợ lý có thể sửa file và chạy lệnh theo quyền được cấp; theo dõi các thao tác và kết quả được báo."
+        },
+        {
+          "title": "Đọc bản sửa",
+          "text": "Xem diff, đối chiếu yêu cầu và tự thử ứng dụng; phản hồi rõ phần cần giữ hoặc cần điều chỉnh."
+        },
+        {
+          "title": "Quyền và hội thoại",
+          "text": "Kiểm tra yêu cầu phê duyệt trước thao tác; tiếp tục trao đổi hoặc tạo cuộc trò chuyện cho công việc mới."
+        }
+      ],
+      "visual": "workspace-region",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Giải thích và thực hiện được các thao tác chính của VÙNG 06 · TRỢ LÝ AI.",
+      "objective": "Giao việc có ngữ cảnh, rồi đọc và kiểm tra kết quả.",
+      "visualConcept": "VÙNG 06 · TRỢ LÝ AI | Giao việc có ngữ cảnh, rồi đọc và kiểm tra kết quả."
+    },
+    {
+      "section": 1,
+      "number": 13,
+      "title": "Ngoài Codex: AI nào làm việc trong VS Code?",
+      "minutes": 6,
+      "message": "Chọn trợ lý phù hợp với cách làm việc và kiểm tra mã do AI tạo.",
+      "cards": [
+        {
+          "title": "Antigravity",
+          "text": "Extension chính thức đưa agent của Google vào VS Code."
+        },
+        {
+          "title": "GitHub Copilot",
+          "text": "Kết hợp gợi ý khi gõ với chat và agent trong VS Code."
+        },
+        {
+          "title": "Claude Code",
+          "text": "Trợ lý Claude làm việc với file và vùng mã đang chọn."
+        },
+        {
+          "title": "Cline",
+          "text": "Agent mã nguồn mở với nhiều lựa chọn nhà cung cấp model."
+        }
+      ],
+      "visual": "workspace-ai-alternatives",
+      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
+      "verify": "Chọn một công cụ và giải thích ưu điểm, điểm cần cân nhắc.",
+      "objective": "So sánh bốn trợ lý AI tích hợp VS Code.",
+      "visualConcept": "EIU DNA · logo chính chủ lơ lửng, bấm để xem ưu và nhược điểm."
+    },
+    {
+      "title": "Git trong một buổi vibe coding",
+      "visual": "git-intro-checkpoint",
+      "message": "AI sửa từng việc nhỏ. Bạn kiểm tra và lưu mốc khi kết quả đã ổn.",
+      "cards": [
+        {
+          "title": "Bản đang ổn",
+          "label": "01 · Trước khi sửa",
+          "text": "Nút Lưu hoạt động đúng. Bạn tạo một commit trước khi thử giao diện mới.",
+          "detail": "Commit là mốc mã nguồn đã lưu trong Git. Bạn có thể xem lại mốc này để so sánh hoặc phục hồi.",
+          "points": [
+            "Chạy thử chức năng chính.",
+            "Lưu đúng những thay đổi đã kiểm tra."
+          ],
+          "code": "✓ Nút Lưu hoạt động\n✓ Commit: Giao diện ban đầu"
+        },
+        {
+          "title": "AI vừa sửa",
+          "label": "02 · Thử ý tưởng",
+          "text": "Nút đẹp hơn nhưng bấm không lưu. Thay đổi mới vẫn đang ở trên máy.",
+          "detail": "Mở Source Control để xem diff: những dòng nào đã thêm, xóa hoặc sửa. Gửi lỗi cụ thể cho Codex.",
+          "points": [
+            "Mô tả bước làm lỗi xuất hiện.",
+            "Đối chiếu với commit đang ổn."
+          ],
+          "code": "✓ Giao diện mới\n! Bấm Lưu chưa có kết quả"
+        },
+        {
+          "title": "Sửa hoặc phục hồi",
+          "label": "03 · Kiểm tra lại",
+          "text": "Nhờ AI sửa đúng lỗi, hoặc hoàn tác phần thử nghiệm sau khi xem thay đổi.",
+          "detail": "Git chỉ phục hồi được nội dung đã lưu trong lịch sử. Tạo mốc trước khi thử giúp bạn có điểm quay lại rõ ràng.",
+          "points": [
+            "Kiểm tra lại nút Lưu.",
+            "Commit bản sửa khi kết quả đạt yêu cầu."
+          ],
+          "code": "✓ Lưu hoạt động trở lại\n✓ Commit: Sửa xử lý nút Lưu"
+        }
+      ],
+      "section": 1,
+      "number": 14,
+      "minutes": 4,
+      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
+      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
+      "objective": "AI sửa từng việc nhỏ. Bạn kiểm tra và lưu mốc khi kết quả đã ổn.",
+      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
+    },
+    {
+      "title": "Git, GitHub và Codex",
+      "visual": "git-intro-roles",
+      "message": "Ba công cụ phối hợp trong cùng dự án, mỗi công cụ có một vai trò.",
+      "cards": [
+        {
+          "title": "Git",
+          "logo": "Git",
+          "label": "LỊCH SỬ TRÊN MÁY",
+          "text": "Ghi các mốc thay đổi của mã nguồn.",
+          "detail": "Cài Git trên máy để VS Code và Codex có thể dùng trong thư mục dự án.",
+          "points": [
+            "Commit lưu một phiên bản.",
+            "Diff cho biết phần thay đổi.",
+            "Có thể dùng Git cục bộ khi chưa có GitHub."
+          ]
+        },
+        {
+          "title": "GitHub",
+          "logo": "GitHub",
+          "label": "REPOSITORY ONLINE",
+          "text": "Lưu repository từ xa và cộng tác.",
+          "detail": "Repository là kho mã nguồn cùng lịch sử Git. Push gửi các commit từ máy lên kho này.",
+          "points": [
+            "Tài khoản GitHub dùng để đăng nhập.",
+            "Quyền repository quyết định ai được xem hoặc sửa.",
+            "Pull Request hỗ trợ xem xét trước khi merge."
+          ]
+        },
+        {
+          "title": "Codex",
+          "logo": "AI Codex",
+          "label": "TRỢ LÝ TRONG VS CODE",
+          "text": "Đọc, sửa mã và hỗ trợ thao tác Git.",
+          "detail": "Cài extension Codex của OpenAI rồi đăng nhập. AI làm việc trong phạm vi file và quyền bạn cấp.",
+          "points": [
+            "Bạn nêu mục tiêu và kết quả mong đợi.",
+            "AI giải thích, sửa và chạy kiểm tra khi có quyền.",
+            "Bạn xem diff và xác nhận kết quả thực tế."
+          ]
+        }
+      ],
+      "section": 1,
+      "number": 15,
+      "minutes": 4,
+      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
+      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
+      "objective": "Ba công cụ phối hợp trong cùng dự án, mỗi công cụ có một vai trò.",
+      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
+    },
+    {
+      "title": "Thiết lập từ VS Code mới cài",
+      "visual": "git-intro-setup",
+      "message": "Bắt đầu khi chưa có Git, extension AI hay repository. Bấm từng bước để xem cách làm.",
+      "cards": [
+        {
+          "title": "Cài Git trên máy",
+          "label": "01",
+          "logo": "Git",
+          "text": "Tải Git đúng hệ điều hành tại git-scm.com, cài xong mở lại VS Code.",
+          "detail": "Chọn Terminal > New Terminal và kiểm tra. Nếu chưa nhận lệnh, mở lại terminal hoặc VS Code.",
+          "code": "git --version",
+          "points": [
+            "Thành công: terminal hiện số phiên bản Git.",
+            "Source Control có sẵn trong VS Code, không cần cài GitLens."
+          ],
+          "link": "https://git-scm.com/downloads",
+          "linkLabel": "Trang tải Git"
+        },
+        {
+          "title": "Đặt tên cho commit",
+          "label": "02",
+          "text": "Đặt tên và email tác giả. Đây là thông tin ghi trong lịch sử, không phải đăng nhập GitHub.",
+          "detail": "Thay phần trong dấu ngoặc bằng thông tin của bạn. Có thể dùng email noreply từ Settings > Emails của GitHub.",
+          "code": "git config --global user.name \"<Tên của bạn>\"\ngit config --global user.email \"<Email của bạn>\"",
+          "points": [
+            "Thiết lập một lần cho các repository trên máy."
+          ]
+        },
+        {
+          "title": "Cài extension Codex",
+          "label": "03",
+          "logo": "AI Codex",
+          "text": "Mở Extensions (Ctrl+Shift+X), tìm Codex và chọn nhà phát hành OpenAI, rồi Install.",
+          "detail": "Mở biểu tượng Codex và đăng nhập theo hướng dẫn bằng tài khoản có quyền sử dụng. Chưa cần cài Codex CLI riêng cho luồng extension này.",
+          "points": [
+            "Mở thư mục dự án trước khi giao việc.",
+            "Quyền đọc, sửa và chạy lệnh theo cấu hình của bạn."
+          ],
+          "link": "https://marketplace.visualstudio.com/items?itemName=OpenAI.chatgpt",
+          "linkLabel": "Codex của OpenAI"
+        },
+        {
+          "title": "Tạo repository local",
+          "label": "04",
+          "logo": "VS Code",
+          "text": "Tạo thư mục vibe-practice. Trong VS Code chọn File > Open Folder để mở thư mục đó.",
+          "detail": "Mở Source Control (Ctrl+Shift+G), chọn Initialize Repository. Nhờ Codex tạo README.md giới thiệu dự án, xem file rồi tạo commit đầu tiên.",
+          "points": [
+            "Repository đã có trên máy.",
+            "Nếu có dự án GitHub sẵn: dùng Git: Clone thay cho Initialize."
+          ]
+        },
+        {
+          "title": "Kết nối GitHub",
+          "label": "05",
+          "logo": "GitHub",
+          "text": "Tạo tài khoản tại github.com. Mở Command Palette (Ctrl+Shift+P), chọn Publish to GitHub.",
+          "detail": "Đăng nhập bằng trình duyệt khi VS Code yêu cầu. Chọn tên repository, quyền Public/Private và file cần đưa lên.",
+          "points": [
+            "Kiểm tra repository online có README và commit đầu tiên.",
+            "Cài môi trường chạy như Node.js theo README khi dự án cần."
+          ],
+          "link": "https://github.com/signup",
+          "linkLabel": "Tạo tài khoản GitHub"
+        }
+      ],
+      "section": 1,
+      "number": 16,
+      "minutes": 8,
+      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
+      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
+      "objective": "Bắt đầu khi chưa có Git, extension AI hay repository. Bấm từng bước để xem cách làm.",
+      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
+    },
+    {
+      "title": "Một vòng làm việc hằng ngày",
+      "visual": "git-intro-cycle",
+      "message": "Save ghi file trên máy. Commit lưu mốc Git. Push gửi commit lên GitHub.",
+      "cards": [
+        {
+          "title": "Sửa",
+          "label": "01",
+          "text": "Giao một yêu cầu nhỏ cho Codex và lưu file sau khi sửa.",
+          "detail": "Ví dụ: “Đổi nhãn nút thành Tạo yêu cầu, giữ nguyên chức năng lưu.”",
+          "points": [
+            "Save chỉ ghi nội dung file trên máy."
+          ]
+        },
+        {
+          "title": "Xem diff",
+          "label": "02",
+          "text": "Mở Source Control và chọn file trong Changes.",
+          "detail": "Đọc các dòng thêm/xóa. Hỏi AI giải thích phần chưa rõ trước khi giữ bản sửa.",
+          "points": [
+            "Đúng file, đúng tính năng, đúng phạm vi."
+          ]
+        },
+        {
+          "title": "Kiểm tra",
+          "label": "03",
+          "text": "Chạy thử theo README và kiểm tra thao tác vừa thay đổi.",
+          "detail": "Nhờ Codex đọc cấu hình dự án, xác định lệnh chạy phù hợp và báo rõ kiểm tra nào chưa thực hiện được.",
+          "points": [
+            "Cài môi trường và thư viện nếu dự án yêu cầu."
+          ]
+        },
+        {
+          "title": "Stage",
+          "label": "04",
+          "text": "Chọn phần thay đổi sẽ có trong commit tiếp theo.",
+          "detail": "Trong Source Control, bấm dấu + cạnh file phù hợp. Kiểm tra lại Staged Changes.",
+          "points": [
+            "Giữ thay đổi không liên quan ngoài commit."
+          ]
+        },
+        {
+          "title": "Commit",
+          "label": "05",
+          "text": "Tạo mốc trên máy với thông điệp dễ hiểu.",
+          "detail": "Ví dụ: “Làm rõ nhãn nút tạo yêu cầu”. Sau bước này, GitHub chưa có commit mới.",
+          "points": [
+            "Commit ghi lại nội dung đã stage."
+          ]
+        },
+        {
+          "title": "Push",
+          "label": "06",
+          "text": "Gửi commit tới đúng repository và nhánh trên GitHub.",
+          "detail": "Mở GitHub để kiểm tra commit mới. Khi làm cùng người khác, Pull nhận và tích hợp thay đổi từ xa.",
+          "points": [
+            "Push không tự cấu hình hosting hoặc deploy."
+          ]
+        }
+      ],
+      "section": 1,
+      "number": 17,
+      "minutes": 4,
+      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
+      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
+      "objective": "Save ghi file trên máy. Commit lưu mốc Git. Push gửi commit lên GitHub.",
+      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
+    },
+    {
+      "title": "GitHub: đọc một repository",
+      "visual": "git-intro-repository",
+      "message": "Ví dụ minh họa: eiu / vibe-practice. Chọn từng vùng để biết cần xem gì.",
+      "cards": [
+        {
+          "title": "Code",
+          "text": "Cây file của nhánh đang chọn.",
+          "detail": "Mở file để xem mã trên GitHub. Phiên bản ở đây chỉ cập nhật khi bạn push hoặc sửa trực tiếp trên GitHub.",
+          "code": "vibe-practice/\n  app/\n  public/\n  README.md",
+          "points": [
+            "So sánh với file đang mở trong VS Code."
+          ]
+        },
+        {
+          "title": "README",
+          "text": "Hướng dẫn bắt đầu với dự án.",
+          "detail": "Đọc mục đích, môi trường cần cài và cách chạy. Nhờ Codex giải thích các bước trước khi thực hiện.",
+          "code": "# Vibe practice\nMục đích\nYêu cầu cài đặt\nCách chạy và kiểm tra",
+          "points": [
+            "Không đoán lệnh chạy nếu chưa xem README."
+          ]
+        },
+        {
+          "title": "Commits",
+          "text": "Lịch sử các mốc đã push.",
+          "detail": "Mở một commit để xem thông điệp, tác giả và diff. Dùng lịch sử để tìm lần sửa liên quan đến lỗi.",
+          "code": "Làm rõ nhãn nút tạo yêu cầu\nThêm biểu mẫu đầu tiên\nTạo README",
+          "points": [
+            "Chọn mốc phù hợp để đối chiếu."
+          ]
+        },
+        {
+          "title": "Branches",
+          "text": "Các nhánh của repository.",
+          "detail": "Nhánh main thường giữ bản chung. Nhánh feature/new-button chứa công việc đang thử.",
+          "code": "main\nfeature/new-button",
+          "points": [
+            "Kiểm tra đang xem đúng nhánh trước khi tìm file."
+          ]
+        },
+        {
+          "title": "Pull requests",
+          "text": "Nơi xem xét thay đổi trước khi hợp nhất.",
+          "detail": "Đọc mô tả, Files changed và kết quả kiểm tra. Khi phù hợp mới merge vào nhánh đích.",
+          "code": "feature/new-button → main\nFiles changed\nChecks\nReview",
+          "points": [
+            "Website chỉ cập nhật khi có quy trình deploy đã cấu hình."
+          ]
+        }
+      ],
+      "section": 1,
+      "number": 18,
+      "minutes": 4,
+      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
+      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
+      "objective": "Ví dụ minh họa: eiu / vibe-practice. Chọn từng vùng để biết cần xem gì.",
+      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
+    },
+    {
+      "title": "Branch: thử ý tưởng mới",
+      "visual": "git-intro-branch",
+      "message": "Một nhánh cho một thay đổi. Xem kết quả trước khi nhập vào bản chung.",
+      "cards": [
+        {
+          "title": "Tạo nhánh",
+          "label": "01",
+          "text": "Từ bản đang ổn, tạo feature/new-button.",
+          "detail": "Nhờ Codex kiểm tra nhánh hiện tại và thay đổi chưa commit trước khi tạo nhánh mới.",
+          "points": [
+            "Nhánh mới là một đường phát triển trong cùng repository."
+          ]
+        },
+        {
+          "title": "Sửa và commit",
+          "label": "02",
+          "text": "Thử nút mới, chạy kiểm tra rồi lưu mốc trên nhánh.",
+          "detail": "Main chưa nhận các commit mới này. Bạn có thể thử nhiều lần và giữ lịch sử rõ ràng.",
+          "points": [
+            "Mỗi commit nên có mục đích dễ hiểu."
+          ]
+        },
+        {
+          "title": "Push và mở PR",
+          "label": "03",
+          "text": "Đưa nhánh lên GitHub, tạo Pull Request tới main.",
+          "detail": "Mô tả thay đổi và cách đã kiểm tra. Người xem có thể đọc diff và góp ý ngay trên GitHub.",
+          "points": [
+            "PR là đề nghị xem xét, chưa phải merge."
+          ]
+        },
+        {
+          "title": "Merge",
+          "label": "04",
+          "text": "Hợp nhất khi kết quả đạt yêu cầu.",
+          "detail": "Nếu có conflict, cần chọn nội dung đúng và kiểm tra lại. Sau merge, cập nhật main trên máy.",
+          "points": [
+            "Deploy là bước riêng theo cấu hình dự án."
+          ]
+        }
+      ],
+      "section": 1,
+      "number": 19,
+      "minutes": 4,
+      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
+      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
+      "objective": "Một nhánh cho một thay đổi. Xem kết quả trước khi nhập vào bản chung.",
+      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
+    },
+    {
+      "title": "Khi AI sửa sai",
+      "visual": "git-intro-recovery",
+      "message": "Xem trạng thái Git trước, rồi chọn cách phục hồi phù hợp với phần đang sửa.",
+      "cards": [
+        {
+          "title": "Chưa commit",
+          "label": "THAY ĐỔI TRÊN MÁY",
+          "text": "Xem diff và yêu cầu sửa đúng phần lỗi.",
+          "detail": "Nếu muốn bỏ phần thử nghiệm, xác định rõ file hoặc đoạn cần hoàn tác. Discard Changes xóa các sửa chưa commit trong phần đã chọn.",
+          "points": [
+            "Giữ lại phần đang làm dở trước khi bỏ thay đổi.",
+            "Git không bảo đảm cứu được nội dung chưa từng commit."
+          ],
+          "prompt": "Xem diff hiện tại và tìm phần làm nút Lưu bị lỗi. Giải thích nguyên nhân, đề xuất sửa nhỏ nhất. Giữ các thay đổi không liên quan."
+        },
+        {
+          "title": "Đã commit / push",
+          "label": "ĐÃ CÓ TRONG LỊCH SỬ",
+          "text": "Đối chiếu commit gây lỗi và tạo bản sửa.",
+          "detail": "Có thể dùng revert để tạo commit đảo tác động của commit cũ. Với lịch sử đã chia sẻ, cách này giữ dấu vết thay đổi.",
+          "points": [
+            "Revert có thể cần xử lý conflict.",
+            "Kiểm tra lại ứng dụng rồi mới push bản phục hồi."
+          ],
+          "prompt": "Tìm commit liên quan đến lỗi. So sánh với bản đang ổn, đề xuất sửa hoặc revert phù hợp. Cho tôi xem phần sẽ thay đổi trước khi phục hồi."
+        },
+        {
+          "title": "Có conflict",
+          "label": "HAI THAY ĐỔI KHÔNG GHÉP TỰ ĐỘNG",
+          "text": "Ví dụ: bạn và đồng nghiệp sửa cùng nhãn nút.",
+          "detail": "Một bên đổi “Lưu” thành “Gửi”, bên kia đổi thành “Tạo yêu cầu”. Cần chọn nội dung đúng theo yêu cầu, không chọn một phía theo thói quen.",
+          "points": [
+            "Nhờ Codex giải thích cả hai phiên bản.",
+            "Giữ kết quả đúng, kiểm tra rồi hoàn tất merge."
+          ],
+          "prompt": "Giải thích từng vùng conflict và mục đích hai phía. Đề xuất bản kết hợp theo yêu cầu hiện tại, giữ chức năng cũ và nêu cách kiểm tra."
+        }
+      ],
+      "section": 1,
+      "number": 20,
+      "minutes": 4,
+      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
+      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
+      "objective": "Xem trạng thái Git trước, rồi chọn cách phục hồi phù hợp với phần đang sửa.",
+      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
+    },
+    {
+      "title": "Giao việc Git cho Codex",
+      "visual": "git-intro-prompts",
+      "message": "Sau khi hoàn tất thiết lập, dùng yêu cầu ngắn với phạm vi và kết quả kiểm tra rõ ràng.",
+      "cards": [
+        {
+          "title": "Đọc thay đổi",
+          "label": "01",
+          "text": "Hiểu AI đã sửa gì trước khi lưu mốc.",
+          "prompt": "Xem trạng thái Git và diff trong dự án đang mở. Tóm tắt từng nhóm thay đổi bằng ngôn ngữ dễ hiểu, nêu file không liên quan và phần cần kiểm tra. Chưa commit hoặc push."
+        },
+        {
+          "title": "Tạo mốc ổn định",
+          "label": "02",
+          "text": "Lưu một việc đã hoàn thành.",
+          "prompt": "Kiểm tra phần vừa sửa, báo rõ kiểm tra đã chạy và chưa chạy. Nếu đạt, stage đúng thay đổi của tính năng này rồi tạo commit với thông điệp rõ ràng. Giữ các thay đổi không liên quan ngoài commit. Chưa push."
+        },
+        {
+          "title": "Thử trên nhánh",
+          "label": "03",
+          "text": "Tách thử nghiệm khỏi bản chung.",
+          "prompt": "Kiểm tra nhánh hiện tại và các thay đổi chưa commit. Tạo nhánh cho giao diện nút mới, giữ nguyên chức năng lưu. Thực hiện và kiểm tra, báo lại diff cùng kết quả. Chưa merge vào main."
+        },
+        {
+          "title": "Chuẩn bị push",
+          "label": "04",
+          "text": "Kiểm tra đúng kho, đúng nhánh và đúng nội dung.",
+          "prompt": "Kiểm tra repository đích, nhánh và các commit chuẩn bị push. Kiểm tra không có .env, token hoặc mật khẩu trong nội dung sẽ gửi, không in giá trị bí mật. Báo kết quả để tôi duyệt trước khi push. Nếu thiếu quyền, hướng dẫn tôi tự đăng nhập."
+        }
+      ],
+      "section": 1,
+      "number": 21,
+      "minutes": 4,
+      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
+      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
+      "objective": "Sau khi hoàn tất thiết lập, dùng yêu cầu ngắn với phạm vi và kết quả kiểm tra rõ ràng.",
+      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
+    },
+    {
+      "section": 1,
+      "number": 22,
       "title": "Mở đúng dự án, hiểu đúng cấu trúc",
       "minutes": 7,
       "message": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
@@ -206,7 +918,7 @@
           "text": "Trang, thành phần và tài nguyên có vai trò khác nhau; không chia sẻ giá trị bí mật trong .env.local."
         }
       ],
-      "visual": "files",
+      "visual": "workspace-files",
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
       "objective": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
@@ -214,7 +926,7 @@
     },
     {
       "section": 1,
-      "number": 8,
+      "number": 23,
       "title": "Tìm kiếm, tiện ích và chạy thử",
       "minutes": 6,
       "message": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
@@ -232,7 +944,7 @@
           "text": "Chạy đúng tác vụ tại thư mục dự án; đọc lỗi và mở địa chỉ localhost được thông báo."
         }
       ],
-      "visual": "cards",
+      "visual": "workspace-tools",
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
       "objective": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
@@ -240,7 +952,7 @@
     },
     {
       "section": 1,
-      "number": 9,
+      "number": 24,
       "title": "Làm việc với AI ngay trong dự án",
       "minutes": 6,
       "message": "AI hỗ trợ thực hiện; bạn chịu trách nhiệm xác nhận kết quả.",
@@ -258,7 +970,7 @@
           "text": "Chạy ứng dụng, thử tính năng mới và chức năng cũ; đọc lỗi trước khi sửa tiếp."
         }
       ],
-      "visual": "cycle",
+      "visual": "workspace-ai",
       "prompt": "Bối cảnh: AI vừa chỉnh sửa tính năng tạo yêu cầu. Mục tiêu: kiểm tra trước khi ghi nhận phiên bản. Hãy đọc phần thay đổi và chỉ ra file bị tác động, tính năng có thể ảnh hưởng, thông tin bí mật có nguy cơ bị đưa vào mã nguồn và các kiểm tra cần chạy. Không sửa file ngoài phạm vi hoặc Push tự động. Kết quả: danh sách vấn đề và kế hoạch kiểm tra thực tế. Hãy thử tạo yêu cầu, sửa trạng thái, kiểm tra đăng nhập và thông báo lỗi; báo rõ kết quả thực tế và những mục chưa xác minh.",
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "AI hỗ trợ thực hiện; bạn chịu trách nhiệm xác nhận kết quả.",
@@ -267,7 +979,7 @@
     },
     {
       "section": 1,
-      "number": 10,
+      "number": 25,
       "title": "Demo: mở, đọc và chạy dự án",
       "minutes": 8,
       "message": "Hiểu nơi sửa trước khi yêu cầu AI thay đổi mã.",
@@ -294,7 +1006,7 @@
     },
     {
       "section": 1,
-      "number": 11,
+      "number": 26,
       "title": "Giao yêu cầu để AI sửa đúng phạm vi",
       "minutes": 6,
       "message": "Một yêu cầu tốt có bối cảnh, mục tiêu, giới hạn và cách xác nhận.",
@@ -321,22 +1033,22 @@
     },
     {
       "section": 1,
-      "number": 12,
-      "title": "GitHub: đọc một kho mã nguồn",
+      "number": 27,
+      "title": "Thực hành GitHub: tìm đúng phiên bản",
       "minutes": 8,
       "message": "Một repository cần giúp người khác hiểu mã, lịch sử và cách bắt đầu.",
       "cards": [
         {
-          "title": "Code và README",
-          "text": "Xem cây file của nhánh đang chọn. README giải thích mục tiêu, cách chạy và cấu hình cần có."
+          "title": "Tìm hướng dẫn chạy",
+          "text": "Mở repository mẫu, đọc README và chỉ ra môi trường cần cài trước khi chạy."
         },
         {
-          "title": "Commits và lịch sử",
-          "text": "Đọc thông điệp, người thực hiện và khác biệt từng phiên bản để truy tìm một thay đổi."
+          "title": "Tìm lần sửa gần nhất",
+          "text": "Mở lịch sử commit, đọc thông điệp và tìm một file đã thay đổi."
         },
         {
-          "title": "Issues và Pull Requests",
-          "text": "Issues theo dõi việc cần làm; Pull Request đề nghị xem xét thay đổi trước khi hợp nhất."
+          "title": "Tìm nơi phản hồi",
+          "text": "Tạo nội dung Issue mô tả một lỗi, rồi xác định Pull Request chứa bản sửa nếu có."
         }
       ],
       "visual": "github-features",
@@ -347,7 +1059,7 @@
     },
     {
       "section": 1,
-      "number": 13,
+      "number": 28,
       "title": "Chọn thay đổi, Commit, Push và Pull",
       "minutes": 9,
       "message": "Commit ghi trên máy; Push gửi lên GitHub; Pull nhận và tích hợp thay đổi.",
@@ -374,22 +1086,22 @@
     },
     {
       "section": 1,
-      "number": 14,
-      "title": "Nhánh và Pull Request: sửa mà có người xem",
+      "number": 29,
+      "title": "Thực hành: đề nghị xem xét bản sửa",
       "minutes": 9,
       "message": "Tách thay đổi trên nhánh riêng; xem xét và kiểm tra trước khi hợp nhất.",
       "cards": [
         {
-          "title": "Nhánh · đường làm việc riêng",
-          "text": "Tạo nhánh từ phiên bản phù hợp để thực hiện một tính năng mà chưa thay đổi nhánh chính."
+          "title": "Nhánh của bạn",
+          "text": "Tạo nhánh cho một thay đổi nhỏ và xác nhận đúng tên nhánh trong VS Code."
         },
         {
-          "title": "Pull Request · đề nghị xem xét",
-          "text": "Sau khi Push nhánh, mô tả mục tiêu và cách kiểm tra; đọc khác biệt và trao đổi trên GitHub."
+          "title": "Minh chứng trên PR",
+          "text": "Push nhánh, mở Pull Request và ghi kết quả kiểm tra cùng ảnh giao diện nếu cần."
         },
         {
-          "title": "Hợp nhất và phục hồi",
-          "text": "Merge khi đã được xem xét. Nếu phát sinh lỗi, đối chiếu lịch sử và chọn cách phục hồi phù hợp; không ghi đè lịch sử tùy tiện."
+          "title": "Phản hồi và hoàn tất",
+          "text": "Đọc góp ý, sửa trên cùng nhánh, kiểm tra lại. Chỉ merge khi bản sửa đạt yêu cầu."
         }
       ],
       "visual": "branches",
@@ -400,7 +1112,7 @@
     },
     {
       "section": 1,
-      "number": 15,
+      "number": 30,
       "title": "Kiểm tra trước khi gửi mã lên GitHub",
       "minutes": 9,
       "message": "Đúng kho, đúng nhánh, không có bí mật và tính năng đã được kiểm tra.",
@@ -426,7 +1138,7 @@
     },
     {
       "section": 1,
-      "number": 16,
+      "number": 31,
       "title": "Thực hành 1: chỉnh sửa bằng VS Code và AI",
       "minutes": 30,
       "message": "Hoàn thành một thay đổi nhỏ và chứng minh tính năng vẫn hoạt động.",
@@ -453,7 +1165,7 @@
     },
     {
       "section": 1,
-      "number": 17,
+      "number": 32,
       "title": "Thực hành 2: lưu và cộng tác trên GitHub",
       "minutes": 30,
       "message": "Lưu phiên bản đúng kho và trình bày được thay đổi cho người khác xem.",
@@ -482,7 +1194,7 @@
     },
     {
       "section": 1,
-      "number": 18,
+      "number": 33,
       "title": "Tự kiểm tra: VS Code và GitHub",
       "minutes": 20,
       "message": "Bạn biết nơi sửa mã, cách kiểm tra và cách quản lý thay đổi.",

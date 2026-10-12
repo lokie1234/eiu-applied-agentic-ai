@@ -9,6 +9,7 @@ import { driveFolderId } from "./destinations";
 import { localOriginalPath, readLocalOriginal } from "./localOriginal";
 import { readDriveFile } from "./sectionContent";
 import { compileTsx } from "@/lib/sectionContent";
+import { localSectionSourcePath, readLocalSectionSource } from "@/lib/localSectionContent";
 function fileType(name: string) { return /\.js$/i.test(name) ? "js" as const : sectionSourceType(name); }
 function usesCompiledJs(section: Parameters<typeof localOriginalPath>[0] & { original_content_path?: string | null }) {
   return !section.original_content_path && !localOriginalPath(section) &&
@@ -47,7 +48,11 @@ export async function exportPlan(groupId?: string, sectionId?: string, courseId?
     const row = stored?.find(item => item.id === section.id);
     const builtin = courses.some(course => course.id === section.course_id && course.slug === "applied-agentic-ai") && ["section1", "section2"].includes(section.section_key);
     if (builtin) tasks.push({ sectionId: section.id, courseId: section.course_id, builtin: true, name: driveSectionName(section.position, section.title, "tsx") });
-    if (row?.content_path && row.source_filename) {
+    const course = courses.find(item => item.id === section.course_id);
+    const local = row && course ? localSectionSourcePath(course, row) : null;
+    if (local && row?.source_filename) {
+      tasks.push({ sectionId: section.id, courseId: section.course_id, name: driveSectionName(section.position, section.title, "tsx"), note: "Current project TSX used by the slides. Saving a copy keeps the slide source unchanged." });
+    } else if (row?.content_path && row.source_filename) {
       const type = fileType(row.source_filename);
       const compiled = type === "tsx" && usesCompiledJs(row);
       tasks.push({ sectionId: section.id, courseId: section.course_id, name: driveSectionName(section.position, section.title, compiled ? "js" : type),
@@ -69,6 +74,24 @@ export async function exportDocument(client: OAuth2Client, input: { sectionId: s
     if (found.data.files[0]) return found.data.files[0].id;
     const copy = await client.request<{ id: string }>({ url: "https://www.googleapis.com/drive/v3/files/" + encodeURIComponent(source.drive_file_id) + "/copy", method: "POST", timeout: 30000, params: { supportsAllDrives: true, fields: "id" }, data: { name: driveDocumentName(input.name ?? "", source.original_filename, sectionSourceType(source.original_filename)), parents: [input.folderId], appProperties: { eiuCopiedSource: key } } });
     return copy.data.id;
+  }
+  if (section.content_type === "tsx") {
+    const catalog = await getCoursesAndSectionsData();
+    const course = catalog.courses.find(item => item.id === section.course_id);
+    const local = course ? await readLocalSectionSource(course, section) : null;
+    if (local && section.source_filename) {
+      compileTsx(local.toString("utf8"));
+      const name = input.name?.trim() ? driveDocumentName(input.name, section.source_filename, "tsx") : driveSectionName(section.position, section.title, "tsx");
+      const hash = createHash("sha256").update("project-tsx:" + section.id).digest("hex").slice(0, 32);
+      const sourceId = hash.slice(0,8) + "-" + hash.slice(8,12) + "-" + hash.slice(12,16) + "-" + hash.slice(16,20) + "-" + hash.slice(20);
+      const sha256 = createHash("sha256").update(local).digest("hex");
+      const fileId = await saveDriveOriginal(client, { sourceId, sectionId: section.id, folderId: input.folderId, name, sha256, body: local, mimeType: "text/plain" });
+      const verified = await readDriveFile(fileId, client);
+      if (createHash("sha256").update(verified.bytes).digest("hex") !== sha256) throw new Error("Drive file verification failed. The existing lesson is unchanged.");
+      // Export a snapshot of the displayed source. Do not rename its binding or
+      // replace database references; future TSX edits must keep displaying.
+      return fileId;
+    }
   }
   if (!section.source_filename || !section.content_path) throw new Error("This section has no stored document.");
   const sourceType = fileType(section.source_filename);

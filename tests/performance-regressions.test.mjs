@@ -74,6 +74,7 @@ test("PDF navigation and zoom retain the document while each slide keeps its tra
   }, globals).default;
   const Pdf = load("components/deck/UploadedPdfDeck.tsx", {
     "./SharedDeckFrame": { default: Frame, __esModule: true }, "./EiuTemplateFrame": { default: ({ children }) => children, __esModule: true },
+    "@/components/HairlineLoading": { __esModule: true, default: () => null },
     "react-pdf": { Document, Page: ({ pageNumber, width }) => React.createElement("div", { "data-page": pageNumber, "data-width": width }), pdfjs: {} },
   }, globals).default;
   const container = window.document.createElement("div"); const root = createRoot(container);
@@ -112,6 +113,11 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     "@/lib/auth/types": { APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai" },
     "@/lib/deckLocation": { rememberDeckSelection() {} }, "@/lib/slideStorage": {},
     "@/lib/supabase/browser": { getSupabaseBrowserClient: () => null },
+    "./LearningGrowthIcon": { __esModule: true, default: () => null },
+    "./LearningGardenAction": { __esModule: true, default: () => null },
+    "./HairlineLoading": { __esModule: true, default: () => null },
+    "./CourseToolRow": { __esModule: true, default: () => null },
+    "./useSectionOpening": load("components/useSectionOpening.ts", {}),
   }, { window, document: window.document, navigator: { sendBeacon: () => { beacons++; return true; } }, clearInterval: id => window.clearInterval(id),
     fetch: (url, options) => new Promise(resolve => requests.push({ url, options, resolve })),
   }).default;

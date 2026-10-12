@@ -53,7 +53,7 @@ export default function DriveExport({ groupId, courseId, sectionId, label = "Sav
         const response = await fetch(`/api/admin/sections/${encodeURIComponent(sectionId)}/content`, { method: "POST", body: form });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Unable to update TSX.");
-        setFeedbackTone("success"); setMessage("Updated TSX saved to Drive. This section now uses the new file.");
+        setFeedbackTone("success"); setMessage(data.contentSource === "project-tsx" ? "Updated TSX saved to Drive. Slides continue to use the TSX in the project." : "Updated TSX saved to Drive. This section now uses the new file.");
         setReplacement(null); if (fileInput.current) fileInput.current.value = "";
         setTasks([]); onSaved?.(); return;
       }
@@ -82,7 +82,7 @@ export default function DriveExport({ groupId, courseId, sectionId, label = "Sav
     <dialog ref={dialog} className={styles.dialog} onClick={event => event.stopPropagation()} onCancel={event => { if (busy) event.preventDefault(); }} aria-label="Save documents to Google Drive">
       <header className={styles.header}><span className={styles.mark}><DriveActionIcon /></span><div><span className={styles.eyebrow}>{"EIU \u00b7 DRIVE EXPORT"}</span><h2>{groupId ? "Save folder to Drive" : courseId ? "Save course to Drive" : "Save section to Drive"}</h2></div><button type="button" disabled={busy} onClick={() => dialog.current?.close()} aria-label="Close">{"\u00d7"}</button></header>
       <div className={styles.body}>
-        <p className={styles.description}>{groupId ? "Save your folder and courses to Drive. Stored section files will use Drive as their source." : courseId ? "Save section files to Drive and use them as the course source." : "Save this file to Drive. Stored section files will use Drive as their source; built-in lessons keep their interactive features."}</p>
+        <p className={styles.description}>{groupId ? "Save your folder and courses to Drive. Project TSX slides export their current source and keep using the project file. Other stored section files can use Drive as their source." : courseId ? "Save section files to Drive. Project TSX slides keep using the project file; other stored files can use Drive as their source." : "Save this file to Drive. Project TSX slides keep using the project file; other stored files can use Drive as their source. Built-in lessons keep their interactive features."}</p>
         <label className={styles.field}>Drive target<select value={destinationId} disabled={busy} onChange={event => { setDestinationId(event.target.value); setTasks(current => current.map(item => ({ ...item, status: undefined, message: undefined }))); setMessage(""); }}><option value="">Choose a Drive destination</option>{destinations.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
         <Link className={styles.setup} href="/admin/drive">Set up Drive destinations {"\u2197"}</Link>
         {allowReplace && sectionId && <div className={styles.replacement}><label className={styles.field}>Update section TSX<input ref={fileInput} type="file" accept=".tsx" disabled={busy} onChange={event => { const file = event.target.files?.[0] ?? null; setReplacement(file); setMessage(""); }} /></label><p className={styles.description}>Choose your edited TSX. The current lesson stays available until the new file is validated and saved to Drive.</p></div>}
