@@ -1,5 +1,7 @@
 # Section source library and interactive publishing
 
+Current UI note (2026-10-13): the source-library dialog was no longer mounted in Course Setup and has been removed during cleanup. The additive upload/listing API and its tests remain. The Source files UI instructions below describe the earlier implementation plan; primary section replacement uses the current Drive dialog.
+
 Status: local OAuth, Google Picker folder authorization and additive source
 uploads/listing are implemented. Supabase migration must be applied. Selecting
 sources for editing and interactive publishing remain pending.

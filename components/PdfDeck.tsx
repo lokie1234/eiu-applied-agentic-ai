@@ -4,43 +4,17 @@ import { useMemo } from "react";
 import SharedDeckFrame from "@/components/deck/SharedDeckFrame";
 import QuizSlide from "@/components/QuizSlide";
 import ShowcaseSlide from "@/components/ShowcaseSlide";
-import SectionOneHtmlSlide, { type SectionOneHtmlKind } from "@/components/section1/SectionOneHtmlSlide";
+import SectionOneHtmlSlide from "@/components/section1/SectionOneHtmlSlide";
 import SectionOneNativeSlide from "@/components/section1/SectionOneNativeSlide";
 import SectionOneSlide14 from "@/components/section1/SectionOneSlide14";
+import { buildSectionOneDeckItems } from "@/lib/builtinDeckItems";
 
-const SECTION_ONE_PAGE_COUNT = 38;
 const SLIDE_WIDTH = 960;
 
 type Props = { isAdmin: boolean; courseTitle?: string; sectionTitle?: string };
 
-type DeckItem =
-  | { kind: "native"; pdfPage: number }
-  | { kind: "slide14"; slide: "gemini-model" }
-  | { kind: "html"; slide: SectionOneHtmlKind }
-  | { kind: "showcase" }
-  | { kind: "quiz" };
-
-function buildDeckItems(isAdmin: boolean): DeckItem[] {
-  const items: DeckItem[] = [];
-  for (let pdfPage = 1; pdfPage <= SECTION_ONE_PAGE_COUNT; pdfPage += 1) {
-    if (pdfPage === 10) continue;
-    if (pdfPage === 3) items.push({ kind: "html", slide: "slide3" });
-    else if (pdfPage === 4) items.push({ kind: "html", slide: "slide4" });
-    else if (pdfPage === 14) items.push({ kind: "slide14", slide: "gemini-model" });
-    else if (pdfPage === 38) {
-      items.push({ kind: "showcase" });
-      items.push({ kind: "html", slide: "realtime-dashboard" });
-    } else items.push({ kind: "native", pdfPage });
-    if (pdfPage === 4 && isAdmin) items.push({ kind: "html", slide: "idea-results" });
-    if (pdfPage === 34) items.push({ kind: "html", slide: "deployment" });
-    if (pdfPage === 37) items.push({ kind: "html", slide: "apply-idea" });
-  }
-  items.push({ kind: "quiz" });
-  return items;
-}
-
 export default function PdfDeck({ isAdmin, courseTitle = "Applied Agentic AI", sectionTitle = "Interactive Learning Deck" }: Props) {
-  const deckItems = useMemo(() => buildDeckItems(isAdmin), [isAdmin]);
+  const deckItems = useMemo(() => buildSectionOneDeckItems(isAdmin), [isAdmin]);
   return (
     <SharedDeckFrame
       courseTitle={courseTitle}

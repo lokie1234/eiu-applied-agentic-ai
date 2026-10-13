@@ -39,7 +39,7 @@ function loadRuntime() {
   return runtimeLoading;
 }
 
-export function loadHairlineFigure(name: "course-folder" | "course-book" | "section-page" | "loading-dots") {
+export function loadHairlineFigure(name: "loading-dots") {
   const existing = figures.get(name);
   if (existing) return existing;
   // Figures register through the same global callback. Serialize registration

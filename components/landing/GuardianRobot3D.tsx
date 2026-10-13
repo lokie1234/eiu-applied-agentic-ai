@@ -1004,7 +1004,7 @@ export default function GuardianRobot3D({
 
   // Core Drag Initiation (Callable from 3D hit or global window raycast)
   const startDrag = useCallback(
-    (_clientX?: number, _clientY?: number) => {
+    () => {
       if (isDragging.current) return;
       isDragging.current = true;
       isError.current = false;
@@ -1079,7 +1079,7 @@ export default function GuardianRobot3D({
   const handlePointerDown = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
       e.stopPropagation();
-      startDrag(e.clientX, e.clientY);
+      startDrag();
     },
     [startDrag]
   );
@@ -1128,7 +1128,7 @@ export default function GuardianRobot3D({
       if (hitObj) {
         const hits = raycaster.intersectObject(hitObj, true);
         if (hits.length > 0) {
-          startDrag(ev.clientX, ev.clientY);
+          startDrag();
         }
       }
     };

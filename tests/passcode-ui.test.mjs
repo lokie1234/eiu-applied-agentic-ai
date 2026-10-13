@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import vm from "node:vm";
 import { createRequire } from "node:module";
+import { dirname, resolve } from "node:path";
 import ts from "typescript";
 import React, { act } from "react";
 import { Window } from "happy-dom";
@@ -12,7 +13,7 @@ const require = createRequire(import.meta.url);
 const liveRefresh = {};
 vm.runInNewContext(ts.transpileModule(fs.readFileSync("lib/liveRefresh.ts", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText,
   { exports: liveRefresh, require, AbortController, AbortSignal });
-function component(path, dependencies = {}) {
+function moduleExports(path, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;
   vm.runInNewContext(code, { exports, console, Date, AbortController, AbortSignal, crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, fetch: (...args) => globalThis.fetch(...args), require: name => {
@@ -21,11 +22,53 @@ function component(path, dependencies = {}) {
     if (name === "./LearnerInformationSettings") return { __esModule: true, default: component("components/admin/LearnerInformationSettings.tsx", { "@/lib/learningIdentity": learningIdentity }) };
     if (name === "@/lib/deckLocation") return { rememberDeckSelection() {} };
     if (name === "@/lib/liveRefresh") return liveRefresh;
+    if (name === "@/lib/sectionSlideCount") return { readSectionSlideCount: async () => 5 };
     if (name.endsWith(".css")) return new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) });
-    return dependencies[name] ?? require(name);
+    if (dependencies[name]) return dependencies[name];
+    if (name.startsWith(".")) {
+      const local = [".tsx", ".ts"].map(extension => resolve(dirname(path), name + extension)).find(file => fs.existsSync(file));
+      if (local) return moduleExports(local, dependencies);
+    }
+    if (name.startsWith("@/")) return moduleExports(`${name.slice(2)}.ts`, dependencies);
+    return require(name);
   } });
-  return exports.default;
+  return exports;
 }
+function component(path, dependencies = {}) { return moduleExports(path, dependencies).default; }
+
+test("section cards show actual totals without formats and automatically include newly added sections", async () => {
+  const window = new Window({ url: "http://localhost/learn" });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({ ok: false });
+  const Portal = component("components/LessonPortal.tsx", {
+    "next/navigation": { useRouter: () => ({ refresh() {} }) },
+    "next/dynamic": { __esModule: true, default: () => () => null },
+    "next/image": { __esModule: true, default: () => null },
+    "next/link": { __esModule: true, default: props => React.createElement("a", { href: props.href }, props.children) },
+    "@/lib/auth/types": { APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai" },
+    "@/lib/supabase/browser": { getSupabaseBrowserClient: () => null }, "@/lib/slideStorage": {},
+  });
+  const makeSection = (id, sectionKey, contentType, position) => ({ id, sectionKey, contentType, position, title: "Phát triển Web App", slideCount: 999 });
+  const course = { id: "course", slug: "applied-agentic-ai", title: "Course", sections: [
+    makeSection("one", "section1", "builtin", 1), makeSection("two", "section2", "builtin", 2), makeSection("three", "custom", "tsx", 3),
+  ] };
+  const container = window.document.createElement("div"), root = createRoot(container);
+  const render = (currentCourse, isAdmin = false) => root.render(React.createElement(Portal, { isAdmin, initialCourseId: "course", initialSection: null, initialProfile: null, courseFolders: [currentCourse] }));
+  const labels = () => [...container.querySelectorAll(".sectionLaunchButton small")].map(node => node.textContent);
+  try {
+    await act(async () => render(course));
+    assert.deepEqual(labels(), ["41 slides", "39 slides", "5 slides"]);
+    assert.equal(container.querySelectorAll(".sectionSlideBadge").length, 3);
+    assert.equal(container.querySelector(".sectionLaunchButton strong").title, "Phát triển Web App");
+    await act(async () => render({ ...course, sections: [...course.sections, makeSection("new", "future", "pdf", 4)] }, true));
+    assert.deepEqual(labels(), ["42 slides", "39 slides", "5 slides", "5 slides"]);
+    assert.ok(labels().every(label => !/TSX|PDF|PPTX|Interactive|999/.test(label)));
+  } finally { await act(async () => root.unmount()); globalThis.fetch = previousFetch; await window.happyDOM.close(); }
+});
 
 test("landing offers passcode and admin Google sign-in without username login", () => {
   const SignIn = component("components/landing/SignInCard.tsx");

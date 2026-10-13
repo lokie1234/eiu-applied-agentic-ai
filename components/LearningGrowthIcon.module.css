@@ -1,7 +1,7 @@
-.icon { --sway: 9deg; --lift: -3px; --speed: 2.5s; display: inline-block; flex-shrink: 0; color: var(--library-accent, #97b68b); }
+.icon { --sway: 3deg; --lift: -1px; --speed: 3.8s; display: inline-block; flex-shrink: 0; color: var(--library-accent, #97b68b); }
 .icon svg { display: block; width: 100%; height: 100%; overflow: visible; }
-.ground { fill: #97b68b; opacity: .22; }
-.trunk { fill: #97b68b; stroke: #c2e5b4; stroke-width: 3; }
+.ground { fill: #b39159; opacity: .3; }
+.trunk { fill: #9d7944; stroke: #e9ca8b; stroke-width: 3; }
 .stem, .root { stroke: #c2e5b4; stroke-width: 4; }
 .canopy { fill: #97b68b; stroke: #c2e5b4; stroke-width: 2.5; }
 .leaf { fill: #97b68b; stroke: #c2e5b4; stroke-width: 2; }
@@ -14,9 +14,7 @@
 .backTree { animation-delay: -.85s; opacity: .8; }
 .sideTree { animation-delay: -1.65s; }
 .leafFlutter { transform-origin: 50px 60px; animation: leafFlutter 1.8s ease-in-out infinite; }
-.artwork { position: relative; padding-bottom: 18px; }
-.action { position: absolute; bottom: 0; left: 0; right: 0; text-align: center; font-size: 13px; font-weight: 700; line-height: 18px; color: #c2e5b4; }
-.icon[data-selected], :global(button:hover) .icon, :global(button:focus-visible) .icon, :global(article:hover) .icon, :global(article:focus-within) .icon { --sway: 15deg; --lift: -5px; --speed: 1.65s; }
+.icon[data-selected], :global(button:hover) .icon, :global(button:focus-visible) .icon, :global(article:hover) .icon, :global(article:focus-within) .icon { --sway: 5deg; --lift: -2px; --speed: 2.8s; }
 @keyframes growthSway { 0%, 100% { transform: rotate(calc(var(--sway) * -1)); } 50% { transform: translateY(var(--lift)) rotate(var(--sway)); } }
-@keyframes leafFlutter { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(7deg); } }
+@keyframes leafFlutter { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(3deg); } }
 @media (prefers-reduced-motion: reduce) { .icon *, .icon[data-selected] * { animation: none !important; transform: none !important; } }

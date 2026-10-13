@@ -72,29 +72,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
-.printButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 20px;
-  border-radius: 999px;
-  border: 1px solid rgba(233, 202, 139, 0.4);
-  background: linear-gradient(135deg, #123f68, #0d3457);
-  color: #e9ca8b;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.printButton:hover {
-  background: linear-gradient(135deg, #18547f, #123f68);
-  border-color: #e9ca8b;
-  color: #fff;
-  transform: translateY(-1px);
-}
-
 .deckPages {
   display: flex;
   flex-direction: column;

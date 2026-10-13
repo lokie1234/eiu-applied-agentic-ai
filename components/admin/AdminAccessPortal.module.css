@@ -49,33 +49,6 @@
   color: #e9ca8b;
 }
 
-.headerNav {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.headerNav a,
-.headerNav button {
-  padding: 8px 14px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #fff;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.headerNav a:hover,
-.headerNav button:hover {
-  background: rgba(255, 255, 255, 0.18);
-  transform: translateY(-1px);
-}
-
 .error,
 .notice {
   flex: 0 0 auto;
@@ -435,24 +408,6 @@
   flex-shrink: 0;
 }
 
-.commandHubTopRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f0ebe1;
-}
-
-.commandHubTopLeft {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  flex-wrap: wrap;
-}
-
 .commandHubTitleBox {
   display: flex;
   flex-direction: column;
@@ -635,10 +590,6 @@
     flex-direction: column;
     align-items: flex-start;
     padding: 14px 16px;
-  }
-  .headerNav {
-    width: 100%;
-    justify-content: flex-start;
   }
 }
 
@@ -1017,18 +968,6 @@
 .sectionDragHandle:disabled { cursor: default; opacity: .4; }
 .sectionDragHandle:focus-visible { outline: 2px solid #b39159; }
 .sectionDropTarget { box-shadow: inset 0 3px #b39159; background: #faf5eb; }
-
-.batchUpload { margin: 12px 0; border: 1px solid #e4d5bf; border-radius: 10px; padding: 12px; background: #faf7f1; color: #082945; }
-.batchDropZone { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px; border: 1px dashed #b39159; border-radius: 7px; }
-.batchUpload p { margin: 5px 0 0; font-size: 13px; color: #687987; }
-.batchFileList { max-height: 240px; overflow: auto; margin-top: 10px; }
-.batchFileRow { display: grid; grid-template-columns: minmax(0, 1fr) minmax(120px, 1fr) 90px; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #e4d5bf; font-size: 14px; }
-.batchFileRow > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.batchFileRow small { display: block; font-size: 12px; color: #687987; }
-.batchFileRow select { width: 100%; min-width: 0; border: 1px solid #d8c7ac; border-radius: 6px; padding: 8px; background: white; color: #082945; }
-.batchActions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 10px; font-size: 13px; }
-.batchActions > span { flex: 1; }
-@media (max-width: 600px) { .batchDropZone { flex-wrap: wrap; } .batchFileRow { grid-template-columns: minmax(0, 1fr) 90px; } .batchFileRow select { grid-column: 1; grid-row: 2; } }
 
 .addSectionInput {
   flex: 1;
@@ -1683,15 +1622,6 @@
    PARENT FOLDER SELECTOR IN SELECTED COURSE WORKSPACE
    ========================================================================== */
 
-.movingFolderBadge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  color: #9d7944;
-  font-weight: 750;
-}
-
 /* ==========================================================================
    BATCH FOLDER GROUP STYLES (Thư Mục Lớn)
    ========================================================================== */
@@ -2285,8 +2215,7 @@
   animation: iconZoneShimmer 1.4s linear infinite;
 }
 
-.iconLoadingSpinner,
-.iconLoadingSpinnerSmall {
+.iconLoadingSpinner {
   display: inline-block;
   border-radius: 50%;
   border: 2px solid rgba(8, 41, 69, 0.15);
@@ -2306,19 +2235,6 @@
   }
 }
 
-@keyframes iconDotPulse {
-  0%,
-  80%,
-  100% {
-    opacity: 0.25;
-    transform: translateY(0);
-  }
-  40% {
-    opacity: 1;
-    transform: translateY(-2px);
-  }
-}
-
 @keyframes iconZoneShimmer {
   from {
     background-position: 200% 0;
@@ -2328,25 +2244,11 @@
   }
 }
 
-@keyframes iconRowFadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-3px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .iconPasteZoneBusy,
-  .iconSkeletonBar,
-  .iconLoadingDots i {
+  .iconPasteZoneBusy {
     animation: none;
   }
-  .iconLoadingSpinner,
-  .iconLoadingSpinnerSmall {
+  .iconLoadingSpinner {
     animation-duration: 1.6s;
   }
 }
@@ -2479,7 +2381,7 @@
   .headerTitleGroup p { line-height: 1.5; overflow-wrap: anywhere; }
   .tabsTrack { flex-wrap: wrap; width: 100%; }
   .tabBtn { flex: 1 1 auto; justify-content: center; padding: 10px 12px; }
-  .commandHubTopLeft, .langSelector { max-width: 100%; }
+  .langSelector { max-width: 100%; }
   .titleInput, .descInput { min-width: 0; width: 100%; }
   .titleEditBox, .descEditBox, .addSectionForm { flex-wrap: wrap; }
   .addSectionInput { flex-basis: 100%; }
@@ -2509,7 +2411,7 @@
 .folderGroupTitleRow .emailRowCheckbox { margin:0; flex-shrink:0; }
 .folderGroupNameText { font-size:13px; line-height:1.35; }
 .folderGroupActions button { flex-shrink:0; }
-.folderBtnLockIcon, .folderBtnUnlockIcon, .folderActionIconBtn, .folderActionDeleteBtn { width: 24px; height: 24px; border-radius: 6px; }
+.folderActionIconBtn, .folderActionDeleteBtn { width: 24px; height: 24px; border-radius: 6px; }
 .compactCourseRow { gap: 7px; padding: 10px 8px; border-radius: 8px; }
 .compactCourseTitle { font-size: 13px; white-space: normal; overflow: visible; text-overflow: clip; line-height: 1.45; overflow-wrap: anywhere; }
 .courseSettingsRail { display:grid; align-content:start; gap:14px; min-width:0; }
@@ -2572,5 +2474,3 @@
   .passcodeLayout { grid-template-columns: minmax(0,1fr); }
   .scrollAreaLayouts { display: block; overflow: visible; }
 }
-
-.driveDestination {display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin:12px 0;font-size:12px;color:#17324a}.driveDestination select {min-width:200px;padding:10px;border:1px solid #d9cebb;border-radius:8px;background:#fff;color:#17324a}.driveDestination a {color:#9d7944}

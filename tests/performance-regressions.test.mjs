@@ -118,6 +118,8 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     "./HairlineLoading": { __esModule: true, default: () => null },
     "./CourseToolRow": { __esModule: true, default: () => null },
     "./useSectionOpening": load("components/useSectionOpening.ts", {}),
+    "./useSectionSlideCounts": { useSectionSlideCounts: () => ({}) },
+    "@/lib/builtinDeckItems": load("lib/builtinDeckItems.ts", {}),
   }, { window, document: window.document, navigator: { sendBeacon: () => { beacons++; return true; } }, clearInterval: id => window.clearInterval(id),
     fetch: (url, options) => new Promise(resolve => requests.push({ url, options, resolve })),
   }).default;

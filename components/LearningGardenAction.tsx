@@ -4,17 +4,37 @@ import styles from "./LearningGardenAction.module.css";
 
 type Props = { kind: "grow" | "course" | "harvest"; className?: string; active?: boolean };
 
-// Fixed, irregular placement keeps overlapping foliage stable across renders.
-const courseLeaves = [
-  [8, 30, -28, .95, 0], [67, 29, 36, .88, 2], [126, 31, -42, .9, 0],
-  [184, 29, 19, 1, 2], [247, 30, -35, .92, 0], [307, 29, 44, .86, 2],
-  [37, 31, 15, 1, 2], [96, 29, -18, .9, 0], [157, 30, 38, .95, 2],
-  [216, 31, -26, .88, 0], [278, 29, 17, 1, 2], [337, 30, -43, .92, 0],
-  [20, 28, 34, 1.05, 1], [81, 29, -32, 1, 0], [145, 28, 24, .96, 1],
-  [203, 29, -46, 1, 0], [265, 28, 38, 1.04, 1], [326, 29, -16, .98, 0],
-  [49, 28, -40, .92, 0], [112, 29, 46, 1, 1], [174, 28, -21, .95, 0],
-  [232, 29, 29, 1.02, 1], [294, 28, -38, .93, 0], [354, 29, 22, 1, 1],
-];
+function CourseTree() {
+  return <>
+    <ellipse className={styles.shadow} cx="53" cy="95" rx="43" ry="3" />
+    <path className={styles.soilSurface} d="M13 86c2-5 12-5 20-8 11-3 18-1 28-2 12-1 17 4 26 5 8 1 13 5 9 9-4 4-16 3-23 5-10 2-18 0-28 1-12 1-17-3-25-4-6-1-10-3-7-6Z" />
+    <path className={styles.soilGrains} d="m23 86 4-1m48 1 4 1m-45 4 3 1m28 0 3-1" />
+    <g className={styles.courseSapling}>
+      <path className={styles.plotStem} d="M52 85V56" />
+      <path className={styles.leaf} d="M52 72c-14 1-22-9-20-19 13-1 22 7 20 19Z" />
+      <path className={styles.lightLeaf} d="M52 64c-1-13 9-21 22-19 0 12-9 21-22 19Z" />
+      <path className={styles.vein} d="m52 72-12-11m12 3 14-12" />
+    </g>
+    <g className={styles.coursePlant}>
+      <path className={styles.courseTrunk} d="m47 85 3-42h5l3 42Z" />
+      <path className={styles.courseCanopy} d="M30 59C14 59 12 44 20 36c-4-12 5-23 17-22C43 2 60 3 65 15c14-3 26 9 23 22 12 11 6 26-8 28-10 2-18-1-25-4-8 5-18 4-25-2Z" />
+      <path className={styles.courseCanopyLight} d="M37 14C43 2 60 3 65 15c-12-3-17 3-20 10-7 2-11 8-12 15-9-2-13 2-15 6-1-4 0-7 2-10-4-12 5-23 17-22Z" />
+      <path className={styles.courseBranches} d="M52 68V32m0 22L35 39m17 7 17-15" />
+    </g>
+    <HarvestGlove course />
+    <g className={styles.courseGlints}><path d="M20 39v6m-3-3h6m56 23v6m-3-3h6" /></g>
+  </>;
+}
+
+function HarvestGlove({ course = false }: { course?: boolean }) {
+  return <g className={styles.harvestGlove}>
+    <g transform={course ? "translate(63 58) scale(.24)" : "translate(50 78) scale(.29)"}>
+      <path className={styles.gloveCuff} d="m70 85 18-12c12 5 6 17-6 24-10 7-25 6-30-1Z" />
+      <path className={styles.glovePalm} d="M86 83c10-10 9-29 3-45-5-13-17-27-29-20-11-7-22-2-29 5L19 6C13-3 6 0 3 10c-5 12 1 22 12 34 9 10 15 17 18 25-16-7-28 2-28 16-1 14 12 12 23 6 12-7 29 4 43-1 6-2 11-4 15-7Z" />
+      <path className={styles.gloveSeam} d="M31 23q9 13 18 17m14 16 10 17m-14-3 8 11m9-27 4 15" />
+    </g>
+  </g>;
+}
 
 function FolderPlot({ className }: { className: string }) {
   return <span className={[styles.icon, styles.grow, className].join(" ")} aria-hidden="true">
@@ -76,23 +96,15 @@ export default function LearningGardenAction({ kind, className = "", active = fa
     <svg viewBox="0 0 110 108" fill="none" strokeLinecap="round" strokeLinejoin="round" focusable="false">
       {kind === "harvest" && <ellipse className={styles.shadow} cx="55" cy="91" rx="43" ry="4" />}
       {kind === "course" ? <>
-        <g className={styles.leafRing}>
-          {courseLeaves.map(([angle, radius, tilt, scale, shade], index) => <g key={index}
-            transform={"rotate(" + angle + " 55 54) translate(55 " + (54 - (radius * .35 + 13)) + ") rotate(" + tilt * .65 + ") scale(" + scale * .58 + ")"}>
-            <path className={shade === 1 ? styles.ringLeafLight : shade === 2 ? styles.ringLeafDark : styles.ringLeaf}
-              d="M0 0C-10-2-17-11-12-20 0-20 9-8 0 0Z" />
-            <path className={styles.ringVein} d="M0 0-8-13m5 8-6-2m5-2 3-4" />
-          </g>)}
-        </g>
-        <text className={styles.goText} x="55" y="55" textAnchor="middle" dominantBaseline="middle">Go</text>
+        <CourseTree />
       </> : <>
         <g transform="translate(-9 24) scale(.72)"><OrchardTree /></g>
-        <g transform="translate(44 19) scale(.78)"><OrchardTree /></g>
+        <g transform="translate(35 24) scale(.68)"><OrchardTree /></g>
         <g className={styles.orchardCenter}><OrchardTree /></g>
         <g transform="translate(28 56)"><OrchardFruit className={styles.fruitLeft} /></g>
         <g transform="translate(85 52)"><OrchardFruit className={styles.fruitRight} /></g>
         <g transform="translate(61 47)"><OrchardFruit /></g>
-        <text className={styles.clickText} x="55" y="106" textAnchor="middle">Click</text>
+        <HarvestGlove />
       </>}
     </svg>
   </span>;

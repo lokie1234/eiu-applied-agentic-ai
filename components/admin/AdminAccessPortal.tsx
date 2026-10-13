@@ -375,13 +375,13 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   const effectiveCourseId = activeCourses.some((c) => c.id === courseId) ? courseId : activeCourses[0]?.id ?? "";
   const selectedCourse = activeCourses.find((c) => c.id === effectiveCourseId) ?? null;
   const courseSummary = (selectedCourse?.metadata?.summary ?? selectedCourse?.description ?? "").trim();
-  const canEditFolder = (..._items: unknown[]) => true;
-  const editableFolders = folderGroups.filter(canEditFolder);
-  const canDeleteFolder = (..._items: unknown[]) => true;
+
+
+
   const canEditCourse = Boolean(selectedCourse);
-  const canEditSection = (..._items: unknown[]) => true;
-  const canSelectCourse = (..._items: unknown[]) => true;
-  const canReorderCourses = (..._items: unknown[]) => true;
+
+
+
   const courseSections = useMemo(
     () => sections.filter((s) => s.course_id === effectiveCourseId && s.status === "active").sort((a, b) => a.position - b.position),
     [sections, effectiveCourseId]
@@ -621,7 +621,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   }
 
   function handleToggleCourseSelection(id: string) {
-    if (!activeCourses.some(course => course.id === id && canSelectCourse(course))) return;
+    if (!activeCourses.some(course => course.id === id)) return;
     setSelectedCourses((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -631,7 +631,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   }
 
   function handleSelectAllCoursesToggle() {
-    const selectableCourses = activeCourses.filter(canSelectCourse);
+    const selectableCourses = activeCourses;
     if (selectedCourses.size === selectableCourses.length) {
       setSelectedCourses(new Set());
     } else {
@@ -925,7 +925,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
     const titles = addMultipleCourses ? title.split(/[,.\-]+/u).map((name) => name.trim()).filter(Boolean) : [title];
     if (!titles.length) return;
     const targetFolderId = targetFolderForCourse;
-    const targetFolder = editableFolders.find((g) => g.id === targetFolderId) || editableFolders[0];
+    const targetFolder = folderGroups.find((g) => g.id === targetFolderId) || folderGroups[0];
     if (!targetFolder) { setError("Create your own folder before adding a course."); return; }
     const ok = await mutate(
       {
@@ -946,7 +946,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   }
 
   async function handleReorderCourse(sourceId: string, targetId: string, folderId: string) {
-    if (!canReorderCourses(activeCourses.filter(course => (course.folderGroupId || "fg-ai-agentic") === folderId)) || sourceId === targetId || processingMessage || busy.has("reorder-courses")) return;
+    if (sourceId === targetId || processingMessage || busy.has("reorder-courses")) return;
     const ids = activeCourses.filter((course) => (course.folderGroupId || "fg-ai-agentic") === folderId).map((course) => course.id);
     const source = ids.indexOf(sourceId);
     const target = ids.indexOf(targetId);
@@ -1266,11 +1266,11 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                             onClick={() => toggleFolderCollapse(group.id)}
                           >
                             <div className={styles.folderGroupTitleRow}>
-                              {canEditFolder(group) && (folderGroups.length > 1 || !isAdmin) && (
+                              {(folderGroups.length > 1 || !isAdmin) && (
                                 <input
                                   type="checkbox"
                                   checked={isFolderChecked}
-                                  disabled={!canDeleteFolder(group)}
+
                                   onChange={() => handleToggleFolderGroupSelection(group.id)}
                                   onClick={(e) => e.stopPropagation()}
                                   className={styles.emailRowCheckbox}
@@ -1290,7 +1290,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                             </div>
 
                             {/* Quick Folder Actions (Compact Icons) */}
-                            {canEditFolder(group) && (<div className={styles.folderGroupActions} onClick={(e) => e.stopPropagation()}>
+                            {(<div className={styles.folderGroupActions} onClick={(e) => e.stopPropagation()}>
                               {isAdmin && <DriveExport groupId={group.id} label={`Save folder ${group.name} to Drive`} onSaved={loadData} compact disabled={Boolean(processingMessage)} />}
                               {isAdmin && <VisibilityToggle hidden={Boolean(group.hidden)} label={`folder ${group.name}`} busy={busy.has(`hide-folder:${group.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-folder:${group.id}`)} onToggle={() => void mutate({ action: "set_folder_group_hidden", folderGroupId: group.id, hidden: !group.hidden }, `hide-folder:${group.id}`, "Folder visibility updated.")} />}
 
@@ -1307,12 +1307,12 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                 ✎
                               </button>
 
-                              {canEditFolder(group) && (folderGroups.length > 1 || !isAdmin) && (
+                              {(folderGroups.length > 1 || !isAdmin) && (
                                 <button
                                   type="button"
                                   className={styles.folderActionDeleteBtn}
                                   onClick={() => void handleDeleteFolderGroup(group)}
-                                  disabled={!canDeleteFolder(group) || busy.has(`delete-folder:${group.id}`) || Boolean(processingMessage)}
+                                  disabled={busy.has(`delete-folder:${group.id}`) || Boolean(processingMessage)}
                                   title="Delete folder"
                                 >
                                   ×
@@ -1328,7 +1328,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                             {childCourses.length === 0 ? (
                               <div className={styles.compactFolderEmpty}>
                                 <span>No courses yet</span>
-                                {canEditFolder(group) && (<button
+                                {(<button
                                   type="button"
                                   className={styles.compactAddCourseInlineBtn}
                                   onClick={() => {
@@ -1353,7 +1353,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                         key={course.id}
                                         className={`${styles.compactCourseRow} ${isSelected ? styles.compactCourseRowSelected : ""} ${courseDropTarget === course.id ? styles.sectionDropTarget : ""}`}
                                         onDragOver={(event) => {
-                                          if (!canReorderCourses(groupCourses) || draggedCourse.current?.folderId !== group.id || processingMessage) return;
+                                          if (draggedCourse.current?.folderId !== group.id || processingMessage) return;
                                           event.preventDefault();
                                           event.dataTransfer.dropEffect = "move";
                                           setCourseDropTarget(course.id);
@@ -1363,12 +1363,12 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                           const source = draggedCourse.current;
                                           draggedCourse.current = null;
                                           setCourseDropTarget(null);
-                                          if (canReorderCourses(groupCourses) && source?.folderId === group.id) void handleReorderCourse(source.id, course.id, group.id);
+                                          if (source?.folderId === group.id) void handleReorderCourse(source.id, course.id, group.id);
                                         }}
                                       >
-                                        {canReorderCourses(groupCourses) && (<button type="button" className={styles.sectionDragHandle}
-                                          draggable={canReorderCourses(groupCourses) && !processingMessage && !busy.has("reorder-courses")}
-                                          disabled={!canReorderCourses(groupCourses) || Boolean(processingMessage) || busy.has("reorder-courses")}
+                                        {(<button type="button" className={styles.sectionDragHandle}
+                                          draggable={!processingMessage && !busy.has("reorder-courses")}
+                                          disabled={Boolean(processingMessage) || busy.has("reorder-courses")}
                                           aria-label={`Reorder ${course.title}`} title="Drag to reorder · Arrow Up/Down to move"
                                           onDragStart={(event) => {
                                             draggedCourse.current = { id: course.id, folderId: group.id };
@@ -1384,7 +1384,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                             if (target) void handleReorderCourse(course.id, target.id, group.id);
                                           }}
                                         >⠿</button>)}
-                                        {canSelectCourse(course) && (<input
+                                        {(<input
                                           type="checkbox"
                                           checked={isChecked}
                                           onChange={() => handleToggleCourseSelection(course.id)}
@@ -1410,7 +1410,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                         </button>
                                         {isAdmin && <VisibilityToggle hidden={Boolean(course.metadata.hidden)} label={`course ${course.title}`} busy={busy.has(`hide-course:${course.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-course:${course.id}`)} onToggle={() => void mutate({ action: "set_course_hidden", courseId: course.id, hidden: !course.metadata.hidden }, `hide-course:${course.id}`, "Course visibility updated.")} />}
                                         {course.slug !== "applied-agentic-ai" && (
-                                          (canSelectCourse(course) ? <button
+                                          (<button
                                             type="button"
                                             className={styles.courseRowDeleteBtn}
                                             onClick={(e) => {
@@ -1421,14 +1421,14 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                             title={`Delete course “${course.title}”`}
                                           >
                                             ×
-                                          </button> : null)
+                                          </button>)
                                         )}
                                       </div>
                                     );
                                   })}
                                 </div>
 
-                                {canEditFolder(group) && (<button
+                                {(<button
                                   type="button"
                                   className={styles.compactAddCourseBtn}
                                   onClick={() => {
@@ -1461,11 +1461,11 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                   <label style={{ fontSize: "11px", fontWeight: "700", color: "#687987" }}>
                     Folder:
                     <select
-                      value={editableFolders.some(group => group.id === targetFolderForCourse) ? targetFolderForCourse : editableFolders[0]?.id || ""}
+                      value={folderGroups.some(group => group.id === targetFolderForCourse) ? targetFolderForCourse : folderGroups[0]?.id || ""}
                       onChange={(e) => setTargetFolderForCourse(e.target.value)}
                       className={styles.folderSelectClean}
                     >
-                      {editableFolders.map((g) => (
+                      {folderGroups.map((g) => (
                         <option key={g.id} value={g.id}>
                           📁 {g.name}
                         </option>
@@ -1519,8 +1519,8 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                 <button
                   type="button"
                   className={styles.newCourseSidebarBtn}
-                  disabled={!editableFolders.length}
-                  title={!editableFolders.length ? "Create your own folder first" : "Create a course"}
+                  disabled={!folderGroups.length}
+                  title={!folderGroups.length ? "Create your own folder first" : "Create a course"}
                   onClick={() => setShowNewCourseBox(true)}
                 >
                   + New Course
@@ -1739,7 +1739,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                           </div>
                         ) : (
                           courseSections.map((section, index) => {
-                            const editable = canEditSection(section);
+
                             const isDefault = selectedCourse.slug === "applied-agentic-ai" && ["section1", "section2"].includes(section.section_key);
                             const isChecked = selectedSections.has(section.id);
                             return (
@@ -1779,7 +1779,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                       if (target) void handleReorderSection(section.id, target.id);
                                     }}
                                   >⠿</button>)}
-                                  {editable && !isDefault && (
+                                  {!isDefault && (
                                     <input
                                       type="checkbox"
                                       checked={isChecked}
@@ -1830,8 +1830,8 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                   <VisibilityToggle hidden={Boolean(section.hidden)} label={`section ${section.title}`} busy={busy.has(`hide-section:${section.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-section:${section.id}`)} onToggle={() => void mutate({ action: "set_section_hidden", sectionId: section.id, hidden: !section.hidden }, `hide-section:${section.id}`, "Section visibility updated.")} />
                                   {isAdmin && <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} allowReplace={!isDefault} onSaved={loadData} disabled={Boolean(processingMessage)} />}
                                   <a className={styles.sectionUploadButton} href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}&sectionId=${encodeURIComponent(section.id)}`}>View</a>
-                                  {!editable && <span className={styles.compactPillLocked}>Read only</span>}
-                                  {editable && (<button
+
+                                  {(<button
                                     type="button"
                                     className={`${styles.addSectionButton} ${styles.sectionActionIcon}`}
                                     aria-label={`Rename section ${section.title}`}
@@ -1844,7 +1844,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                   >
                                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="m16 3 5 5-13 13H3v-5ZM14 5l5 5" /></svg>
                                   </button>)}
-                                  {editable && !isDefault && (
+                                  {!isDefault && (
                                     <button
                                       type="button"
                                       className={`${styles.removeBtn} ${styles.sectionActionIcon}`}

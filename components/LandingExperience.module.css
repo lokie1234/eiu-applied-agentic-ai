@@ -33,7 +33,6 @@
 @keyframes reveal { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: none; } }
 @keyframes drift { to { transform: translate3d(45px,28px,0) scale(1.08); } }
 @keyframes fade { from { opacity: 0; } }
-@keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(.97); } to { opacity: 1; transform: none; } }
 
 .dataLanes { position: absolute; inset: 124px 0 40px; z-index: -1; overflow: hidden; pointer-events: none; }
 .dataLanes > i { position: absolute; left: 0; width: 100%; height: 1px; opacity: .42; background: linear-gradient(90deg,transparent 4%,rgba(100,168,211,.08) 28%,rgba(100,168,211,.24) 50%,rgba(100,168,211,.08) 72%,transparent 96%); }
@@ -52,8 +51,6 @@
 
 @keyframes stream { from { left: -3%; } to { left: 103%; } }
 @keyframes campusLoop { to { offset-distance: 100%; } }
-@keyframes taglineReveal { from { opacity: 0; transform: translateY(12px); filter: blur(5px); } to { opacity: 1; transform: none; filter: none; } }
-@keyframes taglineShimmer { 0%,18% { background-position: 100% 50%; } 65%,100% { background-position: 0 50%; } }
 
 @media (max-width: 1180px) {
   .page { min-height: 0; height: 100dvh; overflow-x: hidden; overflow-y: auto; }

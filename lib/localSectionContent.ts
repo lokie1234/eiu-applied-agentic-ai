@@ -26,5 +26,7 @@ export async function readLocalSectionSource(
   const source = localSectionSourcePath(course, section);
   // Read on every request so edits apply on reload. A missing configured source
   // fails visibly instead of silently showing an outdated uploaded copy.
-  return source ? readFile(path.join(process.cwd(), source)) : null;
+  return source
+    ? readFile(path.join(process.cwd(), "course-content", source.slice("course-content/".length)))
+    : null;
 }

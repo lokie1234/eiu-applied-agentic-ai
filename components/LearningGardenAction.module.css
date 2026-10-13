@@ -1,30 +1,48 @@
 .icon { position: relative; display: block; flex-shrink: 0; pointer-events: none; }
 .icon svg { display: block; width: 100%; height: 100%; }
-.shadow { fill: #97b68b; opacity: .22; }
-.trunk { fill: #97b68b; stroke: #c2e5b4; stroke-width: 3; }
+.shadow { fill: #041c31; opacity: .25; }
+.trunk { fill: #9d7944; stroke: #e9ca8b; stroke-width: 2; }
 .leaf, .canopy { fill: #97b68b; stroke: #c2e5b4; stroke-width: 2; }
 .lightLeaf { fill: #c2e5b4; stroke: #e0efd9; stroke-width: 2; }
 .vein { stroke: #e0efd9; stroke-width: 1.5; opacity: .8; }
-.leafRing { transform-origin: 55px 54px; }
-.ringLeaf { fill: #97b68b; stroke: #c2e5b4; stroke-width: 1; }
-.ringLeafDark { fill: #668e72; stroke: #97b68b; stroke-width: 1; }
-.ringLeafLight { fill: #c2e5b4; stroke: #e0efd9; stroke-width: 1; }
-.ringVein { stroke: #e0efd9; stroke-width: .8; opacity: .55; }
-.goText { fill: #c2e5b4; font: 750 22px Arial, sans-serif; }
-:global(article:is(:hover, :focus-within)) .course .leafRing { animation: leafRingSpin 8s linear infinite; }
+.coursePlant { opacity: 0; transform: scale(.35); transform-origin: 52px 85px; }
+.courseSapling { transform-origin: 52px 85px; }
+.courseTrunk { fill: #9d7944; stroke: #e9ca8b; stroke-width: 1.8; }
+.courseCanopy { fill: #97b68b; stroke: #c2e5b4; stroke-width: 2; }
+.courseCanopyLight { fill: #c2e5b4; opacity: .55; }
+.courseBranches { stroke: #e0efd9; stroke-width: 2; }
+.courseGlints { stroke: #e9ca8b; stroke-width: 1.5; opacity: 0; }
+:global(article:is(:hover, :focus-within)) .course .harvestGlove,
+.course[data-active] .harvestGlove { animation: gloveTap 650ms 100ms ease-in-out both; }
+:global(article:is(:hover, :focus-within)) .course .coursePlant,
+.course[data-active] .coursePlant { animation: matureGrowth 2s cubic-bezier(.22,1,.36,1) both; }
+:global(article:is(:hover, :focus-within)) .course .courseSapling,
+.course[data-active] .courseSapling { animation: saplingGrowth 2s cubic-bezier(.22,1,.36,1) both; }
+:global(article:is(:hover, :focus-within)) .course .courseGlints,
+.course[data-active] .courseGlints { animation: growthCelebrate 620ms 1330ms ease-out both; }
+@keyframes gloveTap { 0%, 100% { transform: translate(0, 0) rotate(0); } 45% { transform: translate(-2px, -2px) rotate(-8deg); } }
+@keyframes matureGrowth { 0%, 25% { opacity: 0; transform: scale(.35); } 35% { opacity: 0; transform: scale(.55); } 55% { opacity: 1; transform: scale(.75); } 85% { opacity: 1; transform: scale(1.015); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes saplingGrowth { 0%, 15% { opacity: 1; transform: scale(1); } 35% { opacity: 1; transform: scale(1.2); } 55%, 100% { opacity: 0; transform: scale(1.35); } }
 .fruitStem { stroke: #c2e5b4; stroke-width: 1.5; }
 .fruitLeaf { fill: #c2e5b4; }
 .apple { fill: #e9ca8b; stroke: #ffe4a6; stroke-width: 1.2; }
 .fruitShine { stroke: #fff0c9; stroke-width: 1.2; }
-.clickText { fill: #c2e5b4; font: 700 12px Arial, sans-serif; }
+.harvestGlove { transform-origin: 74px 102px; }
+.course .harvestGlove { transform-origin: 82px 80px; }
+.glovePalm, .gloveCuff { fill: #fbfaf7; stroke: #505354; stroke-width: 4.5; }
+.gloveSeam { stroke: #505354; stroke-width: 4.5; }
+:global(button:not(:disabled):is(:hover, :focus-visible)) .harvest .harvestGlove,
+.harvest[data-active] .harvestGlove { animation: catchFruit 1900ms ease-in-out infinite; }
+@keyframes catchFruit { 0%, 20%, 100% { transform: translateY(0) rotate(0); } 60% { transform: translateY(-4px) rotate(-6deg); } 77% { transform: translateY(2px) rotate(3deg); } }
 /* Continue falling fruit while the clicked section is opening, even if disabled. */
 :global(button:not(:disabled):is(:hover, :focus-visible)) .harvest .fallingFruit,
 .harvest[data-active] .fallingFruit { animation: orchardFruitFall 1900ms ease-in infinite; }
 :global(button:not(:disabled):is(:hover, :focus-visible)) .harvest .fruitLeft,
-.harvest[data-active] .fruitLeft { animation-delay: -650ms; }
+.harvest[data-active] .fruitLeft { animation-name: orchardFruitLeft; }
 :global(button:not(:disabled):is(:hover, :focus-visible)) .harvest .fruitRight,
-.harvest[data-active] .fruitRight { animation-delay: -1250ms; }
-@keyframes leafRingSpin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+.harvest[data-active] .fruitRight { animation-name: orchardFruitRight; }
+@keyframes orchardFruitLeft { 0%, 20% { opacity: 1; transform: translate(0, 0); } 65%, 77% { opacity: 1; transform: translate(31px, 24px) rotate(20deg); } 88%, 100% { opacity: 0; transform: translate(31px, 27px); } }
+@keyframes orchardFruitRight { 0%, 20% { opacity: 1; transform: translate(0, 0); } 65%, 77% { opacity: 1; transform: translate(-23px, 28px) rotate(-20deg); } 88%, 100% { opacity: 0; transform: translate(-23px, 31px); } }
 @keyframes orchardFruitFall { 0%, 20% { opacity: 1; transform: translateY(0) rotate(0); } 65% { opacity: 1; transform: translateY(34px) rotate(20deg); } 77% { opacity: 1; transform: translateY(29px) rotate(26deg); } 88% { opacity: 0; transform: translateY(34px) rotate(30deg); } 89%, 100% { opacity: 0; transform: translateY(0); } }
 @media (prefers-reduced-motion: reduce) {
   .icon * { animation: none !important; transition: none !important; }
@@ -32,11 +50,11 @@
 
 /* Hover grows the plant; the selected folder stays grown after pointer leave. */
 .plotHalo { fill: #97b68b; opacity: .04; transition: opacity 900ms; }
-.soilBed { fill: #315c52; stroke: #97b68b; stroke-width: 1.5; }
-.soilSurface { fill: #537e69; stroke: #97b68b; stroke-width: 1.5; }
-.soilContour { stroke: #97b68b; stroke-width: 1; opacity: .45; }
-.soilGrains { stroke: #c2e5b4; stroke-width: 1.5; opacity: .5; }
-.seedPocket { fill: #193f3d; opacity: .7; }
+.soilBed { fill: #69513c; stroke: #b39159; stroke-width: 1.5; }
+.soilSurface { fill: #9d7944; stroke: #e9ca8b; stroke-width: 1.5; }
+.soilContour { stroke: #e9ca8b; stroke-width: 1; opacity: .45; }
+.soilGrains { stroke: #f4dfb0; stroke-width: 1.5; opacity: .5; }
+.seedPocket { fill: #493b30; opacity: .7; }
 .seedLeft, .seedRight { fill: #a9c99a; stroke: #e0efd9; stroke-width: 1.3; transform-origin: 55px 78px; transition: transform 600ms ease, fill 600ms; }
 .seedRight { fill: #97b68b; }
 .seedHighlight { fill: none; stroke: #e0efd9; stroke-width: 1.5; }
@@ -59,3 +77,12 @@
 @keyframes growthCelebrate { 0%, 100% { opacity: 0; } 35% { opacity: .85; } }
 @keyframes plotBreeze { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-4deg); } 70% { transform: rotate(4deg); } }
 @media (prefers-reduced-motion: reduce) { .grow * { animation: none !important; transition: none !important; } }
+@media (hover: none) and (pointer: coarse) {
+  .course .coursePlant { opacity: 1; transform: scale(1); }
+  .course .courseSapling { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .course .coursePlant { opacity: 1; transform: scale(1); }
+  .course .courseSapling { opacity: 0; }
+  .course .courseGlints { opacity: 0; }
+}

@@ -465,758 +465,925 @@
       "visualConcept": "EIU DNA · logo chính chủ lơ lửng, bấm để xem ưu và nhược điểm."
     },
     {
-      "title": "Git trong một buổi vibe coding",
-      "visual": "git-intro-checkpoint",
-      "message": "AI sửa từng việc nhỏ. Bạn kiểm tra và lưu mốc khi kết quả đã ổn.",
-      "cards": [
-        {
-          "title": "Bản đang ổn",
-          "label": "01 · Trước khi sửa",
-          "text": "Nút Lưu hoạt động đúng. Bạn tạo một commit trước khi thử giao diện mới.",
-          "detail": "Commit là mốc mã nguồn đã lưu trong Git. Bạn có thể xem lại mốc này để so sánh hoặc phục hồi.",
-          "points": [
-            "Chạy thử chức năng chính.",
-            "Lưu đúng những thay đổi đã kiểm tra."
-          ],
-          "code": "✓ Nút Lưu hoạt động\n✓ Commit: Giao diện ban đầu"
-        },
-        {
-          "title": "AI vừa sửa",
-          "label": "02 · Thử ý tưởng",
-          "text": "Nút đẹp hơn nhưng bấm không lưu. Thay đổi mới vẫn đang ở trên máy.",
-          "detail": "Mở Source Control để xem diff: những dòng nào đã thêm, xóa hoặc sửa. Gửi lỗi cụ thể cho Codex.",
-          "points": [
-            "Mô tả bước làm lỗi xuất hiện.",
-            "Đối chiếu với commit đang ổn."
-          ],
-          "code": "✓ Giao diện mới\n! Bấm Lưu chưa có kết quả"
-        },
-        {
-          "title": "Sửa hoặc phục hồi",
-          "label": "03 · Kiểm tra lại",
-          "text": "Nhờ AI sửa đúng lỗi, hoặc hoàn tác phần thử nghiệm sau khi xem thay đổi.",
-          "detail": "Git chỉ phục hồi được nội dung đã lưu trong lịch sử. Tạo mốc trước khi thử giúp bạn có điểm quay lại rõ ràng.",
-          "points": [
-            "Kiểm tra lại nút Lưu.",
-            "Commit bản sửa khi kết quả đạt yêu cầu."
-          ],
-          "code": "✓ Lưu hoạt động trở lại\n✓ Commit: Sửa xử lý nút Lưu"
-        }
-      ],
       "section": 1,
       "number": 14,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "AI sửa từng việc nhỏ. Bạn kiểm tra và lưu mốc khi kết quả đã ổn.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Git, GitHub và Codex",
-      "visual": "git-intro-roles",
-      "message": "Ba công cụ phối hợp trong cùng dự án, mỗi công cụ có một vai trò.",
+      "title": "Git · lưu lịch sử mã nguồn trên máy",
+      "minutes": 6,
+      "message": "Git giúp ghi lại phiên bản, xem thay đổi và quay về mốc đã lưu.",
       "cards": [
         {
-          "title": "Git",
           "logo": "Git",
-          "label": "LỊCH SỬ TRÊN MÁY",
-          "text": "Ghi các mốc thay đổi của mã nguồn.",
-          "detail": "Cài Git trên máy để VS Code và Codex có thể dùng trong thư mục dự án.",
+          "title": "Git là gì?",
+          "text": "Công cụ quản lý phiên bản chạy trên máy của bạn.",
           "points": [
-            "Commit lưu một phiên bản.",
-            "Diff cho biết phần thay đổi.",
-            "Có thể dùng Git cục bộ khi chưa có GitHub."
+            "Commit: mốc lưu một nhóm thay đổi.",
+            "Branch: nhánh để phát triển riêng.",
+            "Lưu file bằng Ctrl+S chưa tạo Commit."
           ]
         },
         {
-          "title": "GitHub",
-          "logo": "GitHub",
-          "label": "REPOSITORY ONLINE",
-          "text": "Lưu repository từ xa và cộng tác.",
-          "detail": "Repository là kho mã nguồn cùng lịch sử Git. Push gửi các commit từ máy lên kho này.",
-          "points": [
-            "Tài khoản GitHub dùng để đăng nhập.",
-            "Quyền repository quyết định ai được xem hoặc sửa.",
-            "Pull Request hỗ trợ xem xét trước khi merge."
-          ]
+          "logo": "Windows",
+          "title": "Tải Git cho Windows",
+          "text": "Mở trang chính thức, chọn bộ cài phù hợp với máy.",
+          "link": "https://git-scm.com/install/windows",
+          "linkLabel": "Tải Git cho Windows",
+          "detail": "Chọn x64 hoặc ARM64 theo Settings → System → About → System type."
         },
         {
-          "title": "Codex",
-          "logo": "AI Codex",
-          "label": "TRỢ LÝ TRONG VS CODE",
-          "text": "Đọc, sửa mã và hỗ trợ thao tác Git.",
-          "detail": "Cài extension Codex của OpenAI rồi đăng nhập. AI làm việc trong phạm vi file và quyền bạn cấp.",
-          "points": [
-            "Bạn nêu mục tiêu và kết quả mong đợi.",
-            "AI giải thích, sửa và chạy kiểm tra khi có quyền.",
-            "Bạn xem diff và xác nhận kết quả thực tế."
-          ]
+          "logo": "VS Code",
+          "title": "Git dùng trong VS Code",
+          "text": "Mở project, chạy lệnh Git trong Terminal và xem thay đổi ở Source Control.",
+          "detail": "VS Code có sẵn hỗ trợ Git. Chỉ cần cài Git trên máy; không cài thêm extension GitHub."
         }
       ],
+      "visual": "git-intro-git",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Git giúp ghi lại phiên bản, xem thay đổi và quay về mốc đã lưu.",
+      "objective": "Git giúp ghi lại phiên bản, xem thay đổi và quay về mốc đã lưu.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 15,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Ba công cụ phối hợp trong cùng dự án, mỗi công cụ có một vai trò.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Thiết lập từ VS Code mới cài",
-      "visual": "git-intro-setup",
-      "message": "Bắt đầu khi chưa có Git, extension AI hay repository. Bấm từng bước để xem cách làm.",
+      "title": "GitHub · tài khoản và kho mã nguồn online",
+      "minutes": 6,
+      "message": "Git lưu lịch sử trên máy; GitHub lưu repository online để chia sẻ và cộng tác.",
       "cards": [
         {
-          "title": "Cài Git trên máy",
-          "label": "01",
-          "logo": "Git",
-          "text": "Tải Git đúng hệ điều hành tại git-scm.com, cài xong mở lại VS Code.",
-          "detail": "Chọn Terminal > New Terminal và kiểm tra. Nếu chưa nhận lệnh, mở lại terminal hoặc VS Code.",
-          "code": "git --version",
-          "points": [
-            "Thành công: terminal hiện số phiên bản Git.",
-            "Source Control có sẵn trong VS Code, không cần cài GitLens."
-          ],
-          "link": "https://git-scm.com/downloads",
-          "linkLabel": "Trang tải Git"
-        },
-        {
-          "title": "Đặt tên cho commit",
-          "label": "02",
-          "text": "Đặt tên và email tác giả. Đây là thông tin ghi trong lịch sử, không phải đăng nhập GitHub.",
-          "detail": "Thay phần trong dấu ngoặc bằng thông tin của bạn. Có thể dùng email noreply từ Settings > Emails của GitHub.",
-          "code": "git config --global user.name \"<Tên của bạn>\"\ngit config --global user.email \"<Email của bạn>\"",
-          "points": [
-            "Thiết lập một lần cho các repository trên máy."
-          ]
-        },
-        {
-          "title": "Cài extension Codex",
-          "label": "03",
-          "logo": "AI Codex",
-          "text": "Mở Extensions (Ctrl+Shift+X), tìm Codex và chọn nhà phát hành OpenAI, rồi Install.",
-          "detail": "Mở biểu tượng Codex và đăng nhập theo hướng dẫn bằng tài khoản có quyền sử dụng. Chưa cần cài Codex CLI riêng cho luồng extension này.",
-          "points": [
-            "Mở thư mục dự án trước khi giao việc.",
-            "Quyền đọc, sửa và chạy lệnh theo cấu hình của bạn."
-          ],
-          "link": "https://marketplace.visualstudio.com/items?itemName=OpenAI.chatgpt",
-          "linkLabel": "Codex của OpenAI"
-        },
-        {
-          "title": "Tạo repository local",
-          "label": "04",
-          "logo": "VS Code",
-          "text": "Tạo thư mục vibe-practice. Trong VS Code chọn File > Open Folder để mở thư mục đó.",
-          "detail": "Mở Source Control (Ctrl+Shift+G), chọn Initialize Repository. Nhờ Codex tạo README.md giới thiệu dự án, xem file rồi tạo commit đầu tiên.",
-          "points": [
-            "Repository đã có trên máy.",
-            "Nếu có dự án GitHub sẵn: dùng Git: Clone thay cho Initialize."
-          ]
-        },
-        {
-          "title": "Kết nối GitHub",
-          "label": "05",
           "logo": "GitHub",
-          "text": "Tạo tài khoản tại github.com. Mở Command Palette (Ctrl+Shift+P), chọn Publish to GitHub.",
-          "detail": "Đăng nhập bằng trình duyệt khi VS Code yêu cầu. Chọn tên repository, quyền Public/Private và file cần đưa lên.",
+          "title": "GitHub dùng để làm gì?",
+          "text": "Lưu mã nguồn, lịch sử commit và nhánh đã gửi từ máy lên.",
           "points": [
-            "Kiểm tra repository online có README và commit đầu tiên.",
-            "Cài môi trường chạy như Node.js theo README khi dự án cần."
-          ],
+            "Push: gửi commit lên GitHub.",
+            "Pull: lấy và tích hợp thay đổi về máy.",
+            "Đưa mã lên GitHub chưa phải deploy website."
+          ]
+        },
+        {
+          "logo": "Google",
+          "title": "Đăng ký tài khoản",
+          "text": "Mở GitHub Signup; gợi ý chọn Continue with Google để đăng ký nhanh.",
           "link": "https://github.com/signup",
-          "linkLabel": "Tạo tài khoản GitHub"
+          "linkLabel": "Đăng ký GitHub",
+          "detail": "Chọn Google của bạn, hoàn tất username và các bước GitHub yêu cầu. Username sẽ nằm trong URL repository."
+        },
+        {
+          "logo": "GitHub",
+          "title": "Chuẩn bị kết nối",
+          "text": "Nhớ username; kiểm tra bạn đang đăng nhập đúng tài khoản trên trình duyệt.",
+          "detail": "Git sẽ dùng HTTPS và Git Credential Manager để xác thực qua trình duyệt khi cần."
         }
       ],
+      "visual": "git-intro-github",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Git lưu lịch sử trên máy; GitHub lưu repository online để chia sẻ và cộng tác.",
+      "objective": "Git lưu lịch sử trên máy; GitHub lưu repository online để chia sẻ và cộng tác.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 16,
-      "minutes": 8,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Bắt đầu khi chưa có Git, extension AI hay repository. Bấm từng bước để xem cách làm.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Một vòng làm việc hằng ngày",
-      "visual": "git-intro-cycle",
-      "message": "Save ghi file trên máy. Commit lưu mốc Git. Push gửi commit lên GitHub.",
+      "title": "Cài Git · tải và mở bộ cài",
+      "minutes": 6,
+      "message": "Hướng dẫn dùng Windows và Terminal PowerShell trong VS Code.",
       "cards": [
         {
-          "title": "Sửa",
-          "label": "01",
-          "text": "Giao một yêu cầu nhỏ cho Codex và lưu file sau khi sửa.",
-          "detail": "Ví dụ: “Đổi nhãn nút thành Tạo yêu cầu, giữ nguyên chức năng lưu.”",
-          "points": [
-            "Save chỉ ghi nội dung file trên máy."
-          ]
+          "logo": "Windows",
+          "title": "Tải từ trang chính thức",
+          "text": "Chọn bộ cài Windows phù hợp với kiến trúc máy.",
+          "link": "https://git-scm.com/install/windows",
+          "linkLabel": "Mở trang tải Git",
+          "detail": "Không cần ghi nhớ số phiên bản; dùng bản được trang chính thức cung cấp."
         },
         {
-          "title": "Xem diff",
-          "label": "02",
-          "text": "Mở Source Control và chọn file trong Changes.",
-          "detail": "Đọc các dòng thêm/xóa. Hỏi AI giải thích phần chưa rõ trước khi giữ bản sửa.",
-          "points": [
-            "Đúng file, đúng tính năng, đúng phạm vi."
-          ]
+          "logo": "Git",
+          "title": "Chạy bộ cài",
+          "text": "Mở file .exe vừa tải, xác nhận cửa sổ Windows nếu xuất hiện.",
+          "detail": "Giữ thư mục cài mặc định. Đọc lựa chọn PATH và Credential Manager ở slide tiếp theo."
         },
         {
-          "title": "Kiểm tra",
-          "label": "03",
-          "text": "Chạy thử theo README và kiểm tra thao tác vừa thay đổi.",
-          "detail": "Nhờ Codex đọc cấu hình dự án, xác định lệnh chạy phù hợp và báo rõ kiểm tra nào chưa thực hiện được.",
-          "points": [
-            "Cài môi trường và thư viện nếu dự án yêu cầu."
-          ]
-        },
-        {
-          "title": "Stage",
-          "label": "04",
-          "text": "Chọn phần thay đổi sẽ có trong commit tiếp theo.",
-          "detail": "Trong Source Control, bấm dấu + cạnh file phù hợp. Kiểm tra lại Staged Changes.",
-          "points": [
-            "Giữ thay đổi không liên quan ngoài commit."
-          ]
-        },
-        {
-          "title": "Commit",
-          "label": "05",
-          "text": "Tạo mốc trên máy với thông điệp dễ hiểu.",
-          "detail": "Ví dụ: “Làm rõ nhãn nút tạo yêu cầu”. Sau bước này, GitHub chưa có commit mới.",
-          "points": [
-            "Commit ghi lại nội dung đã stage."
-          ]
-        },
-        {
-          "title": "Push",
-          "label": "06",
-          "text": "Gửi commit tới đúng repository và nhánh trên GitHub.",
-          "detail": "Mở GitHub để kiểm tra commit mới. Khi làm cùng người khác, Pull nhận và tích hợp thay đổi từ xa.",
-          "points": [
-            "Push không tự cấu hình hosting hoặc deploy."
-          ]
+          "logo": "VS Code",
+          "title": "Sau khi cài",
+          "text": "Đóng và mở lại VS Code để Terminal nhận PATH mới.",
+          "detail": "Mở Terminal → New Terminal. Terminal mở trước khi cài có thể chưa nhận lệnh Git."
         }
       ],
+      "visual": "git-intro-download",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Hướng dẫn dùng Windows và Terminal PowerShell trong VS Code.",
+      "objective": "Hướng dẫn dùng Windows và Terminal PowerShell trong VS Code.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 17,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Save ghi file trên máy. Commit lưu mốc Git. Push gửi commit lên GitHub.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "GitHub: đọc một repository",
-      "visual": "git-intro-repository",
-      "message": "Ví dụ minh họa: eiu / vibe-practice. Chọn từng vùng để biết cần xem gì.",
+      "title": "Cài Git · các lựa chọn cần giữ",
+      "minutes": 6,
+      "message": "PATH giúp VS Code gọi Git; Credential Manager hỗ trợ đăng nhập GitHub.",
       "cards": [
         {
-          "title": "Code",
-          "text": "Cây file của nhánh đang chọn.",
-          "detail": "Mở file để xem mã trên GitHub. Phiên bản ở đây chỉ cập nhật khi bạn push hoặc sửa trực tiếp trên GitHub.",
-          "code": "vibe-practice/\n  app/\n  public/\n  README.md",
-          "points": [
-            "So sánh với file đang mở trong VS Code."
-          ]
+          "logo": "VS Code",
+          "title": "Editor và nhánh mặc định",
+          "text": "Nếu VS Code đã có, chọn Visual Studio Code làm editor; đặt nhánh mặc định là main.",
+          "detail": "Các lựa chọn khác có thể giữ mặc định. Nếu chưa chọn main trong bộ cài, vẫn đặt bằng lệnh ở slide 20."
         },
         {
-          "title": "README",
-          "text": "Hướng dẫn bắt đầu với dự án.",
-          "detail": "Đọc mục đích, môi trường cần cài và cách chạy. Nhờ Codex giải thích các bước trước khi thực hiện.",
-          "code": "# Vibe practice\nMục đích\nYêu cầu cài đặt\nCách chạy và kiểm tra",
-          "points": [
-            "Không đoán lệnh chạy nếu chưa xem README."
-          ]
+          "logo": "Windows",
+          "title": "Cho phép chạy từ Terminal",
+          "text": "Ở mục PATH, chọn Git from the command line and also from 3rd-party software.",
+          "detail": "Lựa chọn này cho phép PowerShell và VS Code tìm thấy Git."
         },
         {
-          "title": "Commits",
-          "text": "Lịch sử các mốc đã push.",
-          "detail": "Mở một commit để xem thông điệp, tác giả và diff. Dùng lịch sử để tìm lần sửa liên quan đến lỗi.",
-          "code": "Làm rõ nhãn nút tạo yêu cầu\nThêm biểu mẫu đầu tiên\nTạo README",
-          "points": [
-            "Chọn mốc phù hợp để đối chiếu."
-          ]
-        },
-        {
-          "title": "Branches",
-          "text": "Các nhánh của repository.",
-          "detail": "Nhánh main thường giữ bản chung. Nhánh feature/new-button chứa công việc đang thử.",
-          "code": "main\nfeature/new-button",
-          "points": [
-            "Kiểm tra đang xem đúng nhánh trước khi tìm file."
-          ]
-        },
-        {
-          "title": "Pull requests",
-          "text": "Nơi xem xét thay đổi trước khi hợp nhất.",
-          "detail": "Đọc mô tả, Files changed và kết quả kiểm tra. Khi phù hợp mới merge vào nhánh đích.",
-          "code": "feature/new-button → main\nFiles changed\nChecks\nReview",
-          "points": [
-            "Website chỉ cập nhật khi có quy trình deploy đã cấu hình."
-          ]
+          "logo": "Git",
+          "title": "Giữ Credential Manager",
+          "text": "Giữ Git Credential Manager và các tùy chọn HTTPS mặc định rồi hoàn tất Install.",
+          "detail": "Git Credential Manager đi kèm Git for Windows, không phải extension của VS Code."
         }
       ],
+      "visual": "git-intro-install",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "PATH giúp VS Code gọi Git; Credential Manager hỗ trợ đăng nhập GitHub.",
+      "objective": "PATH giúp VS Code gọi Git; Credential Manager hỗ trợ đăng nhập GitHub.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 18,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Ví dụ minh họa: eiu / vibe-practice. Chọn từng vùng để biết cần xem gì.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Branch: thử ý tưởng mới",
-      "visual": "git-intro-branch",
-      "message": "Một nhánh cho một thay đổi. Xem kết quả trước khi nhập vào bản chung.",
+      "title": "Kiểm tra Git trong Terminal của VS Code",
+      "minutes": 6,
+      "message": "Sau cài đặt, mỗi lệnh cần trả về kết quả trước khi tiếp tục.",
       "cards": [
         {
-          "title": "Tạo nhánh",
-          "label": "01",
-          "text": "Từ bản đang ổn, tạo feature/new-button.",
-          "detail": "Nhờ Codex kiểm tra nhánh hiện tại và thay đổi chưa commit trước khi tạo nhánh mới.",
-          "points": [
-            "Nhánh mới là một đường phát triển trong cùng repository."
-          ]
+          "logo": "Terminal",
+          "title": "Kiểm tra phiên bản",
+          "text": "Mở VS Code → Terminal → New Terminal rồi chạy:",
+          "code": "git --version",
+          "detail": "Kết quả mong đợi: git version kèm số phiên bản. Nếu báo không nhận lệnh, mở lại VS Code; vẫn lỗi thì kiểm tra lựa chọn PATH trong bộ cài."
         },
         {
-          "title": "Sửa và commit",
-          "label": "02",
-          "text": "Thử nút mới, chạy kiểm tra rồi lưu mốc trên nhánh.",
-          "detail": "Main chưa nhận các commit mới này. Bạn có thể thử nhiều lần và giữ lịch sử rõ ràng.",
-          "points": [
-            "Mỗi commit nên có mục đích dễ hiểu."
-          ]
+          "logo": "Terminal",
+          "title": "Kiểm tra đường dẫn",
+          "text": "Trong PowerShell, xem file thực thi Git được tìm thấy ở đâu.",
+          "code": "where.exe git",
+          "detail": "Kết quả là đường dẫn tới git.exe. Nếu có nhiều đường dẫn, Git dùng bản đầu tiên trên PATH."
         },
         {
-          "title": "Push và mở PR",
-          "label": "03",
-          "text": "Đưa nhánh lên GitHub, tạo Pull Request tới main.",
-          "detail": "Mô tả thay đổi và cách đã kiểm tra. Người xem có thể đọc diff và góp ý ngay trên GitHub.",
-          "points": [
-            "PR là đề nghị xem xét, chưa phải merge."
-          ]
-        },
-        {
-          "title": "Merge",
-          "label": "04",
-          "text": "Hợp nhất khi kết quả đạt yêu cầu.",
-          "detail": "Nếu có conflict, cần chọn nội dung đúng và kiểm tra lại. Sau merge, cập nhật main trên máy.",
-          "points": [
-            "Deploy là bước riêng theo cấu hình dự án."
-          ]
+          "logo": "Terminal",
+          "title": "Kiểm tra xác thực",
+          "text": "Xác nhận Git Credential Manager và credential helper đã sẵn sàng.",
+          "code": "git credential-manager --version\ngit config --show-origin --get-all credential.helper",
+          "detail": "Cần thấy phiên bản GCM và helper manager. Nếu thiếu, chạy lại bộ cài và chọn Git Credential Manager."
         }
       ],
+      "visual": "git-intro-verify-git",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Sau cài đặt, mỗi lệnh cần trả về kết quả trước khi tiếp tục.",
+      "objective": "Sau cài đặt, mỗi lệnh cần trả về kết quả trước khi tiếp tục.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 19,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Một nhánh cho một thay đổi. Xem kết quả trước khi nhập vào bản chung.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Khi AI sửa sai",
-      "visual": "git-intro-recovery",
-      "message": "Xem trạng thái Git trước, rồi chọn cách phục hồi phù hợp với phần đang sửa.",
+      "title": "Đăng ký GitHub · gợi ý dùng Google",
+      "minutes": 6,
+      "message": "Tạo tài khoản trên trình duyệt, sau đó dùng tài khoản này khi Git yêu cầu xác thực.",
       "cards": [
         {
-          "title": "Chưa commit",
-          "label": "THAY ĐỔI TRÊN MÁY",
-          "text": "Xem diff và yêu cầu sửa đúng phần lỗi.",
-          "detail": "Nếu muốn bỏ phần thử nghiệm, xác định rõ file hoặc đoạn cần hoàn tác. Discard Changes xóa các sửa chưa commit trong phần đã chọn.",
-          "points": [
-            "Giữ lại phần đang làm dở trước khi bỏ thay đổi.",
-            "Git không bảo đảm cứu được nội dung chưa từng commit."
-          ],
-          "prompt": "Xem diff hiện tại và tìm phần làm nút Lưu bị lỗi. Giải thích nguyên nhân, đề xuất sửa nhỏ nhất. Giữ các thay đổi không liên quan."
+          "logo": "Google",
+          "title": "Mở GitHub Signup",
+          "text": "Bấm link đăng ký và chọn Continue with Google.",
+          "link": "https://github.com/signup",
+          "linkLabel": "Đăng ký GitHub bằng Google",
+          "detail": "Nếu đã có tài khoản GitHub, đăng nhập tài khoản hiện có."
         },
         {
-          "title": "Đã commit / push",
-          "label": "ĐÃ CÓ TRONG LỊCH SỬ",
-          "text": "Đối chiếu commit gây lỗi và tạo bản sửa.",
-          "detail": "Có thể dùng revert để tạo commit đảo tác động của commit cũ. Với lịch sử đã chia sẻ, cách này giữ dấu vết thay đổi.",
-          "points": [
-            "Revert có thể cần xử lý conflict.",
-            "Kiểm tra lại ứng dụng rồi mới push bản phục hồi."
-          ],
-          "prompt": "Tìm commit liên quan đến lỗi. So sánh với bản đang ổn, đề xuất sửa hoặc revert phù hợp. Cho tôi xem phần sẽ thay đổi trước khi phục hồi."
+          "logo": "GitHub",
+          "title": "Hoàn tất tài khoản",
+          "text": "Chọn Google, đặt username và hoàn tất các bước trên GitHub.",
+          "detail": "Thực hiện xác minh email hoặc bước xác nhận nếu được yêu cầu. Có thể đăng ký bằng email nếu không dùng Google."
         },
         {
-          "title": "Có conflict",
-          "label": "HAI THAY ĐỔI KHÔNG GHÉP TỰ ĐỘNG",
-          "text": "Ví dụ: bạn và đồng nghiệp sửa cùng nhãn nút.",
-          "detail": "Một bên đổi “Lưu” thành “Gửi”, bên kia đổi thành “Tạo yêu cầu”. Cần chọn nội dung đúng theo yêu cầu, không chọn một phía theo thói quen.",
-          "points": [
-            "Nhờ Codex giải thích cả hai phiên bản.",
-            "Giữ kết quả đúng, kiểm tra rồi hoàn tất merge."
-          ],
-          "prompt": "Giải thích từng vùng conflict và mục đích hai phía. Đề xuất bản kết hợp theo yêu cầu hiện tại, giữ chức năng cũ và nêu cách kiểm tra."
+          "logo": "GitHub",
+          "title": "Kiểm tra username và email",
+          "text": "Bấm avatar → Your profile để xem username; mở Settings → Emails để xem email.",
+          "detail": "Dùng email đã xác minh hoặc email noreply do GitHub cung cấp cho user.email ở bước tiếp theo."
         }
       ],
+      "visual": "git-intro-signup",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Tạo tài khoản trên trình duyệt, sau đó dùng tài khoản này khi Git yêu cầu xác thực.",
+      "objective": "Tạo tài khoản trên trình duyệt, sau đó dùng tài khoản này khi Git yêu cầu xác thực.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 20,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Xem trạng thái Git trước, rồi chọn cách phục hồi phù hợp với phần đang sửa.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Giao việc Git cho Codex",
-      "visual": "git-intro-prompts",
-      "message": "Sau khi hoàn tất thiết lập, dùng yêu cầu ngắn với phạm vi và kết quả kiểm tra rõ ràng.",
+      "title": "Setup Git · tên, email và nhánh main",
+      "minutes": 6,
+      "message": "Tên và email là thông tin tác giả Commit; bước này chưa đăng nhập GitHub.",
       "cards": [
         {
-          "title": "Đọc thay đổi",
-          "label": "01",
-          "text": "Hiểu AI đã sửa gì trước khi lưu mốc.",
-          "prompt": "Xem trạng thái Git và diff trong dự án đang mở. Tóm tắt từng nhóm thay đổi bằng ngôn ngữ dễ hiểu, nêu file không liên quan và phần cần kiểm tra. Chưa commit hoặc push."
+          "logo": "Terminal",
+          "title": "Đặt tên và email",
+          "text": "Thay ví dụ bằng tên của bạn và email đã xác minh trên GitHub.",
+          "code": "git config --global user.name \"Nguyen Van A\"\ngit config --global user.email \"email-cua-ban@example.com\"",
+          "detail": "Muốn ẩn email cá nhân, dùng đúng địa chỉ noreply trong GitHub → Settings → Emails."
         },
         {
-          "title": "Tạo mốc ổn định",
-          "label": "02",
-          "text": "Lưu một việc đã hoàn thành.",
-          "prompt": "Kiểm tra phần vừa sửa, báo rõ kiểm tra đã chạy và chưa chạy. Nếu đạt, stage đúng thay đổi của tính năng này rồi tạo commit với thông điệp rõ ràng. Giữ các thay đổi không liên quan ngoài commit. Chưa push."
+          "logo": "Terminal",
+          "title": "Đặt nhánh mặc định",
+          "text": "Repository mới khởi tạo sẽ dùng tên nhánh main.",
+          "code": "git config --global init.defaultBranch main",
+          "detail": "--global áp dụng cho tài khoản Windows hiện tại; không đổi tên nhánh của repository đã có."
         },
         {
-          "title": "Thử trên nhánh",
-          "label": "03",
-          "text": "Tách thử nghiệm khỏi bản chung.",
-          "prompt": "Kiểm tra nhánh hiện tại và các thay đổi chưa commit. Tạo nhánh cho giao diện nút mới, giữ nguyên chức năng lưu. Thực hiện và kiểm tra, báo lại diff cùng kết quả. Chưa merge vào main."
-        },
-        {
-          "title": "Chuẩn bị push",
-          "label": "04",
-          "text": "Kiểm tra đúng kho, đúng nhánh và đúng nội dung.",
-          "prompt": "Kiểm tra repository đích, nhánh và các commit chuẩn bị push. Kiểm tra không có .env, token hoặc mật khẩu trong nội dung sẽ gửi, không in giá trị bí mật. Báo kết quả để tôi duyệt trước khi push. Nếu thiếu quyền, hướng dẫn tôi tự đăng nhập."
+          "logo": "Terminal",
+          "title": "Kiểm tra cấu hình",
+          "text": "Đối chiếu ba dòng kết quả với thông tin vừa đặt.",
+          "code": "git config --global --get user.name\ngit config --global --get user.email\ngit config --global --get init.defaultBranch",
+          "detail": "Kết quả lần lượt là tên, email và main. Nhập lại lệnh thiết lập nếu có thông tin sai."
         }
       ],
+      "visual": "git-intro-identity",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Tên và email là thông tin tác giả Commit; bước này chưa đăng nhập GitHub.",
+      "objective": "Tên và email là thông tin tác giả Commit; bước này chưa đăng nhập GitHub.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 21,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Sau khi hoàn tất thiết lập, dùng yêu cầu ngắn với phạm vi và kết quả kiểm tra rõ ràng.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
+      "title": "Setup GitHub · xác thực từ VS Code",
+      "minutes": 6,
+      "message": "Chạy Git trong Terminal; đăng nhập GitHub qua trình duyệt khi Credential Manager yêu cầu.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Chuẩn bị HTTPS và GCM",
+          "text": "Git trong Terminal dùng Credential Manager để kết nối GitHub.",
+          "code": "git credential-manager --version\ngit config --get credential.helper",
+          "detail": "Cần thấy phiên bản GCM và helper manager. VS Code hỗ trợ Git sẵn; không cài extension GitHub, không cần đăng nhập menu Accounts để chạy lệnh Git.",
+          "link": "https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git",
+          "linkLabel": "Hướng dẫn xác thực Git chính thức"
+        },
+        {
+          "logo": "Google",
+          "title": "Đăng nhập khi có yêu cầu",
+          "text": "Ở lần Clone repo private hoặc Push đầu tiên, chọn Sign in with your browser trong cửa sổ GCM.",
+          "detail": "Đăng nhập đúng tài khoản GitHub, có thể dùng Continue with Google; xác nhận quyền và 2FA nếu được yêu cầu, rồi quay lại Terminal. Repo public có thể Clone mà chưa cần đăng nhập."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Kiểm tra kết nối thực tế",
+          "text": "Sau khi có origin ở slide 24 hoặc 35, chạy lệnh đọc remote.",
+          "code": "git remote -v\ngit ls-remote origin",
+          "detail": "Remote phải đúng username/repo. Repo có commit sẽ trả về mã commit và refs. Repo trống có thể không in dòng nào; Push thành công mới xác nhận quyền ghi."
+        }
+      ],
+      "visual": "git-intro-signin",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Chạy Git trong Terminal; đăng nhập GitHub qua trình duyệt khi Credential Manager yêu cầu.",
+      "objective": "Chạy Git trong Terminal; đăng nhập GitHub qua trình duyệt khi Credential Manager yêu cầu.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 22,
-      "title": "Mở đúng dự án, hiểu đúng cấu trúc",
-      "minutes": 7,
-      "message": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
+      "title": "Hai điểm xuất phát · cùng dùng lệnh Git",
+      "minutes": 6,
+      "message": "Repo có sẵn thì Clone; project ZIP chưa có Git thì Init rồi kết nối repository trống.",
       "cards": [
         {
-          "title": "Mở thư mục gốc",
-          "text": "Chọn Open Folder để thấy toàn bộ dự án, thay vì chỉ mở một file rời."
+          "logo": "GitHub",
+          "title": "Repository có sẵn",
+          "text": "Thử tạo repo web với README, sau đó Clone về máy bằng lệnh.",
+          "detail": "Slide 23–24 là ví dụ nhỏ để hiểu Clone và kiểm tra remote."
         },
         {
-          "title": "Đọc cấu hình chạy",
-          "text": "package.json thường liệt kê tác vụ của dự án web; nhờ AI giải thích tác vụ cần dùng."
+          "logo": "VS Code",
+          "title": "Project ZIP của bạn",
+          "text": "Tải website mẫu, chỉnh và kiểm tra, rồi khởi tạo Git một lần.",
+          "detail": "Slide 25–35 dùng eiu-advertising-starter làm dự án chính; tạo repository online trống để nhận commit local."
         },
         {
-          "title": "Phân biệt mã và cấu hình",
-          "text": "Trang, thành phần và tài nguyên có vai trò khác nhau; không chia sẻ giá trị bí mật trong .env.local."
+          "logo": "Git",
+          "title": "Chọn đúng cách",
+          "text": "Clone đã có lịch sử Git; ZIP cần git init khi chưa có lịch sử.",
+          "detail": "Không chạy git init lại trong repo vừa Clone. Khi đưa ZIP lên GitHub, không thêm README online trước."
         }
       ],
-      "visual": "workspace-files",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
-      "objective": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-routes",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Repo có sẵn thì Clone; project ZIP chưa có Git thì Init rồi kết nối repository trống.",
+      "objective": "Repo có sẵn thì Clone; project ZIP chưa có Git thì Init rồi kết nối repository trống.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 23,
-      "title": "Tìm kiếm, tiện ích và chạy thử",
+      "title": "Tạo repository trên GitHub để thử Clone",
       "minutes": 6,
-      "message": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
+      "message": "Tạo repo nhỏ có README để nhìn thấy file và lịch sử sau khi Clone.",
       "cards": [
         {
-          "title": "Tìm kiếm trong dự án",
-          "text": "Search tìm chữ trên nhiều file. Đọc từng kết quả trước khi thay thế hàng loạt."
+          "logo": "GitHub",
+          "title": "Mở trang tạo repo",
+          "text": "Đăng nhập, chọn Owner là tài khoản của bạn và đặt tên webapp-web.",
+          "link": "https://github.com/new",
+          "linkLabel": "Tạo repository trên GitHub"
         },
         {
-          "title": "Tiện ích mở rộng",
-          "text": "Extensions bổ sung hỗ trợ ngôn ngữ, GitHub hoặc AI. Kiểm tra nhà phát hành và quyền cần dùng."
+          "logo": "GitHub",
+          "title": "Chọn Private và README",
+          "text": "Chọn Private, bật Add README rồi bấm Create repository.",
+          "detail": "Repo private giúp bước Clone thử xác thực tài khoản. Repo này là bài thử; website mẫu sẽ dùng repository riêng."
         },
         {
-          "title": "Terminal và bản xem thử",
-          "text": "Chạy đúng tác vụ tại thư mục dự án; đọc lỗi và mở địa chỉ localhost được thông báo."
+          "logo": "GitHub",
+          "title": "Sao chép URL HTTPS",
+          "text": "Trong repo, chọn Code → Local → HTTPS và Copy URL.",
+          "detail": "Dạng URL: https://github.com/USERNAME/webapp-web.git. Không sao chép URL SSH cho tuyến thực hành HTTPS này."
         }
       ],
-      "visual": "workspace-tools",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
-      "objective": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-web-create",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Tạo repo nhỏ có README để nhìn thấy file và lịch sử sau khi Clone.",
+      "objective": "Tạo repo nhỏ có README để nhìn thấy file và lịch sử sau khi Clone.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 24,
-      "title": "Làm việc với AI ngay trong dự án",
+      "title": "Clone repository bằng lệnh trong VS Code",
       "minutes": 6,
-      "message": "AI hỗ trợ thực hiện; bạn chịu trách nhiệm xác nhận kết quả.",
+      "message": "Clone tải mã nguồn và toàn bộ lịch sử Git về một thư mục mới.",
       "cards": [
         {
-          "title": "Mô tả rõ thay đổi",
-          "text": "Nêu tình trạng, mục tiêu, phạm vi file và điều cần giữ nguyên."
+          "logo": "Terminal",
+          "title": "Chạy từ thư mục cha",
+          "text": "Mở một thư mục dành cho bài học trong VS Code, rồi chạy lệnh với URL của bạn.",
+          "code": "git clone https://github.com/USERNAME/webapp-web.git",
+          "detail": "Thay USERNAME bằng username thật. Đăng nhập trên trình duyệt nếu GCM yêu cầu; lệnh tạo thư mục webapp-web."
         },
         {
-          "title": "Đọc đề xuất và bản sửa",
-          "text": "Xác định file bị tác động; yêu cầu AI giải thích đoạn khó hiểu trước khi chấp nhận."
+          "logo": "Terminal",
+          "title": "Vào repo và mở project",
+          "text": "Chuyển Terminal vào repo vừa Clone và mở folder trong VS Code.",
+          "code": "cd webapp-web\ncode .",
+          "detail": "Nếu code chưa nhận lệnh, dùng File → Open Folder → webapp-web. Explorer phải thấy README.md."
         },
         {
-          "title": "Kiểm tra bằng thao tác thật",
-          "text": "Chạy ứng dụng, thử tính năng mới và chức năng cũ; đọc lỗi trước khi sửa tiếp."
+          "logo": "Terminal",
+          "title": "Kiểm tra Clone",
+          "text": "Xem trạng thái, remote và commit README.",
+          "code": "git status\ngit remote -v\ngit log -1 --oneline",
+          "detail": "Cần thấy working tree clean, URL repo vừa tạo và commit đầu tiên. Clone tự tạo origin; không cần git remote add lần nữa."
         }
       ],
-      "visual": "workspace-ai",
-      "prompt": "Bối cảnh: AI vừa chỉnh sửa tính năng tạo yêu cầu. Mục tiêu: kiểm tra trước khi ghi nhận phiên bản. Hãy đọc phần thay đổi và chỉ ra file bị tác động, tính năng có thể ảnh hưởng, thông tin bí mật có nguy cơ bị đưa vào mã nguồn và các kiểm tra cần chạy. Không sửa file ngoài phạm vi hoặc Push tự động. Kết quả: danh sách vấn đề và kế hoạch kiểm tra thực tế. Hãy thử tạo yêu cầu, sửa trạng thái, kiểm tra đăng nhập và thông báo lỗi; báo rõ kết quả thực tế và những mục chưa xác minh.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "AI hỗ trợ thực hiện; bạn chịu trách nhiệm xác nhận kết quả.",
-      "objective": "AI hỗ trợ thực hiện; bạn chịu trách nhiệm xác nhận kết quả.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-clone",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Clone tải mã nguồn và toàn bộ lịch sử Git về một thư mục mới.",
+      "objective": "Clone tải mã nguồn và toàn bộ lịch sử Git về một thư mục mới.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 25,
-      "title": "Demo: mở, đọc và chạy dự án",
-      "minutes": 8,
-      "message": "Hiểu nơi sửa trước khi yêu cầu AI thay đổi mã.",
+      "title": "Tải website mẫu · dự án thực hành chính",
+      "minutes": 6,
+      "message": "Dùng website Lumi Studio để luyện sửa, chạy thử, Commit, Push và Pull.",
       "cards": [
         {
-          "title": "Chuẩn bị",
-          "text": "Dự án mẫu quản lý yêu cầu đã có mã nguồn; mở thư mục gốc trong VS Code."
+          "logo": "VS Code",
+          "title": "Tải ZIP website",
+          "text": "Bấm nút để tải eiu-advertising-starter về máy.",
+          "link": "/downloads/eiu-advertising-starter.zip",
+          "linkLabel": "Tải website mẫu .ZIP",
+          "detail": "Website có animation nhẹ, chọn gói, tab, FAQ và form đăng ký."
         },
         {
-          "title": "Thao tác",
-          "text": "Nhờ AI giải thích cây file, xác định biểu mẫu và hướng dẫn chạy bản xem thử."
+          "logo": "Browser",
+          "title": "Hiểu bản mẫu",
+          "text": "Form kiểm tra dữ liệu và lưu đăng ký trong trình duyệt.",
+          "detail": "Bản demo chưa gửi email hoặc dữ liệu tới server. Bạn sẽ kiểm tra tương tác khi chạy local."
         },
         {
-          "title": "Xác nhận",
-          "text": "Mở localhost; thấy đúng biểu mẫu và biết file sẽ chỉnh khi đổi nút tạo yêu cầu."
+          "logo": "Git",
+          "title": "Một project xuyên suốt",
+          "text": "Giải nén ở thư mục riêng rồi chuyển từ webapp-web sang website mẫu.",
+          "detail": "ZIP chưa có lịch sử Git. Chỉ khởi tạo sau khi đã chỉnh website và kiểm tra xong."
         }
       ],
-      "visual": "demo",
-      "prompt": "Bối cảnh: Tôi đang học phát triển ứng dụng quản lý yêu cầu công việc, đã mở project mẫu trong VS Code. Mục tiêu: hiểu project trước khi chỉnh sửa. Hãy giải thích chức năng của thư mục, các file quan trọng và cách chạy bản xem thử. Không thay đổi file hay đọc nội dung chứa khóa bí mật. Chỉ ra nơi sửa giao diện và nơi xử lý dữ liệu. Kết quả cần có: bản đồ project, các bước chạy và dấu hiệu chạy thành công. Nếu bạn không có quyền xem file, hãy yêu cầu tôi cung cấp cây thư mục và các file đã loại bỏ thông tin nhạy cảm. Cuối cùng, hướng dẫn tôi xác nhận đã mở đúng project và nhìn thấy đúng giao diện.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Hiểu nơi sửa trước khi yêu cầu AI thay đổi mã.",
-      "objective": "Hiểu nơi sửa trước khi yêu cầu AI thay đổi mã.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-starter",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Dùng website Lumi Studio để luyện sửa, chạy thử, Commit, Push và Pull.",
+      "objective": "Dùng website Lumi Studio để luyện sửa, chạy thử, Commit, Push và Pull.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 26,
-      "title": "Giao yêu cầu để AI sửa đúng phạm vi",
+      "title": "Mở đúng project và Terminal",
       "minutes": 6,
-      "message": "Một yêu cầu tốt có bối cảnh, mục tiêu, giới hạn và cách xác nhận.",
+      "message": "Thư mục gốc của website là nơi chứa package.json.",
       "cards": [
         {
-          "title": "Bối cảnh",
-          "text": "Ứng dụng đang làm gì, bạn gặp vấn đề ở đâu và tính năng nào đã chạy tốt."
+          "logo": "Windows",
+          "title": "Giải nén ZIP",
+          "text": "Trong File Explorer, chọn Extract All rồi chọn nơi lưu dễ tìm.",
+          "detail": "Đợi giải nén xong; mở folder đã giải nén để làm việc."
         },
         {
-          "title": "Phạm vi",
-          "text": "Nêu file hoặc màn hình cần sửa; giữ đăng nhập, dữ liệu và chức năng đang có."
+          "logo": "VS Code",
+          "title": "Mở trong VS Code",
+          "text": "File → Open Folder → chọn eiu-advertising-starter.",
+          "detail": "Explorer cần thấy package.json, app, components, data và README.md; nếu thấy thêm một folder con, mở folder chứa package.json."
         },
         {
-          "title": "Kết quả",
-          "text": "Yêu cầu giải thích bản sửa và các thao tác kiểm tra, kể cả trường hợp thất bại."
+          "logo": "Terminal",
+          "title": "Kiểm tra vị trí Terminal",
+          "text": "Terminal → New Terminal; kiểm tra thư mục hiện tại và package.json.",
+          "code": "Get-Location\ndir package.json",
+          "detail": "Các lệnh Git và npm sau đây đều chạy trong thư mục gốc này."
         }
       ],
-      "visual": "prompt-choice",
-      "prompt": "Bối cảnh: Project quản lý yêu cầu đang chạy tốt trên máy. Mục tiêu: làm nút tạo yêu cầu rõ ràng hơn và thêm thông báo khi lưu thành công. Hãy giải thích kế hoạch, liệt kê file cần sửa rồi thực hiện nếu có quyền; nếu không, cung cấp bản sửa và hướng dẫn tôi áp dụng. Giữ nguyên đăng nhập, dữ liệu và quy trình tạo yêu cầu. Không thêm dịch vụ trả phí hay thay đổi quyền truy cập. Kết quả: giao diện dễ dùng và không mất tính năng cũ. Hướng dẫn kiểm tra nút, thông báo, tải lại trang và trường hợp lưu thất bại; báo rõ những kiểm tra bạn chưa chạy.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Một yêu cầu tốt có bối cảnh, mục tiêu, giới hạn và cách xác nhận.",
-      "objective": "Một yêu cầu tốt có bối cảnh, mục tiêu, giới hạn và cách xác nhận.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-unzip",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Thư mục gốc của website là nơi chứa package.json.",
+      "objective": "Thư mục gốc của website là nơi chứa package.json.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 27,
-      "title": "Thực hành GitHub: tìm đúng phiên bản",
-      "minutes": 8,
-      "message": "Một repository cần giúp người khác hiểu mã, lịch sử và cách bắt đầu.",
+      "title": "Cài Node.js và thư viện website",
+      "minutes": 6,
+      "message": "Node.js chạy project; npm cài thư viện trong package.json.",
       "cards": [
         {
-          "title": "Tìm hướng dẫn chạy",
-          "text": "Mở repository mẫu, đọc README và chỉ ra môi trường cần cài trước khi chạy."
+          "logo": "Terminal",
+          "title": "Cài và kiểm tra Node.js",
+          "text": "Cài Node.js LTS rồi mở lại VS Code và chạy hai lệnh kiểm tra.",
+          "code": "node --version\nnpm --version",
+          "link": "https://nodejs.org/en/download",
+          "linkLabel": "Tải Node.js LTS",
+          "detail": "Cần thấy hai số phiên bản. Mẫu Next.js yêu cầu Node.js từ 20.9 trở lên."
         },
         {
-          "title": "Tìm lần sửa gần nhất",
-          "text": "Mở lịch sử commit, đọc thông điệp và tìm một file đã thay đổi."
+          "logo": "Terminal",
+          "title": "Cài thư viện",
+          "text": "Tại folder có package.json, chạy và chờ lệnh hoàn tất.",
+          "code": "npm install",
+          "detail": "Cần Internet. Nếu PowerShell chặn npm.ps1, dùng npm.cmd install; các lệnh npm khác cũng có thể dùng npm.cmd."
         },
         {
-          "title": "Tìm nơi phản hồi",
-          "text": "Tạo nội dung Issue mô tả một lỗi, rồi xác định Pull Request chứa bản sửa nếu có."
+          "logo": "Terminal",
+          "title": "Kiểm tra kết quả",
+          "text": "Xác nhận project có thư viện và file khóa phiên bản.",
+          "code": "dir node_modules\ndir package-lock.json",
+          "detail": "Sửa mã trong app, components hoặc data; node_modules chứa thư viện được cài tự động."
         }
       ],
-      "visual": "github-features",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Một repository cần giúp người khác hiểu mã, lịch sử và cách bắt đầu.",
-      "objective": "Một repository cần giúp người khác hiểu mã, lịch sử và cách bắt đầu.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-npm",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Node.js chạy project; npm cài thư viện trong package.json.",
+      "objective": "Node.js chạy project; npm cài thư viện trong package.json.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 28,
-      "title": "Chọn thay đổi, Commit, Push và Pull",
-      "minutes": 9,
-      "message": "Commit ghi trên máy; Push gửi lên GitHub; Pull nhận và tích hợp thay đổi.",
+      "title": "Chạy website trên localhost",
+      "minutes": 6,
+      "message": "Giữ Terminal chạy server trong lúc chỉnh sửa và xem kết quả.",
       "cards": [
         {
-          "title": "Chọn thay đổi",
-          "text": "Chọn file hoặc phần sửa cho lần Commit; không gom các việc không liên quan."
+          "logo": "Terminal",
+          "title": "Khởi động dev server",
+          "text": "Chạy lệnh tại thư mục project và đợi server sẵn sàng.",
+          "code": "npm run dev",
+          "detail": "Đọc URL Local được in trong Terminal."
         },
         {
-          "title": "Commit · ghi nhận",
-          "text": "Ghi thông điệp mô tả thay đổi đã kiểm tra, chẳng hạn: thêm thông báo lưu yêu cầu."
+          "logo": "Browser",
+          "title": "Mở website",
+          "text": "Mở địa chỉ local được Terminal cung cấp.",
+          "link": "http://localhost:3000",
+          "linkLabel": "Mở localhost:3000",
+          "detail": "Nếu cổng 3000 đang bận, mở đúng cổng được Terminal báo. localhost là website đang chạy trên máy của bạn."
         },
         {
-          "title": "Push và Pull",
-          "text": "Push gửi commit lên kho từ xa; Pull nhận và tích hợp. Kiểm tra đúng kho và nhánh trước khi thao tác."
+          "logo": "VS Code",
+          "title": "Sửa và xem lại",
+          "text": "Lưu file bằng Ctrl+S để xem cập nhật; dừng server bằng Ctrl+C.",
+          "detail": "Dùng một Terminal mới cho các lệnh khác để giữ dev server đang chạy."
         }
       ],
-      "visual": "git",
-      "prompt": "Bối cảnh: Tôi có project mẫu đã kiểm tra trên máy và muốn quản lý bằng GitHub. Hãy kiểm tra đúng thư mục và repository trước. Giải thích các bước kiểm tra thay đổi, loại trừ file chứa bí mật, Commit và Push bằng ngôn ngữ đơn giản. Không tự ghi đè lịch sử, xóa file hay thực hiện thao tác phá hủy. Nếu cần quyền tài khoản, hướng dẫn tôi tự đăng nhập và xác nhận. Kết quả: mã nguồn được lưu đúng repository với thông điệp Commit rõ ràng. Hướng dẫn kiểm tra phiên bản mới trên GitHub và cách xử lý nếu Push bị từ chối.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Commit ghi trên máy; Push gửi lên GitHub; Pull nhận và tích hợp thay đổi.",
-      "objective": "Commit ghi trên máy; Push gửi lên GitHub; Pull nhận và tích hợp thay đổi.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-dev",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Giữ Terminal chạy server trong lúc chỉnh sửa và xem kết quả.",
+      "objective": "Giữ Terminal chạy server trong lúc chỉnh sửa và xem kết quả.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 29,
-      "title": "Thực hành: đề nghị xem xét bản sửa",
-      "minutes": 9,
-      "message": "Tách thay đổi trên nhánh riêng; xem xét và kiểm tra trước khi hợp nhất.",
+      "title": "Thử chỉnh website bằng tay",
+      "minutes": 6,
+      "message": "Đổi một phần nhỏ rồi kiểm tra ngay để hiểu luồng chỉnh sửa.",
       "cards": [
         {
-          "title": "Nhánh của bạn",
-          "text": "Tạo nhánh cho một thay đổi nhỏ và xác nhận đúng tên nhánh trong VS Code."
+          "logo": "VS Code",
+          "title": "Đổi thương hiệu và nội dung",
+          "text": "Mở data/site.js, sửa brand, headline, highlight hoặc description.",
+          "detail": "Ctrl+S rồi đối chiếu tiêu đề mới trên trình duyệt."
         },
         {
-          "title": "Minh chứng trên PR",
-          "text": "Push nhánh, mở Pull Request và ghi kết quả kiểm tra cùng ảnh giao diện nếu cần."
+          "logo": "VS Code",
+          "title": "Đổi màu và khoảng cách",
+          "text": "Mở app/globals.css, sửa biến màu trong :root hoặc khoảng cách một khối.",
+          "detail": "Thay từng phần để dễ nhận ra kết quả; thông tin tab trình duyệt nằm ở app/layout.js."
         },
         {
-          "title": "Phản hồi và hoàn tất",
-          "text": "Đọc góp ý, sửa trên cùng nhánh, kiểm tra lại. Chỉ merge khi bản sửa đạt yêu cầu."
+          "logo": "Browser",
+          "title": "Thử tương tác",
+          "text": "Chọn gói, mở FAQ và thử form với email đúng/sai.",
+          "detail": "Kiểm tra trên màn hình nhỏ. Ghi lại file đã sửa và lỗi còn gặp."
         }
       ],
-      "visual": "branches",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Tách thay đổi trên nhánh riêng; xem xét và kiểm tra trước khi hợp nhất.",
-      "objective": "Tách thay đổi trên nhánh riêng; xem xét và kiểm tra trước khi hợp nhất.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-localhost",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Đổi một phần nhỏ rồi kiểm tra ngay để hiểu luồng chỉnh sửa.",
+      "objective": "Đổi một phần nhỏ rồi kiểm tra ngay để hiểu luồng chỉnh sửa.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 30,
-      "title": "Kiểm tra trước khi gửi mã lên GitHub",
-      "minutes": 9,
-      "message": "Đúng kho, đúng nhánh, không có bí mật và tính năng đã được kiểm tra.",
+      "title": "AI trong VS Code · cung cấp ngữ cảnh",
+      "minutes": 6,
+      "message": "Yêu cầu rõ giúp AI tìm đúng file và sửa đúng mục tiêu.",
       "cards": [
         {
-          "title": "Đọc khác biệt",
-          "text": "Diff cho biết dòng thêm/xóa; bảo đảm không đưa file không liên quan vào Commit."
+          "logo": "AI Codex",
+          "title": "Đọc project trước khi sửa",
+          "text": "Yêu cầu AI giải thích README.md, package.json và các file giao diện liên quan.",
+          "detail": "AI tìm và đọc file theo công cụ, quyền và chế độ đang dùng; hãy chỉ rõ project hiện tại."
         },
         {
-          "title": "Loại trừ bí mật",
-          "text": "Dùng .gitignore phù hợp; nếu khóa đã bị lộ, cần thay khóa, không chỉ xóa dòng chứa khóa."
+          "logo": "VS Code",
+          "title": "Nêu file và mục tiêu",
+          "text": "Cho biết phần cần đổi, kết quả mong đợi và các chức năng phải giữ.",
+          "detail": "Ví dụ: đổi nội dung trong data/site.js, giữ form, tab, chọn gói và FAQ hoạt động."
         },
         {
-          "title": "Xử lý thay đổi từ xa",
-          "text": "Nếu Push bị từ chối, xem nguyên nhân và đồng bộ có kiểm soát; đọc xung đột trước khi xử lý."
+          "logo": "Git",
+          "title": "Xem phần AI đã sửa",
+          "text": "Đọc thay đổi từng file, chạy website và thử lại chức năng.",
+          "detail": "Bạn quyết định nội dung nào được giữ và đưa vào Commit."
         }
       ],
-      "visual": "mistakes",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Đúng kho, đúng nhánh, không có bí mật và tính năng đã được kiểm tra.",
-      "objective": "Đúng kho, đúng nhánh, không có bí mật và tính năng đã được kiểm tra.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-ai-workspace",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Yêu cầu rõ giúp AI tìm đúng file và sửa đúng mục tiêu.",
+      "objective": "Yêu cầu rõ giúp AI tìm đúng file và sửa đúng mục tiêu.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 31,
-      "title": "Thực hành 1: chỉnh sửa bằng VS Code và AI",
-      "minutes": 30,
-      "message": "Hoàn thành một thay đổi nhỏ và chứng minh tính năng vẫn hoạt động.",
+      "title": "Nhờ AI tùy chỉnh website mẫu",
+      "minutes": 6,
+      "message": "Dùng một yêu cầu cụ thể, rồi kiểm tra sản phẩm bằng trình duyệt.",
       "cards": [
         {
-          "title": "Chuẩn bị và sản phẩm",
-          "text": "Dự án mẫu quản lý yêu cầu, VS Code và trợ lý AI phù hợp; sản phẩm là nút tạo rõ ràng và thông báo lưu thành công."
+          "logo": "AI Codex",
+          "title": "Gửi yêu cầu có phạm vi",
+          "text": "Sao chép yêu cầu, thay chủ đề theo ý tưởng của bạn.",
+          "code": "Đổi website mẫu thành landing page hội thảo EIU.\nSửa nội dung trong data/site.js và màu trong app/globals.css.\nGiữ tab, chọn gói, FAQ và form hoạt động.\nLiệt kê file đã sửa và cách kiểm tra kết quả."
+        },
+        {
+          "logo": "VS Code",
+          "title": "Đọc file đã thay đổi",
+          "text": "Đối chiếu phần AI sửa với yêu cầu của bạn.",
+          "detail": "Kiểm tra tên thương hiệu, CTA, màu, bố cục và nội dung form."
+        },
+        {
+          "logo": "Browser",
+          "title": "Thử lại chức năng",
+          "text": "Mở website đang chạy; kiểm tra form, tab, gói và FAQ.",
+          "detail": "Nếu có lỗi, gửi thao tác gây lỗi cùng thông báo Terminal hoặc trình duyệt để AI sửa."
         }
       ],
-      "visual": "lab",
-      "prompt": "Bối cảnh: Project quản lý yêu cầu đang chạy tốt trên máy. Mục tiêu: làm nút tạo yêu cầu rõ ràng hơn và thêm thông báo khi lưu thành công. Hãy giải thích kế hoạch, liệt kê file cần sửa rồi thực hiện nếu có quyền; nếu không, cung cấp bản sửa và hướng dẫn tôi áp dụng. Giữ nguyên đăng nhập, dữ liệu và quy trình tạo yêu cầu. Không thêm dịch vụ trả phí hay thay đổi quyền truy cập. Kết quả: giao diện dễ dùng và không mất tính năng cũ. Hướng dẫn kiểm tra nút, thông báo, tải lại trang và trường hợp lưu thất bại; báo rõ những kiểm tra bạn chưa chạy.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Hoàn thành một thay đổi nhỏ và chứng minh tính năng vẫn hoạt động.",
-      "checks": [
-        "Đã mở đúng thư mục dự án",
-        "Đã tìm file cần sửa",
-        "Đã mô tả yêu cầu rõ cho AI",
-        "Đã đọc khác biệt của bản sửa",
-        "Đã chạy và thử tính năng mới",
-        "Chức năng cũ vẫn hoạt động"
-      ],
-      "objective": "Hoàn thành một thay đổi nhỏ và chứng minh tính năng vẫn hoạt động.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-ai-edit",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Dùng một yêu cầu cụ thể, rồi kiểm tra sản phẩm bằng trình duyệt.",
+      "objective": "Dùng một yêu cầu cụ thể, rồi kiểm tra sản phẩm bằng trình duyệt.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 32,
-      "title": "Thực hành 2: lưu và cộng tác trên GitHub",
-      "minutes": 30,
-      "message": "Lưu phiên bản đúng kho và trình bày được thay đổi cho người khác xem.",
+      "title": "Hoàn thiện website theo ý tưởng riêng",
+      "minutes": 6,
+      "message": "Tạo một phiên bản có thương hiệu, CTA và nội dung của bạn.",
       "cards": [
         {
-          "title": "Chuẩn bị và sản phẩm",
-          "text": "Dự án đã kiểm tra, Git và tài khoản GitHub; sản phẩm là một nhánh có Commit đã Push và đề nghị xem xét thay đổi."
+          "logo": "VS Code",
+          "title": "Viết brief",
+          "text": "Chọn sản phẩm, dịch vụ hoặc sự kiện; nêu đối tượng và mục tiêu đăng ký.",
+          "detail": "Chuẩn bị tên thương hiệu, tiêu đề, mô tả và lời kêu gọi hành động."
+        },
+        {
+          "logo": "AI Codex",
+          "title": "Thực hiện từng thay đổi",
+          "text": "Tùy chỉnh nội dung, màu và ít nhất một khối giao diện bằng tay hoặc AI.",
+          "detail": "Mỗi lượt sửa có mục tiêu cụ thể để dễ kiểm tra."
+        },
+        {
+          "logo": "Browser",
+          "title": "Đạt tiêu chí trước khi Commit",
+          "text": "Website có nội dung riêng, hiển thị tốt trên màn hình nhỏ và các tương tác vẫn chạy.",
+          "points": [
+            "Thử dữ liệu đúng và sai ở form.",
+            "Thử tab, chọn gói và FAQ.",
+            "Ghi lại các file đã sửa."
+          ]
         }
       ],
-      "visual": "lab",
-      "prompt": "Bối cảnh: Tôi có project mẫu đã kiểm tra trên máy và muốn quản lý bằng GitHub. Hãy kiểm tra đúng thư mục và repository trước. Giải thích các bước kiểm tra thay đổi, loại trừ file chứa bí mật, Commit và Push bằng ngôn ngữ đơn giản. Không tự ghi đè lịch sử, xóa file hay thực hiện thao tác phá hủy. Nếu cần quyền tài khoản, hướng dẫn tôi tự đăng nhập và xác nhận. Kết quả: mã nguồn được lưu đúng repository với thông điệp Commit rõ ràng. Hướng dẫn kiểm tra phiên bản mới trên GitHub và cách xử lý nếu Push bị từ chối. Sau khi kiểm tra, hướng dẫn tôi tạo nhánh và mở Pull Request, mô tả mục tiêu cùng cách xác nhận; không tự Merge.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Lưu phiên bản đúng kho và trình bày được thay đổi cho người khác xem.",
-      "checks": [
-        "Đã kiểm tra đúng repository",
-        "Đã tạo nhánh cho thay đổi",
-        "Đã chọn file cần Commit",
-        "Không đưa khóa bí mật vào mã",
-        "Đã Commit với thông điệp rõ",
-        "Đã Push đúng nhánh",
-        "Đã kiểm tra phiên bản trên GitHub",
-        "Đã mô tả đề nghị xem xét"
-      ],
-      "objective": "Lưu phiên bản đúng kho và trình bày được thay đổi cho người khác xem.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-customize",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Tạo một phiên bản có thương hiệu, CTA và nội dung của bạn.",
+      "objective": "Tạo một phiên bản có thương hiệu, CTA và nội dung của bạn.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 33,
-      "title": "Tự kiểm tra: VS Code và GitHub",
-      "minutes": 20,
-      "message": "Bạn biết nơi sửa mã, cách kiểm tra và cách quản lý thay đổi.",
+      "title": "Kiểm tra website trước khi lưu phiên bản",
+      "minutes": 6,
+      "message": "Sửa lỗi kiểm tra và build trước khi tạo commit đầu tiên.",
       "cards": [
         {
-          "title": "VS Code",
-          "text": "Chỉ ra cây file, vùng soạn thảo, terminal và nơi xem khác biệt."
+          "logo": "Terminal",
+          "title": "Chạy kiểm tra mẫu",
+          "text": "Tại thư mục project, chạy kiểm tra chức năng lưu đăng ký.",
+          "code": "npm test",
+          "detail": "Kết hợp với thử form và bố cục trực tiếp trên trình duyệt."
         },
         {
-          "title": "Git và GitHub",
-          "text": "Phân biệt Commit, Push, Pull; giải thích nhánh và Pull Request."
+          "logo": "Terminal",
+          "title": "Build production",
+          "text": "Dừng dev bằng Ctrl+C, rồi chạy build.",
+          "code": "npm run build",
+          "detail": "Nếu lỗi, đọc thông báo và sửa nguyên nhân trước khi tiếp tục."
         },
         {
-          "title": "Minh chứng",
-          "text": "Ứng dụng chạy trên máy, lịch sử rõ nghĩa và bản sửa không chứa khóa bí mật."
+          "logo": "Terminal",
+          "title": "Chạy thử bản build",
+          "text": "Sau build thành công, chạy server và mở URL local.",
+          "code": "npm run start",
+          "detail": "Thử lại các thao tác chính. Ctrl+C để dừng; npm run dev để quay lại chỉnh sửa."
         }
       ],
-      "visual": "quiz",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Bạn biết nơi sửa mã, cách kiểm tra và cách quản lý thay đổi.",
-      "objective": "Bạn biết nơi sửa mã, cách kiểm tra và cách quản lý thay đổi.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-build",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Sửa lỗi kiểm tra và build trước khi tạo commit đầu tiên.",
+      "objective": "Sửa lỗi kiểm tra và build trước khi tạo commit đầu tiên.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 34,
+      "title": "Git Init · tạo Commit đầu tiên bằng lệnh",
+      "minutes": 6,
+      "message": "Khởi tạo Git một lần trong thư mục website mẫu đã kiểm tra.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Khởi tạo và xem trạng thái",
+          "text": "Chạy tại folder eiu-advertising-starter chứa package.json.",
+          "code": "git init -b main\ngit status",
+          "detail": "Nếu project đã có Git thì bỏ qua init. File .gitignore của mẫu loại node_modules, .next và .env khỏi phiên bản."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Chọn file và kiểm tra",
+          "text": "Đưa các file dự án vào vùng chuẩn bị Commit, rồi đọc danh sách.",
+          "code": "git add .\ngit diff --cached --stat\ngit status",
+          "detail": "Danh sách cần có mã nguồn, package.json và package-lock.json; không có node_modules, .next hoặc .env."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Lưu Commit đầu tiên",
+          "text": "Ghi mốc phiên bản và kiểm tra kết quả.",
+          "code": "git commit -m \"Create advertising website\"\ngit log -1 --oneline\ngit status",
+          "detail": "Cần thấy commit mới và working tree clean. Commit hiện chỉ nằm trên máy."
+        }
+      ],
+      "visual": "git-intro-initialize",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Khởi tạo Git một lần trong thư mục website mẫu đã kiểm tra.",
+      "objective": "Khởi tạo Git một lần trong thư mục website mẫu đã kiểm tra.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 35,
+      "title": "Kết nối GitHub · Push lần đầu bằng lệnh",
+      "minutes": 6,
+      "message": "Tạo repo online trống để nhận lịch sử Git từ website trên máy.",
+      "cards": [
+        {
+          "logo": "GitHub",
+          "title": "Tạo repo trống trên GitHub",
+          "text": "Mở trang tạo repo, đặt tên eiu-advertising-starter và chọn Private.",
+          "link": "https://github.com/new",
+          "linkLabel": "Tạo repository cho website",
+          "detail": "Không bật README, .gitignore hoặc license ở bước tạo này vì project local đã có commit. Bấm Create repository rồi sao chép URL HTTPS."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Thêm địa chỉ origin",
+          "text": "Thay USERNAME bằng username của bạn và dùng đúng URL repository vừa tạo.",
+          "code": "git remote add origin https://github.com/USERNAME/eiu-advertising-starter.git\ngit remote -v",
+          "detail": "Origin là tên ngắn của repo online. Nếu origin đã tồn tại, kiểm tra URL trước; dùng git remote set-url origin URL_DUNG khi cần sửa."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Push và xác thực",
+          "text": "Gửi nhánh main; đăng nhập qua trình duyệt nếu GCM yêu cầu.",
+          "code": "git push -u origin main\ngit status -sb",
+          "detail": "-u đặt liên kết main với origin/main. Cần thấy Push thành công và main...origin/main; refresh GitHub để thấy file và commit."
+        }
+      ],
+      "visual": "git-intro-publish",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Tạo repo online trống để nhận lịch sử Git từ website trên máy.",
+      "objective": "Tạo repo online trống để nhận lịch sử Git từ website trên máy.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 36,
+      "title": "Chọn nhánh trước lần sửa tiếp theo",
+      "minutes": 6,
+      "message": "main là phiên bản chính; nhánh riêng giúp thử thay đổi và review trước khi gộp.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Xem nhánh hiện tại",
+          "text": "Kiểm tra trạng thái sạch và tên nhánh trước khi sửa.",
+          "code": "git status\ngit branch --show-current",
+          "detail": "Dấu * trong git branch chỉ nhánh đang làm việc. Commit hoặc xử lý thay đổi đang có trước khi chuyển nhánh."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Tạo nhánh riêng",
+          "text": "Tách nhánh để chỉnh landing page.",
+          "code": "git switch -c feature/landing-refresh\ngit branch --show-current",
+          "detail": "Kết quả cần là feature/landing-refresh. Nhánh mới bắt đầu từ commit hiện tại."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Nếu làm trực tiếp trên main",
+          "text": "Chỉ chọn main cho bài cá nhân khi bạn chủ động muốn cập nhật phiên bản chính.",
+          "code": "git switch main\ngit pull --ff-only origin main",
+          "detail": "Chọn một hướng rồi tiếp tục. Bài nhánh riêng sẽ dùng Pull Request để review và Merge trên GitHub."
+        }
+      ],
+      "visual": "git-intro-branch-choice",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "main là phiên bản chính; nhánh riêng giúp thử thay đổi và review trước khi gộp.",
+      "objective": "main là phiên bản chính; nhánh riêng giúp thử thay đổi và review trước khi gộp.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 37,
+      "title": "Commit và Push các thay đổi tiếp theo",
+      "minutes": 6,
+      "message": "Sửa → kiểm tra → chọn file → Commit → Push đúng nhánh.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Đọc thay đổi trước khi chọn",
+          "text": "Lưu file và kiểm tra website, sau đó đọc diff.",
+          "code": "git status\ngit diff",
+          "detail": "Nhấn q để thoát nếu diff mở trong pager. Tên file cần đúng với phần bạn vừa sửa."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Chọn file và Commit",
+          "text": "Ví dụ chọn hai file đã chỉnh, kiểm tra rồi lưu mốc.",
+          "code": "git add data/site.js app/globals.css\ngit diff --cached --stat\ngit commit -m \"Refresh landing page\"",
+          "detail": "Thay danh sách bằng file bạn thực sự sửa. Commit chỉ lưu phần đã được git add."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Gửi đúng nhánh",
+          "text": "Kiểm tra tên nhánh rồi Push; dùng lệnh phù hợp với hướng đã chọn.",
+          "code": "git branch --show-current\ngit push -u origin feature/landing-refresh",
+          "detail": "Lệnh trên dành cho nhánh riêng. Nếu đang làm trên main: git push origin main. Push nhánh riêng chưa đổi main; mở Pull Request, review rồi Merge trên GitHub."
+        }
+      ],
+      "visual": "git-intro-push-code",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Sửa → kiểm tra → chọn file → Commit → Push đúng nhánh.",
+      "objective": "Sửa → kiểm tra → chọn file → Commit → Push đúng nhánh.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 38,
+      "title": "Pull · lấy phiên bản mới về máy",
+      "minutes": 6,
+      "message": "Ví dụ: sau khi Pull Request đã được Merge vào main trên GitHub.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Kiểm tra trước khi Pull",
+          "text": "Xem trạng thái và commit thay đổi đang làm trước khi chuyển nhánh.",
+          "code": "git status\ngit branch --show-current",
+          "detail": "Chỉ tiếp tục khi working tree clean. Nếu còn thay đổi, hoàn tất và Commit trên đúng nhánh trước."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Cập nhật main",
+          "text": "Chuyển về main và lấy thay đổi từ origin/main.",
+          "code": "git switch main\ngit pull --ff-only origin main",
+          "detail": "Kết quả có thể là Fast-forward hoặc Already up to date. Nếu lịch sử đã phân kỳ, dừng và đọc lỗi; không dùng force để bỏ qua."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Kiểm tra sau Pull",
+          "text": "Đọc commit mới, xem trạng thái và chạy lại website.",
+          "code": "git log -3 --oneline\ngit status -sb\nnpm run dev",
+          "detail": "Nếu package.json hoặc package-lock.json đổi, chạy npm install trước dev. Pull về main không tự cập nhật nhánh feature."
+        }
+      ],
+      "visual": "git-intro-pull",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Ví dụ: sau khi Pull Request đã được Merge vào main trên GitHub.",
+      "objective": "Ví dụ: sau khi Pull Request đã được Merge vào main trên GitHub.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 39,
+      "title": "Đối chiếu local và GitHub",
+      "minutes": 6,
+      "message": "Xác nhận đúng repository, đúng nhánh và đúng commit trước khi sang deploy.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Kiểm tra trên máy",
+          "text": "Xem URL origin, trạng thái nhánh và commit mới nhất.",
+          "code": "git remote -v\ngit status -sb\ngit log -1 --oneline",
+          "detail": "Không còn file chưa lưu phiên bản; nhánh phải là nhánh bạn muốn đối chiếu."
+        },
+        {
+          "logo": "GitHub",
+          "title": "Kiểm tra trên GitHub",
+          "text": "Refresh repo, chọn đúng main hoặc feature/landing-refresh và mở commit gần nhất.",
+          "detail": "Đối chiếu mã commit ngắn, thông điệp và các file với Terminal. Sau Merge, mã commit main có thể khác commit feature; đối chiếu đúng nhánh."
+        },
+        {
+          "logo": "VS Code",
+          "title": "Sẵn sàng cho bước tiếp theo",
+          "text": "Chốt phiên bản đã kiểm tra và repo có thể dùng để deploy.",
+          "detail": "GitHub lưu mã nguồn; đường dẫn website public được tạo ở phần triển khai tiếp theo."
+        }
+      ],
+      "visual": "git-intro-verify",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Xác nhận đúng repository, đúng nhánh và đúng commit trước khi sang deploy.",
+      "objective": "Xác nhận đúng repository, đúng nhánh và đúng commit trước khi sang deploy.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 40,
+      "title": "Tự kiểm tra · Git và GitHub bằng lệnh",
+      "minutes": 6,
+      "message": "Kiểm tra từ cài công cụ tới đồng bộ repository bằng Terminal của VS Code.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Công cụ và tài khoản",
+          "text": "Git hoạt động, GCM sẵn sàng và bạn đã có tài khoản GitHub."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Đồng bộ mã nguồn",
+          "text": "Giải thích được Init, Clone, Add, Commit, Push và Pull."
+        }
+      ],
+      "visual": "git-intro-quiz",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Kiểm tra từ cài công cụ tới đồng bộ repository bằng Terminal của VS Code.",
+      "objective": "Kiểm tra từ cài công cụ tới đồng bộ repository bằng Terminal của VS Code.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 2,

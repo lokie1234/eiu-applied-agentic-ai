@@ -89,12 +89,6 @@
   color: #fff;
 }
 
-.headerActions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .backLink {
   display: inline-flex;
   align-items: center;
@@ -113,22 +107,6 @@
 .backLink:hover {
   background: rgba(233, 202, 139, 0.15);
   border-color: rgba(244, 223, 176, 0.35);
-}
-
-.signOutBtn {
-  padding: 8px 16px;
-  border-radius: 10px;
-  border: 1px solid rgba(255, 100, 100, 0.25);
-  background: rgba(255, 70, 70, 0.1);
-  color: #ff9999;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.signOutBtn:hover {
-  background: rgba(255, 70, 70, 0.22);
 }
 
 .mainContainer {
@@ -412,53 +390,6 @@
   border-bottom-left-radius: 4px;
   border: 1px solid rgba(244, 223, 176, 0.18);
   box-shadow: 0 4px 18px rgba(0, 0, 0, 0.15);
-}
-
-.sourcesBox {
-  margin-top: 10px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  background: rgba(4, 20, 36, 0.6);
-  border: 1px dashed rgba(233, 202, 139, 0.25);
-  width: 100%;
-}
-
-.sourcesTitle {
-  font-size: 11px;
-  font-weight: 700;
-  color: #e9ca8b;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
-}
-
-.sourcesList {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.sourceItem {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.8);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.sourceItem strong {
-  color: #fff;
-}
-
-.sourceBadge {
-  color: #e9ca8b;
-  background: rgba(233, 202, 139, 0.15);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-size: 11px;
 }
 
 .chatLoading {
@@ -822,8 +753,7 @@
   color: #e9ca8b;
 }
 
-.docTableContainer,
-.docTableScrollContainer {
+.docTableContainer {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -840,25 +770,21 @@
   overscroll-behavior: contain;
 }
 
-.docTableContainer::-webkit-scrollbar,
-.docTableScrollContainer::-webkit-scrollbar {
+.docTableContainer::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
 
-.docTableContainer::-webkit-scrollbar-track,
-.docTableScrollContainer::-webkit-scrollbar-track {
+.docTableContainer::-webkit-scrollbar-track {
   background: rgba(4, 20, 36, 0.6);
 }
 
-.docTableContainer::-webkit-scrollbar-thumb,
-.docTableScrollContainer::-webkit-scrollbar-thumb {
+.docTableContainer::-webkit-scrollbar-thumb {
   background: rgba(233, 202, 139, 0.25);
   border-radius: 4px;
 }
 
-.docTableContainer::-webkit-scrollbar-thumb:hover,
-.docTableScrollContainer::-webkit-scrollbar-thumb:hover {
+.docTableContainer::-webkit-scrollbar-thumb:hover {
   background: rgba(233, 202, 139, 0.45);
 }
 
@@ -1485,11 +1411,6 @@
     padding: 14px 18px;
   }
 
-  .headerActions {
-    width: 100%;
-    justify-content: space-between;
-  }
-
   .tabsNav {
     overflow-x: auto;
   }
@@ -1558,8 +1479,7 @@
     flex-direction: column;
   }
 
-  .docTableContainer,
-  .docTableScrollContainer {
+  .docTableContainer {
     min-height: 420px;
     height: 62vh;
     max-height: 680px;

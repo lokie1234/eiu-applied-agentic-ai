@@ -1,5 +1,8 @@
 /node_modules
 /.next
+**/node_modules/
+**/.next/
+/%SystemDrive%/
 /.local/
 /out
 /build

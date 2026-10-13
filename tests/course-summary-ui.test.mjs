@@ -39,8 +39,6 @@ test("admin can clear a summary and reopen or cancel the editor without restorin
     require: name => {
       if (name === "@/lib/learningIdentity") return learningIdentity;
       if (name.endsWith(".css")) return new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) });
-      if (name === "@/lib/uploadQueue") return { createUploadQueue: () => task => task() };
-      if (name === "@/lib/uploadSectionFile") return {};
       if (name.startsWith("./")) return { __esModule: true, default: () => null };
       return require(name);
     },

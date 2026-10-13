@@ -2,7 +2,7 @@
 
 Bản chờ review cho course **AI-Powered Web App Development & Deployment**. Chưa commit/push Git.
 
-- `Section1.tsx`: 33 slide, phát triển và quản lý mã nguồn với AI, 237 phút theo phân bổ hiện tại.
+- `Section1.tsx`: 40 slides; slide 14–21 giới thiệu ngắn, tải/cài Git, đăng ký GitHub bằng Google, kiểm tra và setup Git/GCM trong Terminal VS Code; 22–24 tạo repo web và Clone bằng lệnh; 25–33 chạy/chỉnh website ZIP; 34–39 Init/Add/Commit, kết nối repo trống, Push/Pull bằng lệnh và đối chiếu nhánh; 40 tự kiểm tra. Không cài extension GitHub. Xem [GIT_GUIDE.md](GIT_GUIDE.md).
 - `Section2.tsx`: 20 slide, lưu trữ dữ liệu/tài liệu và triển khai, 180 phút.
 - `storyboard.json`: nội dung hiển thị, mục tiêu, thông điệp, ghi chú giảng viên, thời lượng, tiêu chí kiểm tra và 10 prompt tiếng Việt.
 - `renderer.tsx.txt`: mã dựng giao diện EIU DNA và các hoạt động tương tác.

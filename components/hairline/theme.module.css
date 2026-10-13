@@ -8,7 +8,4 @@
 
 .artwork svg { filter: drop-shadow(0 3px 3px rgba(0, 12, 16, .24)); }
 .artwork [data-part] { fill: #102d37; }
-.artwork [data-part="folder-back"], .artwork [data-part="page-back"] { fill: #071d26; }
-.artwork [data-part="folder-paper"], .artwork [data-part="book-pages"] { fill: #0c2630; }
-.artwork [data-part="folder-cover"], .artwork [data-part="book-cover"], .artwork [data-part="page-face"], .artwork [data-part="loading-bead"] { fill: #173740; }
-.artwork [data-part="book-bookmark"] { fill: #284d46; }
+.artwork [data-part="loading-bead"] { fill: #173740; }

@@ -1,6 +1,6 @@
 import styles from "./LearningGrowthIcon.module.css";
 
-type Props = { kind: "forest" | "seed" | "sapling" | "tree"; className?: string; selected?: boolean; action?: boolean };
+type Props = { kind: "forest" | "seed" | "sapling" | "tree"; className?: string; selected?: boolean };
 
 function Tree({ forest = false }: { forest?: boolean }) {
   return <>
@@ -12,8 +12,8 @@ function Tree({ forest = false }: { forest?: boolean }) {
   </>;
 }
 
-export default function LearningGrowthIcon({ kind, className = "", selected = false, action = false }: Props) {
-  return <span className={[styles.icon, action ? styles.artwork : "", className].join(" ")} data-selected={selected || undefined} aria-hidden="true">
+export default function LearningGrowthIcon({ kind, className = "", selected = false }: Props) {
+  return <span className={[styles.icon, className].join(" ")} data-selected={selected || undefined} aria-hidden="true">
     <svg viewBox="0 0 100 100" fill="none" strokeLinecap="round" strokeLinejoin="round" focusable="false">
       <ellipse className={styles.ground} cx="50" cy="85" rx={kind === "forest" ? 43 : 31} ry="4" />
       {kind === "forest" ? <>
@@ -40,6 +40,5 @@ export default function LearningGrowthIcon({ kind, className = "", selected = fa
         <path className={styles.root} d="m50 80-10 5m10-5 10 5" />
       </g> : <g className={styles.sway}><Tree /><path className={styles.root} d="m50 80-12 5m12-5 12 5" /></g>}
     </svg>
-    {action && <span className={styles.action}>Click</span>}
   </span>;
 }

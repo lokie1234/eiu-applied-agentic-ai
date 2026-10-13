@@ -136,7 +136,7 @@ function SignalDataPacket({
 function AcademicDataDust({ stage }: { stage: number }) {
   const pointsRef = useRef<THREE.Points>(null);
 
-  const { positions, count } = useMemo(() => {
+  const positions = useMemo(() => {
     const count = 90;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
@@ -144,7 +144,7 @@ function AcademicDataDust({ stage }: { stage: number }) {
       positions[i * 3 + 1] = (Math.random() - 0.5) * 7.5;
       positions[i * 3 + 2] = (Math.random() - 0.5) * 5.0 - 1.2;
     }
-    return { positions, count };
+    return positions;
   }, []);
 
   const geo = useMemo(() => {

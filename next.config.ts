@@ -1,6 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async headers() {
+    return [{
+      source: "/downloads/eiu-advertising-starter.zip",
+      headers: [{ key: "Content-Disposition", value: 'attachment; filename="eiu-advertising-starter.zip"' }],
+    }];
+  },
   outputFileTracingIncludes: {
     "/api/sections/*/content": ["./course-content/**/*.tsx"],
     "/api/handout": ["./public/downloads/eiu-applied-agentic-ai-section-*-handout.pdf"],

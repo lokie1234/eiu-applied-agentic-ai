@@ -2,17 +2,14 @@ import "server-only";
 import { GoogleGenAI } from "@google/genai";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import {
-  type AiDocument,
   type AiKnowledgeBase,
   type AiRules,
-  type AISource,
   DEFAULT_FALLBACK_MESSAGE,
   DEFAULT_SYSTEM_PROMPT,
-  cleanAiResponseText,
 } from "./types";
 
-export type { AiDocument, AiKnowledgeBase, AiRules, AISource };
-export { DEFAULT_FALLBACK_MESSAGE, DEFAULT_SYSTEM_PROMPT, cleanAiResponseText };
+export type { AISource } from "./types";
+export { DEFAULT_FALLBACK_MESSAGE, DEFAULT_SYSTEM_PROMPT, cleanAiResponseText } from "./types";
 
 let genAiClient: GoogleGenAI | null = null;
 

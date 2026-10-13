@@ -20,7 +20,6 @@
 .errorIcon { display:grid; place-items:center; flex:0 0 23px; height:23px; border-radius:50%; background:#a74734; color:#fff; font-size:15px; font-weight:800; }
 .errorContent { min-width:0; }
 .errorContent > strong { display:block; color:#773728; font-size:14px; line-height:1.5; font-weight:750; }
-.errorEmail { display:block; margin-top:6px; color:#693326; font-size:13px; font-weight:650; overflow-wrap:anywhere; }
 .card .errorContent p { max-width:none; margin:4px 0 0; color:#773728; font-size:13px; line-height:1.5; overflow-wrap:anywhere; }
 .footer { display:flex; align-items:center; justify-content:center; gap:7px; padding-top:18px; margin-top:22px; border-top:1px solid #e8e0d3; font-size:11px; line-height:1.5; color:#687987; }.footer svg { width:14px; height:14px; flex-shrink:0; }
 .spinner { width:16px; height:16px; border:2px solid #ffffff50; border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }@keyframes spin { to { transform:rotate(360deg); } }

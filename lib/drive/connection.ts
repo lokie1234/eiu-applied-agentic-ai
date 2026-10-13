@@ -4,7 +4,6 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { SECTION_SOURCE_DESTINATIONS } from "@/lib/sectionSourceFiles";
 
 const TOKEN_PATH = path.join(process.cwd(), ".local", "google-drive.enc");
 export const DRIVE_STATE_COOKIE = "eiu_drive_oauth";
@@ -115,24 +114,4 @@ export async function authorizedDriveClient() {
   }
   await entry.verification;
   return entry.client;
-}
-
-export async function driveStatus() {
-  const config = driveConfig();
-  if (!(await storedDriveToken())) return { connected: false, email: config.accountEmail, folders: [] };
-  const client = await authorizedDriveClient();
-  const folders = await Promise.all(Object.entries(SECTION_SOURCE_DESTINATIONS).map(async ([type, id]) => {
-    try {
-      const response = await client.request<{ name: string; mimeType: string; trashed?: boolean; capabilities?: { canAddChildren?: boolean } }>({
-        url: `https://www.googleapis.com/drive/v3/files/${id}`,
-        timeout: 10000,
-        params: { supportsAllDrives: true, fields: "name,mimeType,trashed,capabilities(canAddChildren)" },
-      });
-      const available = response.data.mimeType === "application/vnd.google-apps.folder" && !response.data.trashed && response.data.capabilities?.canAddChildren === true;
-      return { type, id, name: response.data.name, available };
-    } catch {
-      return { type, id, name: "", available: false };
-    }
-  }));
-  return { connected: true, email: config.accountEmail, folders };
 }

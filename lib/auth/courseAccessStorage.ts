@@ -4,7 +4,6 @@ import "server-only";
 
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { FIXED_ADMIN_EMAIL, isValidEmail, normalizeEmail, APPLIED_AGENTIC_AI_SLUG, type CourseSystemIcon } from "@/lib/auth/types";
-export type { CourseSystemIcon };
 
 export type SlideTemplate = { id: string; name: string; background: string };
 

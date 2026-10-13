@@ -458,758 +458,925 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "visualConcept": "EIU DNA · logo chính chủ lơ lửng, bấm để xem ưu và nhược điểm."
     },
     {
-      "title": "Git trong một buổi vibe coding",
-      "visual": "git-intro-checkpoint",
-      "message": "AI sửa từng việc nhỏ. Bạn kiểm tra và lưu mốc khi kết quả đã ổn.",
-      "cards": [
-        {
-          "title": "Bản đang ổn",
-          "label": "01 · Trước khi sửa",
-          "text": "Nút Lưu hoạt động đúng. Bạn tạo một commit trước khi thử giao diện mới.",
-          "detail": "Commit là mốc mã nguồn đã lưu trong Git. Bạn có thể xem lại mốc này để so sánh hoặc phục hồi.",
-          "points": [
-            "Chạy thử chức năng chính.",
-            "Lưu đúng những thay đổi đã kiểm tra."
-          ],
-          "code": "✓ Nút Lưu hoạt động\n✓ Commit: Giao diện ban đầu"
-        },
-        {
-          "title": "AI vừa sửa",
-          "label": "02 · Thử ý tưởng",
-          "text": "Nút đẹp hơn nhưng bấm không lưu. Thay đổi mới vẫn đang ở trên máy.",
-          "detail": "Mở Source Control để xem diff: những dòng nào đã thêm, xóa hoặc sửa. Gửi lỗi cụ thể cho Codex.",
-          "points": [
-            "Mô tả bước làm lỗi xuất hiện.",
-            "Đối chiếu với commit đang ổn."
-          ],
-          "code": "✓ Giao diện mới\n! Bấm Lưu chưa có kết quả"
-        },
-        {
-          "title": "Sửa hoặc phục hồi",
-          "label": "03 · Kiểm tra lại",
-          "text": "Nhờ AI sửa đúng lỗi, hoặc hoàn tác phần thử nghiệm sau khi xem thay đổi.",
-          "detail": "Git chỉ phục hồi được nội dung đã lưu trong lịch sử. Tạo mốc trước khi thử giúp bạn có điểm quay lại rõ ràng.",
-          "points": [
-            "Kiểm tra lại nút Lưu.",
-            "Commit bản sửa khi kết quả đạt yêu cầu."
-          ],
-          "code": "✓ Lưu hoạt động trở lại\n✓ Commit: Sửa xử lý nút Lưu"
-        }
-      ],
       "section": 1,
       "number": 14,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "AI sửa từng việc nhỏ. Bạn kiểm tra và lưu mốc khi kết quả đã ổn.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Git, GitHub và Codex",
-      "visual": "git-intro-roles",
-      "message": "Ba công cụ phối hợp trong cùng dự án, mỗi công cụ có một vai trò.",
+      "title": "Git · lưu lịch sử mã nguồn trên máy",
+      "minutes": 6,
+      "message": "Git giúp ghi lại phiên bản, xem thay đổi và quay về mốc đã lưu.",
       "cards": [
         {
-          "title": "Git",
           "logo": "Git",
-          "label": "LỊCH SỬ TRÊN MÁY",
-          "text": "Ghi các mốc thay đổi của mã nguồn.",
-          "detail": "Cài Git trên máy để VS Code và Codex có thể dùng trong thư mục dự án.",
+          "title": "Git là gì?",
+          "text": "Công cụ quản lý phiên bản chạy trên máy của bạn.",
           "points": [
-            "Commit lưu một phiên bản.",
-            "Diff cho biết phần thay đổi.",
-            "Có thể dùng Git cục bộ khi chưa có GitHub."
+            "Commit: mốc lưu một nhóm thay đổi.",
+            "Branch: nhánh để phát triển riêng.",
+            "Lưu file bằng Ctrl+S chưa tạo Commit."
           ]
         },
         {
-          "title": "GitHub",
-          "logo": "GitHub",
-          "label": "REPOSITORY ONLINE",
-          "text": "Lưu repository từ xa và cộng tác.",
-          "detail": "Repository là kho mã nguồn cùng lịch sử Git. Push gửi các commit từ máy lên kho này.",
-          "points": [
-            "Tài khoản GitHub dùng để đăng nhập.",
-            "Quyền repository quyết định ai được xem hoặc sửa.",
-            "Pull Request hỗ trợ xem xét trước khi merge."
-          ]
+          "logo": "Windows",
+          "title": "Tải Git cho Windows",
+          "text": "Mở trang chính thức, chọn bộ cài phù hợp với máy.",
+          "link": "https://git-scm.com/install/windows",
+          "linkLabel": "Tải Git cho Windows",
+          "detail": "Chọn x64 hoặc ARM64 theo Settings → System → About → System type."
         },
         {
-          "title": "Codex",
-          "logo": "AI Codex",
-          "label": "TRỢ LÝ TRONG VS CODE",
-          "text": "Đọc, sửa mã và hỗ trợ thao tác Git.",
-          "detail": "Cài extension Codex của OpenAI rồi đăng nhập. AI làm việc trong phạm vi file và quyền bạn cấp.",
-          "points": [
-            "Bạn nêu mục tiêu và kết quả mong đợi.",
-            "AI giải thích, sửa và chạy kiểm tra khi có quyền.",
-            "Bạn xem diff và xác nhận kết quả thực tế."
-          ]
+          "logo": "VS Code",
+          "title": "Git dùng trong VS Code",
+          "text": "Mở project, chạy lệnh Git trong Terminal và xem thay đổi ở Source Control.",
+          "detail": "VS Code có sẵn hỗ trợ Git. Chỉ cần cài Git trên máy; không cài thêm extension GitHub."
         }
       ],
+      "visual": "git-intro-git",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Git giúp ghi lại phiên bản, xem thay đổi và quay về mốc đã lưu.",
+      "objective": "Git giúp ghi lại phiên bản, xem thay đổi và quay về mốc đã lưu.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 15,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Ba công cụ phối hợp trong cùng dự án, mỗi công cụ có một vai trò.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Thiết lập từ VS Code mới cài",
-      "visual": "git-intro-setup",
-      "message": "Bắt đầu khi chưa có Git, extension AI hay repository. Bấm từng bước để xem cách làm.",
+      "title": "GitHub · tài khoản và kho mã nguồn online",
+      "minutes": 6,
+      "message": "Git lưu lịch sử trên máy; GitHub lưu repository online để chia sẻ và cộng tác.",
       "cards": [
         {
-          "title": "Cài Git trên máy",
-          "label": "01",
-          "logo": "Git",
-          "text": "Tải Git đúng hệ điều hành tại git-scm.com, cài xong mở lại VS Code.",
-          "detail": "Chọn Terminal > New Terminal và kiểm tra. Nếu chưa nhận lệnh, mở lại terminal hoặc VS Code.",
-          "code": "git --version",
-          "points": [
-            "Thành công: terminal hiện số phiên bản Git.",
-            "Source Control có sẵn trong VS Code, không cần cài GitLens."
-          ],
-          "link": "https://git-scm.com/downloads",
-          "linkLabel": "Trang tải Git"
-        },
-        {
-          "title": "Đặt tên cho commit",
-          "label": "02",
-          "text": "Đặt tên và email tác giả. Đây là thông tin ghi trong lịch sử, không phải đăng nhập GitHub.",
-          "detail": "Thay phần trong dấu ngoặc bằng thông tin của bạn. Có thể dùng email noreply từ Settings > Emails của GitHub.",
-          "code": "git config --global user.name \"<Tên của bạn>\"\ngit config --global user.email \"<Email của bạn>\"",
-          "points": [
-            "Thiết lập một lần cho các repository trên máy."
-          ]
-        },
-        {
-          "title": "Cài extension Codex",
-          "label": "03",
-          "logo": "AI Codex",
-          "text": "Mở Extensions (Ctrl+Shift+X), tìm Codex và chọn nhà phát hành OpenAI, rồi Install.",
-          "detail": "Mở biểu tượng Codex và đăng nhập theo hướng dẫn bằng tài khoản có quyền sử dụng. Chưa cần cài Codex CLI riêng cho luồng extension này.",
-          "points": [
-            "Mở thư mục dự án trước khi giao việc.",
-            "Quyền đọc, sửa và chạy lệnh theo cấu hình của bạn."
-          ],
-          "link": "https://marketplace.visualstudio.com/items?itemName=OpenAI.chatgpt",
-          "linkLabel": "Codex của OpenAI"
-        },
-        {
-          "title": "Tạo repository local",
-          "label": "04",
-          "logo": "VS Code",
-          "text": "Tạo thư mục vibe-practice. Trong VS Code chọn File > Open Folder để mở thư mục đó.",
-          "detail": "Mở Source Control (Ctrl+Shift+G), chọn Initialize Repository. Nhờ Codex tạo README.md giới thiệu dự án, xem file rồi tạo commit đầu tiên.",
-          "points": [
-            "Repository đã có trên máy.",
-            "Nếu có dự án GitHub sẵn: dùng Git: Clone thay cho Initialize."
-          ]
-        },
-        {
-          "title": "Kết nối GitHub",
-          "label": "05",
           "logo": "GitHub",
-          "text": "Tạo tài khoản tại github.com. Mở Command Palette (Ctrl+Shift+P), chọn Publish to GitHub.",
-          "detail": "Đăng nhập bằng trình duyệt khi VS Code yêu cầu. Chọn tên repository, quyền Public/Private và file cần đưa lên.",
+          "title": "GitHub dùng để làm gì?",
+          "text": "Lưu mã nguồn, lịch sử commit và nhánh đã gửi từ máy lên.",
           "points": [
-            "Kiểm tra repository online có README và commit đầu tiên.",
-            "Cài môi trường chạy như Node.js theo README khi dự án cần."
-          ],
+            "Push: gửi commit lên GitHub.",
+            "Pull: lấy và tích hợp thay đổi về máy.",
+            "Đưa mã lên GitHub chưa phải deploy website."
+          ]
+        },
+        {
+          "logo": "Google",
+          "title": "Đăng ký tài khoản",
+          "text": "Mở GitHub Signup; gợi ý chọn Continue with Google để đăng ký nhanh.",
           "link": "https://github.com/signup",
-          "linkLabel": "Tạo tài khoản GitHub"
+          "linkLabel": "Đăng ký GitHub",
+          "detail": "Chọn Google của bạn, hoàn tất username và các bước GitHub yêu cầu. Username sẽ nằm trong URL repository."
+        },
+        {
+          "logo": "GitHub",
+          "title": "Chuẩn bị kết nối",
+          "text": "Nhớ username; kiểm tra bạn đang đăng nhập đúng tài khoản trên trình duyệt.",
+          "detail": "Git sẽ dùng HTTPS và Git Credential Manager để xác thực qua trình duyệt khi cần."
         }
       ],
+      "visual": "git-intro-github",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Git lưu lịch sử trên máy; GitHub lưu repository online để chia sẻ và cộng tác.",
+      "objective": "Git lưu lịch sử trên máy; GitHub lưu repository online để chia sẻ và cộng tác.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 16,
-      "minutes": 8,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Bắt đầu khi chưa có Git, extension AI hay repository. Bấm từng bước để xem cách làm.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Một vòng làm việc hằng ngày",
-      "visual": "git-intro-cycle",
-      "message": "Save ghi file trên máy. Commit lưu mốc Git. Push gửi commit lên GitHub.",
+      "title": "Cài Git · tải và mở bộ cài",
+      "minutes": 6,
+      "message": "Hướng dẫn dùng Windows và Terminal PowerShell trong VS Code.",
       "cards": [
         {
-          "title": "Sửa",
-          "label": "01",
-          "text": "Giao một yêu cầu nhỏ cho Codex và lưu file sau khi sửa.",
-          "detail": "Ví dụ: “Đổi nhãn nút thành Tạo yêu cầu, giữ nguyên chức năng lưu.”",
-          "points": [
-            "Save chỉ ghi nội dung file trên máy."
-          ]
+          "logo": "Windows",
+          "title": "Tải từ trang chính thức",
+          "text": "Chọn bộ cài Windows phù hợp với kiến trúc máy.",
+          "link": "https://git-scm.com/install/windows",
+          "linkLabel": "Mở trang tải Git",
+          "detail": "Không cần ghi nhớ số phiên bản; dùng bản được trang chính thức cung cấp."
         },
         {
-          "title": "Xem diff",
-          "label": "02",
-          "text": "Mở Source Control và chọn file trong Changes.",
-          "detail": "Đọc các dòng thêm/xóa. Hỏi AI giải thích phần chưa rõ trước khi giữ bản sửa.",
-          "points": [
-            "Đúng file, đúng tính năng, đúng phạm vi."
-          ]
+          "logo": "Git",
+          "title": "Chạy bộ cài",
+          "text": "Mở file .exe vừa tải, xác nhận cửa sổ Windows nếu xuất hiện.",
+          "detail": "Giữ thư mục cài mặc định. Đọc lựa chọn PATH và Credential Manager ở slide tiếp theo."
         },
         {
-          "title": "Kiểm tra",
-          "label": "03",
-          "text": "Chạy thử theo README và kiểm tra thao tác vừa thay đổi.",
-          "detail": "Nhờ Codex đọc cấu hình dự án, xác định lệnh chạy phù hợp và báo rõ kiểm tra nào chưa thực hiện được.",
-          "points": [
-            "Cài môi trường và thư viện nếu dự án yêu cầu."
-          ]
-        },
-        {
-          "title": "Stage",
-          "label": "04",
-          "text": "Chọn phần thay đổi sẽ có trong commit tiếp theo.",
-          "detail": "Trong Source Control, bấm dấu + cạnh file phù hợp. Kiểm tra lại Staged Changes.",
-          "points": [
-            "Giữ thay đổi không liên quan ngoài commit."
-          ]
-        },
-        {
-          "title": "Commit",
-          "label": "05",
-          "text": "Tạo mốc trên máy với thông điệp dễ hiểu.",
-          "detail": "Ví dụ: “Làm rõ nhãn nút tạo yêu cầu”. Sau bước này, GitHub chưa có commit mới.",
-          "points": [
-            "Commit ghi lại nội dung đã stage."
-          ]
-        },
-        {
-          "title": "Push",
-          "label": "06",
-          "text": "Gửi commit tới đúng repository và nhánh trên GitHub.",
-          "detail": "Mở GitHub để kiểm tra commit mới. Khi làm cùng người khác, Pull nhận và tích hợp thay đổi từ xa.",
-          "points": [
-            "Push không tự cấu hình hosting hoặc deploy."
-          ]
+          "logo": "VS Code",
+          "title": "Sau khi cài",
+          "text": "Đóng và mở lại VS Code để Terminal nhận PATH mới.",
+          "detail": "Mở Terminal → New Terminal. Terminal mở trước khi cài có thể chưa nhận lệnh Git."
         }
       ],
+      "visual": "git-intro-download",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Hướng dẫn dùng Windows và Terminal PowerShell trong VS Code.",
+      "objective": "Hướng dẫn dùng Windows và Terminal PowerShell trong VS Code.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 17,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Save ghi file trên máy. Commit lưu mốc Git. Push gửi commit lên GitHub.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "GitHub: đọc một repository",
-      "visual": "git-intro-repository",
-      "message": "Ví dụ minh họa: eiu / vibe-practice. Chọn từng vùng để biết cần xem gì.",
+      "title": "Cài Git · các lựa chọn cần giữ",
+      "minutes": 6,
+      "message": "PATH giúp VS Code gọi Git; Credential Manager hỗ trợ đăng nhập GitHub.",
       "cards": [
         {
-          "title": "Code",
-          "text": "Cây file của nhánh đang chọn.",
-          "detail": "Mở file để xem mã trên GitHub. Phiên bản ở đây chỉ cập nhật khi bạn push hoặc sửa trực tiếp trên GitHub.",
-          "code": "vibe-practice/\n  app/\n  public/\n  README.md",
-          "points": [
-            "So sánh với file đang mở trong VS Code."
-          ]
+          "logo": "VS Code",
+          "title": "Editor và nhánh mặc định",
+          "text": "Nếu VS Code đã có, chọn Visual Studio Code làm editor; đặt nhánh mặc định là main.",
+          "detail": "Các lựa chọn khác có thể giữ mặc định. Nếu chưa chọn main trong bộ cài, vẫn đặt bằng lệnh ở slide 20."
         },
         {
-          "title": "README",
-          "text": "Hướng dẫn bắt đầu với dự án.",
-          "detail": "Đọc mục đích, môi trường cần cài và cách chạy. Nhờ Codex giải thích các bước trước khi thực hiện.",
-          "code": "# Vibe practice\nMục đích\nYêu cầu cài đặt\nCách chạy và kiểm tra",
-          "points": [
-            "Không đoán lệnh chạy nếu chưa xem README."
-          ]
+          "logo": "Windows",
+          "title": "Cho phép chạy từ Terminal",
+          "text": "Ở mục PATH, chọn Git from the command line and also from 3rd-party software.",
+          "detail": "Lựa chọn này cho phép PowerShell và VS Code tìm thấy Git."
         },
         {
-          "title": "Commits",
-          "text": "Lịch sử các mốc đã push.",
-          "detail": "Mở một commit để xem thông điệp, tác giả và diff. Dùng lịch sử để tìm lần sửa liên quan đến lỗi.",
-          "code": "Làm rõ nhãn nút tạo yêu cầu\nThêm biểu mẫu đầu tiên\nTạo README",
-          "points": [
-            "Chọn mốc phù hợp để đối chiếu."
-          ]
-        },
-        {
-          "title": "Branches",
-          "text": "Các nhánh của repository.",
-          "detail": "Nhánh main thường giữ bản chung. Nhánh feature/new-button chứa công việc đang thử.",
-          "code": "main\nfeature/new-button",
-          "points": [
-            "Kiểm tra đang xem đúng nhánh trước khi tìm file."
-          ]
-        },
-        {
-          "title": "Pull requests",
-          "text": "Nơi xem xét thay đổi trước khi hợp nhất.",
-          "detail": "Đọc mô tả, Files changed và kết quả kiểm tra. Khi phù hợp mới merge vào nhánh đích.",
-          "code": "feature/new-button → main\nFiles changed\nChecks\nReview",
-          "points": [
-            "Website chỉ cập nhật khi có quy trình deploy đã cấu hình."
-          ]
+          "logo": "Git",
+          "title": "Giữ Credential Manager",
+          "text": "Giữ Git Credential Manager và các tùy chọn HTTPS mặc định rồi hoàn tất Install.",
+          "detail": "Git Credential Manager đi kèm Git for Windows, không phải extension của VS Code."
         }
       ],
+      "visual": "git-intro-install",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "PATH giúp VS Code gọi Git; Credential Manager hỗ trợ đăng nhập GitHub.",
+      "objective": "PATH giúp VS Code gọi Git; Credential Manager hỗ trợ đăng nhập GitHub.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 18,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Ví dụ minh họa: eiu / vibe-practice. Chọn từng vùng để biết cần xem gì.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Branch: thử ý tưởng mới",
-      "visual": "git-intro-branch",
-      "message": "Một nhánh cho một thay đổi. Xem kết quả trước khi nhập vào bản chung.",
+      "title": "Kiểm tra Git trong Terminal của VS Code",
+      "minutes": 6,
+      "message": "Sau cài đặt, mỗi lệnh cần trả về kết quả trước khi tiếp tục.",
       "cards": [
         {
-          "title": "Tạo nhánh",
-          "label": "01",
-          "text": "Từ bản đang ổn, tạo feature/new-button.",
-          "detail": "Nhờ Codex kiểm tra nhánh hiện tại và thay đổi chưa commit trước khi tạo nhánh mới.",
-          "points": [
-            "Nhánh mới là một đường phát triển trong cùng repository."
-          ]
+          "logo": "Terminal",
+          "title": "Kiểm tra phiên bản",
+          "text": "Mở VS Code → Terminal → New Terminal rồi chạy:",
+          "code": "git --version",
+          "detail": "Kết quả mong đợi: git version kèm số phiên bản. Nếu báo không nhận lệnh, mở lại VS Code; vẫn lỗi thì kiểm tra lựa chọn PATH trong bộ cài."
         },
         {
-          "title": "Sửa và commit",
-          "label": "02",
-          "text": "Thử nút mới, chạy kiểm tra rồi lưu mốc trên nhánh.",
-          "detail": "Main chưa nhận các commit mới này. Bạn có thể thử nhiều lần và giữ lịch sử rõ ràng.",
-          "points": [
-            "Mỗi commit nên có mục đích dễ hiểu."
-          ]
+          "logo": "Terminal",
+          "title": "Kiểm tra đường dẫn",
+          "text": "Trong PowerShell, xem file thực thi Git được tìm thấy ở đâu.",
+          "code": "where.exe git",
+          "detail": "Kết quả là đường dẫn tới git.exe. Nếu có nhiều đường dẫn, Git dùng bản đầu tiên trên PATH."
         },
         {
-          "title": "Push và mở PR",
-          "label": "03",
-          "text": "Đưa nhánh lên GitHub, tạo Pull Request tới main.",
-          "detail": "Mô tả thay đổi và cách đã kiểm tra. Người xem có thể đọc diff và góp ý ngay trên GitHub.",
-          "points": [
-            "PR là đề nghị xem xét, chưa phải merge."
-          ]
-        },
-        {
-          "title": "Merge",
-          "label": "04",
-          "text": "Hợp nhất khi kết quả đạt yêu cầu.",
-          "detail": "Nếu có conflict, cần chọn nội dung đúng và kiểm tra lại. Sau merge, cập nhật main trên máy.",
-          "points": [
-            "Deploy là bước riêng theo cấu hình dự án."
-          ]
+          "logo": "Terminal",
+          "title": "Kiểm tra xác thực",
+          "text": "Xác nhận Git Credential Manager và credential helper đã sẵn sàng.",
+          "code": "git credential-manager --version\ngit config --show-origin --get-all credential.helper",
+          "detail": "Cần thấy phiên bản GCM và helper manager. Nếu thiếu, chạy lại bộ cài và chọn Git Credential Manager."
         }
       ],
+      "visual": "git-intro-verify-git",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Sau cài đặt, mỗi lệnh cần trả về kết quả trước khi tiếp tục.",
+      "objective": "Sau cài đặt, mỗi lệnh cần trả về kết quả trước khi tiếp tục.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 19,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Một nhánh cho một thay đổi. Xem kết quả trước khi nhập vào bản chung.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Khi AI sửa sai",
-      "visual": "git-intro-recovery",
-      "message": "Xem trạng thái Git trước, rồi chọn cách phục hồi phù hợp với phần đang sửa.",
+      "title": "Đăng ký GitHub · gợi ý dùng Google",
+      "minutes": 6,
+      "message": "Tạo tài khoản trên trình duyệt, sau đó dùng tài khoản này khi Git yêu cầu xác thực.",
       "cards": [
         {
-          "title": "Chưa commit",
-          "label": "THAY ĐỔI TRÊN MÁY",
-          "text": "Xem diff và yêu cầu sửa đúng phần lỗi.",
-          "detail": "Nếu muốn bỏ phần thử nghiệm, xác định rõ file hoặc đoạn cần hoàn tác. Discard Changes xóa các sửa chưa commit trong phần đã chọn.",
-          "points": [
-            "Giữ lại phần đang làm dở trước khi bỏ thay đổi.",
-            "Git không bảo đảm cứu được nội dung chưa từng commit."
-          ],
-          "prompt": "Xem diff hiện tại và tìm phần làm nút Lưu bị lỗi. Giải thích nguyên nhân, đề xuất sửa nhỏ nhất. Giữ các thay đổi không liên quan."
+          "logo": "Google",
+          "title": "Mở GitHub Signup",
+          "text": "Bấm link đăng ký và chọn Continue with Google.",
+          "link": "https://github.com/signup",
+          "linkLabel": "Đăng ký GitHub bằng Google",
+          "detail": "Nếu đã có tài khoản GitHub, đăng nhập tài khoản hiện có."
         },
         {
-          "title": "Đã commit / push",
-          "label": "ĐÃ CÓ TRONG LỊCH SỬ",
-          "text": "Đối chiếu commit gây lỗi và tạo bản sửa.",
-          "detail": "Có thể dùng revert để tạo commit đảo tác động của commit cũ. Với lịch sử đã chia sẻ, cách này giữ dấu vết thay đổi.",
-          "points": [
-            "Revert có thể cần xử lý conflict.",
-            "Kiểm tra lại ứng dụng rồi mới push bản phục hồi."
-          ],
-          "prompt": "Tìm commit liên quan đến lỗi. So sánh với bản đang ổn, đề xuất sửa hoặc revert phù hợp. Cho tôi xem phần sẽ thay đổi trước khi phục hồi."
+          "logo": "GitHub",
+          "title": "Hoàn tất tài khoản",
+          "text": "Chọn Google, đặt username và hoàn tất các bước trên GitHub.",
+          "detail": "Thực hiện xác minh email hoặc bước xác nhận nếu được yêu cầu. Có thể đăng ký bằng email nếu không dùng Google."
         },
         {
-          "title": "Có conflict",
-          "label": "HAI THAY ĐỔI KHÔNG GHÉP TỰ ĐỘNG",
-          "text": "Ví dụ: bạn và đồng nghiệp sửa cùng nhãn nút.",
-          "detail": "Một bên đổi “Lưu” thành “Gửi”, bên kia đổi thành “Tạo yêu cầu”. Cần chọn nội dung đúng theo yêu cầu, không chọn một phía theo thói quen.",
-          "points": [
-            "Nhờ Codex giải thích cả hai phiên bản.",
-            "Giữ kết quả đúng, kiểm tra rồi hoàn tất merge."
-          ],
-          "prompt": "Giải thích từng vùng conflict và mục đích hai phía. Đề xuất bản kết hợp theo yêu cầu hiện tại, giữ chức năng cũ và nêu cách kiểm tra."
+          "logo": "GitHub",
+          "title": "Kiểm tra username và email",
+          "text": "Bấm avatar → Your profile để xem username; mở Settings → Emails để xem email.",
+          "detail": "Dùng email đã xác minh hoặc email noreply do GitHub cung cấp cho user.email ở bước tiếp theo."
         }
       ],
+      "visual": "git-intro-signup",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Tạo tài khoản trên trình duyệt, sau đó dùng tài khoản này khi Git yêu cầu xác thực.",
+      "objective": "Tạo tài khoản trên trình duyệt, sau đó dùng tài khoản này khi Git yêu cầu xác thực.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 20,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Xem trạng thái Git trước, rồi chọn cách phục hồi phù hợp với phần đang sửa.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
-    },
-    {
-      "title": "Giao việc Git cho Codex",
-      "visual": "git-intro-prompts",
-      "message": "Sau khi hoàn tất thiết lập, dùng yêu cầu ngắn với phạm vi và kết quả kiểm tra rõ ràng.",
+      "title": "Setup Git · tên, email và nhánh main",
+      "minutes": 6,
+      "message": "Tên và email là thông tin tác giả Commit; bước này chưa đăng nhập GitHub.",
       "cards": [
         {
-          "title": "Đọc thay đổi",
-          "label": "01",
-          "text": "Hiểu AI đã sửa gì trước khi lưu mốc.",
-          "prompt": "Xem trạng thái Git và diff trong dự án đang mở. Tóm tắt từng nhóm thay đổi bằng ngôn ngữ dễ hiểu, nêu file không liên quan và phần cần kiểm tra. Chưa commit hoặc push."
+          "logo": "Terminal",
+          "title": "Đặt tên và email",
+          "text": "Thay ví dụ bằng tên của bạn và email đã xác minh trên GitHub.",
+          "code": "git config --global user.name \"Nguyen Van A\"\ngit config --global user.email \"email-cua-ban@example.com\"",
+          "detail": "Muốn ẩn email cá nhân, dùng đúng địa chỉ noreply trong GitHub → Settings → Emails."
         },
         {
-          "title": "Tạo mốc ổn định",
-          "label": "02",
-          "text": "Lưu một việc đã hoàn thành.",
-          "prompt": "Kiểm tra phần vừa sửa, báo rõ kiểm tra đã chạy và chưa chạy. Nếu đạt, stage đúng thay đổi của tính năng này rồi tạo commit với thông điệp rõ ràng. Giữ các thay đổi không liên quan ngoài commit. Chưa push."
+          "logo": "Terminal",
+          "title": "Đặt nhánh mặc định",
+          "text": "Repository mới khởi tạo sẽ dùng tên nhánh main.",
+          "code": "git config --global init.defaultBranch main",
+          "detail": "--global áp dụng cho tài khoản Windows hiện tại; không đổi tên nhánh của repository đã có."
         },
         {
-          "title": "Thử trên nhánh",
-          "label": "03",
-          "text": "Tách thử nghiệm khỏi bản chung.",
-          "prompt": "Kiểm tra nhánh hiện tại và các thay đổi chưa commit. Tạo nhánh cho giao diện nút mới, giữ nguyên chức năng lưu. Thực hiện và kiểm tra, báo lại diff cùng kết quả. Chưa merge vào main."
-        },
-        {
-          "title": "Chuẩn bị push",
-          "label": "04",
-          "text": "Kiểm tra đúng kho, đúng nhánh và đúng nội dung.",
-          "prompt": "Kiểm tra repository đích, nhánh và các commit chuẩn bị push. Kiểm tra không có .env, token hoặc mật khẩu trong nội dung sẽ gửi, không in giá trị bí mật. Báo kết quả để tôi duyệt trước khi push. Nếu thiếu quyền, hướng dẫn tôi tự đăng nhập."
+          "logo": "Terminal",
+          "title": "Kiểm tra cấu hình",
+          "text": "Đối chiếu ba dòng kết quả với thông tin vừa đặt.",
+          "code": "git config --global --get user.name\ngit config --global --get user.email\ngit config --global --get init.defaultBranch",
+          "detail": "Kết quả lần lượt là tên, email và main. Nhập lại lệnh thiết lập nếu có thông tin sai."
         }
       ],
+      "visual": "git-intro-identity",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Tên và email là thông tin tác giả Commit; bước này chưa đăng nhập GitHub.",
+      "objective": "Tên và email là thông tin tác giả Commit; bước này chưa đăng nhập GitHub.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
       "section": 1,
       "number": 21,
-      "minutes": 4,
-      "note": "Nguồn đối chiếu: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert",
-      "verify": "Học viên chọn các mục, giải thích kết quả và áp dụng trên repository thực hành.",
-      "objective": "Sau khi hoàn tất thiết lập, dùng yêu cầu ngắn với phạm vi và kết quả kiểm tra rõ ràng.",
-      "visualConcept": "EIU DNA, tương tác theo trạng thái, bắt đầu từ VS Code chưa cài Git hay AI."
+      "title": "Setup GitHub · xác thực từ VS Code",
+      "minutes": 6,
+      "message": "Chạy Git trong Terminal; đăng nhập GitHub qua trình duyệt khi Credential Manager yêu cầu.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Chuẩn bị HTTPS và GCM",
+          "text": "Git trong Terminal dùng Credential Manager để kết nối GitHub.",
+          "code": "git credential-manager --version\ngit config --get credential.helper",
+          "detail": "Cần thấy phiên bản GCM và helper manager. VS Code hỗ trợ Git sẵn; không cài extension GitHub, không cần đăng nhập menu Accounts để chạy lệnh Git.",
+          "link": "https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git",
+          "linkLabel": "Hướng dẫn xác thực Git chính thức"
+        },
+        {
+          "logo": "Google",
+          "title": "Đăng nhập khi có yêu cầu",
+          "text": "Ở lần Clone repo private hoặc Push đầu tiên, chọn Sign in with your browser trong cửa sổ GCM.",
+          "detail": "Đăng nhập đúng tài khoản GitHub, có thể dùng Continue with Google; xác nhận quyền và 2FA nếu được yêu cầu, rồi quay lại Terminal. Repo public có thể Clone mà chưa cần đăng nhập."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Kiểm tra kết nối thực tế",
+          "text": "Sau khi có origin ở slide 24 hoặc 35, chạy lệnh đọc remote.",
+          "code": "git remote -v\ngit ls-remote origin",
+          "detail": "Remote phải đúng username/repo. Repo có commit sẽ trả về mã commit và refs. Repo trống có thể không in dòng nào; Push thành công mới xác nhận quyền ghi."
+        }
+      ],
+      "visual": "git-intro-signin",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Chạy Git trong Terminal; đăng nhập GitHub qua trình duyệt khi Credential Manager yêu cầu.",
+      "objective": "Chạy Git trong Terminal; đăng nhập GitHub qua trình duyệt khi Credential Manager yêu cầu.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 22,
-      "title": "Mở đúng dự án, hiểu đúng cấu trúc",
-      "minutes": 7,
-      "message": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
+      "title": "Hai điểm xuất phát · cùng dùng lệnh Git",
+      "minutes": 6,
+      "message": "Repo có sẵn thì Clone; project ZIP chưa có Git thì Init rồi kết nối repository trống.",
       "cards": [
         {
-          "title": "Mở thư mục gốc",
-          "text": "Chọn Open Folder để thấy toàn bộ dự án, thay vì chỉ mở một file rời."
+          "logo": "GitHub",
+          "title": "Repository có sẵn",
+          "text": "Thử tạo repo web với README, sau đó Clone về máy bằng lệnh.",
+          "detail": "Slide 23–24 là ví dụ nhỏ để hiểu Clone và kiểm tra remote."
         },
         {
-          "title": "Đọc cấu hình chạy",
-          "text": "package.json thường liệt kê tác vụ của dự án web; nhờ AI giải thích tác vụ cần dùng."
+          "logo": "VS Code",
+          "title": "Project ZIP của bạn",
+          "text": "Tải website mẫu, chỉnh và kiểm tra, rồi khởi tạo Git một lần.",
+          "detail": "Slide 25–35 dùng eiu-advertising-starter làm dự án chính; tạo repository online trống để nhận commit local."
         },
         {
-          "title": "Phân biệt mã và cấu hình",
-          "text": "Trang, thành phần và tài nguyên có vai trò khác nhau; không chia sẻ giá trị bí mật trong .env.local."
+          "logo": "Git",
+          "title": "Chọn đúng cách",
+          "text": "Clone đã có lịch sử Git; ZIP cần git init khi chưa có lịch sử.",
+          "detail": "Không chạy git init lại trong repo vừa Clone. Khi đưa ZIP lên GitHub, không thêm README online trước."
         }
       ],
-      "visual": "workspace-files",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
-      "objective": "Mở thư mục gốc của dự án trước khi giao việc cho AI.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-routes",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Repo có sẵn thì Clone; project ZIP chưa có Git thì Init rồi kết nối repository trống.",
+      "objective": "Repo có sẵn thì Clone; project ZIP chưa có Git thì Init rồi kết nối repository trống.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 23,
-      "title": "Tìm kiếm, tiện ích và chạy thử",
+      "title": "Tạo repository trên GitHub để thử Clone",
       "minutes": 6,
-      "message": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
+      "message": "Tạo repo nhỏ có README để nhìn thấy file và lịch sử sau khi Clone.",
       "cards": [
         {
-          "title": "Tìm kiếm trong dự án",
-          "text": "Search tìm chữ trên nhiều file. Đọc từng kết quả trước khi thay thế hàng loạt."
+          "logo": "GitHub",
+          "title": "Mở trang tạo repo",
+          "text": "Đăng nhập, chọn Owner là tài khoản của bạn và đặt tên webapp-web.",
+          "link": "https://github.com/new",
+          "linkLabel": "Tạo repository trên GitHub"
         },
         {
-          "title": "Tiện ích mở rộng",
-          "text": "Extensions bổ sung hỗ trợ ngôn ngữ, GitHub hoặc AI. Kiểm tra nhà phát hành và quyền cần dùng."
+          "logo": "GitHub",
+          "title": "Chọn Private và README",
+          "text": "Chọn Private, bật Add README rồi bấm Create repository.",
+          "detail": "Repo private giúp bước Clone thử xác thực tài khoản. Repo này là bài thử; website mẫu sẽ dùng repository riêng."
         },
         {
-          "title": "Terminal và bản xem thử",
-          "text": "Chạy đúng tác vụ tại thư mục dự án; đọc lỗi và mở địa chỉ localhost được thông báo."
+          "logo": "GitHub",
+          "title": "Sao chép URL HTTPS",
+          "text": "Trong repo, chọn Code → Local → HTTPS và Copy URL.",
+          "detail": "Dạng URL: https://github.com/USERNAME/webapp-web.git. Không sao chép URL SSH cho tuyến thực hành HTTPS này."
         }
       ],
-      "visual": "workspace-tools",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
-      "objective": "Tìm đúng nơi sửa và biết cách chạy lại để kiểm tra.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-web-create",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Tạo repo nhỏ có README để nhìn thấy file và lịch sử sau khi Clone.",
+      "objective": "Tạo repo nhỏ có README để nhìn thấy file và lịch sử sau khi Clone.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 24,
-      "title": "Làm việc với AI ngay trong dự án",
+      "title": "Clone repository bằng lệnh trong VS Code",
       "minutes": 6,
-      "message": "AI hỗ trợ thực hiện; bạn chịu trách nhiệm xác nhận kết quả.",
+      "message": "Clone tải mã nguồn và toàn bộ lịch sử Git về một thư mục mới.",
       "cards": [
         {
-          "title": "Mô tả rõ thay đổi",
-          "text": "Nêu tình trạng, mục tiêu, phạm vi file và điều cần giữ nguyên."
+          "logo": "Terminal",
+          "title": "Chạy từ thư mục cha",
+          "text": "Mở một thư mục dành cho bài học trong VS Code, rồi chạy lệnh với URL của bạn.",
+          "code": "git clone https://github.com/USERNAME/webapp-web.git",
+          "detail": "Thay USERNAME bằng username thật. Đăng nhập trên trình duyệt nếu GCM yêu cầu; lệnh tạo thư mục webapp-web."
         },
         {
-          "title": "Đọc đề xuất và bản sửa",
-          "text": "Xác định file bị tác động; yêu cầu AI giải thích đoạn khó hiểu trước khi chấp nhận."
+          "logo": "Terminal",
+          "title": "Vào repo và mở project",
+          "text": "Chuyển Terminal vào repo vừa Clone và mở folder trong VS Code.",
+          "code": "cd webapp-web\ncode .",
+          "detail": "Nếu code chưa nhận lệnh, dùng File → Open Folder → webapp-web. Explorer phải thấy README.md."
         },
         {
-          "title": "Kiểm tra bằng thao tác thật",
-          "text": "Chạy ứng dụng, thử tính năng mới và chức năng cũ; đọc lỗi trước khi sửa tiếp."
+          "logo": "Terminal",
+          "title": "Kiểm tra Clone",
+          "text": "Xem trạng thái, remote và commit README.",
+          "code": "git status\ngit remote -v\ngit log -1 --oneline",
+          "detail": "Cần thấy working tree clean, URL repo vừa tạo và commit đầu tiên. Clone tự tạo origin; không cần git remote add lần nữa."
         }
       ],
-      "visual": "workspace-ai",
-      "prompt": "Bối cảnh: AI vừa chỉnh sửa tính năng tạo yêu cầu. Mục tiêu: kiểm tra trước khi ghi nhận phiên bản. Hãy đọc phần thay đổi và chỉ ra file bị tác động, tính năng có thể ảnh hưởng, thông tin bí mật có nguy cơ bị đưa vào mã nguồn và các kiểm tra cần chạy. Không sửa file ngoài phạm vi hoặc Push tự động. Kết quả: danh sách vấn đề và kế hoạch kiểm tra thực tế. Hãy thử tạo yêu cầu, sửa trạng thái, kiểm tra đăng nhập và thông báo lỗi; báo rõ kết quả thực tế và những mục chưa xác minh.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "AI hỗ trợ thực hiện; bạn chịu trách nhiệm xác nhận kết quả.",
-      "objective": "AI hỗ trợ thực hiện; bạn chịu trách nhiệm xác nhận kết quả.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-clone",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Clone tải mã nguồn và toàn bộ lịch sử Git về một thư mục mới.",
+      "objective": "Clone tải mã nguồn và toàn bộ lịch sử Git về một thư mục mới.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 25,
-      "title": "Demo: mở, đọc và chạy dự án",
-      "minutes": 8,
-      "message": "Hiểu nơi sửa trước khi yêu cầu AI thay đổi mã.",
+      "title": "Tải website mẫu · dự án thực hành chính",
+      "minutes": 6,
+      "message": "Dùng website Lumi Studio để luyện sửa, chạy thử, Commit, Push và Pull.",
       "cards": [
         {
-          "title": "Chuẩn bị",
-          "text": "Dự án mẫu quản lý yêu cầu đã có mã nguồn; mở thư mục gốc trong VS Code."
+          "logo": "VS Code",
+          "title": "Tải ZIP website",
+          "text": "Bấm nút để tải eiu-advertising-starter về máy.",
+          "link": "/downloads/eiu-advertising-starter.zip",
+          "linkLabel": "Tải website mẫu .ZIP",
+          "detail": "Website có animation nhẹ, chọn gói, tab, FAQ và form đăng ký."
         },
         {
-          "title": "Thao tác",
-          "text": "Nhờ AI giải thích cây file, xác định biểu mẫu và hướng dẫn chạy bản xem thử."
+          "logo": "Browser",
+          "title": "Hiểu bản mẫu",
+          "text": "Form kiểm tra dữ liệu và lưu đăng ký trong trình duyệt.",
+          "detail": "Bản demo chưa gửi email hoặc dữ liệu tới server. Bạn sẽ kiểm tra tương tác khi chạy local."
         },
         {
-          "title": "Xác nhận",
-          "text": "Mở localhost; thấy đúng biểu mẫu và biết file sẽ chỉnh khi đổi nút tạo yêu cầu."
+          "logo": "Git",
+          "title": "Một project xuyên suốt",
+          "text": "Giải nén ở thư mục riêng rồi chuyển từ webapp-web sang website mẫu.",
+          "detail": "ZIP chưa có lịch sử Git. Chỉ khởi tạo sau khi đã chỉnh website và kiểm tra xong."
         }
       ],
-      "visual": "demo",
-      "prompt": "Bối cảnh: Tôi đang học phát triển ứng dụng quản lý yêu cầu công việc, đã mở project mẫu trong VS Code. Mục tiêu: hiểu project trước khi chỉnh sửa. Hãy giải thích chức năng của thư mục, các file quan trọng và cách chạy bản xem thử. Không thay đổi file hay đọc nội dung chứa khóa bí mật. Chỉ ra nơi sửa giao diện và nơi xử lý dữ liệu. Kết quả cần có: bản đồ project, các bước chạy và dấu hiệu chạy thành công. Nếu bạn không có quyền xem file, hãy yêu cầu tôi cung cấp cây thư mục và các file đã loại bỏ thông tin nhạy cảm. Cuối cùng, hướng dẫn tôi xác nhận đã mở đúng project và nhìn thấy đúng giao diện.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Hiểu nơi sửa trước khi yêu cầu AI thay đổi mã.",
-      "objective": "Hiểu nơi sửa trước khi yêu cầu AI thay đổi mã.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-starter",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Dùng website Lumi Studio để luyện sửa, chạy thử, Commit, Push và Pull.",
+      "objective": "Dùng website Lumi Studio để luyện sửa, chạy thử, Commit, Push và Pull.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 26,
-      "title": "Giao yêu cầu để AI sửa đúng phạm vi",
+      "title": "Mở đúng project và Terminal",
       "minutes": 6,
-      "message": "Một yêu cầu tốt có bối cảnh, mục tiêu, giới hạn và cách xác nhận.",
+      "message": "Thư mục gốc của website là nơi chứa package.json.",
       "cards": [
         {
-          "title": "Bối cảnh",
-          "text": "Ứng dụng đang làm gì, bạn gặp vấn đề ở đâu và tính năng nào đã chạy tốt."
+          "logo": "Windows",
+          "title": "Giải nén ZIP",
+          "text": "Trong File Explorer, chọn Extract All rồi chọn nơi lưu dễ tìm.",
+          "detail": "Đợi giải nén xong; mở folder đã giải nén để làm việc."
         },
         {
-          "title": "Phạm vi",
-          "text": "Nêu file hoặc màn hình cần sửa; giữ đăng nhập, dữ liệu và chức năng đang có."
+          "logo": "VS Code",
+          "title": "Mở trong VS Code",
+          "text": "File → Open Folder → chọn eiu-advertising-starter.",
+          "detail": "Explorer cần thấy package.json, app, components, data và README.md; nếu thấy thêm một folder con, mở folder chứa package.json."
         },
         {
-          "title": "Kết quả",
-          "text": "Yêu cầu giải thích bản sửa và các thao tác kiểm tra, kể cả trường hợp thất bại."
+          "logo": "Terminal",
+          "title": "Kiểm tra vị trí Terminal",
+          "text": "Terminal → New Terminal; kiểm tra thư mục hiện tại và package.json.",
+          "code": "Get-Location\ndir package.json",
+          "detail": "Các lệnh Git và npm sau đây đều chạy trong thư mục gốc này."
         }
       ],
-      "visual": "prompt-choice",
-      "prompt": "Bối cảnh: Project quản lý yêu cầu đang chạy tốt trên máy. Mục tiêu: làm nút tạo yêu cầu rõ ràng hơn và thêm thông báo khi lưu thành công. Hãy giải thích kế hoạch, liệt kê file cần sửa rồi thực hiện nếu có quyền; nếu không, cung cấp bản sửa và hướng dẫn tôi áp dụng. Giữ nguyên đăng nhập, dữ liệu và quy trình tạo yêu cầu. Không thêm dịch vụ trả phí hay thay đổi quyền truy cập. Kết quả: giao diện dễ dùng và không mất tính năng cũ. Hướng dẫn kiểm tra nút, thông báo, tải lại trang và trường hợp lưu thất bại; báo rõ những kiểm tra bạn chưa chạy.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Một yêu cầu tốt có bối cảnh, mục tiêu, giới hạn và cách xác nhận.",
-      "objective": "Một yêu cầu tốt có bối cảnh, mục tiêu, giới hạn và cách xác nhận.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-unzip",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Thư mục gốc của website là nơi chứa package.json.",
+      "objective": "Thư mục gốc của website là nơi chứa package.json.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 27,
-      "title": "Thực hành GitHub: tìm đúng phiên bản",
-      "minutes": 8,
-      "message": "Một repository cần giúp người khác hiểu mã, lịch sử và cách bắt đầu.",
+      "title": "Cài Node.js và thư viện website",
+      "minutes": 6,
+      "message": "Node.js chạy project; npm cài thư viện trong package.json.",
       "cards": [
         {
-          "title": "Tìm hướng dẫn chạy",
-          "text": "Mở repository mẫu, đọc README và chỉ ra môi trường cần cài trước khi chạy."
+          "logo": "Terminal",
+          "title": "Cài và kiểm tra Node.js",
+          "text": "Cài Node.js LTS rồi mở lại VS Code và chạy hai lệnh kiểm tra.",
+          "code": "node --version\nnpm --version",
+          "link": "https://nodejs.org/en/download",
+          "linkLabel": "Tải Node.js LTS",
+          "detail": "Cần thấy hai số phiên bản. Mẫu Next.js yêu cầu Node.js từ 20.9 trở lên."
         },
         {
-          "title": "Tìm lần sửa gần nhất",
-          "text": "Mở lịch sử commit, đọc thông điệp và tìm một file đã thay đổi."
+          "logo": "Terminal",
+          "title": "Cài thư viện",
+          "text": "Tại folder có package.json, chạy và chờ lệnh hoàn tất.",
+          "code": "npm install",
+          "detail": "Cần Internet. Nếu PowerShell chặn npm.ps1, dùng npm.cmd install; các lệnh npm khác cũng có thể dùng npm.cmd."
         },
         {
-          "title": "Tìm nơi phản hồi",
-          "text": "Tạo nội dung Issue mô tả một lỗi, rồi xác định Pull Request chứa bản sửa nếu có."
+          "logo": "Terminal",
+          "title": "Kiểm tra kết quả",
+          "text": "Xác nhận project có thư viện và file khóa phiên bản.",
+          "code": "dir node_modules\ndir package-lock.json",
+          "detail": "Sửa mã trong app, components hoặc data; node_modules chứa thư viện được cài tự động."
         }
       ],
-      "visual": "github-features",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Một repository cần giúp người khác hiểu mã, lịch sử và cách bắt đầu.",
-      "objective": "Một repository cần giúp người khác hiểu mã, lịch sử và cách bắt đầu.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-npm",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Node.js chạy project; npm cài thư viện trong package.json.",
+      "objective": "Node.js chạy project; npm cài thư viện trong package.json.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 28,
-      "title": "Chọn thay đổi, Commit, Push và Pull",
-      "minutes": 9,
-      "message": "Commit ghi trên máy; Push gửi lên GitHub; Pull nhận và tích hợp thay đổi.",
+      "title": "Chạy website trên localhost",
+      "minutes": 6,
+      "message": "Giữ Terminal chạy server trong lúc chỉnh sửa và xem kết quả.",
       "cards": [
         {
-          "title": "Chọn thay đổi",
-          "text": "Chọn file hoặc phần sửa cho lần Commit; không gom các việc không liên quan."
+          "logo": "Terminal",
+          "title": "Khởi động dev server",
+          "text": "Chạy lệnh tại thư mục project và đợi server sẵn sàng.",
+          "code": "npm run dev",
+          "detail": "Đọc URL Local được in trong Terminal."
         },
         {
-          "title": "Commit · ghi nhận",
-          "text": "Ghi thông điệp mô tả thay đổi đã kiểm tra, chẳng hạn: thêm thông báo lưu yêu cầu."
+          "logo": "Browser",
+          "title": "Mở website",
+          "text": "Mở địa chỉ local được Terminal cung cấp.",
+          "link": "http://localhost:3000",
+          "linkLabel": "Mở localhost:3000",
+          "detail": "Nếu cổng 3000 đang bận, mở đúng cổng được Terminal báo. localhost là website đang chạy trên máy của bạn."
         },
         {
-          "title": "Push và Pull",
-          "text": "Push gửi commit lên kho từ xa; Pull nhận và tích hợp. Kiểm tra đúng kho và nhánh trước khi thao tác."
+          "logo": "VS Code",
+          "title": "Sửa và xem lại",
+          "text": "Lưu file bằng Ctrl+S để xem cập nhật; dừng server bằng Ctrl+C.",
+          "detail": "Dùng một Terminal mới cho các lệnh khác để giữ dev server đang chạy."
         }
       ],
-      "visual": "git",
-      "prompt": "Bối cảnh: Tôi có project mẫu đã kiểm tra trên máy và muốn quản lý bằng GitHub. Hãy kiểm tra đúng thư mục và repository trước. Giải thích các bước kiểm tra thay đổi, loại trừ file chứa bí mật, Commit và Push bằng ngôn ngữ đơn giản. Không tự ghi đè lịch sử, xóa file hay thực hiện thao tác phá hủy. Nếu cần quyền tài khoản, hướng dẫn tôi tự đăng nhập và xác nhận. Kết quả: mã nguồn được lưu đúng repository với thông điệp Commit rõ ràng. Hướng dẫn kiểm tra phiên bản mới trên GitHub và cách xử lý nếu Push bị từ chối.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Commit ghi trên máy; Push gửi lên GitHub; Pull nhận và tích hợp thay đổi.",
-      "objective": "Commit ghi trên máy; Push gửi lên GitHub; Pull nhận và tích hợp thay đổi.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-dev",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Giữ Terminal chạy server trong lúc chỉnh sửa và xem kết quả.",
+      "objective": "Giữ Terminal chạy server trong lúc chỉnh sửa và xem kết quả.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 29,
-      "title": "Thực hành: đề nghị xem xét bản sửa",
-      "minutes": 9,
-      "message": "Tách thay đổi trên nhánh riêng; xem xét và kiểm tra trước khi hợp nhất.",
+      "title": "Thử chỉnh website bằng tay",
+      "minutes": 6,
+      "message": "Đổi một phần nhỏ rồi kiểm tra ngay để hiểu luồng chỉnh sửa.",
       "cards": [
         {
-          "title": "Nhánh của bạn",
-          "text": "Tạo nhánh cho một thay đổi nhỏ và xác nhận đúng tên nhánh trong VS Code."
+          "logo": "VS Code",
+          "title": "Đổi thương hiệu và nội dung",
+          "text": "Mở data/site.js, sửa brand, headline, highlight hoặc description.",
+          "detail": "Ctrl+S rồi đối chiếu tiêu đề mới trên trình duyệt."
         },
         {
-          "title": "Minh chứng trên PR",
-          "text": "Push nhánh, mở Pull Request và ghi kết quả kiểm tra cùng ảnh giao diện nếu cần."
+          "logo": "VS Code",
+          "title": "Đổi màu và khoảng cách",
+          "text": "Mở app/globals.css, sửa biến màu trong :root hoặc khoảng cách một khối.",
+          "detail": "Thay từng phần để dễ nhận ra kết quả; thông tin tab trình duyệt nằm ở app/layout.js."
         },
         {
-          "title": "Phản hồi và hoàn tất",
-          "text": "Đọc góp ý, sửa trên cùng nhánh, kiểm tra lại. Chỉ merge khi bản sửa đạt yêu cầu."
+          "logo": "Browser",
+          "title": "Thử tương tác",
+          "text": "Chọn gói, mở FAQ và thử form với email đúng/sai.",
+          "detail": "Kiểm tra trên màn hình nhỏ. Ghi lại file đã sửa và lỗi còn gặp."
         }
       ],
-      "visual": "branches",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Tách thay đổi trên nhánh riêng; xem xét và kiểm tra trước khi hợp nhất.",
-      "objective": "Tách thay đổi trên nhánh riêng; xem xét và kiểm tra trước khi hợp nhất.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-localhost",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Đổi một phần nhỏ rồi kiểm tra ngay để hiểu luồng chỉnh sửa.",
+      "objective": "Đổi một phần nhỏ rồi kiểm tra ngay để hiểu luồng chỉnh sửa.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 30,
-      "title": "Kiểm tra trước khi gửi mã lên GitHub",
-      "minutes": 9,
-      "message": "Đúng kho, đúng nhánh, không có bí mật và tính năng đã được kiểm tra.",
+      "title": "AI trong VS Code · cung cấp ngữ cảnh",
+      "minutes": 6,
+      "message": "Yêu cầu rõ giúp AI tìm đúng file và sửa đúng mục tiêu.",
       "cards": [
         {
-          "title": "Đọc khác biệt",
-          "text": "Diff cho biết dòng thêm/xóa; bảo đảm không đưa file không liên quan vào Commit."
+          "logo": "AI Codex",
+          "title": "Đọc project trước khi sửa",
+          "text": "Yêu cầu AI giải thích README.md, package.json và các file giao diện liên quan.",
+          "detail": "AI tìm và đọc file theo công cụ, quyền và chế độ đang dùng; hãy chỉ rõ project hiện tại."
         },
         {
-          "title": "Loại trừ bí mật",
-          "text": "Dùng .gitignore phù hợp; nếu khóa đã bị lộ, cần thay khóa, không chỉ xóa dòng chứa khóa."
+          "logo": "VS Code",
+          "title": "Nêu file và mục tiêu",
+          "text": "Cho biết phần cần đổi, kết quả mong đợi và các chức năng phải giữ.",
+          "detail": "Ví dụ: đổi nội dung trong data/site.js, giữ form, tab, chọn gói và FAQ hoạt động."
         },
         {
-          "title": "Xử lý thay đổi từ xa",
-          "text": "Nếu Push bị từ chối, xem nguyên nhân và đồng bộ có kiểm soát; đọc xung đột trước khi xử lý."
+          "logo": "Git",
+          "title": "Xem phần AI đã sửa",
+          "text": "Đọc thay đổi từng file, chạy website và thử lại chức năng.",
+          "detail": "Bạn quyết định nội dung nào được giữ và đưa vào Commit."
         }
       ],
-      "visual": "mistakes",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Đúng kho, đúng nhánh, không có bí mật và tính năng đã được kiểm tra.",
-      "objective": "Đúng kho, đúng nhánh, không có bí mật và tính năng đã được kiểm tra.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-ai-workspace",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Yêu cầu rõ giúp AI tìm đúng file và sửa đúng mục tiêu.",
+      "objective": "Yêu cầu rõ giúp AI tìm đúng file và sửa đúng mục tiêu.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 31,
-      "title": "Thực hành 1: chỉnh sửa bằng VS Code và AI",
-      "minutes": 30,
-      "message": "Hoàn thành một thay đổi nhỏ và chứng minh tính năng vẫn hoạt động.",
+      "title": "Nhờ AI tùy chỉnh website mẫu",
+      "minutes": 6,
+      "message": "Dùng một yêu cầu cụ thể, rồi kiểm tra sản phẩm bằng trình duyệt.",
       "cards": [
         {
-          "title": "Chuẩn bị và sản phẩm",
-          "text": "Dự án mẫu quản lý yêu cầu, VS Code và trợ lý AI phù hợp; sản phẩm là nút tạo rõ ràng và thông báo lưu thành công."
+          "logo": "AI Codex",
+          "title": "Gửi yêu cầu có phạm vi",
+          "text": "Sao chép yêu cầu, thay chủ đề theo ý tưởng của bạn.",
+          "code": "Đổi website mẫu thành landing page hội thảo EIU.\nSửa nội dung trong data/site.js và màu trong app/globals.css.\nGiữ tab, chọn gói, FAQ và form hoạt động.\nLiệt kê file đã sửa và cách kiểm tra kết quả."
+        },
+        {
+          "logo": "VS Code",
+          "title": "Đọc file đã thay đổi",
+          "text": "Đối chiếu phần AI sửa với yêu cầu của bạn.",
+          "detail": "Kiểm tra tên thương hiệu, CTA, màu, bố cục và nội dung form."
+        },
+        {
+          "logo": "Browser",
+          "title": "Thử lại chức năng",
+          "text": "Mở website đang chạy; kiểm tra form, tab, gói và FAQ.",
+          "detail": "Nếu có lỗi, gửi thao tác gây lỗi cùng thông báo Terminal hoặc trình duyệt để AI sửa."
         }
       ],
-      "visual": "lab",
-      "prompt": "Bối cảnh: Project quản lý yêu cầu đang chạy tốt trên máy. Mục tiêu: làm nút tạo yêu cầu rõ ràng hơn và thêm thông báo khi lưu thành công. Hãy giải thích kế hoạch, liệt kê file cần sửa rồi thực hiện nếu có quyền; nếu không, cung cấp bản sửa và hướng dẫn tôi áp dụng. Giữ nguyên đăng nhập, dữ liệu và quy trình tạo yêu cầu. Không thêm dịch vụ trả phí hay thay đổi quyền truy cập. Kết quả: giao diện dễ dùng và không mất tính năng cũ. Hướng dẫn kiểm tra nút, thông báo, tải lại trang và trường hợp lưu thất bại; báo rõ những kiểm tra bạn chưa chạy.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Hoàn thành một thay đổi nhỏ và chứng minh tính năng vẫn hoạt động.",
-      "checks": [
-        "Đã mở đúng thư mục dự án",
-        "Đã tìm file cần sửa",
-        "Đã mô tả yêu cầu rõ cho AI",
-        "Đã đọc khác biệt của bản sửa",
-        "Đã chạy và thử tính năng mới",
-        "Chức năng cũ vẫn hoạt động"
-      ],
-      "objective": "Hoàn thành một thay đổi nhỏ và chứng minh tính năng vẫn hoạt động.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-ai-edit",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Dùng một yêu cầu cụ thể, rồi kiểm tra sản phẩm bằng trình duyệt.",
+      "objective": "Dùng một yêu cầu cụ thể, rồi kiểm tra sản phẩm bằng trình duyệt.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 32,
-      "title": "Thực hành 2: lưu và cộng tác trên GitHub",
-      "minutes": 30,
-      "message": "Lưu phiên bản đúng kho và trình bày được thay đổi cho người khác xem.",
+      "title": "Hoàn thiện website theo ý tưởng riêng",
+      "minutes": 6,
+      "message": "Tạo một phiên bản có thương hiệu, CTA và nội dung của bạn.",
       "cards": [
         {
-          "title": "Chuẩn bị và sản phẩm",
-          "text": "Dự án đã kiểm tra, Git và tài khoản GitHub; sản phẩm là một nhánh có Commit đã Push và đề nghị xem xét thay đổi."
+          "logo": "VS Code",
+          "title": "Viết brief",
+          "text": "Chọn sản phẩm, dịch vụ hoặc sự kiện; nêu đối tượng và mục tiêu đăng ký.",
+          "detail": "Chuẩn bị tên thương hiệu, tiêu đề, mô tả và lời kêu gọi hành động."
+        },
+        {
+          "logo": "AI Codex",
+          "title": "Thực hiện từng thay đổi",
+          "text": "Tùy chỉnh nội dung, màu và ít nhất một khối giao diện bằng tay hoặc AI.",
+          "detail": "Mỗi lượt sửa có mục tiêu cụ thể để dễ kiểm tra."
+        },
+        {
+          "logo": "Browser",
+          "title": "Đạt tiêu chí trước khi Commit",
+          "text": "Website có nội dung riêng, hiển thị tốt trên màn hình nhỏ và các tương tác vẫn chạy.",
+          "points": [
+            "Thử dữ liệu đúng và sai ở form.",
+            "Thử tab, chọn gói và FAQ.",
+            "Ghi lại các file đã sửa."
+          ]
         }
       ],
-      "visual": "lab",
-      "prompt": "Bối cảnh: Tôi có project mẫu đã kiểm tra trên máy và muốn quản lý bằng GitHub. Hãy kiểm tra đúng thư mục và repository trước. Giải thích các bước kiểm tra thay đổi, loại trừ file chứa bí mật, Commit và Push bằng ngôn ngữ đơn giản. Không tự ghi đè lịch sử, xóa file hay thực hiện thao tác phá hủy. Nếu cần quyền tài khoản, hướng dẫn tôi tự đăng nhập và xác nhận. Kết quả: mã nguồn được lưu đúng repository với thông điệp Commit rõ ràng. Hướng dẫn kiểm tra phiên bản mới trên GitHub và cách xử lý nếu Push bị từ chối. Sau khi kiểm tra, hướng dẫn tôi tạo nhánh và mở Pull Request, mô tả mục tiêu cùng cách xác nhận; không tự Merge.",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Lưu phiên bản đúng kho và trình bày được thay đổi cho người khác xem.",
-      "checks": [
-        "Đã kiểm tra đúng repository",
-        "Đã tạo nhánh cho thay đổi",
-        "Đã chọn file cần Commit",
-        "Không đưa khóa bí mật vào mã",
-        "Đã Commit với thông điệp rõ",
-        "Đã Push đúng nhánh",
-        "Đã kiểm tra phiên bản trên GitHub",
-        "Đã mô tả đề nghị xem xét"
-      ],
-      "objective": "Lưu phiên bản đúng kho và trình bày được thay đổi cho người khác xem.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-customize",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Tạo một phiên bản có thương hiệu, CTA và nội dung của bạn.",
+      "objective": "Tạo một phiên bản có thương hiệu, CTA và nội dung của bạn.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     },
     {
       "section": 1,
       "number": 33,
-      "title": "Tự kiểm tra: VS Code và GitHub",
-      "minutes": 20,
-      "message": "Bạn biết nơi sửa mã, cách kiểm tra và cách quản lý thay đổi.",
+      "title": "Kiểm tra website trước khi lưu phiên bản",
+      "minutes": 6,
+      "message": "Sửa lỗi kiểm tra và build trước khi tạo commit đầu tiên.",
       "cards": [
         {
-          "title": "VS Code",
-          "text": "Chỉ ra cây file, vùng soạn thảo, terminal và nơi xem khác biệt."
+          "logo": "Terminal",
+          "title": "Chạy kiểm tra mẫu",
+          "text": "Tại thư mục project, chạy kiểm tra chức năng lưu đăng ký.",
+          "code": "npm test",
+          "detail": "Kết hợp với thử form và bố cục trực tiếp trên trình duyệt."
         },
         {
-          "title": "Git và GitHub",
-          "text": "Phân biệt Commit, Push, Pull; giải thích nhánh và Pull Request."
+          "logo": "Terminal",
+          "title": "Build production",
+          "text": "Dừng dev bằng Ctrl+C, rồi chạy build.",
+          "code": "npm run build",
+          "detail": "Nếu lỗi, đọc thông báo và sửa nguyên nhân trước khi tiếp tục."
         },
         {
-          "title": "Minh chứng",
-          "text": "Ứng dụng chạy trên máy, lịch sử rõ nghĩa và bản sửa không chứa khóa bí mật."
+          "logo": "Terminal",
+          "title": "Chạy thử bản build",
+          "text": "Sau build thành công, chạy server và mở URL local.",
+          "code": "npm run start",
+          "detail": "Thử lại các thao tác chính. Ctrl+C để dừng; npm run dev để quay lại chỉnh sửa."
         }
       ],
-      "visual": "quiz",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Bạn biết nơi sửa mã, cách kiểm tra và cách quản lý thay đổi.",
-      "objective": "Bạn biết nơi sửa mã, cách kiểm tra và cách quản lý thay đổi.",
-      "visualConcept": "Bố cục EIU: nền navy hoặc kem, nhấn vàng; nội dung tiếng Việt và thao tác theo từng tính năng."
+      "visual": "git-intro-build",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Sửa lỗi kiểm tra và build trước khi tạo commit đầu tiên.",
+      "objective": "Sửa lỗi kiểm tra và build trước khi tạo commit đầu tiên.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 34,
+      "title": "Git Init · tạo Commit đầu tiên bằng lệnh",
+      "minutes": 6,
+      "message": "Khởi tạo Git một lần trong thư mục website mẫu đã kiểm tra.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Khởi tạo và xem trạng thái",
+          "text": "Chạy tại folder eiu-advertising-starter chứa package.json.",
+          "code": "git init -b main\ngit status",
+          "detail": "Nếu project đã có Git thì bỏ qua init. File .gitignore của mẫu loại node_modules, .next và .env khỏi phiên bản."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Chọn file và kiểm tra",
+          "text": "Đưa các file dự án vào vùng chuẩn bị Commit, rồi đọc danh sách.",
+          "code": "git add .\ngit diff --cached --stat\ngit status",
+          "detail": "Danh sách cần có mã nguồn, package.json và package-lock.json; không có node_modules, .next hoặc .env."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Lưu Commit đầu tiên",
+          "text": "Ghi mốc phiên bản và kiểm tra kết quả.",
+          "code": "git commit -m \"Create advertising website\"\ngit log -1 --oneline\ngit status",
+          "detail": "Cần thấy commit mới và working tree clean. Commit hiện chỉ nằm trên máy."
+        }
+      ],
+      "visual": "git-intro-initialize",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Khởi tạo Git một lần trong thư mục website mẫu đã kiểm tra.",
+      "objective": "Khởi tạo Git một lần trong thư mục website mẫu đã kiểm tra.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 35,
+      "title": "Kết nối GitHub · Push lần đầu bằng lệnh",
+      "minutes": 6,
+      "message": "Tạo repo online trống để nhận lịch sử Git từ website trên máy.",
+      "cards": [
+        {
+          "logo": "GitHub",
+          "title": "Tạo repo trống trên GitHub",
+          "text": "Mở trang tạo repo, đặt tên eiu-advertising-starter và chọn Private.",
+          "link": "https://github.com/new",
+          "linkLabel": "Tạo repository cho website",
+          "detail": "Không bật README, .gitignore hoặc license ở bước tạo này vì project local đã có commit. Bấm Create repository rồi sao chép URL HTTPS."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Thêm địa chỉ origin",
+          "text": "Thay USERNAME bằng username của bạn và dùng đúng URL repository vừa tạo.",
+          "code": "git remote add origin https://github.com/USERNAME/eiu-advertising-starter.git\ngit remote -v",
+          "detail": "Origin là tên ngắn của repo online. Nếu origin đã tồn tại, kiểm tra URL trước; dùng git remote set-url origin URL_DUNG khi cần sửa."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Push và xác thực",
+          "text": "Gửi nhánh main; đăng nhập qua trình duyệt nếu GCM yêu cầu.",
+          "code": "git push -u origin main\ngit status -sb",
+          "detail": "-u đặt liên kết main với origin/main. Cần thấy Push thành công và main...origin/main; refresh GitHub để thấy file và commit."
+        }
+      ],
+      "visual": "git-intro-publish",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Tạo repo online trống để nhận lịch sử Git từ website trên máy.",
+      "objective": "Tạo repo online trống để nhận lịch sử Git từ website trên máy.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 36,
+      "title": "Chọn nhánh trước lần sửa tiếp theo",
+      "minutes": 6,
+      "message": "main là phiên bản chính; nhánh riêng giúp thử thay đổi và review trước khi gộp.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Xem nhánh hiện tại",
+          "text": "Kiểm tra trạng thái sạch và tên nhánh trước khi sửa.",
+          "code": "git status\ngit branch --show-current",
+          "detail": "Dấu * trong git branch chỉ nhánh đang làm việc. Commit hoặc xử lý thay đổi đang có trước khi chuyển nhánh."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Tạo nhánh riêng",
+          "text": "Tách nhánh để chỉnh landing page.",
+          "code": "git switch -c feature/landing-refresh\ngit branch --show-current",
+          "detail": "Kết quả cần là feature/landing-refresh. Nhánh mới bắt đầu từ commit hiện tại."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Nếu làm trực tiếp trên main",
+          "text": "Chỉ chọn main cho bài cá nhân khi bạn chủ động muốn cập nhật phiên bản chính.",
+          "code": "git switch main\ngit pull --ff-only origin main",
+          "detail": "Chọn một hướng rồi tiếp tục. Bài nhánh riêng sẽ dùng Pull Request để review và Merge trên GitHub."
+        }
+      ],
+      "visual": "git-intro-branch-choice",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "main là phiên bản chính; nhánh riêng giúp thử thay đổi và review trước khi gộp.",
+      "objective": "main là phiên bản chính; nhánh riêng giúp thử thay đổi và review trước khi gộp.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 37,
+      "title": "Commit và Push các thay đổi tiếp theo",
+      "minutes": 6,
+      "message": "Sửa → kiểm tra → chọn file → Commit → Push đúng nhánh.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Đọc thay đổi trước khi chọn",
+          "text": "Lưu file và kiểm tra website, sau đó đọc diff.",
+          "code": "git status\ngit diff",
+          "detail": "Nhấn q để thoát nếu diff mở trong pager. Tên file cần đúng với phần bạn vừa sửa."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Chọn file và Commit",
+          "text": "Ví dụ chọn hai file đã chỉnh, kiểm tra rồi lưu mốc.",
+          "code": "git add data/site.js app/globals.css\ngit diff --cached --stat\ngit commit -m \"Refresh landing page\"",
+          "detail": "Thay danh sách bằng file bạn thực sự sửa. Commit chỉ lưu phần đã được git add."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Gửi đúng nhánh",
+          "text": "Kiểm tra tên nhánh rồi Push; dùng lệnh phù hợp với hướng đã chọn.",
+          "code": "git branch --show-current\ngit push -u origin feature/landing-refresh",
+          "detail": "Lệnh trên dành cho nhánh riêng. Nếu đang làm trên main: git push origin main. Push nhánh riêng chưa đổi main; mở Pull Request, review rồi Merge trên GitHub."
+        }
+      ],
+      "visual": "git-intro-push-code",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Sửa → kiểm tra → chọn file → Commit → Push đúng nhánh.",
+      "objective": "Sửa → kiểm tra → chọn file → Commit → Push đúng nhánh.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 38,
+      "title": "Pull · lấy phiên bản mới về máy",
+      "minutes": 6,
+      "message": "Ví dụ: sau khi Pull Request đã được Merge vào main trên GitHub.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Kiểm tra trước khi Pull",
+          "text": "Xem trạng thái và commit thay đổi đang làm trước khi chuyển nhánh.",
+          "code": "git status\ngit branch --show-current",
+          "detail": "Chỉ tiếp tục khi working tree clean. Nếu còn thay đổi, hoàn tất và Commit trên đúng nhánh trước."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Cập nhật main",
+          "text": "Chuyển về main và lấy thay đổi từ origin/main.",
+          "code": "git switch main\ngit pull --ff-only origin main",
+          "detail": "Kết quả có thể là Fast-forward hoặc Already up to date. Nếu lịch sử đã phân kỳ, dừng và đọc lỗi; không dùng force để bỏ qua."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Kiểm tra sau Pull",
+          "text": "Đọc commit mới, xem trạng thái và chạy lại website.",
+          "code": "git log -3 --oneline\ngit status -sb\nnpm run dev",
+          "detail": "Nếu package.json hoặc package-lock.json đổi, chạy npm install trước dev. Pull về main không tự cập nhật nhánh feature."
+        }
+      ],
+      "visual": "git-intro-pull",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Ví dụ: sau khi Pull Request đã được Merge vào main trên GitHub.",
+      "objective": "Ví dụ: sau khi Pull Request đã được Merge vào main trên GitHub.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 39,
+      "title": "Đối chiếu local và GitHub",
+      "minutes": 6,
+      "message": "Xác nhận đúng repository, đúng nhánh và đúng commit trước khi sang deploy.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Kiểm tra trên máy",
+          "text": "Xem URL origin, trạng thái nhánh và commit mới nhất.",
+          "code": "git remote -v\ngit status -sb\ngit log -1 --oneline",
+          "detail": "Không còn file chưa lưu phiên bản; nhánh phải là nhánh bạn muốn đối chiếu."
+        },
+        {
+          "logo": "GitHub",
+          "title": "Kiểm tra trên GitHub",
+          "text": "Refresh repo, chọn đúng main hoặc feature/landing-refresh và mở commit gần nhất.",
+          "detail": "Đối chiếu mã commit ngắn, thông điệp và các file với Terminal. Sau Merge, mã commit main có thể khác commit feature; đối chiếu đúng nhánh."
+        },
+        {
+          "logo": "VS Code",
+          "title": "Sẵn sàng cho bước tiếp theo",
+          "text": "Chốt phiên bản đã kiểm tra và repo có thể dùng để deploy.",
+          "detail": "GitHub lưu mã nguồn; đường dẫn website public được tạo ở phần triển khai tiếp theo."
+        }
+      ],
+      "visual": "git-intro-verify",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Xác nhận đúng repository, đúng nhánh và đúng commit trước khi sang deploy.",
+      "objective": "Xác nhận đúng repository, đúng nhánh và đúng commit trước khi sang deploy.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+    },
+    {
+      "section": 1,
+      "number": 40,
+      "title": "Tự kiểm tra · Git và GitHub bằng lệnh",
+      "minutes": 6,
+      "message": "Kiểm tra từ cài công cụ tới đồng bộ repository bằng Terminal của VS Code.",
+      "cards": [
+        {
+          "logo": "Terminal",
+          "title": "Công cụ và tài khoản",
+          "text": "Git hoạt động, GCM sẵn sàng và bạn đã có tài khoản GitHub."
+        },
+        {
+          "logo": "Terminal",
+          "title": "Đồng bộ mã nguồn",
+          "text": "Giải thích được Init, Clone, Add, Commit, Push và Pull."
+        }
+      ],
+      "visual": "git-intro-quiz",
+      "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
+      "verify": "Kiểm tra từ cài công cụ tới đồng bộ repository bằng Terminal của VS Code.",
+      "objective": "Kiểm tra từ cài công cụ tới đồng bộ repository bằng Terminal của VS Code.",
+      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
     }
   ]
 };
@@ -1245,13 +1412,7 @@ const css = `
 .comparethree{grid-template-columns:repeat(3,1fr)}.architecture .flowline{margin:10px 0 16px}.architecture .flowstep{padding:12px}.architecture .flowstep img{width:43px;height:43px}.architecture .panel{padding:15px}.architecture .table th,.architecture .table td{padding:7px 10px}.architecture .folders{height:125px}.architecture .folders svg{height:115px}.compactschema .panel{padding:16px}.comparetable td,.comparetable th{padding:7px}.checklist.twocol{grid-template-columns:1fr 1fr;gap:9px}.checklist.twocol label{font-size:16px;padding:8px;min-height:53px}.checklist.twocol input{flex-shrink:0}
 @keyframes arrive{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes pulse{50%{opacity:.4}}@keyframes float{50%{transform:translateY(-8px)}}@media(prefers-reduced-motion:reduce){.eiu *{animation:none!important;transition:none!important}}
 `;
-const tools = [
- {name:'VS Code',role:'Phát triển và chỉnh sửa',example:'Sửa giao diện tạo yêu cầu cùng AI.',when:'Khi cần làm việc với project gồm nhiều file.',not:'Chưa cần nếu đang dùng môi trường tích hợp như Google Apps Script.',links:'Git quản lý thay đổi; GitHub nhận các phiên bản đã kiểm tra.',ai:'Nhờ AI giải thích cấu trúc, chỉ file cần sửa và cách chạy thử.'},
- {name:'GitHub',role:'Lưu và quản lý mã nguồn',example:'Lưu phiên bản trước và sau khi thêm bộ lọc.',when:'Khi cần lịch sử, cộng tác hoặc kết nối triển khai.',not:'Không dùng làm nơi lưu yêu cầu người dùng.',links:'Nhận commit từ project; Vercel có thể lấy mã để triển khai.',ai:'Nhờ AI kiểm tra thay đổi, hướng dẫn Commit và Push an toàn.'},
- {name:'Supabase',role:'Dữ liệu của ứng dụng',example:'Lưu tiêu đề, trạng thái và người tạo yêu cầu.',when:'Khi cần dữ liệu có cấu trúc, truy vấn và phân quyền.',not:'Có thể chưa cần cho website giới thiệu chỉ có nội dung.',links:'Ứng dụng đọc/ghi dữ liệu theo quyền; có thể lưu liên kết Drive.',ai:'Nhờ AI đề xuất bảng, quyền truy cập và kiểm tra sau reload.'},
- {name:'Google Drive',role:'Tài liệu và file',example:'Chia sẻ PDF hướng dẫn xử lý yêu cầu.',when:'Khi cần cộng tác và quản lý tài liệu.',not:'Không thay thế trực tiếp database của ứng dụng.',links:'Ứng dụng tham chiếu link hoặc tích hợp API theo quyền.',ai:'Nhờ AI chọn mức liên kết, tự động hóa hay API phù hợp.'},
- {name:'Vercel',role:'Triển khai website',example:'Cung cấp URL để đồng nghiệp mở ứng dụng.',when:'Khi project phù hợp cần được đưa lên Internet.',not:'Không thay thế database và không cần cho chỉ bản xem thử local.',links:'Lấy mã từ GitHub; ứng dụng có thể kết nối Supabase và Drive.',ai:'Nhờ AI kiểm tra build, môi trường và xác minh URL mới.'}
-];
+
 function btn(label: string, action: () => void, kind='') { return <button type="button" className={'btn '+kind} onClick={action}>{label}</button>; }
 function feedback(text: string, kind='') { return <div className={'feedback '+kind} role="status" aria-live="polite">{text}</div>; }
 function cards(s: SlideData) { return <div className="row cards">{s.cards.map((c,i)=><article className="card"><span className="index">{String(i+1).padStart(2,'0')}</span><h3>{c.title}</h3><p>{c.text}</p></article>)}</div>; }
@@ -1262,21 +1423,16 @@ function copyPrompt(text:string) {
  const copy=btn('Sao chép prompt',()=>{area.focus();area.select();const ok=document.execCommand('copy');status.textContent=ok?'Đã sao chép':'Đã chọn nội dung. Nhấn Ctrl+C để sao chép.';});
  box.append(area,copy,status); return box;
 }
-function ecosystem() {
- const host=h('div',null);let selected=0,tab='map',picked=-1;const matched=new Set<number>();let info='Chọn công cụ rồi chọn nhiệm vụ, hoặc kéo thả logo vào nhiệm vụ.';
- function choose(index:number){if(picked<0){info='Hãy chọn một công cụ trước.';}else if(index===picked){matched.add(index);info=matched.size===5?'Đúng cả 5 vai trò. Hãy chọn công cụ theo nhu cầu ứng dụng.':'Đúng: '+tools[index].name+' — '+tools[index].role;picked=-1;}else info='Chưa phù hợp. '+tools[picked].name+' không đảm nhiệm nhiệm vụ này.';paint();}
- function paint(){host.replaceChildren(<div><div className="tabs">{btn('Khám phá công cụ',()=>{tab='map';paint();},tab==='map'?'active':'')}{btn('Ghép công cụ và chức năng',()=>{tab='match';paint();},tab==='match'?'active':'')}</div>{tab==='map'?<div><div className="orbrow">{tools.map((t,i)=><><button className={'orb '+(selected===i?'selected':'')} aria-label={t.name} aria-pressed={selected===i} onClick={()=>{selected=i;paint();}}><span><img src={assets[t.name]} alt="" /></span>{t.name}</button>{i<4&&<span className="arrow">→</span>}</>)}</div><div className="toolpanel"><div><h3>{tools[selected].name} · {tools[selected].role}</h3><p>{tools[selected].example}</p><p><b>Khi cần:</b> {tools[selected].when}</p><p><b>Chưa cần / không phù hợp:</b> {tools[selected].not}</p></div><div><p><b>Kết nối:</b> {tools[selected].links}</p><p><b>Giao việc cho AI:</b> {tools[selected].ai}</p></div></div></div>:<div><div className="match"><div className="tokens">{tools.map((t,i)=>btn(t.name,()=>{picked=i;paint();},picked===i?'active':matched.has(i)?'good':''))}</div><div className="targets">{tools.map((t,i)=><button className={'target '+(matched.has(i)?'done':'')} onClick={()=>choose(i)} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();picked=Number(e.dataTransfer.getData('text/plain'));choose(i);}}>{t.role}<b>{matched.has(i)?t.name:'?'}</b></button>)}</div></div><div style={{marginTop:'15px'}}>{feedback(info,matched.size===5?'good':'')}</div></div>}</div>);if(tab==='match')host.querySelectorAll('.tokens button').forEach((element:HTMLElement,i:number)=>{element.draggable=true;element.ondragstart=(event:DragEvent)=>{picked=i;event.dataTransfer?.setData('text/plain',String(i));};});}
- paint();return host;
-}
+
 function flow(labels:string[],logos:string[]=[]) {return <div className="flowline">{labels.map((label,i)=><><div className="flowstep">{logos[i]&&<img src={assets[logos[i]]} alt="" />}<strong>{label}</strong></div>{i<labels.length-1&&<span className="arrow">→</span>}</>)}</div>;}
 function folders() {return <div className="folders"><svg viewBox="0 0 250 160" aria-label="Thư mục tài liệu"><path d="M22 18h66l19 19h121v105H22Z" fill="#dce7ed" stroke="#234c64" strokeWidth="2"/><path d="M10 35h65l20 18h121v97H10Z" fill="#eef3f6" stroke="#234c64" strokeWidth="2"/><path d="M42 76h41l10 11h65v48H42Z" fill="#faf8f3" stroke="#b79050" strokeWidth="2"/><path d="M169 67h29v60h-29Z" fill="white" stroke="#234c64"/><path d="M174 82h19m-19 10h19m-19 10h19" stroke="#b79050" strokeWidth="2"/></svg></div>;}
 function visualTable(){return <table className="table visualtable"><thead><tr><th>ID</th><th>Yêu cầu</th><th>Trạng thái</th></tr></thead><tbody><tr><td>01</td><td>Chuẩn bị báo cáo</td><td>Đang làm</td></tr><tr><td>02</td><td>Sửa biểu mẫu</td><td>Mới</td></tr><tr><td>03</td><td>Đặt phòng họp</td><td>Xong</td></tr></tbody></table>;}
-function gitSimulator(){const host=h('div',null);let local=1,remote=1,message='Hai nơi đang cùng phiên bản. Thử Commit, rồi Push.';function paint(){host.replaceChildren(<div><div className="row">{[{title:'Commit · ghi nhận trên máy',text:'Tạo một phiên bản cho nhóm thay đổi đã kiểm tra.'},{title:'Push · gửi lên GitHub',text:'Gửi commit ở project lên repository từ xa.'},{title:'Pull · lấy và tích hợp',text:'Nhận thay đổi từ repository từ xa vào project.'}].map(c=><div className="card"><h3>{c.title}</h3><p>{c.text}</p></div>)}</div><div className="flowline"><div className="flowstep"><b>Project trên máy · phiên bản {local}</b></div><span className="arrow">↔</span><div className="flowstep"><b>GitHub · phiên bản {remote}</b></div></div>{feedback(message)}<div className="actions">{btn('Commit',()=>{local++;message='Đã ghi phiên bản trên máy. GitHub chưa nhận thay đổi này.';paint();})}{btn('Push',()=>{if(remote>local)message='Từ xa có thay đổi mới. Cần xem và tích hợp trước; không ghi đè cưỡng bức.';else{remote=local;message='GitHub đã nhận phiên bản '+remote+'. Kiểm tra lại repository.';}paint();},'primary')}{btn('Thử thay đổi từ đồng nghiệp',()=>{remote++;message='GitHub có thay đổi mới. Thử Pull để nhận và tích hợp.';paint();})}{btn('Pull',()=>{local=Math.max(local,remote);message='Đã mô phỏng nhận thay đổi từ xa. Làm thật cần đọc khác biệt và xử lý xung đột nếu có.';paint();})}</div></div>);}paint();return host;}
+
 function storage(compare=false){return <div><div className="split"><article className="panel"><h3><img src={assets.Supabase} alt="" style={{width:'25px',verticalAlign:'middle',marginRight:'8px'}}/>Supabase · bảng dữ liệu</h3>{visualTable()}<p>Truy vấn, cập nhật và phân quyền theo từng dòng.</p></article><article className="panel"><h3><img src={assets['Google Drive']} alt="" style={{width:'25px',verticalAlign:'middle',marginRight:'8px'}}/>Google Drive · tài liệu</h3>{folders()}<p>PDF, hình ảnh, báo cáo; chia sẻ theo quyền file.</p></article></div>{compare?<table className="table comparetable"><tbody><tr><td><b>Cách tích hợp</b></td><td>Ứng dụng đọc/ghi qua dịch vụ dữ liệu</td><td>Liên kết cơ bản hoặc API/OAuth</td></tr><tr><td><b>Cần kiểm tra</b></td><td>Quyền dữ liệu, truy vấn, dung lượng và transfer</td><td>Quyền file, dung lượng và giới hạn API</td></tr></tbody></table>:null}</div>;}
 function choiceActivity(items:{q:string;options:string[];answer:number;why:string}[]){const host=h('div',null);let current=0,answer=-1;const done=new Map<number,boolean>();function paint(){const q=items[current];host.replaceChildren(<div><div className="progress">TÌNH HUỐNG {current+1} / {items.length} · {done.size} ĐÃ TRẢ LỜI</div><div className="quiz-question">{q.q}</div><div className="choices">{q.options.map((label,i)=>btn(label,()=>{answer=i;done.set(current,i===q.answer);paint();},answer===i?(i===q.answer?'good':'active'):''))}</div><div style={{marginTop:'18px'}}>{answer<0?feedback('Chọn phương án rồi đọc giải thích.'):feedback((answer===q.answer?'Phù hợp. ':'Hãy xem lại. ')+q.why,answer===q.answer?'good':'bad')}</div><div className="actions">{btn('Tình huống trước',()=>{current=(current+items.length-1)%items.length;answer=-1;paint();})}{btn('Tình huống tiếp',()=>{current=(current+1)%items.length;answer=-1;paint();},'primary')}<span className="mini">Tự kiểm tra: {Array.from(done.values()).filter(Boolean).length}/{items.length} phương án đúng gần nhất.</span></div></div>);}paint();return host;}
-function workflow(){const names=['AI sửa project','Kiểm tra trên máy','Chọn thay đổi','Commit','Push','Kiểm tra GitHub'];let order=[2,0,4,1,5,3],pick=-1,message='Chọn hai bước để đổi chỗ, hoặc kéo thả. Sau đó kiểm tra thứ tự.';const host=h('div',null);function swap(i:number,j:number){[order[i],order[j]]=[order[j],order[i]];pick=-1;paint();}function paint(){host.replaceChildren(<div><div className="ordered">{order.map((n,i)=>btn((i+1)+'. '+names[n],()=>{if(pick<0){pick=i;paint();}else swap(pick,i);},pick===i?'active':''))}</div>{feedback(message,order.every((x,i)=>x===i)?'good':'')}<div className="actions">{btn('Kiểm tra thứ tự',()=>{message=order.every((x,i)=>x===i)?'Đúng. Kiểm tra trước Chọn thay đổi và Commit; sau Push cần xem phiên bản trên GitHub.':'Chưa đúng. Kiểm tra trên máy trước Chọn thay đổi và Commit; Push rồi kiểm tra GitHub.';paint();},'primary')}{btn('Làm lại',()=>{order=[2,0,4,1,5,3];pick=-1;message='Sắp xếp quy trình từ sửa mã đến phiên bản trên GitHub.';paint();})}</div></div>);host.querySelectorAll('.ordered button').forEach((element:HTMLElement,i:number)=>{element.draggable=true;element.ondragstart=(event:DragEvent)=>event.dataTransfer?.setData('text/plain',String(i));element.ondragover=(event:DragEvent)=>event.preventDefault();element.ondrop=(event:DragEvent)=>{event.preventDefault();const j=Number(event.dataTransfer?.getData('text/plain'));if(Number.isInteger(j)&&j>=0&&j<order.length)swap(i,j);};});}paint();return host;}
+
 function live(){const host=h('div',null);let step=0,fail=false;const names=['AI + VS Code','GitHub','Vercel','Website'];const desc=['Sửa và kiểm tra trên máy','Commit và Push','Build và triển khai','Xác nhận thay đổi'];function paint(){host.replaceChildren(<div><div className="flowline">{names.map((n,i)=><><div className={'flowstep '+(i<=step?'reached':'')+(fail&&i===2?' failed':'')}>{i<3?<img src={assets[i===0?'VS Code':n]} alt=""/>:<span style={{fontSize:'48px'}}>◉</span>}<strong>{n}</strong><p className="mini">{desc[i]}</p><span className="pill">{fail&&i===2?'Build thất bại':i<=step?'Đã kiểm tra':'Chưa tới bước này'}</span></div>{i<3&&<span className="arrow">→</span>}</>)}</div>{feedback(fail?'Build lỗi: website đang hoạt động vẫn giữ bản cũ. Đọc log đã che secret, sửa và triển khai lại.':step===3?'Website đã cập nhật: mở URL và xác nhận nút mới hoạt động.':'Đang ở bước '+(step+1)+': '+desc[step],fail?'bad':step===3?'good':'')}<div className="actions">{btn('Bước tiếp theo',()=>{if(fail)return;step=Math.min(3,step+1);paint();},'primary')}{btn('Thử lỗi build',()=>{step=2;fail=true;paint();})}{btn('Sửa lỗi và chạy lại',()=>{step=2;fail=false;paint();})}{btn('Bắt đầu lại',()=>{step=0;fail=false;paint();})}</div></div>);}paint();return host;}
-function timeline(){const host=h('div',null);let chosen=0;function paint(){host.replaceChildren(<div className="sequence"><div className="timeline">{['Tạo yêu cầu hoạt động','Thêm bộ lọc, kiểm tra đạt','Nút lưu bị lỗi'].map((x,i)=>btn('Phiên bản '+(i+1)+' · '+x,()=>{chosen=i+1;paint();},chosen===i+1?'active':''))}</div>{feedback(chosen===2?'Phù hợp: phiên bản 2 gần nhất còn hoạt động và đã có bộ lọc. Nhờ AI so sánh bản 2/3 rồi đề xuất phục hồi có kiểm soát.':chosen===3?'Đây là bản lỗi. Hãy tìm thay đổi mới gây lỗi trước khi sửa.':chosen===1?'Bản 1 hoạt động nhưng chưa có bộ lọc. Hãy xét bản hoạt động gần nhất trước khi khôi phục.':'Chọn phiên bản cần đối chiếu khi nút lưu bị lỗi.',chosen===2?'good':'')}</div>);}paint();return host;}
+
 function database(){const host=h('div',null);let rows=[{id:1,title:'Chuẩn bị báo cáo',status:'Mới'},{id:2,title:'Đặt phòng họp',status:'Đang làm'}];function paint(){host.replaceChildren(<div><span className="pill">Bảng mô phỏng · không ghi vào database thật</span><table className="table"><thead><tr><th>ID · định danh</th><th>Tiêu đề · cột dữ liệu</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody>{rows.map(row=><tr><td>{row.id}</td><td>{row.title}</td><td>{row.status}</td><td>{btn('Đổi trạng thái',()=>{row.status=row.status==='Xong'?'Mới':'Xong';paint();})}</td></tr>)}</tbody></table><div className="actions">{btn('Thêm một hàng',()=>{rows.push({id:rows.length+1,title:'Yêu cầu '+(rows.length+1),status:'Mới'});paint();},'primary')}</div></div>);}paint();return host;}
 function planner(){const host=h('div',null);let idea='',data=false,files=false;const result=h('div',{className:'panel'});function show(){result.replaceChildren(<h3>Phương án của bạn</h3>,<p>{idea||'Nhập ý tưởng rồi chọn nhu cầu.'}</p>,<div className="chips">{['VS Code','GitHub',...(data?['Supabase']:[]),...(files?['Google Drive']:[]),'Vercel'].map(t=><span>{t}</span>)}</div>,<p>{data?'Dữ liệu có cấu trúc: thiết kế bảng, quyền truy cập và thử đọc sau reload.':'Chưa cần database nếu chỉ trình bày nội dung.'}</p>,<p>{files?'Tài liệu: bắt đầu bằng liên kết Drive và kiểm tra quyền file.':'Chưa cần Drive nếu không có tài liệu riêng.'}</p>,feedback('Kiểm tra: chức năng đúng, dữ liệu/quyền phù hợp và URL mở được.'));}show();host.append(<div className="planner"><div className="panel"><h3>Ứng dụng cho công việc của bạn</h3><textarea placeholder="Ví dụ: theo dõi yêu cầu hỗ trợ cho phòng ban…" aria-label="Ý tưởng ứng dụng" onInput={event=>{idea=event.currentTarget.value;}}/><label><input type="checkbox" onChange={event=>{data=event.currentTarget.checked;}}/> Cần lưu, tìm và cập nhật dữ liệu</label><label><input type="checkbox" onChange={event=>{files=event.currentTarget.checked;}}/> Cần tài liệu hoặc file đính kèm</label>{btn('Tạo sơ đồ lựa chọn',show,'primary')}</div>{result}</div>);return host;}
 function lab(s:SlideData){let count=0;const status=h('span',{className:'mini'});const total=s.checks?.length||0;return <div className="lab"><div><h3>Chuẩn bị và sản phẩm</h3><p style={{margin:'8px 0 15px',fontSize:'18px'}}>{s.cards[0].text}</p><div className={"checklist "+(total>6?"twocol":"")}>{s.checks?.map(text=><label><input type="checkbox" onChange={event=>{count+=event.currentTarget.checked?1:-1;status.textContent=count+'/'+total+' mục đã xác nhận';}}/>{text}</label>)}</div><p style={{margin:'14px 0'}}>{status}</p></div>{copyPrompt(s.prompt||'')}</div>;}
@@ -1349,7 +1505,6 @@ const vscodeCss = `
 .vscodeMap{display:grid;grid-template-columns:914px 1fr;gap:22px;align-items:center}.vscodeShot{position:relative;width:914px;height:549.26px;border-radius:16px;overflow:hidden;box-shadow:0 10px 26px #08294518;background:#101214}.vscodeShot img{width:100%;height:100%;display:block;object-fit:contain}.vscodeMarks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.vscodeMarks rect{stroke:#ff4848;stroke-width:5;fill:none}.vscodeMarks circle{fill:#dc2626;stroke:#fff;stroke-width:3}.vscodeMarks text{fill:#fff;font-family:Inter,'Segoe UI',Arial,sans-serif;font-size:33px;font-weight:800;text-anchor:middle;dominant-baseline:central}.vscodeNames{display:flex;flex-direction:column;gap:12px}.vscodeName{display:flex;align-items:center;gap:12px;min-height:77px;padding:12px 14px;border:1px solid #b3915966;border-left:4px solid #b39159;border-radius:18px;background:linear-gradient(125deg,#fcfbf8,#f7f4ed);box-shadow:0 5px 14px #08294508}.vscodeNames .vscodeBadge{flex-basis:36px;width:36px;height:36px;border-radius:11px;background:#082945;color:#e9ca8b;border:1px solid #b3915980}.vscodeBadge{flex:0 0 32px;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:#dc2626;color:#fff;font-size:17px;font-weight:800}.vscodeName h3{margin:0 0 5px;font-size:18px;font-weight:800;color:#123f68;line-height:1.2;text-transform:uppercase;letter-spacing:.35px}.vscodeName p{margin:0;font-size:15px;line-height:1.35;color:#687987}.vscodeFunctions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;width:100%}.vscodeFunction{display:flex;gap:16px;align-items:flex-start;min-height:160px;padding:21px 22px;border:1px solid #b3915966;border-left:4px solid #b39159;border-radius:20px;background:#f7f4ed;box-shadow:0 6px 16px #08294506}.vscodeFunction:nth-child(3){background:linear-gradient(120deg,#123f68,#082945)}.vscodeFunction h3{margin:0 0 10px;font-size:22px;line-height:1.2;text-transform:uppercase;font-weight:800;color:#123f68;letter-spacing:.4px}.vscodeFunction p{margin:0;font-size:20px;line-height:1.45;font-weight:550;color:#4d6577}.vscodeFunction:nth-child(3) h3{color:#e9ca8b}.vscodeFunction:nth-child(3) p{color:#eef3f7}
 `;
 function vscodeMap(){return <div className="vscodeMap"><div className="vscodeShot"><img src={assets['VS Code workspace']} alt="Ảnh VS Code của dự án, với sáu vùng được đánh số và khoanh đỏ"/><svg className="vscodeMarks" viewBox="0 0 1917 1152" aria-hidden="true">{vscodeRegions.map((r,i)=><g><rect x={r.x} y={r.y} width={r.w} height={r.h} rx="14"/><circle cx={r.cx} cy={r.cy} r="29"/><text x={r.cx} y={r.cy}>{i+1}</text></g>)}</svg></div><div className="vscodeNames">{vscodeRegions.map((r,i)=><div className="vscodeName"><span className="vscodeBadge">{i+1}</span><div><h3>{r.name}</h3><p>{r.subtitle}</p></div></div>)}</div></div>;}
-function vscodeFunctions(){return <div className="vscodeFunctions">{vscodeRegions.map((r,i)=><article className="vscodeFunction"><span className="vscodeBadge">{i+1}</span><div><h3>{r.name}</h3><p>{r.text}</p></div></article>)}</div>;}
 
 
 const regionDetailCss = `
@@ -1362,7 +1517,6 @@ const regionDetailCss = `
 `;
 const emphasizedRegionTitles = new Set(["File · Tệp và dự án","Terminal · Lệnh và tác vụ","Explorer · File và thư mục","Extensions · Tiện ích","Mở file và Open Editors","Đường dẫn và terminal","Outline · Cấu trúc trong file","Find / Replace trong file","Tab và nhóm editor","Terminal · Chạy lệnh","Nhiều terminal và profile"]);
 function regionDetail(s:SlideData){const [label,purpose]=s.visualConcept.split(' | ');return <div className={'regionDetail'+(s.cards.length>6?' dense':'')}><div className="regionLead"><strong>{label}</strong><span>{purpose}</span></div><div className="regionGrid">{s.cards.map((c,i)=><article className={'regionCard'+(label.startsWith('VÙNG 06')||emphasizedRegionTitles.has(c.title)?' regionEmphasis':'')} style={{animationDelay:(-i*.45)+'s'}}><h3>{c.title}<span className="regionTitleLine" aria-hidden="true"/></h3><p>{c.text}</p></article>)}</div></div>;}
-
 
 const aiAlternatives = [
   {
@@ -1439,85 +1593,117 @@ const aiAlternativesCss = `
 
 `;
 const aiMarqueeNames = ["Gemini Code Assist","Amazon Q","Continue","Augment","Kilo Code","Qodo","Bito","CodeGeeX","Tabby","CodeGPT"];
-function aiLogoMarquee(){return <div className="aiMarquee" role="img" aria-label={aiMarqueeNames.join(', ')}><div className="aiMarqueeTrack">{[0,1].map(copy=><div className="aiMarqueeGroup" aria-hidden="true">{aiMarqueeNames.map(name=><span className="aiMarqueeItem" title={name}><img src={assets['AI '+name]} alt=""/>{name}</span>)}</div>)}</div></div>;}
+function aiLogoMarquee(){return <div className="aiMarquee" role="img" aria-label={aiMarqueeNames.join(', ')}><div className="aiMarqueeTrack">{[0,1].map(()=><div className="aiMarqueeGroup" aria-hidden="true">{aiMarqueeNames.map(name=><span className="aiMarqueeItem" title={name}><img src={assets['AI '+name]} alt=""/>{name}</span>)}</div>)}</div></div>;}
 
 function aiAlternativesSlide(){const host=h('div',{className:'aiAlternatives'}),choices=h('div',{className:'aiChoices'}),detail=h('div',{className:'aiInfo','aria-live':'polite'});let selected=-1;const buttons:any[]=[];function select(index:number){if(selected===index)return;selected=index;buttons.forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));const tool=aiAlternatives[index];detail.setAttribute('data-brand',String(index));detail.replaceChildren(<div className="aiInfoHead"><small>{tool.vendor}</small><h2>{tool.name}</h2><p>{tool.description}</p></div>,<div className="aiTradeoffs"><div className="aiTradeoff"><h3>ƯU ĐIỂM</h3><ul>{tool.pros.map(item=><li>{item}</li>)}</ul></div><div className="aiTradeoff"><h3>ĐIỂM CẦN CÂN NHẮC</h3><ul>{tool.cons.map(item=><li>{item}</li>)}</ul></div></div>);}aiAlternatives.forEach((tool,i)=>{const button=<button className="aiChoice" type="button" aria-label={'Xem ưu và nhược điểm của '+tool.name} onClick={()=>select(i)}><span className="aiFloat" style={{animationDelay:(-i*1.2)+'s'}}><img src={assets['AI '+tool.name]} alt={'Logo '+tool.name}/></span><strong>{tool.name}</strong><small>{tool.tag}</small></button>;buttons.push(button);choices.append(button);});host.append(choices,detail,aiLogoMarquee());select(0);return host;}
 
 const workspaceCss = `
 .workspaceSlide{font-family:Inter,'Segoe UI','Noto Sans',Arial,sans-serif;background:#fbfaf7;background-image:linear-gradient(#123f6804 1px,transparent 1px),linear-gradient(90deg,#123f6804 1px,transparent 1px);background-size:32px 32px}.workspaceSlide .title{font-size:36px;font-weight:800;color:#082945}.workspaceSlide .title::after{content:'';display:block;width:64px;height:3px;background:#b39159;margin-top:14px}.workspaceSlide .stage{height:558px}.dnaSplit{display:grid;grid-template-columns:480px 1fr;gap:30px;align-items:stretch}.dnaSurface{background:linear-gradient(135deg,#123f68,#082945);border:1px solid #b39159;border-radius:24px;padding:28px;color:#edf3f7;box-shadow:0 12px 28px #08294512}.dnaSurface h2{margin:0 0 22px;font-size:24px;letter-spacing:1px;font-weight:800;color:#e9ca8b}.dnaSurface p{font-size:20px;line-height:1.5;margin:14px 0 0}.dnaLabel{display:block;color:#e9ca8b;font-weight:750;font-size:14px;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}.dnaTree{font:19px/2.15 Consolas,monospace;white-space:pre;margin:0}.dnaSecret{border-top:1px solid #e9ca8b40;margin-top:20px;padding-top:16px;color:#f4dfb0;font-size:17px}.dnaSteps{position:relative;display:flex;flex-direction:column;gap:18px;padding-left:48px}.dnaSteps::before{content:'';position:absolute;left:22px;top:24px;bottom:24px;width:1px;background:#b3915977}.dnaStep{position:relative;display:flex;gap:18px;align-items:center;padding:22px 24px;border:1px solid #b3915966;border-left:4px solid #b39159;border-radius:20px;background:#f7f4ed;min-height:144px}.dnaStep:nth-child(2){background:linear-gradient(120deg,#123f68,#082945);color:#fff}.dnaNum{position:absolute;left:-48px;top:calc(50% - 22px);width:44px;height:44px;display:grid;place-items:center;border:1px solid #b39159;border-radius:50%;background:#fbfaf7;color:#9d7944;font-size:18px;font-weight:800}.dnaStep h3{margin:0 0 9px;font-size:22px;line-height:1.25;letter-spacing:.5px;text-transform:uppercase;font-weight:800;color:#123f68}.dnaStep p{margin:0;font-size:20px;line-height:1.45;font-weight:550;color:#4d6577}.dnaStep:nth-child(2) h3{color:#e9ca8b}.dnaStep:nth-child(2) p{color:#eef3f7}.dnaIcon{flex:0 0 68px;width:68px;height:68px;border-radius:16px;display:grid;place-items:center;background:#082945;color:#e9ca8b;border:1px solid #b3915955;font-size:27px;font-weight:700}.dnaIcon svg{width:36px;height:36px}.dnaWide .dnaStep{min-height:150px}.dnaWide .dnaStep>div{flex:1}.dnaTag{flex:0 0 160px;text-align:center;color:#9d7944;font-size:16px;font-weight:750;letter-spacing:.7px}.dnaStep:nth-child(2) .dnaTag{color:#e9ca8b}.dnaEditor{overflow:hidden;padding:0}.dnaEditorHead{padding:18px 24px;border-bottom:1px solid #e9ca8b40;color:#e9ca8b;font-size:17px;font-weight:750}.dnaEditorBody{display:grid;grid-template-columns:150px 1fr;min-height:255px}.dnaExplorer{padding:22px 16px;background:#041c3155;font:16px/2 Consolas,monospace}.dnaCode{padding:22px;font:18px/1.8 Consolas,monospace}.dnaCode strong{color:#e9ca8b;display:block;margin-bottom:24px;font-family:Inter,'Segoe UI',sans-serif}.dnaTerminal{padding:20px 24px;border-top:1px solid #e9ca8b40;font:17px/1.8 Consolas,monospace}.dnaAIFlow{display:flex;flex-direction:column;gap:16px}.dnaAIFlow span{padding:16px 20px;border:1px solid #e9ca8b40;border-radius:14px;font-size:21px;font-weight:650}.dnaAIFlow span::before{content:attr(data-step);color:#e9ca8b;font-size:16px;margin-right:18px}.dnaAIFlow span:last-child{background:#e9ca8b;color:#082945}.dnaAIFlow span:last-child::before{color:#082945}
 `;
-function dnaSteps(s:SlideData,wide=false){const symbols=s.visual==='workspace-tools'?['⌕','＋','>_']:[];const tags=['ĐỌC KẾT QUẢ','XEM QUYỀN','MỞ LOCALHOST'];return <div className={'dnaSteps'+(wide?' dnaWide':'')}>{s.cards.map((c,i)=><article className="dnaStep"><span className="dnaNum">{String(i+1).padStart(2,'0')}</span>{wide&&<span className="dnaIcon" aria-hidden="true">{symbols[i]}</span>}<div><h3>{c.title}</h3><p>{c.text}</p></div>{wide&&<span className="dnaTag">{tags[i]}</span>}</article>)}</div>;}
-function workspace(s:SlideData){if(s.visual==='workspace-ai-alternatives')return aiAlternativesSlide();if(s.visual==='workspace-region')return regionDetail(s);if(s.visual==='workspace-map')return vscodeMap();if(s.visual==='workspace-functions')return vscodeFunctions();if(s.visual==='workspace-tools')return dnaSteps(s,true);return <div className="dnaSplit">{s.visual==='editor'?<div className="dnaSurface dnaEditor"><div className="dnaEditorHead">VS CODE · KHÔNG GIAN LÀM VIỆC</div><div className="dnaEditorBody"><div className="dnaExplorer"><span className="dnaLabel">01 · Explorer</span>▾ project<br/>　▾ app<br/>　　page.tsx<br/>　▾ components<br/>　▾ public</div><div className="dnaCode"><span className="dnaLabel">02 · Soạn thảo</span><strong>RequestForm.tsx</strong>Tiêu đề yêu cầu<br/>[ Nhập nội dung… ]<br/><br/>[ Tạo yêu cầu ]</div></div><div className="dnaTerminal"><span className="dnaLabel">03 · Terminal / Extensions</span>✓ Bản xem thử đã khởi động<br/>→ Mở địa chỉ localhost được báo</div></div>:s.visual==='workspace-files'?<div className="dnaSurface"><h2>THƯ MỤC DỰ ÁN</h2><pre className="dnaTree">{'project-mau/\n├─ app/          các trang\n├─ components/   dùng lại\n├─ public/       tài nguyên\n├─ package.json  tác vụ\n└─ .env.local    môi trường'}</pre><div className="dnaSecret">.env.local · Giữ kín giá trị bí mật</div></div>:<div className="dnaSurface"><h2>VÒNG LẶP LÀM VIỆC VỚI AI</h2><div className="dnaAIFlow">{['Bạn mô tả','AI thực hiện','Bạn kiểm tra','AI chỉnh sửa'].map((label,i)=><span data-step={String(i+1).padStart(2,'0')}>{label}</span>)}</div></div>}{dnaSteps(s)}</div>;}
 
+function workspace(s:SlideData){if(s.visual==='workspace-ai-alternatives')return aiAlternativesSlide();if(s.visual==='workspace-region')return regionDetail(s);return vscodeMap();}
 
 const gitIntroCss = `
-.gitIntroSlide{font-family:Inter,'Segoe UI',Arial,sans-serif;background:#fbfaf7}.gitIntroSlide .title{font-size:36px;font-weight:800;color:#082945}.gitIntroSlide .title::after{content:'';display:block;width:64px;height:3px;background:#b39159;margin-top:14px}.gitIntroSlide .stage{height:550px;align-items:flex-start}.gitLesson{height:550px;display:flex;flex-direction:column;gap:20px}.gitLead{font-size:21px;color:#4c6274;margin:0;max-width:1140px;line-height:1.5}.gitBody{display:grid;grid-template-columns:340px 1fr;gap:26px;flex:1;min-height:0}.gitNav{display:flex;flex-direction:column;gap:12px}.gitChoice{position:relative;text-align:left;cursor:pointer;color:#123f68;background:#f7f4ed;border:1px solid #b3915970;border-radius:18px;padding:17px 20px;font:inherit;transition:background .2s,border-color .2s;display:flex;align-items:center;gap:16px;min-height:78px}.gitChoice strong{font-size:21px;line-height:1.25;display:block}.gitChoice small{font-size:13px;letter-spacing:.6px;color:#9d7944;display:block;margin-bottom:5px}.gitChoice img{width:50px;height:50px;object-fit:contain;flex:none;background:#fff;border-radius:12px;padding:6px}.gitChoice[aria-pressed=true]{border:2px solid #b39159;background:#082945;color:#fff;padding:16px 19px;box-shadow:0 7px 16px #08294512}.gitChoice[aria-pressed=true] small{color:#e9ca8b}.gitChoice:hover{border-color:#9d7944}.gitChoice:focus-visible{outline:3px solid #b39159;outline-offset:4px}.gitDetail{min-width:0;background:#f7f4ed;border:1px solid #b3915970;border-radius:24px;padding:28px 32px;display:flex;flex-direction:column;justify-content:center;overflow:auto}.gitDetail h2{font-size:29px;line-height:1.2;color:#082945;margin:0 0 14px}.gitDetail p{font-size:20px;line-height:1.5;margin:0 0 16px;color:#40596b}.gitDetail .gitStatement{font-size:23px;font-weight:650;color:#123f68}.gitDetail ul{padding-left:23px;margin:0;color:#40596b;font-size:19px;line-height:1.5}.gitDetail li+li{margin-top:6px}.gitDetail pre{background:#082945;color:#f4dfb0;border-left:4px solid #b39159;border-radius:12px;padding:18px 20px;font:18px/1.65 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;margin:0 0 16px}.gitDetail a{color:#123f68;font-size:18px;font-weight:700;margin-top:18px;align-self:flex-start;text-underline-offset:4px}.gitDetail .promptpanel{margin:0;padding:0;background:transparent;box-shadow:none;border:0}.gitDetail .promptpanel h3{color:#9d7944;font-size:17px;margin:12px 0}.gitDetail .promptpanel textarea{width:100%;height:210px;min-height:0;resize:none;background:#082945;color:#fff;border:1px solid #b39159;border-radius:14px;font:20px/1.55 Inter,'Segoe UI',sans-serif;padding:20px;margin:0 0 14px}.gitDetail .promptpanel .mini{color:#40596b!important}.gitMode-setup .gitChoice{min-height:75px;padding:13px 18px}.gitMode-setup .gitChoice[aria-pressed=true]{padding:12px 17px}.gitMode-setup .gitChoice strong{font-size:20px}.gitMode-setup .gitDetail p{font-size:19px}.gitMode-setup .gitDetail pre{font-size:17px}.gitMode-roles .gitBody,.gitMode-cycle .gitBody,.gitMode-branch .gitBody{display:flex;flex-direction:column;gap:22px}.gitMode-roles .gitNav{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}.gitMode-roles .gitChoice{height:122px}.gitMode-roles .gitChoice img{width:68px;height:68px}.gitMode-roles .gitChoice strong{font-size:27px}.gitMode-roles .gitDetail{flex:1}.gitMode-roles .gitDetail ul{display:flex;gap:30px;list-style:none;padding:0}.gitMode-roles .gitDetail li{flex:1;border-left:2px solid #b39159;padding-left:14px;margin:0}.gitMode-cycle .gitNav{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}.gitMode-cycle .gitChoice{height:108px;justify-content:center;padding:15px;text-align:center}.gitMode-cycle .gitChoice[aria-pressed=true]{padding:14px}.gitMode-cycle .gitDetail{flex:1}.gitNext{align-self:flex-end;margin-top:18px}.gitMode-repository .gitBody{border:1px solid #b3915980;border-radius:24px;overflow:hidden;gap:0;grid-template-columns:250px 1fr}.gitMode-repository .gitNav{background:#082945;padding:24px 18px;gap:12px}.gitRepoName{font-size:19px;color:#e9ca8b;font-weight:700;margin:0 0 12px}.gitMode-repository .gitChoice{min-height:56px;border-radius:10px;padding:10px 14px}.gitMode-repository .gitChoice[aria-pressed=true]{background:#f4dfb0;color:#082945;padding:9px 13px}.gitMode-repository .gitDetail{border:0;border-radius:0}.gitMode-branch .gitNav{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative;padding:12px 0 44px}.gitMode-branch .gitNav::before{content:'';position:absolute;left:35px;right:35px;top:60px;border-top:3px solid #b39159}.gitMode-branch .gitChoice:nth-child(2),.gitMode-branch .gitChoice:nth-child(3){transform:translateY(28px)}.gitMode-branch .gitChoice{min-height:100px}.gitMode-branch .gitDetail{flex:1}.gitMode-checkpoint .gitNav{justify-content:center}.gitMode-checkpoint .gitChoice{min-height:104px}.gitMode-checkpoint .gitDetail pre{font-size:25px;line-height:1.8;padding:25px}.gitDetail>*{animation:gitReveal .24s ease-out both}@keyframes gitReveal{from{opacity:.3;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}@media(prefers-reduced-motion:reduce){.gitDetail>*{animation:none}.gitChoice{transition:none}}
+.gitIntroSlide{font-family:Inter,'Segoe UI',Arial,sans-serif;background:linear-gradient(135deg,#fbfaf7,#f7f4ed 65%,#f4dfb040);box-shadow:inset 0 0 0 8px #082945,inset 0 0 0 10px #b39159}
+.gitIntroSlide::before{background:linear-gradient(90deg,transparent 49.8%,#b3915909 50%,transparent 50.2%),linear-gradient(transparent 49.8%,#b3915909 50%,transparent 50.2%);background-size:40px 40px}
+.gitIntroSlide .content{padding:32px 42px 0}.gitIntroSlide .title{font-size:34px;font-weight:850;color:#082945;max-width:1040px;line-height:1.2;letter-spacing:-.5px;margin-bottom:18px;text-wrap:pretty}
+.gitIntroSlide .title::after{content:'';display:block;width:88px;height:4px;background:linear-gradient(90deg,#9d7944,#e9ca8b);margin-top:12px;border-radius:4px}
+.gitIntroSlide .stage{height:552px;align-items:flex-start}.gitLesson{height:552px;display:flex;flex-direction:column;gap:18px}.gitLead{font-size:21px;font-weight:550;color:#40596b;margin:0;line-height:1.4;max-width:1150px}
+.gitGuideCorner{position:absolute;right:42px;top:30px;display:flex;gap:12px}.gitGuideCorner .gitMark{width:48px;height:48px;padding:7px;background:#fff;border:1px solid #b3915950;border-radius:12px}
+.gitMark{width:50px;height:50px;display:grid;place-items:center;flex:none}.gitMark img,.gitMark svg{display:block;width:100%;height:100%;object-fit:contain}.gitMarkText{font:850 30px/1 Inter,Arial;color:#082945}
+.gitBody{display:grid;grid-template-columns:310px minmax(0,1fr);gap:24px;flex:1;min-height:0}.gitNav{display:flex;flex-direction:column;gap:12px;justify-content:center}
+.gitChoice{position:relative;display:flex;align-items:center;gap:14px;min-height:92px;padding:16px 15px;text-align:left;font:inherit;color:#082945;background:#f7f4ed;border:1px solid #b3915980;border-left:4px solid #b39159;border-radius:18px;cursor:pointer;box-shadow:0 4px 12px #08294506;transition:background 180ms,border-color 180ms}
+.gitStepNumber{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#082945;color:#e9ca8b;font-size:13px;font-weight:850;flex:none}.gitChoice .gitMark{width:36px;height:36px}.gitChoice strong{display:block;font-size:20px;line-height:1.25;font-weight:800}.gitChoice small{display:block;font-size:11px;color:#9d7944;letter-spacing:.07em;font-weight:800;margin-bottom:5px}
+.gitChoice[aria-pressed=true]{background:linear-gradient(135deg,#082945,#123f68);color:#fff;border-color:#e9ca8b;box-shadow:0 7px 18px #08294516}.gitChoice[aria-pressed=true] small{color:#e9ca8b}.gitChoice[aria-pressed=true] .gitStepNumber{background:#e9ca8b;color:#082945}.gitChoice[aria-pressed=true] .gitMark{background:#fbfaf7;padding:4px;border-radius:8px}.gitChoice:hover{border-color:#9d7944}.gitChoice:focus-visible,.gitGuideLink:focus-visible{outline:3px solid #b39159;outline-offset:4px}
+.gitDetail{position:relative;min-width:0;min-height:0;background:#fbfaf7;border:1px solid #b39159;border-radius:22px;padding:20px 24px;display:flex;flex-direction:column;gap:16px;overflow:auto;box-shadow:0 8px 24px #08294509}
+.gitScene{flex:none;height:148px;padding:14px 18px;border-radius:16px;background:linear-gradient(125deg,#041c31,#123f68);border:1px solid #e9ca8b80;color:#fff;display:flex;align-items:center;justify-content:center;gap:18px;overflow:hidden;position:relative}
+.gitScene::after{content:'';position:absolute;right:-24px;top:-40px;width:150px;height:150px;border:1px solid #e9ca8b22;transform:rotate(35deg);pointer-events:none}.gitScene .gitMark{width:58px;height:58px;background:#fbfaf7;border-radius:14px;padding:8px}.gitScene strong{font-size:21px;font-weight:800;color:#f4dfb0;line-height:1.25;display:block}.gitScene small{display:block;color:#bfd2df;font-size:14px;margin-top:6px}.gitScene .gitSceneArrow{color:#e9ca8b;font-size:30px;font-weight:800;animation:gitGuideSignal 2.4s ease-in-out infinite}
+.gitSceneNode{display:flex;flex-direction:column;gap:7px;align-items:center;text-align:center;flex:1;min-width:0}.gitSceneNode .gitMark{width:48px;height:48px}.gitSceneNode strong{font-size:17px}.gitSceneNode.active strong{color:#fff}.gitSceneNode.active .gitMark{box-shadow:0 0 0 3px #e9ca8b}.gitSceneLine{font-size:16px;border-left:3px solid #e9ca8b;padding:10px 14px;background:#ffffff0a;border-radius:0 10px 10px 0;max-width:520px}
+.gitSceneStack{display:flex;flex-direction:column;gap:9px;flex:1;min-width:0}.gitSceneField{font:600 15px/1.3 Inter,Arial;padding:9px 13px;background:#fbfaf7;border:1px solid #b39159;border-radius:9px;color:#082945}.gitSceneField.focus{border:2px solid #e9ca8b;box-shadow:0 0 0 3px #e9ca8b30}.gitGoogle{display:flex;gap:10px;align-items:center;background:#fbfaf7;color:#082945;border:2px solid #e9ca8b;border-radius:12px;padding:11px 18px;font:800 19px/1.2 Inter,Arial}.gitGoogle .gitMark{width:27px;height:27px;padding:0;background:transparent}.gitTerminalScene{height:auto;min-height:148px}.gitSceneCode{font:17px/1.5 Consolas,monospace;color:#f4dfb0;margin:0;white-space:pre-wrap;flex:1}
+.gitStepDetail{position:relative;min-width:0;padding-left:16px;border-left:4px solid #b39159}.gitStepDetail h2{font-size:27px;line-height:1.2;font-weight:850;color:#082945;margin:0 0 10px}.gitStepDetail p{font-size:20px;line-height:1.4;color:#40596b;margin:0 0 10px}.gitStepDetail .gitStatement{color:#123f68;font-weight:650}.gitStepDetail ul{padding-left:20px;margin:8px 0;color:#40596b;font-size:18px;line-height:1.4}.gitStepDetail li+li{margin-top:5px}.gitStepDetail pre{font:17px/1.5 Consolas,monospace;background:#082945;color:#f4dfb0;border-left:4px solid #e9ca8b;border-radius:10px;padding:12px 16px;margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.gitGuideLink{display:inline-flex;flex-direction:column;align-self:flex-start;gap:4px;margin-top:7px;padding:11px 18px;background:#082945;color:#f4dfb0;text-decoration:none;border:1px solid #b39159;border-radius:12px;font-size:17px;font-weight:800;line-height:1.3}.gitGuideLink small{color:#d1deea;font-size:12px;font-weight:500;overflow-wrap:anywhere}.gitGuideLink:hover{background:#123f68;border-color:#e9ca8b}.gitFocus::before{content:'';position:absolute;left:-4px;top:0;bottom:0;width:4px;background:#e9ca8b;animation:gitGuideFocus 2.8s ease-in-out infinite;pointer-events:none}
+.gitGuideQuiz{display:grid;grid-template-columns:310px minmax(0,1fr);gap:24px;flex:1;min-height:0}.gitQuizBrand{background:linear-gradient(145deg,#041c31,#123f68);color:#fff;border:1px solid #b39159;border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:22px;justify-content:center}.gitQuizBrand .gitMark{width:76px;height:76px;background:#fbfaf7;padding:12px;border-radius:18px}.gitQuizBrand h2{font-size:29px;line-height:1.2;color:#e9ca8b;margin:0}.gitQuizBrand p{font-size:20px;line-height:1.45;margin:0}.gitQuizPanel{min-height:0;overflow:auto;padding:28px;border:1px solid #b39159;border-left:5px solid #b39159;border-radius:22px;background:#fbfaf7}.gitQuizPanel .quiz-question{font-size:27px}.gitGuideQuiz .choices .btn{font-size:20px;padding:16px 20px}.gitGuideQuiz .feedback{font-size:18px;background:#f7f4ed;border-color:#b3915960}.gitGuideQuiz .btn.primary{background:#082945;color:#e9ca8b}
+@keyframes gitGuideSignal{0%,100%{opacity:.55;transform:translateX(0)}50%{opacity:1;transform:translateX(3px)}}@keyframes gitGuideFocus{0%,100%{opacity:.35;transform:scaleY(.65)}50%{opacity:1;transform:scaleY(1)}}
+@media(prefers-reduced-motion:reduce){.gitIntroSlide *,.gitIntroSlide *::before{animation:none!important;transition:none!important}.gitFocus::before{opacity:1;transform:none}}
 `;
+function gitGuideMark(name:string){
+ if(assets[name])return <span className="gitMark"><img src={assets[name]} alt={name}/></span>;
+ if(name==='Google')return <span className="gitMark" aria-label="Google"><svg viewBox="0 0 24 24" fill="none" {...{'stroke-width':4}}><path stroke="#4285f4" d="M12 12h8a9 9 0 0 1-4 7"/><path stroke="#34a853" d="M16 19a9 9 0 0 1-11-2"/><path stroke="#fbbc05" d="M5 17a9 9 0 0 1 0-10"/><path stroke="#ea4335" d="M5 7a9 9 0 0 1 13-2"/></svg></span>;
+ if(name==='Windows')return <span className="gitMark" aria-label="Windows"><svg viewBox="0 0 24 24" fill="#2d7fb4"><path d="M2 3h9v8H2Zm11 0h9v8h-9ZM2 13h9v8H2Zm11 0h9v8h-9Z"/></svg></span>;
+ return <span className="gitMark gitMarkText" aria-hidden="true">{name==='Terminal'?'>_':name==='Browser'?'↗':'✓'}</span>;
+}
+function gitGuideScene(s:SlideData,index:number){
+ const mode=s.visual.replace('git-intro-',''),c=s.cards[index];
+ if(c.code)return <div className="gitScene gitTerminalScene">{gitGuideMark('Terminal')}<pre className="gitSceneCode">{c.code}</pre></div>;
+ if(mode==='starter')return <div className="gitScene"><span className="gitMark gitMarkText">L✦</span><div className="gitSceneStack"><strong>LUMI STUDIO · website quảng cáo</strong><div className="gitSceneField focus">Animation nhẹ · tab · FAQ · form đăng ký</div><small>ZIP → giải nén → VS Code → localhost:3000</small></div></div>;
+ if(mode==='unzip')return <div className="gitScene">{gitGuideMark('VS Code')}<pre className="gitSceneCode">{'eiu-advertising-starter/\n├─ package.json\n├─ app/ · components/ · data/\n└─ README.md'}</pre></div>;
+ if(['npm','dev','build','push-code'].includes(mode))return <div className="gitScene">{gitGuideMark('Terminal')}<pre className="gitSceneCode">{c.code||'Terminal trong thư mục chứa package.json'}</pre></div>;
+ if(mode==='localhost'||mode==='customize')return <div className="gitScene">{gitGuideMark('VS Code')}<span className="gitSceneArrow">→</span><div className="gitSceneStack"><strong>Sửa file → Ctrl+S → xem lại</strong><div className="gitSceneField focus">http://localhost:3000</div><small>Nội dung · màu · layout · form</small></div></div>;
+ if(mode==='ai-workspace'||mode==='ai-edit')return <div className="gitScene">{gitGuideMark('VS Code')}<span className="gitSceneArrow">↔</span>{gitGuideMark('AI Codex')}<div className="gitSceneStack"><strong>Đọc project → chỉnh file → kiểm tra</strong><small>README · package.json · dữ liệu · giao diện</small></div></div>;
+ if(mode==='branch-choice')return <div className="gitScene">{gitGuideMark('Git')}<div className="gitSceneStack"><div className={'gitSceneField'+(index===0?' focus':'')}>main · phiên bản chính</div><div className={'gitSceneField'+(index>0?' focus':'')}>feature/landing-refresh · thử thay đổi</div></div>{gitGuideMark('GitHub')}</div>;
+
+ if(mode==='signup')return <div className="gitScene">{gitGuideMark('GitHub')}<div className="gitSceneStack"><strong>Create your free account</strong><div className="gitGoogle">{gitGuideMark('Google')}Continue with Google</div><small>github.com/signup · tài khoản cá nhân</small></div></div>;
+ if(mode==='identity'||mode==='verify-git')return <div className="gitScene">{gitGuideMark('Git')}<pre className="gitSceneCode">{c.code||'Terminal trong VS Code\nGit sẵn sàng trên máy'}</pre></div>;
+ if(mode==='install'||mode==='download')return <div className="gitScene">{gitGuideMark('Git')}<div className="gitSceneStack"><strong>Git for Windows · Setup</strong><div className="gitSceneField focus">{c.label||c.title}</div><small>{mode==='download'?'Windows x64 / ARM64':'Đọc lựa chọn → xác nhận → tiếp tục'}</small></div>{gitGuideMark('Windows')}</div>;
+ if(mode==='account')return <div className="gitScene">{gitGuideMark('VS Code')}<span className="gitSceneArrow">↔</span>{gitGuideMark('GitHub')}<div className="gitSceneStack"><strong>{index===s.cards.length-1?'Đúng tài khoản GitHub':'Sign In → trình duyệt → VS Code'}</strong><small>GitHub account · quyền đăng nhập</small></div></div>;
+ if(mode==='web-create'||mode==='web-check')return <div className="gitScene">{gitGuideMark('GitHub')}<div className="gitSceneStack"><strong>{mode==='web-create'?'Create a new repository':'username / webapp-web'}</strong><div className={'gitSceneField'+(index===0?' focus':'')}>Owner: tài khoản của bạn · Repository: tên dự án</div><div className={'gitSceneField'+(index===2?' focus':'')}>Private · README.md · main</div></div></div>;
+ const routes=mode==='workflow'?['Lưu file','Chọn thay đổi','Commit','Push']:mode==='pull'?['GitHub','Pull','VS Code']:mode==='clone'?['GitHub','Clone','VS Code']:mode==='routes'?['Repo → git clone','ZIP → git init']:mode==='git'?['Sửa file','Commit','Lịch sử']:['VS Code','Git','GitHub'];
+ const logos=mode==='workflow'?['VS Code','Git','Git','GitHub']:mode==='pull'||mode==='clone'?['GitHub','Git','VS Code']:mode==='routes'?['GitHub','VS Code']:mode==='git'?['VS Code','Git','Git']:['VS Code','Git','GitHub'];
+ return <div className="gitScene">{routes.map((label,i)=><>{i>0&&<span className="gitSceneArrow">→</span>}<div className={'gitSceneNode'+(i===index%routes.length?' active':'')}>{gitGuideMark(logos[i])}<strong>{label}</strong></div></>)}</div>;
+}
 function gitIntro(s:SlideData){
- const mode=s.visual.replace('git-intro-','');
- const host=h('div',{className:'gitLesson gitMode-'+mode});
- const nav=h('div',{className:'gitNav','aria-label':'Các mục trong '+s.title});
- const detail=h('div',{className:'gitDetail','aria-live':'polite'});
- const buttons:any[]=[];let selected=-1;
- function select(index:number){
-  if(selected===index)return;selected=index;
-  buttons.forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));
-  const c=s.cards[index];
-  const children:any[]=[<h2>{c.title}</h2>,<p className="gitStatement">{c.text}</p>];
-  if(c.detail)children.push(<p>{c.detail}</p>);
-  if(c.code)children.push(<pre>{c.code}</pre>);
-  if(c.points)children.push(<ul>{c.points.map(point=><li>{point}</li>)}</ul>);
-  if(c.prompt&&mode==='prompts')children.push(copyPrompt(c.prompt));
-  if(c.link)children.push(<a href={c.link} target="_blank" rel="noopener noreferrer">{c.linkLabel} ↗</a>);
-  if(mode==='cycle')children.push(<div className="gitNext">{btn(index===s.cards.length-1?'Xem lại vòng làm việc':'Bước tiếp theo →',()=>select((index+1)%s.cards.length),'primary')}</div>);
-  detail.replaceChildren(...children);
+ const host=h('div',{className:'gitLesson'});host.append(<p className="gitLead">{s.message}</p>);
+ if(s.visual==='git-intro-quiz'){
+  host.append(<div className="gitGuideQuiz"><div className="gitQuizBrand">{gitGuideMark('Git')}{gitGuideMark('GitHub')}<h2>TỪ MÁY CỦA BẠN<br/>ĐẾN REPOSITORY</h2><p>Tự kiểm tra để biết mình đã làm chủ từng bước.</p></div><div className="gitQuizPanel">{choiceActivity([
+   {q:'Git ghi lại điều gì khi bạn Commit?',options:['Phiên bản đã chọn trên máy','Một website đã được triển khai'],answer:0,why:'Commit ghi phiên bản trong repository local. Push mới gửi commit lên GitHub.'},
+   {q:'Tạo tài khoản GitHub bằng Google bắt đầu ở đâu?',options:['github.com/signup → Continue with Google','Gõ mật khẩu Google vào terminal'],answer:0,why:'Đăng ký trên trang GitHub; chọn tài khoản Google trong luồng của trình duyệt.'},
+   {q:'Đặt user.name và user.email có phải đăng nhập GitHub?',options:['Không, đây là danh tính tác giả commit','Có, GitHub tự đăng nhập từ email đó'],answer:0,why:'Tên/email commit và phiên đăng nhập GitHub là hai việc khác nhau.'},
+   {q:'Lệnh nào tải repo đã có về máy?',options:['git clone URL_HTTPS','git init'],answer:0,why:'Clone tải mã và lịch sử của repo đã có; Init tạo repository local.'},
+   {q:'Đưa website local đã Commit lên GitHub bằng cách nào?',options:['Tạo repo trống, thêm origin rồi git push -u origin main','Chỉ nhấn Ctrl+S'],answer:0,why:'Remote chỉ địa chỉ repository online; Push gửi commit trên nhánh main lên repository đó.'},
+   {q:'Muốn xem thay đổi nhanh trên localhost:3000, dùng lệnh nào?',options:['npm run dev','Chỉ npm run build rồi mở trình duyệt'],answer:0,why:'Dev chạy server phát triển. Build tạo bản production; muốn chạy bản đó cần npm run start.'},
+   {q:'Lệnh nào cập nhật main sau khi Merge trên GitHub?',options:['git switch main rồi git pull --ff-only origin main','git push --force'],answer:0,why:'Pull lấy thay đổi về main. Kiểm tra working tree clean trước khi chuyển nhánh và Pull.'},
+   {q:'Bạn Push nhánh feature/landing-refresh. main đã tự đổi chưa?',options:['Chưa; cần review và Merge vào main','Rồi; mọi Push đều ghi đè main'],answer:0,why:'Push cập nhật nhánh được gửi. Pull Request và Merge mới đưa thay đổi của nhánh riêng vào main.'}
+  ])}</div></div>);return host;
  }
- if(mode==='repository')nav.append(<p className="gitRepoName">eiu / vibe-practice</p>);
- s.cards.forEach((c,i)=>{const button=<button type="button" className="gitChoice" aria-label={'Xem '+c.title} onClick={()=>select(i)}>{c.logo&&<img src={assets[c.logo]} alt=""/>}<span>{c.label&&<small>{c.label}</small>}<strong>{c.title}</strong></span></button>;buttons.push(button);nav.append(button);});
- host.append(<p className="gitLead">{s.message}</p>,<div className="gitBody">{nav}{detail}</div>);
- select(0);return host;
+ const nav=h('nav',{className:'gitNav','aria-label':'Các bước của '+s.title});
+ const detail=h('div',{className:'gitDetail','aria-live':'polite'});const buttons:any[]=[];let selected=-1;
+ function select(index:number){if(selected===index)return;selected=index;buttons.forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));const c=s.cards[index];detail.replaceChildren(gitGuideScene(s,index),<div className="gitStepDetail gitFocus"><h2>{c.title}</h2><p className="gitStatement">{c.text}</p>{c.detail&&<p>{c.detail}</p>}{c.points&&<ul>{c.points.map(point=><li>{point}</li>)}</ul>}{c.link&&<a className="gitGuideLink" href={c.link} target="_blank" rel="noopener noreferrer" download={c.link.endsWith('.zip')?'eiu-advertising-starter.zip':undefined}>{c.linkLabel||'Mở trang hướng dẫn'}<small>{c.link}</small></a>}</div>);}
+ s.cards.forEach((c,i)=>{const button=<button type="button" className="gitChoice" aria-pressed="false" onClick={()=>select(i)}><span className="gitStepNumber">{String(i+1).padStart(2,'0')}</span>{gitGuideMark(c.logo||'GitHub')}<span>{c.label&&<small>{c.label}</small>}<strong>{c.title}</strong></span></button>;buttons.push(button);nav.append(button);});
+ host.append(<div className="gitBody">{nav}{detail}</div>);select(0);return host;
 }
 
 function content(s:SlideData){if(s.visual.startsWith('git-intro-'))return gitIntro(s);if(s.section===1&&s.visual.startsWith('workspace-'))return workspace(s);switch(s.visual){
 case 'cover':return opening(s);
 case 'outcomes':return <div className="outcomesgrid">{s.cards.map((c,i)=><div className="outcomestep"><span className="outcomenum">{String(i+1).padStart(2,'0')}</span><article className="outcomecard"><span className="outcomeicon" aria-hidden="true">{outcomeIcon(i)}</span><div><h3>{c.title}</h3><p>{c.text}</p></div><span className="outcomebadge"><i aria-hidden="true">{['✓','▶','↑','↗'][i]}</i>{['DỰ ÁN','CHẠY THỬ','Commit · Push','Pull Request'][i]}</span></article></div>)}</div>;
 case 'features':return features();
-case 'github-features':return <div>{flow(['Repository','Branch · nhánh','Commit · lịch sử','Pull Request'],['GitHub','GitHub','GitHub','GitHub'])}<div className="branchflow">{cards(s)}</div></div>;
-case 'branches':return <div className="branchflow">{flow(['Tạo nhánh','Sửa và Commit','Push nhánh','Pull Request','Xem xét và Merge'])}<div className="row">{s.cards.map(c=><article className="card"><h3>{c.title}</h3><p>{c.text}</p></article>)}</div></div>;
-case 'ecosystem':return ecosystem();
+
+
+
 case 'storage':return storage();case 'storage-compare':return storage(true);case 'storage-quiz':return choiceActivity(storageQuestions);
-case 'live':return live();case 'timeline':return timeline();case 'database':return database();case 'planner':return planner();case 'lab':return lab(s);
-case 'editor':return <div><div className="editor"><div className="editorbar">VS Code · project quản lý yêu cầu</div><div className="explorer">EXPLORER · cây file<br/>▾ project-mau<br/>　▾ app<br/>　　page.tsx<br/>　▾ components<br/>　　RequestForm.tsx<br/>　▾ public<br/>　package.json<br/>　.env.local</div><div className="code">{'RequestForm.tsx · vùng chỉnh sửa\n\n  Tiêu đề yêu cầu\n  [ Nhập nội dung… ]\n\n  [ Tạo yêu cầu ]\n\n  AI đề xuất sửa nút và thông báo.\n  Bạn đọc thay đổi trước khi áp dụng.'}</div><div className="assistant">TRỢ LÝ AI · nếu có<br/><br/>“Hãy giải thích project và chỉ file cần sửa.”<br/><br/>Extensions: bổ sung tiện ích phù hợp.</div><div className="terminal">{'TERMINAL · tác vụ của project\n✓ Bản xem thử đã khởi động → mở localhost'}</div></div></div>;
-case 'files':return <div className="split"><div className="panel foldertree">{'project-mau/\n├─ app/            các trang\n├─ components/     phần dùng lại\n├─ public/         ảnh, tài nguyên\n├─ package.json    cấu hình tác vụ\n└─ .env.local      môi trường'}</div><div>{s.cards.map(c=><div className="card" style={{padding:'15px',marginBottom:'10px'}}><h3 style={{fontSize:'20px'}}>{c.title}</h3><p style={{fontSize:'17px'}}>{c.text}</p></div>)}</div></div>;
+case 'live':return live();case 'database':return database();case 'planner':return planner();case 'lab':return lab(s);
+
+
 case 'demo':return <div className="lab"><div>{s.cards.map(c=><div className="card" style={{padding:'15px',marginBottom:'10px'}}><h3 style={{fontSize:'20px'}}>{c.title}</h3><p style={{fontSize:'17px'}}>{c.text}</p></div>)}</div>{copyPrompt(s.prompt||'')}</div>;
-case 'prompt-choice':return choiceActivity([{q:'Yêu cầu nào giúp AI biết rõ phạm vi?',options:['Hãy sửa ứng dụng cho đẹp hơn.','Làm nút lưu rõ hơn; giữ đăng nhập và dữ liệu; kiểm tra thành công và thất bại.'],answer:1,why:'Yêu cầu cụ thể nêu mục tiêu, phần cần giữ và cách kiểm tra.'}]);
-case 'quiz':return choiceActivity([
-{q:'Bạn cần tìm nhãn “Tạo yêu cầu” trên nhiều file. Dùng tính năng nào?',options:['Search trong VS Code','Chỉ mở GitHub Issues'],answer:0,why:'Search tìm nội dung trong dự án; đọc kết quả để xác định đúng nơi sửa.'},
-{q:'Bạn cần chạy bản xem thử của dự án. Làm gì trước?',options:['Đoán một lệnh bất kỳ','Đọc tác vụ trong package.json và kiểm tra thư mục terminal'],answer:1,why:'Tác vụ phụ thuộc dự án. Terminal phải chạy tại đúng thư mục.'},
-{q:'Bạn đã sửa nút lưu và một file không liên quan. Nên Chọn thay đổi thế nào?',options:['Chọn đúng thay đổi của nút đã kiểm tra','Chọn toàn bộ file để nhanh hơn'],answer:0,why:'Chọn thay đổi xác định phần thay đổi được đưa vào Commit; tách các việc không liên quan.'},
-{q:'Commit đã có trên máy nhưng chưa xuất hiện trên GitHub. Bạn cần làm gì?',options:['Push đúng repository và nhánh','Chỉ lưu file thêm một lần'],answer:0,why:'Commit ghi trên máy; Push gửi commit tới kho từ xa.'},
-{q:'Bạn muốn nhóm xem bản sửa trước khi đưa vào nhánh chính.',options:['Push nhánh riêng và mở Pull Request','Sửa trực tiếp nhánh chính rồi bỏ qua xem xét'],answer:0,why:'Pull Request giúp đọc khác biệt, trao đổi và kiểm tra trước khi Merge.'},
-{q:'Đồng nghiệp báo nút lưu không hoạt động. Issue nên có gì?',options:['Chỉ ghi: bị lỗi','Bước tái hiện, kết quả thực tế và kết quả mong đợi'],answer:1,why:'Thông tin rõ giúp người khác tái hiện và tìm nguyên nhân.'},
-{q:'AI sửa khiến nút lưu hỏng. Cách xử lý phù hợp?',options:['Xóa dự án và viết lại','So sánh lịch sử, sửa nhỏ và kiểm tra lại'],answer:1,why:'Dùng bằng chứng từ thay đổi để phục hồi chức năng có kiểm soát.'}
-]);
-case 'mistakes':return choiceActivity([{q:'Bạn đã Commit nhưng đồng nghiệp chưa thấy phiên bản mới.',options:['Kiểm tra đã Push đúng nhánh/repository','Xóa project của đồng nghiệp'],answer:0,why:'Commit trên máy chưa được gửi lên GitHub nếu chưa Push.'},{q:'Push báo có thay đổi từ xa chưa tích hợp.',options:['Ghi đè cưỡng bức ngay','Đọc khác biệt, tích hợp và xử lý xung đột'],answer:1,why:'Không ghi đè việc của người khác để né lỗi; nhờ AI giải thích trước.'},{q:'Một secret key đã xuất hiện trong commit công khai.',options:['Chỉ xóa dòng trong file','Thu hồi/đổi khóa, xử lý lịch sử và kiểm tra ảnh hưởng'],answer:1,why:'Khóa có thể đã bị sao chép; xóa dòng không làm khóa cũ mất hiệu lực.'}]);
+
+
+
 case 'missing':return choiceActivity([{q:'Đồng nghiệp không mở được địa chỉ localhost của bạn.',options:['Cần triển khai và URL phù hợp','Chỉ cần tạo bảng database'],answer:0,why:'Localhost trỏ môi trường cục bộ; cần hosting để chia sẻ ứng dụng.'},{q:'Website đã mở công khai nhưng yêu cầu biến mất sau reload.',options:['Chỉ thay nền tảng hosting','Kiểm tra kết nối và thao tác lưu/đọc database'],answer:1,why:'Hosting không tự tạo dữ liệu bền vững cho biểu mẫu.'}]);
 case 'permissions':return choiceActivity([{q:'Người A có yêu cầu riêng. Người B đoán được ID của nó.',options:['Chỉ giấu nút xem trên giao diện','Kiểm tra quyền ở dịch vụ dữ liệu bằng RLS'],answer:1,why:'Quyền phải được kiểm tra khi truy cập dữ liệu, không chỉ lúc hiển thị nút.'},{q:'Ứng dụng chạy trong trình duyệt cần kết nối Supabase.',options:['Dùng publishable key theo thiết kế, kèm RLS','Đưa secret/service_role vào giao diện'],answer:0,why:'Publishable key được thiết kế cho client; khóa có đặc quyền phải bảo mật và có thể vượt RLS.'}]);
 case 'drive-access':return choiceActivity([{q:'Người dùng có link PDF nhưng gặp thông báo không có quyền.',options:['Kiểm tra tài khoản và quyền xem file','Công khai mọi tài liệu của nhóm'],answer:0,why:'Địa chỉ file không tự cấp quyền. Chỉ chia sẻ cho người phù hợp.'},{q:'Người dùng chỉ cần đọc tài liệu hướng dẫn.',options:['Cấp quyền sửa toàn thư mục','Cấp quyền xem phù hợp và thử lại'],answer:1,why:'Chọn quyền tối thiểu theo nhu cầu; kiểm tra với tài khoản thật.'}]);
 case 'debug':return choiceActivity([{q:'Build báo thiếu cấu hình kết nối trên Vercel.',options:['Gửi toàn bộ secret cho AI','Kiểm tra tên biến và môi trường, che giá trị bí mật'],answer:1,why:'AI có thể hướng dẫn bằng tên biến và log đã che bí mật.'},{q:'Website tải chậm nhưng triển khai thành công.',options:['Đo request, truy vấn và kích thước dữ liệu','Cho rằng Vercel tự tối ưu mọi thứ'],answer:0,why:'Tốc độ triển khai và tốc độ tải trang là hai vấn đề khác nhau.'},{q:'Người dùng không đọc được dữ liệu do quyền.',options:['Tắt RLS để hết lỗi','Kiểm tra danh tính và chính sách đúng nhu cầu'],answer:1,why:'Sửa nguyên nhân phân quyền; không mở dữ liệu để né lỗi.'}]);
 case 'deployment':return <div>{flow(['GitHub','Vercel build','Bản triển khai','Website'],['GitHub','Vercel','Vercel'])}<div className="row">{s.cards.map(c=><div className="card" style={{padding:'16px'}}><h3 style={{fontSize:'20px'}}>{c.title}</h3><p style={{fontSize:'17px'}}>{c.text}</p></div>)}</div></div>;
-case 'git':return gitSimulator();
+
 case 'architecture':return <div className="architecture">{flow(['VS Code','GitHub','Vercel','Người dùng'],['VS Code','GitHub','Vercel'])}<div className="split"><div className="panel"><h3>Ứng dụng ↔ Supabase</h3><p>Đọc và ghi dữ liệu theo quyền.</p>{visualTable()}</div><div className="panel"><h3>Ứng dụng ↔ Google Drive</h3><p>Liên kết tài liệu hoặc tích hợp theo quyền.</p>{folders()}</div></div></div>;
 case 'local':return <div>{flow(['Mã nguồn trên máy','Bản xem thử · localhost','Website · URL công khai'],['VS Code','','Vercel'])}<div className="row">{s.cards.map(c=><div className="card"><h3>{c.title}</h3><p>{c.text}</p></div>)}</div></div>;
 case 'roles':return roles(s);
 case 'fixed-process':return fixedProcess(s);
-case 'compare':return <div className={"split "+(s.cards.length>2?"comparethree":"")}>{s.cards.map(c=><div className="panel" style={{minHeight:'280px'}}><h3>{c.title}</h3><p>{c.text}</p></div>)}</div>;
-case 'flow':return <div>{workflow()}</div>;
-case 'cycle':return <div>{flow(['Bạn mô tả','AI thực hiện','Bạn kiểm tra','AI chỉnh sửa'])}<div className="row">{s.cards.map(c=><div className="card"><h3>{c.title}</h3><p>{c.text}</p></div>)}</div></div>;
+
+
+
 case 'crud':return <div>{flow(['Nhập biểu mẫu','Ứng dụng kiểm tra','Supabase lưu','Đọc lại sau reload'],['','','Supabase'])}<div className="row">{s.cards.map(c=><div className="card"><h3>{c.title}</h3><p>{c.text}</p></div>)}</div></div>;
 case 'levels':return <div>{cards(s)}</div>;
 case 'schema':return <div className="lab compactschema"><div>{visualTable()}<div className="panel"><h3>Kiểm tra trước khi tạo</h3><p>ID duy nhất · trường bắt buộc · trạng thái hợp lệ · người tạo · quyền đọc/sửa.</p><p>SQL là mã thao tác dữ liệu; nhờ AI tạo và giải thích trước khi bạn xác nhận chạy.</p></div></div>{copyPrompt(s.prompt||'')}</div>;
 default:return cards(s);
 }}
-function slide(s:SlideData){return <svg width="100%" height="100%" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" data-preserve-original="true"><foreignObject width="1280" height="720"><div className={"eiu"+(s.visual==='cover'?' coverSlide':'')+(s.section===1&&s.number===1?' sectionOneOpening':'')+(s.section===1&&s.number===2?' outcomesSlide':'')+(s.section===1&&s.number===3?' roleSlide':'')+(s.section===1&&s.number===4?' featureSlide':'')+(s.section===1&&s.number===5?' processSlide':'')+(s.section===1&&s.visual.startsWith('workspace-')?' workspaceSlide':'')+(s.visual.startsWith('git-intro-')?' gitIntroSlide':'')} {...{xmlns:"http://www.w3.org/1999/xhtml"}}><style>{css+openingCss+sectionOneCss+detailCss+workspaceCss+vscodeCss+regionDetailCss+aiAlternativesCss+gitIntroCss}</style>{s.section===1&&s.number>=6&&s.number<=12&&<img className="workspaceCornerLogo" src={assets['VS Code']} alt="VS Code"/>}<main className="content"><h1 className="title">{s.title}</h1><div className="stage">{content(s)}</div></main></div></foreignObject></svg>;}
+function slide(s:SlideData){return <svg width="100%" height="100%" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" data-preserve-original="true"><foreignObject width="1280" height="720"><div className={"eiu"+(s.visual==='cover'?' coverSlide':'')+(s.section===1&&s.number===1?' sectionOneOpening':'')+(s.section===1&&s.number===2?' outcomesSlide':'')+(s.section===1&&s.number===3?' roleSlide':'')+(s.section===1&&s.number===4?' featureSlide':'')+(s.section===1&&s.number===5?' processSlide':'')+(s.section===1&&s.visual.startsWith('workspace-')?' workspaceSlide':'')+(s.visual.startsWith('git-intro-')?' gitIntroSlide':'')} {...{xmlns:"http://www.w3.org/1999/xhtml"}}><style>{css+openingCss+sectionOneCss+detailCss+workspaceCss+vscodeCss+regionDetailCss+aiAlternativesCss+gitIntroCss}</style>{s.section===1&&s.number>=6&&s.number<=13&&<img className="workspaceCornerLogo" src={assets['VS Code']} alt="VS Code"/>}{s.section===1&&s.visual.startsWith('git-intro-')&&<div className="gitGuideCorner">{gitGuideMark(s.cards.some(c=>c.logo==='VS Code')?'VS Code':'Git')}{gitGuideMark('GitHub')}</div>}<main className="content"><h1 className="title">{s.title}</h1><div className="stage">{content(s)}</div></main></div></foreignObject></svg>;}
 export default course.slides.map(s=>()=>slide(s));

@@ -4,7 +4,6 @@ import type { GoogleGenAI } from "@google/genai";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import type { AISource, NormalizedQuery, RetrievedChunk } from "./types";
 
-export type { NormalizedQuery, RetrievedChunk };
 
 const EMBEDDING_MODEL = process.env.GEMINI_EMBEDDING_MODEL?.trim() || "gemini-embedding-2";
 const EMBEDDING_DIMENSIONS = 768;

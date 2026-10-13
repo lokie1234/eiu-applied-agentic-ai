@@ -1,76 +1,33 @@
-# EIU Applied Agentic AI — Interactive Deck
+# EIU Interactive Space
 
-Hướng dẫn triển khai OTP qua Brevo Custom SMTP và quản lý quyền theo từng section:
-[docs/BREVO_OTP_DEPLOYMENT.md](docs/BREVO_OTP_DEPLOYMENT.md).
-
-Bản project hoàn chỉnh hiện tại của Section 1.
-
-## Runtime chính
-
-- Next.js App Router + TypeScript.
-- React-PDF render PDF từ `NEXT_PUBLIC_PDF_URL`.
-- Brevo Custom SMTP + Supabase Email OTP/SSR session + quyền theo từng section.
-- Previous / Next, keyboard, mouse wheel, slide number + Enter.
-- Zoom, fullscreen, PDF hyperlinks.
-- Interaction layer nằm phía trên PDF và không sửa nội dung PDF.
-
-## Quy tắc interaction
-
-- PDF là content gốc, không render lại text/hình đã có trên PDF.
-- Decorative FX dùng `pointer-events: none`.
-- Hotspot chỉ phủ vùng cần click.
-- Modal / drag-drop / reveal là UI riêng.
-- Các interaction mới ưu tiên CSS Module riêng để tránh CSS của slide này làm hỏng slide khác.
-- Slide 10–13 của PDF cũ đã bị xóa; mapping hiện tại đã được remap theo PDF mới.
-
-## Mapping interaction hiện tại
-
-- 1: AI hero.
-- 2: animated underlines.
-- 3: not-coding transition FX.
-- 4: animated question marks.
-- 5: idea cards + workflow popup.
-- 7: drag & drop software process.
-- 8: human-role ambient FX.
-- 9: architecture hotspots + EIU popup.
-- 10: restaurant click-to-reveal.
-- 11: enterprise click-to-reveal.
-- 12: Lab 1 AI hero.
-- 13–23: custom interactions theo nội dung từng slide hiện tại.
-
-Mapping chính nằm tại:
-
-`components/PdfDeck.tsx` v? `components/section1/`
-
-## Environment Variables
-
-Tạo `.env.local` từ `.env.example`:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=...
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=...
-SUPABASE_SECRET_KEY=...
-NEXT_PUBLIC_PDF_URL=...
-```
-
-Brevo SMTP credentials được cấu hình trong Supabase Dashboard, không đặt trong env của Next.js. Cả
-template Confirm signup và Magic Link phải dùng `{{ .Token }}` để gửi mã thay vì magic link. Xem
-checklist đầy đủ trong hướng dẫn ở đầu README.
-
-Không commit `.env.local` lên GitHub.
+Ứng dụng Next.js/TypeScript để quản lý course, section, bài học tương tác và nội dung tải lên.
 
 ## Chạy local
 
+1. Cài thư viện bằng `npm install`.
+2. Tạo `.env.local` theo `.env.example` và cấu hình Supabase của project.
+3. Chạy `npm run dev`, mở http://localhost:3000.
+
+Learning/Teaching dùng passcode được quản lý trong Admin. Learning có thể truy cập nội dung free. Admin đăng nhập bằng Google được cấu hình cho project. Xem [PASSCODE_ACCESS.md](PASSCODE_ACCESS.md) và [hướng dẫn Google/Drive](docs/GOOGLE_DRIVE_DEPLOYMENT.md).
+
+## Nội dung bài học
+
+- `components/LessonPortal.tsx`: chọn folder/course/section.
+- `components/deck/SharedDeckFrame.tsx`: điều hướng, zoom và fullscreen.
+- `components/section1/`, `components/section2/`: các bài Applied Agentic AI có tương tác.
+- `components/deck/UploadedSectionDeck.tsx`: xem TSX/PDF/PPTX qua API nội dung có kiểm tra quyền.
+- `course-content/sources.json`: đăng ký course/section dùng TSX local. Khi chỉnh nội dung, mở lại section hoặc refresh; không cần upload Drive.
+
+Course phát triển Web App có [hướng dẫn và nguồn chỉnh sửa](course-content/web-app-development/README.md). Section 1 hiện có 40 slides; dự án quảng cáo tải xuống ở slide 25. Nguồn ZIP ở `examples/eiu-advertising-starter/`; tạo lại bằng `node scripts/package-advertising-starter.mjs`.
+
+## Kiểm tra
+
 ```bash
-npm install
-npm run dev
+node --test tests/*.test.mjs
+npx tsc --noEmit
+npm run build
 ```
 
-Nếu vừa thay toàn bộ source và giao diện vẫn cache bản cũ:
+Các tài liệu chính: [kiến trúc](docs/ARCHITECTURE.md), [upload section](docs/SECTION_CONTENT_UPLOAD.md), [số slides tự động](docs/section-slide-counts.md), [icon cây](docs/course-garden-assets.md), [setup máy mới](NEW_MACHINE_SETUP.md).
 
-```bat
-rmdir /s /q .next
-npm run dev
-```
-
-Sau đó dùng `Ctrl + F5` trên trình duyệt.
+Các migration trong `supabase/migrations/` là lịch sử schema để cài mới/nâng cấp; không xóa vì không được import bởi React. Hướng dẫn đăng nhập Email OTP và lớp interaction phủ PDF cũ đã được thay bằng flow hiện tại.

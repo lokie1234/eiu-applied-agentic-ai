@@ -16,6 +16,8 @@ import LearningGardenAction from "./LearningGardenAction";
 import HairlineLoading from "./HairlineLoading";
 import CourseToolRow from "./CourseToolRow";
 import { useSectionOpening } from "./useSectionOpening";
+import { useSectionSlideCounts } from "./useSectionSlideCounts";
+import { buildSectionOneDeckItems, sectionTwoDeckItems } from "@/lib/builtinDeckItems";
 
 const SectionOneDeck = dynamic(() => import("./PdfDeck"), { ssr: false, loading: () => <HairlineLoading /> });
 const SectionTwoDeck = dynamic(() => import("./section2/SectionTwoDeck"), { ssr: false, loading: () => <HairlineLoading /> });
@@ -401,6 +403,12 @@ export default function LessonPortal({
   const selectedCourse = courseFolders.find((course) => course.id === selectedCourseId) ?? null;
   const section = selectedCourse?.sections.some(item => item.sectionKey === adminSection) ? adminSection : null;
   const activeUploadedSection = selectedCourse?.sections.find(item => item.id === uploadedSection?.id) ?? null;
+  const sectionsToCount = useMemo(() => {
+    if (!selectedCourse || section || activeUploadedSection) return undefined;
+    return selectedCourse.sections.filter(item => !(selectedCourse.slug === APPLIED_AGENTIC_AI_SLUG &&
+      (item.sectionKey === "section1" || item.sectionKey === "section2")));
+  }, [selectedCourse, section, activeUploadedSection]);
+  const sectionSlideCounts = useSectionSlideCounts(selectedCourse?.id ?? "", sectionsToCount);
 
   useEffect(() => {
     if (section || activeUploadedSection) return;
@@ -833,7 +841,9 @@ export default function LessonPortal({
                   : null;
               const hasUploadedDeck = courseSection.contentType === "pdf" || courseSection.contentType === "tsx" || courseSection.contentType === "pptx";
               const canOpen = Boolean(coreSection || hasUploadedDeck);
-              const count = coreSection === "section1" ? 41 : coreSection === "section2" ? 39 : courseSection.slideCount;
+              const count = coreSection === "section1"
+                ? buildSectionOneDeckItems(isAdmin || Boolean(courseSection.canFacilitate)).length
+                : coreSection === "section2" ? sectionTwoDeckItems.length : sectionSlideCounts[courseSection.id];
               return (
                 <div key={courseSection.id} className={styles.courseSectionCard}>
                 <button
@@ -851,12 +861,8 @@ export default function LessonPortal({
                   }}
                 >
                   <span>SECTION {courseSection.position}</span>
-                  <strong className={styles.illustratedTitle}><LearningAccent kind="page" /><span>{courseSection.title}</span></strong>
-                  <small>
-                    {canOpen
-                      ? `${count ? `${count} slide · ` : ""}${coreSection ? "Interactive" : courseSection.contentType.toUpperCase()}`
-                      : "Content has not been uploaded yet"}
-                  </small>
+                  <strong className={styles.illustratedTitle} title={courseSection.title}><LearningAccent kind="page" /><span>{courseSection.title}</span></strong>
+                  <small className={canOpen ? styles.sectionSlideBadge : undefined} aria-live="polite">{canOpen ? `${count ?? "…"} slides` : "Content has not been uploaded yet"}</small>
                   {(isAdmin || courseSection.canFacilitate) && coreSection && <div className={styles.cardLiveUsers}>
                     <span className={styles.liveDot} />
                     <span>{presenceCounts[coreSection]} active learners</span>
