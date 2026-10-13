@@ -1,6 +1,6 @@
 // This source runs inside EIU's isolated TSX frame. No imports or remote assets.
 declare function h(tag: string, props: Record<string, unknown> | null, ...children: unknown[]): any;
-type Card = { title: string; text: string; label?: string; logo?: string; detail?: string; points?: string[]; code?: string; prompt?: string; link?: string; linkLabel?: string };
+type Card = { title: string; text: string; label?: string; logo?: string; detail?: string; points?: string[]; code?: string; installationOption?: string; prompt?: string; link?: string; linkLabel?: string };
 type SlideData = { section: number; number: number; title: string; minutes: number; message: string; cards: Card[]; visual: string; note: string; verify: string; objective: string; visualConcept: string; prompt?: string; checks?: string[] };
 // Nội dung phần 1: chỉnh các slide trong mảng bên dưới.
 const course: { title: string; summary: string; slides: SlideData[] } = {
@@ -476,7 +476,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "Windows",
-          "title": "Tải Git cho Windows",
+          "title": "Tải Git",
           "text": "Mở trang chính thức, chọn bộ cài phù hợp với máy.",
           "link": "https://git-scm.com/install/windows",
           "linkLabel": "Tải Git cho Windows",
@@ -484,7 +484,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "VS Code",
-          "title": "Git dùng trong VS Code",
+          "title": "Git trong VS Code",
           "text": "Mở project, chạy lệnh Git trong Terminal và xem thay đổi ở Source Control.",
           "detail": "VS Code có sẵn hỗ trợ Git. Chỉ cần cài Git trên máy; không cài thêm extension GitHub."
         }
@@ -493,7 +493,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Git giúp ghi lại phiên bản, xem thay đổi và quay về mốc đã lưu.",
       "objective": "Git giúp ghi lại phiên bản, xem thay đổi và quay về mốc đã lưu.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "EIU kem?navy?v?ng: icon l?n theo c?ng c? c?a b?i, b??c b?n tr?i, khung n?i dung v? ch? l?n b?n ph?i, v?a canvas 1280?720."
     },
     {
       "section": 1,
@@ -504,7 +504,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "GitHub",
-          "title": "GitHub dùng để làm gì?",
+          "title": "Vai trò GitHub",
           "text": "Lưu mã nguồn, lịch sử commit và nhánh đã gửi từ máy lên.",
           "points": [
             "Push: gửi commit lên GitHub.",
@@ -531,7 +531,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Git lưu lịch sử trên máy; GitHub lưu repository online để chia sẻ và cộng tác.",
       "objective": "Git lưu lịch sử trên máy; GitHub lưu repository online để chia sẻ và cộng tác.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "EIU kem?navy?v?ng: icon l?n theo c?ng c? c?a b?i, b??c b?n tr?i, khung n?i dung v? ch? l?n b?n ph?i, v?a canvas 1280?720."
     },
     {
       "section": 1,
@@ -542,7 +542,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Windows",
-          "title": "Tải từ trang chính thức",
+          "title": "Tải bộ cài",
           "text": "Chọn bộ cài Windows phù hợp với kiến trúc máy.",
           "link": "https://git-scm.com/install/windows",
           "linkLabel": "Mở trang tải Git",
@@ -552,11 +552,11 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
           "logo": "Git",
           "title": "Chạy bộ cài",
           "text": "Mở file .exe vừa tải, xác nhận cửa sổ Windows nếu xuất hiện.",
-          "detail": "Giữ thư mục cài mặc định. Đọc lựa chọn PATH và Credential Manager ở slide tiếp theo."
+          "detail": "Giữ thư mục cài mặc định. Chú ý PATH và Credential Manager trong các lựa chọn cài đặt."
         },
         {
           "logo": "VS Code",
-          "title": "Sau khi cài",
+          "title": "Mở lại VS Code",
           "text": "Đóng và mở lại VS Code để Terminal nhận PATH mới.",
           "detail": "Mở Terminal → New Terminal. Terminal mở trước khi cài có thể chưa nhận lệnh Git."
         }
@@ -565,7 +565,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Hướng dẫn dùng Windows và Terminal PowerShell trong VS Code.",
       "objective": "Hướng dẫn dùng Windows và Terminal PowerShell trong VS Code.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "EIU kem?navy?v?ng: icon l?n theo c?ng c? c?a b?i, b??c b?n tr?i, khung n?i dung v? ch? l?n b?n ph?i, v?a canvas 1280?720."
     },
     {
       "section": 1,
@@ -576,28 +576,31 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "VS Code",
-          "title": "Editor và nhánh mặc định",
+          "title": "Editor và nhánh main",
           "text": "Nếu VS Code đã có, chọn Visual Studio Code làm editor; đặt nhánh mặc định là main.",
-          "detail": "Các lựa chọn khác có thể giữ mặc định. Nếu chưa chọn main trong bộ cài, vẫn đặt bằng lệnh ở slide 20."
+          "detail": "Gi? c?c l?a ch?n kh?c ? m?c ??nh. N?u ch?a ??t main khi c?i, ch?y l?nh b?n d??i trong Terminal VS Code.",
+          "code": "git config --global init.defaultBranch main"
         },
         {
           "logo": "Windows",
-          "title": "Cho phép chạy từ Terminal",
-          "text": "Ở mục PATH, chọn Git from the command line and also from 3rd-party software.",
-          "detail": "Lựa chọn này cho phép PowerShell và VS Code tìm thấy Git."
+          "title": "Thiết lập PATH",
+          "text": "? m?c PATH, gi? l?a ch?n trong khung b?n d??i ?? PowerShell v? VS Code g?i ???c Git.",
+          "detail": "Lựa chọn này cho phép PowerShell và VS Code tìm thấy Git.",
+          "installationOption": "Git from the command line and also from 3rd-party software"
         },
         {
           "logo": "Git",
-          "title": "Giữ Credential Manager",
+          "title": "Credential Manager",
           "text": "Giữ Git Credential Manager và các tùy chọn HTTPS mặc định rồi hoàn tất Install.",
-          "detail": "Git Credential Manager đi kèm Git for Windows, không phải extension của VS Code."
+          "detail": "Git Credential Manager đi kèm Git for Windows, không phải extension của VS Code.",
+          "installationOption": "Git Credential Manager"
         }
       ],
       "visual": "git-intro-install",
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "PATH giúp VS Code gọi Git; Credential Manager hỗ trợ đăng nhập GitHub.",
       "objective": "PATH giúp VS Code gọi Git; Credential Manager hỗ trợ đăng nhập GitHub.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "EIU kem?navy?v?ng: icon l?n theo c?ng c? c?a b?i, b??c b?n tr?i, khung n?i dung v? ch? l?n b?n ph?i, v?a canvas 1280?720."
     },
     {
       "section": 1,
@@ -608,21 +611,21 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Terminal",
-          "title": "Kiểm tra phiên bản",
+          "title": "Phiên bản Git",
           "text": "Mở VS Code → Terminal → New Terminal rồi chạy:",
           "code": "git --version",
           "detail": "Kết quả mong đợi: git version kèm số phiên bản. Nếu báo không nhận lệnh, mở lại VS Code; vẫn lỗi thì kiểm tra lựa chọn PATH trong bộ cài."
         },
         {
           "logo": "Terminal",
-          "title": "Kiểm tra đường dẫn",
+          "title": "Đường dẫn Git",
           "text": "Trong PowerShell, xem file thực thi Git được tìm thấy ở đâu.",
           "code": "where.exe git",
           "detail": "Kết quả là đường dẫn tới git.exe. Nếu có nhiều đường dẫn, Git dùng bản đầu tiên trên PATH."
         },
         {
           "logo": "Terminal",
-          "title": "Kiểm tra xác thực",
+          "title": "Xác thực Git",
           "text": "Xác nhận Git Credential Manager và credential helper đã sẵn sàng.",
           "code": "git credential-manager --version\ngit config --show-origin --get-all credential.helper",
           "detail": "Cần thấy phiên bản GCM và helper manager. Nếu thiếu, chạy lại bộ cài và chọn Git Credential Manager."
@@ -632,7 +635,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Sau cài đặt, mỗi lệnh cần trả về kết quả trước khi tiếp tục.",
       "objective": "Sau cài đặt, mỗi lệnh cần trả về kết quả trước khi tiếp tục.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "EIU kem?navy?v?ng: icon l?n theo c?ng c? c?a b?i, b??c b?n tr?i, khung n?i dung v? ch? l?n b?n ph?i, v?a canvas 1280?720."
     },
     {
       "section": 1,
@@ -643,7 +646,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Google",
-          "title": "Mở GitHub Signup",
+          "title": "Mở trang đăng ký",
           "text": "Bấm link đăng ký và chọn Continue with Google.",
           "link": "https://github.com/signup",
           "linkLabel": "Đăng ký GitHub bằng Google",
@@ -657,7 +660,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "GitHub",
-          "title": "Kiểm tra username và email",
+          "title": "Username và email",
           "text": "Bấm avatar → Your profile để xem username; mở Settings → Emails để xem email.",
           "detail": "Dùng email đã xác minh hoặc email noreply do GitHub cung cấp cho user.email ở bước tiếp theo."
         }
@@ -666,7 +669,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Tạo tài khoản trên trình duyệt, sau đó dùng tài khoản này khi Git yêu cầu xác thực.",
       "objective": "Tạo tài khoản trên trình duyệt, sau đó dùng tài khoản này khi Git yêu cầu xác thực.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "EIU kem?navy?v?ng: icon l?n theo c?ng c? c?a b?i, b??c b?n tr?i, khung n?i dung v? ch? l?n b?n ph?i, v?a canvas 1280?720."
     },
     {
       "section": 1,
@@ -677,14 +680,14 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Terminal",
-          "title": "Đặt tên và email",
+          "title": "Tên và email",
           "text": "Thay ví dụ bằng tên của bạn và email đã xác minh trên GitHub.",
           "code": "git config --global user.name \"Nguyen Van A\"\ngit config --global user.email \"email-cua-ban@example.com\"",
           "detail": "Muốn ẩn email cá nhân, dùng đúng địa chỉ noreply trong GitHub → Settings → Emails."
         },
         {
           "logo": "Terminal",
-          "title": "Đặt nhánh mặc định",
+          "title": "Nhánh mặc định",
           "text": "Repository mới khởi tạo sẽ dùng tên nhánh main.",
           "code": "git config --global init.defaultBranch main",
           "detail": "--global áp dụng cho tài khoản Windows hiện tại; không đổi tên nhánh của repository đã có."
@@ -701,7 +704,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Tên và email là thông tin tác giả Commit; bước này chưa đăng nhập GitHub.",
       "objective": "Tên và email là thông tin tác giả Commit; bước này chưa đăng nhập GitHub.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -712,7 +715,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Terminal",
-          "title": "Chuẩn bị HTTPS và GCM",
+          "title": "HTTPS và GCM",
           "text": "Git trong Terminal dùng Credential Manager để kết nối GitHub.",
           "code": "git credential-manager --version\ngit config --get credential.helper",
           "detail": "Cần thấy phiên bản GCM và helper manager. VS Code hỗ trợ Git sẵn; không cài extension GitHub, không cần đăng nhập menu Accounts để chạy lệnh Git.",
@@ -721,14 +724,14 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "Google",
-          "title": "Đăng nhập khi có yêu cầu",
+          "title": "Đăng nhập GitHub",
           "text": "Ở lần Clone repo private hoặc Push đầu tiên, chọn Sign in with your browser trong cửa sổ GCM.",
           "detail": "Đăng nhập đúng tài khoản GitHub, có thể dùng Continue with Google; xác nhận quyền và 2FA nếu được yêu cầu, rồi quay lại Terminal. Repo public có thể Clone mà chưa cần đăng nhập."
         },
         {
           "logo": "Terminal",
-          "title": "Kiểm tra kết nối thực tế",
-          "text": "Sau khi có origin ở slide 24 hoặc 35, chạy lệnh đọc remote.",
+          "title": "Kiểm tra kết nối",
+          "text": "Sau khi Clone hoặc thêm remote, kiểm tra origin bằng hai lệnh:",
           "code": "git remote -v\ngit ls-remote origin",
           "detail": "Remote phải đúng username/repo. Repo có commit sẽ trả về mã commit và refs. Repo trống có thể không in dòng nào; Push thành công mới xác nhận quyền ghi."
         }
@@ -737,7 +740,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Chạy Git trong Terminal; đăng nhập GitHub qua trình duyệt khi Credential Manager yêu cầu.",
       "objective": "Chạy Git trong Terminal; đăng nhập GitHub qua trình duyệt khi Credential Manager yêu cầu.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -748,19 +751,19 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "GitHub",
-          "title": "Repository có sẵn",
+          "title": "Repo có sẵn",
           "text": "Thử tạo repo web với README, sau đó Clone về máy bằng lệnh.",
-          "detail": "Slide 23–24 là ví dụ nhỏ để hiểu Clone và kiểm tra remote."
+          "detail": "Tạo repo có README trên GitHub, sao chép URL HTTPS rồi dùng git clone để tải mã và lịch sử về máy."
         },
         {
           "logo": "VS Code",
-          "title": "Project ZIP của bạn",
+          "title": "Project từ ZIP",
           "text": "Tải website mẫu, chỉnh và kiểm tra, rồi khởi tạo Git một lần.",
-          "detail": "Slide 25–35 dùng eiu-advertising-starter làm dự án chính; tạo repository online trống để nhận commit local."
+          "detail": "Dùng eiu-advertising-starter làm dự án chính: tải ZIP, chỉnh và kiểm tra, rồi kết nối repository online trống."
         },
         {
           "logo": "Git",
-          "title": "Chọn đúng cách",
+          "title": "Chọn cách bắt đầu",
           "text": "Clone đã có lịch sử Git; ZIP cần git init khi chưa có lịch sử.",
           "detail": "Không chạy git init lại trong repo vừa Clone. Khi đưa ZIP lên GitHub, không thêm README online trước."
         }
@@ -769,7 +772,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Repo có sẵn thì Clone; project ZIP chưa có Git thì Init rồi kết nối repository trống.",
       "objective": "Repo có sẵn thì Clone; project ZIP chưa có Git thì Init rồi kết nối repository trống.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -780,20 +783,20 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "GitHub",
-          "title": "Mở trang tạo repo",
+          "title": "Tạo repository",
           "text": "Đăng nhập, chọn Owner là tài khoản của bạn và đặt tên webapp-web.",
           "link": "https://github.com/new",
           "linkLabel": "Tạo repository trên GitHub"
         },
         {
           "logo": "GitHub",
-          "title": "Chọn Private và README",
+          "title": "Private và README",
           "text": "Chọn Private, bật Add README rồi bấm Create repository.",
           "detail": "Repo private giúp bước Clone thử xác thực tài khoản. Repo này là bài thử; website mẫu sẽ dùng repository riêng."
         },
         {
           "logo": "GitHub",
-          "title": "Sao chép URL HTTPS",
+          "title": "URL HTTPS",
           "text": "Trong repo, chọn Code → Local → HTTPS và Copy URL.",
           "detail": "Dạng URL: https://github.com/USERNAME/webapp-web.git. Không sao chép URL SSH cho tuyến thực hành HTTPS này."
         }
@@ -802,7 +805,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Tạo repo nhỏ có README để nhìn thấy file và lịch sử sau khi Clone.",
       "objective": "Tạo repo nhỏ có README để nhìn thấy file và lịch sử sau khi Clone.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -813,14 +816,14 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Terminal",
-          "title": "Chạy từ thư mục cha",
+          "title": "Clone về máy",
           "text": "Mở một thư mục dành cho bài học trong VS Code, rồi chạy lệnh với URL của bạn.",
           "code": "git clone https://github.com/USERNAME/webapp-web.git",
           "detail": "Thay USERNAME bằng username thật. Đăng nhập trên trình duyệt nếu GCM yêu cầu; lệnh tạo thư mục webapp-web."
         },
         {
           "logo": "Terminal",
-          "title": "Vào repo và mở project",
+          "title": "Mở project",
           "text": "Chuyển Terminal vào repo vừa Clone và mở folder trong VS Code.",
           "code": "cd webapp-web\ncode .",
           "detail": "Nếu code chưa nhận lệnh, dùng File → Open Folder → webapp-web. Explorer phải thấy README.md."
@@ -837,7 +840,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Clone tải mã nguồn và toàn bộ lịch sử Git về một thư mục mới.",
       "objective": "Clone tải mã nguồn và toàn bộ lịch sử Git về một thư mục mới.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -848,7 +851,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "VS Code",
-          "title": "Tải ZIP website",
+          "title": "Tải website ZIP",
           "text": "Bấm nút để tải eiu-advertising-starter về máy.",
           "link": "/downloads/eiu-advertising-starter.zip",
           "linkLabel": "Tải website mẫu .ZIP",
@@ -856,13 +859,13 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "Browser",
-          "title": "Hiểu bản mẫu",
+          "title": "Khám phá bản mẫu",
           "text": "Form kiểm tra dữ liệu và lưu đăng ký trong trình duyệt.",
           "detail": "Bản demo chưa gửi email hoặc dữ liệu tới server. Bạn sẽ kiểm tra tương tác khi chạy local."
         },
         {
           "logo": "Git",
-          "title": "Một project xuyên suốt",
+          "title": "Dự án xuyên suốt",
           "text": "Giải nén ở thư mục riêng rồi chuyển từ webapp-web sang website mẫu.",
           "detail": "ZIP chưa có lịch sử Git. Chỉ khởi tạo sau khi đã chỉnh website và kiểm tra xong."
         }
@@ -871,7 +874,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Dùng website Lumi Studio để luyện sửa, chạy thử, Commit, Push và Pull.",
       "objective": "Dùng website Lumi Studio để luyện sửa, chạy thử, Commit, Push và Pull.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -894,7 +897,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "Terminal",
-          "title": "Kiểm tra vị trí Terminal",
+          "title": "Vị trí Terminal",
           "text": "Terminal → New Terminal; kiểm tra thư mục hiện tại và package.json.",
           "code": "Get-Location\ndir package.json",
           "detail": "Các lệnh Git và npm sau đây đều chạy trong thư mục gốc này."
@@ -904,7 +907,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Thư mục gốc của website là nơi chứa package.json.",
       "objective": "Thư mục gốc của website là nơi chứa package.json.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -915,7 +918,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Terminal",
-          "title": "Cài và kiểm tra Node.js",
+          "title": "Node.js và npm",
           "text": "Cài Node.js LTS rồi mở lại VS Code và chạy hai lệnh kiểm tra.",
           "code": "node --version\nnpm --version",
           "link": "https://nodejs.org/en/download",
@@ -941,7 +944,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Node.js chạy project; npm cài thư viện trong package.json.",
       "objective": "Node.js chạy project; npm cài thư viện trong package.json.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -952,7 +955,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Terminal",
-          "title": "Khởi động dev server",
+          "title": "Chạy dev server",
           "text": "Chạy lệnh tại thư mục project và đợi server sẵn sàng.",
           "code": "npm run dev",
           "detail": "Đọc URL Local được in trong Terminal."
@@ -976,7 +979,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Giữ Terminal chạy server trong lúc chỉnh sửa và xem kết quả.",
       "objective": "Giữ Terminal chạy server trong lúc chỉnh sửa và xem kết quả.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -987,13 +990,13 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "VS Code",
-          "title": "Đổi thương hiệu và nội dung",
+          "title": "Thương hiệu và nội dung",
           "text": "Mở data/site.js, sửa brand, headline, highlight hoặc description.",
           "detail": "Ctrl+S rồi đối chiếu tiêu đề mới trên trình duyệt."
         },
         {
           "logo": "VS Code",
-          "title": "Đổi màu và khoảng cách",
+          "title": "Màu và khoảng cách",
           "text": "Mở app/globals.css, sửa biến màu trong :root hoặc khoảng cách một khối.",
           "detail": "Thay từng phần để dễ nhận ra kết quả; thông tin tab trình duyệt nằm ở app/layout.js."
         },
@@ -1008,7 +1011,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Đổi một phần nhỏ rồi kiểm tra ngay để hiểu luồng chỉnh sửa.",
       "objective": "Đổi một phần nhỏ rồi kiểm tra ngay để hiểu luồng chỉnh sửa.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -1019,19 +1022,19 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "AI Codex",
-          "title": "Đọc project trước khi sửa",
+          "title": "Đọc project",
           "text": "Yêu cầu AI giải thích README.md, package.json và các file giao diện liên quan.",
           "detail": "AI tìm và đọc file theo công cụ, quyền và chế độ đang dùng; hãy chỉ rõ project hiện tại."
         },
         {
           "logo": "VS Code",
-          "title": "Nêu file và mục tiêu",
+          "title": "File và mục tiêu",
           "text": "Cho biết phần cần đổi, kết quả mong đợi và các chức năng phải giữ.",
           "detail": "Ví dụ: đổi nội dung trong data/site.js, giữ form, tab, chọn gói và FAQ hoạt động."
         },
         {
           "logo": "Git",
-          "title": "Xem phần AI đã sửa",
+          "title": "Đọc thay đổi",
           "text": "Đọc thay đổi từng file, chạy website và thử lại chức năng.",
           "detail": "Bạn quyết định nội dung nào được giữ và đưa vào Commit."
         }
@@ -1040,7 +1043,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Yêu cầu rõ giúp AI tìm đúng file và sửa đúng mục tiêu.",
       "objective": "Yêu cầu rõ giúp AI tìm đúng file và sửa đúng mục tiêu.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -1051,19 +1054,19 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "AI Codex",
-          "title": "Gửi yêu cầu có phạm vi",
+          "title": "Gửi yêu cầu cho AI",
           "text": "Sao chép yêu cầu, thay chủ đề theo ý tưởng của bạn.",
           "code": "Đổi website mẫu thành landing page hội thảo EIU.\nSửa nội dung trong data/site.js và màu trong app/globals.css.\nGiữ tab, chọn gói, FAQ và form hoạt động.\nLiệt kê file đã sửa và cách kiểm tra kết quả."
         },
         {
           "logo": "VS Code",
-          "title": "Đọc file đã thay đổi",
+          "title": "Đọc file đã sửa",
           "text": "Đối chiếu phần AI sửa với yêu cầu của bạn.",
           "detail": "Kiểm tra tên thương hiệu, CTA, màu, bố cục và nội dung form."
         },
         {
           "logo": "Browser",
-          "title": "Thử lại chức năng",
+          "title": "Thử chức năng",
           "text": "Mở website đang chạy; kiểm tra form, tab, gói và FAQ.",
           "detail": "Nếu có lỗi, gửi thao tác gây lỗi cùng thông báo Terminal hoặc trình duyệt để AI sửa."
         }
@@ -1072,7 +1075,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Dùng một yêu cầu cụ thể, rồi kiểm tra sản phẩm bằng trình duyệt.",
       "objective": "Dùng một yêu cầu cụ thể, rồi kiểm tra sản phẩm bằng trình duyệt.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -1089,13 +1092,13 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "AI Codex",
-          "title": "Thực hiện từng thay đổi",
+          "title": "Tùy chỉnh website",
           "text": "Tùy chỉnh nội dung, màu và ít nhất một khối giao diện bằng tay hoặc AI.",
           "detail": "Mỗi lượt sửa có mục tiêu cụ thể để dễ kiểm tra."
         },
         {
           "logo": "Browser",
-          "title": "Đạt tiêu chí trước khi Commit",
+          "title": "Kiểm tra sản phẩm",
           "text": "Website có nội dung riêng, hiển thị tốt trên màn hình nhỏ và các tương tác vẫn chạy.",
           "points": [
             "Thử dữ liệu đúng và sai ở form.",
@@ -1108,7 +1111,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Tạo một phiên bản có thương hiệu, CTA và nội dung của bạn.",
       "objective": "Tạo một phiên bản có thương hiệu, CTA và nội dung của bạn.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -1119,7 +1122,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Terminal",
-          "title": "Chạy kiểm tra mẫu",
+          "title": "Chạy test",
           "text": "Tại thư mục project, chạy kiểm tra chức năng lưu đăng ký.",
           "code": "npm test",
           "detail": "Kết hợp với thử form và bố cục trực tiếp trên trình duyệt."
@@ -1133,7 +1136,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "Terminal",
-          "title": "Chạy thử bản build",
+          "title": "Chạy bản build",
           "text": "Sau build thành công, chạy server và mở URL local.",
           "code": "npm run start",
           "detail": "Thử lại các thao tác chính. Ctrl+C để dừng; npm run dev để quay lại chỉnh sửa."
@@ -1143,7 +1146,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Sửa lỗi kiểm tra và build trước khi tạo commit đầu tiên.",
       "objective": "Sửa lỗi kiểm tra và build trước khi tạo commit đầu tiên.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -1154,21 +1157,21 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Terminal",
-          "title": "Khởi tạo và xem trạng thái",
+          "title": "Khởi tạo Git",
           "text": "Chạy tại folder eiu-advertising-starter chứa package.json.",
           "code": "git init -b main\ngit status",
           "detail": "Nếu project đã có Git thì bỏ qua init. File .gitignore của mẫu loại node_modules, .next và .env khỏi phiên bản."
         },
         {
           "logo": "Terminal",
-          "title": "Chọn file và kiểm tra",
+          "title": "Chọn file",
           "text": "Đưa các file dự án vào vùng chuẩn bị Commit, rồi đọc danh sách.",
           "code": "git add .\ngit diff --cached --stat\ngit status",
           "detail": "Danh sách cần có mã nguồn, package.json và package-lock.json; không có node_modules, .next hoặc .env."
         },
         {
           "logo": "Terminal",
-          "title": "Lưu Commit đầu tiên",
+          "title": "Commit đầu tiên",
           "text": "Ghi mốc phiên bản và kiểm tra kết quả.",
           "code": "git commit -m \"Create advertising website\"\ngit log -1 --oneline\ngit status",
           "detail": "Cần thấy commit mới và working tree clean. Commit hiện chỉ nằm trên máy."
@@ -1178,7 +1181,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Khởi tạo Git một lần trong thư mục website mẫu đã kiểm tra.",
       "objective": "Khởi tạo Git một lần trong thư mục website mẫu đã kiểm tra.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -1189,7 +1192,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "GitHub",
-          "title": "Tạo repo trống trên GitHub",
+          "title": "Tạo repo trống",
           "text": "Mở trang tạo repo, đặt tên eiu-advertising-starter và chọn Private.",
           "link": "https://github.com/new",
           "linkLabel": "Tạo repository cho website",
@@ -1197,7 +1200,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "Terminal",
-          "title": "Thêm địa chỉ origin",
+          "title": "Thêm origin",
           "text": "Thay USERNAME bằng username của bạn và dùng đúng URL repository vừa tạo.",
           "code": "git remote add origin https://github.com/USERNAME/eiu-advertising-starter.git\ngit remote -v",
           "detail": "Origin là tên ngắn của repo online. Nếu origin đã tồn tại, kiểm tra URL trước; dùng git remote set-url origin URL_DUNG khi cần sửa."
@@ -1214,7 +1217,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Tạo repo online trống để nhận lịch sử Git từ website trên máy.",
       "objective": "Tạo repo online trống để nhận lịch sử Git từ website trên máy.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -1239,7 +1242,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "Terminal",
-          "title": "Nếu làm trực tiếp trên main",
+          "title": "Làm trên main",
           "text": "Chỉ chọn main cho bài cá nhân khi bạn chủ động muốn cập nhật phiên bản chính.",
           "code": "git switch main\ngit pull --ff-only origin main",
           "detail": "Chọn một hướng rồi tiếp tục. Bài nhánh riêng sẽ dùng Pull Request để review và Merge trên GitHub."
@@ -1249,7 +1252,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "main là phiên bản chính; nhánh riêng giúp thử thay đổi và review trước khi gộp.",
       "objective": "main là phiên bản chính; nhánh riêng giúp thử thay đổi và review trước khi gộp.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -1260,7 +1263,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Terminal",
-          "title": "Đọc thay đổi trước khi chọn",
+          "title": "Đọc thay đổi",
           "text": "Lưu file và kiểm tra website, sau đó đọc diff.",
           "code": "git status\ngit diff",
           "detail": "Nhấn q để thoát nếu diff mở trong pager. Tên file cần đúng với phần bạn vừa sửa."
@@ -1274,7 +1277,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "Terminal",
-          "title": "Gửi đúng nhánh",
+          "title": "Push đúng nhánh",
           "text": "Kiểm tra tên nhánh rồi Push; dùng lệnh phù hợp với hướng đã chọn.",
           "code": "git branch --show-current\ngit push -u origin feature/landing-refresh",
           "detail": "Lệnh trên dành cho nhánh riêng. Nếu đang làm trên main: git push origin main. Push nhánh riêng chưa đổi main; mở Pull Request, review rồi Merge trên GitHub."
@@ -1284,7 +1287,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Sửa → kiểm tra → chọn file → Commit → Push đúng nhánh.",
       "objective": "Sửa → kiểm tra → chọn file → Commit → Push đúng nhánh.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -1295,7 +1298,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Terminal",
-          "title": "Kiểm tra trước khi Pull",
+          "title": "Trước khi Pull",
           "text": "Xem trạng thái và commit thay đổi đang làm trước khi chuyển nhánh.",
           "code": "git status\ngit branch --show-current",
           "detail": "Chỉ tiếp tục khi working tree clean. Nếu còn thay đổi, hoàn tất và Commit trên đúng nhánh trước."
@@ -1309,7 +1312,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         },
         {
           "logo": "Terminal",
-          "title": "Kiểm tra sau Pull",
+          "title": "Sau khi Pull",
           "text": "Đọc commit mới, xem trạng thái và chạy lại website.",
           "code": "git log -3 --oneline\ngit status -sb\nnpm run dev",
           "detail": "Nếu package.json hoặc package-lock.json đổi, chạy npm install trước dev. Pull về main không tự cập nhật nhánh feature."
@@ -1319,7 +1322,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Ví dụ: sau khi Pull Request đã được Merge vào main trên GitHub.",
       "objective": "Ví dụ: sau khi Pull Request đã được Merge vào main trên GitHub.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -1330,20 +1333,20 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "cards": [
         {
           "logo": "Terminal",
-          "title": "Kiểm tra trên máy",
+          "title": "Kiểm tra local",
           "text": "Xem URL origin, trạng thái nhánh và commit mới nhất.",
           "code": "git remote -v\ngit status -sb\ngit log -1 --oneline",
           "detail": "Không còn file chưa lưu phiên bản; nhánh phải là nhánh bạn muốn đối chiếu."
         },
         {
           "logo": "GitHub",
-          "title": "Kiểm tra trên GitHub",
+          "title": "Kiểm tra GitHub",
           "text": "Refresh repo, chọn đúng main hoặc feature/landing-refresh và mở commit gần nhất.",
           "detail": "Đối chiếu mã commit ngắn, thông điệp và các file với Terminal. Sau Merge, mã commit main có thể khác commit feature; đối chiếu đúng nhánh."
         },
         {
           "logo": "VS Code",
-          "title": "Sẵn sàng cho bước tiếp theo",
+          "title": "Chuẩn bị deploy",
           "text": "Chốt phiên bản đã kiểm tra và repo có thể dùng để deploy.",
           "detail": "GitHub lưu mã nguồn; đường dẫn website public được tạo ở phần triển khai tiếp theo."
         }
@@ -1352,7 +1355,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Thực hiện lệnh trong Terminal của VS Code. Kiểm tra kết quả trước bước tiếp theo.",
       "verify": "Xác nhận đúng repository, đúng nhánh và đúng commit trước khi sang deploy.",
       "objective": "Xác nhận đúng repository, đúng nhánh và đúng commit trước khi sang deploy.",
-      "visualConcept": "EIU kem–navy–vàng; bước cố định, lệnh dễ đọc, kết quả cần kiểm tra và liên kết thật."
+      "visualConcept": "Bố cục EIU: dải công cụ ngang, bước chọn bên trái, các khối chi tiết bên phải; tổng thể căn giữa, tiêu đề một dòng và lệnh dễ đọc."
     },
     {
       "section": 1,
@@ -1604,55 +1607,35 @@ const workspaceCss = `
 function workspace(s:SlideData){if(s.visual==='workspace-ai-alternatives')return aiAlternativesSlide();if(s.visual==='workspace-region')return regionDetail(s);return vscodeMap();}
 
 const gitIntroCss = `
-.gitIntroSlide{font-family:Inter,'Segoe UI',Arial,sans-serif;background:linear-gradient(135deg,#fbfaf7,#f7f4ed 65%,#f4dfb040);box-shadow:inset 0 0 0 8px #082945,inset 0 0 0 10px #b39159}
-.gitIntroSlide::before{background:linear-gradient(90deg,transparent 49.8%,#b3915909 50%,transparent 50.2%),linear-gradient(transparent 49.8%,#b3915909 50%,transparent 50.2%);background-size:40px 40px}
-.gitIntroSlide .content{padding:32px 42px 0}.gitIntroSlide .title{font-size:34px;font-weight:850;color:#082945;max-width:1040px;line-height:1.2;letter-spacing:-.5px;margin-bottom:18px;text-wrap:pretty}
-.gitIntroSlide .title::after{content:'';display:block;width:88px;height:4px;background:linear-gradient(90deg,#9d7944,#e9ca8b);margin-top:12px;border-radius:4px}
-.gitIntroSlide .stage{height:552px;align-items:flex-start}.gitLesson{height:552px;display:flex;flex-direction:column;gap:18px}.gitLead{font-size:21px;font-weight:550;color:#40596b;margin:0;line-height:1.4;max-width:1150px}
-.gitGuideCorner{position:absolute;right:42px;top:30px;display:flex;gap:12px}.gitGuideCorner .gitMark{width:48px;height:48px;padding:7px;background:#fff;border:1px solid #b3915950;border-radius:12px}
-.gitMark{width:50px;height:50px;display:grid;place-items:center;flex:none}.gitMark img,.gitMark svg{display:block;width:100%;height:100%;object-fit:contain}.gitMarkText{font:850 30px/1 Inter,Arial;color:#082945}
-.gitBody{display:grid;grid-template-columns:310px minmax(0,1fr);gap:24px;flex:1;min-height:0}.gitNav{display:flex;flex-direction:column;gap:12px;justify-content:center}
-.gitChoice{position:relative;display:flex;align-items:center;gap:14px;min-height:92px;padding:16px 15px;text-align:left;font:inherit;color:#082945;background:#f7f4ed;border:1px solid #b3915980;border-left:4px solid #b39159;border-radius:18px;cursor:pointer;box-shadow:0 4px 12px #08294506;transition:background 180ms,border-color 180ms}
-.gitStepNumber{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#082945;color:#e9ca8b;font-size:13px;font-weight:850;flex:none}.gitChoice .gitMark{width:36px;height:36px}.gitChoice strong{display:block;font-size:20px;line-height:1.25;font-weight:800}.gitChoice small{display:block;font-size:11px;color:#9d7944;letter-spacing:.07em;font-weight:800;margin-bottom:5px}
-.gitChoice[aria-pressed=true]{background:linear-gradient(135deg,#082945,#123f68);color:#fff;border-color:#e9ca8b;box-shadow:0 7px 18px #08294516}.gitChoice[aria-pressed=true] small{color:#e9ca8b}.gitChoice[aria-pressed=true] .gitStepNumber{background:#e9ca8b;color:#082945}.gitChoice[aria-pressed=true] .gitMark{background:#fbfaf7;padding:4px;border-radius:8px}.gitChoice:hover{border-color:#9d7944}.gitChoice:focus-visible,.gitGuideLink:focus-visible{outline:3px solid #b39159;outline-offset:4px}
-.gitDetail{position:relative;min-width:0;min-height:0;background:#fbfaf7;border:1px solid #b39159;border-radius:22px;padding:20px 24px;display:flex;flex-direction:column;gap:16px;overflow:auto;box-shadow:0 8px 24px #08294509}
-.gitScene{flex:none;height:148px;padding:14px 18px;border-radius:16px;background:linear-gradient(125deg,#041c31,#123f68);border:1px solid #e9ca8b80;color:#fff;display:flex;align-items:center;justify-content:center;gap:18px;overflow:hidden;position:relative}
-.gitScene::after{content:'';position:absolute;right:-24px;top:-40px;width:150px;height:150px;border:1px solid #e9ca8b22;transform:rotate(35deg);pointer-events:none}.gitScene .gitMark{width:58px;height:58px;background:#fbfaf7;border-radius:14px;padding:8px}.gitScene strong{font-size:21px;font-weight:800;color:#f4dfb0;line-height:1.25;display:block}.gitScene small{display:block;color:#bfd2df;font-size:14px;margin-top:6px}.gitScene .gitSceneArrow{color:#e9ca8b;font-size:30px;font-weight:800;animation:gitGuideSignal 2.4s ease-in-out infinite}
-.gitSceneNode{display:flex;flex-direction:column;gap:7px;align-items:center;text-align:center;flex:1;min-width:0}.gitSceneNode .gitMark{width:48px;height:48px}.gitSceneNode strong{font-size:17px}.gitSceneNode.active strong{color:#fff}.gitSceneNode.active .gitMark{box-shadow:0 0 0 3px #e9ca8b}.gitSceneLine{font-size:16px;border-left:3px solid #e9ca8b;padding:10px 14px;background:#ffffff0a;border-radius:0 10px 10px 0;max-width:520px}
-.gitSceneStack{display:flex;flex-direction:column;gap:9px;flex:1;min-width:0}.gitSceneField{font:600 15px/1.3 Inter,Arial;padding:9px 13px;background:#fbfaf7;border:1px solid #b39159;border-radius:9px;color:#082945}.gitSceneField.focus{border:2px solid #e9ca8b;box-shadow:0 0 0 3px #e9ca8b30}.gitGoogle{display:flex;gap:10px;align-items:center;background:#fbfaf7;color:#082945;border:2px solid #e9ca8b;border-radius:12px;padding:11px 18px;font:800 19px/1.2 Inter,Arial}.gitGoogle .gitMark{width:27px;height:27px;padding:0;background:transparent}.gitTerminalScene{height:auto;min-height:148px}.gitSceneCode{font:17px/1.5 Consolas,monospace;color:#f4dfb0;margin:0;white-space:pre-wrap;flex:1}
-.gitStepDetail{position:relative;min-width:0;padding-left:16px;border-left:4px solid #b39159}.gitStepDetail h2{font-size:27px;line-height:1.2;font-weight:850;color:#082945;margin:0 0 10px}.gitStepDetail p{font-size:20px;line-height:1.4;color:#40596b;margin:0 0 10px}.gitStepDetail .gitStatement{color:#123f68;font-weight:650}.gitStepDetail ul{padding-left:20px;margin:8px 0;color:#40596b;font-size:18px;line-height:1.4}.gitStepDetail li+li{margin-top:5px}.gitStepDetail pre{font:17px/1.5 Consolas,monospace;background:#082945;color:#f4dfb0;border-left:4px solid #e9ca8b;border-radius:10px;padding:12px 16px;margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere}
-.gitGuideLink{display:inline-flex;flex-direction:column;align-self:flex-start;gap:4px;margin-top:7px;padding:11px 18px;background:#082945;color:#f4dfb0;text-decoration:none;border:1px solid #b39159;border-radius:12px;font-size:17px;font-weight:800;line-height:1.3}.gitGuideLink small{color:#d1deea;font-size:12px;font-weight:500;overflow-wrap:anywhere}.gitGuideLink:hover{background:#123f68;border-color:#e9ca8b}.gitFocus::before{content:'';position:absolute;left:-4px;top:0;bottom:0;width:4px;background:#e9ca8b;animation:gitGuideFocus 2.8s ease-in-out infinite;pointer-events:none}
+.gitIntroSlide{font-family:Inter,'Segoe UI','Noto Sans',Arial,sans-serif;background:radial-gradient(ellipse at 92% 82%,#18547f0b,transparent 45%),linear-gradient(135deg,#fff,#fbfaf7 60%,#f3f7f9);box-shadow:inset 0 0 0 8px #082945,inset 0 0 0 10px #b39159}
+.gitIntroSlide .content{padding:34px 42px 0;width:100%}.gitIntroSlide .title{font-size:34px;font-weight:800;line-height:1.2;letter-spacing:-.7px;color:#082945;max-width:none;margin:0 0 16px;text-align:center;white-space:nowrap}
+.gitIntroSlide .title::after{content:'';display:block;width:64px;height:3px;background:#b39159;margin:12px auto 0;border-radius:3px}
+.gitIntroSlide .stage{height:578px;width:100%;align-items:center}.gitLesson{height:100%;width:100%;display:flex;flex-direction:column;gap:16px;justify-content:center}.gitLead{margin:0 auto;color:#4d6577;font-size:20px;line-height:1.4;font-weight:550;text-align:center;max-width:1160px;text-wrap:balance}
+.gitGuideCorner{display:none}.gitMark{width:44px;height:44px;display:grid;place-items:center;flex:none}.gitMark img,.gitMark svg{width:100%;height:100%;object-fit:contain;display:block}.gitMarkText{font:800 25px/1 Consolas,monospace;color:#123f68}
+.gitToolTabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.gitToolTag{height:76px;display:flex;justify-content:center;align-items:center;gap:16px;border:1px solid #b3915966;border-radius:18px;background:#f9f6ef;font-size:23px;font-weight:800;color:#123f68;letter-spacing:.3px}.gitToolTag .gitMark{width:50px;height:50px;padding:8px;background:white;border-radius:14px}.gitToolTag[data-active=true]{background:linear-gradient(120deg,#123f60,#082945);color:#e9ca8b;border-color:#b3915988;box-shadow:0 7px 22px #08294516}
+.gitBody{display:grid;grid-template-columns:340px minmax(0,1fr);gap:22px;align-items:center;min-height:0;flex:1}.gitNav{display:flex;flex-direction:column;gap:12px;justify-content:center}.gitChoice{position:relative;display:flex;align-items:center;gap:12px;min-height:76px;padding:14px 17px;border:1px solid #b3915944;border-radius:12px;background:#fbf8f2;color:#123f68;text-align:left;cursor:pointer;font:650 18px/1.35 Inter,'Segoe UI',Arial,sans-serif}.gitChoice strong{display:block;font-size:18px;font-weight:700;white-space:nowrap}.gitChoice small{display:none}.gitChoice .gitMark{display:none}.gitStepNumber{display:grid;place-items:center;width:30px;height:30px;flex:none;border-radius:9px;background:#f0e8d8;color:#9d7944;font-size:14px;font-weight:800}.gitChoice[aria-pressed=true]{background:linear-gradient(120deg,#123f60,#082945);color:#fff;border-color:#b3915988;box-shadow:0 4px 16px #08294512}.gitChoice[aria-pressed=true]::before{content:'';position:absolute;left:0;top:17px;bottom:17px;width:4px;background:#e9ca8b;border-radius:0 3px 3px 0}.gitChoice[aria-pressed=true] .gitStepNumber{background:#e9ca8b;color:#082945}.gitChoice:hover{border-color:#b39159}.gitChoice:focus-visible,.gitGuideLink:focus-visible{outline:3px solid #b39159;outline-offset:3px}
+.gitDetail{min-width:0;align-self:center;width:100%;border:1px solid #b3915966;border-radius:18px;background:#fff;padding:22px 24px;box-shadow:0 9px 24px #08294508}.gitStepDetail h2{margin:0 0 16px;font-size:25px;line-height:1.2;font-weight:800;color:#123f68;text-align:center;white-space:nowrap}.gitFacts{display:grid;gap:12px}.gitFact{border-left:3px solid #b39159;border-radius:0 10px 10px 0;background:#f8f5ef;padding:11px 15px;text-align:center}.gitFactLabel{display:block;margin-bottom:5px;color:#9d7944;font-size:12px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;white-space:nowrap}.gitFact p{margin:0;color:#4d6577;font-size:18px;line-height:1.45;font-weight:500;text-wrap:pretty}.gitFact ul{margin:6px auto 0;padding-left:20px;max-width:620px;text-align:left;font-size:17px;line-height:1.4;color:#4d6577}.gitFact li+li{margin-top:4px}
+.gitTerminalFact{background:linear-gradient(120deg,#123f60,#082945);border-left-color:#e9ca8b}.gitTerminalFact .gitFactLabel{color:#e9ca8b}.gitSceneCode{margin:0 auto;color:#f4dfb0;font:16px/1.45 Consolas,monospace;text-align:left;white-space:pre-wrap;overflow-wrap:anywhere;max-width:100%}.gitScene{display:none}.gitGuideLink{display:inline-flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;margin-top:10px;padding:9px 16px;background:#082945;color:#f4dfb0;border:1px solid #b39159;border-radius:12px;text-decoration:none;font-size:16px;font-weight:750;line-height:1.3}.gitGuideLink small{font-size:11px;font-weight:500;color:#d1deea;overflow-wrap:anywhere}.gitGuideLink:hover{background:#123f68}
 .gitGuideQuiz{display:grid;grid-template-columns:310px minmax(0,1fr);gap:24px;flex:1;min-height:0}.gitQuizBrand{background:linear-gradient(145deg,#041c31,#123f68);color:#fff;border:1px solid #b39159;border-radius:22px;padding:28px;display:flex;flex-direction:column;gap:22px;justify-content:center}.gitQuizBrand .gitMark{width:76px;height:76px;background:#fbfaf7;padding:12px;border-radius:18px}.gitQuizBrand h2{font-size:29px;line-height:1.2;color:#e9ca8b;margin:0}.gitQuizBrand p{font-size:20px;line-height:1.45;margin:0}.gitQuizPanel{min-height:0;overflow:auto;padding:28px;border:1px solid #b39159;border-left:5px solid #b39159;border-radius:22px;background:#fbfaf7}.gitQuizPanel .quiz-question{font-size:27px}.gitGuideQuiz .choices .btn{font-size:20px;padding:16px 20px}.gitGuideQuiz .feedback{font-size:18px;background:#f7f4ed;border-color:#b3915960}.gitGuideQuiz .btn.primary{background:#082945;color:#e9ca8b}
 @keyframes gitGuideSignal{0%,100%{opacity:.55;transform:translateX(0)}50%{opacity:1;transform:translateX(3px)}}@keyframes gitGuideFocus{0%,100%{opacity:.35;transform:scaleY(.65)}50%{opacity:1;transform:scaleY(1)}}
+.gitFocusedLesson{gap:18px}.gitFocusedLesson .gitLead{font-size:23px;line-height:1.35}.gitFocusedLesson .gitToolTabs{display:flex;justify-content:center;gap:24px}.gitFocusedLesson .gitToolTag{height:110px;width:350px;gap:24px;font-size:30px;border-radius:22px}.gitFocusedLesson .gitToolTag:only-child{width:470px}.gitFocusedLesson .gitToolTag .gitMark{width:86px;height:86px;padding:10px;border-radius:20px}.gitFocusedLesson .gitBody{flex:0 1 auto;grid-template-columns:340px minmax(0,1fr);gap:22px}.gitFocusedLesson .gitChoice{min-height:92px;padding:18px 16px;gap:12px;border-radius:18px}.gitFocusedLesson .gitChoice strong{font-size:23px;line-height:1.25}.gitFocusedLesson .gitStepNumber{width:36px;height:36px;font-size:18px}.gitFocusedLesson .gitDetail{padding:16px;border-radius:22px;background:#fbfaf7}.gitFocusedLesson .gitStepDetail h2{font-size:30px;margin-bottom:12px}.gitFocusedLesson .gitFacts{gap:10px}.gitFocusedLesson .gitFact{padding:10px 14px;border-radius:0 14px 14px 0}.gitFocusedLesson .gitFactLabel{font-size:15px;line-height:1.2;margin-bottom:5px}.gitFocusedLesson .gitFact p{font-size:22px;line-height:1.35;font-weight:550}.gitFocusedLesson .gitFact ul{font-size:21px;line-height:1.35}.gitFocusedLesson .gitSceneCode{font-size:20px;line-height:1.4}.gitFocusedLesson .gitGuideLink{font-size:20px;padding:11px 18px}.gitFocusedLesson .gitGuideLink small{font-size:13px}
+.gitInstallLesson .gitInstallFacts{grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.gitInstallFacts .gitTerminalFact{grid-column:1/-1;grid-row:2;position:relative;overflow:hidden;border:1px solid #b39159;border-left:4px solid #e9ca8b;border-radius:16px;padding:18px 16px}.gitInstallFacts .gitTerminalFact::before{content:'';position:absolute;inset:0;border:2px solid #e9ca8b;border-radius:14px;pointer-events:none;animation:gitCommandGlow 3s ease-in-out infinite}.gitInstallFacts .gitTerminalFact::after{content:'';position:absolute;left:0;top:0;height:44px;width:3px;background:#f4dfb0;pointer-events:none;animation:gitCommandSignal 3s ease-in-out infinite}.gitInstallFacts .gitTerminalFact .gitSceneCode{font-size:18px;white-space:pre;overflow-wrap:normal}.gitInstallFacts .gitFact p{font-size:21px}.gitInstallFacts .gitTerminalFact .gitFactLabel{margin-bottom:10px}
+@keyframes gitCommandGlow{0%,100%{opacity:.2}50%{opacity:.8}}@keyframes gitCommandSignal{0%{transform:translateY(-44px);opacity:0}25%,75%{opacity:1}100%{transform:translateY(120px);opacity:0}}
 @media(prefers-reduced-motion:reduce){.gitIntroSlide *,.gitIntroSlide *::before{animation:none!important;transition:none!important}.gitFocus::before{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.gitInstallFacts .gitTerminalFact::after{animation:none;opacity:0}}
+
 `;
+
 function gitGuideMark(name:string){
  if(assets[name])return <span className="gitMark"><img src={assets[name]} alt={name}/></span>;
  if(name==='Google')return <span className="gitMark" aria-label="Google"><svg viewBox="0 0 24 24" fill="none" {...{'stroke-width':4}}><path stroke="#4285f4" d="M12 12h8a9 9 0 0 1-4 7"/><path stroke="#34a853" d="M16 19a9 9 0 0 1-11-2"/><path stroke="#fbbc05" d="M5 17a9 9 0 0 1 0-10"/><path stroke="#ea4335" d="M5 7a9 9 0 0 1 13-2"/></svg></span>;
  if(name==='Windows')return <span className="gitMark" aria-label="Windows"><svg viewBox="0 0 24 24" fill="#2d7fb4"><path d="M2 3h9v8H2Zm11 0h9v8h-9ZM2 13h9v8H2Zm11 0h9v8h-9Z"/></svg></span>;
  return <span className="gitMark gitMarkText" aria-hidden="true">{name==='Terminal'?'>_':name==='Browser'?'↗':'✓'}</span>;
 }
-function gitGuideScene(s:SlideData,index:number){
- const mode=s.visual.replace('git-intro-',''),c=s.cards[index];
- if(c.code)return <div className="gitScene gitTerminalScene">{gitGuideMark('Terminal')}<pre className="gitSceneCode">{c.code}</pre></div>;
- if(mode==='starter')return <div className="gitScene"><span className="gitMark gitMarkText">L✦</span><div className="gitSceneStack"><strong>LUMI STUDIO · website quảng cáo</strong><div className="gitSceneField focus">Animation nhẹ · tab · FAQ · form đăng ký</div><small>ZIP → giải nén → VS Code → localhost:3000</small></div></div>;
- if(mode==='unzip')return <div className="gitScene">{gitGuideMark('VS Code')}<pre className="gitSceneCode">{'eiu-advertising-starter/\n├─ package.json\n├─ app/ · components/ · data/\n└─ README.md'}</pre></div>;
- if(['npm','dev','build','push-code'].includes(mode))return <div className="gitScene">{gitGuideMark('Terminal')}<pre className="gitSceneCode">{c.code||'Terminal trong thư mục chứa package.json'}</pre></div>;
- if(mode==='localhost'||mode==='customize')return <div className="gitScene">{gitGuideMark('VS Code')}<span className="gitSceneArrow">→</span><div className="gitSceneStack"><strong>Sửa file → Ctrl+S → xem lại</strong><div className="gitSceneField focus">http://localhost:3000</div><small>Nội dung · màu · layout · form</small></div></div>;
- if(mode==='ai-workspace'||mode==='ai-edit')return <div className="gitScene">{gitGuideMark('VS Code')}<span className="gitSceneArrow">↔</span>{gitGuideMark('AI Codex')}<div className="gitSceneStack"><strong>Đọc project → chỉnh file → kiểm tra</strong><small>README · package.json · dữ liệu · giao diện</small></div></div>;
- if(mode==='branch-choice')return <div className="gitScene">{gitGuideMark('Git')}<div className="gitSceneStack"><div className={'gitSceneField'+(index===0?' focus':'')}>main · phiên bản chính</div><div className={'gitSceneField'+(index>0?' focus':'')}>feature/landing-refresh · thử thay đổi</div></div>{gitGuideMark('GitHub')}</div>;
-
- if(mode==='signup')return <div className="gitScene">{gitGuideMark('GitHub')}<div className="gitSceneStack"><strong>Create your free account</strong><div className="gitGoogle">{gitGuideMark('Google')}Continue with Google</div><small>github.com/signup · tài khoản cá nhân</small></div></div>;
- if(mode==='identity'||mode==='verify-git')return <div className="gitScene">{gitGuideMark('Git')}<pre className="gitSceneCode">{c.code||'Terminal trong VS Code\nGit sẵn sàng trên máy'}</pre></div>;
- if(mode==='install'||mode==='download')return <div className="gitScene">{gitGuideMark('Git')}<div className="gitSceneStack"><strong>Git for Windows · Setup</strong><div className="gitSceneField focus">{c.label||c.title}</div><small>{mode==='download'?'Windows x64 / ARM64':'Đọc lựa chọn → xác nhận → tiếp tục'}</small></div>{gitGuideMark('Windows')}</div>;
- if(mode==='account')return <div className="gitScene">{gitGuideMark('VS Code')}<span className="gitSceneArrow">↔</span>{gitGuideMark('GitHub')}<div className="gitSceneStack"><strong>{index===s.cards.length-1?'Đúng tài khoản GitHub':'Sign In → trình duyệt → VS Code'}</strong><small>GitHub account · quyền đăng nhập</small></div></div>;
- if(mode==='web-create'||mode==='web-check')return <div className="gitScene">{gitGuideMark('GitHub')}<div className="gitSceneStack"><strong>{mode==='web-create'?'Create a new repository':'username / webapp-web'}</strong><div className={'gitSceneField'+(index===0?' focus':'')}>Owner: tài khoản của bạn · Repository: tên dự án</div><div className={'gitSceneField'+(index===2?' focus':'')}>Private · README.md · main</div></div></div>;
- const routes=mode==='workflow'?['Lưu file','Chọn thay đổi','Commit','Push']:mode==='pull'?['GitHub','Pull','VS Code']:mode==='clone'?['GitHub','Clone','VS Code']:mode==='routes'?['Repo → git clone','ZIP → git init']:mode==='git'?['Sửa file','Commit','Lịch sử']:['VS Code','Git','GitHub'];
- const logos=mode==='workflow'?['VS Code','Git','Git','GitHub']:mode==='pull'||mode==='clone'?['GitHub','Git','VS Code']:mode==='routes'?['GitHub','VS Code']:mode==='git'?['VS Code','Git','Git']:['VS Code','Git','GitHub'];
- return <div className="gitScene">{routes.map((label,i)=><>{i>0&&<span className="gitSceneArrow">→</span>}<div className={'gitSceneNode'+(i===index%routes.length?' active':'')}>{gitGuideMark(logos[i])}<strong>{label}</strong></div></>)}</div>;
-}
+const focusedGitTools:Record<string,string[]>={'git-intro-git':['Git'],'git-intro-github':['GitHub'],'git-intro-download':['Git','VS Code'],'git-intro-install':['Git','VS Code'],'git-intro-verify-git':['Git','VS Code'],'git-intro-signup':['GitHub']};
 function gitIntro(s:SlideData){
- const host=h('div',{className:'gitLesson'});host.append(<p className="gitLead">{s.message}</p>);
+ const focused=Boolean(focusedGitTools[s.visual]);
+ const host=h('div',{className:'gitLesson'+(focused?' gitFocusedLesson':'')+(s.visual==='git-intro-install'?' gitInstallLesson':'')});host.append(<p className="gitLead">{s.message}</p>);
  if(s.visual==='git-intro-quiz'){
   host.append(<div className="gitGuideQuiz"><div className="gitQuizBrand">{gitGuideMark('Git')}{gitGuideMark('GitHub')}<h2>TỪ MÁY CỦA BẠN<br/>ĐẾN REPOSITORY</h2><p>Tự kiểm tra để biết mình đã làm chủ từng bước.</p></div><div className="gitQuizPanel">{choiceActivity([
    {q:'Git ghi lại điều gì khi bạn Commit?',options:['Phiên bản đã chọn trên máy','Một website đã được triển khai'],answer:0,why:'Commit ghi phiên bản trong repository local. Push mới gửi commit lên GitHub.'},
@@ -1667,9 +1650,21 @@ function gitIntro(s:SlideData){
  }
  const nav=h('nav',{className:'gitNav','aria-label':'Các bước của '+s.title});
  const detail=h('div',{className:'gitDetail','aria-live':'polite'});const buttons:any[]=[];let selected=-1;
- function select(index:number){if(selected===index)return;selected=index;buttons.forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));const c=s.cards[index];detail.replaceChildren(gitGuideScene(s,index),<div className="gitStepDetail gitFocus"><h2>{c.title}</h2><p className="gitStatement">{c.text}</p>{c.detail&&<p>{c.detail}</p>}{c.points&&<ul>{c.points.map(point=><li>{point}</li>)}</ul>}{c.link&&<a className="gitGuideLink" href={c.link} target="_blank" rel="noopener noreferrer" download={c.link.endsWith('.zip')?'eiu-advertising-starter.zip':undefined}>{c.linkLabel||'Mở trang hướng dẫn'}<small>{c.link}</small></a>}</div>);}
- s.cards.forEach((c,i)=>{const button=<button type="button" className="gitChoice" aria-pressed="false" onClick={()=>select(i)}><span className="gitStepNumber">{String(i+1).padStart(2,'0')}</span>{gitGuideMark(c.logo||'GitHub')}<span>{c.label&&<small>{c.label}</small>}<strong>{c.title}</strong></span></button>;buttons.push(button);nav.append(button);});
- host.append(<div className="gitBody">{nav}{detail}</div>);select(0);return host;
+ const tools=focusedGitTools[s.visual]||['Git','VS Code','GitHub'];
+ const toolTags:any[]=tools.map(name=><div className="gitToolTag" data-active="false">{gitGuideMark(name)}<strong>{name}</strong></div>);
+ function select(index:number){
+  if(selected===index)return;selected=index;
+  buttons.forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));
+  const c=s.cards[index],tool=c.logo==='GitHub'||c.logo==='Google'?'GitHub':c.logo==='VS Code'||c.logo==='AI Codex'||c.logo==='Browser'?'VS Code':'Git';
+  toolTags.forEach((tag,i)=>tag.setAttribute('data-active',String(tools[i]===(tools.includes(tool)?tool:tools[0]))));
+  detail.replaceChildren(<div className="gitStepDetail"><h2>{c.title}</h2><div className={'gitFacts'+(s.visual==='git-intro-install'?' gitInstallFacts':'')}>
+   <div className="gitFact"><b className="gitFactLabel">Thao tác</b><p>{c.text}</p>{c.link&&<a className="gitGuideLink" href={c.link} target="_blank" rel="noopener noreferrer" download={c.link.endsWith('.zip')?'eiu-advertising-starter.zip':undefined}>{c.linkLabel||'Mở hướng dẫn'}<small>{c.link}</small></a>}</div>
+   {(c.code||c.installationOption)&&<div className="gitFact gitTerminalFact"><b className="gitFactLabel">{c.code?'Lệnh trong Terminal':'Lựa chọn trong bộ cài'}</b><pre className="gitSceneCode">{c.code||c.installationOption}</pre></div>}
+   {(c.detail||c.points)&&<div className="gitFact"><b className="gitFactLabel">Kết quả &amp; lưu ý</b>{c.detail&&<p>{c.detail}</p>}{c.points&&<ul>{c.points.map(point=><li>{point}</li>)}</ul>}</div>}
+  </div></div>);
+ }
+ s.cards.forEach((c,i)=>{const button=<button type="button" className="gitChoice" aria-pressed="false" onClick={()=>select(i)}><span className="gitStepNumber">{String(i+1).padStart(2,'0')}</span>{!focused&&gitGuideMark(c.logo||'GitHub')}<span>{c.label&&<small>{c.label}</small>}<strong>{c.title}</strong></span></button>;buttons.push(button);nav.append(button);});
+ host.append(<div className="gitToolTabs" aria-label="Công cụ trong quy trình">{toolTags}</div>,<div className="gitBody">{nav}{detail}</div>);select(0);return host;
 }
 
 function content(s:SlideData){if(s.visual.startsWith('git-intro-'))return gitIntro(s);if(s.section===1&&s.visual.startsWith('workspace-'))return workspace(s);switch(s.visual){
@@ -1705,5 +1700,5 @@ case 'levels':return <div>{cards(s)}</div>;
 case 'schema':return <div className="lab compactschema"><div>{visualTable()}<div className="panel"><h3>Kiểm tra trước khi tạo</h3><p>ID duy nhất · trường bắt buộc · trạng thái hợp lệ · người tạo · quyền đọc/sửa.</p><p>SQL là mã thao tác dữ liệu; nhờ AI tạo và giải thích trước khi bạn xác nhận chạy.</p></div></div>{copyPrompt(s.prompt||'')}</div>;
 default:return cards(s);
 }}
-function slide(s:SlideData){return <svg width="100%" height="100%" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" data-preserve-original="true"><foreignObject width="1280" height="720"><div className={"eiu"+(s.visual==='cover'?' coverSlide':'')+(s.section===1&&s.number===1?' sectionOneOpening':'')+(s.section===1&&s.number===2?' outcomesSlide':'')+(s.section===1&&s.number===3?' roleSlide':'')+(s.section===1&&s.number===4?' featureSlide':'')+(s.section===1&&s.number===5?' processSlide':'')+(s.section===1&&s.visual.startsWith('workspace-')?' workspaceSlide':'')+(s.visual.startsWith('git-intro-')?' gitIntroSlide':'')} {...{xmlns:"http://www.w3.org/1999/xhtml"}}><style>{css+openingCss+sectionOneCss+detailCss+workspaceCss+vscodeCss+regionDetailCss+aiAlternativesCss+gitIntroCss}</style>{s.section===1&&s.number>=6&&s.number<=13&&<img className="workspaceCornerLogo" src={assets['VS Code']} alt="VS Code"/>}{s.section===1&&s.visual.startsWith('git-intro-')&&<div className="gitGuideCorner">{gitGuideMark(s.cards.some(c=>c.logo==='VS Code')?'VS Code':'Git')}{gitGuideMark('GitHub')}</div>}<main className="content"><h1 className="title">{s.title}</h1><div className="stage">{content(s)}</div></main></div></foreignObject></svg>;}
+function slide(s:SlideData){return <svg width="100%" height="100%" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" data-preserve-original="true"><foreignObject width="1280" height="720"><div className={"eiu"+(s.visual==='cover'?' coverSlide':'')+(s.section===1&&s.number===1?' sectionOneOpening':'')+(s.section===1&&s.number===2?' outcomesSlide':'')+(s.section===1&&s.number===3?' roleSlide':'')+(s.section===1&&s.number===4?' featureSlide':'')+(s.section===1&&s.number===5?' processSlide':'')+(s.section===1&&s.visual.startsWith('workspace-')?' workspaceSlide':'')+(s.visual.startsWith('git-intro-')?' gitIntroSlide':'')} {...{xmlns:"http://www.w3.org/1999/xhtml"}}><style>{css+openingCss+sectionOneCss+detailCss+workspaceCss+vscodeCss+regionDetailCss+aiAlternativesCss+gitIntroCss}</style>{s.section===1&&s.number>=6&&s.number<=13&&<img className="workspaceCornerLogo" src={assets['VS Code']} alt="VS Code"/>}{s.section===1&&s.visual.startsWith('git-intro-')&&!focusedGitTools[s.visual]&&<div className="gitGuideCorner">{gitGuideMark(s.cards.some(c=>c.logo==='VS Code')?'VS Code':'Git')}{gitGuideMark('GitHub')}</div>}<main className="content"><h1 className="title">{s.title}</h1><div className="stage">{content(s)}</div></main></div></foreignObject></svg>;}
 export default course.slides.map(s=>()=>slide(s));

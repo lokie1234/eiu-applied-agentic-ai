@@ -53,7 +53,7 @@ test("signup uses Google and Git authentication needs no GitHub extension", asyn
   try {
     assert.equal(signup.document.querySelector(".gitGuideLink").href, "https://github.com/signup");
     assert.equal(signup.document.querySelector(".gitGuideLink").target, "_blank");
-    assert.match(signup.document.querySelector(".gitGoogle").textContent, /Continue with Google/);
+    assert.match(signup.document.querySelector(".gitStepDetail").textContent, /Continue with Google/);
     assert.match(signin.document.querySelector(".gitGuideLink").href, /caching-your-github-credentials-in-git/);
     assert.match(signin.document.querySelector(".gitStepDetail").textContent, /không cài extension GitHub/);
     assert.equal(web.document.querySelector(".gitGuideLink").href, "https://github.com/new");
@@ -64,6 +64,26 @@ test("signup uses Google and Git authentication needs no GitHub extension", asyn
     assert.match(source, /Git from the command line and also from 3rd-party software/);
     assert.match(source, /prefers-reduced-motion/);
   } finally { for (const window of [signup, signin, web, publish]) await window.happyDOM.close(); }
+});
+
+test("Git lessons use centered feature layout, concise headings and self-contained instructions", async () => {
+  const slides = JSON.parse(fs.readFileSync('course-content/web-app-development/storyboard.json', 'utf8')).slides;
+  for (let page = 14; page <= 39; page++) {
+    const data = slides.find(s => s.section === 1 && s.number === page);
+    assert.doesNotMatch(JSON.stringify(data.cards), /\bslides?\b/i);
+    const window = render(page);
+    try {
+      const focusedTools = {14: ['Git'], 15: ['GitHub'], 16: ['Git', 'VS Code'], 17: ['Git', 'VS Code'], 18: ['Git', 'VS Code'], 19: ['GitHub']};
+      assert.deepEqual([...window.document.querySelectorAll('.gitToolTag strong')].map(el => el.textContent), focusedTools[page] || ['Git', 'VS Code', 'GitHub']);
+      for (const button of window.document.querySelectorAll('.gitChoice')) {
+        button.click();
+        assert.ok(window.document.querySelector('.gitFacts'));
+        assert.ok(window.document.querySelectorAll('.gitFact').length >= 1);
+        assert.ok(window.document.querySelector('.gitStepDetail h2').textContent.length <= 30);
+        assert.equal(window.document.querySelectorAll('.gitToolTag[data-active="true"]').length, 1);
+      }
+    } finally { await window.happyDOM.close(); }
+  }
 });
 
 test("terminal guide includes installation checks and complete Git command workflows", async () => {

@@ -1,5 +1,7 @@
 # Mẫu thiết kế đã được người dùng chọn
 
+Bố cục slide 14–39 Section 1 dùng slide 4 làm chuẩn: dải ba công cụ ngang, danh sách bước rộng 340px bên trái và bảng chi tiết bên phải. Toàn khối cân giữa canvas; tiêu đề chính, tên bước và tiêu đề chi tiết giữ một dòng bằng nội dung ngắn gọn. Bảng chi tiết chia khối Thao tác, Lệnh trong Terminal và Kết quả & lưu ý; văn bản căn giữa, lệnh và danh sách căn trái để dễ đọc. Nội dung hướng dẫn độc lập, không nhắc số slide hay dẫn chiếu sang slide khác. Giữ link tải/đăng ký, thao tác chọn bước và EIU DNA.
+
 Từ lần chỉnh slide 2 Section 1 này, dùng ảnh tham chiếu SAVE / SHARE / USE của người dùng làm chuẩn text và layout cho các lần chỉnh course tiếp theo. Không quay lại thẻ trắng đơn giản hoặc format chú thích. Với slide mở đầu, giữ bố cục cover nhưng áp dụng cùng phân cấp chữ và bảng màu.
 
 - Nền sáng trắng–kem, lưới hoặc nét trang trí rất nhẹ.
@@ -42,3 +44,5 @@ Slide 14–40: Git được giới thiệu ngắn và có link tải; GitHub có
 EIU DNA được nhấn mạnh: viền ngoài navy–vàng, nền kem có lưới rất nhẹ, khối minh họa gradient navy, tiêu đề 800–850, bước đánh số và cạnh vàng. Dùng icon Git, GitHub, VS Code, Windows và Google khi phù hợp. Nút bước đứng yên; chọn bước cập nhật nội dung ngay tại chỗ. Điểm sáng ở cạnh nội dung và mũi tên chỉ animate opacity/transform; tắt khi reduced motion. Không thêm header/footer, nhãn thời lượng hay chú thích đáy. Nội dung và thiết kế phải đồng bộ giữa TSX đang hiển thị, storyboard.json và renderer.tsx.txt.
 
 Slide 25–39 tiếp nối cùng EIU DNA và điều hướng bước cố định. Minh họa ZIP, folder, terminal, localhost, ngữ cảnh AI và nhánh Git bằng khối navy–vàng; button tải ZIP thật ở slide 25. Không để minh họa gọi tên project local rỗng đã bỏ; dùng eiu-advertising-starter. Website mẫu dùng nền kem, typography rõ, CTA navy, điểm nhấn vàng và animation nhẹ; hỗ trợ responsive và reduced motion. Tương tác tab/chọn gói/form/FAQ hoạt động, form ghi rõ lưu trên trình duyệt.
+
+Slide 14?19: ch? gi? icon Git ? 14, GitHub ? 15 v? 19, Git + VS Code ? 16?18. Icon 86px trong khung l?n c?n gi?a; ch? n?i dung 22px, t?n b??c 23px, ti?u ?? chi ti?t 30px. Slide 17 c? hai kh?i h??ng d?n/l?u ? c?ng h?ng v? khung l?nh/l?a ch?n c?i ??t ri?ng ch?y ngang ph?a d??i; c?u l?nh gi? tr?n m?t d?ng. Khung l?nh c? vi?n s?ng v? ?i?m s?ng chuy?n ??ng nh?, t?t khi reduced motion. To?n b? v?a canvas 1280?720 v? vi?n ch?nh EIU.
