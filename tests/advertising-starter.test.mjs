@@ -56,13 +56,13 @@ test("download ZIP contains a runnable source project without dependencies, buil
   assert.equal(pkg.scripts.test, "node --test");
 });
 
-test("starter lab is part of the bound section and provides a real download button and Git branch guidance", () => {
+test("starter lab uses the existing download and completes the local-to-GitHub flow", () => {
   const story = JSON.parse(fs.readFileSync("course-content/web-app-development/storyboard.json", "utf8"));
-  const lab = story.slides.filter(slide => slide.section === 1 && slide.number >= 25 && slide.number < 40);
-  assert.equal(lab.length, 15);
+  const lab = story.slides.filter(slide => slide.section === 1 && slide.number >= 11 && slide.number < 21);
+  assert.equal(lab.length, 10);
   assert.equal(lab[0].cards[0].link, "/downloads/eiu-advertising-starter.zip");
   const text = JSON.stringify(lab);
-  for (const command of ["npm install", "npm run dev", "npm run build", "localhost:3000", "git push origin main", "git push -u origin feature/landing-refresh"])
+  for (const command of ["npm install", "npm run dev", "npm run build", "localhost", "git push -u origin main", "git pull --ff-only origin main", "git branch --show-current"])
     assert.ok(text.includes(command));
-  assert.ok(text.includes("workspace"));
+  assert.ok(text.includes("data/site.js"));
 });

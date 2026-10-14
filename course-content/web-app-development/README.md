@@ -2,7 +2,7 @@
 
 Bản chờ review cho course **AI-Powered Web App Development & Deployment**. Chưa commit/push Git.
 
-- `Section1.tsx`: 40 slides; slide 14–21 giới thiệu ngắn, tải/cài Git, đăng ký GitHub bằng Google, kiểm tra và setup Git/GCM trong Terminal VS Code; 22–24 tạo repo web và Clone bằng lệnh; 25–33 chạy/chỉnh website ZIP; 34–39 Init/Add/Commit, kết nối repo trống, Push/Pull bằng lệnh và đối chiếu nhánh; 40 tự kiểm tra. Không cài extension GitHub. Xem [GIT_GUIDE.md](GIT_GUIDE.md).
+- `Section1.tsx`: 33 slide; giữ nguyên 1–13. Từ 14: Git/GitHub trong một slide popup → setup bốn công cụ trong một slide popup → Antigravity/Codex với vibe riêng → tải/mở/chạy app quảng cáo → prompt/sửa và giới hạn tự test-fix theo model → kiểm tra → Commit/Push/Pull/Clone. Xem [GIT_GUIDE.md](GIT_GUIDE.md).
 - `Section2.tsx`: 20 slide, lưu trữ dữ liệu/tài liệu và triển khai, 180 phút.
 - `storyboard.json`: nội dung hiển thị, mục tiêu, thông điệp, ghi chú giảng viên, thời lượng, tiêu chí kiểm tra và 10 prompt tiếng Việt.
 - `renderer.tsx.txt`: mã dựng giao diện EIU DNA và các hoạt động tương tác.
@@ -47,4 +47,4 @@ Slide 13: Antigravity, GitHub Copilot, Claude Code và Cline. Logo chính chủ 
 
 Dải logo slide 13: Gemini Code Assist, Amazon Q, Continue, Augment, Kilo Code, Qodo, Bito, CodeGeeX, Tabby, CodeGPT. Không lặp bốn AI trong phần chính hoặc Codex. Logo nhúng từ trang Marketplace của nhà phát hành; URL nguồn ở ai-logos.json. Xác minh 12/10/2026. Amazon Q vẫn được hỗ trợ tại thời điểm này; Marketplace thông báo kết thúc hỗ trợ IDE plugin vào 30/04/2027, cần rà lại danh sách trước mốc đó.
 
-Section 1 hiện có 33 slide. Slide 14–21 giới thiệu Git/GitHub từ VS Code chưa thiết lập, gồm Git checkpoints, vai trò, cài đặt, chu trình hằng ngày, repository, branch/PR, phục hồi và prompt Codex. Nguồn nội dung: https://learn.chatgpt.com/docs/codex/ide ; https://code.visualstudio.com/docs/sourcecontrol/overview ; https://code.visualstudio.com/docs/sourcecontrol/quickstart ; https://docs.github.com/en/get-started/using-git/about-git ; https://docs.github.com/en/get-started/using-github/github-flow ; https://git-scm.com/docs/git-revert. Các thao tác trong slide là minh họa, không chạy lệnh trên máy học viên.
+Flow cập nhật 14/10/2026 nằm trong GIT_GUIDE.md và phần đầu DESIGN.md; các đoạn lịch sử bên trên không phải ánh xạ số slide hiện tại. Nội dung hướng dẫn thao tác trên app thật; các lệnh hiển thị trong slide không tự chạy trên máy học viên.

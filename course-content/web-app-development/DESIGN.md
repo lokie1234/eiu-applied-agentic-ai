@@ -1,5 +1,25 @@
 # Mẫu thiết kế đã được người dùng chọn
 
+## Flow đang áp dụng · 14/10/2026
+
+Đã bỏ slide 3 (vai trò) và 4 (tính năng) cũ. Slide flow 5 cũ thành slide 3, giữ sáu ô 3×2 và mũi tên; icon Node.js đặt cùng VS Code trong header bước Kiểm tra, kích thước 46px. Nhận diện role/feature/process bằng visual, không theo số slide. Các slide sau giảm hai số; Section 1 hiện 21 slide. Các số slide trong lịch sử bên dưới là số cũ.
+
+Slide 1: bốn icon VS Code, Node.js, Git, GitHub đi theo vòng tròn cùng animation 25 giây, bán kính 170px. Counter-rotate giữ hình và tên thẳng; vòng tròn nối liên tục, không còn cạnh/chéo của cụm 2×2. Tắt chuyển động khi reduced motion, giữ bốn vị trí cách 90°. Nội dung trái chỉ có bốn bullet ngắn: Chỉnh sửa cùng AI; Chạy app với Node.js; Kiểm tra kết quả; Quản lý phiên bản. Bốn khung 56px, gap 12px, không có đoạn Node.js dài hoặc lệnh.
+
+Slide 6: sơ đồ liên kết ba công cụ có icon nhỏ 28px cạnh tên Node.js, Git, GitHub. Dòng “Chiều về” dùng khung navy, viền/cạnh vàng, chữ trắng và nhãn vàng đậm để nổi bật; giữ nguyên nội dung và popup.
+
+Các chức năng trong sáu popup VS Code dùng 2–3 bullet points ngắn, thao tác cụ thể, bỏ câu mô tả dài. Sửa cascade của lưới Menu dense: ô regionEmphasis phải giữ nền navy, tiêu đề/marker vàng và nội dung trắng; không để quy tắc nền kem của dense ghi đè làm chữ nhạt trên nền sáng.
+
+Typography popup: giảm một cỡ (1px) cho nội dung và tiêu đề trong popup VS Code, Git/GitHub và setup. Nội dung VS Code 18px, menu dày 17px; tiêu đề ô 20px/19px. Git/GitHub 18px, lưu ý/lệnh 17px; setup 20px. Ô căn nội dung từ trên, padding 16–20px, min-width 0; từ dài/lệnh được xuống dòng trong đúng cột. Giữ header chữ gọn và lưới hai hàng để phần nội dung không bị chèn.
+
+Yêu cầu mới thay thế các mô tả cũ về slide 14–40 bên dưới: Section 1 hiện có 21 slide. Slide 4 gộp sáu vùng VS Code vào popup thay cho 7–12 cũ; từ 6: một slide nền tảng Node.js/Git/GitHub với ba popup → setup VS Code/Git/GitHub → Antigravity/Codex → setup AI → tải/mở/chạy app quảng cáo → cấu trúc prompt và sửa → khác biệt model/tự test-fix → nghiệm thu → Commit/Push/Pull/Clone → tự kiểm tra. Xem GIT_GUIDE.md cho ánh xạ số slide mới.
+
+Slide 6 dùng ba khung Node.js/Git/GitHub mở popup riêng, mỗi popup hiển thị đủ ba nhóm nội dung. Ba khung xếp ngang, Git ở giữa nền navy; sơ đồ Node.js chạy/kiểm tra → Git Commit → GitHub Push và chiều Pull/Clone → npm → chạy lại. Có nút đóng, đóng qua Escape/nền, giữ focus trong popup và trả focus về khung vừa chọn. Slide 7 gộp setup vào bốn khung VS Code, Node.js, Git, GitHub; popup có bước chọn cố định và chi tiết link/lệnh/kết quả. Slide sau setup bắt đầu từ 10.
+
+Slide 4 giữ ảnh gốc và sáu khoanh đỏ trên bản đồ. Popup của cả sáu vùng bỏ hoàn toàn ảnh cắt và kính lúp. Header 100px gồm số vùng trong ô navy–vàng, tiêu đề, mô tả và nút đóng; phần nội dung tách bằng đường vàng mảnh, dành toàn bộ chiều cao còn lại cho hai hàng thẻ. Sáu chức năng dùng 3×2, tám mục Menu dùng 4×2. Chữ 17–19px, padding 14–18px; nền kem và các ô quan trọng navy, chữ vàng/trắng. Không có kiểu thu gọn riêng cho vùng 02. Giữ đầy đủ nội dung, thao tác mở/đóng, Escape và focus; không cuộn.
+
+Giữ EIU khung ngoài navy–vàng, nền kem có lưới nhẹ, chữ rõ và bước chọn cố định. Hai slide AI dùng vibe riêng bên trong khung EIU: Antigravity sáng, ánh xanh/tím và dải bốn màu Google; Codex nền graphite/xanh tối, chữ terminal và điểm nhấn mint. CSS mới chỉ áp dụng `.gitIntroSlide` từ slide 8; giữ nguyên thiết kế slide 1–5. Prompt dài nằm trong textarea có thể cuộn/sao chép để giữ slide vừa canvas. Không thêm header/footer, nhãn thời lượng hoặc ghi chú đáy.
+
 Bố cục slide 14–39 Section 1 dùng slide 4 làm chuẩn: dải ba công cụ ngang, danh sách bước rộng 340px bên trái và bảng chi tiết bên phải. Toàn khối cân giữa canvas; tiêu đề chính, tên bước và tiêu đề chi tiết giữ một dòng bằng nội dung ngắn gọn. Bảng chi tiết chia khối Thao tác, Lệnh trong Terminal và Kết quả & lưu ý; văn bản căn giữa, lệnh và danh sách căn trái để dễ đọc. Nội dung hướng dẫn độc lập, không nhắc số slide hay dẫn chiếu sang slide khác. Giữ link tải/đăng ký, thao tác chọn bước và EIU DNA.
 
 Từ lần chỉnh slide 2 Section 1 này, dùng ảnh tham chiếu SAVE / SHARE / USE của người dùng làm chuẩn text và layout cho các lần chỉnh course tiếp theo. Không quay lại thẻ trắng đơn giản hoặc format chú thích. Với slide mở đầu, giữ bố cục cover nhưng áp dụng cùng phân cấp chữ và bảng màu.

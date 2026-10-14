@@ -1,32 +1,39 @@
-﻿# Hướng dẫn Git/GitHub · Section 1
+# Section 1 · flow từ slide 6 (14/10/2026)
 
-Slide 14–40 dùng lệnh Git trong Terminal PowerShell của VS Code. Slide 1–13 và Section 2 giữ nguyên. Không cài extension GitHub; xác thực HTTPS dùng Git Credential Manager (GCM) đi kèm Git for Windows.
+Đã bỏ slide 3–4 cũ. Flow ở slide 5 cũ thành slide 3, có Node.js tại bước Kiểm tra. Slide 4 chứa sáu popup VS Code; Section 1 có 21 slide, Section 2 giữ nguyên.
 
 | Slide | Nội dung |
 |---|---|
-| 14–15 | Git/GitHub ngắn gọn, link tải Git và đăng ký GitHub; gợi ý Continue with Google |
-| 16–18 | Cài Git, PATH và GCM; mở lại VS Code; kiểm tra Git, đường dẫn và credential helper |
-| 19–21 | Hoàn tất GitHub, đặt tên/email/main, kiểm tra cấu hình; xác thực qua trình duyệt khi Git yêu cầu |
-| 22–24 | Phân biệt Clone và Init; tạo repo private có README, git clone, kiểm tra status/remote/log |
-| 25–26 | Tải website ZIP, giải nén và mở đúng thư mục có package.json |
-| 27–29 | Node.js/npm, kiểm tra sau cài, chạy dev và thử chỉnh bằng tay |
-| 30–32 | Ngữ cảnh AI, yêu cầu cụ thể, tùy chỉnh website và kiểm tra tương tác |
-| 33 | npm test, build và start |
-| 34–35 | git init/add/commit; tạo repo GitHub trống, remote add, push -u origin main |
-| 36–37 | Chọn nhánh, xem diff, chọn file, Commit và Push đúng nhánh |
-| 38–40 | Pull main sau Merge, kiểm tra kết quả, đối chiếu GitHub và tự kiểm tra |
+| 3 | Flow sáu bước: sửa → Node.js chạy/kiểm tra → chọn thay đổi → Commit → Push → xác nhận |
+| 4 | Bản đồ VS Code với sáu popup chức năng; header gọn không ảnh/kính lúp, nội dung cân đối hai hàng, các ô quan trọng nền navy EIU |
+| 5 | Khám phá các trợ lý AI trong VS Code |
+| 6 | Node.js/Git/GitHub cùng một slide, ba popup; Node.js/npm và lệnh chạy/kiểm tra, Git trong VS Code, GitHub/repo mở; liên kết theo cùng project và hai chiều đồng bộ |
+| 7 | Bốn popup setup VS Code, Node.js, Git và GitHub: link cài, lệnh kiểm tra, PATH/GCM, tên/email/main và xác thực HTTPS |
+| 8–10 | Antigravity và Codex: ưu/nhược, vibe riêng; cài extension chính chủ, chọn model và quyền |
+| 11–12 | Tải ZIP app quảng cáo hiện có, mở folder có package.json, cài thư viện và chạy bản gốc |
+| 13–15 | Sáu thành phần prompt, prompt sao chép, xem diff; khác biệt kết quả và giới hạn tự test/fix theo model |
+| 16 | Test, build và thử giao diện/tương tác production |
+| 17–19 | Init/Stage/Commit → repo trống/remote/Push đầu → Commit/Push lần tiếp theo |
+| 20–21 | Pull, xử lý khi không Pull được, Clone trên máy mới; tự kiểm tra |
 
-Xác thực xuất hiện ở lần Clone repo private hoặc Push cần đăng nhập. Clone repo public có thể chưa yêu cầu xác thực. user.name/user.email là danh tính tác giả commit; không phải đăng nhập GitHub. Đăng nhập menu Accounts trong VS Code không phải điều kiện để dùng lệnh Git với GCM. Bài đưa ZIP lên GitHub tạo repo online không có README/.gitignore/license để nhận lịch sử local đã có.
+App xuyên suốt: `eiu-advertising-starter` (Lumi Studio). Nút tải ZIP thật ở slide 11; ZIP nằm trong `public/downloads/eiu-advertising-starter.zip`. Form lưu trên trình duyệt, chưa gửi email/database dùng chung. Không tạo repo phụ để luyện Clone trước thực hành.
 
-File TSX hiển thị và tải xuống được đăng ký trong sources.json cho course a857595d-def0-4543-9216-a680c6abfe26, section 47c1183e-a26e-4c5d-9937-88ec5a755a32. API kiểm tra quyền trước khi đọc nguồn local. Refresh hoặc mở lại section để tải nội dung mới; không cần upload Drive. Nội dung đồng bộ với storyboard.json và renderer.tsx.txt, giữ EIU DNA.
+Antigravity và Codex là công cụ; model được chọn bên trong. Nhận định ưu/nhược là hướng dẫn sử dụng, không phải benchmark. Chỉ một số model có khả năng suy luận/agent tốt, với công cụ và quyền phù hợp, có thể tự kiểm tra → tìm lỗi → sửa → chạy lại. Không hứa mọi model tự test/fix hoặc test/build đạt là hết lỗi giao diện.
 
-ZIP tại public/downloads/eiu-advertising-starter.zip, button tải thật ở slide 25. Website có tab, gói, FAQ và form lưu localStorage. ZIP không đóng gói node_modules, .next, .git hoặc .env; .gitignore đã có trong project mẫu.
+Git tích hợp sẵn trong VS Code nhưng phải cài Git trên máy. GitHub extension và menu Accounts không bắt buộc cho lệnh Git/GCM. Tên/email Commit không phải xác thực GitHub. Repo đầu tiên online không bật README/.gitignore/license vì lịch sử local đã có. Pull dùng `--ff-only`; khi phân kỳ dừng để xem và xử lý, không force/reset.
 
-Nguồn đối chiếu ngày 2026-10-13:
+Binding hiển thị/download trong `sources.json` giữ nguyên: course `a857595d-def0-4543-9216-a680c6abfe26`, section `47c1183e-a26e-4c5d-9937-88ec5a755a32`. API vẫn kiểm tra quyền trước khi đọc local TSX. Refresh/mở lại section để nhận bản mới; không cần upload Drive. Storyboard và renderer đồng bộ; chỉ generate Section 1.
 
-- [Tải Git cho Windows](https://git-scm.com/install/windows).
-- [Đăng ký GitHub](https://github.com/signup), [tạo tài khoản bằng Google](https://docs.github.com/en/account-and-profile/how-tos/account-management/creating-an-account-on-github).
-- [Cấu hình tên/email](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup).
-- [VS Code hỗ trợ Git sẵn](https://code.visualstudio.com/docs/sourcecontrol/overview).
-- [GCM và xác thực HTTPS](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git).
+Nguồn chính thức đối chiếu ngày 14/10/2026:
+
+- [Git trong VS Code](https://code.visualstudio.com/docs/sourcecontrol/overview), [tải VS Code](https://code.visualstudio.com/download).
+- [GitHub repositories/cộng tác](https://docs.github.com/en/get-started/using-github/hello-world), [repo mở](https://github.com/explore).
+- [Antigravity extension VS Code](https://antigravity.google/docs/ide/extensions/vscode/).
+- [Codex IDE extension](https://learn.chatgpt.com/docs/codex/ide).
+- [Git for Windows](https://git-scm.com/install/windows), [cấu hình Git](https://git-scm.com/book/en/v2/Getting-Started-First-Time-Git-Setup), [GCM/HTTPS](https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git).
 - [Node.js LTS](https://nodejs.org/en/download).
+
+Slide 7: GitHub dùng trên web; không cần cài GitHub CLI/Desktop. `git ls-remote` repo public chỉ kiểm tra kết nối HTTPS, không xác nhận đăng nhập. VS Code có `code --version`, `where.exe code`, `code .`; Node.js có kiểm tra node/npm và lệnh chạy sau khi tải app.
+Nguồn lệnh VS Code: [CLI chính thức](https://code.visualstudio.com/docs/configure/command-line).
+
+Nguồn Node.js/npm: [Node.js introduction](https://nodejs.org/learn/getting-started/introduction-to-nodejs), [npm install](https://docs.npmjs.com/cli/v11/commands/npm-install/).

@@ -9,7 +9,10 @@ if (selected && !['1','2'].includes(selected)) throw new Error('Choose section 1
 for (const [name,filter] of [['Section1.tsx',1],['Section2.tsx',2]]) {
  if (selected && Number(selected) !== filter) continue;
  const section = { title: course.title, summary: course.summary, slides: course.slides.filter(s=>s.section===filter) };
- const source = renderer.replace('// __COURSE_DATA__',`// Nội dung phần ${filter}: chỉnh các slide trong mảng bên dưới.\nconst course: { title: string; summary: string; slides: SlideData[] } = ${JSON.stringify(section,null,2)};\nconst assets: Record<string,string> = ${JSON.stringify(assets,null,2)};`);
+ // The renderer keeps embedded assets for its standalone source. Replace that
+ // block before injecting the selected asset catalog to avoid declaring twice.
+ const template = renderer.replace(/const assets: Record<string,string> = [\s\S]*?;\r?\n/, '');
+ const source = template.replace('// __COURSE_DATA__',`// Nội dung phần ${filter}: chỉnh các slide trong mảng bên dưới.\nconst course: { title: string; summary: string; slides: SlideData[] } = ${JSON.stringify(section,null,2)};\nconst assets: Record<string,string> = ${JSON.stringify(assets,null,2)};`);
  fs.writeFileSync(path.join(root,name),source);
  console.log(name,section.slides.length,'slides',Buffer.byteLength(source),'bytes');
 }

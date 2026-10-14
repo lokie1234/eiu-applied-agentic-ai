@@ -1,137 +1,268 @@
-import test from "node:test";
-import assert from "node:assert/strict";
-import fs from "node:fs";
-import vm from "node:vm";
-import ts from "typescript";
-import { Window } from "happy-dom";
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import ts from 'typescript';
+import { Window } from 'happy-dom';
 
-const source = fs.readFileSync("course-content/web-app-development/Section1.tsx", "utf8");
-const compiled = ts.transpileModule(source, { compilerOptions: {
-  module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.React, jsxFactory: "h", jsxFragmentFactory: "Fragment",
-} }).outputText;
-const documentExports = {};
-vm.runInNewContext(ts.transpileModule(fs.readFileSync("lib/tsxDocument.ts", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports: documentExports });
-
-function render(page) {
-  const window = new Window();
-  window.document.body.innerHTML = '<div id="root"></div>';
-  const html = documentExports.createTsxDocument(compiled, page);
-  vm.runInNewContext(html.match(/<script>([\s\S]*?)<\/script>/)[1], {
-    document: window.document, Node: window.Node, window, parent: { postMessage() {} },
-    setTimeout: window.setTimeout.bind(window), clearTimeout: window.clearTimeout.bind(window),
-  }, { timeout: 3000 });
-  assert.equal(window.document.querySelector("#error"), null, `Slide ${page} must render`);
-  return window;
+const source = fs.readFileSync('course-content/web-app-development/Section1.tsx','utf8');
+const slides = JSON.parse(fs.readFileSync('course-content/web-app-development/storyboard.json','utf8')).slides.filter(s=>s.section===1);
+const compiled = ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,jsx:ts.JsxEmit.React,jsxFactory:'h',jsxFragmentFactory:'Fragment'}}).outputText;
+const documents = {};
+vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/tsxDocument.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports:documents});
+function render(page){
+ const window = new Window();
+ window.document.body.innerHTML='<div id="root"></div>';
+ const script=documents.createTsxDocument(compiled,page).match(/<script>([\s\S]*?)<\/script>/)[1];
+ vm.runInNewContext(script,{document:window.document,Node:window.Node,window,parent:{postMessage(){}},setTimeout:window.setTimeout.bind(window),clearTimeout:window.clearTimeout.bind(window)},{timeout:3000});
+ const error=window.document.querySelector('#error');
+ assert.ok(!error,`Slide ${page} renders: ${error?.textContent||''}`);
+ return window;
 }
 
-test("Git guide opens every step, retains its buttons and uses embedded icons", async () => {
-  for (let page = 14; page < 40; page++) {
-    const window = render(page), document = window.document;
-    try {
-      assert.ok(document.querySelector(".gitIntroSlide"));
-      const buttons = [...document.querySelectorAll(".gitChoice")];
-      assert.ok(buttons.length >= 2 && buttons.length <= 4);
-      if (page === 25) {
-        const download = document.querySelector(".gitGuideLink");
-        assert.equal(download.getAttribute("href"), "/downloads/eiu-advertising-starter.zip");
-        assert.equal(download.getAttribute("download"), "eiu-advertising-starter.zip");
-      }
-      for (const [index, button] of buttons.entries()) {
-        button.click();
-        assert.equal(button.getAttribute("aria-pressed"), "true");
-        assert.equal(document.querySelectorAll('.gitChoice[aria-pressed="true"]').length, 1);
-        assert.equal(document.querySelectorAll(".gitChoice")[index], button);
-        assert.ok(document.querySelector(".gitStepDetail h2").textContent);
-      }
-      assert.ok([...document.querySelectorAll(".gitMark img")].every(image => image.src.startsWith("data:")));
-    } finally { await window.happyDOM.close(); }
+test('section opening orbits four upright icons and shows four concise bullets',async()=>{
+ const window=render(1),doc=window.document;
+ try{
+  const nodes=[...doc.querySelectorAll('.openingnode')];
+  assert.deepEqual(nodes.map(node=>node.querySelector('strong').textContent),['VS Code','Node.js','Git','GitHub']);
+  assert.ok(nodes[1].querySelector('svg'));
+  const orbits=[...doc.querySelectorAll('.openingOrbit')];
+  assert.equal(orbits.length,4);
+  assert.deepEqual(orbits.map(orbit=>orbit.style.animationDelay),['0s','-6.25s','-12.5s','-18.75s']);
+  orbits.forEach((orbit,i)=>assert.ok(orbit.classList.contains('orbit-'+i)));
+  assert.equal(doc.querySelector('.openinglinks circle').getAttribute('r'),'170');
+  assert.equal(doc.querySelector('.openinglinks path'),null);
+  assert.match(doc.querySelector('.openingSubtitle').textContent,/Node.js/);
+  assert.match(doc.querySelector('.openingcopy p').textContent,/Node.js chạy và kiểm tra/);
+  assert.deepEqual([...doc.querySelectorAll('.openingroles>span')].map(item=>item.textContent),['Chỉnh sửa cùng AI','Chạy app với Node.js','Kiểm tra kết quả','Quản lý phiên bản']);
+  assert.equal(doc.querySelector('.openingNodeSummary'),null);
+  assert.equal(doc.querySelector('.openingroles code'),null);
+ }finally{await window.happyDOM.close();}
+});
+
+test('renumbered flow keeps six steps and places Node.js beside VS Code for checking',async()=>{
+ const window=render(3),doc=window.document;
+ try{
+  assert.ok(doc.querySelector('.processSlide'));
+  assert.equal(doc.querySelector('.roleSlide'),null);
+  const steps=[...doc.querySelectorAll('.fixedStep')];
+  assert.equal(steps.length,6);
+  assert.equal(doc.querySelectorAll('.processArrow').length,5);
+  const check=steps[1];
+  assert.equal(check.querySelector('h3').textContent,'Kiểm tra');
+  assert.ok(check.querySelector('[aria-label="Node.js"]'));
+  assert.ok(check.querySelector('img[alt="VS Code"]'));
+  assert.match(check.querySelector('p').textContent,/Chạy app với Node.js/);
+  assert.ok(!slides.some(s=>s.visual==='roles'||s.visual==='features'));
+  assert.equal(slides[3].visual,'workspace-map');
+ }finally{await window.happyDOM.close();}
+});
+
+test('workspace map opens six matching region popups with compact text headers and navy emphasis',async()=>{
+ const window=render(4),doc=window.document;
+ try{
+  const names=[...doc.querySelectorAll('.vscodeName')];
+  const targets=[...doc.querySelectorAll('.vscodeHotspot')];
+  const details=slides.find(s=>s.visual==='workspace-map').regionDetails;
+  assert.equal(names.length,6);assert.equal(targets.length,6);assert.equal(details.length,6);
+  for(let i=0;i<6;i++){
+   names[i].click();
+   const dialog=doc.querySelector('.workspacePopup[role=dialog]');
+   assert.ok(dialog);assert.equal(dialog.getAttribute('aria-modal'),'true');
+   assert.equal(dialog.querySelector('h2').textContent,details[i].title);
+   assert.equal(dialog.querySelector('header img'),null);
+   assert.equal(dialog.querySelector('.workspaceSmallMagnifier'),null);
+   assert.equal(dialog.querySelector('.workspacePopupNumber').textContent,String(i+1).padStart(2,'0'));
+   assert.equal(dialog.querySelector('[tabindex="0"]'),null);
+   const cards=[...dialog.querySelectorAll('.regionCard')];
+   assert.equal(cards.length,details[i].cards.length);
+   cards.forEach((card,j)=>{
+    assert.equal(card.querySelector('h3').textContent,details[i].cards[j].title);
+    const points=[...card.querySelectorAll('.regionBullets li')].map(li=>li.textContent);
+    assert.deepEqual(points,details[i].cards[j].points);
+    assert.ok(points.length>=2&&points.length<=3);
+    assert.equal(card.querySelector('p'),null);
+    if(card.classList.contains('regionEmphasis'))assert.match(window.getComputedStyle(card).backgroundImage,/linear-gradient/,'Emphasized cards keep navy background, including dense Menu');
+   });
+   assert.equal(dialog.querySelectorAll('.regionEmphasis').length,[2,2,3,2,2,6][i]);
+   const close=dialog.querySelector('.workspacePopupClose');
+   assert.equal(doc.activeElement,close);
+   close.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));
+   assert.equal(doc.activeElement,close);
+   close.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+   assert.equal(doc.querySelector('.workspacePopup'),null);assert.equal(doc.activeElement,names[i]);
+   targets[i].click();
+   assert.equal(doc.querySelector('.workspacePopup h2').textContent,details[i].title);
+   doc.querySelector('.workspacePopupOverlay').click();
+   assert.equal(doc.querySelector('.workspacePopup'),null);assert.equal(doc.activeElement,targets[i]);
   }
+ }finally{await window.happyDOM.close();}
 });
 
-test("signup uses Google and Git authentication needs no GitHub extension", async () => {
-  const signup = render(19), signin = render(21), web = render(23), publish = render(35);
-  try {
-    assert.equal(signup.document.querySelector(".gitGuideLink").href, "https://github.com/signup");
-    assert.equal(signup.document.querySelector(".gitGuideLink").target, "_blank");
-    assert.match(signup.document.querySelector(".gitStepDetail").textContent, /Continue with Google/);
-    assert.match(signin.document.querySelector(".gitGuideLink").href, /caching-your-github-credentials-in-git/);
-    assert.match(signin.document.querySelector(".gitStepDetail").textContent, /không cài extension GitHub/);
-    assert.equal(web.document.querySelector(".gitGuideLink").href, "https://github.com/new");
-    assert.match(publish.document.querySelector(".gitStepDetail").textContent, /Không bật README/);
-    publish.document.querySelectorAll(".gitChoice")[2].click();
-    assert.match(publish.document.querySelector(".gitSceneCode").textContent, /git push -u origin main/);
-    assert.match(source, /git --version/);
-    assert.match(source, /Git from the command line and also from 3rd-party software/);
-    assert.match(source, /prefers-reduced-motion/);
-  } finally { for (const window of [signup, signin, web, publish]) await window.happyDOM.close(); }
+test('all revised steps retain navigation, update details and use embedded logos',async()=>{
+ for(const slide of slides.slice(7,-1)){
+  const window=render(slide.number), doc=window.document;
+  try{
+   assert.ok(doc.querySelector('.gitIntroSlide'));
+   const buttons=[...doc.querySelectorAll('.gitChoice')];
+   assert.equal(buttons.length,slide.cards.length);
+   for(const [i,button] of buttons.entries()){
+    button.click();
+    assert.equal(doc.querySelectorAll('.gitChoice')[i],button);
+    assert.equal(doc.querySelectorAll('.gitChoice[aria-pressed=true]').length,1);
+    assert.equal(doc.querySelector('.gitStepDetail h2').textContent,slide.cards[i].title);
+    assert.equal(doc.querySelectorAll('.gitToolTag[data-active=true]').length,1);
+    assert.ok([...doc.querySelectorAll('.gitMark img')].every(img=>img.src.startsWith('data:')));
+   }
+  }finally{await window.happyDOM.close();}
+ }
 });
 
-test("Git lessons use centered feature layout, concise headings and self-contained instructions", async () => {
-  const slides = JSON.parse(fs.readFileSync('course-content/web-app-development/storyboard.json', 'utf8')).slides;
-  for (let page = 14; page <= 39; page++) {
-    const data = slides.find(s => s.section === 1 && s.number === page);
-    assert.doesNotMatch(JSON.stringify(data.cards), /\bslides?\b/i);
-    const window = render(page);
-    try {
-      const focusedTools = {14: ['Git'], 15: ['GitHub'], 16: ['Git', 'VS Code'], 17: ['Git', 'VS Code'], 18: ['Git', 'VS Code'], 19: ['GitHub']};
-      assert.deepEqual([...window.document.querySelectorAll('.gitToolTag strong')].map(el => el.textContent), focusedTools[page] || ['Git', 'VS Code', 'GitHub']);
-      for (const button of window.document.querySelectorAll('.gitChoice')) {
-        button.click();
-        assert.ok(window.document.querySelector('.gitFacts'));
-        assert.ok(window.document.querySelectorAll('.gitFact').length >= 1);
-        assert.ok(window.document.querySelector('.gitStepDetail h2').textContent.length <= 30);
-        assert.equal(window.document.querySelectorAll('.gitToolTag[data-active="true"]').length, 1);
-      }
-    } finally { await window.happyDOM.close(); }
+test('Node.js/Git/GitHub overview explains their relationship and preserves all three popups',async()=>{
+ const window=render(6),doc=window.document;
+ try{
+  const choices=[...doc.querySelectorAll('.gitOverviewChoice')];
+  assert.equal(choices.length,3);
+  assert.deepEqual(choices.map(choice=>choice.querySelector('h2').textContent),['Node.js','Git','GitHub']);
+  assert.ok(doc.querySelector('.gitTrioFlow').textContent.includes('Pull / Clone'));
+  assert.ok(doc.querySelector('.gitTrioFlow').textContent.includes('npm install'));
+  assert.equal(doc.querySelectorAll('.gitTrioRoute .gitMark').length,3);
+  assert.match(doc.querySelector('.gitTrioReturn').textContent,/Chiều về: GitHub → Pull \/ Clone bằng Git/);
+  assert.equal(doc.querySelector('[role=dialog]'),null);
+  choices[0].click();
+  let dialog=doc.querySelector('[role=dialog]');
+  assert.match(dialog.querySelector('h2').textContent,/Node.js/);
+  assert.equal(dialog.querySelectorAll('.gitPopupCard').length,3);
+  for(const phrase of ['JavaScript','package.json','node --version','npm --version','npm install','npm run dev','npm test','npm run build'])assert.ok(dialog.textContent.includes(phrase),phrase);
+  assert.equal(dialog.querySelector('a').href,'https://nodejs.org/learn/getting-started/introduction-to-nodejs');
+  dialog.querySelector('.gitPopupClose').click();
+  assert.equal(doc.activeElement,choices[0]);
+  choices[1].click();
+  dialog=doc.querySelector('[role=dialog]');
+  assert.equal(dialog.getAttribute('aria-modal'),'true');
+  assert.equal(dialog.querySelectorAll('.gitPopupCard').length,3);
+  for(const command of ['git --version','git status','git diff','git log -3 --oneline'])assert.ok(dialog.textContent.includes(command));
+  assert.ok(dialog.textContent.includes('Ctrl+Shift+G'));
+  const close=dialog.querySelector('button');
+  assert.equal(doc.activeElement,close);
+  close.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));
+  assert.equal(doc.activeElement,close);
+  close.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+  assert.equal(doc.querySelector('[role=dialog]'),null);
+  assert.equal(doc.activeElement,choices[1]);
+  choices[2].click();
+  dialog=doc.querySelector('[role=dialog]');
+  assert.equal(dialog.querySelectorAll('.gitPopupCard').length,3);
+  for(const phrase of ['Issues','Pull Request','Actions','LICENSE','.gitignore'])assert.ok(dialog.textContent.includes(phrase));
+  const link=dialog.querySelector('a');
+  assert.equal(link.href,'https://github.com/explore');
+  link.focus();
+  link.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true}));
+  assert.equal(doc.activeElement,dialog.querySelector('button'));
+  dialog.querySelector('button').click();
+  assert.equal(doc.activeElement,choices[2]);
+  choices[0].click();
+  doc.querySelector('.gitPopupOverlay').click();
+  assert.equal(doc.querySelector('[role=dialog]'),null);
+ }finally{await window.happyDOM.close();}
+});
+
+test('setup popup covers all four tools, links, commands and configuration steps',async()=>{
+ const window=render(7),doc=window.document;
+ const data=slides.find(s=>s.number===7);
+ try{
+  const choices=[...doc.querySelectorAll('.gitOverviewChoice')];
+  assert.equal(choices.length,4);
+  for(const [index,name] of ['VS Code','Node.js','Git','GitHub'].entries()){
+   choices[index].click();
+   const dialog=doc.querySelector('[role=dialog]');
+   assert.ok(dialog.textContent.includes(name));
+   const steps=[...dialog.querySelectorAll('.gitSetupStep')];
+   const cards=data.cards.filter(c=>c.label===name);
+   assert.equal(steps.length,cards.length);
+   for(const [i,step] of steps.entries()){
+    step.click();
+    assert.equal(dialog.querySelectorAll('.gitSetupStep[aria-pressed=true]').length,1);
+    const detail=dialog.querySelector('.gitSetupDetail');
+    assert.equal(detail.querySelector('h3').textContent,cards[i].title);
+    assert.ok(detail.textContent.includes(cards[i].text));
+    if(cards[i].code||cards[i].installationOption)assert.equal(detail.querySelector('pre').textContent,cards[i].code||cards[i].installationOption);
+    if(cards[i].link){assert.equal(detail.querySelector('a').href,cards[i].link);assert.equal(detail.querySelector('a').target,'_blank');}
+   }
+   dialog.querySelector('.gitPopupClose').click();
+   assert.equal(doc.querySelector('[role=dialog]'),null);
+   assert.equal(doc.activeElement,choices[index]);
   }
+  for(const command of ['code --version','where.exe code','code .','node --version','npm --version','git --version','where.exe git','git credential-manager --version','git config --global user.name','git config --global user.email','git ls-remote']) assert.ok(data.cards.some(c=>c.code?.includes(command)),command);
+  assert.ok(data.cards.some(c=>c.label==='GitHub'&&c.detail.includes('không chứng minh đã đăng nhập')));
+ }finally{await window.happyDOM.close();}
 });
 
-test("terminal guide includes installation checks and complete Git command workflows", async () => {
-  const expected = new Map([
-    [18, ['git --version', 'where.exe git', 'git credential-manager --version']],
-    [20, ['git config --global user.name', 'git config --global init.defaultBranch', 'git config --global --get user.email']],
-    [24, ['git clone https://github.com/USERNAME/webapp-web.git', 'cd webapp-web', 'git remote -v']],
-    [34, ['git init -b main', 'git add .', 'git commit -m']],
-    [35, ['git remote add origin', 'git push -u origin main']],
-    [37, ['git diff', 'git diff --cached --stat', 'git push -u origin feature/landing-refresh']],
-    [38, ['git status', 'git pull --ff-only origin main', 'git log -3 --oneline']],
-  ]);
-  for (const [page, commands] of expected) {
-    const window = render(page);
-    try {
-      let content = '';
-      for (const button of window.document.querySelectorAll('.gitChoice')) {
-        button.click();
-        content += window.document.querySelector('.gitDetail').textContent + '\n';
-      }
-      for (const command of commands) assert.ok(content.includes(command), `Slide ${page}: ${command}`);
-      assert.doesNotMatch(content, /Publish to GitHub|Initialize Repository|GitHub\.vscode-pull-request-github/);
-    } finally { await window.happyDOM.close(); }
-  }
+test('download uses existing ZIP and the copyable prompt preserves app behavior',async()=>{
+ const download=render(11), edit=render(14);
+ try{
+  const link=download.document.querySelector('.gitGuideLink');
+  assert.equal(link.getAttribute('href'),'/downloads/eiu-advertising-starter.zip');
+  assert.equal(link.getAttribute('download'),'eiu-advertising-starter.zip');
+  assert.ok(fs.existsSync('public'+link.getAttribute('href')));
+  edit.document.querySelectorAll('.gitChoice')[1].click();
+  const prompt=edit.document.querySelector('textarea');
+  assert.ok(prompt.readOnly);
+  for(const phrase of ['Bối cảnh:','Mục tiêu:','Phạm vi:','Thiết kế:','Kiểm tra:','Đầu ra:','data/site.js','components/MarketingSite.js','npm test','npm run build','responsive','Không thêm dịch vụ']) assert.ok(prompt.value.includes(phrase),phrase);
+  edit.document.execCommand=()=>false;
+  edit.document.querySelector('.promptpanel button').click();
+  assert.match(edit.document.querySelector('.promptpanel').textContent,/Ctrl\+C/);
+ }finally{await download.happyDOM.close();await edit.happyDOM.close();}
 });
 
-test("final self-check provides feedback and remains registered for live display", async () => {
-  const window = render(40);
-  try {
-    const buttons = [...window.document.querySelectorAll(".choices button")];
-    assert.equal(buttons.length, 2);
-    buttons[0].click();
-    assert.match(window.document.querySelector(".feedback").textContent, /Commit|đúng|Đúng/);
-    const bindings = JSON.parse(fs.readFileSync("course-content/sources.json", "utf8"));
-    assert.ok(bindings.some(binding => binding.courseId === "a857595d-def0-4543-9216-a680c6abfe26" && binding.sectionId === "47c1183e-a26e-4c5d-9937-88ec5a755a32" && binding.path === "course-content/web-app-development/Section1.tsx"));
-  } finally { await window.happyDOM.close(); }
+test('the two AI tools expose tradeoffs with separate scoped themes',async()=>{
+ for(const [page,theme] of [[8,'antigravity'],[9,'codex']]){
+  const window=render(page);
+  try{
+   assert.equal(window.document.querySelector('.gitLesson').getAttribute('data-ai'),theme);
+   assert.equal(window.document.querySelector('.gitStepDetail h2').textContent,'Ưu điểm');
+   window.document.querySelectorAll('.gitChoice')[1].click();
+   assert.equal(window.document.querySelector('.gitStepDetail h2').textContent,'Điểm cần cân nhắc');
+  }finally{await window.happyDOM.close();}
+ }
+ const note=slides.find(s=>s.number===15).cards.map(c=>c.text+' '+c.detail).join(' ');
+ assert.match(note,/một số model/);
+ assert.match(note,/công cụ.*quyền/);
+ assert.match(note,/không phải tất cả model/);
 });
 
-test("narrative uses the ZIP project once and finishes with the complete self-check", () => {
-  const slides = JSON.parse(fs.readFileSync("course-content/web-app-development/storyboard.json", "utf8")).slides.filter(s => s.section === 1);
-  assert.equal(slides.length, 40);
-  const modes = slides.slice(13).map(s => s.visual);
-  for (const mode of ["starter", "initialize", "publish", "push-code", "quiz"]) {
-    assert.equal(modes.filter(value => value === `git-intro-${mode}`).length, 1, mode);
-  }
-  assert.ok(modes.indexOf("git-intro-signin") < modes.indexOf("git-intro-web-create"));
-  assert.ok(modes.indexOf("git-intro-build") < modes.indexOf("git-intro-initialize"));
-  assert.ok(modes.indexOf("git-intro-branch-choice") < modes.indexOf("git-intro-push-code"));
-  assert.equal(slides.at(-1).visual, "git-intro-quiz");
-  assert.ok(!slides.some(s => s.title === "Thực hành · hoàn thành cả hai cách"));
+test('setup and practice lead to complete Push, Pull and Clone workflows',()=>{
+ const commands=new Map([
+  [6,['git --version','git status','git diff']],
+  [7,['where.exe git','git credential-manager --version']],
+  [7,['git config --global user.name','git config --global user.email']],
+  [12,['npm install','npm run dev']],
+  [16,['npm test','npm run build','npm run start']],
+  [17,['git init -b main','git add .','git diff --cached','git commit -m']],
+  [18,['git remote add origin','git remote -v','git push -u origin main']],
+  [19,['git branch --show-current','git diff','git commit -m','git push']],
+  [20,['git status','git pull --ff-only origin main','git log','git clone https://github.com/USERNAME/eiu-advertising-starter.git']]
+ ]);
+ for(const [page,values] of commands){
+  const data=JSON.stringify(slides.find(s=>s.number===page));
+  for(const value of values) assert.ok(data.includes(value),`Slide ${page}: ${value}`);
+ }
+ assert.equal(slides.length,21);
+ assert.equal(slides[10].visual,'git-intro-starter');
+ assert.equal(slides[15].visual,'git-intro-build');
+ assert.equal(slides[16].visual,'git-intro-initialize');
+ assert.equal(slides.at(-1).visual,'git-intro-quiz');
+ assert.ok(!slides.slice(5).some(s=>JSON.stringify(s).includes('webapp-web')));
+ assert.match(JSON.stringify(slides[17]),/Không bật README/);
+ assert.match(JSON.stringify(slides[6]),/không cài extension GitHub/);
+});
+
+test('quiz gives feedback and the source remains registered for live display',async()=>{
+ const window=render(21);
+ try{
+  window.document.querySelector('.choices button').click();
+  assert.match(window.document.querySelector('.feedback').textContent,/Phù hợp/);
+  const bindings=JSON.parse(fs.readFileSync('course-content/sources.json','utf8'));
+  assert.ok(bindings.some(b=>b.courseId==='a857595d-def0-4543-9216-a680c6abfe26'&&b.sectionId==='47c1183e-a26e-4c5d-9937-88ec5a755a32'&&b.path==='course-content/web-app-development/Section1.tsx'));
+ }finally{await window.happyDOM.close();}
 });
