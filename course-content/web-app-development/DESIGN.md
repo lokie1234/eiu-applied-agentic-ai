@@ -1,5 +1,39 @@
 # Mẫu thiết kế đã được người dùng chọn
 
+## Chỉnh bộ slide VS Code · 15/10/2026
+
+Khung số 4 ở bản đồ slide 4 đổi tên thành “Trình soạn thảo”, phụ đề “Editor · các tab ở giữa”, để không trùng cách gọi trong tiêu đề slide. Giữ nguyên tọa độ, popup và hiệu ứng xuất hiện.
+
+Slide 4: sáu vùng khoanh đỏ xuất hiện lần lượt 1→6 khi mở slide. Mỗi nhóm gồm đường khoanh, vòng tròn số và chữ số cùng fade-in 0.5s; bắt đầu sau 0.25s, các vùng cách nhau 0.65s, hoàn tất ở giây 4. Không dịch vị trí hoặc lặp lại animation khi đóng popup. Giữ các khung tên vùng và tương tác sẵn có. Reduced motion hiển thị đủ sáu vùng ngay.
+
+Icon slide 3 lơ lửng trung bình: riêng bảy icon công cụ trong sáu bước dịch dọc từ +3px đến −6px, xoay ±2°, chu kỳ 4s lệch nhịp. Không áp animation lặp cho khung, chữ hoặc số bước; tránh animate kép ảnh bên trong gitMark. Reduced motion tắt hiệu ứng. Đã kiểm tra cả chu kỳ không đè tiêu đề.
+
+Tăng hiệu ứng tên model slide 8–9: chữ đậm 700, Antigravity chuyển sắc nhanh hơn (2.8s), phóng 6% và nhấc 3px theo chu kỳ 3.2s, thêm glow xanh–tím và gạch chân sáng co/giãn. Codex phóng 5.5%, ánh mint rõ hơn tới gần trắng, gạch chân neon và cursor 10×26px sáng theo chu kỳ 1.6s. Các dòng lệch nhịp để dễ nhận biết; không thay kích thước bố cục. Đã kiểm tra chuyển động không đè mô tả hoặc cursor. Reduced motion tắt cả hiệu ứng tên và gạch chân.
+
+Cột trái slide 8–9: tiêu đề hero 52px trên hai dòng có chủ đích, mô tả ngắn một dòng. Ba mục 01–03 nằm trong ba khung riêng khoảng 100px, gap 10px; badge số 34px, tiêu đề 19px một dòng và hai ý mô tả 17px trên hai dòng riêng, không ngắt câu tùy tiện. Antigravity dùng khung trắng/xanh–tím, viền trái lavender; Codex dùng khung graphite, viền và badge mint. Giữ logo lơ lửng và animation model. Đã kiểm tra sau khi tải font: từng tiêu đề/ý đều đúng một dòng, không tràn, lề dưới 63px.
+
+Cập nhật logo slide 8–9: phóng từ 52px lên 88px, header cao 96px, cách tên AI 30px. Logo lơ lửng mạnh theo chu kỳ 4.8s/5.2s: dịch dọc từ +10px đến −16px, lệch ngang tối đa 8px, xoay −5° đến +7°. Không animate tên hoặc cả header. Main cách header 20px; hai slide còn lề dưới 68px. Đã kiểm tra 261 thời điểm trong chu kỳ: logo không đè tên hoặc tiêu đề nội dung. Tắt chuyển động khi reduced motion.
+
+Slide 8–9 theo yêu cầu mới dùng phong cách riêng của AI, không còn khung EIU: Antigravity trắng lạnh, ánh xanh/tím và nét bốn màu; Codex graphite, chữ trắng, điểm nhấn mint và monospace. Bố cục toàn slide 1280×720: logo/tên trên, ưu điểm bên trái, model bên phải. Giữ khoảng trống dưới ít nhất 40px sau khi font tải xong, không cuộn hoặc cắt nội dung. Nội dung/model và điều kiện theo nguồn chính thức ngày 15/10/2026: Antigravity Gemini 3.8 Flash, Sonnet/Opus 5.5 Thinking và Gemini 4 Argon; Codex GPT-6 Astra, GPT-6.1 Sol, GPT-6 Luna. Theo yêu cầu mới nhất, bỏ toàn bộ link, dòng MODEL SNAPSHOT / 15.10.2026 và tiêu đề Một số model đang có khỏi hai slide. Hai cột cân giữa theo chiều cao, khung model tối thiểu 492px; bản render có lề dưới 80px. Tên model Antigravity 26px chuyển sắc xanh–tím và nổi nhẹ lệch nhịp; Codex monospace 26px ánh mint theo nhịp, có cursor terminal mờ/sáng chậm. Reduced motion giữ tên tĩnh. Không quay về hai tab ưu/nhược điểm hoặc áp viền navy–vàng cho hai slide này.
+
+Nguồn kiểm chứng (chỉ lưu ở tài liệu thiết kế, không nhúng link vào slide): https://www.antigravity.google/docs/models/ ; https://www.antigravity.google/docs/ide/extensions/vscode/ ; https://learn.chatgpt.com/docs/models ; https://learn.chatgpt.com/docs/ide .
+
+Sau slide 9 (Codex), chèn slide chuyển phần số 10: “Lab 3” và “Thực hành thiết kế website và đẩy mã nguồn lên GitHub.” Theo ảnh mẫu Lab: nền navy xanh, khung lớn bo góc viền vàng mờ, nhãn AI-POWERED WEB DEVELOPMENT màu vàng, tiêu đề trắng lớn, mô tả xám sáng, vòng tròn đồng tâm góc phải và đường cong nét đứt. Không thêm header/footer. Các slide 10–21 cũ thành 11–22; section hiện có 22 slide.
+
+Slide Lab 3 có chuyển động liên tục: vòng nét đứt xoay chậm, các vòng đồng tâm co giãn lệch nhịp, đường cong chạy nét đứt, vòng dưới và điểm sáng trôi nhẹ. Chữ Lab 3 phóng nhẹ 2.5%, phát ánh vàng và có gạch chân sáng theo chu kỳ 4.2 giây. Nhãn và mô tả xuất hiện nhẹ khi mở slide. Tắt toàn bộ animation khi prefers-reduced-motion, giữ nội dung và điểm nhấn tĩnh.
+
+Người dùng xác nhận bộ slide VS Code trong `Section1.tsx` là bộ được gọi là section 2 trong yêu cầu này. Giữ binding đã đăng ký trong `course-content/sources.json`.
+
+Slide 1: bốn cụm VS Code, Node.js, Git và GitHub cùng xoay trên vòng tròn bán kính 170px, cách nhau 90°. Phóng mỗi khung icon lên 128px; logo Node.js/Git/GitHub 96px, nhãn 22px. Trong khung VS Code dùng lưới hai hàng: VS Code chính 76px phía trên, Codex và Antigravity phụ 24px trong hai badge 30px phía dưới, cách hàng trên 8px. Không dùng định vị chồng logo. Hai AI không có quỹ đạo hoặc nhãn ngoài riêng. Counter-rotate giữ cả cụm và nhãn thẳng; reduced motion giữ bốn vị trí. Đã kiểm tra 180 vị trí trong vòng xoay: các cụm và ba logo không chồng nhau, logo không tràn khung.
+
+Slide 2: cả bốn khung nền kem, giữ timeline, icon navy–vàng và nhãn thao tác. Slide 3: cả sáu khung quy trình nền kem, tiêu đề navy và mô tả xanh xám. Slide 4: sáu nút tên vùng bên phải nền kem, tiêu đề navy, giữ badge navy–vàng và hành vi popup.
+
+Slide 4: rê chuột vào khung tên vùng làm riêng khung đó sáng viền vàng, đổi nền kem ấm, tăng bóng và nhích nhẹ lên/trái; badge số đổi sang nền vàng chữ navy. Áp dụng cùng dấu hiệu cho focus bàn phím, có phản hồi khi nhấn. Chuyển tiếp 200ms; reduced motion tắt chuyển tiếp và dịch chuyển, giữ phản hồi màu/viền.
+
+Slide 6–7: các khung mở popup có hover/focus tương tự: sáng viền vàng, tăng bóng, nhích lên 3px và phủ ánh vàng nhẹ; nhãn mở nội dung đổi sang nền vàng chữ navy. Giữ nền kem/navy và màu chữ của từng khung. Khi nhấn hạ khung nhẹ; reduced motion giữ dấu hiệu màu/viền, tắt chuyển tiếp và dịch chuyển.
+
+Slide 6 chỉ giới thiệu vai trò Node.js, npm, Git và GitHub cùng cách phối hợp, không chứa khối lệnh thực hành. Slide 7 giữ thiết kế bốn khung chọn và popup, chia rõ tải/cài và kiểm tra trong Terminal VS Code. Lệnh nhập và ví dụ kết quả đạt nằm riêng; phiên bản, mã commit, kiến trúc và đường dẫn được ghi rõ là minh họa. Có hướng xử lý PATH, npm.ps1 và Git Credential Manager. GitHub dùng trình duyệt; kiểm tra repo public chỉ chứng minh kết nối, xác thực quyền repo thực hiện khi Push/Clone private.
+
 ## Flow đang áp dụng · 14/10/2026
 
 Đã bỏ slide 3 (vai trò) và 4 (tính năng) cũ. Slide flow 5 cũ thành slide 3, giữ sáu ô 3×2 và mũi tên; icon Node.js đặt cùng VS Code trong header bước Kiểm tra, kích thước 46px. Nhận diện role/feature/process bằng visual, không theo số slide. Các slide sau giảm hai số; Section 1 hiện 21 slide. Các số slide trong lịch sử bên dưới là số cũ.

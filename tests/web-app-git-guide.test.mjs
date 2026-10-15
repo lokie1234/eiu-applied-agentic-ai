@@ -20,7 +20,7 @@ function render(page){
  return window;
 }
 
-test('section opening orbits four upright icons and shows four concise bullets',async()=>{
+test('section opening orbits four groups with two supporting AI icons inside VS Code',async()=>{
  const window=render(1),doc=window.document;
  try{
   const nodes=[...doc.querySelectorAll('.openingnode')];
@@ -28,8 +28,12 @@ test('section opening orbits four upright icons and shows four concise bullets',
   assert.ok(nodes[1].querySelector('svg'));
   const orbits=[...doc.querySelectorAll('.openingOrbit')];
   assert.equal(orbits.length,4);
-  assert.deepEqual(orbits.map(orbit=>orbit.style.animationDelay),['0s','-6.25s','-12.5s','-18.75s']);
-  orbits.forEach((orbit,i)=>assert.ok(orbit.classList.contains('orbit-'+i)));
+  assert.deepEqual(orbits.map(orbit=>Number.parseFloat(orbit.style.animationDelay)),[0,-6.25,-12.5,-18.75]);
+  orbits.slice(0,4).forEach((orbit,i)=>assert.ok(orbit.classList.contains('orbit-'+i)));
+  const cluster=nodes[0].querySelector('.vscodeAICluster');
+  assert.deepEqual([...cluster.querySelectorAll('img')].map(img=>img.alt),['VS Code','Codex','Antigravity']);
+  assert.equal(cluster.querySelectorAll('.openingAISupport').length,2);
+  assert.equal(doc.querySelector('.openingAIOrbit'),null);
   assert.equal(doc.querySelector('.openinglinks circle').getAttribute('r'),'170');
   assert.equal(doc.querySelector('.openinglinks path'),null);
   assert.match(doc.querySelector('.openingSubtitle').textContent,/Node.js/);
@@ -100,7 +104,7 @@ test('workspace map opens six matching region popups with compact text headers a
 });
 
 test('all revised steps retain navigation, update details and use embedded logos',async()=>{
- for(const slide of slides.slice(7,-1)){
+ for(const slide of slides.slice(7,-1).filter(s=>!['lab-divider','git-intro-ai-antigravity','git-intro-ai-codex'].includes(s.visual))){
   const window=render(slide.number), doc=window.document;
   try{
    assert.ok(doc.querySelector('.gitIntroSlide'));
@@ -133,7 +137,8 @@ test('Node.js/Git/GitHub overview explains their relationship and preserves all 
   let dialog=doc.querySelector('[role=dialog]');
   assert.match(dialog.querySelector('h2').textContent,/Node.js/);
   assert.equal(dialog.querySelectorAll('.gitPopupCard').length,3);
-  for(const phrase of ['JavaScript','package.json','node --version','npm --version','npm install','npm run dev','npm test','npm run build'])assert.ok(dialog.textContent.includes(phrase),phrase);
+  for(const phrase of ['JavaScript','package.json','npm','Kiểm tra'])assert.ok(dialog.textContent.includes(phrase),phrase);
+  assert.equal(dialog.querySelector('pre'),null);
   assert.equal(dialog.querySelector('a').href,'https://nodejs.org/learn/getting-started/introduction-to-nodejs');
   dialog.querySelector('.gitPopupClose').click();
   assert.equal(doc.activeElement,choices[0]);
@@ -141,7 +146,8 @@ test('Node.js/Git/GitHub overview explains their relationship and preserves all 
   dialog=doc.querySelector('[role=dialog]');
   assert.equal(dialog.getAttribute('aria-modal'),'true');
   assert.equal(dialog.querySelectorAll('.gitPopupCard').length,3);
-  for(const command of ['git --version','git status','git diff','git log -3 --oneline'])assert.ok(dialog.textContent.includes(command));
+  assert.equal(dialog.querySelector('pre'),null);
+  assert.ok(dialog.textContent.includes('Commit'));
   assert.ok(dialog.textContent.includes('Ctrl+Shift+G'));
   const close=dialog.querySelector('button');
   assert.equal(doc.activeElement,close);
@@ -187,19 +193,20 @@ test('setup popup covers all four tools, links, commands and configuration steps
     assert.equal(detail.querySelector('h3').textContent,cards[i].title);
     assert.ok(detail.textContent.includes(cards[i].text));
     if(cards[i].code||cards[i].installationOption)assert.equal(detail.querySelector('pre').textContent,cards[i].code||cards[i].installationOption);
+    if(cards[i].output)assert.equal(detail.querySelector('.gitTerminalResult pre').textContent,cards[i].output);
     if(cards[i].link){assert.equal(detail.querySelector('a').href,cards[i].link);assert.equal(detail.querySelector('a').target,'_blank');}
    }
    dialog.querySelector('.gitPopupClose').click();
    assert.equal(doc.querySelector('[role=dialog]'),null);
    assert.equal(doc.activeElement,choices[index]);
   }
-  for(const command of ['code --version','where.exe code','code .','node --version','npm --version','git --version','where.exe git','git credential-manager --version','git config --global user.name','git config --global user.email','git ls-remote']) assert.ok(data.cards.some(c=>c.code?.includes(command)),command);
-  assert.ok(data.cards.some(c=>c.label==='GitHub'&&c.detail.includes('không chứng minh đã đăng nhập')));
+  for(const command of ['code --version','where.exe code','node --version','npm --version','git --version','where.exe git','git credential-manager --version','git config --global user.name','git config --global user.email','git ls-remote']) assert.ok(data.cards.some(c=>c.code?.includes(command)),command);
+  assert.ok(data.cards.some(c=>c.label==='GitHub'&&c.detail.includes('không xác minh đăng nhập')));
  }finally{await window.happyDOM.close();}
 });
 
 test('download uses existing ZIP and the copyable prompt preserves app behavior',async()=>{
- const download=render(11), edit=render(14);
+ const download=render(12), edit=render(15);
  try{
   const link=download.document.querySelector('.gitGuideLink');
   assert.equal(link.getAttribute('href'),'/downloads/eiu-advertising-starter.zip');
@@ -215,17 +222,22 @@ test('download uses existing ZIP and the copyable prompt preserves app behavior'
  }finally{await download.happyDOM.close();await edit.happyDOM.close();}
 });
 
-test('the two AI tools expose tradeoffs with separate scoped themes',async()=>{
+test('the two AI tools show advantages and styled model names without embedded links or model headings',async()=>{
  for(const [page,theme] of [[8,'antigravity'],[9,'codex']]){
   const window=render(page);
   try{
-   assert.equal(window.document.querySelector('.gitLesson').getAttribute('data-ai'),theme);
-   assert.equal(window.document.querySelector('.gitStepDetail h2').textContent,'Ưu điểm');
-   window.document.querySelectorAll('.gitChoice')[1].click();
-   assert.equal(window.document.querySelector('.gitStepDetail h2').textContent,'Điểm cần cân nhắc');
+   const doc=window.document;
+   assert.equal(doc.querySelector('.aiBrandSlide').getAttribute('data-ai'),theme);
+   assert.equal(doc.querySelector('.eiu'),null);
+   assert.equal(doc.querySelectorAll('.aiBrandBenefit').length,3);
+   assert.equal(doc.querySelectorAll('.aiModelRow').length,theme==='antigravity'?4:3);
+   assert.equal(doc.querySelector('a'),null);
+   assert.equal(doc.querySelector('.aiModelEyebrow'),null);
+   assert.equal(doc.querySelector('.aiModelPanel>h2'),null);
+   assert.equal(doc.querySelectorAll('.aiModelName').length,theme==='antigravity'?4:3);
   }finally{await window.happyDOM.close();}
  }
- const note=slides.find(s=>s.number===15).cards.map(c=>c.text+' '+c.detail).join(' ');
+ const note=slides.find(s=>s.number===16).cards.map(c=>c.text+' '+c.detail).join(' ');
  assert.match(note,/một số model/);
  assert.match(note,/công cụ.*quyền/);
  assert.match(note,/không phải tất cả model/);
@@ -233,32 +245,35 @@ test('the two AI tools expose tradeoffs with separate scoped themes',async()=>{
 
 test('setup and practice lead to complete Push, Pull and Clone workflows',()=>{
  const commands=new Map([
-  [6,['git --version','git status','git diff']],
   [7,['where.exe git','git credential-manager --version']],
   [7,['git config --global user.name','git config --global user.email']],
-  [12,['npm install','npm run dev']],
-  [16,['npm test','npm run build','npm run start']],
-  [17,['git init -b main','git add .','git diff --cached','git commit -m']],
-  [18,['git remote add origin','git remote -v','git push -u origin main']],
-  [19,['git branch --show-current','git diff','git commit -m','git push']],
-  [20,['git status','git pull --ff-only origin main','git log','git clone https://github.com/USERNAME/eiu-advertising-starter.git']]
+  [13,['npm install','npm run dev']],
+  [17,['npm test','npm run build','npm run start']],
+  [18,['git init -b main','git add .','git diff --cached','git commit -m']],
+  [19,['git remote add origin','git remote -v','git push -u origin main']],
+  [20,['git branch --show-current','git diff','git commit -m','git push']],
+  [21,['git status','git pull --ff-only origin main','git log','git clone https://github.com/USERNAME/eiu-advertising-starter.git']]
  ]);
  for(const [page,values] of commands){
   const data=JSON.stringify(slides.find(s=>s.number===page));
   for(const value of values) assert.ok(data.includes(value),`Slide ${page}: ${value}`);
  }
- assert.equal(slides.length,21);
- assert.equal(slides[10].visual,'git-intro-starter');
- assert.equal(slides[15].visual,'git-intro-build');
- assert.equal(slides[16].visual,'git-intro-initialize');
+ assert.equal(slides.length,22);
+ assert.equal(slides[8].visual,'git-intro-ai-codex');
+ assert.equal(slides[9].visual,'lab-divider');
+ assert.equal(slides[9].title,'Lab 3');
+ assert.equal(slides[10].visual,'git-intro-ai-setup');
+ assert.equal(slides[11].visual,'git-intro-starter');
+ assert.equal(slides[16].visual,'git-intro-build');
+ assert.equal(slides[17].visual,'git-intro-initialize');
  assert.equal(slides.at(-1).visual,'git-intro-quiz');
  assert.ok(!slides.slice(5).some(s=>JSON.stringify(s).includes('webapp-web')));
- assert.match(JSON.stringify(slides[17]),/Không bật README/);
- assert.match(JSON.stringify(slides[6]),/không cài extension GitHub/);
+ assert.match(JSON.stringify(slides[18]),/Không bật README/);
+ assert.match(JSON.stringify(slides[6]),/không cần cài GitHub Desktop hoặc extension GitHub/);
 });
 
 test('quiz gives feedback and the source remains registered for live display',async()=>{
- const window=render(21);
+ const window=render(22);
  try{
   window.document.querySelector('.choices button').click();
   assert.match(window.document.querySelector('.feedback').textContent,/Phù hợp/);

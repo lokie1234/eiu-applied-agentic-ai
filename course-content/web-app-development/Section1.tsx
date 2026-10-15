@@ -1,6 +1,6 @@
 // This source runs inside EIU's isolated TSX frame. No imports or remote assets.
 declare function h(tag: string, props: Record<string, unknown> | null, ...children: unknown[]): any;
-type Card = { title: string; text: string; label?: string; logo?: string; detail?: string; points?: string[]; code?: string; installationOption?: string; prompt?: string; link?: string; linkLabel?: string };
+type Card = { title: string; text: string; label?: string; logo?: string; detail?: string; points?: string[]; code?: string; installationOption?: string; output?: string; prompt?: string; link?: string; linkLabel?: string };
 type SlideData = { section: number; number: number; title: string; minutes: number; message: string; cards: Card[]; visual: string; note: string; verify: string; objective: string; visualConcept: string; prompt?: string; checks?: string[]; regionDetails?: SlideData[] };
 // Nội dung phần 1: chỉnh các slide trong mảng bên dưới.
 const course: { title: string; summary: string; slides: SlideData[] } = {
@@ -35,7 +35,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Từ chỉnh sửa trên máy đến mã nguồn được quản lý rõ ràng.",
       "objective": "Từ chỉnh sửa trên máy đến mã nguồn được quản lý rõ ràng.",
-      "visualConcept": "Bốn icon VS Code, Node.js, Git, GitHub chạy cùng tốc độ trên vòng tròn bán kính 170px; counter-rotate giữ icon/chữ thẳng. Bốn bullet ngắn: Chỉnh sửa cùng AI; Chạy app với Node.js; Kiểm tra kết quả; Quản lý phiên bản. Không có đoạn Node.js dài hay lệnh trên cover. Reduced motion giữ icon ở bốn góc vòng tròn."
+      "visualConcept": "Bốn cụm VS Code, Node.js, Git và GitHub cùng xoay trên vòng tròn bán kính 170px, cách nhau 90 độ. Khung icon 128px, logo Node.js/Git/GitHub 96px, nhãn 22px. Trong khung VS Code, dùng lưới hai hàng: logo VS Code chính 76px ở trên; Codex và Antigravity 24px trong hai badge 30px ở dưới, cách hàng trên 8px. Không chồng logo; cả cụm xoay cùng nhau và counter-rotate giữ thẳng. Reduced motion giữ bốn vị trí."
     },
     {
       "section": 1,
@@ -65,7 +65,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Sản phẩm đạt yêu cầu: ứng dụng chạy được và phiên bản được lưu đúng trên GitHub.",
       "objective": "Sản phẩm đạt yêu cầu: ứng dụng chạy được và phiên bản được lưu đúng trên GitHub.",
-      "visualConcept": "Bốn khung dọc theo ảnh tham chiếu: timeline số bên trái, icon navy–vàng, tiêu đề viết hoa, mô tả rõ và nhãn thao tác bên phải; khung 2 nền navy."
+      "visualConcept": "Bốn khung dọc nền kem đồng nhất, tiêu đề navy, viền và cạnh vàng; giữ timeline, icon và nhãn thao tác."
     },
     {
       "section": 1,
@@ -104,7 +104,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Đọc thay đổi và chạy thử trước khi lưu phiên bản lên GitHub.",
       "objective": "Đọc thay đổi và chạy thử trước khi lưu phiên bản lên GitHub.",
-      "visualConcept": "Quy trình 6 bước cố định, ba khung mỗi hàng; mũi tên chuyển động nối 1→2→3↓4→5→6. Không có thao tác sắp xếp. Chọn thay đổi là chọn file hoặc phần sửa đưa vào Commit. Bước Kiểm tra có hai icon nhỏ VS Code và Node.js trong cùng header; giữ nguyên lưới sáu bước và kích thước ô."
+      "visualConcept": "Quy trình 6 bước cố định, ba khung mỗi hàng; mũi tên chuyển động nối 1→2→3↓4→5→6. Không có thao tác sắp xếp. Chọn thay đổi là chọn file hoặc phần sửa đưa vào Commit. Bước Kiểm tra có hai icon nhỏ VS Code và Node.js trong cùng header; giữ nguyên lưới sáu bước và kích thước ô. Cả sáu khung nền kem, tiêu đề navy và mô tả xanh xám đồng nhất."
     },
     {
       "section": 1,
@@ -126,7 +126,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
           "text": "Xem cấu trúc dự án; mở, tạo và quản lý file hoặc thư mục trong workspace."
         },
         {
-          "title": "Vùng làm việc",
+          "title": "Trình soạn thảo",
           "text": "Mở và chỉnh sửa mã trong các tab. Ảnh đang ở tab Welcome; chọn file từ Explorer để viết mã."
         },
         {
@@ -142,7 +142,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Biết vùng nào hiển thị file, mã, lỗi và tác vụ đang chạy.",
       "objective": "Biết vùng nào hiển thị file, mã, lỗi và tác vụ đang chạy.",
-      "visualConcept": "Sáu popup chức năng VS Code: mỗi chức năng có 2–3 bullet ngắn, chính xác; các ô nhấn luôn nền navy với chữ vàng/trắng, kể cả lưới Menu 4x2; header gọn không ảnh.",
+      "visualConcept": "Sáu popup chức năng VS Code: mỗi chức năng có 2–3 bullet ngắn, chính xác; các ô nhấn luôn nền navy với chữ vàng/trắng, kể cả lưới Menu 4x2; header gọn không ảnh. Sáu nút tên vùng ở bản đồ dùng nền kem, tiêu đề navy, mô tả xanh xám; giữ badge navy–vàng và popup hiện có.",
       "regionDetails": [
         {
           "section": 1,
@@ -568,9 +568,9 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     {
       "section": 1,
       "number": 6,
-      "title": "Node.js, Git & GitHub · chạy, lưu, chia sẻ",
+      "title": "Giới thiệu · Node.js, Git & GitHub",
       "visual": "git-intro-overview",
-      "message": "Ba vai trò trên cùng project: Node.js chạy app, Git lưu phiên bản, GitHub lưu repo từ xa.",
+      "message": "Node.js chạy ứng dụng, Git lưu lịch sử trên máy, GitHub chia sẻ mã nguồn từ xa.",
       "cards": [
         {
           "label": "Node.js",
@@ -585,17 +585,15 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
           "label": "Node.js",
           "logo": "Node.js",
           "title": "npm và project",
-          "text": "npm quản lý thư viện và chạy scripts khai báo trong package.json. VS Code là nơi mở file và Terminal để thao tác.",
-          "detail": "Chạy npm install và npm run dev trong folder có package.json. node_modules được tạo trên máy, không đưa vào Git.",
-          "code": "node --version\nnpm --version\nnpm install\nnpm run dev"
+          "text": "npm quản lý thư viện và tác vụ của project qua package.json.",
+          "detail": "Node.js chạy JavaScript; npm hỗ trợ chuẩn bị thư viện, chạy thử và tạo bản build."
         },
         {
           "label": "Node.js",
           "logo": "Node.js",
-          "title": "Kiểm tra rồi lưu phiên bản",
-          "text": "Trong app mẫu, npm test chạy kiểm tra và npm run build tạo bản production. Đạt yêu cầu rồi mới Commit và Push.",
-          "detail": "GitHub lưu code, package.json và lockfile; máy khác Clone/Pull bằng Git rồi dùng npm để cài thư viện và chạy lại. Test/build chỉ chạy khi project có scripts tương ứng.",
-          "code": "npm test\nnpm run build"
+          "title": "Kiểm tra trước khi chia sẻ",
+          "text": "Chạy ứng dụng và thử chức năng trước khi lưu phiên bản.",
+          "detail": "Máy khác lấy mã nguồn từ GitHub, chuẩn bị thư viện rồi chạy bằng Node.js. Build và kiểm thử là các tác vụ tùy project."
         },
         {
           "title": "Git là gì?",
@@ -607,17 +605,15 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         {
           "title": "Git trong VS Code",
           "text": "Source Control (Ctrl+Shift+G) hiển thị file đổi, diff, Stage và Commit. Terminal chạy cùng lệnh Git.",
-          "detail": "VS Code hỗ trợ Git sẵn nhưng máy vẫn phải cài Git; Sẵn sàng dùng khi lệnh trả về phiên bản.",
+          "detail": "Source Control và Terminal cùng thao tác với Git trên máy. Git là công cụ riêng được cài vào hệ điều hành.",
           "logo": "VS Code",
-          "code": "git --version",
           "label": "Git"
         },
         {
-          "title": "Ba lệnh cần biết",
-          "text": "Status xem trạng thái; diff xem phần sửa; log xem các mốc đã lưu.",
-          "detail": "Chạy trong folder đã có Git. Nếu báo “not a git repository”, folder chưa có .git; đây chưa phải lỗi cài đặt.",
+          "title": "Đọc trạng thái và lịch sử",
+          "text": "Xem file đang đổi, so sánh phần sửa và đọc các mốc đã lưu.",
+          "detail": "Diff giúp xem thay đổi; Commit ghi một mốc lịch sử. Nhánh giúp thử ý tưởng trước khi gộp vào phiên bản chính.",
           "logo": "Git",
-          "code": "git status\ngit diff\ngit log -3 --oneline",
           "label": "Git"
         },
         {
@@ -645,7 +641,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
         }
       ],
       "minutes": 8,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
+      "note": "Giới thiệu vai trò và cách phối hợp. Toàn bộ cài đặt, cấu hình và lệnh kiểm tra nằm trong slide setup.",
       "objective": "Phân biệt chạy app bằng Node.js, lưu Commit bằng Git và chia sẻ repo qua GitHub; biết chiều Push và Pull/Clone.",
       "verify": "Phân biệt chạy app bằng Node.js, lưu Commit bằng Git và chia sẻ repo qua GitHub; biết chiều Push và Pull/Clone.",
       "visualConcept": "Ba khung EIU Node.js–Git–GitHub với popup ba cột; sơ đồ cùng project: chạy/kiểm tra → Commit → Push, chiều ngược Pull/Clone → npm → chạy lại. Sơ đồ có icon nhỏ của từng công cụ; chiều về nổi bật trong khung navy–vàng."
@@ -655,175 +651,253 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
       "number": 7,
       "title": "Cài đặt · VS Code, Node.js, Git & GitHub",
       "visual": "git-intro-setup-overview",
-      "message": "Chọn từng công cụ để xem link cài đặt, thao tác và lệnh kiểm tra cụ thể.",
+      "message": "Cài từng công cụ, mở Terminal → New Terminal trong VS Code rồi đối chiếu kết quả kiểm tra.",
       "cards": [
         {
           "label": "VS Code",
-          "title": "Tải và cài",
-          "text": "Mở link chính thức, tải User Installer cho Windows và chạy bộ cài. Bật Add to PATH và Open with Code nếu có.",
-          "detail": "Cài xong mở lại PowerShell/VS Code để nhận PATH. Đã cài thì chỉ kiểm tra phiên bản.",
           "logo": "VS Code",
+          "title": "Tải và cài",
+          "text": "Tải User Installer cho Windows từ trang chính thức. Chạy bộ cài, bật Add to PATH nếu có, rồi mở lại VS Code.",
+          "detail": "Đã cài VS Code thì chuyển sang bước kiểm tra. Mở Terminal → New Terminal, dùng PowerShell.",
           "link": "https://code.visualstudio.com/download",
-          "linkLabel": "Tải VS Code",
-          "code": "code --version\nwhere.exe code"
+          "linkLabel": "Tải VS Code"
         },
         {
           "label": "VS Code",
-          "title": "Mở folder / Terminal",
-          "text": "File → Open Folder để mở project; Terminal → New Terminal để gõ lệnh từng dòng.",
-          "detail": "Khi đã tải app, chạy code . từ đúng folder có package.json để mở folder đó. Nếu lệnh code chưa nhận, kiểm tra PATH hoặc mở từ Start Menu.",
           "logo": "VS Code",
-          "code": "code ."
+          "title": "Kiểm tra trong Terminal",
+          "text": "Trong Terminal của VS Code, chạy từng lệnh. Lệnh code phải trả phiên bản, mã commit và kiến trúc máy.",
+          "code": "code --version\nwhere.exe code",
+          "output": "1.xx.x\n<mã commit>\nx64\nC:\\…\\Microsoft VS Code\\bin\\code.cmd",
+          "detail": "Ví dụ minh họa: phiên bản, mã commit và đường dẫn tùy máy; ARM64 có thể hiện arm64. Nếu báo “not recognized”, mở lại VS Code và kiểm tra PATH."
         },
         {
           "label": "Node.js",
+          "logo": "Node.js",
           "title": "Cài Node.js LTS",
-          "text": "Mở trang tải, chọn LTS và Windows Installer (.msi), chạy bộ cài; giữ npm và PATH. Mở lại VS Code.",
-          "detail": "Phải có cả phiên bản node và npm. Nếu PowerShell chặn npm.ps1, dùng npm.cmd --version hoặc terminal Command Prompt.",
-          "logo": "Node.js",
+          "text": "Tải Windows Installer (.msi) bản LTS. Chạy bộ cài, giữ npm và PATH; đóng rồi mở lại VS Code.",
+          "detail": "Đã có Node.js thì kiểm tra cả node và npm trước khi quyết định cài lại.",
           "link": "https://nodejs.org/en/download",
-          "linkLabel": "Tải Node.js LTS",
-          "code": "node --version\nnpm --version\nwhere.exe node\nwhere.exe npm"
+          "linkLabel": "Tải Node.js LTS"
         },
         {
           "label": "Node.js",
-          "title": "Chạy app sau khi tải",
-          "text": "Khi đã mở folder app chứa package.json: cài thư viện rồi chạy bản phát triển.",
-          "detail": "npm install cài thư viện; npm run dev chạy app. Mở URL Terminal báo, giữ Terminal đang chạy; Ctrl+C để dừng. Chưa chạy các lệnh này trong folder trống.",
           "logo": "Node.js",
-          "code": "npm install\nnpm run dev"
+          "title": "Kiểm tra node và npm",
+          "text": "Mở Terminal mới trong VS Code và chạy hai lệnh. Cả hai đều phải trả về số phiên bản.",
+          "code": "node --version\nnpm --version",
+          "output": "v24.0.0\n11.0.0",
+          "detail": "Số phiên bản trên chỉ là ví dụ. Nếu PowerShell chặn npm.ps1, thử npm.cmd --version hoặc chọn terminal Command Prompt. Nếu không nhận lệnh, kiểm tra PATH và mở lại VS Code."
         },
         {
+          "label": "Git",
+          "logo": "Git",
           "title": "Tải và cài Git",
-          "text": "Tải Git for Windows từ trang chính thức và chạy bộ cài.",
-          "detail": "Giữ các lựa chọn mặc định khi chưa có yêu cầu khác; dùng VS Code làm editor nếu có lựa chọn.",
-          "logo": "Git",
-          "link": "https://git-scm.com/install/windows",
-          "linkLabel": "Tải Git for Windows",
-          "label": "Git"
-        },
-        {
-          "title": "PATH và đăng nhập",
-          "text": "Bật Git cho command line và phần mềm khác; giữ Git Credential Manager (GCM).",
-          "detail": "GCM hỗ trợ xác thực GitHub qua trình duyệt khi Push/Clone private. Không cần cài extension GitHub.",
-          "logo": "Windows",
+          "text": "Tải Git for Windows, chạy bộ cài. Cho phép dùng Git từ command line và phần mềm khác; giữ Git Credential Manager.",
           "installationOption": "Git from the command line and also from 3rd-party software\nGit Credential Manager",
-          "label": "Git"
+          "detail": "Cài xong đóng rồi mở lại VS Code. Đã có Git thì kiểm tra phiên bản và GCM trước.",
+          "link": "https://git-scm.com/install/windows",
+          "linkLabel": "Tải Git for Windows"
         },
         {
-          "title": "Mở lại và kiểm tra",
-          "text": "Đóng rồi mở lại VS Code; mở Terminal mới và kiểm tra Git/PATH/GCM.",
-          "detail": "Phải có phiên bản Git và đường dẫn. Nếu GCM thiếu, chạy lại bộ cài và bật Credential Manager.",
+          "label": "Git",
           "logo": "VS Code",
+          "title": "Kiểm tra Git và GCM",
+          "text": "Trong Terminal mới của VS Code, kiểm tra Git, đường dẫn và Credential Manager.",
           "code": "git --version\nwhere.exe git\ngit credential-manager --version",
-          "label": "Git"
+          "output": "git version 2.50.0.windows.1\nC:\\Program Files\\Git\\cmd\\git.exe\n2.6.1",
+          "detail": "Phiên bản và đường dẫn chỉ là ví dụ. Git/GCM phải trả về phiên bản; nếu thiếu, chạy lại bộ cài và bật PATH hoặc Credential Manager."
         },
         {
+          "label": "Git",
+          "logo": "Git",
           "title": "Đặt tên và email",
-          "text": "Thay tên/email mẫu bằng thông tin của bạn; dùng email đã xác minh trên GitHub hoặc email noreply của tài khoản.",
-          "detail": "--global áp dụng cho người dùng trên máy này. Email Commit có thể hiện trong lịch sử repo public.",
+          "text": "Thay tên/email bằng thông tin của bạn. Dùng email đã xác minh trên GitHub hoặc email noreply của tài khoản.",
+          "code": "git config --global user.name \"Ten cua ban\"\ngit config --global user.email \"ban@example.com\"\ngit config --global init.defaultBranch main",
+          "output": "Không có dòng kết quả; dấu nhắc Terminal xuất hiện lại.",
+          "detail": "Không báo lỗi là bình thường. Đây là danh tính tác giả Commit; --global áp dụng cho người dùng trên máy này."
+        },
+        {
+          "label": "Git",
           "logo": "Git",
-          "code": "git config --global user.name \"Ten cua ban\"\ngit config --global user.email \"EMAIL_CUA_BAN\"\ngit config --global init.defaultBranch main",
-          "label": "Git"
-        },
-        {
-          "title": "Kiểm tra cấu hình",
-          "text": "Đọc lại tên, email, nhánh mặc định và credential helper.",
-          "detail": "Tên/email cần đúng; helper của Git for Windows thường chứa manager. Chưa cần git init tại bước setup.",
-          "logo": "Git",
-          "code": "git config --global --get user.name\ngit config --global --get user.email\ngit config --global --get init.defaultBranch\ngit config --show-origin --get-all credential.helper",
-          "label": "Git"
-        },
-        {
-          "title": "Tạo tài khoản",
-          "text": "Mở GitHub Signup, đăng ký hoặc chọn Continue with Google nếu hiển thị; hoàn tất xác minh.",
-          "detail": "Nhớ username GitHub để thay vào URL repo. Đã có tài khoản thì đăng nhập tài khoản đó.",
-          "logo": "Google",
-          "link": "https://github.com/signup",
-          "linkLabel": "Đăng ký GitHub",
-          "label": "GitHub"
-        },
-        {
-          "title": "Xác thực khi Push",
-          "text": "Khi Git/GCM mở trình duyệt, đăng nhập GitHub đúng tài khoản và hoàn tất yêu cầu cấp quyền.",
-          "detail": "Không dùng mật khẩu tài khoản GitHub trong Terminal. Không bắt buộc đăng nhập menu Accounts của VS Code; không cài extension GitHub để chạy lệnh Git.",
-          "logo": "GitHub",
-          "link": "https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git",
-          "linkLabel": "Hướng dẫn xác thực HTTPS",
-          "label": "GitHub"
+          "title": "Đọc lại cấu hình",
+          "text": "Kiểm tra tên, email và nhánh mặc định đã lưu. Thông tin phải khớp với giá trị bạn vừa đặt.",
+          "code": "git config --global --get user.name\ngit config --global --get user.email\ngit config --global --get init.defaultBranch",
+          "output": "Ten cua ban\nban@example.com\nmain",
+          "detail": "Nếu trống hoặc sai, chạy lại lệnh cấu hình tương ứng. Chưa cần tạo repository ở bước cài đặt."
         },
         {
           "label": "GitHub",
-          "title": "Kiểm tra kết nối",
-          "text": "GitHub dùng trên trình duyệt, không cần cài app GitHub hoặc GitHub extension. Đăng nhập web rồi thử đọc repo public bằng Git.",
-          "detail": "git ls-remote trả về mã commit của HEAD là kết nối Git/HTTPS thành công; repo public không chứng minh đã đăng nhập. GCM xác thực qua trình duyệt khi Push hoặc Clone repo private. Không nhập mật khẩu GitHub vào Terminal.",
+          "logo": "Google",
+          "title": "Tạo tài khoản",
+          "text": "Mở GitHub Signup, đăng ký hoặc chọn Continue with Google nếu có; hoàn tất xác minh. Đã có tài khoản thì đăng nhập.",
+          "detail": "GitHub dùng trên trình duyệt; không cần cài GitHub Desktop hoặc extension GitHub để chạy lệnh Git.",
+          "link": "https://github.com/signup",
+          "linkLabel": "Đăng ký GitHub"
+        },
+        {
+          "label": "GitHub",
           "logo": "GitHub",
+          "title": "Kiểm tra kết nối",
+          "text": "Trong Terminal VS Code, thử đọc HEAD của repository public. Có mã commit kèm HEAD là kết nối Git/HTTPS hoạt động.",
+          "code": "git ls-remote https://github.com/octocat/Hello-World.git HEAD",
+          "output": "<mã commit 40 ký tự>    HEAD",
+          "detail": "Repo public không xác minh đăng nhập. Nếu lỗi mạng, kiểm tra kết nối và URL. Không cần cài GitHub CLI cho lệnh này.",
           "link": "https://github.com/login",
-          "linkLabel": "Đăng nhập GitHub",
-          "code": "git ls-remote https://github.com/octocat/Hello-World.git HEAD"
+          "linkLabel": "Đăng nhập GitHub"
+        },
+        {
+          "label": "GitHub",
+          "logo": "GitHub",
+          "title": "Xác thực khi cần",
+          "text": "Khi Push hoặc Clone repo private yêu cầu xác thực, GCM mở trình duyệt. Đăng nhập đúng GitHub và hoàn tất yêu cầu cấp quyền.",
+          "detail": "Sau xác thực, thao tác Git tiếp tục trong Terminal. Không nhập mật khẩu GitHub vào Terminal. Bài thực hành repo sẽ kiểm tra quyền đọc/ghi thực tế.",
+          "link": "https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git",
+          "linkLabel": "Hướng dẫn xác thực HTTPS"
         }
       ],
       "minutes": 23,
       "note": "Setup Windows: chọn popup từng công cụ; thực hiện từng bước và kiểm tra kết quả trước khi mở app mẫu.",
       "objective": "VS Code, node/npm, Git hoạt động; tên/email đã cấu hình và GitHub đăng nhập được.",
       "verify": "VS Code, node/npm, Git hoạt động; tên/email đã cấu hình và GitHub đăng nhập được.",
-      "visualConcept": "EIU bốn khung chọn; popup từng công cụ có bước cài đặt, link thật, lệnh và kết quả cần kiểm tra."
+      "visualConcept": "Giữ bốn khung chọn và popup setup EIU. Tách lệnh nhập với ví dụ kết quả Terminal, ghi rõ phiên bản minh họa và cách xử lý khi chưa nhận lệnh."
     },
     {
       "section": 1,
       "number": 8,
-      "title": "Antigravity · từ ý tưởng đến bản sửa",
+      "title": "Antigravity",
       "visual": "git-intro-ai-antigravity",
-      "message": "Trợ lý lập kế hoạch và thực hiện nhiều bước trong editor.",
+      "message": "Lập kế hoạch và chỉnh sửa ngay trong VS Code.",
       "cards": [
         {
-          "title": "Ưu điểm",
-          "text": "Đọc ngữ cảnh project, lập kế hoạch tương tác, đề xuất hoặc áp dụng thay đổi và xem diff ngay trong VS Code.",
-          "detail": "Phù hợp khi muốn thử ý tưởng giao diện rồi chỉnh tiếp qua hội thoại. Đây là nhận định sử dụng, không phải xếp hạng model.",
-          "logo": "AI Antigravity"
+          "label": "Ưu điểm",
+          "title": "Chủ động với kế hoạch",
+          "text": "Xem kế hoạch tương tác trước khi sửa. Giao agent thực hiện tác vụ nhiều bước.",
+          "points": [
+            "Xem kế hoạch tương tác trước khi sửa.",
+            "Giao agent thực hiện tác vụ nhiều bước."
+          ]
         },
         {
-          "title": "Điểm cần cân nhắc",
-          "text": "Yêu cầu rộng dễ làm bản sửa rộng; vẫn phải kiểm tra file bị tác động và thử tương tác thực tế.",
-          "detail": "Model, quota, quyền chạy công cụ và thiết lập agent ảnh hưởng tốc độ/kết quả; không mặc định tự test đầy đủ.",
-          "logo": "AI Antigravity"
+          "label": "Ưu điểm",
+          "title": "Review ngay trong editor",
+          "text": "Chat với agent trong sidebar. Xem diff từng phần và phản hồi cạnh mã.",
+          "points": [
+            "Chat với agent trong sidebar.",
+            "Xem diff từng phần và phản hồi cạnh mã."
+          ]
+        },
+        {
+          "label": "Ưu điểm",
+          "title": "Linh hoạt giữa các model",
+          "text": "Đổi model theo tác vụ và gói sử dụng. Tiếp tục làm việc trong cùng hội thoại.",
+          "points": [
+            "Đổi model theo tác vụ và gói sử dụng.",
+            "Tiếp tục làm việc trong cùng hội thoại."
+          ]
+        },
+        {
+          "label": "Model",
+          "title": "Gemini 3.8 Flash",
+          "text": "Free, Plus, Pro, Ultra và Enterprise."
+        },
+        {
+          "label": "Model",
+          "title": "Claude Sonnet 5.5",
+          "text": "Thinking · Pro trả phí, Ultra, Enterprise."
+        },
+        {
+          "label": "Model",
+          "title": "Claude Opus 5.5",
+          "text": "Thinking · Pro trả phí, Ultra, Enterprise."
+        },
+        {
+          "label": "Model",
+          "title": "Gemini 4 Argon",
+          "text": "Ultra / Enterprise · app, CLI, extension; không có trong IDE riêng."
         }
       ],
       "minutes": 4,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Trợ lý lập kế hoạch và thực hiện nhiều bước trong editor.",
-      "verify": "Trợ lý lập kế hoạch và thực hiện nhiều bước trong editor.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "note": "Pro dùng Sonnet/Opus 5.5 cần thuê bao không dùng thử. Model và hạn mức tùy gói; kiểm tra trong model picker.",
+      "objective": "Nhận biết ưu điểm Antigravity và một số model khả dụng theo gói.",
+      "verify": "Nêu được ưu điểm và kiểm tra model thực tế trong tài khoản.",
+      "visualConcept": "Toàn slide theo phong cách Antigravity: nền trắng lạnh, ánh xanh lam/tím, logo chính chủ, typography lớn thoáng và nét bốn màu Google. Ưu điểm bên trái, danh sách model hiện tại và điều kiện truy cập bên phải. Không khung EIU/navy–vàng. Nguồn chính thức kiểm tra 15/10/2026. Bỏ toàn bộ link hiển thị và tiêu đề/ngày snapshot của phần model. Cân giữa hai cột; tên model lớn: Antigravity chuyển sắc xanh–tím và nổi nhẹ; Codex ánh mint theo nhịp với cursor terminal. Tắt animation khi reduced motion. Cột trái: mô tả một dòng; ba ưu điểm trong khung riêng có badge 01–03, tiêu đề một dòng, mô tả hai ý trên hai dòng có chủ đích. Antigravity dùng khung trắng/xanh–tím, Codex khung graphite viền mint. Không cắt chữ hoặc ngắt cụm nghĩa."
     },
     {
       "section": 1,
       "number": 9,
-      "title": "Codex · đọc, sửa và kiểm tra code",
+      "title": "Codex",
       "visual": "git-intro-ai-codex",
-      "message": "Trợ lý làm việc với file, diff và tác vụ phát triển trong project.",
+      "message": "Đọc project, sửa mã và review cùng agent.",
       "cards": [
         {
-          "title": "Ưu điểm",
-          "text": "Giải thích code, sửa có phạm vi, review phần thay đổi và xử lý lỗi với ngữ cảnh file đang mở.",
-          "detail": "Có thể thực hiện vòng sửa → chạy kiểm tra → đọc lỗi → sửa lại khi model, công cụ và quyền hỗ trợ.",
-          "logo": "AI Codex"
+          "label": "Ưu điểm",
+          "title": "Hiểu ngữ cảnh đang mở",
+          "text": "Dùng file và vùng mã đang chọn. Giải thích project hoặc sửa đúng phần.",
+          "points": [
+            "Dùng file và vùng mã đang chọn.",
+            "Giải thích project hoặc sửa đúng phần."
+          ]
         },
         {
-          "title": "Điểm cần cân nhắc",
-          "text": "Thiếu ngữ cảnh dễ sửa sai ý; test/build thành công chưa chứng minh giao diện đúng hoặc mọi chức năng đều tốt.",
-          "detail": "Cần nêu tiêu chí nghiệm thu; đọc diff và yêu cầu báo kiểm tra chưa chạy. Quyền tài khoản và giới hạn sử dụng tùy cấu hình.",
-          "logo": "AI Codex"
+          "label": "Ưu điểm",
+          "title": "Review rõ từng thay đổi",
+          "text": "Đọc tóm tắt và đối chiếu diff. Yêu cầu chỉnh tiếp trong cùng hội thoại.",
+          "points": [
+            "Đọc tóm tắt và đối chiếu diff.",
+            "Yêu cầu chỉnh tiếp trong cùng hội thoại."
+          ]
+        },
+        {
+          "label": "Ưu điểm",
+          "title": "Làm việc local hoặc cloud",
+          "text": "Sửa nhanh trên máy khi cần tương tác. Giao tác vụ dài lên cloud, quay lại review.",
+          "points": [
+            "Sửa nhanh trên máy khi cần tương tác.",
+            "Giao tác vụ dài lên cloud, quay lại review."
+          ]
+        },
+        {
+          "label": "Model",
+          "title": "GPT-6 Astra",
+          "text": "Tác vụ khó, nhiều bước và cần suy luận sâu.",
+          "detail": "gpt-6-astra"
+        },
+        {
+          "label": "Model",
+          "title": "GPT-6.1 Sol",
+          "text": "Công việc phức tạp, kéo dài; chi phí thấp hơn Astra.",
+          "detail": "gpt-6.1-sol"
+        },
+        {
+          "label": "Model",
+          "title": "GPT-6 Luna",
+          "text": "Tác vụ rõ phạm vi, lặp lại và cần hiệu quả.",
+          "detail": "gpt-6-luna"
         }
       ],
       "minutes": 4,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Trợ lý làm việc với file, diff và tác vụ phát triển trong project.",
-      "verify": "Trợ lý làm việc với file, diff và tác vụ phát triển trong project.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "note": "Model tùy gói, ứng dụng, đăng nhập và đợt triển khai. Enterprise/Edu có thể cần quản trị viên bật.",
+      "objective": "Nhận biết ưu điểm Codex và vai trò của Astra, Sol, Luna.",
+      "verify": "Chọn model phù hợp tác vụ từ danh sách thực tế trong tài khoản.",
+      "visualConcept": "Toàn slide theo phong cách Codex: nền graphite gần đen, chữ trắng, accent mint, nhãn monospace và đường kẻ mảnh. Ưu điểm bên trái; danh sách Astra, Sol, Luna bên phải. Không khung EIU hoặc viền vàng. Nguồn chính thức kiểm tra 15/10/2026. Bỏ toàn bộ link hiển thị và tiêu đề/ngày snapshot của phần model. Cân giữa hai cột; tên model lớn: Antigravity chuyển sắc xanh–tím và nổi nhẹ; Codex ánh mint theo nhịp với cursor terminal. Tắt animation khi reduced motion. Cột trái: mô tả một dòng; ba ưu điểm trong khung riêng có badge 01–03, tiêu đề một dòng, mô tả hai ý trên hai dòng có chủ đích. Antigravity dùng khung trắng/xanh–tím, Codex khung graphite viền mint. Không cắt chữ hoặc ngắt cụm nghĩa."
     },
     {
       "section": 1,
       "number": 10,
+      "title": "Lab 3",
+      "minutes": 1,
+      "message": "Thực hành thiết kế website và đẩy mã nguồn lên GitHub.",
+      "cards": [],
+      "visual": "lab-divider",
+      "note": "Mở đầu Lab 3: thực hành thiết kế website, kiểm tra trên máy và đẩy mã nguồn lên GitHub.",
+      "verify": "Website chạy được và mã nguồn được lưu trên GitHub.",
+      "objective": "Thực hành thiết kế website và đẩy mã nguồn lên GitHub.",
+      "visualConcept": "Theo mẫu Lab người dùng cung cấp: nền xanh navy, khung bo góc viền vàng mờ, nhãn khóa học vàng, Lab 3 màu trắng cỡ lớn, mô tả xám sáng, các vòng tròn và đường cong nét đứt trang trí. Animation: vòng nét đứt xoay chậm, vòng đồng tâm co giãn lệch nhịp, nét đứt chạy dọc đường cong, điểm sáng và vòng dưới trôi nhẹ. Lab 3 nhấn bằng phóng nhẹ 2.5%, ánh vàng và gạch chân sáng theo nhịp 4.2 giây; hỗ trợ prefers-reduced-motion."
+    },
+    {
+      "section": 1,
+      "number": 11,
       "title": "Setup AI · chọn một trợ lý trong VS Code",
       "visual": "git-intro-ai-setup",
       "message": "Antigravity và Codex là công cụ; model là mô hình được chọn bên trong.",
@@ -859,7 +933,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     },
     {
       "section": 1,
-      "number": 11,
+      "number": 12,
       "title": "Thực hành · tải app quảng cáo",
       "visual": "git-intro-starter",
       "message": "Dùng một project Lumi Studio xuyên suốt: tải → sửa → kiểm tra → GitHub.",
@@ -893,7 +967,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     },
     {
       "section": 1,
-      "number": 12,
+      "number": 13,
       "title": "Chạy app · biết nơi cần chỉnh",
       "visual": "git-intro-dev",
       "message": "Mở Terminal trong đúng folder; chạy bản gốc trước khi dùng AI.",
@@ -926,7 +1000,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     },
     {
       "section": 1,
-      "number": 13,
+      "number": 14,
       "title": "Prompt chỉnh sửa · đủ ý, đúng phạm vi",
       "visual": "git-intro-prompt-structure",
       "message": "Một prompt rõ có 6 thành phần; mô tả thay đổi bằng kết quả có thể kiểm tra.",
@@ -958,7 +1032,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     },
     {
       "section": 1,
-      "number": 14,
+      "number": 15,
       "title": "Chỉnh app · gửi yêu cầu có ngữ cảnh",
       "visual": "git-intro-ai-edit",
       "message": "Đính kèm file liên quan, chọn một trợ lý, rồi gửi prompt mẫu để sửa.",
@@ -991,7 +1065,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     },
     {
       "section": 1,
-      "number": 15,
+      "number": 16,
       "title": "Cùng prompt · kết quả AI có thể khác",
       "visual": "git-intro-model-outcomes",
       "message": "Kết quả phụ thuộc model, ngữ cảnh, chế độ agent và quyền công cụ.",
@@ -1023,7 +1097,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     },
     {
       "section": 1,
-      "number": 16,
+      "number": 17,
       "title": "Kiểm tra · đạt rồi mới lưu phiên bản",
       "visual": "git-intro-build",
       "message": "Xác minh bằng lệnh và thao tác thật trên app đã sửa.",
@@ -1057,7 +1131,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     },
     {
       "section": 1,
-      "number": 17,
+      "number": 18,
       "title": "Git Init · lưu bản app đã kiểm tra",
       "visual": "git-intro-initialize",
       "message": "ZIP chưa có lịch sử Git: tạo repo ngay trong folder app quảng cáo.",
@@ -1092,7 +1166,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     },
     {
       "section": 1,
-      "number": 18,
+      "number": 19,
       "title": "Push lần đầu · đưa app lên GitHub",
       "visual": "git-intro-publish",
       "message": "Repo online trống nhận lịch sử local đã có.",
@@ -1128,7 +1202,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     },
     {
       "section": 1,
-      "number": 19,
+      "number": 20,
       "title": "Lần sửa tiếp · Commit rồi Push",
       "visual": "git-intro-push-code",
       "message": "Sửa nhỏ → kiểm tra → xem diff → chọn file → Commit → Push.",
@@ -1163,7 +1237,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     },
     {
       "section": 1,
-      "number": 20,
+      "number": 21,
       "title": "Chiều ngược lại · Pull hoặc Clone",
       "visual": "git-intro-pull",
       "message": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
@@ -1198,7 +1272,7 @@ const course: { title: string; summary: string; slides: SlideData[] } = {
     },
     {
       "section": 1,
-      "number": 21,
+      "number": 22,
       "title": "Tự kiểm tra · từ app đến GitHub",
       "visual": "git-intro-quiz",
       "message": "Mở app đã sửa và repo thật để đối chiếu, rồi trả lời câu hỏi.",
@@ -1279,7 +1353,7 @@ const openingCss = `
 `;
 const sectionOneCss = `
 .sectionOneOpening .openingcopy{top:76px;width:1152px;font-family:Inter,'Segoe UI','Noto Sans',Arial,sans-serif}.sectionOneOpening .openingcopy h1{font-size:54px;font-weight:800;line-height:1.15;letter-spacing:-1.6px;white-space:nowrap;margin:0 0 34px;animation:eiuTextReveal .7s cubic-bezier(.22,1,.36,1) both}.sectionOneOpening .openingcopy h1 em{display:inline;font-size:54px;color:#e9ca8b;font-weight:750;letter-spacing:-1.7px}.sectionOneOpening .openingSubtitle{padding-top:52px;font-size:29px;line-height:1.25;font-weight:650;letter-spacing:-.6px;margin:0 0 27px;color:#f4f7fa;animation:eiuTextReveal .7s .12s both}.sectionOneOpening .openingSubtitle::after{content:'';display:block;width:68px;height:3px;margin-top:25px;background:linear-gradient(90deg,#e9ca8b,#b39159);transform-origin:left;animation:eiuRuleReveal .7s .2s both}.sectionOneOpening .openingcopy p{font-size:21px;line-height:1.65;color:#c0d2df;max-width:575px;margin:0 0 31px;animation:eiuTextReveal .7s .22s both}.sectionOneOpening .openingcopy p{white-space:nowrap;margin-bottom:10px}.sectionOneOpening .openingcopy .openingSecondLine{margin-bottom:34px;animation-delay:.28s}.sectionOneOpening .openingfield{top:65px;height:585px}.sectionOneOpening .openingroles{position:absolute;top:366px;left:0;right:auto;width:535px;display:grid;grid-template-columns:1fr;gap:12px;animation:none}.sectionOneOpening .openingroles span{position:relative;min-height:64px;border:1px solid #e9ca8b45;background:linear-gradient(120deg,#163a5370,#08294590);padding:12px 24px;border-radius:16px;font-size:26px;font-weight:700;letter-spacing:-.4px;color:#f1f6fa;display:flex;align-items:center;justify-content:flex-start;gap:15px;white-space:nowrap;box-shadow:0 8px 26px #031a2c20;animation:eiuTextReveal .7s .4s both}.sectionOneOpening .openingroles span:nth-child(2){animation-delay:.55s}.sectionOneOpening .openingroles span:nth-child(3){animation-delay:.7s}.sectionOneOpening .openingroles span::after{content:"";position:absolute;left:24px;right:24px;bottom:0;height:2px;background:linear-gradient(90deg,transparent,#e9ca8b88,transparent);animation:eiuRoleLight 4.8s ease-in-out infinite}.sectionOneOpening .openingroles span:nth-child(2)::after{animation-delay:1.6s}.sectionOneOpening .openingroles span:nth-child(3)::after{animation-delay:3.2s}.sectionOneOpening .openingroles span::before{content:'';width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:#e9ca8b;box-shadow:0 0 10px #e9ca8b50}
-.outcomesSlide{font-family:Inter,'Segoe UI','Noto Sans',Arial,sans-serif;background:radial-gradient(ellipse at 90% 80%,#18547f0b,transparent 48%),linear-gradient(135deg,#fff,#fbfaf7 60%,#f3f7f9)}.outcomesSlide::before{background:linear-gradient(#08294502 1px,transparent 1px),linear-gradient(90deg,#08294502 1px,transparent 1px);background-size:46px 46px}.outcomesSlide .title{font-size:36px;font-weight:800;letter-spacing:-.8px;color:#082945;animation:eiuTextReveal .6s both}.outcomesSlide .title::after{content:'';display:block;width:64px;height:3px;margin-top:14px;background:#b39159;animation:eiuRuleReveal .6s .1s both;transform-origin:left}.outcomesSlide .stage{height:560px}.outcomesSlide .outcomesgrid{position:relative;display:flex;flex-direction:column;gap:18px;width:100%;margin:0}.outcomesSlide .outcomesgrid::before{content:'';position:absolute;left:30px;top:57px;bottom:57px;width:2px;background:linear-gradient(#b3915940,#b39159bb,#b3915940);background-size:100% 200%;animation:eiuConnectorFlow 4s linear infinite}.outcomesSlide .outcomestep{position:relative;display:grid;grid-template-columns:62px minmax(0,1fr);gap:24px;align-items:center;animation:eiuTextReveal .65s cubic-bezier(.22,1,.36,1) both}.outcomesSlide .outcomestep:nth-child(2){animation-delay:.12s}.outcomesSlide .outcomestep:nth-child(3){animation-delay:.24s}.outcomesSlide .outcomestep:nth-child(4){animation-delay:.36s}.outcomesSlide .outcomenum{position:relative;z-index:1;display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:#f7f4ed;border:1px solid #b39159aa;color:#9d7944;font-size:20px;font-weight:850}.outcomesSlide .outcomecard{position:relative;display:grid;grid-template-columns:68px minmax(0,1fr) 166px;gap:22px;align-items:center;min-height:118px;padding:18px 26px 18px 30px;background:linear-gradient(120deg,#fcfbf8,#f7f4ed);border:1px solid #b3915966;border-radius:20px;box-shadow:0 9px 24px #08294507;animation:none;transition:box-shadow .25s ease}.outcomesSlide .outcomecard::before{content:'';position:absolute;left:0;top:24px;bottom:24px;width:5px;border-radius:0 4px 4px 0;background:#b39159}.outcomesSlide .outcomecard:hover{box-shadow:0 12px 28px #08294514}.outcomesSlide .outcomeicon{width:68px;height:68px;display:grid;place-items:center;border-radius:18px;background:#082945;color:#e9ca8b}.outcomesSlide .outcomeicon svg{width:34px;height:34px}.outcomesSlide .outcomecard h3{font-size:23px;line-height:1.2;font-weight:850;letter-spacing:1.3px;margin:0 0 10px;color:#123f68;text-transform:uppercase}.outcomesSlide .outcomecard p{font-size:20px;line-height:1.4;color:#4d6577;margin:0;font-weight:550}.outcomesSlide .outcomebadge{display:flex;justify-content:center;align-items:center;gap:11px;min-height:54px;padding:10px 12px;border:1px solid #b3915977;background:#f2ebdc;border-radius:14px;color:#123f68;font-size:14px;font-weight:800;white-space:nowrap;box-shadow:0 3px 12px #b3915909}.outcomesSlide .outcomebadge i{font-style:normal;display:grid;place-items:center;width:27px;height:27px;flex:0 0 27px;border-radius:7px;background:#b39159;color:#fff;font-size:17px}.outcomesSlide .outcomestep:nth-child(2) .outcomecard{background:linear-gradient(120deg,#123f60,#082945);border-color:#b3915980;box-shadow:0 12px 28px #08294520}.outcomesSlide .outcomestep:nth-child(2) .outcomenum{background:#082945;color:#e9ca8b}.outcomesSlide .outcomestep:nth-child(2) .outcomeicon{background:#214c6c;border:1px solid #e9ca8b33}.outcomesSlide .outcomestep:nth-child(2) h3{color:#e9ca8b}.outcomesSlide .outcomestep:nth-child(2) p{color:#f7fafc;font-weight:600}.outcomesSlide .outcomestep:nth-child(2) .outcomebadge{background:#163a53;color:#e9ca8b;border-color:#e9ca8b55}.outcomesSlide .outcomestep:nth-child(2) .outcomebadge i{animation:eiuOutcomeGlow 4s ease-in-out 1s infinite}
+.outcomesSlide{font-family:Inter,'Segoe UI','Noto Sans',Arial,sans-serif;background:radial-gradient(ellipse at 90% 80%,#18547f0b,transparent 48%),linear-gradient(135deg,#fff,#fbfaf7 60%,#f3f7f9)}.outcomesSlide::before{background:linear-gradient(#08294502 1px,transparent 1px),linear-gradient(90deg,#08294502 1px,transparent 1px);background-size:46px 46px}.outcomesSlide .title{font-size:36px;font-weight:800;letter-spacing:-.8px;color:#082945;animation:eiuTextReveal .6s both}.outcomesSlide .title::after{content:'';display:block;width:64px;height:3px;margin-top:14px;background:#b39159;animation:eiuRuleReveal .6s .1s both;transform-origin:left}.outcomesSlide .stage{height:560px}.outcomesSlide .outcomesgrid{position:relative;display:flex;flex-direction:column;gap:18px;width:100%;margin:0}.outcomesSlide .outcomesgrid::before{content:'';position:absolute;left:30px;top:57px;bottom:57px;width:2px;background:linear-gradient(#b3915940,#b39159bb,#b3915940);background-size:100% 200%;animation:eiuConnectorFlow 4s linear infinite}.outcomesSlide .outcomestep{position:relative;display:grid;grid-template-columns:62px minmax(0,1fr);gap:24px;align-items:center;animation:eiuTextReveal .65s cubic-bezier(.22,1,.36,1) both}.outcomesSlide .outcomestep:nth-child(2){animation-delay:.12s}.outcomesSlide .outcomestep:nth-child(3){animation-delay:.24s}.outcomesSlide .outcomestep:nth-child(4){animation-delay:.36s}.outcomesSlide .outcomenum{position:relative;z-index:1;display:grid;place-items:center;width:60px;height:60px;border-radius:50%;background:#f7f4ed;border:1px solid #b39159aa;color:#9d7944;font-size:20px;font-weight:850}.outcomesSlide .outcomecard{position:relative;display:grid;grid-template-columns:68px minmax(0,1fr) 166px;gap:22px;align-items:center;min-height:118px;padding:18px 26px 18px 30px;background:linear-gradient(120deg,#fcfbf8,#f7f4ed);border:1px solid #b3915966;border-radius:20px;box-shadow:0 9px 24px #08294507;animation:none;transition:box-shadow .25s ease}.outcomesSlide .outcomecard::before{content:'';position:absolute;left:0;top:24px;bottom:24px;width:5px;border-radius:0 4px 4px 0;background:#b39159}.outcomesSlide .outcomecard:hover{box-shadow:0 12px 28px #08294514}.outcomesSlide .outcomeicon{width:68px;height:68px;display:grid;place-items:center;border-radius:18px;background:#082945;color:#e9ca8b}.outcomesSlide .outcomeicon svg{width:34px;height:34px}.outcomesSlide .outcomecard h3{font-size:23px;line-height:1.2;font-weight:850;letter-spacing:1.3px;margin:0 0 10px;color:#123f68;text-transform:uppercase}.outcomesSlide .outcomecard p{font-size:20px;line-height:1.4;color:#4d6577;margin:0;font-weight:550}.outcomesSlide .outcomebadge{display:flex;justify-content:center;align-items:center;gap:11px;min-height:54px;padding:10px 12px;border:1px solid #b3915977;background:#f2ebdc;border-radius:14px;color:#123f68;font-size:14px;font-weight:800;white-space:nowrap;box-shadow:0 3px 12px #b3915909}.outcomesSlide .outcomebadge i{font-style:normal;display:grid;place-items:center;width:27px;height:27px;flex:0 0 27px;border-radius:7px;background:#b39159;color:#fff;font-size:17px}.outcomesSlide .outcomestep:nth-child(2) .outcomebadge i{animation:eiuOutcomeGlow 4s ease-in-out 1s infinite}
 @keyframes eiuRoleLight{0%,100%{opacity:.25;transform:scaleX(.55)}50%{opacity:1;transform:scaleX(1)}}@keyframes eiuConnectorFlow{to{background-position:0 200%}}@keyframes eiuOutcomeGlow{50%{box-shadow:0 0 0 6px #e9ca8b0b,0 0 18px #e9ca8b25}}@keyframes eiuNumberReveal{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}@keyframes eiuTextReveal{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}@keyframes eiuRuleReveal{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 `;
 
@@ -1288,7 +1362,8 @@ const openingFourToolsCss = `
 @keyframes openingOrbitSpin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}@keyframes openingOrbitUpright{from{transform:translateX(170px) rotate(0deg)}to{transform:translateX(170px) rotate(-360deg)}}
 @media(prefers-reduced-motion:reduce){.sectionOneOpening .openingOrbit,.sectionOneOpening .openingOrbit .openingnode,.sectionOneOpening .openinglinks,.sectionOneOpening .openingring,.sectionOneOpening .openingglow{animation:none!important}.sectionOneOpening .openingOrbit.orbit-0{transform:rotate(0deg)}.sectionOneOpening .openingOrbit.orbit-0 .openingnode{transform:translateX(170px) rotate(0deg)}.sectionOneOpening .openingOrbit.orbit-1{transform:rotate(90deg)}.sectionOneOpening .openingOrbit.orbit-1 .openingnode{transform:translateX(170px) rotate(-90deg)}.sectionOneOpening .openingOrbit.orbit-2{transform:rotate(180deg)}.sectionOneOpening .openingOrbit.orbit-2 .openingnode{transform:translateX(170px) rotate(-180deg)}.sectionOneOpening .openingOrbit.orbit-3{transform:rotate(270deg)}.sectionOneOpening .openingOrbit.orbit-3 .openingnode{transform:translateX(170px) rotate(-270deg)}}
 `;
-function opening(s:SlideData){const names=s.section===1?['VS Code','Node.js','Git','GitHub']:['Google Drive','Supabase','Vercel'];return <div className="openinghero">{s.section===1&&<style>{openingFourToolsCss}</style>}<div className="openingcopy"><h1>{s.section===1?<><span>Phát triển &amp; </span><em>Quản lý mã nguồn</em></>:<><span>Kết nối dữ liệu</span><br/><em>Triển khai website</em></>}</h1>{s.section===1&&<h2 className="openingSubtitle">VS Code · Node.js · Git · GitHub</h2>}<p>{s.section===1?'VS Code chỉnh sửa cùng AI; Node.js chạy và kiểm tra.':'Lưu dữ liệu với Supabase, quản lý tài liệu trên Google Drive và đưa ứng dụng lên Vercel.'}</p>{s.section===1&&<p className="openingSecondLine">Git lưu phiên bản; GitHub lưu repo và hỗ trợ cộng tác.</p>}<div className="openingroles">{(s.section===1?['Chỉnh sửa cùng AI','Chạy app với Node.js','Kiểm tra kết quả','Quản lý phiên bản']:['Dữ liệu','Tài liệu','Website']).map(t=><span>{t}</span>)}</div></div><div className="openingfield"><div className="openingglow" aria-hidden="true"/><div className="openingring" aria-hidden="true"/><div className="openingring inner" aria-hidden="true"/><svg className="openinglinks" viewBox="0 0 540 585" aria-hidden="true">{s.section===1?<circle cx="275" cy="340" r="170"/>:<path d="M265 125 L110 430 L430 430 Z"/>}</svg>{names.map((name,i)=>{const node=<div className={'openingnode '+(names.length===4?'four-':names.length===2?'two-':'three-')+i}><span className="iconplate">{name==='Node.js'?gitGuideMark(name):<img src={assets[name]} alt={name}/>}</span><strong>{name}</strong></div>;return s.section===1?<div className={'openingOrbit orbit-'+i} style={{animationDelay:(-i*6.25)+'s'}}>{node}</div>:node;})}</div></div>;}
+const openingAICss = `.sectionOneOpening .openingOrbit .openingnode{left:-80px;top:-64px;width:160px;gap:8px;transform-origin:80px 64px}.sectionOneOpening .openingOrbit .iconplate{width:128px;height:128px}.sectionOneOpening .openingOrbit img,.sectionOneOpening .openingOrbit .gitMark{width:96px;height:96px}.sectionOneOpening .openingOrbit strong{font-size:22px}.sectionOneOpening .openingOrbit .vscodeAICluster{display:grid;grid-template-columns:30px 30px;grid-template-rows:76px 30px;column-gap:18px;row-gap:8px;justify-content:center;align-content:center;justify-items:center;align-items:center;padding:4px}.sectionOneOpening .openingOrbit .vscodeAICluster .openingVSCodeMain{position:static;grid-column:1/-1;grid-row:1;width:76px;height:76px;object-fit:contain}.sectionOneOpening .openingAISupport{position:static;width:30px;height:30px;padding:2px;display:grid;place-items:center;border:1px solid #b3915955;border-radius:8px;background:#fbfaf7;grid-row:2}.sectionOneOpening .openingAISupport.codex{grid-column:1}.sectionOneOpening .openingAISupport.antigravity{grid-column:2}.sectionOneOpening .openingOrbit .openingAISupport img{width:24px;height:24px;object-fit:contain}`;
+function opening(s:SlideData){const names=s.section===1?['VS Code','Node.js','Git','GitHub']:['Google Drive','Supabase','Vercel'];return <div className="openinghero">{s.section===1&&<style>{openingFourToolsCss+openingAICss}</style>}<div className="openingcopy"><h1>{s.section===1?<><span>Phát triển &amp; </span><em>Quản lý mã nguồn</em></>:<><span>Kết nối dữ liệu</span><br/><em>Triển khai website</em></>}</h1>{s.section===1&&<h2 className="openingSubtitle">VS Code · Node.js · Git · GitHub</h2>}<p>{s.section===1?'VS Code chỉnh sửa cùng AI; Node.js chạy và kiểm tra.':'Lưu dữ liệu với Supabase, quản lý tài liệu trên Google Drive và đưa ứng dụng lên Vercel.'}</p>{s.section===1&&<p className="openingSecondLine">Git lưu phiên bản; GitHub lưu repo và hỗ trợ cộng tác.</p>}<div className="openingroles">{(s.section===1?['Chỉnh sửa cùng AI','Chạy app với Node.js','Kiểm tra kết quả','Quản lý phiên bản']:['Dữ liệu','Tài liệu','Website']).map(t=><span>{t}</span>)}</div></div><div className="openingfield"><div className="openingglow" aria-hidden="true"/><div className="openingring" aria-hidden="true"/><div className="openingring inner" aria-hidden="true"/><svg className="openinglinks" viewBox="0 0 540 585" aria-hidden="true">{s.section===1?<circle cx="275" cy="340" r="170"/>:<path d="M265 125 L110 430 L430 430 Z"/>}</svg>{names.map((name,i)=>{const node=<div className={'openingnode '+(names.length===4?'four-':names.length===2?'two-':'three-')+i}><span className={"iconplate"+(s.section===1&&name==='VS Code'?" vscodeAICluster":"")}>{name==='Node.js'?gitGuideMark(name):<img className={s.section===1&&name==='VS Code'?"openingVSCodeMain":undefined} src={assets[name]} alt={name}/>}{s.section===1&&name==='VS Code'&&["Codex","Antigravity"].map(ai=><span className={"openingAISupport "+ai.toLowerCase()} title={ai}><img src={assets["AI "+ai]} alt={ai}/></span>)}</span><strong>{name}</strong></div>;return s.section===1?<div className={'openingOrbit orbit-'+i} style={{animationDelay:(-i*6.25)+'s'}}>{node}</div>:node;})}</div></div>;}
 const featureData:Record<string,{name:string;use:string;example:string;verify:string}[]>={
  'VS Code':[
  {name:'Explorer · cây file',use:'Mở thư mục gốc, xem cấu trúc và chọn file cần chỉnh.',example:'Tìm trang chính và thành phần biểu mẫu tạo yêu cầu.',verify:'Thấy toàn bộ dự án và xác định đúng file sẽ sửa.'},
@@ -1322,11 +1397,11 @@ const detailCss = `
 .roleSlide,.featureSlide,.processSlide{font-family:Inter,'Segoe UI','Noto Sans',Arial,sans-serif;background:radial-gradient(ellipse at 92% 82%,#18547f0b,transparent 45%),linear-gradient(135deg,#fff,#fbfaf7 60%,#f3f7f9)}.roleSlide .title,.featureSlide .title,.processSlide .title{font-size:36px;font-weight:800;letter-spacing:-.8px;color:#082945;animation:eiuTextReveal .6s both}.roleSlide .title::after,.featureSlide .title::after,.processSlide .title::after{content:'';display:block;width:64px;height:3px;margin-top:14px;background:#b39159;animation:eiuRuleReveal .6s .1s both;transform-origin:left}.roleSlide .stage,.featureSlide .stage,.processSlide .stage{height:560px}
 .rolegrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;width:100%}.rolecard{position:relative;min-height:444px;padding:28px;background:linear-gradient(125deg,#fcfbf8,#f7f4ed);border:1px solid #b3915966;border-radius:20px;box-shadow:0 10px 25px #08294508;display:flex;flex-direction:column;animation:eiuTextReveal .65s both}.rolecard:nth-child(2){animation-delay:.12s;background:linear-gradient(125deg,#123f60,#082945);box-shadow:0 12px 28px #08294520}.rolecard:nth-child(3){animation-delay:.24s}.rolecard::before{content:'';position:absolute;left:0;top:30px;height:72px;width:5px;background:#b39159;border-radius:0 4px 4px 0}.rolelogo{width:90px;height:90px;background:#fff;border:1px solid #b3915933;border-radius:22px;padding:16px;box-shadow:0 6px 18px #08294509;margin-bottom:28px;animation:roleIconFloat 6s ease-in-out infinite}.rolecard:nth-child(2) .rolelogo{animation-delay:-2s}.rolecard:nth-child(3) .rolelogo{animation-delay:-4s}.rolecard h2{font-size:28px;line-height:1.2;letter-spacing:1.3px;text-transform:uppercase;font-weight:850;color:#123f68;margin:0 0 12px}.rolecard h3{font-size:20px;line-height:1.35;font-weight:650;color:#9d7944;margin:0 0 22px;min-height:54px}.rolecard p{font-size:20px;line-height:1.55;color:#4d6577;margin:0}.rolecard:nth-child(2) h2{color:#e9ca8b}.rolecard:nth-child(2) h3{color:#e9ca8bc9}.rolecard:nth-child(2) p{color:#e5eef5}
 .featureSlide .featuretabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:22px}.featureSlide .featuretabs .btn{height:84px;display:flex;align-items:center;justify-content:flex-start;gap:18px;padding:12px 22px;border:1px solid #b3915966;background:#f9f6ef;color:#123f68;border-radius:18px;font-size:23px;font-weight:800;letter-spacing:.4px;animation:eiuTextReveal .6s both}.featureSlide .featuretabs .btn:nth-child(2){animation-delay:.08s}.featureSlide .featuretabs .btn:nth-child(3){animation-delay:.16s}.featureSlide .featuretabs img{width:58px;height:58px;padding:10px;border-radius:14px;background:white;object-fit:contain}.featureSlide .featuretabs .btn.active{background:linear-gradient(120deg,#123f60,#082945);border-color:#b3915988;color:#e9ca8b;box-shadow:0 7px 22px #08294516}.featureSlide .featuregrid{grid-template-columns:340px minmax(0,1fr);gap:22px}.featureSlide .featurelist{gap:10px;align-content:start}.featureSlide .featurelist .btn{position:relative;min-height:60px;text-align:left;padding:12px 17px;font-size:18px;font-weight:650;background:#fbf8f2;border-color:#b3915944;border-radius:12px;line-height:1.35}.featureSlide .featurelist .btn.active{background:#123f60;color:#fff;border-color:#b3915988;box-shadow:0 4px 16px #08294512}.featureSlide .featurelist .btn.active::before{content:'';position:absolute;left:0;top:13px;bottom:13px;width:4px;background:#e9ca8b;border-radius:0 3px 3px 0}.featureSlide .featuredetail{padding:23px;border:1px solid #b3915966;border-radius:18px;background:#fff;box-shadow:0 9px 24px #08294508;animation:eiuTextReveal .35s both;min-height:340px}.featureSlide .featuredetail h3{font-size:24px;line-height:1.3;letter-spacing:.5px;font-weight:800;color:#123f68;margin:0 0 18px}.featurefacts{display:grid;gap:12px}.featurefact{border-left:3px solid #b39159;border-radius:0 10px 10px 0;background:#f8f5ef;padding:12px 15px}.featurefact b{display:block;font-size:13px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:#9d7944;margin-bottom:5px}.featureSlide .featurefact p{font-size:18px;line-height:1.45;color:#4d6577;margin:0}
-.fixedProcess{display:grid;grid-template-columns:minmax(0,1fr) 38px minmax(0,1fr) 38px minmax(0,1fr);grid-template-rows:215px 36px 215px;align-items:center;width:100%}.fixedStep{position:relative;height:215px;padding:20px 23px;border:1px solid #b3915966;border-radius:18px;background:linear-gradient(125deg,#fcfbf8,#f7f4ed);box-shadow:0 8px 22px #08294507;animation:eiuTextReveal .6s both}.fixedStep::before{content:'';position:absolute;left:0;top:24px;bottom:24px;width:4px;border-radius:0 3px 3px 0;background:#b39159}.fixedStep .fixedheading{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.fixedStep img{width:46px;height:46px;padding:7px;border-radius:12px;background:#fff;border:1px solid #b3915933}.fixedStep .stepnum{width:33px;height:33px;display:grid;place-items:center;font-size:15px;font-weight:800;border-radius:50%;background:#f1e9da;color:#9d7944}.fixedStep h3{font-size:21px;line-height:1.25;font-weight:850;letter-spacing:.7px;text-transform:uppercase;margin:0 0 10px;color:#123f68}.fixedStep p{font-size:18px;line-height:1.4;color:#4d6577;margin:0}.fixedStep.finalStep{background:linear-gradient(125deg,#123f60,#082945);border-color:#b3915980;box-shadow:0 12px 25px #08294520}.fixedStep.finalStep h3{color:#e9ca8b}.fixedStep.finalStep p{color:#e5eef5}.fixedStep.finalStep .stepnum{background:#b39159;color:#fff}.processArrow{display:grid;place-items:center;color:#b39159;font-size:31px;line-height:1;animation:processSignal 2.8s ease-in-out infinite}.processArrow.down{font-size:29px}.processArrow svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}.fixedStep:nth-of-type(2){animation-delay:.1s}.fixedStep:nth-of-type(3){animation-delay:.2s}.fixedStep:nth-of-type(4){animation-delay:.3s}.fixedStep:nth-of-type(5){animation-delay:.4s}.fixedStep:nth-of-type(6){animation-delay:.5s}
+.fixedProcess{display:grid;grid-template-columns:minmax(0,1fr) 38px minmax(0,1fr) 38px minmax(0,1fr);grid-template-rows:215px 36px 215px;align-items:center;width:100%}.fixedStep{position:relative;height:215px;padding:20px 23px;border:1px solid #b3915966;border-radius:18px;background:linear-gradient(125deg,#fcfbf8,#f7f4ed);box-shadow:0 8px 22px #08294507;animation:eiuTextReveal .6s both}.fixedStep::before{content:'';position:absolute;left:0;top:24px;bottom:24px;width:4px;border-radius:0 3px 3px 0;background:#b39159}.fixedStep .fixedheading{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.fixedStep img{width:46px;height:46px;padding:7px;border-radius:12px;background:#fff;border:1px solid #b3915933}.fixedStep .stepnum{width:33px;height:33px;display:grid;place-items:center;font-size:15px;font-weight:800;border-radius:50%;background:#f1e9da;color:#9d7944}.fixedStep h3{font-size:21px;line-height:1.25;font-weight:850;letter-spacing:.7px;text-transform:uppercase;margin:0 0 10px;color:#123f68}.fixedStep p{font-size:18px;line-height:1.4;color:#4d6577;margin:0}.processArrow{display:grid;place-items:center;color:#b39159;font-size:31px;line-height:1;animation:processSignal 2.8s ease-in-out infinite}.processArrow.down{font-size:29px}.processArrow svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}.fixedStep:nth-of-type(2){animation-delay:.1s}.fixedStep:nth-of-type(3){animation-delay:.2s}.fixedStep:nth-of-type(4){animation-delay:.3s}.fixedStep:nth-of-type(5){animation-delay:.4s}.fixedStep:nth-of-type(6){animation-delay:.5s}
 @keyframes roleIconFloat{50%{transform:translateY(-4px)}}@keyframes processSignal{0%,100%{opacity:.35;filter:drop-shadow(0 0 0 #e9ca8b)}45%,65%{opacity:1;filter:drop-shadow(0 0 5px #e9ca8b88)}}
 `;
 function roles(s:SlideData){return <div className="rolegrid">{s.cards.map((c,i)=>{const [tool,role]=c.title.split(' · ');return <article className="rolecard"><img className="rolelogo" src={assets[['VS Code','Git','GitHub'][i]]} alt={tool}/><h2>{tool}</h2><h3>{role}</h3><p>{c.text}</p></article>;})}</div>;}
-const processToolCss = `.fixedTools{display:flex;align-items:center;gap:10px;min-width:0}.fixedTools .gitMark{width:46px;height:46px;padding:7px;border-radius:12px;background:#fff;border:1px solid #b3915933}.fixedTools .gitMark img,.fixedTools .gitMark svg{width:100%;height:100%;padding:0;border:0;background:none;border-radius:0}.fixedStep{min-width:0}.fixedStep h3,.fixedStep p{overflow-wrap:break-word}`;
+const processToolCss = `.fixedTools{display:flex;align-items:center;gap:10px;min-width:0}.fixedTools .gitMark{width:46px;height:46px;padding:7px;border-radius:12px;background:#fff;border:1px solid #b3915933}.fixedTools .gitMark img,.fixedTools .gitMark svg{width:100%;height:100%;padding:0;border:0;background:none;border-radius:0}.fixedStep{min-width:0}.fixedStep h3,.fixedStep p{overflow-wrap:break-word}.fixedProcess .fixedTools>img,.fixedProcess .fixedTools>.gitMark{animation:processToolFloat 4s ease-in-out infinite;animation-delay:var(--tool-delay,0s);transform-origin:center;will-change:transform}.fixedProcess .fixedStep:nth-of-type(2){--tool-delay:-.6s}.fixedProcess .fixedStep:nth-of-type(3){--tool-delay:-1.2s}.fixedProcess .fixedStep:nth-of-type(4){--tool-delay:-1.8s}.fixedProcess .fixedStep:nth-of-type(5){--tool-delay:-2.4s}.fixedProcess .fixedStep:nth-of-type(6){--tool-delay:-3s}.fixedProcess .fixedTools>:nth-child(2){animation-delay:-1.4s}@keyframes processToolFloat{0%,100%{transform:translateY(3px) rotate(-2deg)}50%{transform:translateY(-6px) rotate(2deg)}}@media(prefers-reduced-motion:reduce){.fixedProcess .fixedTools>img,.fixedProcess .fixedTools>.gitMark{animation:none!important;transform:none}}`;
 function fixedProcess(s:SlideData){const steps=s.cards.map((card,i)=>({title:card.title,text:card.text,tool:card.logo||['VS Code','VS Code','Git','Git','GitHub','GitHub'][i]}));const positions=[[1,1],[1,3],[1,5],[3,5],[3,3],[3,1]];return <div className="fixedProcess"><style>{processToolCss}</style>{steps.map((s,i)=><article className={'fixedStep '+(i===5?'finalStep':'')} style={{gridRow:String(positions[i][0]),gridColumn:String(positions[i][1]),animationDelay:(i*.1)+'s'}}><div className="fixedheading"><div className="fixedTools">{s.tool==='Node.js'?<>{gitGuideMark('VS Code')}{gitGuideMark('Node.js')}</>:<img src={assets[s.tool]} alt={s.tool}/>}</div><span className="stepnum">{String(i+1).padStart(2,'0')}</span></div><h3>{s.title}</h3><p>{s.text}</p></article>)}{[[1,2,'right'],[1,4,'right'],[2,5,'down'],[3,4,'left'],[3,2,'left']].map(([row,col,direction],i)=><span className={'processArrow '+direction} style={{gridRow:String(row),gridColumn:String(col),animationDelay:(i*.35)+'s'}} aria-hidden="true"><svg viewBox="0 0 32 32">{direction==='down'?<path d="M16 3v26m-7-7 7 7 7-7"/>:direction==='left'?<path d="M29 16H3m7-7-7 7 7 7"/>:<path d="M3 16h26m-7-7 7 7-7 7"/>}</svg></span>)}</div>;}
 
 
@@ -1334,7 +1409,7 @@ const vscodeRegions = [
  {name:'Thanh menu',subtitle:'File · Edit · View · Run',x:48,y:5,w:430,h:38,cx:520,cy:24,text:'Mở file hoặc thư mục, chỉnh sửa, đổi cách hiển thị và chạy tác vụ qua các menu.'},
  {name:'Thanh công cụ',subtitle:'Activity Bar · bên trái',x:8,y:55,w:55,h:1087,cx:36,cy:760,text:'Chuyển nhanh giữa Explorer, Search, Source Control, Run & Debug và Extensions.'},
  {name:'Explorer',subtitle:'Cây thư mục và file',x:76,y:55,w:249,h:1087,cx:110,cy:825,text:'Xem cấu trúc dự án; mở, tạo và quản lý file hoặc thư mục trong workspace.'},
- {name:'Vùng làm việc',subtitle:'Editor · các tab ở giữa',x:335,y:55,w:1205,h:854,cx:372,cy:855,text:'Mở và chỉnh sửa mã trong các tab. Ảnh đang ở tab Welcome; chọn file từ Explorer để viết mã.'},
+ {name:'Trình soạn thảo',subtitle:'Editor · các tab ở giữa',x:335,y:55,w:1205,h:854,cx:372,cy:855,text:'Mở và chỉnh sửa mã trong các tab. Ảnh đang ở tab Welcome; chọn file từ Explorer để viết mã.'},
  {name:'Terminal',subtitle:'Bảng điều khiển phía dưới',x:335,y:919,w:1205,h:224,cx:1498,cy:1100,text:'Chạy lệnh tại thư mục dự án, xem log và lỗi; mở địa chỉ localhost khi chạy bản xem thử.'},
  {name:'Codex / Chat',subtitle:'Trợ lý AI · bên phải',x:1550,y:55,w:358,h:1087,cx:1868,cy:865,text:'Giao việc cho AI, hỏi về mã và xem đề xuất. Đọc thay đổi, kiểm tra kết quả trước khi chấp nhận.'},
 ];
@@ -1342,7 +1417,9 @@ const vscodeCss = `
 .vscodeMap{display:grid;grid-template-columns:914px 1fr;gap:22px;align-items:center}.vscodeShot{position:relative;width:914px;height:549.26px;border-radius:16px;overflow:hidden;box-shadow:0 10px 26px #08294518;background:#101214}.vscodeShot img{width:100%;height:100%;display:block;object-fit:contain}.vscodeMarks{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.vscodeMarks rect{stroke:#ff4848;stroke-width:5;fill:none}.vscodeMarks circle{fill:#dc2626;stroke:#fff;stroke-width:3}.vscodeMarks text{fill:#fff;font-family:Inter,'Segoe UI',Arial,sans-serif;font-size:33px;font-weight:800;text-anchor:middle;dominant-baseline:central}.vscodeNames{display:flex;flex-direction:column;gap:12px}.vscodeName{display:flex;align-items:center;gap:12px;min-height:77px;padding:12px 14px;border:1px solid #b3915966;border-left:4px solid #b39159;border-radius:18px;background:linear-gradient(125deg,#fcfbf8,#f7f4ed);box-shadow:0 5px 14px #08294508}.vscodeNames .vscodeBadge{flex-basis:36px;width:36px;height:36px;border-radius:11px;background:#082945;color:#e9ca8b;border:1px solid #b3915980}.vscodeBadge{flex:0 0 32px;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;background:#dc2626;color:#fff;font-size:17px;font-weight:800}.vscodeName h3{margin:0 0 5px;font-size:18px;font-weight:800;color:#123f68;line-height:1.2;text-transform:uppercase;letter-spacing:.35px}.vscodeName p{margin:0;font-size:15px;line-height:1.35;color:#687987}.vscodeFunctions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;width:100%}.vscodeFunction{display:flex;gap:16px;align-items:flex-start;min-height:160px;padding:21px 22px;border:1px solid #b3915966;border-left:4px solid #b39159;border-radius:20px;background:#f7f4ed;box-shadow:0 6px 16px #08294506}.vscodeFunction:nth-child(3){background:linear-gradient(120deg,#123f68,#082945)}.vscodeFunction h3{margin:0 0 10px;font-size:22px;line-height:1.2;text-transform:uppercase;font-weight:800;color:#123f68;letter-spacing:.4px}.vscodeFunction p{margin:0;font-size:20px;line-height:1.45;font-weight:550;color:#4d6577}.vscodeFunction:nth-child(3) h3{color:#e9ca8b}.vscodeFunction:nth-child(3) p{color:#eef3f7}
 `;
 const workspacePopupCss = `
-.workspaceMapInteractive .vscodeName{width:100%;text-align:left;cursor:pointer;background:linear-gradient(125deg,#123f68,#082945);border-color:#b39159;color:#fff;font-family:Inter,'Segoe UI',sans-serif}.workspaceMapInteractive .vscodeName h3{color:#e9ca8b}.workspaceMapInteractive .vscodeName p{color:#edf3f7}.workspaceMapInteractive .vscodeName:focus-visible,.workspacePopupClose:focus-visible{outline:3px solid #e9ca8b;outline-offset:3px}.vscodeHotspot{position:absolute;background:transparent;border:0;padding:0;cursor:pointer;border-radius:8px}.vscodeHotspot:focus-visible{outline:4px solid #e9ca8b;outline-offset:2px}
+.workspaceMapInteractive .vscodeName{width:100%;text-align:left;cursor:pointer;background:linear-gradient(125deg,#fcfbf8,#f7f4ed);border-color:#b39159;color:#17324a;font-family:Inter,'Segoe UI',sans-serif}.workspaceMapInteractive .vscodeName h3{color:#123f68}.workspaceMapInteractive .vscodeName p{color:#687987}.workspaceMapInteractive .vscodeName:focus-visible,.workspacePopupClose:focus-visible{outline:3px solid #e9ca8b;outline-offset:3px}.vscodeHotspot{position:absolute;background:transparent;border:0;padding:0;cursor:pointer;border-radius:8px}.vscodeHotspot:focus-visible{outline:4px solid #e9ca8b;outline-offset:2px}
+.workspaceMapInteractive .vscodeName{position:relative;transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s ease,border-color .2s ease}.workspaceMapInteractive .vscodeName .vscodeBadge{transition:background-color .2s ease,color .2s ease,border-color .2s ease}.workspaceMapInteractive .vscodeName:hover,.workspaceMapInteractive .vscodeName:focus-visible{transform:translate(-3px,-2px);background:linear-gradient(125deg,#fffaf0,#f4ead5);border-color:#d2ac66;box-shadow:0 8px 20px #0829451a,0 0 0 2px #e9ca8b66}.workspaceMapInteractive .vscodeName:hover .vscodeBadge,.workspaceMapInteractive .vscodeName:focus-visible .vscodeBadge{background:#e9ca8b;color:#082945;border-color:#b39159}.workspaceMapInteractive .vscodeName:active{transform:translate(-1px,0);box-shadow:0 3px 9px #08294515,0 0 0 2px #e9ca8b66}@media(prefers-reduced-motion:reduce){.workspaceMapInteractive .vscodeName,.workspaceMapInteractive .vscodeName .vscodeBadge{transition:none}.workspaceMapInteractive .vscodeName:hover,.workspaceMapInteractive .vscodeName:focus-visible,.workspaceMapInteractive .vscodeName:active{transform:none}}
+.workspaceMapInteractive .vscodeRegionReveal{animation:vscodeRegionReveal .5s ease-out both}@keyframes vscodeRegionReveal{from{opacity:0}to{opacity:1}}@media(prefers-reduced-motion:reduce){.workspaceMapInteractive .vscodeRegionReveal{animation:none!important;opacity:1}}
 .workspacePopupOverlay{position:absolute;inset:0;z-index:60;padding:0;background:#fbfaf7}.workspacePopup{width:100%;height:100%;border:8px solid #082945;padding:20px 24px 24px;box-shadow:inset 0 0 0 2px #b39159;background:linear-gradient(135deg,#fbfaf7,#f7f4ed);display:grid;grid-template-rows:100px minmax(0,1fr);gap:18px;overflow:hidden}.workspacePopupHeader{display:grid;grid-template-columns:64px minmax(0,1fr) auto;align-items:center;gap:20px;height:100px;margin:0;padding:0 0 14px;border-bottom:1px solid #b3915966}.workspacePopupNumber{width:64px;height:64px;display:grid;place-items:center;border-radius:18px;border:1px solid #b39159;background:linear-gradient(135deg,#123f68,#082945);color:#e9ca8b;font-size:29px;font-weight:850;box-shadow:0 6px 18px #08294516}.workspacePopupHeading{min-width:0}.workspacePopupHeading small{font-size:13px;font-weight:800;letter-spacing:1px;color:#9d7944}.workspacePopupHeading h2{font-size:27px;line-height:1.2;font-weight:850;color:#082945;margin:5px 0 6px}.workspacePopupHeading p{font-size:18px;line-height:1.3;color:#4d6577;margin:0}.workspacePopupClose{border:1px solid #b39159;border-radius:12px;padding:12px 18px;background:#082945;color:#e9ca8b;font:750 17px Inter,'Segoe UI',sans-serif;cursor:pointer}
 .workspacePopup>.regionDetail{width:100%;height:100%;min-height:0;gap:0;overflow:visible}.workspacePopup .regionLead{display:none}.workspacePopup .regionGrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:14px;height:100%;align-content:stretch}.workspacePopup .regionDetail.dense .regionGrid{grid-template-columns:repeat(4,minmax(0,1fr))}.workspacePopup .regionCard,.workspacePopup .regionDetail.dense .regionCard{min-width:0;min-height:0;padding:16px 18px;display:flex;flex-direction:column;justify-content:flex-start;border:1px solid #b3915977;border-left:4px solid #b39159;border-radius:20px;background:#f7f4ed;box-shadow:0 5px 14px #08294508}.workspacePopup .regionCard h3{font-size:19px;line-height:1.25;margin:0 0 9px;width:auto;max-width:100%;color:#123f68;overflow-wrap:anywhere}.workspacePopup .regionCard p{font-size:18px;line-height:1.35;margin:0;color:#4d6577;overflow-wrap:anywhere}.workspacePopup .regionDetail.dense .regionCard{padding:14px}.workspacePopup .regionDetail.dense .regionCard h3{font-size:18px;line-height:1.25;margin-bottom:9px}.workspacePopup .regionDetail.dense .regionCard p{font-size:17px;line-height:1.35}.workspacePopup .regionCard.regionEmphasis{background:linear-gradient(125deg,#123f68,#082945);border-color:#b39159;box-shadow:0 6px 16px #08294518}.workspacePopup .regionEmphasis h3{color:#e9ca8b}.workspacePopup .regionEmphasis p{color:#edf3f7}.workspacePopup .regionEmphasis::before,.workspacePopup .regionEmphasis::after,.workspacePopup .regionTitleLine{display:none}
 .workspacePopup .regionBullets{font-size:18px;line-height:1.35;color:#4d6577;margin:0;padding-left:18px;overflow-wrap:break-word}.workspacePopup .regionBullets li+li{margin-top:7px}.workspacePopup .regionDetail.dense .regionBullets{font-size:17px;line-height:1.35}.workspacePopup .regionBullets li::marker{color:#9d7944}.workspacePopup .regionDetail .regionCard.regionEmphasis,.workspacePopup .regionDetail.dense .regionCard.regionEmphasis{background:linear-gradient(125deg,#123f68,#082945);border-color:#b39159}.workspacePopup .regionDetail .regionCard.regionEmphasis h3{color:#e9ca8b}.workspacePopup .regionDetail .regionCard.regionEmphasis .regionBullets{color:#edf3f7}.workspacePopup .regionDetail .regionCard.regionEmphasis li::marker{color:#e9ca8b}
@@ -1373,7 +1450,7 @@ function vscodeMap(s:SlideData){
   });
   overlay.append(panel);host.append(overlay);closeButton.focus();
  }
- const shot:any=<div className="vscodeShot"><img src={assets['VS Code workspace']} alt="Ảnh VS Code của dự án, với sáu vùng được đánh số và khoanh đỏ"/><svg className="vscodeMarks" viewBox="0 0 1917 1152" aria-hidden="true">{vscodeRegions.map((r,i)=><g><rect x={r.x} y={r.y} width={r.w} height={r.h} rx="14"/><circle cx={r.cx} cy={r.cy} r="29"/><text x={r.cx} y={r.cy}>{i+1}</text></g>)}</svg></div>;
+ const shot:any=<div className="vscodeShot"><img src={assets['VS Code workspace']} alt="Ảnh VS Code của dự án, với sáu vùng được đánh số và khoanh đỏ"/><svg className="vscodeMarks" viewBox="0 0 1917 1152" aria-hidden="true">{vscodeRegions.map((r,i)=><g className="vscodeRegionReveal" style={{animationDelay:(.25+i*.65)+'s'}}><rect x={r.x} y={r.y} width={r.w} height={r.h} rx="14"/><circle cx={r.cx} cy={r.cy} r="29"/><text x={r.cx} y={r.cy}>{i+1}</text></g>)}</svg></div>;
  vscodeRegions.forEach((r,i)=>{const target=<button type="button" className="vscodeHotspot" aria-haspopup="dialog" aria-label={'Xem vùng '+(i+1)+': '+r.name} style={{left:r.x/1917*100+'%',top:r.y/1152*100+'%',width:r.w/1917*100+'%',height:r.h/1152*100+'%'}} onClick={()=>open(i,target)}/>;shot.append(target);});
  host.append(<style>{popupTypographyCss+workspacePopupCss}</style>,shot);
  const names=h('div',{className:'vscodeNames'});
@@ -1521,6 +1598,8 @@ const gitOverviewCss = `
 .gitOverviewFlow{display:flex;justify-content:center;align-items:center;gap:20px;font-size:21px;font-weight:700;color:#123f68}.gitOverviewFlow b{color:#9d7944}.gitPopupOverlay{position:absolute;inset:0;z-index:50;display:grid;place-items:center;background:#041c31c9;padding:38px}.gitPopup{width:100%;max-width:1160px;max-height:644px;overflow-y:auto;padding:28px;border:2px solid #b39159;border-radius:26px;background:#fbfaf7;box-shadow:0 24px 80px #0005}.gitPopupHeader{display:flex;align-items:center;gap:18px;margin-bottom:22px}.gitPopupHeader .gitMark{width:64px;height:64px}.gitPopupHeader h2{font-size:32px;color:#082945;margin:0;flex:1}.gitPopupClose{border:1px solid #b39159;border-radius:12px;background:#082945;color:#e9ca8b;font:750 18px Inter,'Segoe UI',sans-serif;padding:12px 18px;cursor:pointer}.gitPopupCards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}.gitPopupCard{border:1px solid #b3915966;border-top:4px solid #b39159;border-radius:18px;background:#f7f4ed;padding:22px 20px}.gitPopupCard h3{font-size:23px;font-weight:800;margin:0 0 16px;color:#082945}.gitPopupCard p{font-size:19px;line-height:1.45;margin:0;color:#17324a}.gitPopupCard .gitPopupNote{margin-top:16px;padding-top:14px;border-top:1px solid #b3915944;color:#4d6577;font-size:18px}.gitPopupCard pre{background:#082945;color:#f4dfb0;font:18px/1.5 Consolas,monospace;padding:15px;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere;margin:16px 0 0}.gitPopupCard .gitGuideLink{font-size:17px}.gitPopupCard .gitGuideLink small{font-size:11px}
 `;
 const setupOverviewCss = `
+.gitSetupDetail .gitTerminalBlock{grid-column:2;grid-row:2/6;min-width:0}.gitSetupDetail .gitTerminalBlock strong{display:block;font-size:16px;color:#9d7944;margin:0 0 8px}.gitSetupDetail .gitTerminalBlock pre{font-size:16px;line-height:1.4;margin:0;overflow-wrap:anywhere}.gitSetupDetail .gitTerminalResult{margin-top:14px}.gitSetupDetail .gitTerminalResult pre{background:#eee7d9;color:#17324a;border:1px solid #b3915966}.gitSetupDetail .gitPopupCard:has(.gitTerminalBlock) p{grid-column:1}.gitSetupDetail .gitPopupCard:has(.gitTerminalBlock) .gitGuideLink{grid-column:1}
+
 .gitSetupOverview .gitOverviewChoices{gap:18px}.gitSetupOverview{gap:18px}.gitSetupOverview .gitOverviewChoice{min-height:205px;padding:22px 26px;display:grid;grid-template-columns:64px 1fr;gap:8px 20px;align-content:center}.gitSetupOverview .gitOverviewChoice .gitMark{width:64px;height:64px;grid-row:1/3}.gitSetupOverview .gitOverviewChoice h2{font-size:28px;margin:0}.gitSetupOverview .gitOverviewChoice p{font-size:19px;line-height:1.35;margin:0}.gitSetupOverview .gitOverviewChoice .gitOverviewAction{grid-column:2;font-size:16px;justify-self:start;margin-top:6px;padding:8px 12px}.gitSetupOverview .gitOverviewChoice:nth-child(2){background:linear-gradient(135deg,#123f68,#041c31);color:#fff}.gitSetupOverview .gitOverviewChoice:nth-child(2) h2{color:#e9ca8b}.gitSetupOverview .gitOverviewFlow{font-size:18px}.gitSetupNav{display:flex;gap:10px;margin-bottom:18px}.gitSetupStep{flex:1;padding:12px 10px;border:1px solid #b39159;border-radius:12px;background:#f7f4ed;color:#082945;font:700 17px/1.25 Inter,'Segoe UI',sans-serif;cursor:pointer}.gitSetupStep[aria-pressed=true]{background:#082945;color:#e9ca8b}.gitSetupStep:focus-visible{outline:3px solid #b39159;outline-offset:3px}.gitSetupDetail .gitPopupCard{display:grid;grid-template-columns:1fr 1fr;gap:12px 24px;padding:24px}.gitSetupDetail .gitPopupCard h3{grid-column:1/-1;margin:0}.gitSetupDetail .gitPopupCard p{font-size:21px}.gitSetupDetail .gitPopupCard .gitPopupNote{margin:0;padding-top:12px;grid-column:1}.gitSetupDetail .gitPopupCard pre{grid-column:2;grid-row:2/5;margin:0;align-self:start;font-size:18px}.gitSetupDetail .gitGuideLink{justify-self:start;grid-column:1;margin-top:0}.gitSetupDetail .gitPopupCard:not(:has(pre)) p{grid-column:1/-1}.gitSetupDetail .gitPopupCard:not(:has(pre)) .gitGuideLink{grid-column:1/-1}
 `;
 const gitTrioCss = `
@@ -1528,6 +1607,16 @@ const gitTrioCss = `
 `;
 const gitTrioEmphasisCss = `
 .gitTrioRoute strong{display:flex;align-items:center;justify-content:center;gap:8px}.gitTrioRoute strong .gitMark{width:28px;height:28px}.gitTrioFlow .gitTrioReturn{margin:14px 0 0;padding:12px 16px;border:1px solid #b39159;border-left:4px solid #e9ca8b;border-radius:12px;background:linear-gradient(120deg,#123f68,#082945);color:#edf3f7;font-size:18px;line-height:1.4;font-weight:650}.gitTrioReturn b{color:#e9ca8b;font-weight:850}
+`;
+const gitOverviewHoverCss = `
+.gitOverview .gitOverviewChoice{transition:transform .2s cubic-bezier(.22,1,.36,1),box-shadow .2s ease,border-color .2s ease}
+.gitOverview .gitOverviewChoice::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:linear-gradient(125deg,#f4dfb01c,transparent 65%);opacity:0;transition:opacity .2s ease}
+.gitOverview .gitOverviewChoice .gitOverviewAction{transition:background-color .2s ease,color .2s ease,border-color .2s ease}
+.gitOverview .gitOverviewChoice:hover,.gitOverview .gitOverviewChoice:focus-visible{transform:translateY(-3px);border-color:#e9ca8b;box-shadow:0 14px 28px #08294524,0 0 0 2px #e9ca8b77}
+.gitOverview .gitOverviewChoice:hover::after,.gitOverview .gitOverviewChoice:focus-visible::after{opacity:1}
+.gitOverview .gitOverviewChoice:hover .gitOverviewAction,.gitOverview .gitOverviewChoice:focus-visible .gitOverviewAction{background:#e9ca8b;color:#082945;border-color:#f4dfb0}
+.gitOverview .gitOverviewChoice:active{transform:translateY(-1px);box-shadow:0 5px 14px #08294520,0 0 0 2px #e9ca8b77}
+@media(prefers-reduced-motion:reduce){.gitOverview .gitOverviewChoice,.gitOverview .gitOverviewChoice::after,.gitOverview .gitOverviewChoice .gitOverviewAction{transition:none}.gitOverview .gitOverviewChoice:hover,.gitOverview .gitOverviewChoice:focus-visible,.gitOverview .gitOverviewChoice:active{transform:none}}
 `;
 function gitOverview(s:SlideData){
  const setup=s.visual==='git-intro-setup-overview';
@@ -1550,7 +1639,7 @@ function gitOverview(s:SlideData){
   close();opener=button;
   const cards=s.cards.filter(c=>c.label===name);
   const closeButton:any=<button type="button" className="gitPopupClose" aria-label={'Đóng nội dung '+name} onClick={close}>Đóng ×</button>;
-  const renderCard=(c:Card)=><article className="gitPopupCard"><h3>{c.title}</h3><p>{c.text}</p>{(c.code||c.installationOption)&&<pre>{c.code||c.installationOption}</pre>}{c.detail&&<p className="gitPopupNote">{c.detail}</p>}{c.link&&<a className="gitGuideLink" href={c.link} target="_blank" rel="noopener noreferrer">{c.linkLabel}<small>{c.link}</small></a>}</article>;
+  const renderCard=(c:Card)=><article className="gitPopupCard"><h3>{c.title}</h3><p>{c.text}</p>{(c.code||c.installationOption)&&<div className="gitTerminalBlock"><strong>{c.code?"Lệnh trong Terminal VS Code":"Lựa chọn trong bộ cài"}</strong><pre>{c.code||c.installationOption}</pre>{c.output&&<div className="gitTerminalResult"><strong>Ví dụ kết quả đạt</strong><pre>{c.output}</pre></div>}</div>}{c.detail&&<p className="gitPopupNote">{c.detail}</p>}{c.link&&<a className="gitGuideLink" href={c.link} target="_blank" rel="noopener noreferrer">{c.linkLabel}<small>{c.link}</small></a>}</article>;
   const body=h('div',{className:setup?'gitPopupSetup':'gitPopupCards'});
   if(setup){
    const nav=h('nav',{className:'gitSetupNav','aria-label':'Các bước cài '+name}),detail=h('div',{className:'gitSetupDetail','aria-live':'polite'});
@@ -1573,7 +1662,7 @@ function gitOverview(s:SlideData){
   });
   overlay.append(panel);host.append(overlay);closeButton.focus();
  }
- host.append(<style>{gitOverviewCss+(setup?setupOverviewCss:'')+popupTypographyCss+(trio?gitTrioCss+gitTrioEmphasisCss:'')}</style>,<p className="gitLead">{s.message}</p>);
+ host.append(<style>{gitOverviewCss+(setup?setupOverviewCss:'')+popupTypographyCss+(trio?gitTrioCss+gitTrioEmphasisCss:'')+gitOverviewHoverCss}</style>,<p className="gitLead">{s.message}</p>);
  const choices=h('div',{className:'gitOverviewChoices'});
  (setup?['VS Code','Node.js','Git','GitHub']:trio?['Node.js','Git','GitHub']:['Git','GitHub']).forEach(name=>{
   const button=<button type="button" className="gitOverviewChoice" aria-haspopup="dialog" onClick={()=>open(name,button)}>{gitGuideMark(name)}<h2>{name}</h2><p>{setup?appInfo[name].text:overviewInfo[name].text}</p><span className="gitOverviewAction">{setup?'Cài đặt & kiểm tra':'Mở nội dung '+name} ↗</span></button>;
@@ -1652,5 +1741,60 @@ case 'levels':return <div>{cards(s)}</div>;
 case 'schema':return <div className="lab compactschema"><div>{visualTable()}<div className="panel"><h3>Kiểm tra trước khi tạo</h3><p>ID duy nhất · trường bắt buộc · trạng thái hợp lệ · người tạo · quyền đọc/sửa.</p><p>SQL là mã thao tác dữ liệu; nhờ AI tạo và giải thích trước khi bạn xác nhận chạy.</p></div></div>{copyPrompt(s.prompt||'')}</div>;
 default:return cards(s);
 }}
-function slide(s:SlideData){return <svg width="100%" height="100%" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" data-preserve-original="true"><foreignObject width="1280" height="720"><div className={"eiu"+(s.visual==='cover'?' coverSlide':'')+(s.section===1&&s.number===1?' sectionOneOpening':'')+(s.section===1&&s.number===2?' outcomesSlide':'')+(s.section===1&&s.visual==='roles'?' roleSlide':'')+(s.section===1&&s.visual==='features'?' featureSlide':'')+(s.section===1&&s.visual==='fixed-process'?' processSlide':'')+(s.section===1&&s.visual.startsWith('workspace-')?' workspaceSlide':'')+(s.visual.startsWith('git-intro-')?' gitIntroSlide':'')} {...{xmlns:"http://www.w3.org/1999/xhtml"}}><style>{css+openingCss+sectionOneCss+detailCss+workspaceCss+vscodeCss+regionDetailCss+aiAlternativesCss+gitIntroCss}</style>{s.section===1&&s.visual.startsWith('workspace-')&&<img className="workspaceCornerLogo" src={assets['VS Code']} alt="VS Code"/>}{s.section===1&&s.visual.startsWith('git-intro-')&&!focusedGitTools[s.visual]&&<div className="gitGuideCorner">{gitGuideMark(s.cards.some(c=>c.logo==='VS Code')?'VS Code':'Git')}{gitGuideMark('GitHub')}</div>}<main className="content"><h1 className="title">{s.title}</h1><div className="stage">{content(s)}</div></main></div></foreignObject></svg>;}
+
+// Lab transition follows the supplied title-card reference.
+const labDividerMotionCss = `
+.labDividerSlide>.labDividerRings{animation:labRingOrbit 48s linear infinite;transform-origin:center}
+.labDividerFrame .labDividerRings i{animation:labRingBreathe 7s ease-in-out infinite;will-change:transform}
+.labDividerFrame .labDividerRings i:nth-child(2){animation-delay:-.6s}.labDividerFrame .labDividerRings i:nth-child(3){animation-delay:-1.2s}.labDividerFrame .labDividerRings i:nth-child(4){animation-delay:-1.8s}.labDividerFrame .labDividerRings i:nth-child(5){animation-delay:-2.4s}.labDividerFrame .labDividerRings i:nth-child(6){animation-delay:-3s}.labDividerFrame .labDividerRings i:nth-child(7){animation-delay:-3.6s}
+.labDividerSweep path{animation:labDashFlow 14s linear infinite}
+.labDividerOrb{animation:labOrbFloat 10s ease-in-out infinite}
+.labDividerDot{animation:labDotFloat 7s ease-in-out infinite}.labDividerDot.two{animation-delay:-2.4s}.labDividerDot.three{animation-delay:-4.8s}
+.labDividerEyebrow{animation:labTextEnter .8s cubic-bezier(.22,1,.36,1) both}
+.labDividerDescription{animation:labTextEnter .9s cubic-bezier(.22,1,.36,1) .18s both}
+.labDividerSlide h1{transform-origin:left center;animation:labTitleEmphasis 4.2s ease-in-out infinite;will-change:transform}
+.labDividerSlide h1::after{content:'';position:absolute;left:5px;bottom:-12px;width:94px;height:3px;border-radius:3px;background:linear-gradient(90deg,#b39159,#f4dfb0,#b39159);box-shadow:0 0 16px #e9ca8b44;transform-origin:left center;animation:labTitleUnderline 4.2s ease-in-out infinite}
+@keyframes labRingOrbit{to{transform:rotate(360deg)}}
+@keyframes labRingBreathe{0%,100%{transform:translate(-50%,-50%) scale(.97);opacity:.55}50%{transform:translate(-50%,-50%) scale(1.055);opacity:1}}
+@keyframes labDashFlow{to{stroke-dashoffset:-290}}
+@keyframes labOrbFloat{0%,100%{transform:translate(0,0)}50%{transform:translate(12px,-16px)}}
+@keyframes labDotFloat{0%,100%{transform:translate(0,0) scale(.85);opacity:.5}50%{transform:translate(-8px,-14px) scale(1.18);opacity:1}}
+@keyframes labTextEnter{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes labTitleEmphasis{0%,100%{transform:scale(1);text-shadow:0 0 0 #e9ca8b00}45%,55%{transform:scale(1.025);text-shadow:0 0 24px #e9ca8b55,0 0 50px #e9ca8b18}}
+@keyframes labTitleUnderline{0%,100%{transform:scaleX(.7);opacity:.55}45%,55%{transform:scaleX(1.2);opacity:1}}
+@media(prefers-reduced-motion:reduce){.labDividerSlide *,.labDividerSlide *::before,.labDividerSlide *::after{animation:none!important}.labDividerSlide h1{transform:none;text-shadow:0 0 20px #e9ca8b33}}
+`;
+function labDivider(s:SlideData){return <svg width="100%" height="100%" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" data-preserve-original="true"><foreignObject width="1280" height="720"><div className="labDividerSlide" {...{xmlns:"http://www.w3.org/1999/xhtml"}}><style>{`
+.labDividerSlide,.labDividerSlide *{box-sizing:border-box}.labDividerSlide{position:relative;width:1280px;height:720px;overflow:hidden;background:radial-gradient(ellipse at 82% 15%,#30496b66,transparent 45%),linear-gradient(115deg,#233f65,#203958 60%,#263e62);font-family:Inter,'Segoe UI',Arial,sans-serif;color:#fff}.labDividerSlide::before{content:'';position:absolute;left:62px;top:50px;width:18px;height:20px;background:#b39159}.labDividerFrame{position:absolute;left:181px;top:147px;width:952px;height:489px;border:1px solid #b3915955;border-radius:38px;background:linear-gradient(130deg,#26436255,#1d365222);box-shadow:0 0 0 1px #b3915914,0 20px 60px #071b3012;overflow:hidden}.labDividerEyebrow{position:absolute;left:77px;top:71px;margin:0;color:#bda064;font-size:17px;line-height:1.4;font-weight:800;letter-spacing:3px}.labDividerSlide h1{position:absolute;left:72px;top:181px;margin:0;font-size:98px;line-height:1.2;font-weight:400;letter-spacing:-2px;z-index:2}.labDividerDescription{position:absolute;left:77px;top:315px;width:810px;margin:0;color:#b8c6da;font-size:25px;line-height:1.5;font-weight:500;z-index:2}.labDividerRings{position:absolute;left:844px;top:64px;width:414px;height:401px;border:1px dashed #b3915960;border-radius:50%;pointer-events:none}.labDividerRings i{position:absolute;left:43%;top:48%;width:var(--ring);height:var(--ring);transform:translate(-50%,-50%);border:2px solid #b391593d;border-radius:50%}.labDividerFrame .labDividerRings{left:669px;top:-84px;width:414px;height:401px;border:0}.labDividerSweep{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.labDividerOrb{position:absolute;left:45px;top:471px;width:251px;height:251px;border:1px solid #6284a733;border-radius:50%}.labDividerDot{position:absolute;width:9px;height:9px;border-radius:50%;background:#c5c6b777;box-shadow:0 0 0 8px #c5c6b708}.labDividerDot.one{left:110px;top:611px}.labDividerDot.two{left:1141px;top:133px}.labDividerDot.three{left:860px;top:696px}
+`+labDividerMotionCss}</style><div className="labDividerRings" aria-hidden="true"/><div className="labDividerOrb" aria-hidden="true"/><div className="labDividerFrame"><div className="labDividerRings" aria-hidden="true">{[74,150,226,302,378,454,530].map(size=><i style={{width:size+'px',height:size+'px'}}/>)}</div><p className="labDividerEyebrow">AI-POWERED WEB DEVELOPMENT</p><h1>{s.title}</h1><p className="labDividerDescription">{s.message}</p></div><svg className="labDividerSweep" viewBox="0 0 1280 720" aria-hidden="true"><path d="M14 568 C250 490 370 610 605 463 S1000 325 1270 218" fill="none" stroke="#b39159" stroke-opacity=".32" stroke-width="2.5" stroke-dasharray="14 15"/></svg><span className="labDividerDot one" aria-hidden="true"/><span className="labDividerDot two" aria-hidden="true"/><span className="labDividerDot three" aria-hidden="true"/></div></foreignObject></svg>;}
+
+
+// Product-specific full-canvas introductions, independent of the EIU shell.
+const aiBrandCss = `
+.aiBrandSlide,.aiBrandSlide *{box-sizing:border-box}.aiBrandSlide{position:relative;width:1280px;height:720px;overflow:hidden;padding:40px 60px;font-family:Inter,'Segoe UI',Arial,sans-serif;background:#fafbff;color:#202124;--ai-accent:#4869d5;--ai-muted:#667085;--ai-line:#dce2f0;--ai-panel:#ffffffd9}.aiBrandSlide[data-ai=antigravity]{background:radial-gradient(ellipse at 92% 14%,#dce8ff 0,transparent 48%),radial-gradient(ellipse at 45% 100%,#eee5ff 0,transparent 53%),#fafbff}.aiBrandSlide[data-ai=codex]{background:radial-gradient(ellipse at 93% 5%,#1c302b77,transparent 55%),#111513;color:#f0f4f1;--ai-accent:#a2edc8;--ai-muted:#a2b1aa;--ai-line:#34443c;--ai-panel:#1a211e}.aiBrandHeader{position:relative;display:flex;align-items:center;gap:30px;height:96px}.aiBrandLogo{flex:0 0 88px;width:88px;height:88px;object-fit:contain;transform-origin:center;animation:aiBrandLogoFloat 4.8s ease-in-out infinite;will-change:transform}.aiBrandHeader strong{font-size:28px;font-weight:600;letter-spacing:-.8px}.aiBrandHeader small{margin-left:auto;color:var(--ai-muted);font-size:13px;letter-spacing:2px;font-weight:650}.aiBrandSlide[data-ai=codex] .aiBrandLogo{background:#f5f7f5;border-radius:22px;padding:12px;animation-duration:5.2s;animation-direction:reverse}.aiBrandSlide[data-ai=antigravity] .aiBrandHeader::after{content:'';position:absolute;left:118px;bottom:-12px;width:76px;height:3px;border-radius:2px;background:linear-gradient(90deg,#4285f4 25%,#ea4335 25% 50%,#fbbc05 50% 75%,#34a853 75%)}.aiBrandGrid{position:relative;display:grid;grid-template-columns:540px minmax(0,1fr);gap:62px;margin-top:20px;min-height:500px;align-items:center}.aiBrandHero{padding-top:7px}.aiBrandHero h1{margin:0 0 22px;font-size:56px;line-height:1.1;font-weight:550;letter-spacing:-2.8px}.aiBrandHero h1 em{font-style:normal;color:var(--ai-accent)}.aiBrandDescription{font-size:20px;line-height:1.4;color:var(--ai-muted);max-width:495px;margin:0}.aiBrandBenefits{margin-top:24px;border-top:1px solid var(--ai-line)}.aiBrandBenefit{position:relative;padding:12px 0 0 38px;margin:0 0 3px}.aiBrandBenefit>span{position:absolute;top:16px;left:0;font:14px/1.3 Consolas,monospace;color:var(--ai-accent)}.aiBrandBenefit h2{font-size:19px;line-height:1.3;font-weight:650;margin:0 0 6px;letter-spacing:-.3px}.aiBrandBenefit p{font-size:17px;line-height:1.35;color:var(--ai-muted);margin:0;max-width:480px}.aiModelPanel{position:relative;align-self:center;min-height:492px;display:flex;flex-direction:column;justify-content:center;border:1px solid var(--ai-line);border-radius:28px;padding:26px 28px 22px;background:var(--ai-panel);box-shadow:0 20px 70px #4c60a20b;min-width:0}.aiModelList{border-top:0}.aiModelRow{padding:16px 0;border-bottom:1px solid var(--ai-line)}.aiModelRow h3{font-size:26px;line-height:1.25;font-weight:600;letter-spacing:-.4px;margin:0 0 6px}.aiModelRow p{font-size:16px;line-height:1.4;color:var(--ai-muted);margin:0}.aiModelRow code{display:block;margin-top:7px;color:var(--ai-accent);font:13px/1.4 Consolas,monospace}.aiModelAccess{color:var(--ai-muted);font-size:14px;line-height:1.5;margin:17px 0 0}.aiBrandSlide[data-ai=codex] .aiModelPanel{border-radius:16px;box-shadow:0 24px 65px #0002}.aiBrandSlide[data-ai=codex] .aiModelRow{padding:18px 0}.aiBrandSlide[data-ai=codex] .aiBrandHeader small{font-family:Consolas,monospace}.aiBrandSlide[data-ai=codex] .aiBrandHero h1{font-weight:500}.aiBrandSlide[data-ai=codex] .aiModelRow h3{font-family:Consolas,'Segoe UI',monospace;font-size:26px}
+
+.aiModelRow:first-child{padding-top:0}.aiModelRow h3{display:flex;align-items:center;gap:16px;min-height:33px}.aiModelName{display:inline-block;position:relative;transform-origin:left center;font-weight:700}
+.aiBrandSlide[data-ai=antigravity] .aiModelName{background:linear-gradient(110deg,#2865d8 0%,#8458db 35%,#128eaa 65%,#2865d8 100%);background-size:240% 100%;background-clip:text;-webkit-background-clip:text;color:transparent;animation:antigravityModelFlow 2.8s ease-in-out infinite,antigravityModelFloat 3.2s ease-in-out infinite}
+.aiBrandSlide[data-ai=antigravity] .aiModelRow:nth-child(2) .aiModelName{animation-delay:-1.5s,-1s}.aiBrandSlide[data-ai=antigravity] .aiModelRow:nth-child(3) .aiModelName{animation-delay:-3s,-2s}.aiBrandSlide[data-ai=antigravity] .aiModelRow:nth-child(4) .aiModelName{animation-delay:-4.5s,-3s}
+.aiBrandSlide[data-ai=codex] .aiModelName{color:#c4ffe3;animation:codexModelGlow 3.2s ease-in-out infinite}.aiBrandSlide[data-ai=codex] .aiModelRow:nth-child(2) .aiModelName{animation-delay:-1.8s}.aiBrandSlide[data-ai=codex] .aiModelRow:nth-child(3) .aiModelName{animation-delay:-3.6s}
+.aiModelCursor{display:inline-block;flex:0 0 10px;width:10px;height:26px;border-radius:1px;background:#a2edc8;box-shadow:0 0 10px #a2edc877;animation:codexModelCursor 1.6s ease-in-out infinite}.aiModelRow:nth-child(2) .aiModelCursor{animation-delay:-.8s}.aiModelRow:nth-child(3) .aiModelCursor{animation-delay:-1.6s}
+@keyframes antigravityModelFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}@keyframes antigravityModelFloat{0%,100%{transform:translateY(0) scale(1);filter:drop-shadow(0 0 0 #7b61d400)}50%{transform:translateY(-3px) scale(1.06);filter:drop-shadow(0 0 7px #7b61d455)}}@keyframes codexModelGlow{0%,100%{transform:translateY(0) scale(1);color:#b1efd1;text-shadow:0 0 4px #a2edc833}50%{transform:translateY(-2px) scale(1.055);color:#edfff5;text-shadow:0 0 9px #a2edc8cc,0 0 22px #a2edc877,0 0 38px #a2edc833}}@keyframes codexModelCursor{0%,100%{opacity:.25}50%{opacity:1}}
+.aiModelName::after{content:'';position:absolute;left:0;right:0;bottom:-4px;height:3px;border-radius:3px;transform-origin:left center;animation:aiModelAccent 3.2s ease-in-out infinite;animation-delay:inherit}.aiBrandSlide[data-ai=antigravity] .aiModelName::after{background:linear-gradient(90deg,#4285f4,#9860ed,#1fa6b5);box-shadow:0 0 10px #7b61d444}.aiBrandSlide[data-ai=codex] .aiModelName::after{height:2px;background:#a2edc8;box-shadow:0 0 12px #a2edc866}@keyframes aiModelAccent{0%,100%{transform:scaleX(.3);opacity:.3}50%{transform:scaleX(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.aiBrandSlide .aiModelName,.aiBrandSlide .aiModelName::after,.aiBrandSlide .aiModelCursor{animation:none!important;transform:none}.aiBrandSlide .aiModelName::after{opacity:.6}.aiModelCursor{opacity:.5}}
+
+@keyframes aiBrandLogoFloat{0%,100%{transform:translate(0,10px) rotate(-5deg)}25%{transform:translate(8px,-5px) rotate(4deg)}50%{transform:translate(3px,-16px) rotate(7deg)}75%{transform:translate(-7px,-3px) rotate(-3deg)}}
+.aiBrandSlide[data-ai=antigravity] .aiBrandLogo{filter:drop-shadow(0 12px 14px #647ce329)}.aiBrandSlide[data-ai=codex] .aiBrandLogo{box-shadow:0 12px 30px #a2edc81a}
+@media(prefers-reduced-motion:reduce){.aiBrandSlide .aiBrandLogo{animation:none!important;transform:none}}
+
+.aiBrandHero{padding-top:0;min-width:0}.aiBrandHero h1{font-size:52px;margin-bottom:16px;letter-spacing:-2.1px}.aiBrandDescription{max-width:none;text-wrap:pretty}.aiBrandBenefits{margin-top:18px;border:0;display:grid;gap:10px}.aiBrandBenefit{position:relative;display:grid;grid-template-columns:34px minmax(0,1fr);gap:14px;align-items:center;padding:12px 16px;margin:0;min-height:100px;border:1px solid var(--ai-line);border-radius:18px;background:#ffffffbf}.aiBrandBenefit>span{position:static;display:grid;place-items:center;width:34px;height:34px;border-radius:10px;font:600 14px/1 Consolas,monospace;background:#eaf0ff;border:1px solid #cfdbff;color:#4869d5}.aiBenefitCopy{min-width:0}.aiBrandBenefit h2{font-size:19px;line-height:1.3;letter-spacing:-.2px;margin:0 0 5px;text-wrap:pretty}.aiBrandBenefit p{font-size:17px;line-height:1.35;max-width:none}.aiBenefitLine{display:block;text-wrap:pretty}
+.aiBrandSlide[data-ai=antigravity] .aiBrandBenefit{background:linear-gradient(115deg,#ffffffed,#f4f3ffcc);border-color:#d8dff4;border-left:3px solid #a1adeb;box-shadow:0 5px 20px #6370b008}.aiBrandSlide[data-ai=antigravity] .aiBrandBenefit>span{background:linear-gradient(140deg,#e9f1ff,#eee6ff);color:#6257c5}
+.aiBrandSlide[data-ai=codex] .aiBrandBenefit{background:linear-gradient(120deg,#1c2721,#19221e);border-color:#344c40;border-left:3px solid #78b99a;border-radius:12px;box-shadow:0 6px 18px #00000012}.aiBrandSlide[data-ai=codex] .aiBrandBenefit>span{background:#223a2d;border-color:#3b6550;color:#b1efd1;border-radius:7px}.aiBrandSlide[data-ai=codex] .aiBrandBenefit h2{color:#e7f2eb}
+`;
+function aiBrandSlide(s:SlideData){
+ const ant=s.visual==='git-intro-ai-antigravity',theme=ant?'antigravity':'codex';
+ const benefits=s.cards.filter(c=>c.label==='Ưu điểm'),models=s.cards.filter(c=>c.label==='Model');
+ return <svg width="100%" height="100%" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" data-preserve-original="true"><foreignObject width="1280" height="720"><div className="aiBrandSlide" data-ai={theme} {...{xmlns:"http://www.w3.org/1999/xhtml"}}><style>{aiBrandCss}</style><header className="aiBrandHeader"><img className="aiBrandLogo" src={assets[ant?'AI Antigravity':'AI Codex']} alt={s.title}/><strong>{s.title}</strong><small>{ant?'GOOGLE / AGENTIC DEVELOPMENT':'OPENAI / SOFTWARE AGENT'}</small></header><main className="aiBrandGrid"><section className="aiBrandHero"><h1>{ant?<>Từ ý tưởng<br/><em>đến bản chạy.</em></>:<>Từ code<br/><em>đến kết quả.</em></>}</h1><p className="aiBrandDescription">{s.message}</p><div className="aiBrandBenefits">{benefits.map((b,i)=><article className="aiBrandBenefit"><span aria-hidden="true">{String(i+1).padStart(2,'0')}</span><div className="aiBenefitCopy"><h2>{b.title}</h2><p>{b.points?b.points.map(line=><span className="aiBenefitLine">{line}</span>):b.text}</p></div></article>)}</div></section><section className="aiModelPanel" aria-label={'Model trên '+s.title}><div className="aiModelList">{models.map(m=><article className="aiModelRow"><h3><span className="aiModelName">{m.title}</span>{!ant&&<i className="aiModelCursor" aria-hidden="true"/>}</h3><p>{m.text}</p>{m.detail&&<code>{m.detail}</code>}</article>)}</div><p className="aiModelAccess">{s.note}</p></section></main></div></foreignObject></svg>;
+}
+
+function slide(s:SlideData){if(s.visual==='git-intro-ai-antigravity'||s.visual==='git-intro-ai-codex')return aiBrandSlide(s);if(s.visual==='lab-divider')return labDivider(s);return <svg width="100%" height="100%" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg" data-preserve-original="true"><foreignObject width="1280" height="720"><div className={"eiu"+(s.visual==='cover'?' coverSlide':'')+(s.section===1&&s.number===1?' sectionOneOpening':'')+(s.section===1&&s.number===2?' outcomesSlide':'')+(s.section===1&&s.visual==='roles'?' roleSlide':'')+(s.section===1&&s.visual==='features'?' featureSlide':'')+(s.section===1&&s.visual==='fixed-process'?' processSlide':'')+(s.section===1&&s.visual.startsWith('workspace-')?' workspaceSlide':'')+(s.visual.startsWith('git-intro-')?' gitIntroSlide':'')} {...{xmlns:"http://www.w3.org/1999/xhtml"}}><style>{css+openingCss+sectionOneCss+detailCss+workspaceCss+vscodeCss+regionDetailCss+aiAlternativesCss+gitIntroCss}</style>{s.section===1&&s.visual.startsWith('workspace-')&&<img className="workspaceCornerLogo" src={assets['VS Code']} alt="VS Code"/>}{s.section===1&&s.visual.startsWith('git-intro-')&&!focusedGitTools[s.visual]&&<div className="gitGuideCorner">{gitGuideMark(s.cards.some(c=>c.logo==='VS Code')?'VS Code':'Git')}{gitGuideMark('GitHub')}</div>}<main className="content"><h1 className="title">{s.title}</h1><div className="stage">{content(s)}</div></main></div></foreignObject></svg>;}
 export default course.slides.map(s=>()=>slide(s));
