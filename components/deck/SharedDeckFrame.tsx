@@ -12,6 +12,7 @@ type Props = {
   courseTitle: string;
   sectionTitle: string;
   totalSlides: number;
+  navigationReady?: boolean;
   renderSlide: (pageNumber: number, renderWidth: number) => ReactNode;
   // Keep resource owners (such as a PDF Document) outside the keyed animation.
   renderSlideContainer?: (children: ReactNode) => ReactNode;
@@ -26,6 +27,7 @@ export default function SharedDeckFrame({
   courseTitle,
   sectionTitle,
   totalSlides,
+  navigationReady = true,
   renderSlide,
   renderSlideContainer,
   frameClassName = "slide-frame",
@@ -46,6 +48,7 @@ export default function SharedDeckFrame({
   const wheelDirectionRef = useRef(0);
   const lastWheelNavigationRef = useRef(0);
   const wheelResetTimerRef = useRef<number | null>(null);
+  const positionRestored = useRef(false);
 
   useEffect(() => {
     totalRef.current = safeTotal;
@@ -62,20 +65,26 @@ export default function SharedDeckFrame({
   );
 
   const goToPage = useCallback((page: number) => {
+    if (!navigationReady) return;
     const next = Math.min(Math.max(Math.round(page), 1), totalRef.current);
+    if (next === pageRef.current) { setPageInput(String(next)); return; }
     pageRef.current = next;
     setPageNumber(next);
     setPageInput(String(next));
     rememberSlide(next);
-  }, []);
+  }, [navigationReady]);
 
   const nextPage = useCallback(() => goToPage(pageRef.current + 1), [goToPage]);
   const previousPage = useCallback(() => goToPage(pageRef.current - 1), [goToPage]);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => goToPage(restoredSlide(totalRef.current)));
+    if (!navigationReady || positionRestored.current) return;
+    const frame = window.requestAnimationFrame(() => {
+      positionRestored.current = true;
+      goToPage(restoredSlide(totalRef.current));
+    });
     return () => window.cancelAnimationFrame(frame);
-  }, [goToPage]);
+  }, [goToPage, navigationReady]);
 
   useEffect(() => {
     function handleKeyboard(event: KeyboardEvent) {

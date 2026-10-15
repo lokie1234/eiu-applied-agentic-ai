@@ -1,9 +1,43 @@
-.loading { width: 100%; height: 100%; min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 20px; background: #0d303a; color: #dceacb; text-align: center; }
-.artwork { display: block; position: relative; width: 176px; height: 60px; pointer-events: none; }
-.stage { display: block; width: 100%; height: 100%; }
-.fallback { position: absolute; inset: 0; display: grid; place-items: center; color: #ffe4a6; font-size: 28px; letter-spacing: 8px; }
-.stage:has(svg) + .fallback { display: none; }
-.label { font-size: 13px; font-weight: 600; line-height: 1.4; }
-.compact { min-height: 0; height: auto; padding: 0; gap: 2px; background: transparent; }
-.compact .artwork { width: 84px; height: 30px; }
+.loading { width: 100%; height: 100%; min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; background: radial-gradient(ellipse at center, #123f68, #082945 65%, #041c31); color: #eaf4ff; text-align: center; }
+.artwork { display: block; width: 180px; height: 180px; flex-shrink: 0; overflow: visible; }
+.rocket { --launch-travel: -120vh; animation: launch 4.8s infinite; }
+.gantry { transform-origin: 53px 139px; animation: release 4.8s infinite; }
+.flame { transform-origin: 90px 116px; animation: ignition 4.8s infinite; }
+.smoke { transform-origin: 90px 139px; opacity: 0; animation: smoke 4.8s infinite; }
+.speedLines { opacity: 0; animation: speed 4.8s infinite; }
+.launchLights circle { fill: #355c7c; animation: light 4.8s infinite; }
+.launchLights circle:nth-child(2) { animation-delay: .4s; }
+.launchLights circle:nth-child(3) { animation-delay: .8s; }
+.label { font-size: 15px; font-weight: 600; line-height: 1.5; }
+.signal { display: flex; gap: 5px; }
+.signal i { width: 17px; height: 3px; border-radius: 2px; background: #79e3ff; animation: signal 1.2s ease-in-out infinite; }
+.signal i:nth-child(2) { animation-delay: .15s; }
+.signal i:nth-child(3) { animation-delay: .3s; background: #e9ca8b; }
+.compact { min-height: 0; height: auto; padding: 0; gap: 4px; background: transparent; }
+.compact .artwork { width: 60px; height: 60px; }
+.compact .rocket { --launch-travel: -360vh; }
 .compact .label { font-size: 11px; }
+.compact .signal { display: none; }
+@keyframes launch {
+  0%, 20% { transform: translate(0,0); opacity: 1; }
+  23%, 29%, 35% { transform: translate(-.7px,.4px); }
+  26%, 32%, 38% { transform: translate(.7px,-.4px); }
+  42% { transform: translate(0,0); opacity: 1; animation-timing-function: cubic-bezier(.7,0,1,.5); }
+  73% { transform: translate(0,var(--launch-travel)); opacity: 1; }
+  74%, 90% { transform: translate(0,var(--launch-travel)); opacity: 0; }
+  91% { transform: translate(0,0); opacity: 0; }
+  100% { transform: translate(0,0); opacity: 1; }
+}
+@keyframes ignition {
+  0%, 18%, 78%, 100% { transform: scaleY(0); opacity: 0; }
+  24%, 32% { transform: scaleY(.4); opacity: .8; }
+  28%, 37% { transform: scaleY(.7); opacity: 1; }
+  43%, 56%, 70% { transform: scaleY(1.2); opacity: 1; }
+  49%, 63%, 74% { transform: scaleY(.9); opacity: 1; }
+}
+@keyframes release { 0%, 30%, 94%, 100% { transform: rotate(0deg); } 42%, 86% { transform: rotate(-14deg); } }
+@keyframes smoke { 0%, 27%, 90%, 100% { opacity: 0; transform: scale(.5); } 40% { opacity: .55; transform: scale(1); } 65% { opacity: .16; transform: scale(1.6,1.2); } 85% { opacity: 0; transform: scale(1.9,1.3); } }
+@keyframes speed { 0%, 43%, 78%, 100% { opacity: 0; transform: translateY(-12px); } 51%, 66% { opacity: .5; } 74% { opacity: 0; transform: translateY(25px); } }
+@keyframes light { 0%, 8%, 86%, 100% { fill: #355c7c; } 17%, 75% { fill: #79e3ff; } }
+@keyframes signal { 0%, 100% { opacity: .3; transform: scaleX(.65); } 50% { opacity: 1; transform: scaleX(1); } }
+@media (prefers-reduced-motion: reduce) { .loading * { animation: none !important; } .flame { transform: scaleY(.35); } .launchLights circle { fill: #79e3ff; } }

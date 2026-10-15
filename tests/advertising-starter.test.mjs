@@ -58,11 +58,13 @@ test("download ZIP contains a runnable source project without dependencies, buil
 
 test("starter lab uses the existing download and completes the local-to-GitHub flow", () => {
   const story = JSON.parse(fs.readFileSync("course-content/web-app-development/storyboard.json", "utf8"));
-  const lab = story.slides.filter(slide => slide.section === 1 && slide.number >= 11 && slide.number < 21);
+  const start = story.slides.find(slide => slide.section === 1 && slide.visual === "git-intro-starter").number;
+  const end = story.slides.find(slide => slide.section === 1 && slide.visual === "git-intro-pull").number;
+  const lab = story.slides.filter(slide => slide.section === 1 && slide.number >= start && slide.number <= end);
   assert.equal(lab.length, 10);
   assert.equal(lab[0].cards[0].link, "/downloads/eiu-advertising-starter.zip");
   const text = JSON.stringify(lab);
-  for (const command of ["npm install", "npm run dev", "npm run build", "localhost", "git push -u origin main", "git pull --ff-only origin main", "git branch --show-current"])
+  for (const command of ["npm install", "npm run dev", "npm.cmd run build", "localhost", "git push -u origin main", "git pull --ff-only origin main", "git branch --show-current"])
     assert.ok(text.includes(command));
-  assert.ok(text.includes("data/site.js"));
+  assert.ok(text.includes("Search"));
 });

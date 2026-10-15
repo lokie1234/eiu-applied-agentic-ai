@@ -13,11 +13,13 @@ export default function UploadedPdfDeck({ contentUrl, slideCount, courseTitle, s
   contentUrl: string; slideCount: number | null; courseTitle: string; sectionTitle: string; templateImage: string;
 }) {
   const [totalSlides, setTotalSlides] = useState(slideCount ?? 1);
+  const [documentReady, setDocumentReady] = useState(false);
   return (
     <SharedDeckFrame
       courseTitle={courseTitle}
       sectionTitle={sectionTitle}
       totalSlides={totalSlides}
+      navigationReady={documentReady}
       frameClassName={styles.frame}
       transitionClassName={styles.slide}
       renderSlideContainer={children => (
@@ -27,7 +29,7 @@ export default function UploadedPdfDeck({ contentUrl, slideCount, courseTitle, s
           suspense={false}
           loading={<HairlineLoading label="Loading PDF" />}
           error={<div className={styles.message} role="alert">Unable to display this PDF.</div>}
-          onLoadSuccess={({ numPages }) => setTotalSlides(numPages)}
+          onLoadSuccess={({ numPages }) => { setTotalSlides(numPages); setDocumentReady(true); }}
         >{children}</Document>
       )}
       renderSlide={(pageNumber, renderWidth) => {

@@ -8,7 +8,7 @@ import ts from "typescript";
 import React, { act } from "react";
 import { createRoot } from "react-dom/client";
 const require = createRequire(import.meta.url);
-test("edited TSX uses multipart Drive upload, requires a target and retains the file on failure", async () => {
+test("edited JS uses multipart Drive upload, requires a target and retains the file on failure", async () => {
   const window = new Window({ url: "http://localhost" });
   for (const name of ["window", "document", "HTMLElement", "HTMLInputElement", "Event", "MouseEvent"]) globalThis[name] = name === "window" ? window : window[name];
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -21,16 +21,16 @@ test("edited TSX uses multipart Drive upload, requires a target and retains the 
     return { ok: true, json: async () => options?.body ? { tasks: [] } : { destinations: [{ id: "destination", label: "Target" }] } };
   };
   const exports = {};
-  vm.runInNewContext(ts.transpileModule(fs.readFileSync("components/admin/DriveExport.tsx", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText, { exports, fetch, FormData, require: name => name.endsWith(".css") ? new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) }) : name === "./DriveActionIcon" ? { __esModule: true, default: () => React.createElement("span") } : name === "next/link" ? { default: props => React.createElement("a", props), __esModule: true } : require(name) });
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync("components/admin/DriveExport.tsx", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText, { exports, fetch, AbortController, AbortSignal, FormData, require: name => name.endsWith(".css") ? new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) }) : name === "./DriveActionIcon" ? { __esModule: true, default: () => React.createElement("span") } : name === "next/link" ? { default: props => React.createElement("a", props), __esModule: true } : require(name) });
   const container = window.document.createElement("div"); window.document.body.append(container); const root = createRoot(container);
   try {
     await act(async () => root.render(React.createElement(exports.default, { sectionId: "section", allowReplace: true, onSaved: () => saved++ })));
     await act(async () => container.querySelector("button").click());
     const input = container.querySelector('input[type="file"]');
-    const file = new File(["export default [<h1>Edited</h1>];"], "edited.tsx");
+    const file = new File(["exports.default = [h('h1', null, 'Edited')];"], "edited.js");
     Object.defineProperty(input, "files", { value: [file], configurable: true });
     await act(async () => input.dispatchEvent(new window.Event("change", { bubbles: true })));
-    const button = () => [...container.querySelectorAll("button")].find(item => item.textContent === "Save updated TSX");
+    const button = () => [...container.querySelectorAll("button")].find(item => item.textContent === "Save interactive JS");
     assert.equal(button().disabled, true);
     await act(async () => { const select = container.querySelector("select"); select.value = "destination"; select.dispatchEvent(new window.Event("change", { bubbles: true })); });
     await act(async () => button().click());
@@ -43,7 +43,7 @@ test("edited TSX uses multipart Drive upload, requires a target and retains the 
     await act(async () => input.dispatchEvent(new window.Event("change", { bubbles: true })));
     await act(async () => button().click());
     assert.equal(saved, 2);
-    assert.match(container.textContent, /Slides continue to use the TSX in the project/);
+    assert.match(container.textContent, /Slides continue to use their project source/);
     assert.doesNotMatch(container.textContent, /This section now uses the new file/);
   } finally { await act(async () => root.unmount()); window.happyDOM.abort(); }
 });
@@ -60,7 +60,7 @@ test("folder export reviews names and retries only failed files", async () => {
     return { ok: true, json: async () => ({ success: true }) };
   };
   const exports = {};
-  vm.runInNewContext(ts.transpileModule(fs.readFileSync("components/admin/DriveExport.tsx", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText, { exports, fetch, require: name => name.endsWith(".css") ? new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) }) : name === "./DriveActionIcon" ? { __esModule: true, default: () => React.createElement("span") } : name === "next/link" ? { default: props => React.createElement("a", props), __esModule: true } : require(name) });
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync("components/admin/DriveExport.tsx", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText, { exports, fetch, AbortController, AbortSignal, require: name => name.endsWith(".css") ? new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) }) : name === "./DriveActionIcon" ? { __esModule: true, default: () => React.createElement("span") } : name === "next/link" ? { default: props => React.createElement("a", props), __esModule: true } : require(name) });
   const container = window.document.createElement("div"); window.document.body.append(container); const root = createRoot(container);
   await act(async () => root.render(React.createElement(exports.default, { groupId: "group", label: "Save folder to Drive" })));
   await act(async () => container.querySelector("button").click());

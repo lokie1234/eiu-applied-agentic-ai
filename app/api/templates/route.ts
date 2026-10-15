@@ -4,10 +4,10 @@ import { currentUserAccess, requireAdminAccess } from "@/lib/auth/currentUser";
 import { getSlideTemplates, saveSlideTemplates } from "@/lib/auth/courseAccessStorage";
 
 export const runtime = "nodejs";
-export async function GET() {
-  const actor = await currentUserAccess();
+export async function GET(request?: Request) {
+  const actor = await requireAdminAccess(request?.signal) ?? await currentUserAccess(request?.signal);
   if (!actor?.isActive) return NextResponse.json({ message: "Authentication required." }, { status: 401 });
-  try { return NextResponse.json({ templates: await getSlideTemplates() }, { headers: { "Cache-Control": "no-store" } }); }
+  try { return NextResponse.json({ templates: await getSlideTemplates(request?.signal) }, { headers: { "Cache-Control": "no-store" } }); }
   catch { return NextResponse.json({ message: "Unable to load layouts." }, { status: 500 }); }
 }
 export async function POST(request: Request) {

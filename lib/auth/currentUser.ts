@@ -48,13 +48,15 @@ export async function currentUserAccess(signal?: AbortSignal): Promise<AppUserAc
   };
 }
 
-export async function requireAdminAccess() {
-  const access = await currentUserAccess();
-  return access?.isActive && access.isAdmin ? access : null;
+export async function requireAdminAccess(signal?: AbortSignal) {
+  // The signed administrator session includes a live session-version check.
+  // Admin-only routes do not need to fetch and parse the entire course catalog.
+  const session = await currentAccessSession(signal);
+  return session?.role === "admin" ? { email: FIXED_ADMIN_EMAIL, isAdmin: true as const, isActive: true as const } : null;
 }
 
 export const requireCourseManager = requireAdminAccess;
 export async function canManageSection(sectionId: string) {
-  const admin = await requireAdminAccess();
-  return Boolean(admin?.sections.some(section => section.id === sectionId));
+  const access = await currentUserAccess();
+  return Boolean(access?.isAdmin && access.isActive && access.sections.some(section => section.id === sectionId));
 }

@@ -30,7 +30,7 @@ test("both built-in TSX decks compile independently and embed all image and font
   }
 });
 
-test("saving built-in slides checks the course, uses exact TSX bytes and leaves the web lesson intact", async () => {
+test("saving built-in slides checks the course, exports compiled JS and leaves the web lesson intact", async () => {
   let course = { slug: "applied-agentic-ai", title: "Agentic AI" };
   const section = { id: "s1", course_id: "c1", section_key: "section1", title: "From Prompt to Web App", position: 1 };
   const uploads = [];
@@ -38,15 +38,17 @@ test("saving built-in slides checks the course, uses exact TSX bytes and leaves 
     "server-only": {},
     "@/lib/supabase/server": { getSupabaseAdmin: () => ({ from: table => ({ select() { return this; }, eq() { return this; }, maybeSingle: async () => ({ data: table === "courses" ? course : section }) }) }) },
     "@/lib/sectionSourceFiles": load("lib/sectionSourceFiles.ts", {}),
+    "@/lib/sectionContent": load("lib/sectionContent.ts", {}),
     "./sourceUpload": { saveDriveOriginal: async (_client, input) => { uploads.push(input); return "file123"; } },
   });
   assert.equal(await api.saveBuiltinSection({}, { sectionId: "s1", folderId: "destination123" }), "file123");
   assert.equal(uploads[0].folderId, "destination123");
-  assert.equal(uploads[0].name, "Section 1 — From Prompt to Web App.tsx");
-  assert.deepEqual(Buffer.from(uploads[0].body), fs.readFileSync("lib/drive/builtin-decks/section1.tsx.txt"));
+  assert.equal(uploads[0].name, "Section 1 — From Prompt to Web App.js");
+  const { compileTsx } = load("lib/sectionContent.ts", {});
+  assert.equal(Buffer.from(uploads[0].body).toString(), compileTsx(fs.readFileSync("lib/drive/builtin-decks/section1.tsx.txt", "utf8")));
   section.position = 3; section.title = "Tên mới trên web";
   await api.saveBuiltinSection({}, { sectionId: "s1", folderId: "destination123" });
-  assert.equal(uploads[1].name, "Section 3 — Tên mới trên web.tsx");
+  assert.equal(uploads[1].name, "Section 3 — Tên mới trên web.js");
   course = { slug: "other-course", title: "Other course" };
   await assert.rejects(api.saveBuiltinSection({}, { sectionId: "s1", folderId: "destination123" }), /Built-in course not found/);
   assert.equal(uploads.length, 2);

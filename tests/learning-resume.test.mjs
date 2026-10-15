@@ -12,7 +12,7 @@ function load(path, globals = {}, dependencies = {}) {
   return exports;
 }
 
-test("refresh URL keeps the course, section, and slide; returning to each section restores its own position", async () => {
+test("refresh retains the current slide while explicit section selections start at slide one", async () => {
   const window = new Window({ url: "http://localhost/learn" });
   const deck = load("lib/deckLocation.ts", { window });
   deck.rememberDeckSelection("course", "section1"); deck.rememberSlide(22);
@@ -21,8 +21,9 @@ test("refresh URL keeps the course, section, and slide; returning to each sectio
   deck.rememberDeckSelection("course", "section2", true); deck.rememberSlide(31);
   assert.equal(new URL(window.location.href).searchParams.get("view"), "file");
   deck.rememberDeckSelection("course", "section1");
-  assert.equal(deck.restoredSlide(40), 22);
+  assert.equal(deck.restoredSlide(40), 1);
   assert.equal(new URL(window.location.href).searchParams.get("view"), null);
+  deck.rememberSlide(22);
   assert.equal(deck.restoredSlide(10), 10);
   deck.rememberDeckSelection(); assert.equal(window.location.search, "");
   await window.happyDOM.close();
@@ -45,6 +46,27 @@ test("deck navigation updates the router canonical URL instead of reusing Next p
   assert.equal(new URL(canonical).searchParams.get("slide"), "41");
   deck.rememberDeckSelection();
   assert.equal(new URL(canonical).search, "");
+  await window.happyDOM.close();
+});
+
+test("readable URLs reset explicit reentry while refresh preserves progress and ignores old saved positions", async () => {
+  const window = new Window({ url: "http://localhost/learn?courseId=old&sectionId=old&slide=9" });
+  const deck = load("lib/deckLocation.ts", { window });
+  deck.rememberDeckSelection("uuid-course", null, false, { course: "applied-agentic-ai" });
+  assert.equal(window.location.search, "?course=applied-agentic-ai");
+  deck.rememberDeckSelection("uuid-course", "uuid-section", false, { course: "applied-agentic-ai", section: "section1" });
+  deck.rememberSlide(12);
+  assert.equal(window.location.search, "?course=applied-agentic-ai&section=section1&slide=12");
+  assert.equal(load("lib/deckLocation.ts", { window }).restoredSlide(40), 12, "refresh uses the URL of the open presentation");
+  deck.rememberDeckSelection();
+  assert.equal(window.location.search, "", "Back to courses removes presentation progress from the URL");
+  window.sessionStorage.setItem("eiu:slide:applied-agentic-ai:section1", "12");
+  window.sessionStorage.setItem("eiu:slide:uuid-course:uuid-section", "12");
+  deck.rememberDeckSelection("uuid-course", "uuid-other", true, { course: "applied-agentic-ai", section: "section2" });
+  deck.rememberDeckSelection("uuid-course", "uuid-section", false, { course: "applied-agentic-ai", section: "section1" });
+  assert.equal(deck.restoredSlide(40), 1, "opening again must not restore a previous visit or legacy storage entry");
+  assert.equal(new URL(window.location.href).searchParams.get("view"), null);
+  deck.rememberDeckSelection(); assert.equal(window.location.search, "");
   await window.happyDOM.close();
 });
 

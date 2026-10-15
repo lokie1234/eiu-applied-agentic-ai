@@ -1,0 +1,58 @@
+.icon { display: block; flex-shrink: 0; color: #79e3ff; pointer-events: none; }
+.icon svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.scene { transform: perspective(360px) rotateX(var(--ai-rotate-x, 0deg)) rotateY(var(--ai-rotate-y, 0deg)); transform-origin: 50% 60%; transition: transform 100ms ease-out; }
+.shadow { fill: #010d1b; opacity: .5; transform-origin: 55px 97px; transition: transform 350ms ease, opacity 350ms ease; }
+.halo { fill: #51c9ef; opacity: .045; transition: opacity 300ms ease; }
+.object, .ideaCards, .leftCard, .rightCard, .idea, .continueBody { transition: transform 500ms cubic-bezier(.22,1,.36,1); }
+.folderLid { transform-origin: 55px 88px; transition: transform 500ms cubic-bezier(.22,1,.36,1); }
+.leftCard, .rightCard { transform-origin: 55px 72px; }
+.glints { opacity: .25; }
+.circuit { opacity: .5; }
+.status { opacity: .7; }
+.compactRocket { transition: transform 220ms cubic-bezier(.22,1,.36,1); }
+.compactFlame { opacity: .75; }
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .compactRocket { animation: compactLaunch 1500ms ease-in-out infinite; }
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon :is(.compactRays, .compactFlame) { animation: signal 1500ms ease-in-out infinite; }
+@keyframes compactLaunch { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(1px, -1px); } }
+.chipElectric { opacity: 0; }
+.arc { stroke: #d9fbff; stroke-width: 1.5; stroke-dasharray: 24 76; }
+.object { transform-origin: 55px 60px; }
+.continueBody { transform-origin: 55px 57px; transition: transform 220ms cubic-bezier(.22,1,.36,1); }
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .continueBody { transform: translateY(-3px); }
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .continueArrow,
+.icon[data-active] .continueArrow { animation: continueForward 1100ms ease-in-out infinite; }
+@keyframes continueForward { 0%, 100% { transform: translateX(0); } 55% { transform: translateX(7px); } }
+/* One interaction state shared by mouse, keyboard, touch selection and opening. */
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .object, .icon[data-active] .object { transform: translateY(-2px); }
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .halo, .icon[data-active] .halo { opacity: .12; }
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .shadow { transform: scaleX(.85); opacity: .35; }
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .folderLid { transform: skewX(-5deg) scaleY(.82); }
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .ideaCards { transform: translateY(-7px); }
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .leftCard { transform: translateX(-3px) rotate(-8deg); }
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .rightCard { transform: translateX(3px) rotate(7deg); }
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .idea, .icon[data-active] .idea { transform: translateY(-7px); }
+:global([data-icon-surface]:active) .icon .object { transform: translateY(3px) scale(.9); transition-duration: 90ms; }
+:global(:is([data-icon-surface], h1):is(:hover, :focus-within)) .icon .glints,
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .circuit,
+:global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .status,
+.icon[data-active] .circuit, .icon[data-active] .status { animation: signal 1800ms ease-in-out infinite; }
+:global(article:is([data-pointer-active], :has(:focus-visible))) .icon .chipElectric { animation: electricity 3.6s ease-in-out infinite; }
+:global(article:is([data-pointer-active], :has(:focus-visible))) .icon .arc { animation: arc 3.6s linear infinite; }
+@keyframes signal { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+@keyframes electricity { 0%, 47%, 80%, 100% { opacity: 0; } 55%, 69% { opacity: .85; } }
+@keyframes arc { 0%, 45% { stroke-dashoffset: 100; } 80%, 100% { stroke-dashoffset: 0; } }
+/* Selected folders keep opening and closing after the pointer leaves. */
+:global([data-icon-surface="folder"]:is([aria-pressed="true"], :hover, :focus-visible)) .icon .folderLid { animation: folderOpen 2200ms cubic-bezier(.22,1,.36,1) infinite; }
+:global([data-icon-surface="folder"]:is([aria-pressed="true"], :hover, :focus-visible)) .icon .ideaCards { animation: folderCards 2200ms cubic-bezier(.22,1,.36,1) infinite; }
+:global([data-icon-surface="folder"]:is([aria-pressed="true"], :hover, :focus-visible)) .icon .leftCard { animation: folderFanLeft 2200ms ease-in-out infinite; }
+:global([data-icon-surface="folder"]:is([aria-pressed="true"], :hover, :focus-visible)) .icon .rightCard { animation: folderFanRight 2200ms ease-in-out infinite; }
+:global([data-icon-surface="folder"]:is([aria-pressed="true"], :hover, :focus-visible)) .icon .idea { animation: folderIdea 2200ms cubic-bezier(.22,1,.36,1) infinite; }
+:global([data-icon-surface="folder"]:is([aria-pressed="true"], :hover, :focus-visible)) .icon .shadow { animation: folderShadow 2200ms ease-in-out infinite; }
+@keyframes folderOpen { 0%, 100% { transform: skewX(0) scaleY(1); } 34% { transform: skewX(-9deg) scaleY(.6); } 48% { transform: skewX(-6deg) scaleY(.73); } 62% { transform: skewX(-8deg) scaleY(.64); } 88% { transform: skewX(1deg) scaleY(1.02); } }
+@keyframes folderCards { 0%, 100% { transform: translateY(0); } 34% { transform: translateY(-12px); } 48% { transform: translateY(-8px); } 62% { transform: translateY(-11px); } 88% { transform: translateY(1px); } }
+@keyframes folderFanLeft { 0%, 88%, 100% { transform: translateX(0) rotate(0); } 34%, 62% { transform: translateX(-4px) rotate(-12deg); } }
+@keyframes folderFanRight { 0%, 88%, 100% { transform: translateX(0) rotate(0); } 34%, 62% { transform: translateX(4px) rotate(12deg); } }
+@keyframes folderIdea { 0%, 100% { transform: translateY(0); } 34% { transform: translateY(-11px); } 48% { transform: translateY(-7px); } 62% { transform: translateY(-10px); } 88% { transform: translateY(1px); } }
+@keyframes folderShadow { 0%, 88%, 100% { transform: scaleX(1); opacity: .5; } 34%, 62% { transform: scaleX(.78); opacity: .3; } }
+@media (prefers-reduced-motion: reduce) { .icon *, .scene { animation: none !important; transition: none !important; transform: none !important; } }
+@media (hover: none) { .scene { transform: none; } .icon:not([data-active]):not([data-kind="folder"]) * { animation: none !important; } }

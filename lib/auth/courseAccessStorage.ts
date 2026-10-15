@@ -531,8 +531,8 @@ export async function setCourseFolderGroup(courseId: string, folderGroupId: stri
 }
 
 
-export async function getSlideTemplates(): Promise<SlideTemplate[]> {
-  const { data, error } = await getSupabaseAdmin().from("courses").select("description").eq("slug", APPLIED_AGENTIC_AI_SLUG).maybeSingle();
+export async function getSlideTemplates(signal?: AbortSignal): Promise<SlideTemplate[]> {
+  const { data, error } = await getSupabaseAdmin(signal).from("courses").select("description").eq("slug", APPLIED_AGENTIC_AI_SLUG).maybeSingle();
   if (error) throw error;
   return parseCourseMetadata(data?.description).slideTemplates ?? DEFAULT_SLIDE_TEMPLATES;
 }

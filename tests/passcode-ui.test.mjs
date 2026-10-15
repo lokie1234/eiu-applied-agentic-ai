@@ -18,6 +18,7 @@ function moduleExports(path, dependencies = {}) {
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;
   vm.runInNewContext(code, { exports, console, Date, AbortController, AbortSignal, crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, fetch: (...args) => globalThis.fetch(...args), require: name => {
     if (name === "./LearnerInformationDialog") return { __esModule: true, default: component("components/landing/LearnerInformationDialog.tsx") };
+    if (name === "./SectionEnergy") return { __esModule: true, default: () => null };
     if (name === "./EiuConfirmDialog") return { __esModule: true, default: component("components/admin/EiuConfirmDialog.tsx") };
     if (name === "./LearnerInformationSettings") return { __esModule: true, default: component("components/admin/LearnerInformationSettings.tsx", { "@/lib/learningIdentity": learningIdentity }) };
     if (name === "@/lib/deckLocation") return { rememberDeckSelection() {} };
@@ -274,7 +275,7 @@ test("catalog refresh preserves an open visible section and withdraws it when hi
     await act(async () => render([course]));
     assert.ok(container.querySelector("[data-open-deck]"));
     await act(async () => window.dispatchEvent(new window.Event("focus")));
-    assert.equal(refreshes, 1);
+    assert.equal(refreshes, 0, "returning to a tab must not refresh the active deck");
     await act(async () => render([{ ...course, title: "Updated course" }]));
     assert.ok(container.querySelector("[data-open-deck]"));
     await act(async () => render([{ ...course, sections: [] }]));

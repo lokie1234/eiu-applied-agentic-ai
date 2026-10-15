@@ -98,6 +98,9 @@ test("counting limits reads to two, refreshes replacements, and cancels reads wh
   try {
     await act(async () => root.render(React.createElement(Harness, { sections })));
     assert.equal(reads.length, 2);
+    await act(async () => root.render(React.createElement(Harness, { sections: sections.map(section => ({ ...section })) })));
+    assert.equal(reads.length, 2, "equal catalog refreshes must not restart expensive file reads");
+    assert.equal(reads[0].signal.aborted, false);
     await act(async () => reads[0].resolve(8));
     assert.equal(reads.length, 3);
     assert.equal(JSON.parse(container.textContent)["1"], 8);

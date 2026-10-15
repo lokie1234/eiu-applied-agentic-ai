@@ -4,30 +4,84 @@ import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { type FormEvent, type ReactNode, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { type FormEvent, type PointerEvent, type ReactNode, useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
 import { rememberDeckSelection } from "@/lib/deckLocation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
 import styles from "./LessonPortal.module.css";
-import LearningGrowthIcon from "./LearningGrowthIcon";
-import LearningGardenAction from "./LearningGardenAction";
+import LearningInnovationIcon from "./LearningInnovationIcon";
 import HairlineLoading from "./HairlineLoading";
 import CourseToolRow from "./CourseToolRow";
+import SectionEnergy from "./SectionEnergy";
 import { useSectionOpening } from "./useSectionOpening";
 import { useSectionSlideCounts } from "./useSectionSlideCounts";
 import { buildSectionOneDeckItems, sectionTwoDeckItems } from "@/lib/builtinDeckItems";
 
+const loadSectionOne = () => import("./PdfDeck");
+const loadSectionTwo = () => import("./section2/SectionTwoDeck");
 const SectionOneDeck = dynamic(() => import("./PdfDeck"), { ssr: false, loading: () => <HairlineLoading /> });
 const SectionTwoDeck = dynamic(() => import("./section2/SectionTwoDeck"), { ssr: false, loading: () => <HairlineLoading /> });
 const UploadedSectionDeck = dynamic(() => import("./deck/UploadedSectionDeck"), { ssr: false, loading: () => <HairlineLoading /> });
 
 type SectionId = "section1" | "section2";
 
+// One delegated handler for the whole chooser; no React updates per mouse move.
+function useInnovationTilt() {
+  const surfaceRef = useRef<HTMLElement | null>(null);
+  const frameRef = useRef<number | null>(null);
+  const pointerRef = useRef({ x: 0, y: 0 });
+  function reset() {
+    if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
+    frameRef.current = null;
+    surfaceRef.current?.style.removeProperty("--ai-rotate-x");
+    surfaceRef.current?.style.removeProperty("--ai-rotate-y");
+    surfaceRef.current?.style.removeProperty("--ai-shift-x");
+    surfaceRef.current?.style.removeProperty("--ai-shift-y");
+    surfaceRef.current?.removeAttribute("data-pointer-active");
+    surfaceRef.current = null;
+  }
+  useEffect(() => () => {
+    if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
+    surfaceRef.current?.style.removeProperty("--ai-rotate-x");
+    surfaceRef.current?.style.removeProperty("--ai-rotate-y");
+    surfaceRef.current?.style.removeProperty("--ai-shift-x");
+    surfaceRef.current?.style.removeProperty("--ai-shift-y");
+    surfaceRef.current?.removeAttribute("data-pointer-active");
+  }, []);
+  function onPointerMove(event: PointerEvent<HTMLElement>) {
+    if (event.pointerType !== "mouse") return;
+    const surface = (event.target as Element).closest<HTMLElement>("[data-icon-surface]");
+    if (surface !== surfaceRef.current) {
+      reset();
+      if (!surface || surface.matches(":disabled") || window.matchMedia("(prefers-reduced-motion: reduce), (hover: none)").matches) return;
+      surfaceRef.current = surface;
+      surface.setAttribute("data-pointer-active", "true");
+    }
+    if (!surface) return;
+    pointerRef.current = { x: event.clientX, y: event.clientY };
+    if (frameRef.current !== null) return;
+    frameRef.current = window.requestAnimationFrame(() => {
+      frameRef.current = null;
+      const target = surfaceRef.current;
+      if (!target?.isConnected) return;
+      const bounds = target.getBoundingClientRect();
+      if (!bounds.width || !bounds.height) return;
+      const x = Math.max(-1, Math.min(1, ((pointerRef.current.x - bounds.left) / bounds.width - .5) * 2));
+      const y = Math.max(-1, Math.min(1, ((pointerRef.current.y - bounds.top) / bounds.height - .5) * 2));
+      const strength = target.dataset.iconSurface === "folder" ? 1 : 1.4;
+      target.style.setProperty("--ai-rotate-x", `${(-y * 8 * strength).toFixed(2)}deg`);
+      target.style.setProperty("--ai-rotate-y", `${(x * 11 * strength).toFixed(2)}deg`);
+      target.style.setProperty("--ai-shift-x", `${(x * 4).toFixed(2)}px`);
+      target.style.setProperty("--ai-shift-y", `${(y * 3).toFixed(2)}px`);
+    });
+  }
+  return { onPointerMove, onPointerLeave: reset };
+}
+
 function LearningAccent({ kind = "book" }: { kind?: "library" | "collection" | "book" | "page" }) {
-  const growthKind = kind === "library" ? "forest" : kind === "collection" ? "seed" : kind === "page" ? "tree" : "sapling";
-  return <LearningGrowthIcon kind={growthKind} className={styles.learningAccent} />;
+  return <LearningInnovationIcon kind={kind === "collection" || kind === "library" ? "folder" : kind === "page" ? "section" : "course"} className={styles.learningAccent} compact />;
 }
 type TerminateStatus = "idle" | "sending" | "success" | "error";
 type ReportStatus = "idle" | "exporting" | "error";
@@ -165,7 +219,7 @@ function DeckShell({
   presenceCounts: PresenceCounts;
   currentSection?: SectionId | null;
   statusNotice?: string;
-  onChooseSection?: () => void;
+  onChooseSection?: (keyboard?: boolean) => void;
   onOpenTerminate?: () => void;
   onSignOut: () => void;
   courseTitle: string;
@@ -207,7 +261,7 @@ function DeckShell({
             <button
               type="button"
               className={styles.secondaryButton}
-              onClick={onChooseSection}
+              onClick={event => onChooseSection(event.detail === 0)}
             >
               Courses
             </button>
@@ -271,15 +325,17 @@ export default function LessonPortal({
   initialSectionId?: string;
 }) {
   const router = useRouter();
+  const iconTilt = useInnovationTilt();
   const [catalogRefreshing, startCatalogRefresh] = useTransition();
   const catalogRefreshInFlight = useRef(false);
+  const deckOpenRef = useRef(false);
   useEffect(() => {
     if (!catalogRefreshing) catalogRefreshInFlight.current = false;
   }, [catalogRefreshing]);
   useEffect(() => {
     let lastRefresh = 0;
     const refreshCatalog = () => {
-      if (document.visibilityState !== "visible" || catalogRefreshInFlight.current || Date.now() - lastRefresh < 2_000) return;
+      if (deckOpenRef.current || document.visibilityState !== "visible" || catalogRefreshInFlight.current || Date.now() - lastRefresh < 2_000) return;
       lastRefresh = Date.now();
       catalogRefreshInFlight.current = true;
       startCatalogRefresh(() => router.refresh());
@@ -302,6 +358,7 @@ export default function LessonPortal({
   const [adminSection, setAdminSection] = useState<SectionId | null>(initialSection);
   const [uploadedSection, setActiveUploadedSection] = useState<CourseFolderSection | null>(() => initialSection ? null : courseFolders.find(course => course.id === initialCourseId)?.sections.find(item => item.id === initialSectionId && ["pdf", "tsx", "pptx"].includes(item.contentType)) ?? null);
   const { openingSection, sectionOpenError, openSection, cancelSectionOpening } = useSectionOpening();
+  const [launchingSection, setLaunchingSection] = useState<SectionId | null>(null);
   const [showTerminate, setShowTerminate] = useState(false);
   const [terminateStatus, setTerminateStatus] =
     useState<TerminateStatus>("idle");
@@ -346,7 +403,7 @@ export default function LessonPortal({
   const sectionListRef = useRef<HTMLDivElement>(null);
   const coursePaneRef = useRef<HTMLDivElement>(null);
   const courseGridRef = useRef<HTMLDivElement>(null);
-  const restoreCourseFocus = useRef<string | null>(null);
+  const restoreCourseFocus = useRef<{ id: string; keyboard: boolean } | null>(null);
   const restoreFolderFocus = useRef(false);
   const courseScrollTop = useRef(0);
   const [mobileFoldersOpen, setMobileFoldersOpen] = useState(false);
@@ -374,7 +431,8 @@ export default function LessonPortal({
 
   function closeCourse(restoreFocus = false) {
     cancelSectionOpening();
-    if (restoreFocus) restoreCourseFocus.current = selectedCourseId;
+    iconTilt.onPointerLeave();
+    if (selectedCourseId) restoreCourseFocus.current = { id: selectedCourseId, keyboard: restoreFocus };
     if (selectedCourseId) rememberDeckSelection();
     setSelectedCourseId(null);
   }
@@ -403,15 +461,18 @@ export default function LessonPortal({
   const selectedCourse = courseFolders.find((course) => course.id === selectedCourseId) ?? null;
   const section = selectedCourse?.sections.some(item => item.sectionKey === adminSection) ? adminSection : null;
   const activeUploadedSection = selectedCourse?.sections.find(item => item.id === uploadedSection?.id) ?? null;
+  useEffect(() => {
+    deckOpenRef.current = Boolean(section || activeUploadedSection || openingSection || launchingSection);
+  }, [section, activeUploadedSection, openingSection, launchingSection]);
   const sectionsToCount = useMemo(() => {
-    if (!selectedCourse || section || activeUploadedSection) return undefined;
+    if (!selectedCourse || section || activeUploadedSection || launchingSection) return undefined;
     return selectedCourse.sections.filter(item => !(selectedCourse.slug === APPLIED_AGENTIC_AI_SLUG &&
       (item.sectionKey === "section1" || item.sectionKey === "section2")));
-  }, [selectedCourse, section, activeUploadedSection]);
+  }, [selectedCourse, section, activeUploadedSection, launchingSection]);
   const sectionSlideCounts = useSectionSlideCounts(selectedCourse?.id ?? "", sectionsToCount);
 
   useEffect(() => {
-    if (section || activeUploadedSection) return;
+    if (section || activeUploadedSection || launchingSection) return;
     const pane = coursePaneRef.current;
     if (selectedCourseId) {
       if (pane) pane.scrollTop = 0;
@@ -419,10 +480,14 @@ export default function LessonPortal({
     } else if (restoreCourseFocus.current) {
       const scrollTarget = isSearchingCourses ? pane : courseGridRef.current;
       if (scrollTarget) scrollTarget.scrollTop = courseScrollTop.current;
-      document.getElementById(`course-choice-${restoreCourseFocus.current}`)?.focus({ preventScroll: true });
+      if (restoreCourseFocus.current.keyboard) {
+        document.getElementById(`course-choice-${restoreCourseFocus.current.id}`)?.focus({ preventScroll: true });
+      } else {
+        pane?.focus({ preventScroll: true });
+      }
       restoreCourseFocus.current = null;
     }
-  }, [selectedCourseId, section, activeUploadedSection, isSearchingCourses]);
+  }, [selectedCourseId, section, activeUploadedSection, launchingSection, isSearchingCourses]);
 
   useEffect(() => {
     if (!mobileFoldersOpen && restoreFolderFocus.current) {
@@ -804,23 +869,25 @@ export default function LessonPortal({
     };
   }, [isAdmin, section]);
 
-  function renderCourseTools(course: CourseFolder) {
-    return <div className={styles.staticIconsTrack} aria-label="Course tools">
-      {course.systemIcons?.map(icon => (
-        <span key={icon.id} data-course-tool className={styles.courseCardIconBox} title={icon.name || undefined}>
-          <img src={icon.url} draggable={false} alt={icon.name || "Course tool"} width={24} height={24}
-            loading="lazy" decoding="async" className={styles.courseCardIconImg} />
-        </span>
-      ))}
-    </div>;
-  }
+  const handleLaunchBuiltin = useCallback((course: CourseFolder, item: CourseFolderSection, coreSection: SectionId) => {
+    iconTilt.onPointerLeave();
+    setLaunchingSection(coreSection);
+    rememberDeckSelection(course.id, item.id, false, { course: course.slug, section: item.sectionKey });
+    // Fetch the display bundle in parallel with the session check.
+    void (coreSection === "section1" ? loadSectionOne() : loadSectionTwo()).catch(() => {});
+    void openSection(coreSection, () => {
+      setActiveUploadedSection(null);
+      setAdminSection(coreSection);
+      setLaunchingSection(null);
+    });
+  }, [iconTilt, openSection]);
 
   function renderCourseSections(course: CourseFolder) {
     return (
       <div id={`course-sections-${course.id}`} className={styles.inlineSections}
         role="region" aria-label={`${course.title} sections`} tabIndex={-1} ref={sectionListRef}
         onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); closeCourse(true); } }}>
-        <button type="button" className={styles.backToCourses} onClick={() => closeCourse(true)} aria-label="Back to courses">
+        <button type="button" className={styles.backToCourses} onClick={event => closeCourse(event.detail === 0)} aria-label="Back to courses">
           <span aria-hidden="true">←</span> Courses
         </button>
         <div className={styles.inlineSectionsHeader}>
@@ -831,7 +898,7 @@ export default function LessonPortal({
           </div>
           <span className={styles.sectionTotal}>{course.sections.length} sections</span>
         </div>
-        {Boolean(course.systemIcons?.length) && <div className={styles.sectionTools}>{renderCourseTools(course)}</div>}
+        {Boolean(course.systemIcons?.length) && <div className={styles.sectionTools}><CourseToolRow tools={course.systemIcons} /></div>}
         {sectionOpenError && <p role="alert" className={styles.sectionOpenError}>{sectionOpenError}</p>}
           <div className={styles.cards}>
             {course.sections.map((courseSection) => {
@@ -846,33 +913,36 @@ export default function LessonPortal({
                 : coreSection === "section2" ? sectionTwoDeckItems.length : sectionSlideCounts[courseSection.id];
               return (
                 <div key={courseSection.id} className={styles.courseSectionCard}>
-                <button
-                  type="button"
+                <article
                   className={styles.sectionLaunchButton}
-                  disabled={!canOpen || Boolean(openingSection)}
+                  data-icon-surface="section"
+                  data-disabled={!canOpen || Boolean(openingSection)}
                   aria-busy={openingSection === courseSection.sectionKey}
-                  onClick={() => {
-                    if (coreSection) void openSection(coreSection, () => {
-                      rememberDeckSelection(course.id, courseSection.id);
-                      setActiveUploadedSection(null);
-                      setAdminSection(coreSection);
-                    });
-                    else if (hasUploadedDeck) { rememberDeckSelection(course.id, courseSection.id, true); setActiveUploadedSection(courseSection); }
-                  }}
                 >
-                  <span>SECTION {courseSection.position}</span>
-                  <strong className={styles.illustratedTitle} title={courseSection.title}><LearningAccent kind="page" /><span>{courseSection.title}</span></strong>
-                  <small className={canOpen ? styles.sectionSlideBadge : undefined} aria-live="polite">{canOpen ? `${count ?? "…"} slides` : "Content has not been uploaded yet"}</small>
-                  {(isAdmin || courseSection.canFacilitate) && coreSection && <div className={styles.cardLiveUsers}>
+                  {canOpen && <SectionEnergy />}
+                  <span data-energy-exclude>SECTION {courseSection.position}</span>
+                  <strong data-energy-exclude className={styles.illustratedTitle} title={courseSection.title}><LearningAccent kind="page" /><span>{courseSection.title}</span></strong>
+                  {canOpen && <div className={styles.sectionEnergySpace} aria-hidden="true" />}
+                  <small data-energy-exclude className={canOpen ? styles.sectionSlideBadge : undefined} aria-live="polite">{canOpen ? `${count ?? "…"} slides` : "Content has not been uploaded yet"}</small>
+                  {(isAdmin || courseSection.canFacilitate) && coreSection && <div data-energy-exclude className={styles.cardLiveUsers}>
                     <span className={styles.liveDot} />
                     <span>{presenceCounts[coreSection]} active learners</span>
                   </div>}
-                  {canOpen && <span className={styles.sectionClickCue} aria-hidden="true">
-                    <LearningGardenAction kind="harvest" className={styles.sectionClickArtwork} active={openingSection === courseSection.sectionKey} />
-                  </span>}
-                </button>
+                  {canOpen && <button type="button" className={styles.sectionClickCue}
+                    data-energy-exclude
+                    aria-label={`Open ${courseSection.title}`}
+                    disabled={Boolean(openingSection)}
+                    aria-busy={openingSection === courseSection.sectionKey}
+                  onClick={() => {
+                    if (coreSection) handleLaunchBuiltin(course, courseSection, coreSection);
+                    else if (hasUploadedDeck) { iconTilt.onPointerLeave(); deckOpenRef.current = true; rememberDeckSelection(course.id, courseSection.id, true, { course: course.slug, section: courseSection.sectionKey }); setActiveUploadedSection(courseSection); }
+                  }}
+                  >
+                    <LearningInnovationIcon kind="section" className={styles.sectionClickArtwork} active={openingSection === courseSection.sectionKey} />
+                  </button>}
+                </article>
                 {coreSection && courseSection.contentType === "pptx" && (
-                  <button type="button" className={styles.sectionFilePreview} disabled={Boolean(openingSection)} onClick={() => { rememberDeckSelection(course.id, courseSection.id, true); setAdminSection(null); setActiveUploadedSection(courseSection); }}>
+                  <button type="button" className={styles.sectionFilePreview} disabled={Boolean(openingSection)} onClick={() => { rememberDeckSelection(course.id, courseSection.id, true, { course: course.slug, section: courseSection.sectionKey }); setAdminSection(null); setActiveUploadedSection(courseSection); }}>
                     View file
                   </button>
                 )}
@@ -895,10 +965,10 @@ export default function LessonPortal({
     );
   }
 
-  if (!selectedCourse || (!section && !activeUploadedSection)) {
+  if (!selectedCourse || (!section && !activeUploadedSection && !launchingSection)) {
     return (
-      <main className={`${styles.portal} ${styles.gardenPortal}`}>
-        <div className={styles.gardenBackdrop} aria-hidden="true" />
+      <main className={`${styles.portal} ${styles.innovationPortal}`} {...iconTilt}>
+        <div className={styles.innovationBackdrop} aria-hidden="true" />
         <div className={styles.selectorActions}>
           {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
@@ -953,9 +1023,9 @@ export default function LessonPortal({
           <div className={styles.libraryHeaderToolbar}>
             <div className={styles.libraryHeaderTitleArea}>
               <h1 className={styles.libraryHeaderTitle}>
-                <LearningGrowthIcon kind="forest" className={styles.titleForestLeft} />
-                <span className={styles.titleForestText}>Choose a <span className={styles.titleWord}>course</span></span>
-                <LearningGrowthIcon kind="forest" className={styles.titleForestRight} />
+                <LearningInnovationIcon kind="spark" className={styles.titleInnovationLeft} />
+                <span className={styles.titleInnovationText}>Choose a <span className={styles.titleWord}>course</span></span>
+                <LearningInnovationIcon kind="spark" className={styles.titleInnovationRight} />
               </h1>
             </div>
 
@@ -1020,10 +1090,11 @@ export default function LessonPortal({
               <div className={styles.folderShelf} role="group" aria-label="Course folders">
                 {paginatedFolders.map(group => (
                   <button type="button" key={group.id}
+                    data-icon-surface="folder"
                     className={`${styles.folderChoice} ${!isSearchingCourses && openFolder?.id === group.id ? styles.folderChoiceSelected : ""}`}
                     aria-pressed={!isSearchingCourses && openFolder?.id === group.id} aria-controls="course-folder-content" title={group.name}
                     onClick={() => chooseFolder(group.id)}>
-                    <LearningGardenAction kind="grow" className={styles.folderArtwork} />
+                    <LearningInnovationIcon kind="folder" className={styles.folderArtwork} />
                     {!isSearchingCourses && openFolder?.id === group.id && <span className={styles.folderSelectedMark} aria-hidden="true">✓</span>}
                     <span className={styles.folderChoiceText}>
                       <strong className={styles.illustratedTitle}><LearningAccent kind="collection" /><span className={styles.folderNameText}>{group.name}</span></strong>
@@ -1069,6 +1140,7 @@ export default function LessonPortal({
                 const currentPage = Math.min(Math.max(1, groupPages[group.id] || 1), totalPages);
                 const startIndex = (currentPage - 1) * COURSES_PER_PAGE;
                 const paginatedCourses = group.courses.slice(startIndex, startIndex + COURSES_PER_PAGE);
+                const aiTraining = group.name.trim().replace(/\s+/g, " ").toLowerCase() === "ai training";
 
                 return (
                   <div key={group.id} className={`${styles.libraryFolderGroup} ${!isSearchingCourses ? styles.singleCourseGroup : ""}`}>
@@ -1088,7 +1160,12 @@ export default function LessonPortal({
 
                     <div className={styles.courseFolderGrid} ref={!isSearchingCourses ? courseGridRef : undefined}>
                       {paginatedCourses.map(course => (
-                        <article className={styles.courseFolder} key={course.id} aria-labelledby={`course-title-${course.id}`}>
+                        <article className={styles.courseFolder} key={course.id} data-icon-surface="course" aria-labelledby={`course-title-${course.id}`}>
+                          {aiTraining && ["top", "bottom"].map(edge => <svg key={edge} className={styles.courseElectric} data-edge={edge}
+                            viewBox="0 0 600 6" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+                            <path className={styles.electricTrack} d="M0 4h200l8-2h184l8 2h200" vectorEffect="non-scaling-stroke" />
+                            <path className={styles.electricPulse} d="M0 4h200l8-2h184l8 2h200" pathLength="100" vectorEffect="non-scaling-stroke" />
+                          </svg>)}
                           <h3 className={`${styles.courseTitle} ${styles.illustratedTitle}`} id={`course-title-${course.id}`} title={course.title}><LearningAccent /><span className={styles.courseNameText}>{course.title}</span></h3>
                           <div className={styles.courseCardMain}>
                             <div className={styles.courseCardBody}>
@@ -1110,11 +1187,12 @@ export default function LessonPortal({
                           <button type="button" className={styles.courseEnterButton} id={`course-choice-${course.id}`}
                             aria-label={`Open sections for ${course.title}`} onClick={() => {
                               courseScrollTop.current = (isSearchingCourses ? coursePaneRef.current : courseGridRef.current)?.scrollTop ?? 0;
-                              rememberDeckSelection(course.id);
+                              iconTilt.onPointerLeave();
+                              rememberDeckSelection(course.id, null, false, { course: course.slug });
                               setSelectedCourseId(course.id);
                               setMobileFoldersOpen(false);
                             }}>
-                            <LearningGardenAction kind="course" className={styles.enterArtwork} />
+                            <LearningInnovationIcon kind="course" className={styles.enterArtwork} electric={aiTraining} />
                           </button>
                         </article>
                       ))}
@@ -1409,7 +1487,15 @@ export default function LessonPortal({
         presenceCounts={presenceCounts}
         currentSection={section}
         statusNotice={isAdmin ? terminateNotice : undefined}
-        onChooseSection={() => {
+        onChooseSection={(keyboard = false) => {
+          cancelSectionOpening();
+          if (launchingSection) {
+            setLaunchingSection(null);
+            rememberDeckSelection(selectedCourse.id, null, false, { course: selectedCourse.slug });
+            return;
+          }
+          iconTilt.onPointerLeave();
+          if (selectedCourseId) restoreCourseFocus.current = { id: selectedCourseId, keyboard };
           rememberDeckSelection();
           setAdminSection(null);
           setActiveUploadedSection(null);
@@ -1427,7 +1513,15 @@ export default function LessonPortal({
         onSignOut={signOut}
         courseTitle={selectedCourse.title}
       >
-        {activeUploadedSection ? (
+        {launchingSection ? sectionOpenError ? (
+          <div role="alert" className={styles.sectionOpenError}>
+            <p>{sectionOpenError}</p>
+            <button type="button" onClick={() => {
+              const item = selectedCourse.sections.find(item => item.sectionKey === launchingSection);
+              if (item) handleLaunchBuiltin(selectedCourse, item, launchingSection);
+            }}>Try again</button>
+          </div>
+        ) : <HairlineLoading label="Opening lesson" /> : activeUploadedSection ? (
           <UploadedSectionDeck
             key={`${activeUploadedSection.id}-${activeUploadedSection.contentRevision ?? ""}-${activeUploadedSection.templateKey ?? ""}-${deckSessionKey}`}
             sectionId={activeUploadedSection.id}

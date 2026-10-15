@@ -35,7 +35,7 @@ test("admin can clear a summary and reopen or cancel the editor without restorin
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true },
   }).outputText;
   vm.runInNewContext(code, {
-    exports, fetch, window, document: window.document, console,
+    exports, fetch, window, document: window.document, console, AbortController, AbortSignal,
     require: name => {
       if (name === "@/lib/learningIdentity") return learningIdentity;
       if (name.endsWith(".css")) return new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) });

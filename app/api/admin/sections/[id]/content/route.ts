@@ -2,7 +2,7 @@ import { after, NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { canManageSection } from "@/lib/auth/currentUser";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
-import { validateSectionContent, MAX_SECTION_BYTES } from "@/lib/sectionContent";
+import { prepareSectionFile, MAX_SECTION_BYTES } from "@/lib/sectionContent";
 import { uploadDriveSection } from "@/lib/drive/sectionContent";
 import { localSectionSourcePath } from "@/lib/localSectionContent";
 
@@ -24,21 +24,21 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
       let form: FormData;
       try { form = await request.formData(); } catch { return NextResponse.json({success:false,message:"Upload data is incomplete or invalid. Choose the file again."},{status:400}); }
       const file = form.get("file");
-      if (!(file instanceof File) || !file.size) return NextResponse.json({success:false,message:"Choose a PDF, TSX, or PPTX file."},{status:400});
+      if (!(file instanceof File) || !file.size) return NextResponse.json({success:false,message:"Choose a PDF, JS, or PPTX file."},{status:400});
       if (file.size > MAX_SECTION_BYTES) return NextResponse.json({success:false,message:"The maximum file size is 50 MB."},{status:413});
       bytes = new Uint8Array(await file.arrayBuffer()); name = file.name; destinationId = String(form.get("destinationId") || "");
     }
     let validated;
-    try { validated = await validateSectionContent(bytes,name); } catch (error) { return NextResponse.json({success:false,message:error instanceof Error ? error.message : "Invalid file."},{status:400}); }
+    try { validated = await prepareSectionFile(bytes,name); bytes = validated.bytes; name = validated.name; } catch (error) { return NextResponse.json({success:false,message:error instanceof Error ? error.message : "Invalid file."},{status:400}); }
     const parent = await db.from("courses").select("slug,title").eq("id",section.course_id).maybeSingle();
     if (parent.error) throw Error("Unable to load section.");
     if (["section1","section2"].includes(String(section.section_key))) {
-      if (parent.data?.slug === "applied-agentic-ai" && validated.contentType !== "pptx") return NextResponse.json({success:false,message:"Built-in lessons accept PPTX attachments only. Choose a custom section for PDF or TSX."},{status:400});
+      if (parent.data?.slug === "applied-agentic-ai" && validated.contentType !== "pptx") return NextResponse.json({success:false,message:"Built-in lessons accept PPTX attachments only. Choose a custom section for PDF or JS."},{status:400});
     }
     const contentSource = parent.data && localSectionSourcePath({ id: String(section.course_id) }, { id: String(section.id), content_type: validated.contentType }) ? "project-tsx" : "uploaded";
     const driveId = await uploadDriveSection({ sectionId:id, destinationId, name, bytes, mimeType:validated.mimeType });
     const contentPath = "drive:" + driveId;
-    let update = db.from("course_sections").update({content_type:validated.contentType,content_path:contentPath,original_content_path:validated.contentType === "tsx" ? contentPath : null,source_filename:name,slide_count:validated.slideCount,updated_at:new Date().toISOString()}).eq("id",id);
+    let update = db.from("course_sections").update({content_type:validated.contentType,content_path:contentPath,original_content_path:null,source_filename:name,slide_count:validated.slideCount,updated_at:new Date().toISOString()}).eq("id",id);
     update = section.content_path ? update.eq("content_path", section.content_path) : update.is("content_path", null);
     const updated = await update.select("id").maybeSingle();
     if (updated.error || !updated.data) throw Error("The file is on Drive, but the section changed or could not be updated. The existing lesson is unchanged; reload and retry.");

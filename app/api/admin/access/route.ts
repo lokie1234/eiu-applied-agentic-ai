@@ -27,6 +27,13 @@ export const runtime = "nodejs";
 const LANGUAGE_LABELS = new Set(["vi", "en", "vi_en"]);
 const SECTION_CONTENT_BUCKET = "course-section-content";
 
+function workspaceCatalog(data: Awaited<ReturnType<typeof getCoursesAndSectionsData>>) {
+  // Full background images belong to /api/templates, not every catalog read/write.
+  return { ...data, courses: data.courses.map(course => ({
+    ...course, metadata: { ...course.metadata, slideTemplates: undefined },
+  })) };
+}
+
 async function removeSectionFiles(paths: Array<string | null | undefined>) {
   const cleanPaths = [...new Set(paths.filter((path): path is string => Boolean(path) && !path?.startsWith("drive:")))];
   if (cleanPaths.length === 0) return;
@@ -43,15 +50,15 @@ function slugify(value: string) {
     .slice(0, 70);
 }
 
-export async function GET() {
-  const actor = await requireCourseManager();
+export async function GET(request?: Request) {
+  const actor = await requireCourseManager(request?.signal);
   if (!actor) {
     return NextResponse.json({ success: false, message: "Course management access required." }, { status: 403 });
   }
   try {
 
-    const data = await getCoursesAndSectionsData();
-    return NextResponse.json({ success: true, ...data });
+    const data = await getCoursesAndSectionsData(request?.signal);
+    return NextResponse.json({ success: true, ...workspaceCatalog(data) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Load admin data error:", error);
     return NextResponse.json({ success: false, message: "Unable to load workspace data." }, { status: 500 });
@@ -59,7 +66,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const actor = await requireCourseManager();
+  const actor = await requireCourseManager(request.signal);
   if (!actor) {
     return NextResponse.json({ success: false, message: "Course management access required." }, { status: 403 });
   }
@@ -108,7 +115,7 @@ export async function POST(request: Request) {
         await saveAccessPasscodes(body.targets, body.modes, body.operation === "generate" ? null : "", body.unhide === true);
       } catch (error) {
         revalidatePath("/learn");
-        return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Unable to update passcodes.", ...await getCoursesAndSectionsData() }, { status: 409 });
+        return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Unable to update passcodes.", ...workspaceCatalog(await getCoursesAndSectionsData()) }, { status: 409 });
       }
     } else if (action === "set_access_passcode") {
       if (!["global", "folder", "course"].includes(body.kind) || !["learner", "facilitator"].includes(body.mode) || typeof body.id !== "string" || (body.generate !== true && typeof body.code !== "string")) {
@@ -118,7 +125,7 @@ export async function POST(request: Request) {
         generatedCode = await saveAccessPasscode({ kind: body.kind, id: body.id }, body.mode, body.generate === true ? null : body.code, body.unhide === true);
       } catch (error) {
         revalidatePath("/learn");
-        return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Unable to save passcode.", ...await getCoursesAndSectionsData() }, { status: 409 });
+        return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Unable to save passcode.", ...workspaceCatalog(await getCoursesAndSectionsData()) }, { status: 409 });
       }
     } else if (action === "set_course_language") {
       const courseId = String(body.courseId ?? "");
@@ -505,7 +512,7 @@ export async function POST(request: Request) {
     const updatedData = await getCoursesAndSectionsData();
     return NextResponse.json({
       success: true,
-      ...updatedData,
+      ...workspaceCatalog(updatedData),
       ...(generatedCode ? { generatedCode } : {}),
       ...(createdCourseIds ? { createdCourseIds } : {}),
       ...(createdFolderGroupId ? { createdFolderGroupId } : {}),

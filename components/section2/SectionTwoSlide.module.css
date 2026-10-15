@@ -186,27 +186,18 @@
 .navyCard h2, .navyCard p, .navyCard strong { color: #fff !important; }
 .navyCard .miniTitle { color: #e8cd99; }
 
-.goldBullets { position: relative; z-index: 2; margin: 38px 0 0 40px; padding: 0; list-style: none; display: grid; gap: 28px; }
-.goldBullets li { color: #353535; font-size: var(--type-card-title); }
-.goldBullets li::before { content: "▪"; margin-right: 18px; color: var(--gold); }
-
 .workflow { position: relative; z-index: 2; width: 290px; margin: 0 auto; display: grid; gap: 5px; }
 .workflow > div { position: relative; height: 51px; display: grid; place-items: center; border-radius: 7px; background: var(--beige); color: #27333e; font-size: 15px; font-weight: 700; }
 .workflow > div span { position: absolute; left: 50%; bottom: -14px; z-index: 3; color: var(--gold); font-size: 18px; transform: translateX(-50%); }
-.workflowNavy { background: var(--navy) !important; color: #fff !important; }
 
 .dataGrid { position: relative; z-index: 2; margin: 70px 30px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
-.dataGrid > div, .reportGrid > div, .coreSplit span, .coreFlow > div, .practiceList > div { min-height: 72px; display: grid; place-items: center; border-radius: 8px; background: var(--beige); color: #233548; font-size: 15px; font-weight: 700; text-align: center; }
+.dataGrid > div, .reportGrid > div, .coreFlow > div, .practiceList > div { min-height: 72px; display: grid; place-items: center; border-radius: 8px; background: var(--beige); color: #233548; font-size: 15px; font-weight: 700; text-align: center; }
 .navyTile { background: var(--navy) !important; color: #fff !important; }
 
 .ruleGrid { position: relative; z-index: 2; margin: 55px 24px 0; display: grid; grid-template-columns: 1fr 1fr; gap: 19px 25px; }
 .ruleGrid > div { min-height: 107px; padding: 20px 24px; display: flex; align-items: center; gap: 20px; border-radius: 8px; background: var(--beige); }
 .ruleGrid b { color: var(--gold); font-size: 16px; }
 .ruleGrid span { color: #222; font-size: 15px; line-height: 1.38; font-weight: 650; }
-
-.checkList { position: relative; z-index: 2; margin: 35px 0 0 60px; padding: 0; list-style: none; display: grid; gap: 29px; }
-.checkList li { display: flex; align-items: center; gap: 17px; color: var(--navy); font-size: 14px; }
-.checkList li > span { color: #333; font-size: 17px; }
 
 .reportGrid { position: relative; z-index: 2; margin: 85px 32px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
 .reportGrid > div { min-height: 83px; }
@@ -324,10 +315,6 @@
   font-size: 8px;
   line-height: 1.1;
   font-weight: 760;
-}
-
-.demoWideLabel {
-  grid-column: 1 / span 2;
 }
 
 .demoRequired {
@@ -701,12 +688,6 @@
   font-size: 20px;
 }
 
-.splitHeadings { position: relative; z-index: 2; margin: 0 24px 15px; display: grid; grid-template-columns: 1.35fr 1fr; gap: 52px; }
-.coreSplit { position: relative; z-index: 2; margin: 0 24px; display: grid; grid-template-columns: 1.35fr 1fr; gap: 52px; }
-.coreSplit > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-.coreSplit > div:last-child { grid-template-columns: repeat(2, 1fr); }
-.coreSplit span { min-height: 70px; font-size: 13px; }
-
 .frameworkHero { position: relative; z-index: 2; margin: 93px 0 0 76px; }
 .frameworkHero > span { color: var(--gold); font-size: 58px; font-weight: 650; letter-spacing: .17em; }
 .frameworkHero h1 { margin: 30px 0 0; color: var(--ink); font-size: 34px; letter-spacing: .17em; }
@@ -720,7 +701,6 @@
 .gemDefinition .title { margin: 72px 0 0; font-size: 44px; }
 .gemDefinition p { margin: 30px auto 0; max-width: 650px; color: rgba(255,255,255,.72); font-size: 17px; line-height: 1.55; }
 .gemDefinition em { position: absolute; left: 0; right: 0; bottom: 19px; color: rgba(255,255,255,.65); font-size: 13px; }
-.skillDefinitionUse { margin:24px auto 0; max-width:650px; color:#e9ca8b; font-size:18px; line-height:1.5; }
 
 .centerLight { position: relative; z-index: 2; margin-top: 115px; text-align: center; }
 .centerLight p { margin: 65px 0 28px; color: #333; font-size: 22px; }
@@ -731,10 +711,6 @@
 .frameworkGem h2 { margin: 19px 0 15px; color: var(--ink); font-size: 25px; }
 .frameworkGem p { margin: 0; color: #333; font-size: 14px; line-height: 1.48; }
 .arrowLarge { display: grid; place-items: center; color: var(--gold); font-size: 38px; }
-
-.gemGrid { position: relative; z-index: 2; margin: 70px 30px 0; display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
-.gemGrid > div { min-height: 112px; padding: 26px 29px; border-radius: 8px; background: var(--beige); }
-.gemGrid strong { display: block; margin-top: 17px; color: var(--ink); font-size: 18px; }
 
 .formula { position: relative; z-index: 2; margin: 80px 32px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 34px; }
 .formula > div { position: relative; min-height: 83px; display: grid; place-items: center; border-radius: 8px; background: var(--beige); color: var(--ink); font-size: 17px; font-weight: 700; }
@@ -754,12 +730,6 @@
 .labCover { position: relative; z-index: 2; margin: 92px 0 0 55px; }
 .labCover h1 { margin: 60px 0 20px; color: #fff; font-size: 70px; line-height: 1; font-weight: 620; }
 .labCover p { color: rgba(255,255,255,.68); font-size: 18px; }
-
-.roadmap { position: relative; z-index: 2; margin: 115px 18px 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 27px; }
-.roadmap > div { position: relative; min-height: 96px; display: flex; align-items: center; gap: 15px; }
-.roadmap b { width: 44px; height: 44px; flex: 0 0 44px; display: grid; place-items: center; border-radius: 999px; background: var(--navy); color: #fff; font-size: 17px; }
-.roadmap span { white-space: pre-line; color: #283746; font-size: 14px; line-height: 1.45; font-weight: 650; }
-.roadmap i { position: absolute; right: -21px; color: var(--gold); font-size: 23px; font-style: normal; }
 
 .quote { position: relative; z-index: 2; margin: 37px 38px 0; padding: 39px 46px 30px 82px; border-left: 5px solid var(--gold); border-radius: 0 9px 9px 0; background: var(--beige); color: var(--ink); }
 .quote > span { position: absolute; left: 27px; top: 17px; color: var(--gold); font-family: Georgia, serif; font-size: 65px; line-height: 1; }
@@ -847,37 +817,6 @@
 .principles span { color: #444; font-size: 16px; }
 .principles span::first-letter { color: var(--gold); }
 
-.screenshotPair { position: relative; z-index: 2; height: 360px; margin: 5px 0 0 10px; display: grid; grid-template-columns: 220px 1fr; gap: 28px; align-items: center; }
-.screenshotPair > div { position: relative; overflow: hidden; border: 1px solid #ddd; border-radius: 5px; background: #111; box-shadow: 0 10px 28px rgba(10,30,50,.12); }
-.screenshotPair > div:first-child { height: 305px; }
-.screenshotPair > div:last-child { height: 290px; }
-.screenshotPair img { object-fit: contain; }
-.tallScreenshot { position: relative; z-index: 2; width: 340px; height: 400px; margin: 0; overflow: hidden; border-radius: 6px; background: #171717; box-shadow: 0 10px 30px rgba(0,0,0,.2); }
-.tallScreenshot img { object-fit: contain; }
-
-.gemSetupLayout { position: relative; z-index: 2; margin: 0 42px 0 50px; display: grid; grid-template-columns: 340px 1fr; gap: 42px; align-items: center; }
-.gemSetupCallout { padding: 30px 31px; border: 1px solid rgba(167,137,88,.22); border-radius: 18px; background: rgba(255,255,255,.9); box-shadow: 0 18px 48px rgba(13,52,87,.1); }
-.gemSetupCallout > p { margin: 19px 0 22px; color: #35465a; font-size: 17px; line-height: 1.48; font-weight: 650; }
-.gemSetupCallout > div { min-height: 47px; display: flex; align-items: center; gap: 14px; border-top: 1px solid rgba(21,64,106,.09); color: var(--ink); font-size: 14px; }
-.gemSetupCallout > div span { width: 27px; height: 27px; display: grid; place-items: center; border-radius: 50%; background: var(--navy); color: #fff; font-size: 9px; font-weight: 850; }
-.gemSetupCallout > div strong { font-size: 15px; font-weight: 760; }
-
-.previewLayout { position: relative; z-index: 2; margin: 0 28px; display: grid; grid-template-columns: 330px 1fr; gap: 38px; align-items: center; }
-.previewShot { position: relative; width: 278px; height: 360px; overflow: hidden; border-radius: 5px; background: #171717; }
-.previewShot img { object-fit: cover; object-position: right center; }
-.previewLayout > div:last-child { display: grid; gap: 25px; }
-.previewLayout .navyCard { padding: 27px; border-radius: 7px; }
-.previewLayout .navyCard p { margin: 0; font-size: 16px; line-height: 1.5; }
-.previewLayout .quote { margin: 0; padding: 30px 35px 30px 67px; }
-
-.saveFlow { position: relative; z-index: 2; margin: 34px 32px 0; display: grid; grid-template-columns: 1fr; gap: 28px; }
-.saveFlow > div { position: relative; display:flex; align-items:center; gap:28px; min-height: 94px; padding: 22px 30px; border-radius: 8px; background: var(--beige); text-align: left; }
-.saveFlowLabel { display: block; flex:0 0 100px; padding-right:22px; border-right:1px solid rgba(167,137,88,.35); color: var(--ink); font-family: inherit; font-size: 18px; line-height: 1.2; font-weight: 780; letter-spacing: .04em; }
-.navyCard .saveFlowLabel { color: #fff; }
-.saveFlow p { margin: 0; color: #323232; font-family: inherit; font-size: 19px; line-height: 1.42; font-weight: 620; }
-.navyCard .saveFlowLabel + p { color: #fff; }
-.saveFlow > div > span { position: absolute; left:calc(50% - 14px); bottom:-28px; width:28px; height:28px; text-align:center; color: var(--gold); font-size: 24px; line-height:28px; }
-
 .practiceList { position: relative; z-index: 2; width: 260px; margin: 60px 0 0 32px; display: grid; gap: 18px; }
 .practiceList > div { min-height: 75px; }
 
@@ -886,11 +825,6 @@
 .finalMessage h1 { margin: 34px 0 0; color: var(--gold); font-size: 34px; letter-spacing: .1em; }
 .finalMessage .goldRule { margin: 31px auto 0; }
 .finalMessage .goldRule + p { margin-top: 25px; font-size: 17px; line-height: 1.5; font-weight: 650; }
-
-.giftCard { position: relative; z-index: 2; margin: 48px 28px 0; padding: 34px 38px; min-height: 260px; border-radius: 9px; background: var(--beige); }
-.giftCard h2 { margin: 24px 0 11px; color: var(--ink); font-size: 29px; }
-.giftCard p { max-width: 560px; color: #555; font-size: 15px; line-height: 1.5; }
-.giftCard a { position: absolute; left: 38px; bottom: 32px; padding: 13px 22px; border-radius: 999px; background: var(--navy); color: #fff; font-size: 13px; font-weight: 750; text-decoration: none; }
 
 /* Section 2 · slides 1–37 motion layer
    Visual-only, deterministic and isolated from the lesson controls. */
@@ -1385,16 +1319,12 @@
 .motionPage8 .title,
 .motionPage9 .title,
 .motionPage9 .subtitle,
-.motionPage9 .goldBullets li,
-.motionPage10 .workflowChallengeHead,
-.motionPage10 .workflowTarget,
 .motionPage11 .interactionHeading,
 .motionPage11 .dataGrid > button,
 .motionPage12 .title,
 .motionPage12 .ruleGrid > div,
 .motionPage13 .title,
 .motionPage13 .subtitle,
-.motionPage13 .checkList li,
 .motionPage14 .interactionHeading,
 .motionPage14 .reportGrid > button,
 .motionPage15 .title,
@@ -1408,7 +1338,6 @@
 .motionPage23 .title,
 .motionPage23 .frameworkGem > div,
 .motionPage24 .title,
-.motionPage24 .gemGrid > div,
 .motionPage25 .title,
 .motionPage25 .formula > div,
 .motionPage25 .frameworkBar,
@@ -1435,15 +1364,9 @@
 .motionPage31 .principles span,
 .motionPage31 .bottomNote,
 .motionPage32 .title,
-.motionPage32 .screenshotPair > div,
 .motionPage33 .title,
-.motionPage33 .tallScreenshot,
-.motionPage33 .gemSetupCallout,
 .motionPage34 .title,
-.motionPage34 .previewShot,
-.motionPage34 .previewLayout > div:last-child,
 .motionPage35 .title,
-.motionPage35 .saveFlow > div,
 .motionPage36 .title,
 .motionPage36 .practiceList > div,
 .motionPage37 .finalMessage > * {
@@ -1476,28 +1399,18 @@
 .motionPage7 .centerStatement strong { animation-delay: .43s; }
 
 .motionPage9 .subtitle { animation-delay: .12s; }
-.motionPage9 .goldBullets li:nth-child(1) { animation-delay: .22s; }
-.motionPage9 .goldBullets li:nth-child(2) { animation-delay: .32s; }
-.motionPage9 .goldBullets li:nth-child(3) { animation-delay: .42s; }
-.motionPage9 .goldBullets li:nth-child(4) { animation-delay: .52s; }
 
-.motionPage10 .workflowTarget:nth-child(2),
 .motionPage11 .dataGrid > button:nth-child(2),
 .motionPage12 .ruleGrid > div:nth-child(2),
-.motionPage13 .checkList li:nth-child(2),
 .motionPage14 .reportGrid > button:nth-child(2),
 .motionPage18 .coreTarget:nth-child(2) { animation-delay: .08s; }
 
-.motionPage10 .workflowTarget:nth-child(3),
 .motionPage11 .dataGrid > button:nth-child(3),
 .motionPage12 .ruleGrid > div:nth-child(3),
-.motionPage13 .checkList li:nth-child(3),
 .motionPage14 .reportGrid > button:nth-child(3) { animation-delay: .14s; }
 
-.motionPage10 .workflowTarget:nth-child(n+4),
 .motionPage11 .dataGrid > button:nth-child(n+4),
 .motionPage12 .ruleGrid > div:nth-child(4),
-.motionPage13 .checkList li:nth-child(4),
 .motionPage14 .reportGrid > button:nth-child(n+4) { animation-delay: .2s; }
 
 .motionPage15 .requirementSummary,
@@ -1518,8 +1431,7 @@
 .motionPage27 .requirementTransition h1,
 .motionPage28 .labCover h1,
 .motionPage30 .subtitle,
-.motionPage31 .principles span:nth-child(-n+2),
-.motionPage32 .screenshotPair > div:first-child { animation-delay: .14s; }
+.motionPage31 .principles span:nth-child(-n+2) { animation-delay: .14s; }
 
 .motionPage17 .frameworkQuestion p,
 .motionPage19 .frameworkHero p,
@@ -1529,32 +1441,23 @@
 .motionPage27 .requirementTransition p,
 .motionPage28 .labCover p,
 .motionPage30 .quote,
-.motionPage31 .principles span:nth-child(n+3),
-.motionPage32 .screenshotPair > div:last-child { animation-delay: .3s; }
+.motionPage31 .principles span:nth-child(n+3) { animation-delay: .3s; }
 
 .motionPage30 .labFilesDownload,
 .motionPage31 .bottomNote,
-.motionPage34 .previewLayout > div:last-child,
-.motionPage35 .saveFlow > div:nth-child(3),
 .motionPage36 .practiceList > div:nth-child(n+7),
 .motionPage37 .finalMessage .goldRule + p { animation-delay: .48s; }
 
-.motionPage33 .tallScreenshot,
-.motionPage35 .saveFlow > div:nth-child(1),
 .motionPage36 .practiceList > div:nth-child(-n+3),
 .motionPage37 .finalMessage > p:first-of-type { animation-delay: .14s; }
 
-.motionPage34 .previewShot,
-.motionPage35 .saveFlow > div:nth-child(2),
 .motionPage36 .practiceList > div:nth-child(n+4):nth-child(-n+6),
 .motionPage37 .finalMessage h1 { animation-delay: .3s; }
 
 .motionPage23 .frameworkGem > div:last-child,
-.motionPage24 .gemGrid > div:nth-child(2),
 .motionPage25 .formula > div:nth-child(2),
 .motionPage26 .builderExample { animation-delay: .16s; }
 
-.motionPage24 .gemGrid > div:nth-child(n+3),
 .motionPage25 .formula > div:nth-child(n+3),
 .motionPage25 .frameworkBar { animation-delay: .28s; }
 
@@ -1988,99 +1891,7 @@
   font-size: 15px;
 }
 
-.motionPage9 .goldBullets {
-  margin: 0 26px;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-
-.motionPage9 .goldBullets li {
-  min-height: 126px;
-  padding: 26px 30px;
-  display: flex;
-  align-items: center;
-  border: 1px solid rgba(21, 64, 106, .09);
-  border-radius: 18px;
-  background: linear-gradient(145deg, #f5f0e7, #ede3d3);
-  color: var(--ink);
-  box-shadow: 0 16px 40px rgba(13, 52, 87, .08);
-  font-size: var(--type-card-title);
-  font-weight: 680;
-}
-
-.motionPage9 .goldBullets li:nth-child(2),
-.motionPage9 .goldBullets li:nth-child(3) {
-  background: linear-gradient(145deg, #19456f, #103858);
-  color: #fff;
-}
-
-.motionPage9 .goldBullets li::before {
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
-  display: grid;
-  place-items: center;
-  margin-right: 18px;
-  border: 1px solid rgba(167, 137, 88, .42);
-  border-radius: 50%;
-  content: "●";
-  color: var(--gold);
-  font-size: 10px;
-}
-
 /* Slide 10 · unordered floating cards and ordered drop targets. */
-.workflowChallenge {
-  position: relative;
-  z-index: 5;
-  height: 100%;
-}
-
-.workflowChallengeHead {
-  margin: 0 10px 12px 30px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-}
-
-.workflowChallengeHead .title { margin: 0; }
-
-.workflowChallengeHead > p {
-  margin: 4px 0 0;
-  color: #68798a;
-  font-size: 13px;
-  font-style: italic;
-}
-
-.workflowTargets {
-  position: relative;
-  z-index: 4;
-  margin: 0 8px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px 14px;
-}
-
-.workflowTarget {
-  position: relative;
-  min-width: 0;
-  height: 82px;
-  padding: 25px 18px 13px;
-  border: 1px dashed rgba(21, 64, 106, .28);
-  border-radius: 13px;
-  background: rgba(244, 239, 230, .72);
-  color: #81909d;
-  font-family: inherit;
-  cursor: pointer;
-  transition: border-color .2s ease, background .2s ease, transform .2s ease;
-}
-
-.workflowTarget:hover,
-.workflowTarget:focus-visible {
-  border-color: rgba(167, 137, 88, .8);
-  background: #f5efe4;
-  outline: none;
-  transform: translateY(-2px);
-}
 
 .workflowTarget:not(:last-child)::after {
   content: "";
@@ -2091,253 +1902,6 @@
   width: 11px;
   height: 2px;
   background: linear-gradient(90deg, rgba(167, 137, 88, .2), rgba(167, 137, 88, .72));
-}
-
-.workflowTarget:nth-child(3)::after { display: none; }
-
-.workflowTargetNumber {
-  position: absolute;
-  left: 10px;
-  top: 8px;
-  color: var(--gold);
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: .12em;
-}
-
-.workflowTargetPlaceholder {
-  font-size: 12px;
-  font-weight: 650;
-}
-
-.workflowTarget strong {
-  display: block;
-  color: #fff;
-  font-size: 14px;
-  line-height: 1.24;
-}
-
-.workflowTarget > i {
-  position: absolute;
-  right: 8px;
-  top: 7px;
-  width: 18px;
-  height: 18px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, .16);
-  color: #f4dfb0;
-  font-size: 10px;
-  font-style: normal;
-}
-
-.workflowTargetComplete {
-  border-style: solid;
-  border-color: rgba(233, 202, 139, .42);
-  background: linear-gradient(145deg, #19456f, #0d3457);
-  box-shadow: 0 11px 28px rgba(13, 52, 87, .15);
-  animation: workflowTargetLock .46s cubic-bezier(.2, .8, .2, 1) both;
-}
-
-.workflowPool {
-  position: relative;
-  height: 198px;
-  margin: 14px 8px 0;
-  border: 1px solid rgba(21, 64, 106, .08);
-  border-radius: 18px;
-  background:
-    radial-gradient(circle at 50% 45%, rgba(167, 137, 88, .08), transparent 48%),
-    linear-gradient(180deg, rgba(249, 247, 242, .74), rgba(242, 237, 228, .5));
-}
-
-.workflowPool::before {
-  content: "";
-  position: absolute;
-  inset: 16px;
-  border: 1px dashed rgba(21, 64, 106, .08);
-  border-radius: 13px;
-  pointer-events: none;
-}
-
-.workflowCard {
-  position: absolute;
-  width: 210px;
-  min-height: 61px;
-  padding: 15px 18px 15px 38px;
-  border: 1px solid rgba(167, 137, 88, .33);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, .96);
-  color: var(--ink);
-  box-shadow: 0 13px 30px rgba(13, 52, 87, .13);
-  font-family: inherit;
-  text-align: left;
-  cursor: grab;
-  user-select: none;
-  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
-  animation: workflowCardFloat 4.8s ease-in-out infinite;
-}
-
-.workflowCard:hover,
-.workflowCard:focus-visible,
-.workflowCardSelected {
-  z-index: 7;
-  border-color: rgba(167, 137, 88, .88);
-  outline: none;
-  box-shadow: 0 17px 38px rgba(13, 52, 87, .2), 0 0 0 3px rgba(167, 137, 88, .1);
-  transform: translateY(-4px) rotate(0deg) !important;
-}
-
-.workflowCard:active { cursor: grabbing; }
-.workflowCard strong { font-size: 13px; line-height: 1.3; }
-
-.workflowGrip {
-  position: absolute;
-  left: 14px;
-  top: calc(50% - 10px);
-  color: rgba(167, 137, 88, .75);
-  font-size: 14px;
-  letter-spacing: -4px;
-  transform: rotate(90deg);
-}
-
-.workflowCard1 { left: 32px; top: 22px; transform: rotate(-2.3deg); }
-.workflowCard2 { left: 319px; top: 9px; transform: rotate(1.6deg); animation-delay: -.8s; }
-.workflowCard3 { right: 27px; top: 24px; transform: rotate(-1.2deg); animation-delay: -1.6s; }
-.workflowCard4 { left: 115px; top: 111px; transform: rotate(1.9deg); animation-delay: -2.4s; }
-.workflowCard5 { left: 384px; top: 120px; transform: rotate(-1.7deg); animation-delay: -3.2s; }
-.workflowCard6 { right: 42px; top: 103px; transform: rotate(2.2deg); animation-delay: -4s; }
-
-.workflowCardRejected {
-  z-index: 8;
-  border-color: rgba(168, 73, 51, .7);
-  animation: workflowCardReject .72s cubic-bezier(.2, .7, .25, 1) both !important;
-}
-
-.workflowFeedback {
-  position: absolute;
-  left: 50%;
-  top: 223px;
-  z-index: 20;
-  width: 345px;
-  min-height: 72px;
-  padding: 13px 17px;
-  display: grid;
-  grid-template-columns: 39px 1fr;
-  gap: 12px;
-  align-items: center;
-  border: 1px solid;
-  border-radius: 15px;
-  background: rgba(255, 255, 255, .97);
-  box-shadow: 0 19px 50px rgba(13, 52, 87, .22);
-  transform: translateX(-50%);
-  animation: workflowFeedbackIn .3s ease both;
-}
-
-.workflowFeedback > span {
-  width: 37px;
-  height: 37px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  color: #fff;
-  font-size: 19px;
-  font-weight: 800;
-}
-
-.workflowFeedback strong { color: var(--ink); font-size: 13px; }
-.workflowFeedback p { margin: 3px 0 0; color: #667482; font-size: 10px; line-height: 1.35; }
-.workflowFeedbackCorrect { border-color: rgba(46, 125, 87, .3); }
-.workflowFeedbackCorrect > span { background: #2e7d57; }
-.workflowFeedbackWrong { border-color: rgba(168, 73, 51, .35); }
-.workflowFeedbackWrong > span { background: #a84933; }
-
-.workflowCongratsBackdrop {
-  position: absolute;
-  inset: -38px -52px;
-  z-index: 30;
-  display: grid;
-  place-items: center;
-  background: rgba(8, 41, 69, .78);
-  backdrop-filter: blur(5px);
-  animation: workflowBackdropIn .28s ease both;
-}
-
-.workflowCongrats {
-  position: relative;
-  width: 470px;
-  padding: 37px 44px 39px;
-  border: 1px solid rgba(233, 202, 139, .42);
-  border-radius: 24px;
-  background: #fff;
-  box-shadow: 0 28px 90px rgba(0, 0, 0, .32);
-  color: var(--ink);
-  text-align: center;
-  animation: workflowCongratsIn .48s cubic-bezier(.2, .85, .2, 1) both;
-}
-
-.workflowCongratsIcon {
-  width: 74px;
-  height: 74px;
-  margin: 0 auto 20px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: linear-gradient(145deg, #e9ca8b, #b39159);
-  color: #fff;
-  box-shadow: 0 0 0 10px rgba(179, 145, 89, .1);
-  font-size: 34px;
-  font-weight: 850;
-}
-
-.workflowCongrats h2 { margin: 15px 0 10px; font-size: 32px; }
-.workflowCongrats p { margin: 0; color: #5d6b77; font-size: 15px; line-height: 1.5; }
-
-.workflowCongrats button {
-  margin-top: 25px;
-  padding: 12px 28px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--navy);
-  color: #fff;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 750;
-  cursor: pointer;
-}
-
-.workflowTargetsComplete {
-  margin: 56px 34px 0;
-  gap: 18px;
-}
-
-.workflowTargetsComplete .workflowTarget {
-  height: 126px;
-  padding: 35px 28px 20px;
-  cursor: default;
-}
-
-.workflowTargetsComplete .workflowTarget:hover {
-  transform: none;
-}
-
-.workflowTargetsComplete .workflowTarget strong {
-  font-size: 18px;
-  line-height: 1.35;
-}
-
-.workflowTargetsComplete .workflowTargetNumber {
-  left: 16px;
-  top: 13px;
-  font-size: 11px;
-}
-
-.workflowTargetsComplete .workflowTarget > i {
-  right: 14px;
-  top: 11px;
-  width: 23px;
-  height: 23px;
-  font-size: 12px;
 }
 
 /* Section 2 interaction pattern · slides 11 and 14. */
@@ -2508,60 +2072,6 @@
   border-color: rgba(255, 255, 255, .28) !important;
   background: #2e7d57;
   color: #fff !important;
-}
-
-.interactionCongratsBackdrop {
-  position: absolute;
-  inset: -38px -52px;
-  z-index: 40;
-  display: grid;
-  place-items: center;
-  background: rgba(8, 41, 69, .78);
-  backdrop-filter: blur(5px);
-  animation: workflowBackdropIn .28s ease both;
-}
-
-.interactionCongrats {
-  width: 480px;
-  padding: 34px 42px 38px;
-  border: 1px solid rgba(233, 202, 139, .42);
-  border-radius: 24px;
-  background: #fff;
-  box-shadow: 0 28px 90px rgba(0, 0, 0, .32);
-  color: var(--ink);
-  text-align: center;
-  animation: workflowCongratsIn .48s cubic-bezier(.2, .85, .2, 1) both;
-}
-
-.interactionCongrats h2 {
-  margin: 15px 0 10px;
-  color: var(--ink);
-  font-size: 30px;
-  line-height: var(--line-tight);
-}
-
-.interactionCongrats p {
-  margin: 0;
-  color: #5d6b77;
-  font-size: 15px;
-  line-height: 1.5;
-}
-
-.interactionCongrats button {
-  margin-top: 24px;
-  padding: 12px 27px;
-  border: 0;
-  border-radius: 999px;
-  background: var(--navy);
-  color: #fff;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 750;
-  cursor: pointer;
-}
-
-.coreCongrats {
-  padding-top: 42px;
 }
 
 /* Flexible previews generated from the current selections on slides 11 and 14. */
@@ -2993,10 +2503,6 @@
   animation: workflowCardReject .72s cubic-bezier(.2, .7, .25, 1) both !important;
 }
 
-.coreFeedback {
-  top: 245px;
-}
-
 .coreChallengeComplete .coreTargets {
   margin: 68px 26px 0;
   grid-template-columns: 1.05fr .95fr;
@@ -3116,7 +2622,6 @@
 .motionPage22 .centerLight p { margin-top: 52px; }
 
 .motionPage23 .frameworkGem > div:not(.arrowLarge),
-.motionPage24 .gemGrid > div,
 .motionPage25 .formula > div,
 .motionPage25 .frameworkBar,
 .motionPage26 .builderExample {
@@ -3124,7 +2629,6 @@
 }
 
 .motionPage23 .frameworkGem > div:not(.arrowLarge):hover,
-.motionPage24 .gemGrid > div:hover,
 .motionPage25 .formula > div:hover,
 .motionPage26 .builderExample:hover {
   transform: translateY(-3px);
@@ -3210,20 +2714,6 @@
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.roadmapNumber {
-  width: 38px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  border-radius: 12px;
-  background: #082945;
-  border: 1px solid rgba(233, 202, 139, .4);
-  color: #f4dfb0;
-  font-size: 14px;
-  font-weight: 750;
-  box-shadow: 0 4px 12px rgba(4, 28, 49, .18);
 }
 
 .roadmapStepTag {
@@ -3329,64 +2819,9 @@
   box-shadow: 0 22px 48px rgba(13, 52, 87, .18);
 }
 
-.motionPage32 .screenshotPair > div {
-  border: 1px solid rgba(233, 202, 139, .4);
-  box-shadow: 0 24px 60px rgba(13, 52, 87, .22), 0 0 0 6px rgba(179, 145, 89, .06);
-}
-
-.motionPage32 .screenshotPair::after {
-  content: "";
-  position: absolute;
-  z-index: 4;
-  left: 205px;
-  top: 50%;
-  width: 58px;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, #b39159, transparent);
-  background-size: 200% 100%;
-  animation: sectionTwoConnectorFlow 1.7s linear infinite;
-}
-
 /* Slide 32 · transparent red callouts over the two requested Gemini controls. */
-.gemHighlight {
-  position: absolute;
-  z-index: 8;
-  box-sizing: border-box;
-  border: 3px solid rgba(224, 49, 49, .96);
-  border-radius: 7px;
-  background: rgba(224, 49, 49, .035);
-  box-shadow: 0 0 0 2px rgba(255,255,255,.26), 0 0 18px rgba(224,49,49,.28);
-  pointer-events: none;
-  animation: sectionTwoRedCallout 1.7s ease-in-out .72s 3 both;
-}
-
-.gemHighlightMenu { left: 10.2%; top: 35.7%; width: 27%; height: 8.5%; }
-.gemHighlightNew { left: 82.7%; top: 65.1%; width: 16.4%; height: 9.4%; }
 
 /* Slides 33–37 · stronger stage treatment for the final lab sequence. */
-.motionPage33 .tallScreenshot,
-.motionPage33 .gemSetupCallout,
-.motionPage34 .previewShot {
-  border: 1px solid rgba(233,202,139,.42);
-  box-shadow: 0 25px 64px rgba(13,52,87,.22), 0 0 0 6px rgba(179,145,89,.06);
-}
-
-.motionPage34 .previewLayout .navyCard,
-.motionPage34 .previewLayout .quote {
-  box-shadow: 0 18px 44px rgba(13,52,87,.12);
-}
-
-.motionPage35 .saveFlow { margin-top: 34px; }
-.motionPage35 .saveFlow > div {
-  border: 1px solid rgba(167,137,88,.2);
-  border-radius: 18px;
-  box-shadow: 0 18px 45px rgba(13,52,87,.11);
-  transition: transform .22s ease, box-shadow .22s ease;
-}
-.motionPage35 .saveFlow > div:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 26px 58px rgba(13,52,87,.18);
-}
 
 .motionPage36 .practiceList {
   width: auto;
@@ -3499,11 +2934,6 @@
   animation: sectionTwoRuleGrow .7s ease .4s both;
 }
 
-@keyframes sectionTwoRedCallout {
-  0%, 100% { opacity: .82; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.04); box-shadow: 0 0 0 4px rgba(224,49,49,.08), 0 0 28px rgba(224,49,49,.42); }
-}
-
 @keyframes sectionTwoPracticeFloat {
   0%, 100% { translate: 0 0; }
   50% { translate: 0 -5px; }
@@ -3576,11 +3006,6 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-@keyframes workflowFeedbackIn {
-  from { opacity: 0; transform: translate(-50%, 8px) scale(.96); }
-  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
-}
-
 @keyframes workflowBackdropIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -3600,292 +3025,9 @@
    Slide 35 - Thực hành nâng cao với bộ Gem đã tối ưu hóa
    ========================================================================== */
 
-.optimizedGemSlide {
-  position: relative;
-  z-index: 4;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.optimizedGemHeader {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid rgba(179, 145, 89, 0.25);
-}
-
-.optimizedGemTitleGroup {
-  flex: 1;
-  min-width: 0;
-  padding-left: 30px;
-}
-
-.optimizedGemTitleGroup .miniTitle {
-  margin-bottom: 2px;
-}
-
-.optimizedGemTitle {
-  margin: 0 0 3px;
-  font-size: 22px;
-  font-weight: 780;
-  line-height: 1.22;
-  color: #0d3457;
-  letter-spacing: -0.01em;
-}
-
-.optimizedGemSubtitle {
-  margin: 0;
-  font-size: 12px;
-  line-height: 1.35;
-  color: #5d6f7e;
-}
-
-.gemDownloadGroup {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.gemDownloadBtnConfig,
-.gemDownloadBtnKnowledge {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: 9px;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
-  box-shadow: 0 4px 12px rgba(13, 52, 87, 0.08);
-}
-
-.gemDownloadBtnConfig {
-  background: linear-gradient(135deg, #123f68, #082945);
-  border: 1px solid rgba(233, 202, 139, 0.35);
-  color: #fff;
-}
-
-.gemDownloadBtnConfig:hover {
-  background: linear-gradient(135deg, #18547f, #0d3457);
-  transform: translateY(-1.5px);
-  box-shadow: 0 6px 16px rgba(13, 52, 87, 0.18);
-  border-color: rgba(233, 202, 139, 0.6);
-}
-
-.gemDownloadBtnKnowledge {
-  background: linear-gradient(135deg, #b39159, #9d7944);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  color: #041c31;
-}
-
-.gemDownloadBtnKnowledge:hover {
-  background: linear-gradient(135deg, #c7a469, #ab864f);
-  transform: translateY(-1.5px);
-  box-shadow: 0 6px 16px rgba(179, 145, 89, 0.3);
-}
-
-.gemBtnIcon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  font-size: 13px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.gemDownloadBtnConfig .gemBtnIcon {
-  background: rgba(233, 202, 139, 0.18);
-  color: #e9ca8b;
-}
-
-.gemDownloadBtnKnowledge .gemBtnIcon {
-  background: rgba(4, 28, 49, 0.14);
-  color: #041c31;
-}
-
-.gemBtnText {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-}
-
-.gemBtnText strong {
-  font-size: 11.5px;
-  font-weight: 750;
-  line-height: 1.15;
-  letter-spacing: 0.02em;
-}
-
-.gemBtnText small {
-  font-size: 9.5px;
-  line-height: 1.15;
-  opacity: 0.82;
-}
-
-.gemDownloadBtnConfig .gemBtnText small {
-  color: #e9ca8b;
-}
-
-.gemDownloadBtnKnowledge .gemBtnText small {
-  color: #082945;
-  font-weight: 600;
-}
-
 /* 2x2 Grid of Feature Cards */
-.optimizedGemGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 14px;
-  margin-top: 10px;
-}
-
-.optimizedGemCard {
-  background: linear-gradient(145deg, #ffffff, #f9f7f2);
-  border: 1px solid rgba(21, 64, 106, 0.12);
-  border-radius: 12px;
-  padding: 10px 14px 10px;
-  box-shadow: 0 6px 18px rgba(13, 52, 87, 0.05);
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.optimizedGemCard:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 22px rgba(13, 52, 87, 0.09);
-  border-color: rgba(179, 145, 89, 0.35);
-}
-
-.optimizedCardHead {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 6px;
-  padding-bottom: 5px;
-  border-bottom: 1px dashed rgba(21, 64, 106, 0.1);
-}
-
-.optimizedCardNum {
-  font-size: 11px;
-  font-weight: 850;
-  color: #b39159;
-  letter-spacing: 0.08em;
-  background: rgba(179, 145, 89, 0.12);
-  padding: 2px 7px;
-  border-radius: 6px;
-}
-
-.optimizedCardTag {
-  display: block;
-  font-size: 9px;
-  font-weight: 800;
-  letter-spacing: 0.1em;
-  color: #7b8e9d;
-  line-height: 1;
-  text-transform: uppercase;
-  margin-bottom: 2px;
-}
-
-.optimizedCardHead h2 {
-  margin: 0;
-  font-size: 13.5px;
-  font-weight: 750;
-  color: #0d3457;
-  line-height: 1.2;
-}
-
-.optimizedCardList {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
-
-.optimizedCardList li {
-  display: flex;
-  align-items: flex-start;
-  gap: 7px;
-}
-
-.cardBulletCheck {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: rgba(24, 84, 127, 0.12);
-  color: #18547f;
-  font-size: 9.5px;
-  font-weight: 800;
-  flex-shrink: 0;
-  margin-top: 2px;
-}
-
-.optimizedCardList p {
-  margin: 0;
-  font-size: 11.5px;
-  line-height: 1.38;
-  color: #4a5c6b;
-}
-
-.optimizedCardList strong {
-  color: #0d3457;
-  font-weight: 700;
-}
-
-.optimizedCardList code {
-  font-family: "JetBrains Mono", Consolas, Menlo, monospace;
-  font-size: 10.5px;
-  padding: 1px 4px;
-  border-radius: 4px;
-  background: rgba(21, 64, 106, 0.08);
-  color: #123f68;
-}
 
 /* Footer Guidance Pill */
-.optimizedGemFooter {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 5px 14px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(21, 64, 106, 0.05), rgba(179, 145, 89, 0.08));
-  border: 1px solid rgba(179, 145, 89, 0.22);
-  margin-top: 8px;
-}
-
-.optimizedFooterBadge {
-  font-size: 9px;
-  font-weight: 850;
-  letter-spacing: 0.1em;
-  color: #9d7944;
-  background: rgba(179, 145, 89, 0.16);
-  padding: 2px 7px;
-  border-radius: 999px;
-  flex-shrink: 0;
-}
-
-.optimizedGemFooter p {
-  margin: 0;
-  font-size: 11px;
-  color: #3d5060;
-  line-height: 1.3;
-}
-
-.optimizedGemFooter strong {
-  color: #0d3457;
-}
 
 /* Slide 1 opens in a single, quiet sequence: grid, network, then core. */
 @keyframes sectionTwoHeroGridReveal {
@@ -4054,11 +3196,6 @@
   50% { opacity: .85; transform: translate3d(0, -8px, 0) scale(1.08); }
 }
 
-@keyframes sectionTwoContentReveal {
-  from { opacity: 0; transform: translateY(9px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
 @keyframes sectionTwoArrowReveal {
   from { opacity: 0; transform: translateX(-10px) scale(.85); }
   to { opacity: 1; transform: translateX(0) scale(1); }
@@ -4123,16 +3260,12 @@
   .motionPage8 .title,
   .motionPage9 .title,
   .motionPage9 .subtitle,
-  .motionPage9 .goldBullets li,
-  .motionPage10 .workflowChallengeHead,
-  .motionPage10 .workflowTarget,
   .motionPage11 .interactionHeading,
   .motionPage11 .dataGrid > button,
   .motionPage12 .title,
   .motionPage12 .ruleGrid > div,
   .motionPage13 .title,
   .motionPage13 .subtitle,
-  .motionPage13 .checkList li,
   .motionPage14 .interactionHeading,
   .motionPage14 .reportGrid > button,
   .motionPage15 .title,
@@ -4152,7 +3285,6 @@
   .motionPage23 .title,
   .motionPage23 .frameworkGem > div,
   .motionPage24 .title,
-  .motionPage24 .gemGrid > div,
   .motionPage25 .title,
   .motionPage25 .formula > div,
   .motionPage25 .frameworkBar,
@@ -4172,16 +3304,9 @@
   .motionPage31 .principles span,
   .motionPage31 .bottomNote,
   .motionPage32 .title,
-  .motionPage32 .screenshotPair > div,
-  .motionPage32 .screenshotPair::after,
-  .gemHighlight,
   .motionPage33 .title,
-  .motionPage33 .tallScreenshot,
   .motionPage34 .title,
-  .motionPage34 .previewShot,
-  .motionPage34 .previewLayout > div:last-child,
   .motionPage35 .title,
-  .motionPage35 .saveFlow > div,
   .motionPage36 .title,
   .motionPage36 .practiceList > div,
   .motionPage37 .finalMessage > *,
@@ -4191,15 +3316,7 @@
   .motionPage4 .ambientMotion::after,
   .motionPage7 .ambientMotion::before,
   .motionPage7 .ambientMotion::after,
-  .workflowCard,
-  .workflowCardRejected,
-  .workflowTargetComplete,
-  .workflowFeedback,
-  .workflowCongratsBackdrop,
-  .workflowCongrats,
   .interactionTileActive,
-  .interactionCongratsBackdrop,
-  .interactionCongrats,
   .previewBackdrop,
   .previewPanel,
   .dashboardPreviewGrid article > div > i,
@@ -4229,124 +3346,7 @@
   .coverFrameworkLine strong::before { display: none; }
 }
 
-.motionPage33 .gemSetupCallout { animation: sectionTwoStrongReveal .78s cubic-bezier(.16,.82,.22,1) .28s both; }
-
 /* Slide 34 · exact mapping from generated files to Gemini Gem settings. */
-.gemFieldGuide {
-  position: relative;
-  z-index: 5;
-  margin: 6px 28px 0;
-}
-
-.gemFieldGuideIntro {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 28px;
-  margin-bottom: 16px;
-  padding: 14px 18px;
-  border: 1px solid rgba(167, 137, 88, .18);
-  border-radius: 14px;
-  background: rgba(247, 243, 234, .9);
-}
-
-.gemFieldGuideIntro .miniTitle {
-  flex: 0 0 auto;
-  margin: 0;
-}
-
-.gemFieldGuideIntro p {
-  margin: 0;
-  color: #4d5f72;
-  font-size: 12px;
-  line-height: 1.4;
-  font-weight: 650;
-  text-align: right;
-}
-
-.gemFieldGuideGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px 14px;
-}
-
-.gemFieldGuideGrid article {
-  min-height: 112px;
-  padding: 14px 15px;
-  box-sizing: border-box;
-  display: grid;
-  grid-template-columns: 38px 1fr;
-  gap: 11px;
-  border: 1px solid rgba(21, 64, 106, .12);
-  border-radius: 15px;
-  background: rgba(255,255,255,.94);
-  box-shadow: 0 12px 30px rgba(13,52,87,.08);
-}
-
-.gemFieldGuideGrid article > span {
-  width: 34px;
-  height: 34px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--navy);
-  color: #fff;
-  font-size: 9px;
-  font-weight: 850;
-}
-
-.gemFieldGuideGrid article > div {
-  min-width: 0;
-}
-
-.gemFieldGuideGrid b {
-  display: block;
-  margin-bottom: 5px;
-  color: var(--ink);
-  font-size: 14px;
-}
-
-.gemFieldGuideGrid code {
-  display: block;
-  margin-top: 3px;
-  padding: 4px 7px;
-  overflow: hidden;
-  border: 1px solid rgba(21,64,106,.1);
-  border-radius: 7px;
-  background: #f2f5f8;
-  color: #294864;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-  font-size: 8.5px;
-  font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.gemFieldGuideGrid small {
-  display: block;
-  margin-top: 6px;
-  color: #69798a;
-  font-size: 9px;
-  line-height: 1.32;
-}
-
-.gemKnowledgeMap {
-  min-height: 148px !important;
-}
-
-.gemKnowledgeMap code {
-  font-size: 7.8px;
-}
-
-.motionPage34 .gemFieldGuideIntro,
-.motionPage34 .gemFieldGuideGrid article {
-  animation: sectionTwoStrongReveal .72s cubic-bezier(.16,.82,.22,1) both;
-}
-
-.motionPage34 .gemFieldGuideGrid article:nth-child(1) { animation-delay: .12s; }
-.motionPage34 .gemFieldGuideGrid article:nth-child(2) { animation-delay: .22s; }
-.motionPage34 .gemFieldGuideGrid article:nth-child(3) { animation-delay: .32s; }
-.motionPage34 .gemFieldGuideGrid article:nth-child(4) { animation-delay: .42s; }
 
 .motionPage30 .quote p {
   font-size: 11.5px;
@@ -4412,62 +3412,6 @@
 .motionPage5 .questionGrid span:nth-child(2)::before { animation-delay: -.6s; }
 .motionPage5 .questionGrid span:nth-child(3)::before { animation-delay: -1.2s; }
 .motionPage5 .questionGrid span:nth-child(4)::before { animation-delay: -1.8s; }
-
-.userRevealGrid {
-  position: relative;
-  z-index: 3;
-  margin: 42px 26px 0;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px 22px;
-}
-
-.userRevealGrid button {
-  position: relative;
-  min-height: 126px;
-  padding: 28px 54px 24px 28px;
-  overflow: hidden;
-  border: 1px solid rgba(21, 64, 106, .12);
-  border-radius: 20px;
-  background: linear-gradient(145deg, #fbfaf7, #f0eadf);
-  box-shadow: 0 16px 42px rgba(13, 52, 87, .1);
-  color: #687987;
-  font: inherit;
-  cursor: pointer;
-  transition: transform .22s cubic-bezier(.22, 1, .36, 1), border-color .22s ease, box-shadow .22s ease;
-}
-
-.userRevealGrid button:hover,
-.userRevealGrid button:focus-visible {
-  border-color: rgba(179, 145, 89, .72);
-  outline: none;
-  box-shadow: 0 21px 52px rgba(13, 52, 87, .16), 0 0 0 3px rgba(179, 145, 89, .08);
-  transform: translateY(-4px);
-}
-
-.userRevealGrid i {
-  position: absolute;
-  left: 18px;
-  top: 16px;
-  color: #b39159;
-  font-size: 11px;
-  font-style: normal;
-  font-weight: 850;
-  letter-spacing: .12em;
-}
-
-.userRevealGrid span { font-size: 15px; font-weight: 720; }
-.userRevealGrid b { position: absolute; right: 18px; top: 15px; color: #b39159; font-size: 18px; }
-
-.userRevealGrid .userRevealActive {
-  border-color: rgba(233, 202, 139, .3);
-  background: linear-gradient(145deg, #123f68, #082945);
-  color: #fff;
-  animation: sectionTwoUserReveal .48s cubic-bezier(.22, 1, .36, 1) both;
-}
-
-.userRevealActive span { animation: sectionTwoFadeContent .5s ease both; }
-.userRevealActive i, .userRevealActive b { color: #e9ca8b; }
 
 .acceptanceHeader {
   position: relative;
@@ -4804,8 +3748,6 @@
 @keyframes sectionTwoStatementScan { 0%, 100% { opacity: 0; transform: translateY(-105px); } 45%, 58% { opacity: 1; } 80% { opacity: 0; transform: translateY(105px); } }
 @keyframes sectionTwoStatementTitle { 0%, 100% { text-shadow: 0 0 12px rgba(244, 223, 176, .12); } 50% { text-shadow: 0 0 38px rgba(244, 223, 176, .58), 0 0 65px rgba(45, 127, 180, .28); } }
 @keyframes sectionTwoQuestionMark { 0%, 100% { transform: translateY(0) rotate(-8deg) scale(.86); box-shadow: 0 0 0 0 rgba(45, 127, 180, .18); } 48% { transform: translateY(-7px) rotate(8deg) scale(1.16); box-shadow: 0 0 0 8px rgba(45, 127, 180, 0); } }
-@keyframes sectionTwoUserReveal { from { opacity: .55; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
-@keyframes sectionTwoFadeContent { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
 @keyframes sectionTwoAcceptanceIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 @keyframes sectionTwoHorizontalGrow { from { transform: scaleX(.05); transform-origin: left; } to { transform: scaleX(1); transform-origin: left; } }
 @keyframes sectionTwoLineDraw { from { stroke-dashoffset: 160; } to { stroke-dashoffset: 0; } }
@@ -4826,8 +3768,6 @@
   .motionPage4 .centerStatement::after,
   .motionPage4 .centerStatement h2,
   .motionPage5 .questionGrid span::before,
-  .userRevealActive,
-  .userRevealActive span,
   .acceptanceGrid article,
   .dashboardChartKpi .dashboardChart i,
   .dashboardChartHorizontal .dashboardChart i,

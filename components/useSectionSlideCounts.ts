@@ -1,20 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { readSectionSlideCount, type SectionFileType } from "@/lib/sectionSlideCount";
 
-type Section = { id: string; contentType: string; contentRevision?: string | null };
+type Section = { id: string; contentType: string; contentRevision?: string | null; slideCount?: number | null };
 type Count = { revision: string; count: number };
 
-// Only the open course is inspected, with at most two concurrent reads. Reopening
-// or refreshing its catalog re-reads the authoritative, access-checked source.
+// Equal catalog refreshes share the same input instead of downloading and
+// rendering every section again. A changed content revision starts a fresh read.
 export function useSectionSlideCounts(courseId: string, sections?: Section[]) {
+  const signature = sections ? JSON.stringify(sections.map(({ id, contentType, contentRevision, slideCount }) => ({ id, contentType, contentRevision, slideCount }))) : "";
+  const input = useMemo<Section[] | undefined>(() => signature ? JSON.parse(signature) : undefined, [signature]);
   const [results, setResults] = useState<{ courseId: string; sections?: Section[]; counts: Record<string, Count> }>({ courseId: "", counts: {} });
   useEffect(() => {
-    if (!sections?.length) return;
+    if (!input?.length) return;
     const controller = new AbortController();
     const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(60_000)]);
-    const queue = sections.filter(section => ["tsx", "pdf", "pptx"].includes(section.contentType));
+    const queue = input.filter(section => ["tsx", "pdf", "pptx"].includes(section.contentType));
     let next = 0;
     async function run() {
       while (next < queue.length && !signal.aborted) {
@@ -22,8 +24,8 @@ export function useSectionSlideCounts(courseId: string, sections?: Section[]) {
         try {
           const count = await readSectionSlideCount(section.id, section.contentType as SectionFileType, signal);
           if (signal.aborted) return;
-          setResults(current => ({ courseId, sections, counts: {
-            ...(current.courseId === courseId && current.sections === sections ? current.counts : {}),
+          setResults(current => ({ courseId, sections: input, counts: {
+            ...(current.courseId === courseId && current.sections === input ? current.counts : {}),
             [section.id]: { revision: `${section.contentType}:${section.contentRevision ?? ""}`, count },
           } }));
         } catch { /* Keep the pending label instead of claiming an outdated count. */ }
@@ -31,9 +33,10 @@ export function useSectionSlideCounts(courseId: string, sections?: Section[]) {
     }
     void run(); void run();
     return () => controller.abort();
-  }, [courseId, sections]);
+  }, [courseId, input]);
   const counts: Record<string, number> = {};
-  if (results.courseId === courseId && results.sections === sections) for (const section of sections ?? []) {
+  for (const section of input ?? []) {
+    if (results.courseId !== courseId || results.sections !== input) continue;
     const result = results.counts[section.id];
     if (result?.revision === `${section.contentType}:${section.contentRevision ?? ""}`) counts[section.id] = result.count;
   }

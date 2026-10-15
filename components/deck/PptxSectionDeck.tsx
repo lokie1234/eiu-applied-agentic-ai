@@ -92,6 +92,7 @@ export default function PptxSectionDeck({ sectionId, courseTitle, sectionTitle, 
   return (
     <div className={styles.pptxPreviewShell}>
       <SharedDeckFrame courseTitle={courseTitle} sectionTitle={sectionTitle} totalSlides={viewer?.slideCount || 1}
+        navigationReady={Boolean(viewer)}
         aspectRatio={useTemplate ? 16 / 9 : viewer ? viewer.slideWidth / viewer.slideHeight : 16 / 9}
         frameClassName={styles.frame} transitionClassName={styles.slide}
         renderSlide={(page, width) => viewer

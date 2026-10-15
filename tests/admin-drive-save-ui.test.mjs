@@ -41,7 +41,7 @@ test("Drive actions only export copies, guard repeated clicks and report partial
     cache.set(file, exports);
     const code = ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true, target: ts.ScriptTarget.ES2020 } }).outputText;
     vm.runInNewContext(code, {
-      exports, fetch, window, document: window.document, localStorage: window.localStorage, sessionStorage: window.sessionStorage,
+      exports, fetch, window, document: window.document, localStorage: window.localStorage, sessionStorage: window.sessionStorage, AbortController, AbortSignal,
       setTimeout, clearTimeout, console, URL,
       require: name => {
         if (name === "next/image") return { __esModule: true, default: ({ src, alt }) => React.createElement("img", { src, alt }) };

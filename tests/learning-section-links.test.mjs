@@ -56,6 +56,16 @@ test("View links still open built-in platform sections", async () => {
   assert.equal(props.initialSection, "section1");
 });
 
+test("readable links restore the authorized course and section while rejecting mismatched or locked content", async () => {
+  const builtIn = await page("admin", { course: "applied-agentic-ai", section: "section1" });
+  assert.equal(builtIn.initialSection, "section1");
+  const uploaded = await page("facilitator", { course: "analytics", section: "lesson", view: "file" });
+  assert.equal(uploaded.initialSectionId, "uploaded");
+  const mismatched = await page("facilitator", { course: "applied-agentic-ai", section: "lesson" });
+  assert.equal(mismatched.initialSectionId, undefined);
+  assert.equal((await page("learner", { course: "analytics", section: "lesson" })).initialCourseId, undefined);
+});
+
 test("learner and teaching logins start at the folder chooser despite an old active-section cookie", async () => {
   for (const role of ["learner", "facilitator"]) {
     const props = await page(role, {}, { savedSection: "section1" });

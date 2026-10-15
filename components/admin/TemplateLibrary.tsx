@@ -121,7 +121,7 @@ export default function TemplateLibrary({ isAdmin, initialTemplates: templates, 
       <div className={styles.previewViewport}>
         {preview ? <div className={styles.preview}><EiuTemplateFrame page={1} background={preview.background}><div className={styles.sample}><p className={styles.sampleEyebrow}>COURSE TITLE</p><h2 className={styles.sampleTitle}>Slide title</h2><p className={styles.sampleIntro}>Your learning content appears here.</p><ul className={styles.sampleList}><li>One consistent layout for your course</li><li>Applied to existing and future uploads</li></ul></div></EiuTemplateFrame></div> : <div className={styles.emptyPreview}><LayoutIcon /><h3>Preview your slide layout</h3><p>{isAdmin ? "Choose a layout or upload a background to begin." : "Shared layouts will appear here when available."}</p></div>}
       </div>
-      <div className={styles.previewFooter}><span className={styles.formatBadge}>16:9</span><p>Course Setup applies the selected layout to your slides.</p><span className={styles.fileFormats}>PPTX / PDF / TSX</span></div>
+      <div className={styles.previewFooter}><span className={styles.formatBadge}>16:9</span><p>Course Setup applies the selected layout to your slides.</p><span className={styles.fileFormats}>PPTX / PDF / JS</span></div>
     </div>
     <EiuConfirmDialog dialog={dialog} onClose={() => setDialog(current => ({ ...current, isOpen: false }))} />
   </section>;

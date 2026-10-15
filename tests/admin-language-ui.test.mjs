@@ -35,7 +35,7 @@ test("language saves retain the scrolling workspace and report pending, success 
     const code = ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true, target: ts.ScriptTarget.ES2020 } }).outputText;
     vm.runInNewContext(code, {
       exports, fetch, window, document: window.document, localStorage: window.localStorage, sessionStorage: window.sessionStorage,
-      setTimeout, clearTimeout, console, URL,
+      setTimeout, clearTimeout, console, URL, AbortController, AbortSignal,
       require: name => {
         if (name === "next/image") return { __esModule: true, default: ({ src, alt }) => React.createElement("img", { src, alt }) };
         if (name === "next/link") return { __esModule: true, default: ({ children, ...props }) => React.createElement("a", props, children) };

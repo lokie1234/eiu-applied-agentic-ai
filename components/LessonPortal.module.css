@@ -1,117 +1,142 @@
-/* Campus background and the two-pane course library. */
-.portal.gardenPortal { --library-title: #e0efd9; --library-title-active: #c2e5b4; --library-summary: #bfd5ce; --library-accent: #97b68b; isolation: isolate; height: 100dvh; min-height: 0; flex-direction: column; gap: 12px; overflow: hidden; padding: 12px clamp(16px, 2.5vw, 48px) 20px; background: #123f68; }
-.gardenBackdrop { position: fixed; z-index: -1; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(4, 28, 49, .14), rgba(4, 28, 49, .34)), url('/branding/eiu-campus.webp') center / cover no-repeat; }
-.gardenPortal .learningSpacePanel { z-index: 1; width: min(1560px, 100%); max-width: 1560px; min-width: 0; min-height: 0; max-height: 100%; flex: 1 1 auto; margin: 0; padding: clamp(20px, 2vw, 30px); border-color: rgba(197, 225, 199, .26); border-radius: 28px; background: #092b38; box-shadow: 0 24px 70px rgba(6, 30, 31, .28); backdrop-filter: none; }
-.gardenPortal .brand { gap: 22px; }
-.gardenPortal .brand span { color: #bad1bf; }
-.gardenPortal .logoWindow { width: 132px; height: 40px; flex-shrink: 0; }
-.gardenPortal .selectorActions { position: static; align-self: flex-end; flex-shrink: 0; z-index: 2; flex-wrap: wrap; }
-.gardenPortal .selectorActions a, .gardenPortal .selectorActions button { background: #0c303d; min-height: 40px; }
-.gardenPortal .libraryHeaderToolbar { align-items: center; padding: 18px 0; margin: 14px 0 12px; border-top: 1px solid #36515a; border-bottom: none; }
-.gardenPortal .libraryHeaderTitleArea { gap: 7px; }
-.gardenPortal .libraryHeaderTitle { font-size: clamp(32px, 3.2vw, 46px); font-weight: 650; letter-spacing: -.045em; line-height: 1.15; animation: headingArrive 700ms cubic-bezier(.22, 1, .36, 1) both; }
-.titleWord { position: relative; display: inline-block; color: var(--library-title-active, #c2e5b4); }
+/* EIU innovation theme and two-pane course library. */
+.portal.innovationPortal { --library-title: #eaf4ff; --library-title-active: #79e3ff; --library-summary: #b5cbe0; --library-accent: #51c9ef; isolation: isolate; height: 100dvh; min-height: 0; flex-direction: column; gap: 12px; overflow: hidden; padding: 12px clamp(16px, 2.5vw, 48px) 20px; background: #123f68; }
+.innovationBackdrop { position: fixed; z-index: -1; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 12% 10%, #18547f 0, transparent 48%), radial-gradient(ellipse at 90% 85%, #123f68 0, transparent 42%), #041c31; }
+.innovationPortal .learningSpacePanel { z-index: 1; width: min(1560px, 100%); max-width: 1560px; min-width: 0; min-height: 0; max-height: 100%; flex: 1 1 auto; margin: 0; padding: clamp(20px, 2vw, 30px); border-color: rgba(121, 227, 255, .22); border-radius: 28px; background: linear-gradient(135deg, #082945, #041c31); box-shadow: 0 24px 70px rgba(6, 30, 31, .28); backdrop-filter: none; }
+.innovationPortal .brand { gap: 22px; }
+.innovationPortal .brand span { color: #b5cbe0; }
+.innovationPortal .logoWindow { width: 132px; height: 40px; flex-shrink: 0; }
+.innovationPortal .selectorActions { position: static; align-self: flex-end; flex-shrink: 0; z-index: 2; flex-wrap: wrap; }
+.innovationPortal .selectorActions a, .innovationPortal .selectorActions button { background: #082945; min-height: 40px; }
+.innovationPortal .libraryHeaderToolbar { align-items: center; padding: 18px 0; margin: 14px 0 12px; border-top: 1px solid #284c6a; border-bottom: none; }
+.innovationPortal .libraryHeaderTitleArea { gap: 7px; }
+.innovationPortal .libraryHeaderTitle { font-size: clamp(32px, 3.2vw, 46px); font-weight: 650; letter-spacing: -.045em; line-height: 1.15; animation: headingArrive 700ms cubic-bezier(.22, 1, .36, 1) both; }
+.titleWord { position: relative; display: inline-block; color: var(--library-title-active, #79e3ff); }
 .titleWord::after { content: ''; position: absolute; left: 0; right: 0; bottom: -5px; height: 2px; background: currentColor; transform-origin: left; animation: headingUnderline 6s ease-in-out infinite; }
 @keyframes headingArrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes headingUnderline { 0%, 100% { transform: scaleX(.45); } 50% { transform: scaleX(1); } }
-.gardenPortal .librarySearchArea { flex: 0 1 420px; }
-.gardenPortal .searchBarWrapper { width: 100%; }
-.gardenPortal .searchInput { height: 44px; border-radius: 12px; background: #153946; border-color: #47606b; backdrop-filter: none; }
-.gardenPortal .searchInput::placeholder { color: #b1c2c8; }
-.gardenPortal .searchStatsBadge { height: 30px; color: #d0ddb9; border-color: #526858; background: #233f40; }
+.innovationPortal .librarySearchArea { flex: 0 1 420px; }
+.innovationPortal .searchBarWrapper { width: 100%; }
+.innovationPortal .searchInput { height: 44px; border-radius: 12px; background: #103452; border-color: #355c7c; backdrop-filter: none; }
+.innovationPortal .searchInput::placeholder { color: #b1c2c8; }
+.innovationPortal .searchStatsBadge { height: 30px; color: #c5e9ff; border-color: #355c7c; background: #123f68; }
 
 .libraryWorkspace { position: relative; display: grid; grid-template-columns: clamp(280px, 23vw, 320px) minmax(0, 1fr); gap: 24px; flex: 1; min-height: 0; overflow: hidden; }
 .mobileFolderToggle { display: none; }
-.folderNavigation { min-height: 0; display: flex; flex-direction: column; border-right: 1px solid #36515a; padding-right: 20px; }
+.folderNavigation { min-height: 0; display: flex; flex-direction: column; border-right: 1px solid #284c6a; padding-right: 20px; }
 .folderShelf { display: grid; grid-template-rows: repeat(6, minmax(0, 1fr)); align-content: start; gap: 8px; flex: 1; min-height: 0; max-height: 640px; padding: 2px; }
-.folderChoice { position: relative; display: grid; grid-template-columns: 100px minmax(0, 1fr); align-items: center; gap: 4px; min-width: 0; min-height: 0; padding: 4px 12px 6px 0; border: 1px solid #405965; border-radius: 14px; color: #e8eee5; background: #153946; text-align: center; cursor: pointer; transition: background-color 180ms, border-color 180ms; }
-.folderChoice:hover { border-color: #a8c398; }
-.folderChoiceSelected, .folderChoiceSelected:hover { border-color: #e9ca8b; background: #2a5056; box-shadow: inset 4px 0 #e9ca8b; }
-.folderSelectedMark { position: absolute; top: 9px; right: 8px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #e9ca8b; color: #092b38; font-size: 12px; font-weight: 800; }
+.folderChoice { position: relative; display: grid; grid-template-columns: 100px minmax(0, 1fr); align-items: center; gap: 4px; min-width: 0; min-height: 0; padding: 4px 12px 6px 0; border: 1px solid #355c7c; border-radius: 14px; color: #eaf4ff; background: #103452; text-align: center; cursor: pointer; transition: background-color 180ms, border-color 180ms; }
+.folderChoice:hover { border-color: #79e3ff; }
+.folderChoiceSelected, .folderChoiceSelected:hover { border-color: #e9ca8b; background: #18547f; box-shadow: inset 4px 0 #e9ca8b; }
+.folderSelectedMark { position: absolute; top: 9px; right: 8px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #e9ca8b; color: #082945; font-size: 12px; font-weight: 800; }
 .folderChoice:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 1px; }
 .folderArtwork { position: relative; display: block; width: 110px; height: min(90px, 100%); min-height: 0; justify-self: center; align-self: center; pointer-events: none; overflow: hidden; }
 .folderChoiceText { min-width: 0; display: flex; align-items: center; justify-content: center; padding-bottom: 18px; }
 .folderChoiceText strong { overflow-wrap: anywhere; font-size: clamp(22px, 1.6vw, 25px); line-height: 1.15; font-weight: 700; }
-.folderCourseCount { position: absolute; right: 10px; bottom: 6px; padding: 3px 8px; border: 1px solid #627b6c; border-radius: 99px; color: #d0dfc4; background: #10303b; font-size: 10px; line-height: 1.2; white-space: nowrap; }
+.folderCourseCount { position: absolute; right: 10px; bottom: 6px; padding: 3px 8px; border: 1px solid #355c7c; border-radius: 99px; color: #c5e9ff; background: #082945; font-size: 10px; line-height: 1.2; white-space: nowrap; }
 .folderChoiceSelected .folderCourseCount { border-color: #b89e63; color: #ffe4a6; }
-.folderPageNav { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 2px 0; margin-top: auto; min-height: 44px; color: #b6c9c6; font-size: 12px; }
+.folderPageNav { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 2px 0; margin-top: auto; min-height: 44px; color: #b5cbe0; font-size: 12px; }
 .folderPageNav > div { display: flex; align-items: center; gap: 8px; }
-.folderPageNav button { min-width: 34px; height: 32px; border: 1px solid #536b70; border-radius: 8px; background: #153946; color: #e8eee5; cursor: pointer; }
+.folderPageNav button { min-width: 34px; height: 32px; border: 1px solid #355c7c; border-radius: 8px; background: #103452; color: #eaf4ff; cursor: pointer; }
 .folderPageNav button:disabled { opacity: .35; cursor: default; }
 .folderPageNav button:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 2px; }
 
-.gardenPortal .libraryFolderSections { display: block; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 2px 8px 6px 2px; scrollbar-gutter: stable; }
-.gardenPortal .libraryFolderGroup + .libraryFolderGroup { margin-top: 24px; }
-.gardenPortal .catalogPane { overflow: hidden; }
-.gardenPortal .singleCourseGroup { height: 100%; min-height: 0; }
-.gardenPortal .singleCourseGroup .courseFolderGrid { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; align-content: start; grid-auto-rows: max-content; padding: 2px; }
-.gardenPortal .libraryFolderSections:focus { outline: none; }
-.gardenPortal .libraryFolderHeader { flex-shrink: 0; padding: 0 0 12px; margin-bottom: 0; border-bottom: 1px solid #36515a; }
-.gardenPortal .groupPaginationFooter { flex-shrink: 0; padding-top: 8px; margin-top: 0; border-top: 1px solid #36515a; gap: 8px; }
-.gardenPortal .libraryFolderTitle { color: #e5ebd9; font-size: 23px; font-weight: 600; }
-.gardenPortal .libraryFolderHeader svg { fill: #b8ccaa; width: 18px; }
-.gardenPortal .libraryFolderBadge { color: #bcd4b6; background: transparent; border-color: #476052; font-size: 10px; font-weight: 600; }
-.gardenPortal .courseFolderGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
-.gardenPortal .courseFolder { position: relative; min-height: 190px; padding: 14px; gap: 8px; justify-content: flex-start; border-radius: 16px; border-color: #405965; background: #193b48; box-shadow: none; cursor: default; transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
-.gardenPortal .courseFolder::before { content: ''; position: absolute; inset: 12px auto 12px 0; width: 2px; border-radius: 2px; background: #b9cf9d; opacity: .7; }
-.gardenPortal .courseFolder:hover, .gardenPortal .courseFolder:focus-within { transform: translateY(-2px); border-color: #b6ceaa; background: #254a57; box-shadow: inset 0 0 0 1px rgba(200, 221, 174, .16), 0 5px 14px rgba(0, 16, 27, .2); }
-.gardenPortal .courseFolder:hover::before, .gardenPortal .courseFolder:focus-within::before { opacity: 1; background: #e9ca8b; }
+.innovationPortal .libraryFolderSections { display: block; min-height: 0; min-width: 0; overflow-y: auto; overflow-x: hidden; padding: 2px 8px 6px 2px; scrollbar-gutter: stable; }
+.innovationPortal .libraryFolderGroup + .libraryFolderGroup { margin-top: 24px; }
+.innovationPortal .catalogPane { overflow: hidden; }
+.innovationPortal .singleCourseGroup { height: 100%; min-height: 0; }
+.innovationPortal .singleCourseGroup .courseFolderGrid { flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden; align-content: start; grid-auto-rows: max-content; padding: 2px; }
+.innovationPortal .libraryFolderSections:focus { outline: none; }
+.innovationPortal .libraryFolderHeader { flex-shrink: 0; padding: 0 0 12px; margin-bottom: 0; border-bottom: 1px solid #284c6a; }
+.innovationPortal .groupPaginationFooter { flex-shrink: 0; padding-top: 8px; margin-top: 0; border-top: 1px solid #284c6a; gap: 8px; }
+.innovationPortal .libraryFolderTitle { color: #eaf4ff; font-size: 23px; font-weight: 600; }
+.innovationPortal .libraryFolderHeader svg { fill: #79e3ff; width: 18px; }
+.innovationPortal .libraryFolderBadge { color: #b5cbe0; background: transparent; border-color: #355c7c; font-size: 10px; font-weight: 600; }
+.innovationPortal .courseFolderGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
+.innovationPortal .courseFolder { position: relative; min-height: 190px; padding: 14px; gap: 8px; justify-content: flex-start; border-radius: 16px; border-color: #355c7c; background: #103452; box-shadow: none; cursor: default; transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
+.innovationPortal .courseFolder::before { content: ''; position: absolute; inset: 12px auto 12px 0; width: 2px; border-radius: 2px; background: #51c9ef; opacity: .7; }
+.innovationPortal .courseFolder[data-pointer-active], .innovationPortal .courseFolder:has(:focus-visible) { transform: translateY(-2px); border-color: #79e3ff; background: #123f68; box-shadow: inset 0 0 0 1px rgba(121, 227, 255, .16), 0 5px 14px rgba(0, 16, 27, .2); }
+.innovationPortal .courseFolder[data-pointer-active]::before, .innovationPortal .courseFolder:has(:focus-visible)::before { opacity: 1; background: #e9ca8b; }
 .courseCardMain { display: block; min-width: 0; padding-right: 116px; }
-.gardenPortal .courseCardBody { flex: 1; gap: 6px; padding-top: 0; }
-.gardenPortal .courseTitle { display: flex; min-width: 0; margin: 0; white-space: nowrap; background: none; -webkit-text-fill-color: currentColor; color: var(--library-title); font-size: clamp(20px, 1.6vw, 23px); font-weight: 650; line-height: 1.3; animation: none; overflow: visible; overflow-wrap: normal; }
-.gardenPortal .courseFolder:hover .courseTitle { transform: none; filter: none; }
-.gardenPortal .courseDesc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--library-summary); font-size: 16px; line-height: 1.55; margin: 0; animation: summaryArrive 520ms 70ms ease-out backwards; transition: color 220ms ease, transform 220ms ease; }
+.innovationPortal .courseCardBody { flex: 1; gap: 6px; padding-top: 0; }
+.innovationPortal .courseTitle { display: flex; min-width: 0; margin: 0; white-space: nowrap; background: none; -webkit-text-fill-color: currentColor; color: var(--library-title); font-size: clamp(20px, 1.6vw, 23px); font-weight: 650; line-height: 1.3; animation: none; overflow: visible; overflow-wrap: normal; }
+.innovationPortal .courseFolder[data-pointer-active] .courseTitle { transform: none; filter: none; }
+.innovationPortal .courseDesc { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; color: var(--library-summary); font-size: 16px; line-height: 1.55; margin: 0; animation: summaryArrive 520ms 70ms ease-out backwards; transition: color 220ms ease, transform 220ms ease; }
 @keyframes summaryArrive { from { opacity: .7; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes titleArrive { from { opacity: .75; transform: translateY(3px); } to { opacity: 1; transform: translateY(0); } }
-.gardenPortal .courseDesc:empty { display: none; }
-.gardenPortal .folderBadgesRow { margin-top: auto; gap: 5px; padding-right: 116px; }
+.innovationPortal .courseDesc:empty { display: none; }
+.innovationPortal .folderBadgesRow { margin-top: auto; gap: 5px; padding-right: 116px; }
 .courseSectionBadge { display: inline-flex; align-items: center; padding: 4px 7px; border: 1px solid #ba9b57; border-radius: 99px; background: #4b4431; color: #ffe2a0; font-size: 9px; line-height: 1; font-weight: 600; text-transform: uppercase; white-space: nowrap; }
-.gardenPortal .folderLanguage { color: #e3d4b1; font-size: 9px; font-weight: 600; padding: 4px 7px; }
-.gardenPortal .unlockedFolderBadge { color: #9de3c1; font-size: 9px; font-weight: 600; padding: 4px 7px; background: #204c47; }
-.gardenPortal .staticIconsTrack { width: auto; min-width: 0; flex-wrap: wrap; gap: 5px; }
-.gardenPortal .courseCardIconBox { width: 36px; height: 36px; border-radius: 10px; background: #294753; border-color: #47636b; animation: none; will-change: auto; box-shadow: none; cursor: default; }
-.gardenPortal .courseFolder:hover .courseCardIconBox { transform: none; box-shadow: none; }
-.gardenPortal .courseCardIconImg { width: 28px; height: 28px; }
-.courseEnterButton { position: absolute; right: 12px; bottom: 12px; width: 110px; height: 108px; padding: 0; display: grid; place-items: center; border: 0; border-radius: 12px; background: transparent; color: #ffe4a6; cursor: pointer; opacity: 0; transform: translateY(5px); pointer-events: none; transition: opacity 180ms ease, transform 180ms ease; }
-.gardenPortal .courseFolder:hover .courseEnterButton, .gardenPortal .courseFolder:focus-within .courseEnterButton { opacity: 1; transform: translateY(0); pointer-events: auto; }
-.courseEnterButton:hover, .courseEnterButton:focus-visible { background: transparent; }
+.innovationPortal .folderLanguage { color: #e3d4b1; font-size: 9px; font-weight: 600; padding: 4px 7px; }
+.innovationPortal .unlockedFolderBadge { color: #9de3c1; font-size: 9px; font-weight: 600; padding: 4px 7px; background: #204c47; }
+.courseEnterButton { position: absolute; right: 12px; bottom: 12px; width: 110px; height: 108px; padding: 0; display: grid; place-items: center; border: 0; background: transparent; box-shadow: none; color: #ffe4a6; cursor: pointer; opacity: 0; transform: translateY(4px); pointer-events: none; transition: opacity 180ms ease, transform 180ms ease; }
+.innovationPortal .courseFolder:is([data-pointer-active], :has(:focus-visible)) .courseEnterButton { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.innovationPortal .courseFolder .courseEnterButton:active { transform: translateY(2px) scale(.96); }
 .courseEnterButton:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 3px; }
+.courseElectric { position: absolute; left: 18px; width: calc(100% - 36px); height: 6px; pointer-events: none; opacity: 0; transition: opacity 240ms ease; fill: none; }
+.courseElectric[data-edge="top"] { top: 4px; }
+.courseElectric[data-edge="bottom"] { bottom: 4px; transform: scaleY(-1); }
+.electricTrack { stroke: #51c9ef; stroke-width: .6; opacity: .2; }
+.electricPulse { stroke: #9ceeff; stroke-width: 1.1; stroke-dasharray: 9 91; opacity: .6; }
+.courseFolder:is([data-pointer-active], :has(:focus-visible)) .courseElectric { opacity: 1; }
+.courseFolder:is([data-pointer-active], :has(:focus-visible)) .electricPulse { animation: courseElectric 3.6s linear infinite; }
+.courseFolder:is([data-pointer-active], :has(:focus-visible)) .courseElectric[data-edge="top"] .electricPulse { animation-delay: -1.8s; }
+@keyframes courseElectric { 0% { stroke-dashoffset: 100; opacity: 0; } 15%, 60% { opacity: .65; } 80%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .courseFolder .courseElectric { display: none; } }
 .enterArtwork { display: block; width: 110px; height: 108px; pointer-events: none; overflow: hidden; }
 
 .inlineSections { min-width: 0; }
 .inlineSections:focus { outline: none; }
-.backToCourses { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #506a70; border-radius: 9px; background: #153946; color: #dae5ce; font-size: 13px; cursor: pointer; }
-.backToCourses:hover { border-color: #bcd39d; }
+.backToCourses { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid #506a70; border-radius: 9px; background: #103452; color: #c5e9ff; font-size: 13px; cursor: pointer; }
+.backToCourses:hover { border-color: #79e3ff; }
 .backToCourses:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 2px; }
-.inlineSectionsHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 0 16px; border-bottom: 1px solid #36515a; }
-.inlineSectionsHeader > div > span { color: #bcd0b4; font-size: 10px; letter-spacing: .08em; }
+.inlineSectionsHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 20px 0 16px; border-bottom: 1px solid #284c6a; }
+.inlineSectionsHeader > div > span { color: #b5cbe0; font-size: 10px; letter-spacing: .08em; }
 .inlineSectionsHeader h2 { margin: 8px 0 0; color: var(--library-title); font-size: clamp(23px, 2vw, 30px); line-height: 1.2; overflow-wrap: anywhere; }
-.inlineSectionsHeader p { margin: 10px 0 0; color: var(--library-summary); font-size: 13px; line-height: 1.5; animation: summaryArrive 520ms 70ms ease-out backwards; }
-.sectionTotal { flex-shrink: 0; padding: 6px 10px; border: 1px solid #536e65; border-radius: 99px; color: #c7dcb7; font-size: 11px; }
+.innovationPortal .inlineSectionsHeader p { margin: 12px 0 0; color: var(--library-summary); font-size: clamp(24px, 2.2vw, 30px); font-weight: 500; line-height: 1.5; overflow-wrap: anywhere; animation: summaryArrive 520ms 70ms ease-out backwards; }
+.sectionTotal { flex-shrink: 0; padding: 6px 10px; border: 1px solid #355c7c; border-radius: 99px; color: #c5e9ff; font-size: 11px; }
 .sectionTools { padding: 14px 0 0; }
 .inlineSections .cards { margin-top: 20px; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-.inlineSections .cards button { min-height: 148px; padding: 18px; border-radius: 14px; background: #1c414d; }
-.inlineSections .cards button:hover { transform: none; border-color: #b8ccaa; background: #244e58; }
-.inlineSections .cards .sectionLaunchButton { --section-artwork-size: 88px; min-height: 190px; padding-bottom: 102px; transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
-.inlineSections .cards .sectionLaunchButton:hover:not(:disabled), .inlineSections .cards .sectionLaunchButton:focus-visible { transform: translateY(-2px); border-color: #e9ca8b; background: #2d5661; box-shadow: inset 0 0 0 1px rgba(233, 202, 139, .15), 0 5px 14px rgba(0, 16, 27, .2); }
-.inlineSections .cards .sectionLaunchButton:disabled:hover { transform: none; border-color: rgba(244, 223, 176, .15); background: #1c414d; box-shadow: none; }
-.inlineSections .cards .sectionLaunchButton:not(:disabled) strong { padding-right: 0; }
+.inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview) { min-height: 148px; padding: 18px; border-radius: 14px; background: #103452; }
+.inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview):hover { transform: none; border-color: #79e3ff; background: #123f68; }
+.inlineSections .cards .sectionLaunchButton { --section-artwork-size: 88px; cursor: default; min-height: 190px; padding-bottom: 68px; transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
+.inlineSections .cards .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"]), .inlineSections .cards .sectionLaunchButton:has(:focus-visible) { transform: translateY(-2px); border-color: #e9ca8b; background: #18547f; box-shadow: inset 0 0 0 1px rgba(233, 202, 139, .15), 0 5px 14px rgba(0, 16, 27, .2); }
+.inlineSections .cards .sectionLaunchButton[data-disabled="true"]:hover { transform: none; border-color: rgba(244, 223, 176, .15); background: #103452; box-shadow: none; }
+.inlineSections .cards .sectionLaunchButton:not([data-disabled="true"]) strong { padding-right: 0; }
 .inlineSections .cards .sectionLaunchButton strong { width: 100%; }
-.inlineSections .cards .sectionLaunchButton:not(:disabled) small { padding-right: calc(var(--section-artwork-size) + 10px); }
+.inlineSections .cards .sectionLaunchButton:not([data-disabled="true"]) small { padding-right: calc(var(--section-artwork-size) + 10px); }
 .inlineSections .cards .sectionLaunchButton .cardLiveUsers { position: absolute; left: 18px; bottom: 14px; padding-right: var(--section-artwork-size); }
-.inlineSections .cards .sectionClickCue { position: absolute; right: 12px; bottom: 12px; display: flex; flex-direction: column; align-items: center; width: var(--section-artwork-size); gap: 0; opacity: 0; transform: translateY(5px); pointer-events: none; color: #ffe4a6; letter-spacing: 0; transition: opacity 180ms ease, transform 180ms ease; }
+.inlineSections .cards .sectionClickCue { position: absolute; right: 12px; bottom: 12px; display: flex; flex-direction: column; align-items: center; width: var(--section-artwork-size); height: auto; aspect-ratio: 110 / 108; min-height: 0; padding: 0; border: 0; background: transparent; box-shadow: none; cursor: pointer; gap: 0; opacity: 0; transform: translateY(4px); pointer-events: none; color: #ffe4a6; letter-spacing: 0; transition: opacity 180ms ease, transform 180ms ease; }
 .sectionClickArtwork { display: block; width: var(--section-artwork-size); height: auto; aspect-ratio: 110 / 108; pointer-events: none; overflow: hidden; }
-.inlineSections .cards .sectionLaunchButton[aria-busy="true"] { opacity: 1; cursor: wait; border-color: #b8d398; }
+/* Full-card rays are masked around measured text, badges and Continue. */
+.sectionEnergySpace { height: 26px; margin-top: 8px; flex-shrink: 0; }
+.sectionEnergy { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; fill: none; opacity: .15; transition: opacity 220ms ease; }
+.sectionEnergyTrack { stroke: #51c9ef; stroke-width: .6; opacity: .22; }
+.sectionEnergyPulse { stroke: #a6f0ff; stroke-width: 1.3; stroke-dasharray: 10 90; opacity: 0; }
+.sectionEnergyEnd { fill: #79e3ff; opacity: .25; }
+.sectionEnergyCore { fill: #e9ca8b; transform-box: fill-box; transform-origin: center; }
+.sectionEnergyAura { stroke: #e9ca8b; stroke-width: 1; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.sectionLaunchButton:is([data-pointer-active], :has(:focus-visible), [aria-busy="true"]) .sectionEnergy { opacity: 1; }
+:where(.sectionLaunchButton:is([data-pointer-active], :has(:focus-visible), [aria-busy="true"])) .sectionEnergyPulse { animation: sectionEnergyFlow var(--ray-duration) var(--ray-delay) linear infinite; }
+:where(.sectionLaunchButton:is([data-pointer-active], :has(:focus-visible), [aria-busy="true"])) .sectionEnergyEnd { animation: sectionNodePulse var(--ray-duration) var(--ray-delay) ease-in-out infinite; }
+:where(.sectionLaunchButton:is([data-pointer-active], :has(:focus-visible), [aria-busy="true"])) .sectionEnergyCore { animation: sectionCorePulse 1300ms ease-in-out infinite; }
+:where(.sectionLaunchButton:is([data-pointer-active], :has(:focus-visible), [aria-busy="true"])) .sectionEnergyAura { animation: sectionCoreWave 1800ms ease-out infinite; }
+@keyframes sectionEnergyFlow { 0% { stroke-dashoffset: 10; opacity: 0; } 12%, 70% { opacity: .8; } 100% { stroke-dashoffset: -100; opacity: 0; } }
+@keyframes sectionCorePulse { 0%, 100% { opacity: .5; transform: scale(.8); } 50% { opacity: 1; transform: scale(1.25); } }
+@keyframes sectionNodePulse { 0%, 65%, 100% { opacity: .15; } 80% { opacity: .9; } }
+@keyframes sectionCoreWave { 0% { opacity: .5; transform: scale(.3); } 100% { opacity: 0; transform: scale(1.6); } }
+@media (prefers-reduced-motion: reduce) { .sectionEnergy { visibility: hidden; } }
+.inlineSections .cards .sectionLaunchButton[aria-busy="true"] { opacity: 1; cursor: wait; border-color: #79e3ff; }
 .inlineSections .cards .sectionLaunchButton[aria-busy="true"] strong { padding-right: 0; }
 .inlineSections .cards .sectionLaunchButton[aria-busy="true"] small { padding-right: calc(var(--section-artwork-size) + 10px); }
 .sectionOpenError { padding: 12px 16px; border: 1px solid #c98f70; border-radius: 10px; color: #ffe1c9; background: #493c38; font-size: 13px; }
-.inlineSections .cards .sectionLaunchButton:hover:not(:disabled) .sectionClickCue, .inlineSections .cards .sectionLaunchButton:focus-visible .sectionClickCue, .inlineSections .cards .sectionLaunchButton[aria-busy="true"] .sectionClickCue { opacity: 1; transform: translateY(0); }
-.inlineSections .cards button:disabled { opacity: .6; cursor: default; }
-.inlineSections .cards button:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 2px; }
-.inlineSections .cards button > span { color: #c8ddae; }
-.inlineSections .cards button strong { margin-top: 10px; max-width: none; padding-right: 0; font-size: 19px; line-height: 1.35; overflow-wrap: break-word; word-break: normal; text-wrap: pretty; }
-.inlineSections .cards button small { position: absolute; left: 18px; bottom: 38px; padding-top: 0; padding-right: 0; color: #bed0d5; }
-.inlineSections .cards .sectionLaunchButton small.sectionSlideBadge { display: inline-flex; align-items: center; padding: 5px 10px; border: 1px solid #607d6b; border-radius: 99px; background: #173d45; color: #d7e7ca; font-size: 12px; font-weight: 650; line-height: 1.2; white-space: nowrap; }
+.inlineSections .cards .sectionLaunchButton:is([data-pointer-active]:not([data-disabled="true"]), :has(:focus-visible), [aria-busy="true"]) .sectionClickCue { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.inlineSections .cards .sectionLaunchButton .sectionClickCue:active:not(:disabled) { transform: translateY(2px) scale(.96); }
+.inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview):disabled { opacity: .6; cursor: default; }
+.inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview):focus-visible { outline: 2px solid #e9ca8b; outline-offset: 2px; }
+.inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview) > span { color: #c5e9ff; }
+.inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview) strong { margin-top: 10px; max-width: none; padding-right: 0; font-size: clamp(22px, 2vw, 27px); line-height: 1.35; overflow-wrap: break-word; word-break: normal; text-wrap: pretty; }
+.inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview) small { position: absolute; left: 18px; bottom: 38px; padding-top: 0; padding-right: 0; color: #bed0d5; }
+.inlineSections .cards .sectionLaunchButton small.sectionSlideBadge { display: inline-flex; align-items: center; padding: 5px 10px; border: 1px solid #355c7c; border-radius: 99px; background: #103452; color: #c5e9ff; font-size: 12px; font-weight: 650; line-height: 1.2; white-space: nowrap; }
 .inlineSections .cards .sectionFilePreview { min-height: 36px; padding: 10px 14px; font-size: 12px; }
 .inlineSections .sectionPptxLink { padding: 10px 14px; font-size: 12px; }
 
@@ -121,24 +146,24 @@
   .folderChoice { grid-template-columns: 86px minmax(0, 1fr); gap: 4px; }
   .folderArtwork { width: 86px; }
   .folderChoiceText strong { font-size: 22px; }
-  .gardenPortal .courseFolderGrid, .inlineSections .cards { grid-template-columns: 1fr; }
+  .innovationPortal .courseFolderGrid, .inlineSections .cards { grid-template-columns: 1fr; }
 }
 @media (max-width: 760px) {
-  .portal.gardenPortal { padding: 12px; gap: 10px; }
-  .gardenBackdrop { background-image: linear-gradient(180deg, rgba(4, 28, 49, .14), rgba(4, 28, 49, .34)), url('/branding/eiu-campus-mobile.webp'); }
-  .gardenPortal .learningSpacePanel { padding: 18px 14px; border-radius: 22px; }
-  .gardenPortal .selectorActions { justify-content: flex-end; gap: 6px; }
-  .gardenPortal .selectorActions a, .gardenPortal .selectorActions button { padding: 8px 10px; font-size: 10px; }
-  .gardenPortal .brand > div:last-child { display: flex; padding-left: 12px; }
-  .gardenPortal .brand { gap: 12px; }
-  .gardenPortal .brand span { font-size: 8px; }
-  .gardenPortal .brand strong { font-size: 11px; }
-  .gardenPortal .logoWindow { width: 88px; height: 30px; }
-  .gardenPortal .libraryHeaderToolbar { align-items: stretch; gap: 16px; padding: 16px 0; margin-bottom: 8px; }
-  .gardenPortal .librarySearchArea { flex: none; }
-  .gardenPortal .libraryHeaderTitle { font-size: 32px; }
+  .portal.innovationPortal { padding: 12px; gap: 10px; }
+  .innovationBackdrop { background-image: radial-gradient(ellipse at top, #18547f, #041c31 75%); }
+  .innovationPortal .learningSpacePanel { padding: 18px 14px; border-radius: 22px; }
+  .innovationPortal .selectorActions { justify-content: flex-end; gap: 6px; }
+  .innovationPortal .selectorActions a, .innovationPortal .selectorActions button { padding: 8px 10px; font-size: 10px; }
+  .innovationPortal .brand > div:last-child { display: flex; padding-left: 12px; }
+  .innovationPortal .brand { gap: 12px; }
+  .innovationPortal .brand span { font-size: 8px; }
+  .innovationPortal .brand strong { font-size: 11px; }
+  .innovationPortal .logoWindow { width: 88px; height: 30px; }
+  .innovationPortal .libraryHeaderToolbar { align-items: stretch; gap: 16px; padding: 16px 0; margin-bottom: 8px; }
+  .innovationPortal .librarySearchArea { flex: none; }
+  .innovationPortal .libraryHeaderTitle { font-size: 32px; }
   .libraryWorkspace { display: flex; flex-direction: column; gap: 12px; }
-  .mobileFolderToggle { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border: 1px solid #516e66; border-radius: 12px; background: #153946; color: #e4edd9; text-align: left; cursor: pointer; }
+  .mobileFolderToggle { flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 14px; border: 1px solid #516e66; border-radius: 12px; background: #103452; color: #e4edd9; text-align: left; cursor: pointer; }
   .mobileFolderToggle > span:first-child { display: flex; flex-direction: column; gap: 4px; }
   .mobileFolderToggle small { font-size: 8px; color: #b8d0b4; letter-spacing: .1em; }
   .mobileFolderToggle strong { font-size: 18px; }
@@ -150,32 +175,32 @@
   .folderArtwork { width: 76px; }
   .folderPageNav { min-height: 42px; padding-top: 10px; }
   .folderChoiceText strong { font-size: 22px; }
-  .gardenPortal .libraryFolderSections { flex: 1; padding-right: 3px; scrollbar-gutter: auto; }
-  .gardenPortal .libraryFolderTitle { font-size: 21px; }
-  .gardenPortal .libraryFolderHeader { flex-direction: row; align-items: center; }
-  .gardenPortal .libraryFolderHeaderRight { width: auto; }
-  .gardenPortal .courseFolderGrid, .inlineSections .cards { grid-template-columns: 1fr; }
-  .gardenPortal .courseTitle { font-size: 20px; }
-  .gardenPortal .courseFolder { padding-bottom: 142px; }
+  .innovationPortal .libraryFolderSections { flex: 1; padding-right: 3px; scrollbar-gutter: auto; }
+  .innovationPortal .libraryFolderTitle { font-size: 21px; }
+  .innovationPortal .libraryFolderHeader { flex-direction: row; align-items: center; }
+  .innovationPortal .libraryFolderHeaderRight { width: auto; }
+  .innovationPortal .courseFolderGrid, .inlineSections .cards { grid-template-columns: 1fr; }
+  .innovationPortal .courseTitle { font-size: 20px; }
+  .innovationPortal .courseFolder { padding-bottom: 142px; }
   .courseCardMain { padding-right: 0; }
-  .gardenPortal .courseCardBody { padding-top: 0; }
+  .innovationPortal .courseCardBody { padding-top: 0; }
   .courseEnterButton { width: 96px; height: 94px; bottom: 42px; }
   .enterArtwork { width: 96px; height: 94px; }
-  .gardenPortal .folderBadgesRow { position: absolute; left: 14px; right: 14px; bottom: 14px; padding-right: 0; }
+  .innovationPortal .folderBadgesRow { position: absolute; left: 14px; right: 14px; bottom: 14px; padding-right: 0; }
   .inlineSectionsHeader { gap: 12px; flex-wrap: wrap; }
-  .inlineSections .cards button strong { font-size: 18px; }
+  .inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview) strong { font-size: 22px; }
 }
 @media (max-height: 620px) and (max-width: 760px) {
-  .gardenPortal .brand { display: none; }
-  .gardenPortal .libraryHeaderToolbar { margin-top: 0; padding: 8px 0; }
-  .gardenPortal .libraryHeaderTitle { font-size: 26px; }
+  .innovationPortal .brand { display: none; }
+  .innovationPortal .libraryHeaderToolbar { margin-top: 0; padding: 8px 0; }
+  .innovationPortal .libraryHeaderTitle { font-size: 26px; }
 }
 @media (max-height: 780px) and (min-width: 761px) {
-  .portal.gardenPortal { gap: 8px; padding-top: 8px; padding-bottom: 12px; }
-  .gardenPortal .learningSpacePanel { padding: 18px 24px; }
-  .gardenPortal .logoWindow { width: 110px; height: 32px; }
-  .gardenPortal .libraryHeaderToolbar { padding: 10px 0; margin-top: 8px; margin-bottom: 10px; }
-  .gardenPortal .libraryHeaderTitle { font-size: 34px; }
+  .portal.innovationPortal { gap: 8px; padding-top: 8px; padding-bottom: 12px; }
+  .innovationPortal .learningSpacePanel { padding: 18px 24px; }
+  .innovationPortal .logoWindow { width: 110px; height: 32px; }
+  .innovationPortal .libraryHeaderToolbar { padding: 10px 0; margin-top: 8px; margin-bottom: 10px; }
+  .innovationPortal .libraryHeaderTitle { font-size: 34px; }
   .folderShelf { gap: 6px; }
   .folderChoice { grid-template-columns: 76px minmax(0, 1fr); }
   .folderArtwork { width: 76px; height: min(60px, 100%); }
@@ -185,23 +210,20 @@
   .folderCourseCount { font-size: 9px; padding: 2px 7px; bottom: 4px; }
 }
 @media (max-width: 380px) {
-  .gardenPortal .folderBadgesRow { gap: 3px; }
-  .gardenPortal .folderBadgesRow > span { padding-left: 3px; padding-right: 3px; }
-}
-@media (hover: none) {
-  .courseEnterButton { pointer-events: auto; }
+  .innovationPortal .folderBadgesRow { gap: 3px; }
+  .innovationPortal .folderBadgesRow > span { padding-left: 3px; padding-right: 3px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .courseEnterButton { transform: none; }
-  .gardenPortal *, .gardenPortal *::before, .gardenPortal *::after { animation: none !important; transition: none !important; }
-  .gardenPortal .courseFolder:hover, .gardenPortal .courseFolder:focus-within, .inlineSections .cards .sectionLaunchButton:hover:not(:disabled), .inlineSections .cards .sectionLaunchButton:focus-visible { transform: none; }
+  .innovationPortal *, .innovationPortal *::before, .innovationPortal *::after { animation: none !important; transition: none !important; }
+  .innovationPortal .courseFolder[data-pointer-active], .innovationPortal .courseFolder:has(:focus-visible), .inlineSections .cards .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"]), .inlineSections .cards .sectionLaunchButton:has(:focus-visible) { transform: none; }
 }
-.learningAccent { display: inline-block; width: 20px; height: 20px; margin-left: 10px; vertical-align: middle; color: #a9c99a; flex-shrink: 0; }
+.learningAccent { display: inline-block; width: 20px; height: 20px; margin-left: 10px; vertical-align: middle; color: #79e3ff; flex-shrink: 0; }
 
 .inlineSectionsHeader .learningAccent { width: 14px; height: 14px; margin-left: 8px; }
 .illustratedTitle { position: relative; display: flex; align-items: center; gap: 8px; min-width: 0; }
-.illustratedTitle::after { content: ''; position: absolute; left: 22px; bottom: -4px; width: 44px; height: 1px; background: linear-gradient(90deg, var(--library-accent, #97b68b), transparent); opacity: .65; transform: scaleX(.7); transform-origin: left; transition: transform 260ms ease, opacity 260ms ease; pointer-events: none; }
-.illustratedTitle .learningAccent { width: 17px; height: 17px; margin: 0; color: var(--library-accent, #97b68b); transition: color 220ms ease; }
+.illustratedTitle::after { content: ''; position: absolute; left: 22px; bottom: -4px; width: 44px; height: 1px; background: linear-gradient(90deg, var(--library-accent, #51c9ef), transparent); opacity: .65; transform: scaleX(.7); transform-origin: left; transition: transform 260ms ease, opacity 260ms ease; pointer-events: none; }
+.illustratedTitle .learningAccent { width: 17px; height: 17px; margin: 0; color: var(--library-accent, #51c9ef); transition: color 220ms ease; }
 .folderChoiceText strong.illustratedTitle { display: flex; justify-content: center; gap: 6px; width: 100%; }
 .folderChoiceText .illustratedTitle::after { left: calc(50% - 22px); bottom: -4px; transform-origin: center; }
 .folderNameText { min-width: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -211,20 +233,18 @@
 .inlineSections .cards .illustratedTitle { align-items: flex-start; }
 .inlineSections .cards .illustratedTitle .learningAccent { margin-top: 5px; }
 .illustratedTitle > span { min-width: 0; }
-.gardenPortal .illustratedTitle > span { color: var(--library-title); animation: titleArrive 420ms ease-out backwards; transition: color 220ms ease, transform 220ms ease; }
-.gardenPortal .folderChoiceSelected .illustratedTitle > span { color: var(--library-title-active); }
-.gardenPortal .folderChoiceSelected .illustratedTitle::after { opacity: 1; transform: scaleX(1); }
-.gardenPortal :is(.folderChoice:focus-visible, .courseFolder:focus-within, .sectionLaunchButton:focus-visible) .illustratedTitle > span { color: var(--library-title-active); transform: translateY(-1px); }
-.gardenPortal :is(.folderChoice:focus-visible, .courseFolder:focus-within, .sectionLaunchButton:focus-visible) .illustratedTitle::after { opacity: 1; transform: scaleX(1.25); }
-.gardenPortal .courseFolder:focus-within .courseDesc { color: #dfeddb; transform: translateY(-1px); }
+.innovationPortal .illustratedTitle > span { color: var(--library-title); animation: titleArrive 420ms ease-out backwards; transition: color 220ms ease, transform 220ms ease; }
+.innovationPortal .folderChoiceSelected .illustratedTitle > span { color: var(--library-title-active); }
+.innovationPortal .folderChoiceSelected .illustratedTitle::after { opacity: 1; transform: scaleX(1); }
+.innovationPortal :is(.folderChoice:focus-visible, .courseFolder:has(:focus-visible), .sectionLaunchButton:has(:focus-visible)) .illustratedTitle > span { color: var(--library-title-active); transform: translateY(-1px); }
+.innovationPortal .courseFolder:has(:focus-visible) .courseDesc { color: #eaf4ff; transform: translateY(-1px); }
 @media (hover: hover) {
-  .gardenPortal :is(.folderChoice:hover, .courseFolder:hover, .sectionLaunchButton:hover:not(:disabled)) .illustratedTitle > span { color: var(--library-title-active); transform: translateY(-1px); }
-  .gardenPortal :is(.folderChoice:hover, .courseFolder:hover, .sectionLaunchButton:hover:not(:disabled)) .illustratedTitle::after { opacity: 1; transform: scaleX(1.25); }
-  .gardenPortal :is(.folderChoice:hover, .courseFolder:hover, .sectionLaunchButton:hover:not(:disabled)) .learningAccent { color: var(--library-title-active); }
-  .gardenPortal .courseFolder:hover .courseDesc { color: #dfeddb; transform: translateY(-1px); }
+  .innovationPortal :is(.folderChoice:hover, .courseFolder[data-pointer-active], .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"])) .illustratedTitle > span { color: var(--library-title-active); transform: translateY(-1px); }
+  .innovationPortal :is(.folderChoice:hover, .courseFolder[data-pointer-active], .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"])) .learningAccent { color: var(--library-title-active); }
+  .innovationPortal .courseFolder[data-pointer-active] .courseDesc { color: #eaf4ff; transform: translateY(-1px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .gardenPortal .illustratedTitle > span, .gardenPortal .courseDesc { transform: none !important; }
+  .innovationPortal .illustratedTitle > span, .innovationPortal .courseDesc { transform: none !important; }
 }
 
 .portal {
@@ -311,7 +331,7 @@
   gap: 10px;
 }
 
-.courseSectionCard > button {
+.courseSectionCard > :is(.sectionLaunchButton, .sectionFilePreview) {
   width: 100%;
   flex: 1;
 }
@@ -332,7 +352,7 @@
 .cards .sectionFilePreview { min-height: 42px; padding: 12px 18px; border-radius: 12px; align-items: center; color: #f4dfb0; font-size: 14px; font-weight: 700; }
 .sectionPptxLink:focus-visible { outline: 3px solid #e9ca8b; outline-offset: 3px; }
 
-.cards button {
+.cards :is(.sectionLaunchButton, .sectionFilePreview) {
   position: relative;
   min-height: 188px;
   padding: 27px;
@@ -351,33 +371,33 @@
     border-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.cards button:hover {
+.cards :is(.sectionLaunchButton, .sectionFilePreview):hover {
   transform: translateY(-4px);
   border-color: rgba(233, 202, 139, 0.42);
   background: rgba(255, 255, 255, 0.12);
 }
 
-.cards button > span {
+.cards :is(.sectionLaunchButton, .sectionFilePreview) > span {
   color: #e9ca8b;
   font-size: 10px;
   font-weight: 850;
   letter-spacing: 0.16em;
 }
 
-.cards button strong {
+.cards :is(.sectionLaunchButton, .sectionFilePreview) strong {
   max-width: 360px;
   margin-top: 15px;
   font-size: 25px;
   line-height: 1.18;
 }
 
-.cards button small {
+.cards :is(.sectionLaunchButton, .sectionFilePreview) small {
   margin-top: auto;
   color: rgba(255, 255, 255, 0.48);
   font-size: 11px;
 }
 
-.cards button i {
+.cards :is(.sectionLaunchButton, .sectionFilePreview) i {
   position: absolute;
   right: 24px;
   bottom: 22px;
@@ -549,7 +569,7 @@
     box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.courseFolder:hover {
+.courseFolder[data-pointer-active] {
   border-color: rgba(233, 202, 139, 0.42);
   background: rgba(255, 255, 255, 0.11);
   box-shadow: inset 0 0 0 1px rgba(233, 202, 139, 0.18);
@@ -581,62 +601,6 @@
   overflow: hidden;
   text-overflow: ellipsis;
   word-break: break-word;
-}
-
-.staticIconsTrack {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  width: 100%;
-}
-
-@keyframes iconGentleFloat {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2.8px);
-  }
-}
-
-.courseCardIconBox {
-  width: 36px;
-  height: 36px;
-  border-radius: 9px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(233, 202, 139, 0.26);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
-  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
-  animation: iconGentleFloat 3.2s ease-in-out infinite;
-  will-change: transform;
-}
-
-.courseFolder:hover .courseCardIconBox {
-  transform: translateY(-2px) scale(1.08);
-  border-color: #e9ca8b;
-  background: rgba(255, 255, 255, 0.16);
-  box-shadow: 0 4px 14px rgba(233, 202, 139, 0.25);
-  animation-play-state: paused;
-}
-
-.courseCardIconImg {
-  width: 24px;
-  height: 24px;
-  max-width: 80%;
-  max-height: 80%;
-  object-fit: contain;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
-  transition: transform 180ms ease, filter 180ms ease;
-}
-
-.courseFolder:hover .courseCardIconImg {
-  transform: scale(1.05);
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.4));
 }
 
 @keyframes titleShine {
@@ -677,7 +641,7 @@
               filter 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.courseFolder:hover .courseTitle {
+.courseFolder[data-pointer-active] .courseTitle {
   transform: translateX(3px);
   filter: drop-shadow(0 0 10px rgba(233, 202, 139, 0.45));
 }
@@ -1270,7 +1234,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cards button,
+  .cards :is(.sectionLaunchButton, .sectionFilePreview),
   .courseFolder,
   .selectorActions button,
   .actionBarButtons button,
@@ -1731,9 +1695,9 @@
 }
 
 
-/* Reserve separate grid cells for the forest and the readable title. */
-.gardenPortal .libraryHeaderTitleArea { min-width: 0; }
-.gardenPortal .libraryHeaderTitle {
+/* Keep technology marks clear of the heading. */
+.innovationPortal .libraryHeaderTitleArea { min-width: 0; }
+.innovationPortal .libraryHeaderTitle {
   display: grid;
   grid-template-columns: 1.15em minmax(0, auto) 1.15em;
   grid-template-rows: auto;
@@ -1742,73 +1706,57 @@
   width: fit-content;
   max-width: 100%;
 }
-.titleForestText { grid-area: 1 / 2; text-align: center; color: var(--library-title, #e0efd9); }
-.titleForestLeft, .titleForestRight {
+.titleInnovationText { grid-area: 1 / 2; text-align: center; color: var(--library-title, #eaf4ff); }
+.titleInnovationLeft, .titleInnovationRight {
   width: 100%;
   height: 100%;
   overflow: hidden;
   pointer-events: none;
 }
-.titleForestLeft { grid-area: 1 / 1; }
-.titleForestRight { grid-area: 1 / 3; }
+.titleInnovationLeft { grid-area: 1 / 1; }
+.titleInnovationRight { grid-area: 1 / 3; }
 @media (max-width: 600px) {
-  .gardenPortal .libraryHeaderTitle { font-size: clamp(20px, 5.8vw, 30px); }
-  .inlineSections .cards .sectionLaunchButton:is(:not(:disabled), [aria-busy="true"]) strong,
-  .inlineSections .cards .sectionLaunchButton .cardLiveUsers { padding-right: 0; }
+  .innovationPortal .libraryHeaderTitle { font-size: clamp(20px, 5.8vw, 30px); }
+  .inlineSections .cards .sectionLaunchButton:is(:not([data-disabled="true"]), [aria-busy="true"]) strong, .inlineSections .cards .sectionLaunchButton .cardLiveUsers { padding-right: 0; }
 }
 
-/* Botanical details stay inside the padding, away from titles and summaries. */
-.gardenPortal .courseFolder::before {
+/* Circuit details stay inside padding, away from titles and summaries. */
+.innovationPortal .courseFolder::before {
   transform: scaleY(.65);
   transform-origin: center;
   transition: transform 400ms ease, opacity 300ms ease, background-color 300ms ease;
   pointer-events: none;
 }
-.gardenPortal .courseFolder:is(:hover, :focus-within)::before { transform: scaleY(1); }
-.gardenPortal .courseFolder::after,
-.gardenPortal .inlineSections .cards .sectionLaunchButton::after {
+.innovationPortal .courseFolder:is([data-pointer-active], :has(:focus-visible))::before { transform: scaleY(1); }
+.innovationPortal .courseFolder::after {
   content: '';
   position: absolute;
   top: 14px;
   right: 3px;
   width: 9px;
   height: 70px;
-  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 78' fill='none' stroke='%2397b68b' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 76V5M5 20C0 19 0 12 1 10c4 0 5 5 4 10Zm0 17c5-1 5-8 4-10-4 0-5 5-4 10ZM5 54c-5-1-5-8-4-10 4 0 5 5 4 10Zm0 17c5-1 5-8 4-10-4 0-5 5-4 10Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 78' fill='none' stroke='%2351c9ef' stroke-width='1'%3E%3Cpath d='M5 76V52L2 49V30l6-6V5M5 60h4M2 38h6'/%3E%3Ccircle cx='8' cy='3' r='2'/%3E%3Ccircle cx='8' cy='38' r='1.5'/%3E%3C/svg%3E") center / contain no-repeat;
   opacity: .2;
   transform: translateY(3px);
   transition: opacity 350ms ease, transform 500ms cubic-bezier(.22,1,.36,1);
   pointer-events: none;
 }
-.gardenPortal .courseFolder:is(:hover, :focus-within)::after,
-.gardenPortal .inlineSections .cards .sectionLaunchButton:not(:disabled):is(:hover, :focus-visible)::after,
-.gardenPortal .inlineSections .cards .sectionLaunchButton[aria-busy="true"]::after {
+.innovationPortal .courseFolder:is([data-pointer-active], :has(:focus-visible))::after {
   opacity: .65;
   transform: translateY(0);
 }
-.gardenPortal .inlineSections .cards .sectionLaunchButton::before {
-  content: '';
-  position: absolute;
-  left: 18px;
-  right: 132px;
-  bottom: 7px;
-  height: 1px;
-  background: linear-gradient(90deg, #97b68b, #c2e5b4 55%, transparent);
-  opacity: .2;
-  transform: scaleX(.35);
-  transform-origin: left;
-  transition: opacity 350ms ease, transform 650ms cubic-bezier(.22,1,.36,1);
-  pointer-events: none;
-}
-.gardenPortal .inlineSections .cards .sectionLaunchButton:not(:disabled):is(:hover, :focus-visible)::before,
-.gardenPortal .inlineSections .cards .sectionLaunchButton[aria-busy="true"]::before { opacity: .8; transform: scaleX(1); }
-.gardenPortal .enterArtwork,
-.gardenPortal .sectionClickArtwork {
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(194,229,180,.1), rgba(151,182,139,.035) 50%, transparent 72%);
-}
 @media (prefers-reduced-motion: reduce) {
-  .gardenPortal .courseFolder::before,
-  .gardenPortal .courseFolder::after,
-  .gardenPortal .inlineSections .cards .sectionLaunchButton::before,
-  .gardenPortal .inlineSections .cards .sectionLaunchButton::after { transform: none; }
+  .innovationPortal .courseFolder::before,
+  .innovationPortal .courseFolder::after { transform: none; }
 }
+
+/* Touch has no hover; keep the course entry discoverable and tappable. */
+@media (hover: none) and (pointer: coarse) {
+  .courseEnterButton { opacity: 1; transform: none; pointer-events: auto; }
+  .inlineSections .cards .sectionClickCue { opacity: 1; transform: none; pointer-events: auto; }
+}
+
+.inlineSections .cards .sectionClickCue:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 2px; }
+.inlineSections .cards .sectionClickCue:disabled { cursor: wait; }
+
+.inlineSections .cards .sectionLaunchButton > span { font-size: 16px; line-height: 1.4; letter-spacing: .1em; }

@@ -94,6 +94,113 @@ test("PDF navigation and zoom retain the document while each slide keeps its tra
   assert.equal(cleanups, 1);
 });
 
+test("restoration waits for metadata and never overwrites a saved slide with the placeholder count", async () => {
+  const window = new Window({ url: "http://localhost/learn?courseId=c&sectionId=s&slide=8" });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const location = load("lib/deckLocation.ts", {}, { window, URL });
+  let writes = 0;
+  const replace = window.history.replaceState.bind(window.history);
+  window.history.replaceState = (...args) => { writes++; replace(...args); };
+  const Frame = load("components/deck/SharedDeckFrame.tsx", {
+    "next/image": { __esModule: true, default: () => null },
+    "@/components/DeckSideAmbient": { __esModule: true, default: () => null },
+    "@/components/WorkshopLaunchButton": { __esModule: true, default: () => null },
+    "@/lib/deckLocation": location,
+  }, { window, requestAnimationFrame: callback => window.requestAnimationFrame(callback), cancelAnimationFrame: id => window.cancelAnimationFrame(id), ResizeObserver: class { observe() {} disconnect() {} } }).default;
+  const container = window.document.createElement("div"), root = createRoot(container);
+  const props = { courseTitle: "Course", sectionTitle: "Section", renderSlide: page => React.createElement("div", null, page) };
+  const tick = () => act(async () => { await new Promise(resolve => window.requestAnimationFrame(resolve)); });
+  try {
+    await act(async () => root.render(React.createElement(Frame, { ...props, totalSlides: 1, navigationReady: false })));
+    await tick();
+    assert.equal(writes, 0);
+    assert.equal(new URL(window.location.href).searchParams.get("slide"), "8");
+    await act(async () => root.render(React.createElement(Frame, { ...props, totalSlides: 20, navigationReady: true })));
+    await tick();
+    assert.equal(container.querySelector('[aria-label="Go to slide"]').value, "8");
+    assert.equal(writes, 0, "restoring the current URL must not notify the router again");
+    await act(async () => container.querySelector('[title="Next slide"]').click());
+    assert.equal(new URL(window.location.href).searchParams.get("slide"), "9");
+    assert.equal(writes, 1);
+    await act(async () => root.render(React.createElement(Frame, { ...props, totalSlides: 21, navigationReady: true })));
+    await tick();
+    assert.equal(container.querySelector('[aria-label="Go to slide"]').value, "9");
+  } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
+});
+
+test("TSX documents are reused for parent updates and rebuilt only when the displayed slide changes", async () => {
+  const window = new Window({ url: "http://localhost/learn" });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  let builds = 0, page = 4;
+  const Deck = load("components/deck/UploadedSectionDeck.tsx", {
+    "next/dynamic": { __esModule: true, default: () => () => null },
+    "@/components/deck/SharedDeckFrame": { __esModule: true, default: props => props.renderSlide(page) },
+    "@/components/HairlineLoading": { __esModule: true, default: () => null },
+    "@/lib/tsxDocument": { createTsxDocument: (code, number) => { builds++; return `<html><body>${number}</body></html>`; } },
+  }, { window, fetch: async () => ({ ok: true, text: async () => "compiled deck" }) }).default;
+  const container = window.document.createElement("div"), root = createRoot(container);
+  const props = { sectionId: "s", contentType: "tsx", slideCount: null, courseTitle: "Course", sectionTitle: "Section" };
+  try {
+    await act(async () => root.render(React.createElement(Deck, props)));
+    assert.equal(builds, 1);
+    const frame = container.querySelector("iframe");
+    await act(async () => root.render(React.createElement(Deck, { ...props })));
+    await act(async () => frame.dispatchEvent(new window.Event("load")));
+    assert.equal(builds, 1, "presence updates and removal of the loading overlay keep the document");
+    assert.equal(container.querySelector("iframe"), frame);
+    page = 5;
+    await act(async () => root.render(React.createElement(Deck, { ...props })));
+    assert.equal(builds, 2);
+  } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
+});
+
+test("section electricity reaches twelve edges and masks measured content after resize", async () => {
+  const window = new Window();
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  let resized, disconnected = false;
+  const Energy = load("components/SectionEnergy.tsx", {}, {
+    requestAnimationFrame: callback => window.requestAnimationFrame(callback), cancelAnimationFrame: id => window.cancelAnimationFrame(id),
+    ResizeObserver: class { constructor(callback) { resized = callback; } observe() {} disconnect() { disconnected = true; } },
+  }).default;
+  const container = window.document.createElement("div"), root = createRoot(container);
+  window.document.body.append(container);
+  try {
+    await act(async () => root.render(React.createElement("article", null,
+      React.createElement(Energy), React.createElement("strong", { "data-energy-exclude": true }, "Section title"),
+      React.createElement("button", { "data-energy-exclude": true }, "Continue"))));
+    const card = container.querySelector("article"), title = container.querySelector("strong"), button = container.querySelector("button");
+    let titleHeight = 25;
+    Object.defineProperties(card, { clientWidth: { get: () => 500 }, clientHeight: { get: () => 220 } });
+    Object.defineProperties(title, { offsetLeft: { get: () => 18 }, offsetTop: { get: () => 40 }, offsetWidth: { get: () => 460 }, offsetHeight: { get: () => titleHeight } });
+    Object.defineProperties(button, { offsetLeft: { get: () => 400 }, offsetTop: { get: () => 120 }, offsetWidth: { get: () => 88 }, offsetHeight: { get: () => 88 } });
+    await act(async () => { resized(); await new Promise(resolve => window.requestAnimationFrame(resolve)); });
+    const svg = container.querySelector("svg");
+    assert.equal(svg.getAttribute("viewBox"), "0 0 500 220");
+    assert.equal(svg.querySelectorAll('g[style]').length, 12);
+    const mask = svg.querySelector("mask");
+    assert.equal(mask.querySelectorAll('rect[fill="black"]').length, 2);
+    const titleMask = mask.querySelector('rect[fill="black"]');
+    assert.equal(titleMask.getAttribute("x"), "10");
+    assert.equal(titleMask.getAttribute("height"), "39");
+    const core = svg.querySelector('circle[r="3"]');
+    for (const ray of svg.querySelectorAll('g[style] path:first-child'))
+      assert.ok(ray.getAttribute("d").startsWith(`M${core.getAttribute("cx")} ${core.getAttribute("cy")}L`));
+    titleHeight = 60;
+    await act(async () => { resized(); await new Promise(resolve => window.requestAnimationFrame(resolve)); });
+    assert.equal(svg.querySelector('mask rect[fill="black"]').getAttribute("height"), "74");
+  } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
+  assert.equal(disconnected, true);
+});
+
 test("slow background requests do not overlap or restart on a catalog refresh, and are aborted on unmount", async () => {
   const window = new Window({ url: "http://localhost/learn" });
   for (const name of ["window", "document", "HTMLElement", "navigator"])
@@ -105,7 +212,8 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
   window.clearInterval = delay => intervals.delete(delay);
   const requests = [];
   let beacons = 0;
-  const router = { refresh() {} };
+  let catalogRefreshes = 0;
+  const router = { refresh() { catalogRefreshes++; } };
   const Portal = load("components/LessonPortal.tsx", {
     "next/navigation": { useRouter: () => router },
     "next/dynamic": { __esModule: true, default: () => () => null },
@@ -113,11 +221,13 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     "@/lib/auth/types": { APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai" },
     "@/lib/deckLocation": { rememberDeckSelection() {} }, "@/lib/slideStorage": {},
     "@/lib/supabase/browser": { getSupabaseBrowserClient: () => null },
-    "./LearningGrowthIcon": { __esModule: true, default: () => null },
-    "./LearningGardenAction": { __esModule: true, default: () => null },
-    "./HairlineLoading": { __esModule: true, default: () => null },
+    "./HairlineLoading": { __esModule: true, default: ({ label }) => React.createElement("span", { role: "status" }, label) },
     "./CourseToolRow": { __esModule: true, default: () => null },
-    "./useSectionOpening": load("components/useSectionOpening.ts", {}),
+    "./SectionEnergy": { __esModule: true, default: () => null },
+    "./LearningInnovationIcon": { __esModule: true, default: () => null },
+    "./useSectionOpening": load("components/useSectionOpening.ts", {}, {
+      fetch: (url, options) => new Promise(resolve => requests.push({ url, options, resolve })),
+    }),
     "./useSectionSlideCounts": { useSectionSlideCounts: () => ({}) },
     "@/lib/builtinDeckItems": load("lib/builtinDeckItems.ts", {}),
   }, { window, document: window.document, navigator: { sendBeacon: () => { beacons++; return true; } }, clearInterval: id => window.clearInterval(id),
@@ -133,6 +243,11 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     await act(async () => render());
     assert.equal(requests.length, 3);
     await act(async () => {
+      window.dispatchEvent(new window.Event("focus"));
+      window.document.dispatchEvent(new window.Event("visibilitychange"));
+    });
+    assert.equal(catalogRefreshes, 0, "returning to a tab must not refresh the active deck");
+    await act(async () => {
       for (let i = 0; i < 3; i++) { intervals.get(20_000)(); intervals.get(15_000)(); intervals.get(30_000)(); }
       render();
     });
@@ -147,13 +262,85 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     window.dispatchEvent(new window.Event("beforeunload"));
     window.dispatchEvent(new window.Event("pagehide"));
     assert.equal(beacons, 1, "beforeunload and pagehide must not send the same leave twice");
+    await act(async () => [...container.querySelectorAll("button")].find(button => button.textContent === "Courses").click());
+    await act(async () => window.dispatchEvent(new window.Event("focus")));
+    assert.equal(catalogRefreshes, 1, "catalog refresh resumes after leaving the deck");
+    window.document.body.append(container);
+    const folder = container.querySelector('[data-icon-surface="folder"]');
+    folder.getBoundingClientRect = () => ({ left: 0, top: 0, width: 200, height: 100 });
+    await act(async () => {
+      folder.dispatchEvent(new window.PointerEvent("pointermove", { bubbles: true, pointerType: "mouse", clientX: 200, clientY: 0 }));
+      await new Promise(resolve => window.requestAnimationFrame(resolve));
+    });
+    assert.equal(folder.style.getPropertyValue("--ai-rotate-x"), "8.00deg");
+    assert.equal(folder.style.getPropertyValue("--ai-rotate-y"), "11.00deg");
+    await act(async () => folder.dispatchEvent(new window.PointerEvent("pointerout", { bubbles: true, relatedTarget: window.document.body })));
+    assert.equal(folder.style.getPropertyValue("--ai-rotate-y"), "", "leaving the chooser resets the 3D angle");
+    assert.equal(folder.hasAttribute("data-pointer-active"), false);
+    const courseEntry = container.querySelector('[id="course-choice-course"]');
+    const courseCard = courseEntry.closest('[data-icon-surface="course"]');
+    courseCard.getBoundingClientRect = () => ({ left: 0, top: 0, width: 400, height: 200 });
+    await act(async () => {
+      courseCard.dispatchEvent(new window.PointerEvent("pointermove", { bubbles: true, pointerType: "mouse", clientX: 100, clientY: 50 }));
+      await new Promise(resolve => window.requestAnimationFrame(resolve));
+    });
+    assert.equal(courseCard.hasAttribute("data-pointer-active"), true);
+    await act(async () => courseEntry.click());
+    await act(async () => container.querySelector('[aria-label="Back to courses"]').dispatchEvent(new window.MouseEvent("click", { bubbles: true, detail: 1 })));
+    const restoredEntry = container.querySelector('[id="course-choice-course"]');
+    assert.equal(restoredEntry.closest('[data-icon-surface]').hasAttribute("data-pointer-active"), false, "returning must not restore stale hover state");
+    assert.equal(window.document.activeElement.id, "course-folder-content", "mouse navigation restores focus to the neutral list rather than the previous course");
+    await act(async () => restoredEntry.click());
+    const sectionCard = container.querySelector('article[data-icon-surface="section"]');
+    const openingRequests = () => requests.filter(request => request.url === "/api/session/section");
+    await act(async () => { sectionCard.click(); sectionCard.querySelector("strong").click(); });
+    assert.equal(openingRequests().length, 0, "the section card and its title must not open a lesson");
+    const continueButton = sectionCard.querySelector('button[aria-label="Open Section"]');
+    assert.ok(continueButton, "section entry remains a labelled keyboard-accessible button");
+    await act(async () => continueButton.click());
+    assert.equal(openingRequests().length, 1, "only Continue opens the section");
+    assert.ok(container.querySelector('[aria-label="Session controls"]'), "one click must mount the presentation shell before the session request resolves");
+    assert.match(container.textContent, /Opening lesson/);
+    assert.equal(container.querySelector('article[data-icon-surface="section"]'), null, "loading happens inside the player, not on the chooser");
+    await act(async () => continueButton.click());
+    assert.equal(openingRequests().length, 1, "repeated clicks cannot queue section openings");
+    await act(async () => openingRequests()[0].resolve({ ok: false }));
+    assert.ok(container.querySelector('[aria-label="Session controls"]'), "a failed load stays inside the player");
+    assert.ok(container.querySelector('[role="alert"]'));
+    await act(async () => [...container.querySelectorAll("button")].find(button => button.textContent === "Try again").click());
+    assert.equal(openingRequests().length, 2);
+    await act(async () => [...container.querySelectorAll("button")].find(button => button.textContent === "Courses").click());
+    assert.equal(openingRequests()[1].options.signal.aborted, true);
+    assert.ok(container.querySelector('article[data-icon-surface="section"]'), "leaving an unfinished load returns to the section list");
+    await act(async () => openingRequests()[1].resolve({ ok: true }));
+    assert.ok(container.querySelector('article[data-icon-surface="section"]'), "a late successful response cannot reopen a cancelled lesson");
   } finally {
     await act(async () => root.unmount());
-    assert.ok(requests.every(request => request.options.signal.aborted));
+    assert.ok(requests.filter(request => request !== requests.find(request => request.url === "/api/session/section")).every(request => request.options.signal.aborted));
     assert.equal(beacons, 1, "unmount must not send an already queued leave again");
     assert.equal(intervals.size, 0);
     await window.happyDOM.close();
   }
+});
+
+test("administrator section entry checks the live session without reading the full course catalog", async () => {
+  let admin = true, checks = 0, catalogs = 0;
+  const cookieWrites = [];
+  const api = load("app/api/session/section/route.ts", {
+    "next/server": { NextResponse: { json: (body, options = {}) => ({ body, status: options.status ?? 200, cookies: { set: (...args) => cookieWrites.push(args) } }) } },
+    "@/lib/auth/currentUser": {
+      requireAdminAccess: async () => { checks++; return admin ? { isActive: true, isAdmin: true } : null; },
+      currentUserAccess: async () => { catalogs++; return null; },
+    },
+    "@/lib/auth/types": { ACTIVE_SECTION_COOKIE: "active", APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai", isLearningSection: value => ["section1", "section2"].includes(value) },
+  }, { process: { env: {} } });
+  const request = section => ({ signal: new AbortController().signal, json: async () => ({ section }) });
+  assert.equal((await api.POST(request("section1"))).status, 200);
+  assert.equal(cookieWrites.length, 1); assert.equal(catalogs, 0);
+  assert.equal((await api.POST(request("unknown"))).status, 403);
+  admin = false;
+  assert.equal((await api.POST(request("section1"))).status, 403);
+  assert.equal(checks, 3); assert.equal(catalogs, 1);
 });
 
 test("heartbeat writes retain shared pending catalog reads, while permission writes invalidate them", async () => {

@@ -499,19 +499,6 @@
   font-size: 24px;
 }
 
-.interactionHint {
-  position: absolute;
-  left: 50%;
-  bottom: 22px;
-  transform: translateX(-50%);
-  padding: 10px 16px;
-  border-radius: 999px;
-  background: rgba(247, 241, 229, 0.96);
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 600;
-}
-
 .statementHero {
   position: absolute;
   inset: 40px 80px 40px;
@@ -568,28 +555,6 @@
 .statementImpact i:nth-child(2) { width: 260px; height: 260px; animation-delay: 0.08s; }
 .statementImpact i:nth-child(3) { width: 340px; height: 340px; animation-delay: 0.16s; }
 
-.dragStage {
-  position: absolute;
-  left: 34px;
-  right: 34px;
-  top: 40px;
-  bottom: 72px;
-  display: grid;
-  grid-template-columns: 280px 1fr;
-  gap: 18px;
-  align-items: start;
-}
-
-.dragBank,
-.dropColumns {
-  display: grid;
-  gap: 12px;
-}
-
-.dragBank { align-content: start; }
-.dropColumns { align-content: start; }
-
-.dragItem,
 .dropZone {
   min-height: 64px;
   padding: 14px 16px;
@@ -597,17 +562,6 @@
   border-radius: 18px;
   border: 1px solid rgba(8, 41, 69, 0.1);
   box-shadow: 0 10px 28px rgba(8, 41, 69, 0.06);
-}
-
-.dragItem {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(145deg, #ffffff, #f7fbff);
-  color: var(--navy);
-  font-size: 17px;
-  font-weight: 800;
-  cursor: grab;
 }
 
 .dropZone {
@@ -638,33 +592,6 @@
   margin-top: 8px;
   color: var(--muted);
   font-size: 12px;
-}
-
-.dropZoneFilled {
-  border-color: rgba(54, 128, 88, 0.32);
-  background: linear-gradient(145deg, rgba(238, 248, 242, 0.95), rgba(255, 255, 255, 0.96));
-}
-
-.exerciseFooter {
-  position: absolute;
-  left: 34px;
-  right: 34px;
-  bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  padding: 12px 18px;
-  border-radius: 16px;
-  background: rgba(247, 241, 229, 0.96);
-  border: 1px solid rgba(179,145,89,0.18);
-}
-
-.exerciseFooter p {
-  margin: 0;
-  color: var(--navy);
-  font-weight: 700;
-  font-size: 15px;
 }
 
 .secondaryButton {
@@ -1151,12 +1078,6 @@
   font-size: 18px;
 }
 
-.modalActionRow {
-  margin-top: 18px;
-  display: flex;
-  justify-content: flex-end;
-}
-
 .feedbackText {
   margin: 0;
   color: var(--muted);
@@ -1253,7 +1174,6 @@
 }
 
 .instructionNote,
-.warningNote,
 .successNote {
   position: absolute;
   left: 50%;
@@ -1269,14 +1189,11 @@
 
 .instructionNote { display: flex; align-items: center; justify-content: space-between; }
 .instructionNote strong,
-.warningNote strong,
 .successNote strong { color: var(--navy); }
 .instructionNote span,
-.warningNote,
 .successNote span { color: var(--muted); font-size: 13px; }
 
 .threeStepMock,
-.deploySteps,
 .firstRunGrid {
   position: absolute;
   left: 18px;
@@ -1457,8 +1374,7 @@
   animation-delay: var(--delay), calc(0.8s + var(--delay));
 }
 
-.fileList > div,
-.loopGrid article {
+.fileList > div {
   min-height: 96px;
   display: flex;
   align-items: center;
@@ -1475,8 +1391,7 @@
 }
 
 .questionGrid article span,
-.fileList span,
-.loopGrid article span {
+.fileList span {
   width: 45px;
   height: 45px;
   display: grid;
@@ -1488,8 +1403,7 @@
   font-weight: 900;
 }
 
-.questionGrid strong,
-.loopGrid strong { font-size: 21px; }
+.questionGrid strong { font-size: 21px; }
 
 .promptPanel {
   position: absolute;
@@ -1537,22 +1451,10 @@
   border-radius: 50%;
   background: radial-gradient(circle, rgba(179,145,89,0.2), transparent 66%);
 }
-
-.menuBarMock { padding: 9px; border-radius: 8px; background: #eef2f4; font-size: 10px; }
 .dropdownMock { margin-top: 14px; padding: 10px; border: 1px solid #dae3e8; border-radius: 10px; background: #fff; }
 .scriptSidebar { float: left; width: 105px; margin-right: 12px; padding: 10px; border-radius: 8px; background: #edf3f7; }
 .scriptSidebar strong { color: #1d71b4; }
 .codeMock { padding: 15px; color: #4b69a4; font-family: monospace; font-size: 12px; }
-
-.filesLayout {
-  position: absolute;
-  left: 45px;
-  right: 45px;
-  top: 55px;
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 45px;
-}
 
 .fileList {
   display: grid;
@@ -1572,8 +1474,6 @@
   font-size: 27px;
   font-weight: 700;
 }
-
-.warningNote { color: var(--muted); font-size: 13px; }
 .successNote {
   display: flex;
   justify-content: space-between;
@@ -1609,25 +1509,6 @@
   color: var(--gold2);
   font-size: 39px;
   box-shadow: 0 0 0 18px rgba(8,41,69,0.05);
-}
-
-.loopGrid {
-  position: absolute;
-  left: 100px;
-  right: 100px;
-  top: 83px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-.loopGrid article { position: relative; }
-.loopGrid article i {
-  position: absolute;
-  right: 18px;
-  color: var(--gold);
-  font-size: 25px;
-  font-style: normal;
 }
 
 .importantSlide {
@@ -1705,30 +1586,6 @@
 .heroSlide .heroCore i { animation: none !important; }
 
 /* Visible admin Slide 8 / PDF page 7: horizontal drag source row + horizontal drop row. */
-.dragStage {
-  left: 36px !important;
-  right: 36px !important;
-  top: 28px !important;
-  bottom: auto !important;
-  display: block !important;
-}
-.dragBank {
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 14px !important;
-}
-.dragItem {
-  min-height: 56px !important;
-  padding: 10px 14px !important;
-  font-size: 16px !important;
-  text-align: center !important;
-}
-.dropColumns {
-  margin-top: 18px !important;
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 14px !important;
-}
 .dropZone {
   min-height: 116px !important;
   padding: 14px 14px !important;
@@ -1739,21 +1596,6 @@
   line-height: 1.15 !important;
 }
 .dropZone small { margin-top: 7px !important; }
-.exerciseFooter {
-  left: 36px !important;
-  right: 36px !important;
-  bottom: 8px !important;
-  min-height: 48px !important;
-  padding: 8px 12px 8px 16px !important;
-}
-.exerciseFooter p {
-  font-size: 13px !important;
-  line-height: 1.2 !important;
-}
-.exerciseFooter .secondaryButton {
-  padding: 8px 15px !important;
-  font-size: 13px !important;
-}
 
 /* Visible admin Slides 11-12 / PDF pages 10-11: guaranteed 2x2 fit. */
 .answerGrid {
@@ -1886,16 +1728,6 @@
 }
 
 /* Idea modal: second close button is visible and helper sentence stays removed. */
-.modalActionRow {
-  margin-top: 16px !important;
-  padding-top: 14px !important;
-  border-top: 1px solid rgba(8,41,69,.08) !important;
-  display: flex !important;
-  justify-content: flex-end !important;
-}
-.modalActionRow .secondaryButton {
-  min-width: 132px !important;
-}
 
 @keyframes heroCopyStable {
   from { opacity:0; transform:translateY(16px); }
@@ -1960,7 +1792,6 @@
 /* Slide 2: replaced by outcomesVertical */
 
 /* Idea slide: remove helper pill completely. */
-.interactionHint { display: none !important; }
 
 /* Idea workflow modal: both close controls must remain visible inside 960x540. */
 .modalCard {
@@ -1981,14 +1812,6 @@
   border-radius: 10px !important;
 }
 .workflowModalList strong { font-size: 16px !important; }
-.modalActionRow {
-  margin-top: 12px !important;
-  padding-top: 10px !important;
-}
-.modalActionRow .secondaryButton {
-  width: 100% !important;
-  min-height: 40px !important;
-}
 
 /* Visible admin Slide 7 / page 6: continuous motion, no running text. */
 .statementHero > span {
@@ -1999,80 +1822,6 @@
 .statementImpact i:nth-child(3) { animation: statementRing 3.4s 1.3s ease-out infinite !important; }
 
 /* Visible admin Slide 8 / page 7: full 8-step process, only 3 draggable key stages. */
-.lifecycleExercise {
-  position: absolute;
-  left: 28px;
-  right: 28px;
-  top: 28px;
-  bottom: 68px;
-}
-.lifecycleExercise .dragBank {
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 12px !important;
-  width: 620px !important;
-  margin: 0 auto !important;
-}
-.lifecycleExercise .dragItem {
-  min-height: 46px !important;
-  padding: 8px 10px !important;
-  font-size: 14px !important;
-  border-radius: 14px !important;
-}
-.lifecycleTimeline {
-  margin-top: 20px;
-  display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
-  gap: 7px;
-}
-.lifecycleFixed,
-.lifecycleSlot {
-  min-width: 0;
-  min-height: 132px;
-  padding: 10px 8px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  text-align: center;
-  border-radius: 16px;
-  border: 1px solid rgba(8,41,69,.1);
-  background: rgba(255,255,255,.92);
-  box-shadow: 0 8px 22px rgba(8,41,69,.055);
-}
-.lifecycleSlot {
-  border: 2px dashed rgba(179,145,89,.58);
-  background: linear-gradient(145deg,#fffaf0,#fff);
-}
-.lifecycleSlotFilled {
-  border-style: solid;
-  border-color: rgba(54,128,88,.3);
-  background: linear-gradient(145deg,#eaf8ef,#fff7df);
-}
-.lifecycleFixed span,
-.lifecycleSlot span {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  border-radius: 10px;
-  background: var(--navy);
-  color: var(--gold2);
-  font-size: 11px;
-  font-weight: 900;
-}
-.lifecycleFixed strong,
-.lifecycleSlot strong {
-  margin-top: 12px;
-  font-size: 12.5px;
-  line-height: 1.2;
-  color: var(--navy);
-  overflow-wrap: anywhere;
-}
-.lifecycleSlot strong { color: #8e713f; }
-.lifecycleSlotFilled strong { color: #286342; }
 
 /* Slides 10-12: interactive boxes never disappear after click. */
 .archCard,
@@ -2188,164 +1937,10 @@
   visibility: visible !important;
   z-index: 3 !important;
 }
-.modalActionRow .secondaryButton {
-  background: linear-gradient(135deg,#082945,#18547f) !important;
-  color: #ffffff !important;
-  border: 2px solid #e9ca8b !important;
-  box-shadow: 0 10px 24px rgba(8,41,69,.18) !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-}
 
 /* Slide 8: reverse logic. 3 hint stages fixed; remaining 5 are floating draggable cards. */
-.lifecycleExercise {
-  position: absolute !important;
-  left: 22px !important;
-  right: 22px !important;
-  top: 18px !important;
-  bottom: 66px !important;
-}
-.lifecycleHintRow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  min-height: 34px;
-  margin: 0 auto 10px;
-}
-.lifecycleHintRow > span {
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: #082945;
-  color: #e9ca8b;
-  font-size: 11px;
-  font-weight: 900;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-}
-.lifecycleHintRow > strong {
-  padding: 7px 12px;
-  border-radius: 999px;
-  background: rgba(233,202,139,.16);
-  color: #8b6a35;
-  font-size: 12px;
-  white-space: nowrap;
-}
-.lifecycleFloatBank {
-  min-height: 76px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.lifecycleFloatItem {
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 11px;
-  border-radius: 14px;
-  background: linear-gradient(145deg,#ffffff,#f6f9fc);
-  border: 1px solid rgba(8,41,69,.12);
-  box-shadow: 0 10px 24px rgba(8,41,69,.08);
-  color: #082945;
-  font-size: 12.5px;
-  font-weight: 800;
-  white-space: nowrap;
-  cursor: grab;
-  animation: lifecycleFloat 2.6s ease-in-out var(--float-delay) infinite alternate;
-}
-.lifecycleTimeline {
-  display: grid !important;
-  grid-template-columns: repeat(8,minmax(0,1fr)) !important;
-  gap: 6px !important;
-  margin-top: 0 !important;
-}
-.lifecycleHintSlot,
-.lifecycleSlot {
-  min-width: 0;
-  min-height: 112px;
-  padding: 8px 6px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: flex-start;
-  text-align: center;
-  border-radius: 14px;
-}
-.lifecycleHintSlot {
-  border: 1px solid rgba(179,145,89,.28);
-  background: linear-gradient(145deg,#fff7e5,#ffffff);
-  box-shadow: 0 8px 18px rgba(179,145,89,.08);
-}
-.lifecycleSlot {
-  border: 2px dashed rgba(8,41,69,.22) !important;
-  background: rgba(255,255,255,.9) !important;
-}
-.lifecycleSlotFilled {
-  border-style: solid !important;
-  border-color: rgba(54,128,88,.35) !important;
-  background: linear-gradient(145deg,#eaf8ef,#fff7df) !important;
-}
-.lifecycleHintSlot span,
-.lifecycleSlot span {
-  width: 26px;
-  height: 26px;
-  display: grid;
-  place-items: center;
-  border-radius: 9px;
-  background: #082945;
-  color: #e9ca8b;
-  font-size: 10px;
-  font-weight: 900;
-}
-.lifecycleHintSlot strong,
-.lifecycleSlot strong {
-  margin-top: 10px;
-  font-size: 11.6px;
-  line-height: 1.18;
-  color: #082945;
-  overflow-wrap: anywhere;
-}
-.lifecycleSlot strong { color: #6b7b88; }
-.lifecycleSlotFilled strong { color: #286342; }
-.exerciseFooter {
-  bottom: 8px !important;
-  min-height: 42px !important;
-  padding: 9px 14px !important;
-}
-.exerciseFooter p { font-size: 13.5px !important; }
 
 /* Small auto-dismiss notification in top-right for correct/incorrect/final result. */
-.toastNotice {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  z-index: 30;
-  width: 260px;
-  padding: 13px 15px;
-  border-radius: 16px;
-  background: rgba(255,255,255,.98);
-  border: 1px solid rgba(8,41,69,.12);
-  box-shadow: 0 18px 40px rgba(8,41,69,.18);
-  animation: toastIn .18s ease-out both;
-}
-.toastNotice strong {
-  display: block;
-  color: #082945;
-  font-size: 15px;
-}
-.toastNotice span {
-  display: block;
-  margin-top: 4px;
-  color: #687987;
-  font-size: 12px;
-  line-height: 1.35;
-}
-.toastSuccess { border-left: 5px solid #3d8a61; }
-.toastWarning { border-left: 5px solid #c25a4d; }
 
 /* Visible admin Slide 14 / PDF page 13: all 4 flow-card labels stay on one line. */
 .flowSingleRow {
@@ -2401,14 +1996,6 @@
   0% { opacity: .42; transform: translateX(-3%); }
   100% { opacity: 1; transform: translateX(4%); }
 }
-@keyframes lifecycleFloat {
-  from { transform: translateY(-3px) rotate(-.4deg); }
-  to { transform: translateY(5px) rotate(.4deg); }
-}
-@keyframes toastIn {
-  from { opacity: 0; transform: translateX(16px) scale(.98); }
-  to { opacity: 1; transform: none; }
-}
 
 /* ROUND 6 · popup / lifecycle / LAB 1 refinements */
 
@@ -2425,89 +2012,6 @@
 }
 
 /* Slide 8 visible: no separate HINT row / no instruction footer. */
-.lifecycleExercise {
-  top: 12px !important;
-  bottom: 12px !important;
-  display: grid !important;
-  grid-template-rows: 84px 1fr !important;
-  gap: 12px !important;
-}
-
-.lifecycleResetButton {
-  position: absolute;
-  top: -3px;
-  right: 0;
-  z-index: 4;
-  padding: 8px 14px;
-  border: 1px solid rgba(179,145,89,.32);
-  border-radius: 12px;
-  background: #082945;
-  color: #fff;
-  font-size: 12px;
-  font-weight: 900;
-  cursor: pointer;
-  box-shadow: 0 8px 18px rgba(8,41,69,.12);
-}
-
-.lifecycleFloatBank {
-  min-height: 84px !important;
-  margin: 0 !important;
-  padding: 2px 72px 0 0 !important;
-  gap: 10px !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.lifecycleFloatItem {
-  min-height: 50px !important;
-  padding: 10px 14px !important;
-  border-radius: 15px !important;
-  font-size: 15px !important;
-  line-height: 1.15 !important;
-  font-weight: 900 !important;
-}
-
-.lifecycleTimeline {
-  align-self: stretch !important;
-  display: grid !important;
-  grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
-  gap: 7px !important;
-  margin: 0 !important;
-}
-
-.lifecycleHintSlot,
-.lifecycleSlot {
-  min-height: 132px !important;
-  padding: 10px 7px !important;
-  justify-content: flex-start !important;
-}
-
-.lifecycleHintSlot span,
-.lifecycleSlot span {
-  width: 30px !important;
-  height: 30px !important;
-  font-size: 11px !important;
-}
-
-.lifecycleHintSlot strong,
-.lifecycleSlot strong {
-  margin-top: 12px !important;
-  font-size: 14px !important;
-  line-height: 1.2 !important;
-  font-weight: 900 !important;
-}
-
-.lifecycleHintSlot strong {
-  color: #8b6a35 !important;
-}
-
-.lifecycleSlot strong {
-  color: #60717e !important;
-}
-
-.lifecycleSlotFilled strong {
-  color: #286342 !important;
-}
 
 /* Slide 13 visible = LAB 1 page: stronger continuous motion, transform/opacity only. */
 .labHero .grid {
@@ -2724,75 +2228,6 @@
 }
 
 /* Slide 8: remove reset affordance and use a 4 + 4 timeline with larger cards, text, and step numbers. */
-.lifecycleResetButton {
-  display: none !important;
-}
-
-.lifecycleExercise {
-  top: 8px !important;
-  bottom: 4px !important;
-  display: grid !important;
-  grid-template-rows: 62px 1fr !important;
-  gap: 12px !important;
-}
-
-.lifecycleFloatBank {
-  display: grid !important;
-  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-  gap: 10px !important;
-  min-height: 62px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  align-items: stretch !important;
-}
-
-.lifecycleFloatItem {
-  min-height: 58px !important;
-  padding: 10px 12px !important;
-  border-radius: 16px !important;
-  font-size: 16.5px !important;
-  line-height: 1.12 !important;
-  font-weight: 900 !important;
-  text-align: center !important;
-}
-
-.lifecycleTimeline {
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  grid-template-rows: repeat(2, minmax(0, 1fr)) !important;
-  gap: 12px !important;
-  margin: 0 !important;
-  min-height: 0 !important;
-  align-self: stretch !important;
-}
-
-.lifecycleHintSlot,
-.lifecycleSlot {
-  min-height: 112px !important;
-  padding: 14px 14px !important;
-  border-radius: 20px !important;
-  justify-content: flex-start !important;
-  box-shadow: 0 12px 28px rgba(8,41,69,.075) !important;
-}
-
-.lifecycleHintSlot span,
-.lifecycleSlot span {
-  width: 40px !important;
-  height: 40px !important;
-  border-radius: 13px !important;
-  font-size: 16px !important;
-  font-weight: 950 !important;
-}
-
-.lifecycleHintSlot strong,
-.lifecycleSlot strong {
-  margin-top: 13px !important;
-  font-size: 17.5px !important;
-  line-height: 1.15 !important;
-  font-weight: 900 !important;
-  overflow-wrap: normal !important;
-  word-break: normal !important;
-}
 
 @media (prefers-reduced-motion: reduce) {
   .lifecycleRevealButton,
@@ -3851,13 +3286,6 @@
   white-space: nowrap;
 }
 
-.fileStructureSlide .filesLayout {
-  left: 34px;
-  right: 34px;
-  top: 44px;
-  gap: 30px;
-}
-
 /* Slide 26: flex-column body with files + warning in flow (no absolute overlap) */
 .fileStructureBody {
   position: absolute;
@@ -3999,7 +3427,6 @@
 .fileStructureSlide .mockBody { padding: 14px; }
 .fileStructureSlide .plusMock { width: 34px; height: 34px; }
 .fileStructureSlide .dropdownMock { font-size: 11px; }
-.fileStructureSlide .warningNote { width: 760px; }
 
 .tieredFlow {
   position: absolute;
@@ -4057,7 +3484,6 @@
   line-height: 1;
   animation: tieredArrow 1.25s ease-in-out infinite;
 }
-.tieredFlowSlide .warningNote { bottom: 12px; width: 620px; }
 
 .firstRunRealistic {
   left: 18px;

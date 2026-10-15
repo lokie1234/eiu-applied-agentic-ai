@@ -6,4 +6,5 @@
 .icon img { position:absolute; top:0; left:0; }
 .icon svg { position:absolute; right:-1px; bottom:-1px; width:17px; height:17px; border:1px solid currentColor; border-radius:5px; background:#fff; padding:1px; }
 .outbound { color:#b42332; }
+.inbound { color:#168451; }
 @media(prefers-reduced-motion:reduce) { .button { transition:none; } }

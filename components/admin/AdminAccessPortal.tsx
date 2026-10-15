@@ -11,6 +11,7 @@ import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } fro
 import styles from "./AdminAccessPortal.module.css";
 import DriveExport from "./DriveExport";
 import CourseSystemIcons from "./CourseSystemIcons";
+import DriveImport from "./DriveImport";
 import EiuConfirmDialog from "./EiuConfirmDialog";
 
 type LanguageLabel = "vi" | "en" | "vi_en";
@@ -128,12 +129,16 @@ function DraggableScrollArea({
   className?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
+  const dragCleanup = useRef<(() => void) | null>(null);
+  useEffect(() => () => dragCleanup.current?.(), []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0) return;
+    if ((e.target as Element).closest("button, a, input, textarea, select, [contenteditable='true']")) return;
     const el = ref.current;
     if (!el) return;
     if (el.scrollWidth <= el.clientWidth) return;
+    dragCleanup.current?.();
 
     const startX = e.pageX - el.offsetLeft;
     const scrollLeft = el.scrollLeft;
@@ -151,10 +156,12 @@ function DraggableScrollArea({
       isDown = false;
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseup", onMouseUp);
+      dragCleanup.current = null;
     };
 
     window.addEventListener("mousemove", onMouseMove);
     window.addEventListener("mouseup", onMouseUp);
+    dragCleanup.current = onMouseUp;
   };
 
   const handleWheel = (e: React.WheelEvent) => {
@@ -277,13 +284,18 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   const [templateError, setTemplateError] = useState("");
   useEffect(() => {
     let disposed = false;
-    const refresh = () => { void fetch("/api/templates", { cache: "no-store" }).then(async response => {
+    let inFlight = false;
+    const controller = new AbortController();
+    const refresh = () => {
+      if (disposed || inFlight || document.visibilityState === "hidden") return;
+      inFlight = true;
+      void fetch("/api/templates", { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]) }).then(async response => {
       const payload = await response.json();
       if (!response.ok || !Array.isArray(payload.templates)) throw new Error(payload.message || "Unable to load layouts.");
       if (!disposed) { setTemplates(payload.templates); setTemplateError(""); }
-    }).catch(() => { if (!disposed) setTemplateError("Unable to load templates. Refresh to try again."); }); };
+    }).catch(() => { if (!disposed) setTemplateError("Unable to load templates. Refresh to try again."); }).finally(() => { inFlight = false; }); };
     refresh(); window.addEventListener("focus", refresh);
-    return () => { disposed = true; window.removeEventListener("focus", refresh); };
+    return () => { disposed = true; controller.abort(); window.removeEventListener("focus", refresh); };
   }, []);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [sectionTitleValue, setSectionTitleValue] = useState("");
@@ -318,6 +330,10 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   const [error, setError] = useState("");
   const [languageFeedback, setLanguageFeedback] = useState<{ courseId: string; message: string; failed: boolean } | null>(null);
   const languageSaving = useRef(false);
+  const catalogRead = useRef<{ controller: AbortController; promise: Promise<void> } | null>(null);
+  const pendingMutations = useRef(new Set<string>());
+  const mutationQueue = useRef<Promise<unknown>>(Promise.resolve());
+  const catalogVersion = useRef(0);
 
   const [courseSearch, setCourseSearch] = useState("");
 
@@ -347,29 +363,40 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   }
 
   const loadData = useCallback(() => {
-    return fetch("/api/admin/access", { cache: "no-store" })
+    if (catalogRead.current) return catalogRead.current.promise;
+    const controller = new AbortController();
+    const version = catalogVersion.current;
+    const promise = fetch("/api/admin/access", { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]) })
       .then(async (response) => {
         const payload = (await response.json()) as Payload;
-        if (payload.courses && payload.sections && payload.folderGroups) apply(payload);
-      if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to load your workspace.");
-        apply(payload);
-      });
+        if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to load your workspace.");
+        if (!controller.signal.aborted && version === catalogVersion.current) apply(payload);
+      }).finally(() => { if (catalogRead.current?.controller === controller) catalogRead.current = null; });
+    catalogRead.current = { controller, promise };
+    return promise;
   }, [apply]);
 
   useEffect(() => {
     let disposed = false;
     loadData()
       .catch((caught) => {
-        if (!disposed) setError(caught instanceof Error ? caught.message : "Unable to load your workspace.");
+        if (!disposed && caught?.name !== "AbortError") setError(caught instanceof Error ? caught.message : "Unable to load your workspace.");
       })
       .finally(() => {
         if (!disposed) setLoading(false);
       });
     return () => {
       disposed = true;
+      catalogRead.current?.controller.abort();
+      catalogRead.current = null;
     };
   }, [loadData]);
 
+  const refreshData = useCallback(() => {
+    void loadData().catch(caught => {
+      if (caught?.name !== "AbortError") setError(caught instanceof Error ? caught.message : "Unable to refresh your workspace.");
+    });
+  }, [loadData]);
 
   const activeCourses = useMemo(() => courses.filter((c) => c.status === "active"), [courses]);
   const effectiveCourseId = activeCourses.some((c) => c.id === courseId) ? courseId : activeCourses[0]?.id ?? "";
@@ -407,19 +434,17 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
     });
   }, [folderGroups, activeCourses, normalizedCourseSearch]);
 
-  useEffect(() => {
+  // Reset drafts before committing a different course, rather than rendering
+  // once with stale fields and scheduling another render from an effect.
+  const draftKey = JSON.stringify([effectiveCourseId, selectedCourse?.title, selectedCourse?.metadata?.summary, selectedCourse?.description]);
+  const [draftSource, setDraftSource] = useState(draftKey);
+  if (draftSource !== draftKey) {
+    setDraftSource(draftKey);
     setTitleValue(selectedCourse?.title || "");
     setEditingTitle(false);
     setDescriptionValue(selectedCourse?.metadata?.summary ?? selectedCourse?.description ?? "");
     setEditingDescription(false);
-  }, [
-    effectiveCourseId,
-    selectedCourse?.title,
-    selectedCourse?.metadata?.summary,
-    selectedCourse?.description,
-    selectedCourse?.passcode,
-    selectedCourse?.metadata?.passcode,
-  ]);
+  }
 
   async function handleSaveTitle() {
     if (!effectiveCourseId) return;
@@ -441,6 +466,8 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
     processingText?: string,
     localFeedback?: (message: string, failed: boolean) => void
   ) {
+    // Ref guards run synchronously, before React can disable a pressed control.
+    if (pendingMutations.current.has(key)) return false;
     if (!isAdmin) {
       const action = String(body.action);
       const folderActions = ["update_folder_group", "delete_folder_group", "delete_folder_groups"];
@@ -467,6 +494,13 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
         return false;
       }
     }
+    pendingMutations.current.add(key);
+    catalogVersion.current++;
+    catalogRead.current?.controller.abort();
+    catalogRead.current = null;
+    const previous = mutationQueue.current;
+    let release!: () => void;
+    mutationQueue.current = new Promise<void>(resolve => { release = resolve; });
     setBusy((current) => new Set(current).add(key));
     if (processingText) {
       setProcessingMessage(processingText);
@@ -476,15 +510,18 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
       setNotice("");
     }
     try {
+      // Metadata updates read then write a course record; preserve write order.
+      await previous;
       const response = await fetch("/api/admin/access", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
       });
       const payload = (await response.json()) as Payload;
+      catalogVersion.current++;
       if (payload.courses && payload.sections && payload.folderGroups) apply(payload);
       if (!response.ok || !payload.success) throw new Error(payload.message || "Unable to save changes.");
-      apply(payload);
+      if (!payload.courses || !payload.sections || !payload.folderGroups) apply(payload);
       if (localFeedback) localFeedback(successMessage, false);
       else setNotice(successMessage);
       return true;
@@ -494,6 +531,8 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
       else setError(message);
       return false;
     } finally {
+      pendingMutations.current.delete(key);
+      release();
       if (!localFeedback) setProcessingMessage(null);
       setBusy((current) => {
         const next = new Set(current);
@@ -747,56 +786,23 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   // =========================================================================
 
   async function saveSystemIcons(updatedIcons: CourseSystemIcon[]) {
-    if (!canEditCourse) return false;
-    if (!effectiveCourseId) return false;
-    setBusy((prev) => new Set(prev).add(`icons:${effectiveCourseId}`));
-    try {
-      const res = await fetch("/api/admin/access", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          action: "update_course_system_icons",
-          courseId: effectiveCourseId,
-          systemIcons: updatedIcons,
-        }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.message || "Failed to save icons.");
-      }
-      setCourses((prev) =>
-        prev.map((c) =>
-          c.id === effectiveCourseId
-            ? {
-                ...c,
-                systemIcons: updatedIcons,
-                metadata: { ...c.metadata, systemIcons: updatedIcons },
-              }
-            : c
-        )
-      );
-      setNotice("System icons updated successfully.");
-      return true;
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update icons.");
-      return false;
-    } finally {
-      setBusy((prev) => {
-        const next = new Set(prev);
-        next.delete(`icons:${effectiveCourseId}`);
-        return next;
-      });
-    }
+    if (!canEditCourse || !effectiveCourseId) return false;
+    return mutate(
+      { action: "update_course_system_icons", courseId: effectiveCourseId, systemIcons: updatedIcons },
+      `icons:${effectiveCourseId}`,
+      "System icons updated successfully."
+    );
   }
 
   // =========================================================================
   // MERGED COURSE SECTIONS HANDLERS (Thêm & Xóa Section gộp vào)
   // =========================================================================
 
-  // Reset selected sections when active course changes
-  useEffect(() => {
+  const [selectionCourse, setSelectionCourse] = useState(effectiveCourseId);
+  if (selectionCourse !== effectiveCourseId) {
+    setSelectionCourse(effectiveCourseId);
     setSelectedSections(new Set());
-  }, [effectiveCourseId]);
+  }
 
   const deletableSections = useMemo(
     () => courseSections.filter((s) => (isAdmin || (selectedCourse?.canEdit && s.canEdit)) && !(selectedCourse?.slug === "applied-agentic-ai" && ["section1", "section2"].includes(s.section_key))),
@@ -1291,7 +1297,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
 
                             {/* Quick Folder Actions (Compact Icons) */}
                             {(<div className={styles.folderGroupActions} onClick={(e) => e.stopPropagation()}>
-                              {isAdmin && <DriveExport groupId={group.id} label={`Save folder ${group.name} to Drive`} onSaved={loadData} compact disabled={Boolean(processingMessage)} />}
+                              {isAdmin && <DriveExport groupId={group.id} label={`Save folder ${group.name} to Drive`} onSaved={refreshData} compact disabled={Boolean(processingMessage)} />}
                               {isAdmin && <VisibilityToggle hidden={Boolean(group.hidden)} label={`folder ${group.name}`} busy={busy.has(`hide-folder:${group.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-folder:${group.id}`)} onToggle={() => void mutate({ action: "set_folder_group_hidden", folderGroupId: group.id, hidden: !group.hidden }, `hide-folder:${group.id}`, "Folder visibility updated.")} />}
 
 
@@ -1595,7 +1601,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                         )}
 
                           <div className={styles.courseFileActions} role="group" aria-label="Course Drive files">
-                          {isAdmin && <DriveExport courseId={selectedCourse.id} label="Save course files to Drive" onSaved={loadData} disabled={Boolean(processingMessage)} />}
+                          {isAdmin && <DriveExport courseId={selectedCourse.id} label="Save course files to Drive" onSaved={refreshData} disabled={Boolean(processingMessage)} />}
                           </div>
                         </div>
 
@@ -1828,7 +1834,8 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                 </div>
                                 <div className={styles.sectionItemRight}>
                                   <VisibilityToggle hidden={Boolean(section.hidden)} label={`section ${section.title}`} busy={busy.has(`hide-section:${section.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-section:${section.id}`)} onToggle={() => void mutate({ action: "set_section_hidden", sectionId: section.id, hidden: !section.hidden }, `hide-section:${section.id}`, "Section visibility updated.")} />
-                                  {isAdmin && <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} allowReplace={!isDefault} onSaved={loadData} disabled={Boolean(processingMessage)} />}
+                                  {isAdmin && <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} allowReplace={!isDefault} onSaved={refreshData} disabled={Boolean(processingMessage)} />}
+                                  {isAdmin && <DriveImport sectionId={section.id} title={section.title} onSaved={refreshData} disabled={Boolean(processingMessage)} />}
                                   <a className={styles.sectionUploadButton} href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}&sectionId=${encodeURIComponent(section.id)}`}>View</a>
 
                                   {(<button
@@ -1899,7 +1906,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                         <div className={styles.systemIconsHeader}>
                           <div className={styles.systemIconsTitleArea}>
                             <span className={styles.badgeIndex}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg></span>
-                            <div><h3><label htmlFor="course-slide-template">Slide template</label></h3><p>Layout for PPTX, PDF and TSX slides.</p></div>
+                            <div><h3><label htmlFor="course-slide-template">Slide template</label></h3><p>Layout for PPTX, PDF and JS slides.</p></div>
                           </div>
                         </div>
                         <select id="course-slide-template" aria-label="Slide template" value={selectedCourse.metadata?.templateKey ?? (Object.keys(selectedCourse.metadata?.sectionTemplates ?? {}).length ? "__legacy" : "")} disabled={!canEditCourse || Boolean(processingMessage) || busy.has(`template:${effectiveCourseId}`) || Boolean(templateError)} onChange={event => void mutate({ action: "set_course_template", courseId: effectiveCourseId, templateKey: event.target.value }, `template:${effectiveCourseId}`, "Course template updated.")}>

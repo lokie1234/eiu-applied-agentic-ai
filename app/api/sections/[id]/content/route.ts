@@ -3,7 +3,6 @@ import { currentUserAccess } from "@/lib/auth/currentUser";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 import { readDriveFile } from "@/lib/drive/sectionContent";
-import { compileTsx } from "@/lib/sectionContent";
 import { readLocalSectionSource } from "@/lib/localSectionContent";
 
 export const runtime = "nodejs";
@@ -28,19 +27,18 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     const canAccess = Boolean(access.isAdmin || access.sections.some(item => item.id === id && item.courseId === String(section.course_id)));
     if (!course || !canAccess) return NextResponse.json({ message: "Course access required." }, { status: 403 });
 
-    const attachmentRequested = new URL(request.url).searchParams.get("download") === "1";
     const localSource = await readLocalSectionSource(course, section);
+    // JS lesson bytes are served directly; only legacy TSX needs compilation.
+    const legacyJs = async (source: string) => (await import("@/lib/sectionContent")).compileTsx(source);
     let data: Blob;
     if (localSource) {
-      data = attachmentRequested
-        ? new Blob([new Uint8Array(localSource)])
-        : new Blob([compileTsx(localSource.toString("utf8"))]);
+      data = new Blob([await legacyJs(localSource.toString("utf8"))]);
     } else if (!section.content_path) {
       return NextResponse.json({ message: "This section does not have uploaded content." }, { status: 404 });
     } else if (String(section.content_path).startsWith("drive:")) {
       const file = await readDriveFile(String(section.content_path));
-      data = section.content_type === "tsx" && !attachmentRequested && !/\.js$/i.test(String(section.source_filename))
-        ? new Blob([compileTsx(new TextDecoder().decode(file.bytes))])
+      data = section.content_type === "tsx" && !/\.js$/i.test(String(section.source_filename))
+        ? new Blob([await legacyJs(new TextDecoder().decode(file.bytes))])
         : new Blob([file.bytes as Uint8Array<ArrayBuffer>]);
     } else {
       const stored = await supabase.storage.from("course-section-content").download(String(section.content_path));
@@ -49,7 +47,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     }
     const isPptx = section.content_type === "pptx";
     const attachment = isPptx || new URL(request.url).searchParams.get("download") === "1";
-    const filename = String(section.source_filename || `section.${section.content_type}`);
+    const filename = section.content_type === "tsx" ? String(section.source_filename || "section.js").replace(/\.tsx$/i, ".js") : String(section.source_filename || `section.${section.content_type}`);
     const fallbackFilename = filename.replace(/[^a-zA-Z0-9._-]/g, "_");
     const encodedFilename = encodeURIComponent(filename).replace(/['()*]/g, (character) =>
       `%${character.charCodeAt(0).toString(16).toUpperCase()}`);
@@ -57,7 +55,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       headers: {
         "Content-Type": isPptx
           ? "application/vnd.openxmlformats-officedocument.presentationml.presentation"
-          : section.content_type === "pdf" ? "application/pdf" : attachmentRequested && (localSource || String(section.content_path).startsWith("drive:")) ? "text/plain; charset=utf-8" : "text/javascript; charset=utf-8",
+          : section.content_type === "pdf" ? "application/pdf" : "text/javascript; charset=utf-8",
         "Content-Disposition": `${attachment ? "attachment" : "inline"}; filename="${fallbackFilename}"; filename*=UTF-8''${encodedFilename}`,
         "X-Content-Type-Options": "nosniff",
         "Cache-Control": "private, no-store",

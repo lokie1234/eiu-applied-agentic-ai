@@ -30,15 +30,16 @@ test("web folder exports preserve the web name and reuse the existing folder", a
   assert.equal(f.state.requests.filter(item => item.method === "POST").length, 0);
   assert.equal(f.state.requests.at(-1).data.name, "MIS 301");
 });
-test("existing TSX exports use exact original bytes and custom safe names", async () => {
+test("legacy TSX exports compiled JS with custom safe names", async () => {
   const f = fixture();
   await f.api.exportDocument(f.client, { sectionId: "section", folderId: "parent", name: "Custom slides" });
   assert.deepEqual(f.state.downloads, ["course/section/original.tsx"]);
-  assert.equal(Buffer.from(f.state.uploads[0].body).toString(), f.state.original);
-  assert.equal(f.state.uploads[0].name, "Custom slides.tsx");
+  const { compileTsx } = load("lib/sectionContent.ts", {});
+  assert.equal(Buffer.from(f.state.uploads[0].body).toString(), compileTsx(f.state.original));
+  assert.equal(f.state.uploads[0].name, "Custom slides.js");
   assert.equal(f.state.uploads[0].folderId, "parent");
   f.state.section.original_content_path = null;
-  f.state.original = "export default [h('h1', {}, 'Compiled slide')];";
+  f.state.original = "exports.default = [h('h1', {}, 'Compiled slide')];";
   await f.api.exportDocument(f.client, { sectionId: "section", folderId: "parent", name: "Runtime.tsx" });
   assert.equal(f.state.uploads.length, 2);
   assert.equal(f.state.uploads[1].name, "Runtime.js");
@@ -48,9 +49,9 @@ test("existing TSX exports use exact original bytes and custom safe names", asyn
   const plan = await f.api.exportPlan("group");
   assert.equal(plan[0].unavailable, undefined);
   assert.match(plan[0].name, /\.js$/);
-  assert.match(plan[0].note, /JavaScript/);
   f.state.section.content_path = "course/section/unknown.bin";
-  await assert.rejects(f.api.exportDocument(f.client, { sectionId: "section", folderId: "parent" }), /Original TSX unavailable/);
+  f.state.original = "broken code";
+  await assert.rejects(f.api.exportDocument(f.client, { sectionId: "section", folderId: "parent" }));
 });
 test("PDF and PPTX export stored bytes without regeneration", async () => {
   for (const type of ["pdf", "pptx"]) {
@@ -89,13 +90,14 @@ test("Pandas exports recover the exact bundled TSX and publish a Drive source", 
   const plan = await f.api.exportPlan("group");
   assert.equal(plan[0].unavailable, undefined);
   await f.api.exportDocument(f.client, { sectionId: f.state.section.id, folderId: "target" });
-  assert.deepEqual(Buffer.from(f.state.uploads[0].body), fs.readFileSync("course-content/mis301/PandasPracticePart2.tsx"));
+  const { compileTsx } = load("lib/sectionContent.ts", {});
+  assert.equal(Buffer.from(f.state.uploads[0].body).toString(), compileTsx(fs.readFileSync("course-content/mis301/PandasPracticePart2.tsx", "utf8")));
   assert.equal(f.state.downloads.length, 0);
   assert.equal(f.state.published.content_path, "drive:uploaded-file-123");
-  assert.equal(f.state.published.original_content_path, "drive:uploaded-file-123");
+  assert.equal(f.state.published.original_content_path, null);
   assert.equal(f.state.section.original_content_path, null);
   f.state.section.content_path = "course/section/other.bin";
-  await assert.rejects(f.api.exportDocument(f.client, { sectionId: f.state.section.id, folderId: "target" }), /Original TSX unavailable/);
+  await assert.rejects(f.api.exportDocument(f.client, { sectionId: f.state.section.id, folderId: "target" }), /Invalid stored document path/);
 });
 
 test("verified legacy export switches subsequent exports to Drive without another Storage read", async () => {
@@ -105,7 +107,8 @@ test("verified legacy export switches subsequent exports to Drive without anothe
   Object.assign(f.state.section, f.state.published);
   await f.api.exportDocument(f.client, { sectionId: "section", folderId: "another-target" });
   assert.equal(f.state.downloads.length, 1);
-  assert.match(f.state.requests.at(-1).url, /uploaded-file-123\/copy$/);
+  assert.equal(f.state.uploads.length, 2);
+  assert.equal(Buffer.from(f.state.uploads[1].body).toString(), Buffer.from(f.state.uploads[0].body).toString());
 });
 
 test("Drive verification failure or concurrent edits cannot replace the live source", async () => {
@@ -169,10 +172,10 @@ for (const filename of ["Section1.tsx", "Section2.tsx"]) {
  test("project " + filename + " exports current slide bytes without changing its source", async () => {
   const f = fixture(); f.state.catalog.courses[0] = { id: "a857595d-def0-4543-9216-a680c6abfe26", title: "Renamed course", folderGroupId: "group" };
   Object.assign(f.state.section, { id: filename === "Section1.tsx" ? "47c1183e-a26e-4c5d-9937-88ec5a755a32" : "2faaf285-a215-4874-a367-82c84ce46b2e", course_id: "a857595d-def0-4543-9216-a680c6abfe26", content_type: "tsx", source_filename: "Renamed source.tsx", content_path: "drive:stale-copy-123", original_content_path: null });
-  const plan = await f.api.exportPlan("group"); assert.equal(plan[0].unavailable, undefined); assert.match(plan[0].note, /Current project TSX/);
+  const plan = await f.api.exportPlan("group"); assert.equal(plan[0].unavailable, undefined); assert.match(plan[0].note, /Compiled JavaScript/);
   for (const target of ["first-target", "second-target"]) await f.api.exportDocument(f.client, { sectionId: f.state.section.id, folderId: target, name: "Renamed backup" });
-  const original = fs.readFileSync("course-content/web-app-development/" + filename);
-  assert.equal(f.state.uploads.length, 2); for (const upload of f.state.uploads) { assert.deepEqual(Buffer.from(upload.body), original); assert.equal(upload.name, "Renamed backup.tsx"); }
+  const original = load("lib/sectionContent.ts", {}).compileTsx(fs.readFileSync("course-content/web-app-development/" + filename, "utf8"));
+  assert.equal(f.state.uploads.length, 2); for (const upload of f.state.uploads) { assert.equal(Buffer.from(upload.body).toString(), original); assert.equal(upload.name, "Renamed backup.js"); }
   assert.equal(f.state.downloads.length, 0); assert.equal(f.state.requests.length, 0); assert.equal(f.state.published, undefined);
   assert.equal(f.state.section.source_filename, "Renamed source.tsx"); assert.equal(f.state.section.content_path, "drive:stale-copy-123");
   f.state.corrupt = true; await assert.rejects(f.api.exportDocument(f.client, { sectionId: "section", folderId: "target" }), /verification failed/);

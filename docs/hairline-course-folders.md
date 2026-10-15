@@ -1,7 +1,7 @@
-# Hairline loading runtime
+# Loading animation
 
-Folder, course và section hiện dùng SVG cây trong [course-garden-assets.md](course-garden-assets.md). Các adapter sách/trang cũ và preview HTML/JS/PNG đã được gỡ.
+Folder, course và section dùng SVG chủ đề AI trong `components/LearningInnovationIcon.tsx`. Tia điện của section được vẽ bằng `components/SectionEnergy.tsx` và tránh vùng nội dung.
 
-Hairline chỉ còn phục vụ loading dots qua `components/HairlineLoading.tsx`, `components/hairline/runtime.ts`, `public/hairline/kernel.js` và `public/hairline/loading-dots.js`. Runtime chia sẻ kernel, cache figure, tuần tự hóa đăng ký và hỗ trợ reduced motion.
+`components/HairlineLoading.tsx` dùng SVG/CSS: bệ phóng, khởi động, lửa/khói và tên lửa bay lên khỏi khung minh họa. Không cần kernel, tải script ngoài hoặc vòng lặp JavaScript. Animation dừng khi người dùng bật reduced motion; bài sẵn sàng thì hiển thị ngay.
 
-Không đưa lại nguồn folder/book/page vào runtime. Dùng [ARCHITECTURE.md](ARCHITECTURE.md) để tra cấu trúc hiện tại.
+Runtime Hairline cũ và các tài nguyên loading dots đã được xóa vì không còn được gọi. Xem [ARCHITECTURE.md](ARCHITECTURE.md) để tra cấu trúc hiện tại.

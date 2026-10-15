@@ -8,6 +8,7 @@ import { authorizedDriveClient } from "@/lib/drive/connection";
 import { selectedDestination, verifyDriveFolder } from "@/lib/drive/destinations";
 import { saveDriveOriginal } from "@/lib/drive/sourceUpload";
 import { describeSectionSource, sectionSourceType, driveDocumentName } from "@/lib/sectionSourceFiles";
+import { validateInteractiveJs } from "@/lib/sectionContent";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -40,11 +41,20 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const file = form.get("file");
     sourceId = String(form.get("sourceId") ?? "");
     if (!/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i.test(sourceId)) return json({ message: "Invalid upload ID." }, 400);
-    if (!(file instanceof File) || file.size === 0) return json({ message: "Choose a PDF, PPTX or TSX file." }, 400);
+    if (!(file instanceof File) || file.size === 0) return json({ message: "Choose a PDF, PPTX or JS file." }, 400);
     if (file.size > 50 * 1024 * 1024) return json({ message: "The maximum file size is 50 MB." }, 413);
     let type;
-    try { type = sectionSourceType(file.name); } catch { return json({ message: "Only PDF, PPTX and TSX files are supported." }, 400); }
+    const isJs = /\.js$/i.test(file.name);
+    if (/\.tsx$/i.test(file.name)) return json({ message: "Upload lesson JS instead of TSX." }, 400);
+    // Keep the existing database category for interactive lessons; the filename
+    // and stored bytes are JS, with no schema migration needed for old records.
+    const catalogFilename = isJs ? file.name.replace(/\.js$/i, ".tsx") : file.name;
+    try { type = sectionSourceType(catalogFilename); } catch { return json({ message: "Only PDF, PPTX and JS files are supported." }, 400); }
     const body = new Uint8Array(await file.arrayBuffer());
+    if (isJs) {
+      try { validateInteractiveJs(new TextDecoder().decode(body)); }
+      catch (error) { return json({ message: error instanceof Error ? error.message : "Invalid lesson JS." }, 400); }
+    }
     if (type === "pdf" && !Buffer.from(body.subarray(0, 1024)).includes(Buffer.from("%PDF-"))) return json({ message: "This is not a valid PDF file." }, 400);
     if (type === "pptx") {
       try {
@@ -52,19 +62,18 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
         if (!zip.file("[Content_Types].xml") || !zip.file("ppt/presentation.xml") || !zip.file(/^ppt\/slides\/slide\d+\.xml$/).length) throw new Error("Invalid PPTX.");
       } catch { return json({ message: "This is not a valid PPTX file." }, 400); }
     }
-    // TSX is archived as original bytes here; execution validation happens at publish.
     const sha256 = createHash("sha256").update(body).digest("hex");
     const catalog = await getCoursesAndSectionsData();
     const section = catalog.sections.find(item => item.id === id);
     const course = catalog.courses.find(item => item.id === section?.course_id);
     if (!section || !course) return json({ message: "Section not found." }, 404);
     const folder = catalog.folderGroups.find(item => item.id === course.folderGroupId);
-    const exported = describeSectionSource({ folderName: folder?.name ?? course.folderGroupName, courseTitle: course.title, sectionTitle: section.title, originalFilename: file.name, sourceId, uploadedAt: new Date() });
+    const exported = describeSectionSource({ folderName: folder?.name ?? course.folderGroupName, courseTitle: course.title, sectionTitle: section.title, originalFilename: catalogFilename, sourceId, uploadedAt: new Date() });
     const client = await authorizedDriveClient();
     const destination = await selectedDestination(String(form.get("destinationId") ?? ""));
     await verifyDriveFolder(client, destination.folder_id);
     exported.driveFolderId = destination.folder_id;
-    exported.name = driveDocumentName(String(form.get("name") ?? ""), exported.name, type);
+    exported.name = driveDocumentName(String(form.get("name") ?? ""), exported.name, isJs ? "js" : type);
     // Confirm DB availability before making any external file write.
     const existing = await db.from(TABLE).select("id,section_id,sha256,status,exported_filename,drive_folder_id,updated_at").eq("id", sourceId).maybeSingle();
     if (existing.error) return json({ message: databaseMessage(existing.error) }, 503);
@@ -84,7 +93,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const driveId = await saveDriveOriginal(client, {
       sourceId, sectionId: id, folderId: existing.data?.drive_folder_id ?? exported.driveFolderId,
       name: existing.data?.exported_filename ?? exported.name, sha256, body,
-      mimeType: type === "pdf" ? "application/pdf" : type === "pptx" ? "application/vnd.openxmlformats-officedocument.presentationml.presentation" : "text/plain",
+      mimeType: type === "pdf" ? "application/pdf" : type === "pptx" ? "application/vnd.openxmlformats-officedocument.presentationml.presentation" : "text/javascript",
     });
     const saved = await db.from(TABLE).update({ drive_file_id: driveId, status: "ready", updated_at: new Date().toISOString() }).eq("id", sourceId);
     if (saved.error) throw new Error("Catalog update failed.");

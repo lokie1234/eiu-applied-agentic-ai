@@ -1,5 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
+const pruneSection = require('./prune-web-app-section.cjs');
 const root = path.resolve('course-content/web-app-development');
 const course = JSON.parse(fs.readFileSync(path.join(root,'storyboard.json'),'utf8'));
 const assets = JSON.parse(fs.readFileSync(process.env.COURSE_ASSETS || 'course-content/web-app-development/assets.json','utf8'));
@@ -14,6 +15,7 @@ for (const [name,filter] of [['Section1.tsx',1],['Section2.tsx',2]]) {
  // block before injecting the selected asset catalog to avoid declaring twice.
  const template = renderer.replace(/const assets: Record<string,string> = [\s\S]*?;\r?\n/, '');
  const source = template.replace('// __COURSE_DATA__',`// Nội dung phần ${filter}: chỉnh các slide trong mảng bên dưới.\nconst course: { title: string; summary: string; slides: SlideData[] } = ${JSON.stringify(section,null,2)};\nconst assets: Record<string,string> = ${JSON.stringify(assets,null,2)};`);
- fs.writeFileSync(path.join(root,name),source);
- console.log(name,section.slides.length,'slides',Buffer.byteLength(source),'bytes');
+ const cleaned = pruneSection(source, section);
+ fs.writeFileSync(path.join(root,name),cleaned);
+ console.log(name,section.slides.length,'slides',Buffer.byteLength(cleaned),'bytes');
 }
