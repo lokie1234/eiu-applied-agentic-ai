@@ -2,6 +2,90 @@
 
 ## Chỉnh bộ slide VS Code · 15/10/2026
 
+Slide 21 giữ nội dung Pull/Clone hiện tại, thêm nút Sao chép dưới khối lệnh trong cả ba popup. Dùng chung localCopyButton: icon/hover/loading/xác nhận, Clipboard API và fallback ẩn, không bôi xanh lệnh. Đã kiểm thử nội dung copy của ba popup, kiểm tra không tràn hoặc cuộn ngoài ý muốn.
+
+Popup slide 19 bỏ đoạn giải thích giữ repo trống và câu bấm Create repository theo yêu cầu; footer chỉ giữ nút mở trang tạo repo, căn phải.
+
+Slide 17–20 bỏ toàn bộ chú thích dưới từng khung và dải ghi chú cuối slide. Thu khung còn khoảng 320px, tăng cỡ mô tả và cân lại vùng lệnh/copy. Slide 17 dùng hai khung lệnh và một hàng hỗ trợ AI gọn bên dưới. Slide 19 gộp hai nút thành Hướng dẫn, mở popup có đường dẫn tạo repo bên trong. Đã kiểm tra cả bốn slide không tràn và popup còn hoạt động.
+
+Slide 19 thêm riêng popup hướng dẫn trong khung Tạo repository, qua nút Cách điền các trường. Hai cột General/Configuration theo ảnh: Owner, Repository name mẫu, Description tùy chọn, Public/Private, README Off, No .gitignore, No license. Nêu lý do giữ repo trống và bấm Create repository trên GitHub; có liên kết mở trang tạo. Popup đóng bằng nút/Escape/click nền, giữ focus. Đã kiểm tra popup và slide không tràn, các trường và liên kết đúng.
+
+Slide 17–20 đưa toàn bộ nội dung ra ngoài, không popup. Mỗi slide ba khung tĩnh: việc cần làm, lệnh ngắn có copy/loading/thành công, dấu hiệu hoàn tất. Rút nội dung theo hướng vibe coding: kiểm tra và nhờ AI sửa lỗi; lưu mốc Git; tạo/nối/Push GitHub; cập nhật sau mỗi lần sửa. Dùng npm.cmd trên Windows; URL_REPO là chỗ thay địa chỉ repo thật. Giữ lưu ý .gitignore và repo trống, bỏ giải thích Git nâng cao. Đã kiểm tra cả bốn slide không tràn, tiêu đề gọn và lệnh hiện đủ.
+
+Tiêu đề ba khung slide 16 rút gọn: Kết quả có thể khác / Tự sửa lỗi tùy model / AI vẫn có thể sai. Font 25px, giãn chữ −0.4px, giữ một dòng; đã kiểm tra không tràn và các tiêu đề thẳng hàng.
+
+Slide 16 rút thành thông tin để biết: kết quả không cố định, khả năng tự sửa khác nhau, AI vẫn có thể sai. Ba khung tĩnh với icon khái niệm, không popup/nút và không giao việc test hoặc so sánh model. Nội dung hiện trực tiếp, font 21px; đã kiểm tra bố cục vừa khung.
+
+Slide 14 bỏ tất cả ví dụ, cả dải trước/sau và ví dụ trong nội dung; ba khung căn cùng hàng icon 64px, nhãn phím/thao tác và mô tả ngắn. Icon bước cuối là cửa sổ refresh rõ nghĩa. Slide 11 ghi mở Codex bằng click icon trong vùng chat. Copy prompt slide 15 dùng chung localCopyButton: copy qua Clipboard API/textarea ẩn, không bôi xanh prompt, loading rồi xác nhận thành công. Đã kiểm thử đúng nội dung được sao chép và vùng prompt không bị chọn; kiểm tra slide 11/14/15 không tràn.
+
+Slide 14 đổi sang sửa text trực tiếp: Ctrl+Shift+F tìm đoạn chữ, mở kết quả/sửa, Ctrl+S lưu rồi refresh localhost. Ba khung tĩnh và ví dụ Lumi Studio → Light Lab, không popup. Slide 15 chuyển thành hướng dẫn vibe coding: mô tả ý tưởng → gửi yêu cầu rõ → xem app/phản hồi. Prompt ngắn hiển thị trực tiếp, có copy, để AI tự tìm file thay vì yêu cầu người học hiểu component. Nội dung nhấn giữ tính năng hiện tại và tự kiểm tra. Đã render hai slide: toàn bộ nội dung vừa khung, prompt không cần cuộn, kiểm thử đều đạt.
+
+Slide 13 đổi hướng dẫn mở ngay trong VS Code thành giữ Ctrl và click http://localhost:3000 trong Terminal theo yêu cầu, bỏ View → Browser.
+
+Slide 13: mũi tên hướng dẫn Terminal và View → Browser chuyển ngang theo nhịp 1.4s, lệch pha và sáng nhẹ; mũi tên nút mở trình duyệt chuyển chéo lên phải. Chỉ animate mũi tên, không di chuyển chữ/bố cục. Reduced motion giữ tĩnh.
+
+Slide 13 bỏ nội dung mở localhost trùng ở footer. Bước 3 tập trung một khung: URL Local/Ready dùng chung, bên dưới hai lựa chọn Trình duyệt trên máy (Chrome/Edge/Cốc Cốc, nút mở) hoặc Ngay trong VS Code (View → Browser). Footer chỉ còn nghiệm thu nhanh và lưu ý dữ liệu/cổng. Giữ lệnh và nút copy ở cột trái. Đã kiểm tra bố cục đủ nội dung, không tràn.
+
+Các nút Sao chép dùng chung diện mạo có thể bấm: icon hai tờ giấy, nền vàng chuyển sắc, cạnh dưới dày và bóng nổi, glow nhẹ; hover nhấc, nhấn lún, focus rõ và con trỏ pointer. Trạng thái loading có spinner, thành công chuyển xanh và hiện chữ xác nhận; thêm tooltip/aria-live. Áp dụng cho copy lệnh slide 7/13 và prompt. Đã kiểm tra bố cục slide 13, giữ thao tác copy thực tế.
+
+Slide 13 thêm hai cách mở localhost ở dải dưới: Chrome/Edge/Cốc Cốc bằng thanh địa chỉ, hoặc trong VS Code qua View → Browser rồi nhập URL. Giữ nút mở app và lưu ý cổng/server. Đối chiếu https://code.visualstudio.com/docs/debugtest/integrated-browser . Cân gọn các khung Terminal để cả hai cách mở hiện đủ, không tràn.
+
+Slide 12 đơn giản hóa cho người học vibe coding: chỉ tải mẫu → giải nén → mở VS Code; bỏ bản đồ component và các file kỹ thuật. Icon ZIP đổi thành chồng sách tím/xanh dương/xanh lá với đai khóa. Khung tải glow mạnh; nút tải nhấc/scale 1.035, ánh sáng lướt 2.2s và mũi tên nảy 1.1s. Reduced motion tắt chuyển động. Ba khung cao 340px, nội dung 21px và lưu ý 18px; đã kiểm tra vừa bố cục.
+
+Slide 12–13 thành luồng thực hành liên tục, không popup. Slide 12 gom chuẩn bị: tải/giải nén ZIP, mở folder có package.json, nhận diện file nội dung/giao diện (chuyển bản đồ file từ slide 13). Slide 13 gồm hai bước Terminal bên trái (npm.cmd install, npm.cmd run dev, có copy/loading/thành công) và bước mở bản thử nghiệm bên phải. Hiện mẫu Local/Ready, nút nổi bật mở http://localhost:3000 trong tab mới, lưu ý server phải chạy và dùng URL Local thực tế nếu cổng bận. Giữ hướng dẫn thử tính năng và giới hạn form lưu trên trình duyệt. Đã kiểm tra cả hai slide không tràn, download ZIP và copy lệnh hoạt động.
+
+Slide 12 bỏ toàn bộ popup, hiển thị đầy đủ thao tác/lưu ý trong ba khung kem cao 410px. Có icon file ZIP ở phần tải và flow, nút tải trực tiếp giữ nguyên tệp ZIP và hiệu ứng sáng nhẹ. Nội dung chính 19px, lưu ý 17px; đã kiểm tra hiển thị toàn bộ, không tràn canvas.
+
+Slide 11 tách Ctrl+Shift+X khỏi hai khung AI thành bước chung Mở Extensions phía trên. Bỏ flow cũ phía dưới; thứ tự nội dung: bước chung → hai hướng dẫn cài → lưu ý. Phím tắt nhấn nhá mạnh bằng scale/nhấc lệch nhịp 1.8s, logo VS Code lơ lửng 2.4s, mũi tên chạy 1.3s và viền glow 2.2s; reduced motion giữ tĩnh. Đã kiểm tra khung và chữ vừa canvas.
+
+Slide 11 bỏ Xem chi tiết và thao tác mở popup của hai khung cài AI. Mỗi khung hiển thị trực tiếp ba dòng: tìm đúng extension/nhà phát hành, Install và mở icon, đăng nhập. Hai khung là nội dung tĩnh, giữ lưu ý nổi bật phía dưới. Đã kiểm tra từng ý một dòng, vừa khung 250px.
+
+Slide 11 bỏ khung Kiểm tra sau cài đặt, còn hai khung Codex/Antigravity cân đôi. Thêm lưu ý navy–vàng/glow: trong phiên thực hành, chỉ một trợ lý/model sửa project tại một thời điểm; nhiều agent ghi cùng file có thể ghi đè thay đổi hoặc xung đột. Đây là khuyến nghị cho workspace chung, không khẳng định đổi model tuần tự gây lỗi. Nguồn đối chiếu: https://learn.chatgpt.com/docs/environments/git-worktrees (isolation cho các lượt chạy song song). Hai khung cao 250px, flow 78px, note có khoảng trống dưới và không tràn canvas.
+
+Sửa font: nhúng Inter variable đầy đủ tiếng Việt vào TSX qua build script, lấy từ Google Fonts (OFL lưu kèm trong fonts/). Không phụ thuộc font cài trên máy hoặc tải mạng trong iframe. Đồng bộ font nút với nội dung, dùng weight thật thay chữ đậm giả. Đã xác nhận font loaded và slide 7/popup không tràn khung.
+
+Khung cuối slide 7 đổi thành dải navy viền vàng/glow, title “Kiểm tra phiên bản”, chú thích “Mở Terminal trong VS Code”. Hai nút Mở kiểm tra / Đã kiểm tra xong (cấu hình tên/email Git) đứng cạnh nhau ngoài popup. Popup dùng khối pre thay textarea hiển thị lệnh, giữ nút copy và loading; đã kiểm tra toàn bộ nội dung không tràn, không thanh cuộn hoặc resize (cao 524px).
+
+Slide 7: popup chỉ có một nội dung không hiện thanh bước dư. VS Code/Node.js/Git chỉ tải và cài, bỏ câu nhắc đóng/mở lại VS Code và chuyển slide; GitHub chỉ đăng ký tài khoản. Chuyển hai bước đặt tên/email Git và đọc lại cấu hình sang popup cuối, mở bằng nút “Đã kiểm tra xong → Cấu hình tên/email Git” trong phần kiểm tra phiên bản. Giữ thứ tự cài → kiểm tra phiên bản → cấu hình Git, popup vừa khung và luồng điều hướng đã kiểm thử.
+
+Popup kiểm tra slide 7: lưu ý tăng từ 14px lên 18px/600, nền kem vàng và viền/glow nhịp 3s, không dịch chuyển bố cục; reduced motion giữ tĩnh. Nút sao chép có spinner/Đang sao chép 450ms rồi Đã sao chép, ưu tiên Clipboard API, fallback textarea ẩn và khôi phục focus; không chọn khối lệnh đang hiển thị. Chỉ báo thành công khi thao tác copy thành công. Kiểm tra popup cao 524px, không tràn/cuộn, và kiểm thử nội dung clipboard/trạng thái loading/thành công đều đạt.
+
+Ba popup VS Code/Node.js/Git ở slide 7 đồng bộ bố cục gọn của GitHub: nội dung ngắn, hướng dẫn và lưu ý rõ, cột lệnh đủ rộng. Cả bốn link tải/đăng ký dùng nút navy–vàng, nhấc nhẹ và glow chu kỳ 3s, vệt sáng lướt, mũi tên chéo chuyển động 1.5s; hover/focus tăng nhấn mạnh. Reduced motion giữ tĩnh. Đã kiểm tra tám bước popup không tràn hoặc cuộn và cả bốn link có animation.
+
+GitHub trong slide 7 rút gọn ba bước: tài khoản, kết nối, xác thực khi cần. Bỏ link đăng nhập và hướng dẫn xác thực HTTPS, giữ link đăng ký. Popup rộng 1120px, nội dung 21px, lưu ý 18px; phần có lệnh chia cột 0.8:1.2 và code 15px để lệnh kết nối nằm gọn một dòng. Phần không có lệnh dùng toàn chiều rộng cho mô tả/lưu ý.
+
+Slide 7: ba popup VS Code/Node.js/Git tập trung tải và cài, giữ cấu hình tên/email Git. Bỏ các bước kiểm tra phiên bản rời; thêm nút lớn cuối slide mở kiểm tra chung trong Terminal PowerShell. Popup có khối lệnh code/node/npm.cmd/Git/GCM, nút sao chép với fallback Ctrl+C và cột kết quả mẫu; phiên bản chỉ minh họa. Giữ nguyên ba phần nội dung GitHub. Đã kiểm tra popup gọn trong canvas và thao tác sao chép. Nguồn cài đặt: https://code.visualstudio.com/docs/setup/windows ; https://nodejs.org/en/download ; https://git-scm.com/install/windows .
+
+Slide 11–21 áp dụng logic slide 6: ba khung kem cao 300px, hover nhấc nhẹ, mở popup khi bấm. Bỏ toàn bộ dải chọn app Git/VS Code/GitHub; icon nằm tại bước dùng app, các khái niệm prompt/model dùng số bước. Mỗi khung có hai ý tóm tắt trọn nghĩa; flow cuối slide gồm ba bước. Popup rộng 1120px, thao tác và lưu ý/lệnh chia hai cột, chữ 21px, code 17px; giữ đủ lệnh, ZIP và prompt sao chép. Có đóng bằng Escape, click nền và giữ focus trong popup.
+
+Slide 11 tập trung cài Codex của OpenAI và Google Antigravity từ Extensions trong VS Code, đăng nhập rồi kiểm tra trên project. Bỏ link tải trực tiếp và phần giải thích công cụ/model cũ. Đối chiếu nguồn chính thức: https://learn.chatgpt.com/docs/codex/ide và https://antigravity.google/docs/ide/extensions/vscode/ (chỉ lưu nguồn ở đây). Kiểm tra cả 11 slide và 33 popup sau khi tải font: không tràn ngang, popup không cuộn ngoài ý muốn; 31 kiểm thử chức năng và binding đều đạt.
+
+Footer slide 7 bỏ nhãn CÀI THEO THỨ TỰ. Windows nằm bên trái vạch chia; bốn logo chia đều toàn bộ vùng bên phải. Mũi tên 48px chuyển động ngang −5px đến +6px, sáng theo nhịp 1.8s và lệch pha 0.25s; reduced motion giữ tĩnh.
+
+Slide 7: bỏ vùng Terminal/PowerShell ở footer. Khung cuối cao 106px, gồm Windows và thứ tự cài đặt trên một hàng; logo ứng dụng 52px trong ô 60px, Windows 42px, chữ Windows 23px, nhãn thứ tự 17px và mũi tên 32px. Đã kiểm tra render vừa khung, khoảng cách đều.
+
+Slide 7: dải thứ tự cài đặt cuối slide thay bốn tên ứng dụng bằng logo VS Code → Node.js → Git → GitHub, logo 34px trong ô 40px. Giữ tooltip/tên truy cập, mũi tên và hai vùng Windows/PowerShell.
+
+Slide 6 bỏ nhãn Chiều đi / Chiều về và cột nhãn riêng. Hai hàng flow chiếm trọn chiều rộng khung, bốn ứng dụng thẳng cột, giữ đường phân cách và mũi tên Push/Pull.
+
+Slide 6: flow hai chiều gồm bốn cột VS Code–Node.js–Git–GitHub, mỗi ứng dụng có icon và mô tả ngắn. Mũi tên nối tăng lên 38px, mũi tên trong Push/Pull 34px; giữ hiệu ứng nhấn mạnh Push/Pull. Tên ứng dụng tách khỏi mô tả để bốn cột vừa khung.
+
+Slide 7: bốn khung cài đặt cùng nền kem, lưới 2×2 cao 196px mỗi khung; logo 84px nằm bên trái tên, mô tả ngắn và nút mở hướng dẫn. Dải hướng dẫn dưới chia ba vùng Windows / thứ tự VS Code → Node.js → Git → GitHub / PowerShell, không dùng một câu dài. Đã kiểm tra bản render không tràn khung và còn lề dưới 45px.
+
+Sơ đồ cuối slide 6 gồm hai hàng đồng bộ có nhãn Chiều đi / Chiều về. Cả hai hàng dùng ba icon Node.js–Git–GitHub và mô tả ngắn, cùng vị trí cột; chiều đi mũi tên sang phải, chiều về sang trái. Bỏ dải mô tả navy một câu cũ. Nhấn Push bằng badge navy–vàng, Pull bằng badge xanh sáng: glow theo nhịp 2.8s, vệt sáng lướt và mũi tên chạy đúng hướng 1.6s. Hiệu ứng chỉ trang trí, không phải nút mới. Reduced motion giữ tĩnh. Đã kiểm tra không tràn và còn lề dưới.
+
+Ba logo lớn ở slide 6 lơ lửng mức vừa: dịch dọc từ +4px đến −7px, xoay ±2°, chu kỳ 4.4s và lệch nhịp. Chỉ áp dụng logo trong ba khung chọn, không áp vào chữ, khung, sơ đồ hoặc popup; reduced motion tắt hiệu ứng. Đã kiểm tra không đè tên ứng dụng suốt chu kỳ.
+
+Slide 6 bỏ ba nhãn “Mở nội dung…” bên trong nút chọn, giữ toàn bộ khung là nút mở popup và hiệu ứng hover. Ba khung kem cao 300px, logo 96px căn giữa phía trên tên 32px; mô tả gồm hai dòng trọn ý 20px, không ngắt vụn. Định nghĩa trong popup rút ngắn và cân thành hai dòng; mỗi chức năng chính nằm một dòng. Đã kiểm tra cả ba popup không cuộn/tràn, slide setup vẫn giữ nhãn cài đặt riêng.
+
+Slide 5: đặt bốn nút Antigravity/Copilot/Claude Code/Cline vào lưới 2×2 bên trái, cùng phần nội dung bên phải trong một khung chính bo góc. Root cao 558px, main flex chiếm phần còn lại sau marquee 72px và gap 14px; main padding 18px, cột trái 400px, gap 20px. Nội dung AI cao bằng vùng chọn, header 148px, phía dưới hai khung Ưu điểm / Điểm cần cân nhắc màu theo AI. Font nội dung 17px, title nút 20px, logo 78px vẫn lơ lửng. Marquee nằm gọn trong chiều rộng chính, không tràn mép canvas. Đã kiểm tra cả bốn lựa chọn: giữ đúng nút khi đổi nội dung, không tràn/cắt chữ.
+
+Slide 6 rút gọn theo yêu cầu mới: mỗi ứng dụng chỉ có hai khung trong popup — Định nghĩa (một câu ngắn) và Chức năng chính (ba bullet ngắn), bỏ toàn bộ link, hướng dẫn chi tiết và khối nội dung phụ. Popup tối đa 1080px, hai cột tỷ lệ 0.9:1.2, gap 22px, khung cao tối thiểu 264px; định nghĩa 23px, bullet 21px. Đã kiểm tra cả ba popup không cuộn hoặc tràn, giữ ba khung chọn ngoài màu kem.
+
+Slide 4: vòng xuất hiện khoanh đỏ lặp vô hạn theo chu kỳ 7s. Cả sáu nhóm dùng chung mốc thời gian: lần lượt 1→6 trong 4s đầu, giữ đủ sáu vùng, cùng mờ đi cuối chu kỳ rồi bắt đầu lại từ 1. Reduced motion hiển thị đủ sáu vùng ngay. Slide 6: cả ba khung chọn Node.js/Git/GitHub nền kem, tiêu đề navy; mỗi popup ba nhóm, mỗi nhóm ba bullet chỉ tập trung vào ứng dụng đang chọn, bỏ các đoạn so sánh/nhắc ứng dụng khác. Giữ slide setup riêng và thao tác popup/hover hiện có.
+
+Slide kết quả đầu ra (slide 2): bốn nhãn DỰ ÁN, CHẠY THỬ, COMMIT · PUSH, PULL REQUEST đồng bộ chữ in hoa 14px/800, khung 188×54px, nền kem–vàng và icon 27px cùng vị trí. Dùng hai cột cố định cho icon/nhãn, căn giữa chữ; không nhấn animation riêng nhãn thứ hai. Đã kiểm tra cả bốn nhãn không tràn chữ.
+
 Khung số 4 ở bản đồ slide 4 đổi tên thành “Trình soạn thảo”, phụ đề “Editor · các tab ở giữa”, để không trùng cách gọi trong tiêu đề slide. Giữ nguyên tọa độ, popup và hiệu ứng xuất hiện.
 
 Slide 4: sáu vùng khoanh đỏ xuất hiện lần lượt 1→6 khi mở slide. Mỗi nhóm gồm đường khoanh, vòng tròn số và chữ số cùng fade-in 0.5s; bắt đầu sau 0.25s, các vùng cách nhau 0.65s, hoàn tất ở giây 4. Không dịch vị trí hoặc lặp lại animation khi đóng popup. Giữ các khung tên vùng và tương tác sẵn có. Reduced motion hiển thị đủ sáu vùng ngay.

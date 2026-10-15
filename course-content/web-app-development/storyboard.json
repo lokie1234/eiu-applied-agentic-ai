@@ -570,7 +570,7 @@
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Chọn một công cụ và giải thích ưu điểm, điểm cần cân nhắc.",
       "objective": "So sánh bốn trợ lý AI tích hợp VS Code.",
-      "visualConcept": "EIU DNA · logo chính chủ lơ lửng, bấm để xem ưu và nhược điểm."
+      "visualConcept": "Khung chính EIU bo góc chứa bốn nút AI 2×2 bên trái và nội dung AI đang chọn bên phải. Khung nội dung chia header và hai ô Ưu điểm / Điểm cần cân nhắc, màu riêng từng AI, vừa khít chiều cao khung chính. Marquee nằm trong chiều rộng canvas bên dưới. Giữ logo lơ lửng và chuyển nội dung tại chỗ, không tràn hoặc cắt chữ."
     },
     {
       "section": 1,
@@ -582,192 +582,135 @@
         {
           "label": "Node.js",
           "logo": "Node.js",
-          "title": "Node.js là gì?",
-          "text": "Môi trường chạy JavaScript ngoài trình duyệt. Trong app mẫu, Node.js chạy công cụ phát triển và tạo bản build.",
-          "detail": "Node.js không phải Git hay kho mã nguồn; nó không tự lưu lịch sử hoặc đưa website lên mạng.",
-          "link": "https://nodejs.org/learn/getting-started/introduction-to-nodejs",
-          "linkLabel": "Giới thiệu Node.js"
+          "title": "Định nghĩa",
+          "text": "Môi trường chạy JavaScript ngoài trình duyệt."
         },
         {
           "label": "Node.js",
           "logo": "Node.js",
-          "title": "npm và project",
-          "text": "npm quản lý thư viện và tác vụ của project qua package.json.",
-          "detail": "Node.js chạy JavaScript; npm hỗ trợ chuẩn bị thư viện, chạy thử và tạo bản build."
+          "title": "Chức năng chính",
+          "text": "Chạy ứng dụng và công cụ phát triển. Xây dựng server và API. Quản lý thư viện qua npm.",
+          "points": [
+            "Chạy ứng dụng và công cụ phát triển.",
+            "Xây dựng server và API.",
+            "Quản lý thư viện qua npm."
+          ]
         },
         {
-          "label": "Node.js",
-          "logo": "Node.js",
-          "title": "Kiểm tra trước khi chia sẻ",
-          "text": "Chạy ứng dụng và thử chức năng trước khi lưu phiên bản.",
-          "detail": "Máy khác lấy mã nguồn từ GitHub, chuẩn bị thư viện rồi chạy bằng Node.js. Build và kiểm thử là các tác vụ tùy project."
-        },
-        {
-          "title": "Git là gì?",
-          "text": "Git quản lý phiên bản ngay trong folder dự án: xem thay đổi, lưu mốc và làm việc trên nhánh.",
-          "detail": "Commit là mốc lưu trên máy; lưu file bằng Ctrl+S chưa tạo Commit.",
+          "label": "Git",
           "logo": "Git",
-          "label": "Git"
+          "title": "Định nghĩa",
+          "text": "Hệ thống quản lý phiên bản mã nguồn trên máy."
         },
         {
-          "title": "Git trong VS Code",
-          "text": "Source Control (Ctrl+Shift+G) hiển thị file đổi, diff, Stage và Commit. Terminal chạy cùng lệnh Git.",
-          "detail": "Source Control và Terminal cùng thao tác với Git trên máy. Git là công cụ riêng được cài vào hệ điều hành.",
-          "logo": "VS Code",
-          "label": "Git"
-        },
-        {
-          "title": "Đọc trạng thái và lịch sử",
-          "text": "Xem file đang đổi, so sánh phần sửa và đọc các mốc đã lưu.",
-          "detail": "Diff giúp xem thay đổi; Commit ghi một mốc lịch sử. Nhánh giúp thử ý tưởng trước khi gộp vào phiên bản chính.",
+          "label": "Git",
           "logo": "Git",
-          "label": "Git"
+          "title": "Chức năng chính",
+          "text": "Theo dõi và so sánh thay đổi. Lưu phiên bản bằng Commit. Tạo nhánh và gộp thay đổi.",
+          "points": [
+            "Theo dõi và so sánh thay đổi.",
+            "Lưu phiên bản bằng Commit.",
+            "Tạo nhánh và gộp thay đổi."
+          ]
         },
         {
-          "title": "Chức năng chung",
-          "text": "Lưu repository, chia sẻ code, theo dõi Issues, review bằng Pull Request và tự động hóa với Actions.",
-          "detail": "Push gửi Commit lên; Pull lấy phiên bản mới về. Đưa code lên GitHub chưa triển khai website.",
+          "label": "GitHub",
           "logo": "GitHub",
-          "label": "GitHub"
+          "title": "Định nghĩa",
+          "text": "Nền tảng lưu trữ mã nguồn và cộng tác trực tuyến."
         },
         {
-          "title": "Kho repo mở",
-          "text": "Repo public cho phép xem code, README, lịch sử và tải ZIP hoặc Clone.",
-          "detail": "Khám phá repo thật ở GitHub Explore. Public không đồng nghĩa được tái sử dụng tùy ý: đọc LICENSE. Muốn đóng góp thường dùng Fork và Pull Request.",
+          "label": "GitHub",
           "logo": "GitHub",
-          "link": "https://github.com/explore",
-          "linkLabel": "Khám phá repo mở",
-          "label": "GitHub"
-        },
-        {
-          "title": "Repo của bạn",
-          "text": "Chọn Public để chia sẻ hoặc Private để giới hạn quyền xem; mỗi repo có URL riêng.",
-          "detail": "README hướng dẫn cách chạy. .gitignore loại file sinh ra và secret; không đưa .env, node_modules hay .next lên repo.",
-          "logo": "GitHub",
-          "label": "GitHub"
+          "title": "Chức năng chính",
+          "text": "Lưu và chia sẻ repository. Review thay đổi qua Pull Request. Theo dõi công việc bằng Issues.",
+          "points": [
+            "Lưu và chia sẻ repository.",
+            "Review thay đổi qua Pull Request.",
+            "Theo dõi công việc bằng Issues."
+          ]
         }
       ],
       "minutes": 8,
-      "note": "Giới thiệu vai trò và cách phối hợp. Toàn bộ cài đặt, cấu hình và lệnh kiểm tra nằm trong slide setup.",
+      "note": "Giới thiệu ngắn mỗi ứng dụng: một định nghĩa và ba chức năng chính. Không có link, lệnh hoặc hướng dẫn chi tiết.",
       "objective": "Phân biệt chạy app bằng Node.js, lưu Commit bằng Git và chia sẻ repo qua GitHub; biết chiều Push và Pull/Clone.",
       "verify": "Phân biệt chạy app bằng Node.js, lưu Commit bằng Git và chia sẻ repo qua GitHub; biết chiều Push và Pull/Clone.",
-      "visualConcept": "Ba khung EIU Node.js–Git–GitHub với popup ba cột; sơ đồ cùng project: chạy/kiểm tra → Commit → Push, chiều ngược Pull/Clone → npm → chạy lại. Sơ đồ có icon nhỏ của từng công cụ; chiều về nổi bật trong khung navy–vàng."
+      "visualConcept": "Ba khung chọn ứng dụng nền kem, giữ hover và popup. Mỗi popup gọn hai cột cân đối: Định nghĩa bên trái, Chức năng chính bên phải với ba bullet ngắn. Chữ lớn, khoảng cách thoáng, không có link hướng dẫn và không cuộn. Giữ sơ đồ phối hợp bên ngoài. Bỏ ba nhãn Mở nội dung; toàn bộ khung ứng dụng vẫn mở popup. Ba logo 96px căn giữa phía trên tên app, mô tả gồm hai dòng ngắn trọn ý. Popup dùng định nghĩa ngắn, cân dòng, ba chức năng mỗi ý trên một dòng khi đủ chỗ. Sơ đồ phối hợp hai hàng cùng icon Node.js/Git/GitHub: chiều đi từ trái sang phải, chiều về từ phải sang trái với mô tả riêng. Push nhấn navy–vàng, Pull nhấn xanh sáng; glow, vệt sáng và mũi tên chạy đúng chiều, reduced motion giữ tĩnh."
     },
     {
       "section": 1,
       "number": 7,
       "title": "Cài đặt · VS Code, Node.js, Git & GitHub",
       "visual": "git-intro-setup-overview",
-      "message": "Cài từng công cụ, mở Terminal → New Terminal trong VS Code rồi đối chiếu kết quả kiểm tra.",
+      "message": "Tải và cài công cụ trước, rồi mở Terminal trong VS Code để kiểm tra một lượt.",
       "cards": [
         {
           "label": "VS Code",
           "logo": "VS Code",
           "title": "Tải và cài",
-          "text": "Tải User Installer cho Windows từ trang chính thức. Chạy bộ cài, bật Add to PATH nếu có, rồi mở lại VS Code.",
-          "detail": "Đã cài VS Code thì chuyển sang bước kiểm tra. Mở Terminal → New Terminal, dùng PowerShell.",
+          "text": "Tải User Installer cho Windows. Chạy bộ cài và bật Add to PATH nếu có.",
           "link": "https://code.visualstudio.com/download",
           "linkLabel": "Tải VS Code"
-        },
-        {
-          "label": "VS Code",
-          "logo": "VS Code",
-          "title": "Kiểm tra trong Terminal",
-          "text": "Trong Terminal của VS Code, chạy từng lệnh. Lệnh code phải trả phiên bản, mã commit và kiến trúc máy.",
-          "code": "code --version\nwhere.exe code",
-          "output": "1.xx.x\n<mã commit>\nx64\nC:\\…\\Microsoft VS Code\\bin\\code.cmd",
-          "detail": "Ví dụ minh họa: phiên bản, mã commit và đường dẫn tùy máy; ARM64 có thể hiện arm64. Nếu báo “not recognized”, mở lại VS Code và kiểm tra PATH."
         },
         {
           "label": "Node.js",
           "logo": "Node.js",
           "title": "Cài Node.js LTS",
-          "text": "Tải Windows Installer (.msi) bản LTS. Chạy bộ cài, giữ npm và PATH; đóng rồi mở lại VS Code.",
-          "detail": "Đã có Node.js thì kiểm tra cả node và npm trước khi quyết định cài lại.",
+          "text": "Tải Windows Installer (.msi) bản LTS. Cài theo hướng dẫn, giữ npm và PATH.",
           "link": "https://nodejs.org/en/download",
           "linkLabel": "Tải Node.js LTS"
-        },
-        {
-          "label": "Node.js",
-          "logo": "Node.js",
-          "title": "Kiểm tra node và npm",
-          "text": "Mở Terminal mới trong VS Code và chạy hai lệnh. Cả hai đều phải trả về số phiên bản.",
-          "code": "node --version\nnpm --version",
-          "output": "v24.0.0\n11.0.0",
-          "detail": "Số phiên bản trên chỉ là ví dụ. Nếu PowerShell chặn npm.ps1, thử npm.cmd --version hoặc chọn terminal Command Prompt. Nếu không nhận lệnh, kiểm tra PATH và mở lại VS Code."
         },
         {
           "label": "Git",
           "logo": "Git",
           "title": "Tải và cài Git",
-          "text": "Tải Git for Windows, chạy bộ cài. Cho phép dùng Git từ command line và phần mềm khác; giữ Git Credential Manager.",
+          "text": "Tải Git for Windows. Cho phép dùng Git từ command line và giữ Git Credential Manager.",
           "installationOption": "Git from the command line and also from 3rd-party software\nGit Credential Manager",
-          "detail": "Cài xong đóng rồi mở lại VS Code. Đã có Git thì kiểm tra phiên bản và GCM trước.",
           "link": "https://git-scm.com/install/windows",
           "linkLabel": "Tải Git for Windows"
         },
         {
-          "label": "Git",
-          "logo": "VS Code",
-          "title": "Kiểm tra Git và GCM",
-          "text": "Trong Terminal mới của VS Code, kiểm tra Git, đường dẫn và Credential Manager.",
-          "code": "git --version\nwhere.exe git\ngit credential-manager --version",
-          "output": "git version 2.50.0.windows.1\nC:\\Program Files\\Git\\cmd\\git.exe\n2.6.1",
-          "detail": "Phiên bản và đường dẫn chỉ là ví dụ. Git/GCM phải trả về phiên bản; nếu thiếu, chạy lại bộ cài và bật PATH hoặc Credential Manager."
-        },
-        {
-          "label": "Git",
+          "label": "Cấu hình Git",
           "logo": "Git",
           "title": "Đặt tên và email",
-          "text": "Thay tên/email bằng thông tin của bạn. Dùng email đã xác minh trên GitHub hoặc email noreply của tài khoản.",
+          "text": "Thay tên và email trong lệnh bằng thông tin của bạn. Dùng email GitHub đã xác minh hoặc email noreply.",
           "code": "git config --global user.name \"Ten cua ban\"\ngit config --global user.email \"ban@example.com\"\ngit config --global init.defaultBranch main",
           "output": "Không có dòng kết quả; dấu nhắc Terminal xuất hiện lại.",
-          "detail": "Không báo lỗi là bình thường. Đây là danh tính tác giả Commit; --global áp dụng cho người dùng trên máy này."
+          "detail": "Không có kết quả là bình thường. Đây là tên tác giả Commit; --global áp dụng cho tài khoản trên máy."
         },
         {
-          "label": "Git",
+          "label": "Cấu hình Git",
           "logo": "Git",
           "title": "Đọc lại cấu hình",
-          "text": "Kiểm tra tên, email và nhánh mặc định đã lưu. Thông tin phải khớp với giá trị bạn vừa đặt.",
+          "text": "Chạy lệnh để đọc lại tên, email và nhánh mặc định. Kết quả phải khớp thông tin vừa đặt.",
           "code": "git config --global --get user.name\ngit config --global --get user.email\ngit config --global --get init.defaultBranch",
           "output": "Ten cua ban\nban@example.com\nmain",
-          "detail": "Nếu trống hoặc sai, chạy lại lệnh cấu hình tương ứng. Chưa cần tạo repository ở bước cài đặt."
+          "detail": "Nếu trống hoặc sai, đặt lại giá trị tương ứng. Chưa cần tạo repository."
         },
         {
           "label": "GitHub",
           "logo": "Google",
           "title": "Tạo tài khoản",
-          "text": "Mở GitHub Signup, đăng ký hoặc chọn Continue with Google nếu có; hoàn tất xác minh. Đã có tài khoản thì đăng nhập.",
-          "detail": "GitHub dùng trên trình duyệt; không cần cài GitHub Desktop hoặc extension GitHub để chạy lệnh Git.",
+          "text": "Đăng ký GitHub và xác minh email. Đã có tài khoản thì đăng nhập.",
+          "detail": "Dùng trên trình duyệt; không cần cài GitHub Desktop hoặc extension GitHub.",
           "link": "https://github.com/signup",
           "linkLabel": "Đăng ký GitHub"
         },
         {
-          "label": "GitHub",
-          "logo": "GitHub",
-          "title": "Kiểm tra kết nối",
-          "text": "Trong Terminal VS Code, thử đọc HEAD của repository public. Có mã commit kèm HEAD là kết nối Git/HTTPS hoạt động.",
-          "code": "git ls-remote https://github.com/octocat/Hello-World.git HEAD",
-          "output": "<mã commit 40 ký tự>    HEAD",
-          "detail": "Repo public không xác minh đăng nhập. Nếu lỗi mạng, kiểm tra kết nối và URL. Không cần cài GitHub CLI cho lệnh này.",
-          "link": "https://github.com/login",
-          "linkLabel": "Đăng nhập GitHub"
-        },
-        {
-          "label": "GitHub",
-          "logo": "GitHub",
-          "title": "Xác thực khi cần",
-          "text": "Khi Push hoặc Clone repo private yêu cầu xác thực, GCM mở trình duyệt. Đăng nhập đúng GitHub và hoàn tất yêu cầu cấp quyền.",
-          "detail": "Sau xác thực, thao tác Git tiếp tục trong Terminal. Không nhập mật khẩu GitHub vào Terminal. Bài thực hành repo sẽ kiểm tra quyền đọc/ghi thực tế.",
-          "link": "https://docs.github.com/en/get-started/git-basics/caching-your-github-credentials-in-git",
-          "linkLabel": "Hướng dẫn xác thực HTTPS"
+          "label": "Kiểm tra",
+          "logo": "Terminal",
+          "title": "Kiểm tra phiên bản một lượt",
+          "text": "Trong VS Code, mở Terminal → New Terminal → PowerShell. Dán khối lệnh và chạy.",
+          "code": "Write-Output \"=== VS Code ===\"\ncode --version\nWrite-Output \"=== Node.js / npm ===\"\nnode --version\nnpm.cmd --version\nWrite-Output \"=== Git / GCM ===\"\ngit --version\ngit credential-manager --version",
+          "output": "=== VS Code ===\n1.105.0\n<mã commit của VS Code>\nx64\n=== Node.js / npm ===\nv24.0.0\n11.0.0\n=== Git / GCM ===\ngit version 2.50.0.windows.1\n2.6.1",
+          "detail": "Các số chỉ là ví dụ, không cần giống hệt. Đạt khi mọi lệnh đều trả phiên bản, không báo “not recognized”. npm.cmd tránh lỗi chặn npm.ps1 trong PowerShell. Nếu thiếu lệnh, kiểm tra PATH hoặc bộ cài."
         }
       ],
       "minutes": 23,
-      "note": "Setup Windows: chọn popup từng công cụ; thực hiện từng bước và kiểm tra kết quả trước khi mở app mẫu.",
-      "objective": "VS Code, node/npm, Git hoạt động; tên/email đã cấu hình và GitHub đăng nhập được.",
-      "verify": "VS Code, node/npm, Git hoạt động; tên/email đã cấu hình và GitHub đăng nhập được.",
-      "visualConcept": "Giữ bốn khung chọn và popup setup EIU. Tách lệnh nhập với ví dụ kết quả Terminal, ghi rõ phiên bản minh họa và cách xử lý khi chưa nhận lệnh."
+      "note": "Cài công cụ trước; dùng một khối lệnh chung để kiểm tra. GitHub giữ nội dung tài khoản và xác thực.",
+      "objective": "Cài VS Code, Node.js, Git; đăng ký GitHub; kiểm tra phiên bản rồi cấu hình tác giả Commit.",
+      "verify": "Cài VS Code, Node.js, Git; đăng ký GitHub; kiểm tra phiên bản rồi cấu hình tác giả Commit.",
+      "visualConcept": "Bốn khung VS Code/Node.js/Git/GitHub nền kem đồng nhất, lưới 2×2, cao 196px, logo 84px bên trái và nội dung ngắn bên phải. Footer đóng khung riêng gồm Windows, thứ tự cài đặt và Terminal VS Code / PowerShell, có thể xuống dòng trong đúng vùng. Giữ popup cài đặt và hover."
     },
     {
       "section": 1,
@@ -905,342 +848,339 @@
     {
       "section": 1,
       "number": 11,
-      "title": "Setup AI · chọn một trợ lý trong VS Code",
+      "title": "Cài trợ lý AI trong VS Code",
       "visual": "git-intro-ai-setup",
-      "message": "Antigravity và Codex là công cụ; model là mô hình được chọn bên trong.",
+      "message": "Cài extension từ bảng Extensions, rồi đăng nhập và mở project để bắt đầu.",
       "cards": [
         {
-          "title": "Cài Antigravity",
-          "text": "Extensions (Ctrl+Shift+X) → tìm Google Antigravity, kiểm tra nhà phát hành Google → Install.",
-          "detail": "Mở icon Antigravity, đăng nhập theo luồng của công cụ. Bài này dùng extension VS Code; bản IDE riêng là lựa chọn khác.",
-          "logo": "AI Antigravity",
-          "link": "https://antigravity.google/docs/ide/extensions/vscode/",
-          "linkLabel": "Cài Antigravity chính thức"
-        },
-        {
           "title": "Cài Codex",
-          "text": "Extensions → tìm Codex của OpenAI → Install; mở Codex ở Activity Bar rồi đăng nhập.",
-          "detail": "Chọn model/chế độ khả dụng cho tài khoản. Mở sidebar qua Command Palette nếu chưa thấy icon.",
+          "text": "Mở Extensions bằng Ctrl+Shift+X. Tìm Codex, kiểm tra nhà phát hành OpenAI rồi chọn Install.",
+          "detail": "Click icon Codex trong vùng chat của VS Code, rồi đăng nhập bằng tài khoản ChatGPT.",
           "logo": "AI Codex",
-          "link": "https://learn.chatgpt.com/docs/codex/ide",
-          "linkLabel": "Cài Codex chính thức"
+          "points": [
+            "Mở được bảng chat Codex trong VS Code.",
+            "Hoàn tất đăng nhập trước khi gửi yêu cầu."
+          ],
+          "summary": [
+            "Tìm Codex của OpenAI.",
+            "Chọn Install, rồi click icon Codex trong vùng chat.",
+            "Đăng nhập bằng tài khoản ChatGPT."
+          ]
         },
         {
-          "title": "Chọn model và quyền",
-          "text": "Chọn một trợ lý cho lượt sửa; ghi lại model/chế độ đang dùng, cấp quyền đọc/sửa project và chạy lệnh khi cần.",
-          "detail": "Tránh cho hai agent cùng sửa một file. Nếu chỉ có chat, nhận hướng dẫn rồi tự áp dụng; không xem lời khẳng định “đã test” là bằng chứng.",
-          "logo": "VS Code"
+          "title": "Cài Antigravity",
+          "text": "Trong Extensions, tìm Google Antigravity. Kiểm tra nhà phát hành Google rồi chọn Install.",
+          "detail": "Mở icon Antigravity ở Activity Bar, chọn Sign In và hoàn tất đăng nhập tài khoản Google. Thực hiện phần thiết lập xuất hiện trong extension.",
+          "logo": "AI Antigravity",
+          "points": [
+            "Mở được bảng chat Antigravity trong VS Code.",
+            "Hoàn tất đăng nhập và thiết lập ban đầu."
+          ],
+          "summary": [
+            "Tìm Google Antigravity.",
+            "Nhà phát hành Google → chọn Install.",
+            "Mở icon Antigravity, đăng nhập Google."
+          ]
         }
       ],
       "minutes": 5,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Antigravity và Codex là công cụ; model là mô hình được chọn bên trong.",
-      "verify": "Antigravity và Codex là công cụ; model là mô hình được chọn bên trong.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "note": "Nhiều agent cùng sửa các file trong một thư mục có thể ghi đè thay đổi hoặc tạo xung đột mã nguồn. Khi đổi trợ lý, dừng lượt đang chạy và xem lại diff trước.",
+      "objective": "Cài extension từ bảng Extensions, rồi đăng nhập và mở project để bắt đầu.",
+      "verify": "Cài extension và đăng nhập; chỉ một trợ lý/model sửa project tại một thời điểm.",
+      "visualConcept": "Ba khung kem mở popup chi tiết; bỏ dải chọn app. Flow ngắn có icon tại bước dùng ứng dụng, chữ ngắt theo ý."
     },
     {
       "section": 1,
       "number": 12,
-      "title": "Thực hành · tải app quảng cáo",
+      "title": "Bắt đầu · tải và mở project",
       "visual": "git-intro-starter",
-      "message": "Dùng một project Lumi Studio xuyên suốt: tải → sửa → kiểm tra → GitHub.",
+      "message": "Tải bộ mẫu Lumi Studio, giải nén rồi mở trong VS Code.",
       "cards": [
         {
-          "title": "Tải app .ZIP",
-          "text": "Tải eiu-advertising-starter.zip rồi Extract All vào thư mục riêng.",
-          "detail": "ZIP chưa có .git, node_modules hay .next; không cần Clone repo phụ trước bài này.",
-          "logo": "VS Code",
+          "title": "Tải project mẫu",
+          "logo": "ZIP",
+          "text": "Nhấn nút tải để lấy bộ mã nguồn website Lumi Studio.",
+          "detail": "File: eiu-advertising-starter.zip",
           "link": "/downloads/eiu-advertising-starter.zip",
-          "linkLabel": "Tải app quảng cáo .ZIP"
+          "linkLabel": "Tải project .ZIP"
         },
         {
-          "title": "Mở đúng folder",
-          "text": "VS Code → File → Open Folder → chọn eiu-advertising-starter chứa package.json và README.md.",
-          "detail": "Nếu giải nén lồng folder, mở folder bên trong có package.json. Explorer phải thấy app, components, data và lib.",
-          "logo": "VS Code"
+          "title": "Giải nén file ZIP",
+          "logo": "ZIP",
+          "text": "Nhấp phải file đã tải → Extract All → chọn nơi lưu.",
+          "detail": "Chờ giải nén hoàn tất trước khi mở project."
         },
         {
-          "title": "Biết app đang làm gì",
-          "text": "Tab khám phá, chọn gói, FAQ và form đăng ký đều có tương tác.",
-          "detail": "Form chỉ lưu trong trình duyệt; chưa gửi email hay lưu database dùng chung. Giữ các chức năng này khi sửa.",
-          "logo": "Browser"
+          "title": "Mở trong VS Code",
+          "logo": "VS Code",
+          "text": "File → Open Folder → chọn thư mục vừa giải nén.",
+          "detail": "Chọn folder có package.json. Nếu có folder lồng nhau, mở folder bên trong."
         }
       ],
       "minutes": 5,
       "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Dùng một project Lumi Studio xuyên suốt: tải → sửa → kiểm tra → GitHub.",
-      "verify": "Dùng một project Lumi Studio xuyên suốt: tải → sửa → kiểm tra → GitHub.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "objective": "Hoàn thành phần chuẩn bị trong VS Code trước khi chạy app Lumi Studio.",
+      "verify": "Mở đúng folder có package.json.",
+      "visualConcept": "Ba thao tác đơn giản tải → giải nén → mở VS Code. Không giải thích component/cấu trúc mã. Icon ZIP chồng sách nhiều màu, nút tải nhấn mạnh bằng animation."
     },
     {
       "section": 1,
       "number": 13,
-      "title": "Chạy app · biết nơi cần chỉnh",
+      "title": "Chạy app · mở bản thử nghiệm",
       "visual": "git-intro-dev",
-      "message": "Mở Terminal trong đúng folder; chạy bản gốc trước khi dùng AI.",
+      "message": "Trong VS Code: Terminal → New Terminal. Chạy từng lệnh, chờ xong rồi sang bước tiếp theo.",
       "cards": [
         {
-          "title": "Cài thư viện và chạy",
-          "text": "Trong folder có package.json, chạy từng lệnh rồi mở URL Terminal hiển thị.",
-          "detail": "Giữ Terminal chạy dev; Ctrl+C để dừng. Cổng thường là 3000; nếu bận, dùng URL thực tế của Terminal.",
-          "logo": "VS Code",
-          "code": "npm install\nnpm run dev"
+          "title": "Cài thư viện",
+          "logo": "Node.js",
+          "text": "Terminal phải ở folder có package.json.",
+          "code": "npm.cmd install",
+          "detail": "Chờ cài xong và dấu nhắc Terminal xuất hiện lại."
         },
         {
-          "title": "Bản đồ file",
-          "text": "data/site.js: nội dung/gói/FAQ. app/globals.css: màu, bố cục và motion. components/MarketingSite.js: giao diện và form.",
-          "detail": "lib/registrations.mjs: kiểm tra/lưu đăng ký; app/layout.js: tiêu đề tab. Không sửa node_modules hoặc .next.",
-          "logo": "VS Code"
+          "title": "Khởi động app",
+          "logo": "Node.js",
+          "text": "Chạy server phát triển trong cùng Terminal.",
+          "code": "npm.cmd run dev",
+          "detail": "Giữ Terminal chạy. Khi cần dừng app, nhấn Ctrl+C."
         },
         {
-          "title": "Kiểm tra bản gốc",
-          "text": "Thử tab, chọn gói, mở/đóng form, email đúng/sai và FAQ; thu nhỏ cửa sổ.",
-          "detail": "Ghi nhận hoạt động ban đầu để so sánh sau sửa. Chỉ bắt đầu khi app gốc chạy và các tương tác dùng được.",
-          "logo": "Browser"
+          "title": "Chọn nơi mở app",
+          "logo": "Browser",
+          "text": "Chờ Terminal báo Ready, rồi chọn một cách bên dưới.",
+          "output": "Local: http://localhost:3000\n✓ Ready in ...",
+          "link": "http://localhost:3000",
+          "linkLabel": "Mở bằng trình duyệt",
+          "detail": "Thử tab, chọn gói, FAQ và form đăng ký; thu nhỏ cửa sổ để kiểm tra.",
+          "points": [
+            "Chrome · Edge · Cốc Cốc…",
+            "Giữ Ctrl và click vào http://localhost:3000 trong Terminal."
+          ]
         }
       ],
       "minutes": 8,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Mở Terminal trong đúng folder; chạy bản gốc trước khi dùng AI.",
-      "verify": "Mở Terminal trong đúng folder; chạy bản gốc trước khi dùng AI.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "note": "Form lưu trên trình duyệt, chưa gửi email hoặc lưu database dùng chung. Nếu cổng 3000 bận, dùng URL Local trong Terminal.",
+      "objective": "Trong VS Code: Terminal → New Terminal. Chạy từng lệnh, chờ xong rồi sang bước tiếp theo.",
+      "verify": "App hiện trong trình duyệt và các tương tác hoạt động.",
+      "visualConcept": "Luồng thực hành trực tiếp, không popup: chuẩn bị project → cài thư viện → chạy server → mở localhost:3000."
     },
     {
       "section": 1,
       "number": 14,
-      "title": "Prompt chỉnh sửa · đủ ý, đúng phạm vi",
+      "title": "Đổi text · tìm, sửa và xem ngay",
       "visual": "git-intro-prompt-structure",
-      "message": "Một prompt rõ có 6 thành phần; mô tả thay đổi bằng kết quả có thể kiểm tra.",
+      "message": "Với tiêu đề, tên thương hiệu hoặc nhãn nút, bạn có thể sửa trực tiếp trong VS Code.",
       "cards": [
         {
-          "title": "Bối cảnh + mục tiêu",
-          "text": "Nêu project, file/ảnh tham chiếu và app đang làm gì; mô tả kết quả mong muốn.",
-          "detail": "Ví dụ: đổi Lumi Studio thành workshop Light Lab, CTA “Đăng ký workshop”; tránh chỉ nói “làm đẹp hơn”.",
-          "logo": "VS Code"
+          "title": "Tìm đoạn chữ",
+          "logo": "VS Code",
+          "text": "Nhập đoạn chữ muốn đổi vào ô Search.",
+          "detail": "Mở kết quả đúng đoạn chữ cần chỉnh."
         },
         {
-          "title": "Phạm vi + thiết kế",
-          "text": "Nêu file/khu vực được sửa, tính năng phải giữ; đưa màu, typography, bố cục và tham chiếu.",
-          "detail": "Giữ tab, chọn gói, form, FAQ, responsive; giữ EIU kem–navy–vàng. Tách đổi nội dung và đổi hành vi nếu yêu cầu lớn.",
-          "logo": "VS Code"
+          "title": "Sửa nội dung",
+          "logo": "VS Code",
+          "text": "Thay text cũ bằng nội dung mới.",
+          "detail": "Chỉ đổi phần chữ bạn cần."
         },
         {
-          "title": "Kiểm tra + đầu ra",
-          "text": "Nêu thao tác nghiệm thu, lệnh test/build, yêu cầu sửa lỗi và báo cáo file đã sửa.",
-          "detail": "Yêu cầu kết quả đã chạy, lỗi còn lại và mục chưa kiểm tra; quy định có được thêm thư viện/deploy/push hay không.",
-          "logo": "VS Code"
+          "title": "Lưu và xem lại",
+          "logo": "Browser",
+          "text": "Lưu file rồi refresh trang localhost đang mở.",
+          "detail": "Giữ Terminal đang chạy app."
         }
       ],
       "minutes": 8,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Một prompt rõ có 6 thành phần; mô tả thay đổi bằng kết quả có thể kiểm tra.",
-      "verify": "Một prompt rõ có 6 thành phần; mô tả thay đổi bằng kết quả có thể kiểm tra.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "note": "Chỉ đổi phần chữ cần thiết. Với thay đổi giao diện lớn hơn, mô tả ý tưởng cho AI ở bước tiếp theo.",
+      "objective": "Với tiêu đề, tên thương hiệu hoặc nhãn nút, bạn có thể sửa trực tiếp trong VS Code.",
+      "verify": "Text mới hiện trên localhost sau khi lưu.",
+      "visualConcept": "Nội dung tĩnh hiển thị trực tiếp, không popup; thực hành đơn giản dành cho vibe coding."
     },
     {
       "section": 1,
       "number": 15,
-      "title": "Chỉnh app · gửi yêu cầu có ngữ cảnh",
+      "title": "Vibe coding · nói điều bạn muốn đổi",
       "visual": "git-intro-ai-edit",
-      "message": "Đính kèm file liên quan, chọn một trợ lý, rồi gửi prompt mẫu để sửa.",
+      "message": "Mô tả kết quả mong muốn, để AI tìm file và thực hiện; bạn xem app rồi phản hồi tiếp.",
       "cards": [
         {
-          "title": "Gắn ngữ cảnh",
-          "text": "Mở README.md, data/site.js và component; dùng Add Context/đính kèm file nếu công cụ hỗ trợ.",
-          "detail": "Yêu cầu AI đọc project và nêu file dự kiến sửa trước. Nếu AI không đọc được file, cung cấp nội dung liên quan.",
-          "logo": "VS Code"
+          "title": "Mô tả bằng lời",
+          "logo": "VS Code",
+          "text": "Mở project. Chọn Codex hoặc Antigravity và mô tả ý tưởng.",
+          "detail": "Ví dụ: “Làm tiêu đề lớn hơn, đổi nội dung sang workshop nhiếp ảnh”."
         },
         {
-          "title": "Prompt thực hành",
-          "text": "Đổi chủ đề, giữ chức năng và thiết kế; yêu cầu kiểm tra theo khả năng công cụ.",
-          "detail": "Có thể thay tên workshop bằng ý tưởng của bạn, nhưng giữ phạm vi và tiêu chí nghiệm thu.",
+          "title": "Gửi yêu cầu rõ",
           "logo": "AI Codex",
-          "prompt": "Bối cảnh: Tôi đang mở eiu-advertising-starter, website quảng cáo Lumi Studio. Đọc README.md, package.json, data/site.js, app/globals.css và components/MarketingSite.js trước khi sửa.\nMục tiêu: Chuyển nội dung thành quảng cáo workshop nhiếp ảnh “Light Lab”; CTA là “Đăng ký workshop”. Giữ các gói và FAQ phù hợp chủ đề.\nPhạm vi: Sửa nội dung ở data/site.js, màu ở app/globals.css; chỉ sửa component nếu cần. Giữ tab, chọn gói, modal, kiểm tra form, lưu đăng ký trên trình duyệt và responsive.\nThiết kế: Giữ EIU nền kem #F7F4ED, navy #082945, vàng #B39159; chữ rõ, animation nhẹ và hỗ trợ reduced motion.\nKiểm tra: Nếu có quyền chạy công cụ, chạy npm test và npm run build; tìm lỗi, sửa trong phạm vi rồi chạy lại. Thử tab, chọn gói, FAQ, email sai/đúng, mở/đóng form và màn hình nhỏ nếu có công cụ trình duyệt.\nĐầu ra: Tóm tắt file đã sửa, kết quả kiểm tra thực tế và mục chưa kiểm tra. Không thêm dịch vụ, không deploy hoặc push."
+          "text": "Nói rõ phần muốn đổi, phong cách và chức năng cần giữ.",
+          "prompt": "Đổi website Lumi Studio thành trang quảng cáo workshop nhiếp ảnh “Light Lab”.\nĐổi tiêu đề và nút chính thành “Đăng ký workshop”.\nDùng nền kem, chữ navy và điểm nhấn vàng. Bố cục thoáng, dễ đọc trên điện thoại.\nGiữ nguyên tab, chọn gói, FAQ, form đăng ký và cách lưu dữ liệu hiện tại.\nĐọc project trước khi sửa, tự tìm file phù hợp. Kiểm tra sau khi sửa và báo rõ phần chưa kiểm tra."
         },
         {
-          "title": "Xem và chỉnh tiếp",
-          "text": "Đọc diff/tóm tắt file; lưu thay đổi, mở lại localhost và so sánh với mục tiêu.",
-          "detail": "Nếu sai ý, chỉ rõ phần nào sai, kết quả mong muốn và yêu cầu sửa phần đó. Không nhận toàn bộ bản sửa khi chưa hiểu.",
-          "logo": "VS Code"
+          "title": "Xem và phản hồi tiếp",
+          "logo": "Browser",
+          "text": "Refresh localhost, thử các nút rồi phản hồi phần chưa đúng.",
+          "detail": "Mỗi lượt một thay đổi rõ ràng; dùng một trợ lý AI tại một thời điểm."
         }
       ],
       "minutes": 12,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Đính kèm file liên quan, chọn một trợ lý, rồi gửi prompt mẫu để sửa.",
+      "note": "Không cần chỉ đúng tên component. Hãy nói rõ bạn muốn nhìn thấy gì và chức năng nào cần giữ.",
+      "objective": "Mô tả kết quả mong muốn, để AI tìm file và thực hiện; bạn xem app rồi phản hồi tiếp.",
       "verify": "Đính kèm file liên quan, chọn một trợ lý, rồi gửi prompt mẫu để sửa.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "visualConcept": "Nội dung tĩnh hiển thị trực tiếp, không popup; thực hành đơn giản dành cho vibe coding."
     },
     {
       "section": 1,
       "number": 16,
-      "title": "Cùng prompt · kết quả AI có thể khác",
+      "title": "AI có thể tạo kết quả khác nhau",
       "visual": "git-intro-model-outcomes",
-      "message": "Kết quả phụ thuộc model, ngữ cảnh, chế độ agent và quyền công cụ.",
+      "message": "Cùng một yêu cầu, mỗi model hoặc mỗi lượt chạy có thể cho một phương án khác.",
       "cards": [
         {
-          "title": "Model khác, bản sửa khác",
-          "text": "Cùng yêu cầu có thể tạo bố cục, code và mức hoàn thiện khác nhau; ngay cùng model cũng có thể khác giữa các lượt.",
-          "detail": "Ghi tên công cụ/model/chế độ để so sánh; dùng cùng tiêu chí nghiệm thu, không chỉ nhìn ảnh đẹp.",
-          "logo": "VS Code"
+          "title": "Kết quả có thể khác",
+          "text": "Bố cục, nội dung và cách viết mã có thể khác, kể cả khi dùng lại cùng một model."
         },
         {
-          "title": "Tự kiểm tra và sửa lỗi",
-          "text": "Một số model có khả năng suy luận/agent tốt có thể tự chạy kiểm tra, đọc lỗi, sửa và thử lại.",
-          "detail": "Vòng tự kiểm tra → tìm lỗi → fix hiện chỉ khả dụng/hiệu quả với một số model “thông minh” và cấu hình có công cụ/quyền phù hợp; không phải tất cả model.",
-          "logo": "AI Codex"
+          "title": "Tự sửa lỗi tùy model",
+          "text": "Một số model có thể tự tìm và sửa lỗi khi có công cụ và quyền phù hợp; không phải tất cả model đều làm được."
         },
         {
-          "title": "Khi AI chưa tự test",
-          "text": "Yêu cầu báo lệnh đã chạy, kết quả và mục chưa kiểm tra. Nếu thiếu quyền/công cụ, tự chạy và gửi log lỗi đã che secret.",
-          "detail": "Build/test đạt vẫn cần người dùng thử giao diện. Khả năng tự sửa không bảo đảm tìm hết lỗi.",
-          "logo": "VS Code"
+          "title": "AI vẫn có thể sai",
+          "text": "Website có thể trông đẹp nhưng vẫn thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng."
         }
       ],
-      "minutes": 6,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Kết quả phụ thuộc model, ngữ cảnh, chế độ agent và quyền công cụ.",
-      "verify": "Kết quả phụ thuộc model, ngữ cảnh, chế độ agent và quyền công cụ.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "minutes": 2,
+      "note": "",
+      "objective": "Biết kết quả và khả năng tự sửa của AI có thể khác nhau.",
+      "verify": "Biết kết quả và khả năng tự sửa của AI có thể khác nhau.",
+      "visualConcept": "Ba khung thông tin ngắn hiển thị trực tiếp; không popup, không giao nhiệm vụ kiểm thử."
     },
     {
       "section": 1,
       "number": 17,
-      "title": "Kiểm tra · đạt rồi mới lưu phiên bản",
+      "title": "Kiểm tra app · trước khi lưu phiên bản",
       "visual": "git-intro-build",
-      "message": "Xác minh bằng lệnh và thao tác thật trên app đã sửa.",
+      "message": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
       "cards": [
         {
-          "title": "Test và build",
-          "text": "Dừng dev bằng Ctrl+C; chạy kiểm tra chức năng mẫu và build production.",
-          "detail": "Nếu lỗi, gửi log cho AI kèm file liên quan; sửa rồi chạy lại. npm test chỉ bao phủ chức năng được viết test, chưa bao phủ toàn giao diện.",
-          "logo": "VS Code",
-          "code": "npm test\nnpm run build"
+          "title": "Chạy kiểm tra",
+          "logo": "Node.js",
+          "text": "Dừng app bằng Ctrl+C, rồi chạy hai lệnh.",
+          "code": "npm.cmd test\nnpm.cmd run build"
         },
         {
-          "title": "Thử bản production",
-          "text": "Sau build thành công, chạy start và mở URL được báo. Thử tab, gói, FAQ, email sai/đúng, modal và màn hình nhỏ.",
-          "detail": "Kiểm tra nội dung, EIU palette, responsive và reduced motion. Xác nhận form lưu trên trình duyệt như bản gốc.",
+          "title": "Mở bản đã build",
           "logo": "Browser",
-          "code": "npm run start"
+          "text": "Chạy app, rồi mở địa chỉ Local trong Terminal.",
+          "code": "npm.cmd run start"
         },
         {
-          "title": "Chốt phạm vi",
-          "text": "Đối chiếu từng yêu cầu trong prompt và danh sách file sửa.",
-          "detail": "Chỉ chuyển sang Git khi lỗi trong phạm vi đã được xử lý; ghi rõ mục chưa xác minh để không hiểu nhầm AI đã kiểm tra hết.",
-          "logo": "Git"
+          "title": "Nhờ AI sửa nếu lỗi",
+          "logo": "AI Codex",
+          "text": "Dán thông báo lỗi vào chat và nói phần nào chưa đúng."
         }
       ],
       "minutes": 12,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Xác minh bằng lệnh và thao tác thật trên app đã sửa.",
-      "verify": "Xác minh bằng lệnh và thao tác thật trên app đã sửa.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "note": "",
+      "objective": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
+      "verify": "Nhờ AI giải thích lỗi bằng ngôn ngữ đơn giản; chỉ lưu phiên bản khi phần vừa sửa đã hoạt động.",
+      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup."
     },
     {
       "section": 1,
       "number": 18,
-      "title": "Git Init · lưu bản app đã kiểm tra",
+      "title": "Lưu phiên bản đầu tiên bằng Git",
       "visual": "git-intro-initialize",
-      "message": "ZIP chưa có lịch sử Git: tạo repo ngay trong folder app quảng cáo.",
+      "message": "Thực hiện trong folder project đang mở. Git lưu một mốc để bạn có thể xem lại.",
       "cards": [
         {
-          "title": "Khởi tạo và kiểm tra",
-          "text": "Terminal phải nằm ở eiu-advertising-starter. Khởi tạo nhánh main rồi xem file.",
-          "detail": "Kiểm tra .gitignore đã loại .env, node_modules và .next. Nếu folder đã có .git, dùng repo đó, không khởi tạo lại.",
+          "title": "Bật Git cho project",
           "logo": "Git",
-          "code": "git init -b main\ngit status --short\ngit check-ignore node_modules .next .env"
+          "text": "Tạo lịch sử Git cho bộ mẫu vừa giải nén.",
+          "code": "git init -b main\ngit status"
         },
         {
-          "title": "Stage và xem lại",
-          "text": "Đưa các file hợp lệ vào vùng chuẩn bị Commit; kiểm tra danh sách đã chọn.",
-          "detail": "git add . chọn mọi file không bị ignore; gỡ file chọn nhầm bằng git rm --cached -- TEN_FILE trước Commit đầu tiên.",
+          "title": "Chọn mã nguồn",
           "logo": "Git",
-          "code": "git add .\ngit diff --cached --stat\ngit diff --cached"
+          "text": "Chọn file và xem danh sách trước khi lưu.",
+          "code": "git add .\ngit diff --cached --stat"
         },
         {
-          "title": "Commit đầu tiên",
-          "text": "Lưu bản đã sửa và kiểm tra bằng thông điệp dễ hiểu.",
-          "detail": "Phải có Commit và working tree clean. Commit vẫn chỉ nằm trên máy đến khi Push.",
+          "title": "Lưu một mốc",
           "logo": "Git",
-          "code": "git commit -m \"Customize advertising app for Light Lab\"\ngit status\ngit log -1 --oneline"
+          "text": "Commit là một phiên bản được lưu trên máy.",
+          "code": "git commit -m \"Save website\"\ngit status"
         }
       ],
       "minutes": 6,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "ZIP chưa có lịch sử Git: tạo repo ngay trong folder app quảng cáo.",
-      "verify": "ZIP chưa có lịch sử Git: tạo repo ngay trong folder app quảng cáo.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "note": "",
+      "objective": "Thực hiện trong folder project đang mở. Git lưu một mốc để bạn có thể xem lại.",
+      "verify": "File .env, node_modules và .next cần được loại trừ trong .gitignore.",
+      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup."
     },
     {
       "section": 1,
       "number": 19,
-      "title": "Push lần đầu · đưa app lên GitHub",
+      "title": "Đưa mã nguồn lên GitHub",
       "visual": "git-intro-publish",
-      "message": "Repo online trống nhận lịch sử local đã có.",
+      "message": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
       "cards": [
         {
-          "title": "Tạo repo trống",
-          "text": "GitHub → New repository → eiu-advertising-starter; chọn Public hoặc Private rồi Create.",
-          "detail": "Không bật README, .gitignore hay license ở bước này: project local đã có file và Commit.",
+          "title": "Tạo repository",
           "logo": "GitHub",
+          "text": "Đặt tên repo, chọn Public hoặc Private rồi Create.",
           "link": "https://github.com/new",
-          "linkLabel": "Tạo repository"
+          "linkLabel": "Tạo repo trên GitHub"
         },
         {
-          "title": "Nối remote origin",
-          "text": "Thay USERNAME bằng username thật; dùng URL HTTPS của repo vừa tạo.",
-          "detail": "origin là tên remote, không phải nhánh. Nếu origin đã tồn tại, kiểm tra URL trước; chỉ dùng remote set-url khi cần sửa.",
+          "title": "Nối địa chỉ repo",
           "logo": "Git",
-          "code": "git remote add origin https://github.com/USERNAME/eiu-advertising-starter.git\ngit remote -v"
+          "text": "Thay URL_REPO bằng địa chỉ HTTPS vừa tạo.",
+          "code": "git remote add origin URL_REPO\ngit remote -v"
         },
         {
-          "title": "Push và xác nhận",
-          "text": "Gửi main lên origin; hoàn tất đăng nhập GCM qua trình duyệt khi xuất hiện.",
-          "detail": "-u liên kết nhánh local với nhánh remote. Refresh GitHub, chọn main, kiểm tra file và thông điệp Commit; Push chưa deploy website.",
+          "title": "Gửi mã nguồn",
           "logo": "GitHub",
+          "text": "Chạy Push, đăng nhập nếu có yêu cầu.",
           "code": "git push -u origin main\ngit status"
         }
       ],
       "minutes": 7,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Repo online trống nhận lịch sử local đã có.",
-      "verify": "Repo online trống nhận lịch sử local đã có.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "note": "",
+      "objective": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
+      "verify": "Push đưa mã nguồn lên GitHub. Bản app thử nghiệm vẫn chạy trên localhost.",
+      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup."
     },
     {
       "section": 1,
       "number": 20,
-      "title": "Lần sửa tiếp · Commit rồi Push",
+      "title": "Sau mỗi lần sửa · lưu và cập nhật",
       "visual": "git-intro-push-code",
-      "message": "Sửa nhỏ → kiểm tra → xem diff → chọn file → Commit → Push.",
+      "message": "Sửa cùng AI, xem lại app, rồi lưu phiên bản mới và cập nhật GitHub.",
       "cards": [
         {
-          "title": "Kiểm tra nhánh và diff",
-          "text": "Xác nhận đang ở main cho bài cá nhân; xem lại file và phần sửa.",
-          "detail": "Có thể xem diff trong Source Control của VS Code. Làm nhóm: dùng nhánh riêng và Pull Request theo quy ước repo.",
-          "logo": "Git",
+          "title": "Xem phần vừa sửa",
+          "logo": "VS Code",
+          "text": "Mở app thử lại, rồi xem các thay đổi.",
           "code": "git branch --show-current\ngit status\ngit diff"
         },
         {
-          "title": "Chọn file và Commit",
-          "text": "Ví dụ chỉ đổi nội dung/màu: Stage đúng hai file; nếu sửa file khác, thêm đúng đường dẫn đó.",
-          "detail": "Đọc phần đã Stage trước Commit. Chỉ Commit phần đã kiểm tra; không gom file ngoài yêu cầu.",
+          "title": "Lưu phiên bản mới",
           "logo": "Git",
-          "code": "git add data/site.js app/globals.css\ngit diff --cached --stat\ngit commit -m \"Refine workshop content and colors\""
+          "text": "Chọn thay đổi và ghi một tên Commit dễ hiểu.",
+          "code": "git add .\ngit diff --cached --stat\ngit commit -m \"Update website\""
         },
         {
-          "title": "Push bản mới",
-          "text": "main đã đặt upstream nên dùng git push; mở GitHub kiểm tra Commit mới.",
-          "detail": "Nếu Push bị từ chối vì remote có bản mới, chuyển sang luồng Pull và xử lý khác biệt; không dùng force để bỏ qua.",
+          "title": "Cập nhật GitHub",
           "logo": "GitHub",
+          "text": "Gửi Commit mới, rồi refresh repository.",
           "code": "git push\ngit status"
         }
       ],
       "minutes": 7,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Sửa nhỏ → kiểm tra → xem diff → chọn file → Commit → Push.",
-      "verify": "Sửa nhỏ → kiểm tra → xem diff → chọn file → Commit → Push.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "note": "",
+      "objective": "Sửa cùng AI, xem lại app, rồi lưu phiên bản mới và cập nhật GitHub.",
+      "verify": "Nếu lệnh báo lỗi, gửi thông báo cho AI để được hướng dẫn xử lý.",
+      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup."
     },
     {
       "section": 1,
@@ -1254,28 +1194,40 @@
           "text": "Chỉ Pull khi đã Commit phần cần giữ và working tree clean; lấy main sau cập nhật trên GitHub.",
           "detail": "--ff-only dừng nếu lịch sử đã phân kỳ. Sau Pull, nếu package-lock.json thay đổi thì npm install; chạy lại test/build trước khi sửa tiếp.",
           "logo": "Git",
-          "code": "git status\ngit switch main\ngit pull --ff-only origin main\ngit log -3 --oneline"
+          "code": "git status\ngit switch main\ngit pull --ff-only origin main\ngit log -3 --oneline",
+          "summary": [
+            "Cập nhật repository local.",
+            "Kiểm tra trước khi Pull."
+          ]
         },
         {
           "title": "Khi không Pull được",
           "text": "Có file chưa Commit: Commit phần cần giữ trước. Lịch sử phân kỳ: dừng, xem log và nhờ hướng dẫn merge/rebase.",
           "detail": "Nếu có conflict, chọn nội dung cần giữ, bỏ dấu conflict, test rồi Commit. Không reset/force hoặc ghi đè file để né lỗi.",
           "logo": "Git",
-          "code": "git status\ngit log --oneline --graph --all -10"
+          "code": "git status\ngit log --oneline --graph --all -10",
+          "summary": [
+            "Đọc trạng thái và lịch sử.",
+            "Xử lý khác biệt trước."
+          ]
         },
         {
           "title": "Clone trên máy mới",
           "text": "Mở Terminal ở folder cha; thay USERNAME rồi Clone repo và mở folder vừa tạo trong VS Code.",
           "detail": "Clone tải code và lịch sử, tự nối origin. Repo private cần quyền và xác thực; sau đó npm install → npm run dev.",
           "logo": "GitHub",
-          "code": "git clone https://github.com/USERNAME/eiu-advertising-starter.git\ncd eiu-advertising-starter\ngit remote -v\nnpm install\nnpm run dev"
+          "code": "git clone https://github.com/USERNAME/eiu-advertising-starter.git\ncd eiu-advertising-starter\ngit remote -v\nnpm install\nnpm run dev",
+          "summary": [
+            "Tải repo trên máy mới.",
+            "Cài thư viện và chạy app."
+          ]
         }
       ],
       "minutes": 7,
       "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
       "objective": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
       "verify": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "visualConcept": "Ba khung kem mở popup chi tiết; bỏ dải chọn app. Flow ngắn có icon tại bước dùng ứng dụng, chữ ngắt theo ý."
     },
     {
       "section": 1,
