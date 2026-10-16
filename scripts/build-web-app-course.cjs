@@ -4,7 +4,7 @@ const pruneSection = require('./prune-web-app-section.cjs');
 const root = path.resolve('course-content/web-app-development');
 const course = JSON.parse(fs.readFileSync(path.join(root,'storyboard.json'),'utf8'));
 const assets = JSON.parse(fs.readFileSync(process.env.COURSE_ASSETS || 'course-content/web-app-development/assets.json','utf8'));
-assets['Course Inter'] = 'data:font/ttf;base64,' + fs.readFileSync(path.join(root,'fonts','Inter-Variable.ttf')).toString('base64');
+assets['Course Inter'] = 'data:font/woff2;base64,' + fs.readFileSync(path.join(root,'fonts','Inter-Variable.woff2')).toString('base64');
 const renderer = fs.readFileSync(path.join(root,'renderer.tsx.txt'),'utf8');
 const selected = process.argv[2];
 if (selected && !['1','2'].includes(selected)) throw new Error('Choose section 1 or 2.');

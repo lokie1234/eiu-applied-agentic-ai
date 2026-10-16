@@ -1,4 +1,56 @@
+## Gộp phần Effective Vibe Coding
+
+Tối ưu hiệu năng: giữ nguyên nội dung 25 slide, bố cục và animation icon/bánh răng. Font Inter nhúng WOFF2 dùng chung cho cả slide AI/Lab, giữ đủ glyph và trục variable. Logo tối đa 256px, ảnh workspace giữ nguyên. CSS gắn theo layout; bỏ route quiz và CSS chức năng skill cũ. Nền popup không dùng backdrop blur; animation tên model chỉ dùng transform, không thay đổi blur/color/text-shadow theo từng frame. Các yêu cầu hiệu ứng lịch sử bên dưới được áp dụng trong giới hạn này.
+
+Slide 25: mỗi repo có nút Cách cài đặt bên cạnh link GitHub. Popup riêng, nền kem, nêu môi trường/điều kiện, ba bước, nút copy cho lệnh, link tài liệu chính thức và link ứng dụng phù hợp. Penpot dùng Docker/PowerShell; Excalidraw cài thư viện trong React; shadcn/ui minh họa Next.js có Tailwind/alias; n8n dùng bộ cài Docker mới trong WSL (không dán vào PowerShell). Không chạy lệnh thật. Giữ icon float, hiệu ứng nút, Escape/backdrop/Tab trap và trả focus.
+
+Slide 25 thay phần tự kiểm tra bằng repo nổi bật cho thiết kế và tự động hóa: Penpot, Excalidraw, shadcn/ui, n8n. Bốn khung kem 2×2, nhãn lĩnh vực, hai bullet chức năng và link repo chính thức. Logo lấy từ tài khoản GitHub chính thức, nhúng PNG trong TSX và ghi nguồn tại repo-icons/sources.json. Từng icon lơ lửng nhẹ 6.5–8s lệch pha, chỉ animate transform; chữ và khung đứng yên. Giữ hiệu ứng link/nút từ slide 22 và reduced motion. Không đưa số sao hay nhận định trending thời gian thực lên slide.
+
+Slide 24 tối ưu nội dung: mô tả cách áp dụng không lặp ưu điểm; AI tự chọn dùng một đường dẫn chung cho hai công cụ. Popup project nói rõ bộ cài đã thêm AGENTS.md, mẫu rule chỉ dùng khi cài thủ công. Rút rule, không nhắc lại chức năng slide giới thiệu. Popup cài đặt dùng một luồng Terminal, bỏ tải ZIP trùng lựa chọn; mẫu gọi tên là tùy chọn khi cần. Giữ so sánh ba cách, đường dẫn global, copy và hiệu ứng nút.
+
+Slide 23 mới: bỏ dải “Kết quả cụ thể, dễ kiểm chứng”. Bố cục hai cột: bên trái khối thương hiệu navy, logo GitHub trên kem, tên Effective / Vibe Coding lớn cùng bánh răng và cờ lê tự chuyển động; bên phải ba khung kem với sáu bullet thể hiện chức năng. Animation CSS nhẹ, chỉ xoay bánh răng/cờ lê và quét sáng dưới tên, không tương tác hoặc hàm ý có tác vụ AI chạy nền. Reduced motion dừng animation. Giữ nền full frame, font Inter và màu EIU.
+
+Slide 23 giới thiệu ngắn: câu dẫn, ba nhóm chức năng (UI đồng bộ; kiểm tra/dọn code; hiệu năng/báo cáo) và quy trình kết quả. Hướng dẫn cài, repo/ZIP và mẫu gọi skill chuyển sang popup Cài đặt & sử dụng ở slide 24. Slide 24 giữ nguyên ba hàng so sánh nền kem cùng các popup Cách bật, thêm nút cài đặt phía trên; giữ copy, focus, Escape/backdrop và hiệu ứng nút. Bỏ slide chức năng riêng cũ; phần tự kiểm tra nay là slide 25. Quy tắc này thay thế các mô tả lịch sử về ba slide 23–25 dưới đây.
+
+Slide 24: rà soát nội dung theo tài liệu chính thức. Phân biệt cơ chế AI tự chọn với phạm vi hướng dẫn project/global; không ngụ ý ba chế độ loại trừ nhau hoặc bảo đảm skill luôn được gọi. Popup hướng dẫn trực tiếp, bỏ câu nhắc slide khác và câu xem lại/kiểm tra hướng dẫn. Giữ ba khung kem và hiệu ứng nút đã duyệt.
+
+Slide 23 trở đi: hiệu ứng nút đồng bộ slide 22. Nút liên kết, Cách bật, Đóng và tự kiểm tra nhấc 5px với viền/bóng vàng khi hover hoặc focus, nhấn xuống 2px. Nút copy dùng nguyên hiệu ứng copy chung của slide 22, giữ loading và xác nhận thành công. Không tooltip; reduced motion tắt chuyển động. Quy tắc này thay thế yêu cầu hover chỉ sáng trước đây.
+
 # Mẫu thiết kế đã được người dùng chọn
+
+Slide 8: popup Đặt tên và email có hai ô nhập, lệnh cập nhật trực tiếp và nút Sao chép. Chỉ bật copy khi đủ tên/email đúng định dạng; giữ dữ liệu khi chuyển qua lại bước Đọc lại cấu hình trong cùng popup. Lệnh dùng chuỗi literal PowerShell, escape dấu nháy đơn, giữ font Inter và khung kem–navy–vàng. Bước đọc lại cũng có nút copy. Focus trap tính cả input.
+
+Slide 20: khung Nối địa chỉ repo có ô dán URL GitHub HTTPS, preview lệnh và copy theo URL vừa nhập. Không cho copy URL mẫu, URL khác host, có credential/query/hash hoặc sai cấu trúc. Mỗi lần chỉnh dữ liệu tạo snapshot copy mới, không để kết quả copy cũ bật lại nút khi dữ liệu hiện tại không hợp lệ. Không thực thi lệnh hoặc lưu thông tin ra ngoài.
+
+## Full frame · áp dụng cho toàn bộ Section 1
+
+Theo ảnh người dùng xác nhận: bỏ viền bao vàng–navy phía trong mép slide. Không dùng inset box-shadow làm khung ngoài ở gitIntroSlide hoặc shortcutSlide; nền phủ hết canvas 1280×720. Giữ khoảng cách nội dung, khung bài học, popup và nút. Quy tắc này thay thế các ghi chú lịch sử yêu cầu viền ngoài EIU bên dưới; không thêm một khung trang trí quanh toàn slide.
+
+Slide 23 sau slide 22 Pull/Clone — “Effective Vibe Coding · cài một lần, dùng mỗi ngày”: dải repo GitHub và tải ZIP, hai lệnh Terminal có copy, hai ô gọi skill trong Codex/Antigravity cũng có copy. Theo chỉnh sửa mới: nút chỉ sáng lên bằng viền/bóng vàng và brightness khi hover/focus, không dịch chuyển, không tooltip hoặc title native. Bỏ câu dẫn phụ, chú thích cạnh lệnh và dòng phiên bản/công cụ; giữ hướng dẫn mở Terminal đúng project và tạo phiên AI mới. Clone skill sang folder bên cạnh rồi chạy installer với --target .; yêu cầu kỹ thuật giữ trong note nguồn. Giữ Inter nhúng và EIU kem–navy–vàng.
+
+Slide 24 — “Tự áp dụng skill · chọn cách nào?”: thiết kế ba hàng ngang, số lớn bên trái, tên/cách áp dụng, hai cột ưu điểm/điểm cân nhắc và nút Cách bật bên phải. Hàng giữa navy–vàng, hai hàng bên kem, font và căn hàng đồng nhất. Bỏ câu dẫn, dải khuyến nghị trong ảnh và chú thích cuối popup. Tất cả nút chỉ sáng khi hover/focus, không tooltip. Popup giữ đường dẫn Codex/Antigravity IDE, mẫu rule có copy, đóng bằng nút/Escape/backdrop và giữ/trả focus. Nguồn và ghi chú giảng viên giữ trong dữ liệu.
+
+Slide 25 giới thiệu sáu chức năng: font, layout, kiểm tra/sửa lỗi, giảm lag, dọn code dư và báo kết quả. Sáu khung kem 3×2, số navy–vàng, dải navy nêu cấu trúc báo cáo cụ thể. Không tab/popup; không ngụ ý skill chạy nền hay bảo đảm tự hết lỗi. Bài tự kiểm tra chuyển sang slide 26, layoutNumber 22 giữ nguyên.
+
+Slide 16 hiện tại — “Vibe coding · nói điều bạn muốn đổi”: bỏ dải chú thích cuối slide. Giữ ba bước hướng dẫn, prompt mẫu và nút sao chép; phần ghi chú giảng viên vẫn lưu trong dữ liệu nguồn.
+
+Slide 15 hiện tại — “Đổi text · tìm, sửa và xem ngay”: bỏ chú thích dưới ba khung và dải ghi chú cuối slide. Ba khung cao 360px, icon phía trên, tiêu đề một dòng, nhãn thao tác và mô tả căn hàng/căn giữa. Cả ba khung nền kem đồng nhất, tiêu đề navy và điểm nhấn vàng. Giữ Inter, viền EIU và hai tổ hợp Ctrl+Shift+F, Ctrl+S; không thêm ví dụ hay popup.
+
+Slide chạy app (tiếp nối phần Ctrl+click người dùng gọi là slide 15): bỏ chú thích dưới hai khối lệnh và dải ghi chú/nghiệm thu cuối slide. Cân lại hai cột, lệnh và nút copy bên trái; trạng thái Ready cùng hai cách mở app bên phải. Giữ hướng dẫn chính và dòng Ctrl+click nổi bật.
+
+Dòng “Giữ Ctrl và click vào http://localhost:3000” ở slide chạy app: bỏ “trong Terminal.”, căn giữa nội dung trên một hàng với khoảng cách đều, nền navy và viền vàng gọn. Ctrl dạng phím kem–vàng, localhost chữ trắng có gạch chân; giữ vị trí trong khung Ngay trong VS Code.
+
+Dải Lumi Studio ở slide 13: lấy màu trực tiếp từ website mẫu — nền kem chuyển vàng nhẹ, cạnh nhấn vàng, “Lumi” navy và “Studio” vàng đậm. Nhãn nhỏ vàng đậm, mô tả navy trên một dòng; dùng grid với vùng mô tả co giãn và nowrap cho tên/câu mô tả, không ngắt dòng ngẫu nhiên.
+
+Slide 13 hiện tại: bỏ cả ba chú thích dưới nội dung từng khung (tên file ZIP, chờ giải nén, chọn folder/package.json) và sơ đồ lặp lại phía dưới. “Lumi Studio” dùng chữ vàng 46px/850 trên dải navy, mô tả ngắn bên phải. Ba khung thao tác cùng cao 332px, icon/tiêu đề thẳng hàng, chữ 21px; nút tải ZIP thật vẫn có animation. Giữ font Inter và EIU kem–navy–vàng.
+
+Slide 8 hiện tại: icon VS Code, Node.js, Git, GitHub và Terminal lơ lửng nhẹ theo chu kỳ 4 giây, lệch pha, dịch dọc từ +2px đến −3px và xoay ±0.6°. Chỉ icon chuyển động; khung, chữ và nút đứng yên. Tắt theo prefers-reduced-motion; icon trong popup không bị ảnh hưởng.
+
+Slide 7 hiện tại: chữ trong sơ đồ phối hợp dưới cùng đổi thành đen, gồm tên công cụ, mô tả và nhãn Push/Pull. Nhãn Push dùng nền vàng nhạt để chữ đen dễ đọc; giữ icon, mũi tên và chuyển động.
+
+## Slide phím tắt VS Code · 16/10/2026
+
+Section 1 chèn một slide sau bản đồ vùng làm việc (slide 4). Slide 5 có tám phím tắt mặc định Windows và hướng dẫn mở Keyboard Shortcuts bằng Ctrl+K rồi Ctrl+S, tìm lệnh, đổi phím và đường menu. Theo chỉnh sửa tiếp theo: bỏ link trong slide; dùng đúng Inter nhúng cho cả tiêu đề, mô tả và phím. Tiêu đề navy 36px/800, gạch vàng, nền kem lưới nhẹ và viền EIU. Tám ô chia hai cột, bốn hàng bên trái; khung hướng dẫn navy bên phải. Các tổ hợp phím lơ lửng chậm chu kỳ 3–3.6 giây, lệch nhịp; khung và mô tả đứng yên. Tắt animation theo prefers-reduced-motion. Không footer. Các slide sau tăng số thứ tự; `layoutNumber` giữ định danh bố cục cũ để popup, nút và CSS hiện có không đổi hành vi. TSX, storyboard và renderer đồng bộ; binding và output tracing giữ nguyên.
 
 ## Chỉnh bộ slide VS Code · 15/10/2026
 

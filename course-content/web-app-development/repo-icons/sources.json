@@ -1,0 +1,26 @@
+[
+  {
+    "name": "Penpot",
+    "url": "https://github.com/penpot.png?size=256",
+    "file": "Penpot.png",
+    "retrieved": "2026-10-16"
+  },
+  {
+    "name": "Excalidraw",
+    "url": "https://github.com/excalidraw.png?size=256",
+    "file": "Excalidraw.png",
+    "retrieved": "2026-10-16"
+  },
+  {
+    "name": "shadcn-ui",
+    "url": "https://github.com/shadcn-ui.png?size=256",
+    "file": "shadcn-ui.png",
+    "retrieved": "2026-10-16"
+  },
+  {
+    "name": "n8n",
+    "url": "https://github.com/n8n-io.png?size=256",
+    "file": "n8n.png",
+    "retrieved": "2026-10-16"
+  }
+]

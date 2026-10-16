@@ -1,9 +1,20 @@
 # Phát triển và triển khai ứng dụng web với AI
 
-Bản chờ review cho course **AI-Powered Web App Development & Deployment**. Chưa commit/push Git.
+Bộ nội dung cho course **AI-Powered Web App Development & Deployment**, hiển thị từ nguồn TSX đã đăng ký trong project.
 
-- `Section1.tsx`: 33 slide; giữ nguyên 1–13. Từ 14: Git/GitHub trong một slide popup → setup bốn công cụ trong một slide popup → Antigravity/Codex với vibe riêng → tải/mở/chạy app quảng cáo → prompt/sửa và giới hạn tự test-fix theo model → kiểm tra → Commit/Push/Pull/Clone. Xem [GIT_GUIDE.md](GIT_GUIDE.md).
+- `Section1.tsx`: 25 slide. Slide 5 hướng dẫn phím tắt VS Code. Slide 23 giới thiệu Effective Vibe Coding bằng bullet và cụm GitHub/bánh răng. Slide 24 so sánh cách áp dụng skill, kèm popup cài đặt và mẫu rule. Slide 25 giới thiệu Penpot, Excalidraw, shadcn/ui, n8n, có logo lơ lửng, link GitHub và popup hướng dẫn cài riêng. `layoutNumber` giữ định danh bố cục cũ cho popup và thao tác. Xem [GIT_GUIDE.md](GIT_GUIDE.md).
 - `Section2.tsx`: 20 slide, lưu trữ dữ liệu/tài liệu và triển khai, 180 phút.
+
+## Tối ưu Section 1 · 16/10/2026
+
+- Bỏ route quiz Git và CSS chức năng skill cũ không còn dùng. Chỉ gắn các nhóm CSS cần cho layout đang mở.
+- Font Inter gốc chuyển sang WOFF2, không subset: giữ nguyên glyph map, glyph order và trục variable. Giữ TTF cùng giấy phép làm nguồn; bản hiển thị chỉ nhúng WOFF2. Hai slide AI và slide Lab cũng dùng font nhúng chung.
+- Logo PNG được nén và giới hạn tối đa 256px, đủ cho kích thước hiển thị. Giữ nguyên ảnh workspace 1917×1152 để đọc nội dung.
+- Bỏ blur nền popup và hiệu ứng thay đổi filter/text-shadow liên tục trên tên model; giữ chuyển động bằng transform và hiệu ứng nút/icon.
+- TSX giảm từ 2.790 MB xuống 1.371 MB, khoảng 50.9%; CSS nhúng trung bình mỗi slide giảm khoảng 54.6%. Đây là số đo dung lượng, không phải benchmark FPS.
+- Chạy `node scripts/build-web-app-course.cjs 1` để tạo lại Section 1; `node scripts/audit-web-app-course.cjs` để render kiểm tra cả 25 slide và thống kê CSS/DOM. Bộ kiểm tra tương tác và API: `node --test tests/web-app-git-guide.test.mjs tests/section-content.test.mjs`.
+
+Các ghi chú thiết kế và số slide trong những đoạn cũ bên dưới là lịch sử; phần mô tả hiện tại ở trên là nguồn tham chiếu cho Section 1.
 - `storyboard.json`: nội dung hiển thị, mục tiêu, thông điệp, ghi chú giảng viên, thời lượng, tiêu chí kiểm tra và 10 prompt tiếng Việt.
 - `renderer.tsx.txt`: mã dựng giao diện EIU DNA và các hoạt động tương tác.
 - `assets.json`: logo nhúng trong file, không cần tải ảnh ngoài khi mở slide.

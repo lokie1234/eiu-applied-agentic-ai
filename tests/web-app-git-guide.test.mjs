@@ -6,15 +6,21 @@ import ts from 'typescript';
 import { Window } from 'happy-dom';
 
 const source = fs.readFileSync('course-content/web-app-development/Section1.tsx','utf8');
-const slides = JSON.parse(fs.readFileSync('course-content/web-app-development/storyboard.json','utf8')).slides.filter(s=>s.section===1);
+const sectionSlides = JSON.parse(fs.readFileSync('course-content/web-app-development/storyboard.json','utf8')).slides.filter(s=>s.section===1);
+// Existing scenarios retain their layout identities when a new slide is inserted.
+const slides = sectionSlides.filter(s=>!['vscode-shortcuts','git-intro-ai-workflow','git-intro-skill-functions','git-intro-skill-defaults'].includes(s.visual)).map(s=>({...s,number:s.layoutNumber??s.number}));
 const compiled = ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,jsx:ts.JsxEmit.React,jsxFactory:'h',jsxFragmentFactory:'Fragment'}}).outputText;
 const documents = {};
 vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/tsxDocument.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports:documents});
 function render(page){
+ const displayPage=sectionSlides.find(s=>(s.layoutNumber??s.number)===page && !['vscode-shortcuts','git-intro-ai-workflow','git-intro-skill-functions','git-intro-skill-defaults'].includes(s.visual)).number;
+ return renderDisplay(displayPage);
+}
+function renderDisplay(page){
  const window = new Window();
  window.document.body.innerHTML='<div id="root"></div>';
  const script=documents.createTsxDocument(compiled,page).match(/<script>([\s\S]*?)<\/script>/)[1];
- vm.runInNewContext(script,{document:window.document,Node:window.Node,window,parent:{postMessage(){}},setTimeout:window.setTimeout.bind(window),clearTimeout:window.clearTimeout.bind(window)},{timeout:3000});
+ vm.runInNewContext(script,{document:window.document,Node:window.Node,URL:window.URL,window,parent:{postMessage(){}},setTimeout:window.setTimeout.bind(window),clearTimeout:window.clearTimeout.bind(window)},{timeout:3000});
  const error=window.document.querySelector('#error');
  assert.ok(!error,`Slide ${page} renders: ${error?.textContent||''}`);
  return window;
@@ -125,8 +131,8 @@ test('practice cards open readable details without the old app tab strip',async(
      assert.equal(doc.querySelector('[role=dialog]'),null);
      assert.equal(doc.activeElement,trigger);
     }else assert.equal(doc.querySelector('[aria-haspopup=dialog]'),null);
-    assert.deepEqual([...doc.querySelectorAll('.inlineWorkflowCode pre')].map(el=>el.textContent),slide.cards.filter(c=>c.code).map(c=>c.code));
-    assert.equal(doc.querySelectorAll('.inlineWorkflowCode button').length,slide.cards.filter(c=>c.code).length);
+    assert.deepEqual([...doc.querySelectorAll('.inlineWorkflowCards pre')].map(el=>el.textContent),slide.cards.filter(c=>c.code).map(c=>c.code));
+    assert.equal(doc.querySelectorAll('.inlineWorkflowCards .copyControl').length,slide.cards.filter(c=>c.code).length);
     continue;
    }
    if(slide.number===16){
@@ -154,7 +160,9 @@ test('practice cards open readable details without the old app tab strip',async(
     assert.equal(doc.querySelectorAll('.starterCard').length,3);
     assert.equal(doc.querySelector('[aria-haspopup=dialog]'),null);
     assert.ok(doc.querySelector('[aria-label="File ZIP"]'));
-    for(const card of slide.cards){if(!card.points)assert.ok(doc.body.textContent.includes(card.text));assert.ok(doc.body.textContent.includes(card.detail));}
+    for(const card of slide.cards){if(!card.points)assert.ok(doc.body.textContent.includes(card.text));}
+    assert.equal(doc.querySelector('.starterNote'),null);
+    assert.equal(doc.querySelector('.starterHero h2').textContent,'Lumi Studio');
     continue;
    }
    if(slide.number===13){
@@ -163,7 +171,8 @@ test('practice cards open readable details without the old app tab strip',async(
     assert.equal(doc.querySelectorAll('.localCommand button').length,2);
     assert.equal(doc.querySelector('.localOpenApp').getAttribute('href'),'http://localhost:3000');
     assert.equal(doc.querySelector('.localOpenApp').target,'_blank');
-    assert.match(doc.querySelector('.localRunNote').textContent,/cổng 3000 bận/);
+    assert.equal(doc.querySelector('.localRunNote'),null);
+    assert.equal(doc.querySelector('.localStepNote'),null);
     let command='';
     doc.execCommand=()=>{command=doc.activeElement.value;return true;};
     const copy=doc.querySelector('.localCommand button');
@@ -387,18 +396,271 @@ test('setup and practice lead to complete Push, Pull and Clone workflows',()=>{
  assert.equal(slides[11].visual,'git-intro-starter');
  assert.equal(slides[16].visual,'git-intro-build');
  assert.equal(slides[17].visual,'git-intro-initialize');
- assert.equal(slides.at(-1).visual,'git-intro-quiz');
+ assert.equal(slides.at(-1).visual,'git-intro-repo-showcase');
  assert.ok(!slides.slice(5).some(s=>JSON.stringify(s).includes('webapp-web')));
  assert.ok(slides.slice(16,20).every(slide=>slide.cards.every(card=>!card.detail)));
  assert.match(JSON.stringify(slides[6]),/không cần cài GitHub Desktop hoặc extension GitHub/);
 });
 
-test('quiz gives feedback and the source remains registered for live display',async()=>{
- const window=render(22);
+test('repository showcase has official embedded icons, functions and links and remains registered',async()=>{
+ const window=renderDisplay(25);
  try{
-  window.document.querySelector('.choices button').click();
-  assert.match(window.document.querySelector('.feedback').textContent,/Phù hợp/);
+  const doc=window.document;
+  assert.equal(doc.querySelector('.gitGuideQuiz'),null);
+  const cards=[...doc.querySelectorAll('.repoShowcaseCard')];
+  assert.equal(cards.length,4);
+  assert.equal(new Set(cards.map(c=>c.querySelector('img').src)).size,4);
+  for(let i=0;i<cards.length;i++){
+   const source=sectionSlides[24].cards[i],card=cards[i];
+   assert.equal(card.querySelector('h2').textContent,source.title);
+   assert.match(card.querySelector('img').src,/^data:image\/png;base64,/);
+   assert.equal(card.querySelectorAll('li').length,2);
+   assert.equal(card.querySelector('a').href,source.link);
+   assert.equal(card.querySelector('a').target,'_blank');
+   assert.equal(card.querySelector('a').rel,'noopener noreferrer');
+   assert.equal(card.querySelector('[title]'),null);
+   card.querySelector('a').focus();assert.equal(doc.activeElement,card.querySelector('a'));
+  }
+  assert.equal(new Set(cards.map(c=>c.querySelector('.repoShowcaseIcon').style.animationDelay)).size,4);
   const bindings=JSON.parse(fs.readFileSync('course-content/sources.json','utf8'));
   assert.ok(bindings.some(b=>b.courseId==='a857595d-def0-4543-9216-a680c6abfe26'&&b.sectionId==='47c1183e-a26e-4c5d-9937-88ec5a755a32'&&b.path==='course-content/web-app-development/Section1.tsx'));
+ }finally{await window.happyDOM.close();}
+});
+
+test('each repository opens its own installation guide with copy, links and keyboard navigation',async()=>{
+ const window=renderDisplay(25),doc=window.document;
+ try{
+  const triggers=[...doc.querySelectorAll('.repoShowcaseInstall')];
+  assert.equal(triggers.length,4);
+  for(let i=0;i<triggers.length;i++){
+   const card=sectionSlides[24].cards[i],setup=card.setup;
+   triggers[i].click();
+   const dialog=doc.querySelector('.repoInstallDialog');assert.ok(dialog);
+   assert.equal(dialog.getAttribute('role'),'dialog');
+   assert.equal(dialog.getAttribute('aria-modal'),'true');
+   assert.ok(doc.getElementById(dialog.getAttribute('aria-labelledby')).textContent.includes(card.title));
+   assert.ok(dialog.querySelector('.repoInstallPrereq').textContent.includes(setup.shell));
+   assert.equal(dialog.querySelectorAll('.repoInstallStep').length,3);
+   assert.equal(dialog.querySelector('[title]'),null);
+   const controls=[...dialog.querySelectorAll('button,a[href]')];
+   assert.equal(doc.activeElement,controls[0]);
+   controls[0].dispatchEvent(new window.KeyboardEvent('keydown',{key:'Tab',shiftKey:true,bubbles:true}));
+   assert.equal(doc.activeElement,controls.at(-1));
+   controls.at(-1).dispatchEvent(new window.KeyboardEvent('keydown',{key:'Tab',bubbles:true}));
+   assert.equal(doc.activeElement,controls[0]);
+   dialog.querySelector('h3').click();assert.ok(doc.querySelector('[role=dialog]'));
+   const codes=setup.steps.filter(s=>s.code).map(s=>s.code);
+   assert.deepEqual([...dialog.querySelectorAll('pre')].map(p=>p.textContent),codes);
+   const copies=[...dialog.querySelectorAll('.copyControl')];
+   assert.equal(copies.length,codes.length);
+   for(let n=0;n<copies.length;n++){
+    let copied='';doc.execCommand=()=>{copied=doc.activeElement.value;return true;};
+    copies[n].click();assert.equal(copied,codes[n]);
+    await new Promise(resolve=>setTimeout(resolve,480));
+    assert.equal(copies[n].dataset.state,'copied');
+    assert.equal(doc.querySelector('textarea'),null);
+   }
+   const links=[...dialog.querySelectorAll('a')];
+   assert.equal(links[0].href,setup.docs);
+   if(setup.appUrl)assert.equal(links[1].href,setup.appUrl+(new URL(setup.appUrl).pathname==='/'&&!setup.appUrl.endsWith('/')?'/':''));
+   for(const link of links){assert.equal(link.target,'_blank');assert.equal(link.rel,'noopener noreferrer');}
+   dialog.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+   assert.equal(doc.querySelector('[role=dialog]'),null);
+   assert.equal(doc.activeElement,triggers[i]);
+  }
+  triggers[0].click();doc.querySelector('.repoInstallOverlay').click();
+  assert.equal(doc.querySelector('[role=dialog]'),null);assert.equal(doc.activeElement,triggers[0]);
+  triggers[1].click();doc.querySelector('.repoInstallDialog .skillDefaultClose').click();
+  assert.equal(doc.querySelector('[role=dialog]'),null);assert.equal(doc.activeElement,triggers[1]);
+  assert.match(sectionSlides[24].cards[3].setup.shell,/WSL/);
+  assert.ok(!sectionSlides[24].cards[3].setup.steps.some(s=>s.code?.includes('npx n8n')));
+ }finally{await window.happyDOM.close();}
+});
+
+test('all 25 slides retain embedded Inter while only loading their layout styles',async()=>{
+ assert.equal(fs.readFileSync('course-content/web-app-development/fonts/Inter-Variable.woff2').subarray(0,4).toString(),'wOF2');
+ assert.doesNotMatch(source,/git-intro-quiz|\.skillFeatureGrid\{|\.skillOutcome\{/);
+ for(const slide of sectionSlides){
+  const window=renderDisplay(slide.number),doc=window.document;
+  try{
+   const css=[...doc.querySelectorAll('style')].map(s=>s.textContent).join('\n');
+   assert.equal((css.match(/@font-face/g)||[]).length,1,'one embedded font declaration on slide '+slide.number);
+   assert.match(css,/data:font\/woff2;base64,/);
+   assert.doesNotMatch(css,/data:font\/ttf;base64,/);
+   if(slide.visual!=='cover')assert.ok(!css.includes('.coverSlide{'));
+   if(!slide.visual.startsWith('workspace-'))assert.ok(!css.includes('.vscodeMap{'));
+   if(slide.visual.startsWith('git-intro-')&&!['git-intro-ai-antigravity','git-intro-ai-codex'].includes(slide.visual))assert.ok(css.includes('.gitIntroSlide .copyControl'));
+   assert.equal(doc.querySelector('.eiu')?.style.boxShadow||'','');
+  }finally{await window.happyDOM.close();}
+ }
+});
+
+test('installation dialog preserves repo links and copies install and invocation commands',async()=>{
+ assert.equal(sectionSlides.length,25);
+ assert.equal(sectionSlides[21].visual,'git-intro-pull');
+ assert.equal(sectionSlides[22].visual,'git-intro-ai-workflow');
+ assert.equal(sectionSlides[23].visual,'git-intro-skill-defaults');
+ assert.equal(sectionSlides[24].visual,'git-intro-repo-showcase');
+ assert.ok(!sectionSlides.some(s=>s.visual==='git-intro-skill-functions'));
+ assert.deepEqual(sectionSlides.map(s=>s.number),Array.from({length:25},(_,i)=>i+1));
+ const window=renderDisplay(24),doc=window.document;
+ try{
+  const install=doc.querySelector('.skillInstallToolbar button');install.click();
+  const dialog=doc.querySelector('[role=dialog]');assert.ok(dialog);
+  const controls=[...dialog.querySelectorAll('button,a[href]')];
+  assert.equal(doc.activeElement,controls[0]);
+  controls[0].dispatchEvent(new window.KeyboardEvent('keydown',{key:'Tab',shiftKey:true,bubbles:true}));
+  assert.equal(doc.activeElement,controls.at(-1));
+  assert.equal(doc.querySelector('[role=tab]'),null);
+  const links=[...doc.querySelectorAll('.skillRepo a')];
+  assert.equal(links.length,1);
+  assert.equal(links[0].href,'https://github.com/lokie1234/Effective-Vibe-Coding');
+  const commands=[...doc.querySelectorAll('.skillCommandBox pre')].map(el=>el.textContent);
+  assert.deepEqual(commands,[
+   'git clone https://github.com/lokie1234/Effective-Vibe-Coding.git ../Effective-Vibe-Coding',
+   'node ../Effective-Vibe-Coding/scripts/install.mjs --target .'
+  ]);
+  assert.match(doc.querySelector('.skillTerminalIntro').textContent,/folder project muốn cài/);
+  const expected=[...commands,...sectionSlides[23].regionDetails[0].cards.slice(2).map(c=>c.prompt)];
+  const buttons=[...doc.querySelectorAll('.skillSetup .copyControl')];
+  assert.equal(buttons.length,4);
+  const actions=[...doc.querySelectorAll('.skillSetup a,.skillSetup button')];
+  assert.equal(actions.length,5);
+  assert.equal(doc.querySelector('[role=tooltip]'),null);
+  assert.equal(doc.querySelector('.skillSetup .gitLead'),null);
+  assert.equal(doc.querySelector('.skillCommand small'),null);
+  for(const action of actions){
+   assert.equal(action.getAttribute('aria-describedby'),null);
+   assert.equal(action.getAttribute('title'),null);
+   action.focus();assert.equal(doc.activeElement,action);
+  }
+  for(let i=0;i<buttons.length;i++){
+   let copied='';doc.execCommand=()=>{copied=doc.activeElement.value;return true;};
+   buttons[i].click();assert.equal(copied,expected[i]);
+   assert.equal(doc.querySelector('textarea'),null,'fallback copy cleans up temporary input');
+   await new Promise(resolve=>setTimeout(resolve,500));
+   assert.equal(buttons[i].dataset.state,'copied');
+  }
+  assert.match(expected[2],/^\$effective-vibe-coding/);
+  assert.match(expected[3],/Áp dụng skill effective-vibe-coding/);
+  dialog.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+  assert.equal(doc.querySelector('[role=dialog]'),null);
+  assert.equal(doc.activeElement,install);
+ }finally{await window.happyDOM.close();}
+});
+
+test('skill introduction summarizes capabilities without duplicating installation',async()=>{
+ const window=renderDisplay(23),doc=window.document;
+ try{
+  assert.equal(doc.querySelectorAll('.skillBulletCard').length,3);
+  assert.equal(doc.querySelectorAll('.skillBulletCard li').length,6);
+  for(const card of sectionSlides[22].cards){assert.ok(doc.body.textContent.includes(card.title));for(const point of card.points)assert.ok(doc.body.textContent.includes(point));}
+  assert.equal(doc.querySelector('.skillCommands'),null);
+  assert.equal(doc.querySelector('.skillOutcome'),null);
+  assert.equal(doc.querySelector('.skillBrandName').textContent,'EffectiveVibe Coding');
+  assert.ok(doc.querySelector('.skillBrandEmblem img'));
+  assert.equal(doc.querySelectorAll('.skillGear').length,2);
+  assert.ok(doc.querySelector('.skillRepairWrench'));
+  assert.equal(doc.querySelector('.skillIntro button,.skillIntro a'),null);
+  assert.equal(doc.querySelector('[role=tab]'),null);
+ }finally{await window.happyDOM.close();}
+});
+
+test('activation comparison opens setup dialogs, copies rules and restores keyboard focus',async()=>{
+ const window=renderDisplay(24),doc=window.document;
+ try{
+  const triggers=[...doc.querySelectorAll('.skillDefaultCard .skillDefaultButton')];
+  assert.equal(triggers.length,3);
+  assert.equal(doc.querySelector('.skillDefaultAdvice'),null);
+  assert.equal(doc.querySelector('.skillDefaults .gitLead'),null);
+  assert.equal(doc.querySelector('[role=tooltip]'),null);
+  assert.equal(doc.querySelectorAll('.skillDefaultIdentity').length,3);
+  assert.equal(doc.querySelectorAll('.skillDefaultTrade').length,6);
+  for(let i=0;i<3;i++){
+   triggers[i].click();
+   const dialog=doc.querySelector('[role=dialog]');
+   assert.ok(dialog);assert.equal(dialog.getAttribute('aria-modal'),'true');
+   assert.equal(dialog.querySelector('.skillDefaultCheck'),null);
+   assert.equal(dialog.querySelector('[title]'),null);
+   const controls=[...dialog.querySelectorAll('button')];
+   assert.equal(doc.activeElement,controls[0]);
+   controls[0].dispatchEvent(new window.KeyboardEvent('keydown',{key:'Tab',shiftKey:true,bubbles:true}));
+   assert.equal(doc.activeElement,controls.at(-1));
+   assert.doesNotMatch(dialog.textContent,/slide\s*\d|xem lại|kiểm tra hướng dẫn/i);
+   if(i===0)assert.equal(dialog.querySelectorAll('code').length,1);
+   if(i===1){
+    assert.match(dialog.textContent,/Bộ cài đã thêm lời nhắc/);
+    assert.match(dialog.textContent,/Nếu cài thủ công/);
+   }
+   if(i===2){
+    assert.match(dialog.textContent,/~\/.agents\/skills\/effective-vibe-coding/);
+    assert.match(dialog.textContent,/~\/.codex\/AGENTS.md/);
+    assert.match(dialog.textContent,/~\/.gemini\/config\/skills/);
+    assert.match(dialog.textContent,/~\/.gemini\/GEMINI.md/);
+   }
+   if(i>0){
+    let copied='';doc.execCommand=()=>{copied=doc.activeElement.value;return true;};
+    const copy=dialog.querySelector('.copyControl');copy.click();
+    assert.equal(copied,sectionSlides[23].prompt);
+    await new Promise(resolve=>setTimeout(resolve,500));
+    assert.equal(copy.dataset.state,'copied');
+   }
+   dialog.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true}));
+   assert.equal(doc.querySelector('[role=dialog]'),null);
+   assert.equal(doc.activeElement,triggers[i]);
+  }
+  triggers[1].click();doc.querySelector('.skillDefaultOverlay').click();
+  assert.equal(doc.querySelector('[role=dialog]'),null);
+  assert.equal(doc.activeElement,triggers[1]);
+ }finally{await window.happyDOM.close();}
+});
+
+test('slide 8 builds copyable PowerShell identity commands from user inputs and retains them across steps',async()=>{
+ const window=renderDisplay(8),doc=window.document;
+ try{
+  doc.querySelector('.setupFinishVersions').click();
+  const editor=doc.querySelector('.editableGit[data-mode=identity]');
+  assert.ok(editor);assert.equal(editor.querySelector('button').disabled,true);
+  const inputs=[...editor.querySelectorAll('input')];
+  const input=(field,value)=>{field.value=value;field.dispatchEvent(new window.Event('input',{bubbles:true}));};
+  input(inputs[0],"Nguyễn O'Brien $HOME");input(inputs[1],'not-an-email');
+  assert.equal(editor.querySelector('button').disabled,true);
+  input(inputs[1],'123456+an@users.noreply.github.com');
+  const command="git config --global user.name 'Nguyễn O''Brien $HOME'\ngit config --global user.email '123456+an@users.noreply.github.com'\ngit config --global init.defaultBranch main";
+  assert.equal(editor.querySelector('pre').textContent,command);
+  assert.equal(editor.querySelector('button').disabled,false);
+  let copied='';doc.execCommand=()=>{copied=doc.activeElement.value;return true;};
+  editor.querySelector('button').click();assert.equal(copied,command);
+  await new Promise(resolve=>setTimeout(resolve,500));
+  assert.equal(editor.querySelector('button').dataset.state,'copied');
+  const steps=[...doc.querySelectorAll('.gitSetupStep')];steps[1].click();
+  assert.ok(doc.querySelector('.gitTerminalBlock .copyControl'));
+  steps[0].click();
+  assert.equal(doc.querySelector('.editableGit input').value,"Nguyễn O'Brien $HOME");
+  assert.equal(doc.querySelector('.editableGit pre').textContent,command);
+ }finally{await window.happyDOM.close();}
+});
+
+test('slide 20 validates the GitHub URL, updates commands and copies a snapshot of the entered repository',async()=>{
+ const window=renderDisplay(20),doc=window.document;
+ try{
+  const editor=doc.querySelector('.editableGit[data-mode=repo]');
+  const field=editor.querySelector('input');
+  const input=value=>{field.value=value;field.dispatchEvent(new window.Event('input',{bubbles:true}));};
+  assert.equal(editor.querySelector('button').disabled,true);
+  for(const value of ['URL_REPO','http://github.com/user/repo','https://token@github.com/user/repo','https://github.com/user/repo?token=x','https://example.com/user/repo']){
+   input(value);assert.equal(editor.querySelector('button').disabled,true,value);
+  }
+  input('https://github.com/lokie1234/Effective-Vibe-Coding.git');
+  const command="git remote add origin 'https://github.com/lokie1234/Effective-Vibe-Coding.git'\ngit remote -v";
+  assert.equal(editor.querySelector('pre').textContent,command);
+  let copied='';doc.execCommand=()=>{copied=doc.activeElement.value;return true;};
+  const oldButton=editor.querySelector('button');oldButton.click();assert.equal(copied,command);
+  input('');assert.equal(editor.querySelector('button').disabled,true);
+  await new Promise(resolve=>setTimeout(resolve,500));
+  assert.equal(editor.querySelector('button').disabled,true,'finishing an old copy cannot enable an invalid form');
+  input('https://github.com/user/another-repo');
+  assert.match(editor.querySelector('pre').textContent,/another-repo/);
+  assert.equal(editor.querySelector('button').dataset.state,'idle');
  }finally{await window.happyDOM.close();}
 });

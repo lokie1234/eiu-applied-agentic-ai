@@ -545,6 +545,52 @@
     {
       "section": 1,
       "number": 5,
+      "title": "Phím tắt thường dùng trong VS Code",
+      "minutes": 5,
+      "message": "Phím tắt mặc định trên Windows · dùng ngay khi làm việc với VS Code",
+      "cards": [
+        {
+          "title": "Lưu file",
+          "text": "Ctrl + S"
+        },
+        {
+          "title": "Hoàn tác",
+          "text": "Ctrl + Z"
+        },
+        {
+          "title": "Mở nhanh file",
+          "text": "Ctrl + P"
+        },
+        {
+          "title": "Mở Command Palette",
+          "text": "Ctrl + Shift + P"
+        },
+        {
+          "title": "Tìm trong toàn dự án",
+          "text": "Ctrl + Shift + F"
+        },
+        {
+          "title": "Ẩn / hiện Terminal",
+          "text": "Ctrl + `"
+        },
+        {
+          "title": "Bật / tắt comment dòng",
+          "text": "Ctrl + /"
+        },
+        {
+          "title": "Định dạng tài liệu",
+          "text": "Shift + Alt + F"
+        }
+      ],
+      "visual": "vscode-shortcuts",
+      "note": "Nguồn: https://code.visualstudio.com/docs/configure/keybindings ; https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf . Phím mặc định Windows; keymap, extension và cấu hình cá nhân có thể thay đổi. Định dạng tài liệu cần formatter phù hợp.",
+      "verify": "Mở Keyboard Shortcuts, tìm Toggle Terminal và xem phím đang được gán trên máy.",
+      "objective": "Dùng phím tắt cho các thao tác thường gặp và tự tra cứu phím trên máy.",
+      "visualConcept": "Font Inter nhúng giống slide trước, tiêu đề navy 36px/800 với gạch vàng, nền kem lưới nhẹ và viền EIU. Tám phím tắt chia hai cột, bốn hàng; khung navy hướng dẫn Keyboard Shortcuts bên phải. Không link trong slide. Các tổ hợp phím lơ lửng chậm chu kỳ 3–3.6 giây, lệch pha, biên độ nhỏ; chữ mô tả và khung đứng yên, tắt khi reduced motion."
+    },
+    {
+      "section": 1,
+      "number": 6,
       "title": "Ngoài Codex: AI nào làm việc trong VS Code?",
       "minutes": 6,
       "message": "Chọn trợ lý phù hợp với cách làm việc và kiểm tra mã do AI tạo.",
@@ -570,11 +616,12 @@
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Chọn một công cụ và giải thích ưu điểm, điểm cần cân nhắc.",
       "objective": "So sánh bốn trợ lý AI tích hợp VS Code.",
-      "visualConcept": "Khung chính EIU bo góc chứa bốn nút AI 2×2 bên trái và nội dung AI đang chọn bên phải. Khung nội dung chia header và hai ô Ưu điểm / Điểm cần cân nhắc, màu riêng từng AI, vừa khít chiều cao khung chính. Marquee nằm trong chiều rộng canvas bên dưới. Giữ logo lơ lửng và chuyển nội dung tại chỗ, không tràn hoặc cắt chữ."
+      "visualConcept": "Khung chính EIU bo góc chứa bốn nút AI 2×2 bên trái và nội dung AI đang chọn bên phải. Khung nội dung chia header và hai ô Ưu điểm / Điểm cần cân nhắc, màu riêng từng AI, vừa khít chiều cao khung chính. Marquee nằm trong chiều rộng canvas bên dưới. Giữ logo lơ lửng và chuyển nội dung tại chỗ, không tràn hoặc cắt chữ.",
+      "layoutNumber": 5
     },
     {
       "section": 1,
-      "number": 6,
+      "number": 7,
       "title": "Giới thiệu · Node.js, Git & GitHub",
       "visual": "git-intro-overview",
       "message": "Node.js chạy ứng dụng, Git lưu lịch sử trên máy, GitHub chia sẻ mã nguồn từ xa.",
@@ -635,11 +682,12 @@
       "note": "Giới thiệu ngắn mỗi ứng dụng: một định nghĩa và ba chức năng chính. Không có link, lệnh hoặc hướng dẫn chi tiết.",
       "objective": "Phân biệt chạy app bằng Node.js, lưu Commit bằng Git và chia sẻ repo qua GitHub; biết chiều Push và Pull/Clone.",
       "verify": "Phân biệt chạy app bằng Node.js, lưu Commit bằng Git và chia sẻ repo qua GitHub; biết chiều Push và Pull/Clone.",
-      "visualConcept": "Ba khung chọn ứng dụng nền kem, giữ hover và popup. Mỗi popup gọn hai cột cân đối: Định nghĩa bên trái, Chức năng chính bên phải với ba bullet ngắn. Chữ lớn, khoảng cách thoáng, không có link hướng dẫn và không cuộn. Giữ sơ đồ phối hợp bên ngoài. Bỏ ba nhãn Mở nội dung; toàn bộ khung ứng dụng vẫn mở popup. Ba logo 96px căn giữa phía trên tên app, mô tả gồm hai dòng ngắn trọn ý. Popup dùng định nghĩa ngắn, cân dòng, ba chức năng mỗi ý trên một dòng khi đủ chỗ. Sơ đồ phối hợp hai hàng cùng icon Node.js/Git/GitHub: chiều đi từ trái sang phải, chiều về từ phải sang trái với mô tả riêng. Push nhấn navy–vàng, Pull nhấn xanh sáng; glow, vệt sáng và mũi tên chạy đúng chiều, reduced motion giữ tĩnh."
+      "visualConcept": "Ba khung chọn ứng dụng nền kem, giữ hover và popup. Mỗi popup gọn hai cột cân đối: Định nghĩa bên trái, Chức năng chính bên phải với ba bullet ngắn. Chữ lớn, khoảng cách thoáng, không có link hướng dẫn và không cuộn. Giữ sơ đồ phối hợp bên ngoài. Bỏ ba nhãn Mở nội dung; toàn bộ khung ứng dụng vẫn mở popup. Ba logo 96px căn giữa phía trên tên app, mô tả gồm hai dòng ngắn trọn ý. Popup dùng định nghĩa ngắn, cân dòng, ba chức năng mỗi ý trên một dòng khi đủ chỗ. Sơ đồ phối hợp hai hàng cùng icon Node.js/Git/GitHub: chiều đi từ trái sang phải, chiều về từ phải sang trái với mô tả riêng. Push nhấn navy–vàng, Pull nhấn xanh sáng; glow, vệt sáng và mũi tên chạy đúng chiều, reduced motion giữ tĩnh.",
+      "layoutNumber": 6
     },
     {
       "section": 1,
-      "number": 7,
+      "number": 8,
       "title": "Cài đặt · VS Code, Node.js, Git & GitHub",
       "visual": "git-intro-setup-overview",
       "message": "Tải và cài công cụ trước, rồi mở Terminal trong VS Code để kiểm tra một lượt.",
@@ -673,7 +721,7 @@
           "label": "Cấu hình Git",
           "logo": "Git",
           "title": "Đặt tên và email",
-          "text": "Thay tên và email trong lệnh bằng thông tin của bạn. Dùng email GitHub đã xác minh hoặc email noreply.",
+          "text": "Nhập tên và email GitHub đã xác minh hoặc email noreply. Lệnh tự cập nhật theo thông tin của bạn.",
           "code": "git config --global user.name \"Ten cua ban\"\ngit config --global user.email \"ban@example.com\"\ngit config --global init.defaultBranch main",
           "output": "Không có dòng kết quả; dấu nhắc Terminal xuất hiện lại.",
           "detail": "Không có kết quả là bình thường. Đây là tên tác giả Commit; --global áp dụng cho tài khoản trên máy."
@@ -710,11 +758,12 @@
       "note": "Cài công cụ trước; dùng một khối lệnh chung để kiểm tra. GitHub giữ nội dung tài khoản và xác thực.",
       "objective": "Cài VS Code, Node.js, Git; đăng ký GitHub; kiểm tra phiên bản rồi cấu hình tác giả Commit.",
       "verify": "Cài VS Code, Node.js, Git; đăng ký GitHub; kiểm tra phiên bản rồi cấu hình tác giả Commit.",
-      "visualConcept": "Bốn khung VS Code/Node.js/Git/GitHub nền kem đồng nhất, lưới 2×2, cao 196px, logo 84px bên trái và nội dung ngắn bên phải. Footer đóng khung riêng gồm Windows, thứ tự cài đặt và Terminal VS Code / PowerShell, có thể xuống dòng trong đúng vùng. Giữ popup cài đặt và hover."
+      "visualConcept": "Bốn khung VS Code/Node.js/Git/GitHub nền kem đồng nhất, lưới 2×2, cao 196px, logo 84px bên trái và nội dung ngắn bên phải. Footer đóng khung riêng gồm Windows, thứ tự cài đặt và Terminal VS Code / PowerShell, có thể xuống dòng trong đúng vùng. Giữ popup cài đặt và hover. Popup đặt tên/email có hai ô nhập và khung lệnh cập nhật trực tiếp, nút copy chỉ bật khi hợp lệ; giữ dữ liệu khi chuyển bước trong popup. Lệnh dùng chuỗi literal PowerShell có escape dấu nháy đơn.",
+      "layoutNumber": 7
     },
     {
       "section": 1,
-      "number": 8,
+      "number": 9,
       "title": "Antigravity",
       "visual": "git-intro-ai-antigravity",
       "message": "Lập kế hoạch và chỉnh sửa ngay trong VS Code.",
@@ -771,11 +820,12 @@
       "note": "Pro dùng Sonnet/Opus 5.5 cần thuê bao không dùng thử. Model và hạn mức tùy gói; kiểm tra trong model picker.",
       "objective": "Nhận biết ưu điểm Antigravity và một số model khả dụng theo gói.",
       "verify": "Nêu được ưu điểm và kiểm tra model thực tế trong tài khoản.",
-      "visualConcept": "Toàn slide theo phong cách Antigravity: nền trắng lạnh, ánh xanh lam/tím, logo chính chủ, typography lớn thoáng và nét bốn màu Google. Ưu điểm bên trái, danh sách model hiện tại và điều kiện truy cập bên phải. Không khung EIU/navy–vàng. Nguồn chính thức kiểm tra 15/10/2026. Bỏ toàn bộ link hiển thị và tiêu đề/ngày snapshot của phần model. Cân giữa hai cột; tên model lớn: Antigravity chuyển sắc xanh–tím và nổi nhẹ; Codex ánh mint theo nhịp với cursor terminal. Tắt animation khi reduced motion. Cột trái: mô tả một dòng; ba ưu điểm trong khung riêng có badge 01–03, tiêu đề một dòng, mô tả hai ý trên hai dòng có chủ đích. Antigravity dùng khung trắng/xanh–tím, Codex khung graphite viền mint. Không cắt chữ hoặc ngắt cụm nghĩa."
+      "visualConcept": "Toàn slide theo phong cách Antigravity: nền trắng lạnh, ánh xanh lam/tím, logo chính chủ, typography lớn thoáng và nét bốn màu Google. Ưu điểm bên trái, danh sách model hiện tại và điều kiện truy cập bên phải. Không khung EIU/navy–vàng. Nguồn chính thức kiểm tra 15/10/2026. Bỏ toàn bộ link hiển thị và tiêu đề/ngày snapshot của phần model. Cân giữa hai cột; tên model lớn: Antigravity chuyển sắc xanh–tím và nổi nhẹ; Codex ánh mint theo nhịp với cursor terminal. Tắt animation khi reduced motion. Cột trái: mô tả một dòng; ba ưu điểm trong khung riêng có badge 01–03, tiêu đề một dòng, mô tả hai ý trên hai dòng có chủ đích. Antigravity dùng khung trắng/xanh–tím, Codex khung graphite viền mint. Không cắt chữ hoặc ngắt cụm nghĩa.",
+      "layoutNumber": 8
     },
     {
       "section": 1,
-      "number": 9,
+      "number": 10,
       "title": "Codex",
       "visual": "git-intro-ai-codex",
       "message": "Đọc project, sửa mã và review cùng agent.",
@@ -830,11 +880,12 @@
       "note": "Model tùy gói, ứng dụng, đăng nhập và đợt triển khai. Enterprise/Edu có thể cần quản trị viên bật.",
       "objective": "Nhận biết ưu điểm Codex và vai trò của Astra, Sol, Luna.",
       "verify": "Chọn model phù hợp tác vụ từ danh sách thực tế trong tài khoản.",
-      "visualConcept": "Toàn slide theo phong cách Codex: nền graphite gần đen, chữ trắng, accent mint, nhãn monospace và đường kẻ mảnh. Ưu điểm bên trái; danh sách Astra, Sol, Luna bên phải. Không khung EIU hoặc viền vàng. Nguồn chính thức kiểm tra 15/10/2026. Bỏ toàn bộ link hiển thị và tiêu đề/ngày snapshot của phần model. Cân giữa hai cột; tên model lớn: Antigravity chuyển sắc xanh–tím và nổi nhẹ; Codex ánh mint theo nhịp với cursor terminal. Tắt animation khi reduced motion. Cột trái: mô tả một dòng; ba ưu điểm trong khung riêng có badge 01–03, tiêu đề một dòng, mô tả hai ý trên hai dòng có chủ đích. Antigravity dùng khung trắng/xanh–tím, Codex khung graphite viền mint. Không cắt chữ hoặc ngắt cụm nghĩa."
+      "visualConcept": "Toàn slide theo phong cách Codex: nền graphite gần đen, chữ trắng, accent mint, nhãn monospace và đường kẻ mảnh. Ưu điểm bên trái; danh sách Astra, Sol, Luna bên phải. Không khung EIU hoặc viền vàng. Nguồn chính thức kiểm tra 15/10/2026. Bỏ toàn bộ link hiển thị và tiêu đề/ngày snapshot của phần model. Cân giữa hai cột; tên model lớn: Antigravity chuyển sắc xanh–tím và nổi nhẹ; Codex ánh mint theo nhịp với cursor terminal. Tắt animation khi reduced motion. Cột trái: mô tả một dòng; ba ưu điểm trong khung riêng có badge 01–03, tiêu đề một dòng, mô tả hai ý trên hai dòng có chủ đích. Antigravity dùng khung trắng/xanh–tím, Codex khung graphite viền mint. Không cắt chữ hoặc ngắt cụm nghĩa.",
+      "layoutNumber": 9
     },
     {
       "section": 1,
-      "number": 10,
+      "number": 11,
       "title": "Lab 3",
       "minutes": 1,
       "message": "Thực hành thiết kế website và đẩy mã nguồn lên GitHub.",
@@ -843,11 +894,12 @@
       "note": "Mở đầu Lab 3: thực hành thiết kế website, kiểm tra trên máy và đẩy mã nguồn lên GitHub.",
       "verify": "Website chạy được và mã nguồn được lưu trên GitHub.",
       "objective": "Thực hành thiết kế website và đẩy mã nguồn lên GitHub.",
-      "visualConcept": "Theo mẫu Lab người dùng cung cấp: nền xanh navy, khung bo góc viền vàng mờ, nhãn khóa học vàng, Lab 3 màu trắng cỡ lớn, mô tả xám sáng, các vòng tròn và đường cong nét đứt trang trí. Animation: vòng nét đứt xoay chậm, vòng đồng tâm co giãn lệch nhịp, nét đứt chạy dọc đường cong, điểm sáng và vòng dưới trôi nhẹ. Lab 3 nhấn bằng phóng nhẹ 2.5%, ánh vàng và gạch chân sáng theo nhịp 4.2 giây; hỗ trợ prefers-reduced-motion."
+      "visualConcept": "Theo mẫu Lab người dùng cung cấp: nền xanh navy, khung bo góc viền vàng mờ, nhãn khóa học vàng, Lab 3 màu trắng cỡ lớn, mô tả xám sáng, các vòng tròn và đường cong nét đứt trang trí. Animation: vòng nét đứt xoay chậm, vòng đồng tâm co giãn lệch nhịp, nét đứt chạy dọc đường cong, điểm sáng và vòng dưới trôi nhẹ. Lab 3 nhấn bằng phóng nhẹ 2.5%, ánh vàng và gạch chân sáng theo nhịp 4.2 giây; hỗ trợ prefers-reduced-motion.",
+      "layoutNumber": 10
     },
     {
       "section": 1,
-      "number": 11,
+      "number": 12,
       "title": "Cài trợ lý AI trong VS Code",
       "visual": "git-intro-ai-setup",
       "message": "Cài extension từ bảng Extensions, rồi đăng nhập và mở project để bắt đầu.",
@@ -887,11 +939,12 @@
       "note": "Nhiều agent cùng sửa các file trong một thư mục có thể ghi đè thay đổi hoặc tạo xung đột mã nguồn. Khi đổi trợ lý, dừng lượt đang chạy và xem lại diff trước.",
       "objective": "Cài extension từ bảng Extensions, rồi đăng nhập và mở project để bắt đầu.",
       "verify": "Cài extension và đăng nhập; chỉ một trợ lý/model sửa project tại một thời điểm.",
-      "visualConcept": "Ba khung kem mở popup chi tiết; bỏ dải chọn app. Flow ngắn có icon tại bước dùng ứng dụng, chữ ngắt theo ý."
+      "visualConcept": "Ba khung kem mở popup chi tiết; bỏ dải chọn app. Flow ngắn có icon tại bước dùng ứng dụng, chữ ngắt theo ý.",
+      "layoutNumber": 11
     },
     {
       "section": 1,
-      "number": 12,
+      "number": 13,
       "title": "Bắt đầu · tải và mở project",
       "visual": "git-intro-starter",
       "message": "Tải bộ mẫu Lumi Studio, giải nén rồi mở trong VS Code.",
@@ -900,32 +953,30 @@
           "title": "Tải project mẫu",
           "logo": "ZIP",
           "text": "Nhấn nút tải để lấy bộ mã nguồn website Lumi Studio.",
-          "detail": "File: eiu-advertising-starter.zip",
           "link": "/downloads/eiu-advertising-starter.zip",
           "linkLabel": "Tải project .ZIP"
         },
         {
           "title": "Giải nén file ZIP",
           "logo": "ZIP",
-          "text": "Nhấp phải file đã tải → Extract All → chọn nơi lưu.",
-          "detail": "Chờ giải nén hoàn tất trước khi mở project."
+          "text": "Nhấp phải file đã tải → Extract All → chọn nơi lưu."
         },
         {
           "title": "Mở trong VS Code",
           "logo": "VS Code",
-          "text": "File → Open Folder → chọn thư mục vừa giải nén.",
-          "detail": "Chọn folder có package.json. Nếu có folder lồng nhau, mở folder bên trong."
+          "text": "File → Open Folder → chọn thư mục vừa giải nén."
         }
       ],
       "minutes": 5,
       "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
       "objective": "Hoàn thành phần chuẩn bị trong VS Code trước khi chạy app Lumi Studio.",
       "verify": "Mở đúng folder có package.json.",
-      "visualConcept": "Ba thao tác đơn giản tải → giải nén → mở VS Code. Không giải thích component/cấu trúc mã. Icon ZIP chồng sách nhiều màu, nút tải nhấn mạnh bằng animation."
+      "visualConcept": "Dải Lumi Studio theo màu website mẫu: nền kem chuyển vàng nhẹ, cạnh vàng; Lumi navy, Studio vàng đậm, chữ 46px/850. Câu mô tả navy bên phải trên một dòng, không ngắt tùy ý. Ba khung tải → giải nén → mở VS Code cân hàng, cao 332px, header cùng hàng icon, tiêu đề 25px và nội dung 21px. Bỏ ba chú thích về tên file, chờ giải nén và folder/package.json; bỏ sơ đồ lặp lại phía dưới. Giữ nút tải ZIP thật cùng animation và font Inter, nền kem, viền EIU.",
+      "layoutNumber": 12
     },
     {
       "section": 1,
-      "number": 13,
+      "number": 14,
       "title": "Chạy app · mở bản thử nghiệm",
       "visual": "git-intro-dev",
       "message": "Trong VS Code: Terminal → New Terminal. Chạy từng lệnh, chờ xong rồi sang bước tiếp theo.",
@@ -934,15 +985,13 @@
           "title": "Cài thư viện",
           "logo": "Node.js",
           "text": "Terminal phải ở folder có package.json.",
-          "code": "npm.cmd install",
-          "detail": "Chờ cài xong và dấu nhắc Terminal xuất hiện lại."
+          "code": "npm.cmd install"
         },
         {
           "title": "Khởi động app",
           "logo": "Node.js",
           "text": "Chạy server phát triển trong cùng Terminal.",
-          "code": "npm.cmd run dev",
-          "detail": "Giữ Terminal chạy. Khi cần dừng app, nhấn Ctrl+C."
+          "code": "npm.cmd run dev"
         },
         {
           "title": "Chọn nơi mở app",
@@ -954,7 +1003,7 @@
           "detail": "Thử tab, chọn gói, FAQ và form đăng ký; thu nhỏ cửa sổ để kiểm tra.",
           "points": [
             "Chrome · Edge · Cốc Cốc…",
-            "Giữ Ctrl và click vào http://localhost:3000 trong Terminal."
+            "Giữ Ctrl và click vào http://localhost:3000"
           ]
         }
       ],
@@ -962,11 +1011,12 @@
       "note": "Form lưu trên trình duyệt, chưa gửi email hoặc lưu database dùng chung. Nếu cổng 3000 bận, dùng URL Local trong Terminal.",
       "objective": "Trong VS Code: Terminal → New Terminal. Chạy từng lệnh, chờ xong rồi sang bước tiếp theo.",
       "verify": "App hiện trong trình duyệt và các tương tác hoạt động.",
-      "visualConcept": "Luồng thực hành trực tiếp, không popup: chuẩn bị project → cài thư viện → chạy server → mở localhost:3000."
+      "visualConcept": "Luồng thực hành trực tiếp, không popup: chuẩn bị project → cài thư viện → chạy server → mở localhost:3000. Bản gọn: bỏ chú thích dưới hai khối lệnh và dải ghi chú/nghiệm thu cuối slide. Hai cột cân đối, cao tối thiểu 440px; hai bước Terminal giãn đều, cột mở app có khoảng cách 16px. Giữ nút copy, mở app và dòng Ctrl+click nổi bật.",
+      "layoutNumber": 13
     },
     {
       "section": 1,
-      "number": 14,
+      "number": 15,
       "title": "Đổi text · tìm, sửa và xem ngay",
       "visual": "git-intro-prompt-structure",
       "message": "Với tiêu đề, tên thương hiệu hoặc nhãn nút, bạn có thể sửa trực tiếp trong VS Code.",
@@ -974,31 +1024,29 @@
         {
           "title": "Tìm đoạn chữ",
           "logo": "VS Code",
-          "text": "Nhập đoạn chữ muốn đổi vào ô Search.",
-          "detail": "Mở kết quả đúng đoạn chữ cần chỉnh."
+          "text": "Nhập đoạn chữ muốn đổi vào ô Search."
         },
         {
           "title": "Sửa nội dung",
           "logo": "VS Code",
-          "text": "Thay text cũ bằng nội dung mới.",
-          "detail": "Chỉ đổi phần chữ bạn cần."
+          "text": "Thay text cũ bằng nội dung mới."
         },
         {
           "title": "Lưu và xem lại",
           "logo": "Browser",
-          "text": "Lưu file rồi refresh trang localhost đang mở.",
-          "detail": "Giữ Terminal đang chạy app."
+          "text": "Lưu file rồi refresh trang localhost đang mở."
         }
       ],
       "minutes": 8,
       "note": "Chỉ đổi phần chữ cần thiết. Với thay đổi giao diện lớn hơn, mô tả ý tưởng cho AI ở bước tiếp theo.",
       "objective": "Với tiêu đề, tên thương hiệu hoặc nhãn nút, bạn có thể sửa trực tiếp trong VS Code.",
       "verify": "Text mới hiện trên localhost sau khi lưu.",
-      "visualConcept": "Nội dung tĩnh hiển thị trực tiếp, không popup; thực hành đơn giản dành cho vibe coding."
+      "visualConcept": "Slide 15 hiện tại: bỏ chú thích dưới ba khung và dải ghi chú cuối slide. Ba bước cùng cao 360px; icon phía trên, tiêu đề một dòng, nhãn thao tác và mô tả căn hàng, căn giữa. Cả ba khung nền kem đồng nhất, tiêu đề navy và điểm nhấn vàng. Giữ font Inter, viền EIU, hướng dẫn Ctrl+Shift+F và Ctrl+S, không thêm ví dụ hoặc popup.",
+      "layoutNumber": 14
     },
     {
       "section": 1,
-      "number": 15,
+      "number": 16,
       "title": "Vibe coding · nói điều bạn muốn đổi",
       "visual": "git-intro-ai-edit",
       "message": "Mô tả kết quả mong muốn, để AI tìm file và thực hiện; bạn xem app rồi phản hồi tiếp.",
@@ -1026,11 +1074,12 @@
       "note": "Không cần chỉ đúng tên component. Hãy nói rõ bạn muốn nhìn thấy gì và chức năng nào cần giữ.",
       "objective": "Mô tả kết quả mong muốn, để AI tìm file và thực hiện; bạn xem app rồi phản hồi tiếp.",
       "verify": "Đính kèm file liên quan, chọn một trợ lý, rồi gửi prompt mẫu để sửa.",
-      "visualConcept": "Nội dung tĩnh hiển thị trực tiếp, không popup; thực hành đơn giản dành cho vibe coding."
+      "visualConcept": "Nội dung tĩnh hiển thị trực tiếp, không popup; thực hành đơn giản dành cho vibe coding.",
+      "layoutNumber": 15
     },
     {
       "section": 1,
-      "number": 16,
+      "number": 17,
       "title": "AI có thể tạo kết quả khác nhau",
       "visual": "git-intro-model-outcomes",
       "message": "Cùng một yêu cầu, mỗi model hoặc mỗi lượt chạy có thể cho một phương án khác.",
@@ -1052,11 +1101,12 @@
       "note": "",
       "objective": "Biết kết quả và khả năng tự sửa của AI có thể khác nhau.",
       "verify": "Biết kết quả và khả năng tự sửa của AI có thể khác nhau.",
-      "visualConcept": "Ba khung thông tin ngắn hiển thị trực tiếp; không popup, không giao nhiệm vụ kiểm thử."
+      "visualConcept": "Ba khung thông tin ngắn hiển thị trực tiếp; không popup, không giao nhiệm vụ kiểm thử.",
+      "layoutNumber": 16
     },
     {
       "section": 1,
-      "number": 17,
+      "number": 18,
       "title": "Kiểm tra app · trước khi lưu phiên bản",
       "visual": "git-intro-build",
       "message": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
@@ -1083,11 +1133,12 @@
       "note": "",
       "objective": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
       "verify": "Nhờ AI giải thích lỗi bằng ngôn ngữ đơn giản; chỉ lưu phiên bản khi phần vừa sửa đã hoạt động.",
-      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup."
+      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup.",
+      "layoutNumber": 17
     },
     {
       "section": 1,
-      "number": 18,
+      "number": 19,
       "title": "Lưu phiên bản đầu tiên bằng Git",
       "visual": "git-intro-initialize",
       "message": "Thực hiện trong folder project đang mở. Git lưu một mốc để bạn có thể xem lại.",
@@ -1115,11 +1166,12 @@
       "note": "",
       "objective": "Thực hiện trong folder project đang mở. Git lưu một mốc để bạn có thể xem lại.",
       "verify": "File .env, node_modules và .next cần được loại trừ trong .gitignore.",
-      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup."
+      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup.",
+      "layoutNumber": 18
     },
     {
       "section": 1,
-      "number": 19,
+      "number": 20,
       "title": "Đưa mã nguồn lên GitHub",
       "visual": "git-intro-publish",
       "message": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
@@ -1134,7 +1186,7 @@
         {
           "title": "Nối địa chỉ repo",
           "logo": "Git",
-          "text": "Thay URL_REPO bằng địa chỉ HTTPS vừa tạo.",
+          "text": "Dán địa chỉ HTTPS của repository vào ô bên dưới.",
           "code": "git remote add origin URL_REPO\ngit remote -v"
         },
         {
@@ -1148,11 +1200,12 @@
       "note": "",
       "objective": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
       "verify": "Push đưa mã nguồn lên GitHub. Bản app thử nghiệm vẫn chạy trên localhost.",
-      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup."
+      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup. Khung Nối địa chỉ repo có ô URL GitHub HTTPS, lệnh cập nhật theo dữ liệu và nút copy; không sao chép URL mẫu hoặc dữ liệu sai.",
+      "layoutNumber": 19
     },
     {
       "section": 1,
-      "number": 20,
+      "number": 21,
       "title": "Sau mỗi lần sửa · lưu và cập nhật",
       "visual": "git-intro-push-code",
       "message": "Sửa cùng AI, xem lại app, rồi lưu phiên bản mới và cập nhật GitHub.",
@@ -1180,11 +1233,12 @@
       "note": "",
       "objective": "Sửa cùng AI, xem lại app, rồi lưu phiên bản mới và cập nhật GitHub.",
       "verify": "Nếu lệnh báo lỗi, gửi thông báo cho AI để được hướng dẫn xử lý.",
-      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup."
+      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup.",
+      "layoutNumber": 20
     },
     {
       "section": 1,
-      "number": 21,
+      "number": 22,
       "title": "Chiều ngược lại · Pull hoặc Clone",
       "visual": "git-intro-pull",
       "message": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
@@ -1227,20 +1281,271 @@
       "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
       "objective": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
       "verify": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
-      "visualConcept": "Ba khung kem mở popup chi tiết; bỏ dải chọn app. Flow ngắn có icon tại bước dùng ứng dụng, chữ ngắt theo ý."
+      "visualConcept": "Ba khung kem mở popup chi tiết; bỏ dải chọn app. Flow ngắn có icon tại bước dùng ứng dụng, chữ ngắt theo ý.",
+      "layoutNumber": 21
     },
     {
       "section": 1,
-      "number": 22,
-      "title": "Tự kiểm tra · từ app đến GitHub",
-      "visual": "git-intro-quiz",
-      "message": "Mở app đã sửa và repo thật để đối chiếu, rồi trả lời câu hỏi.",
-      "cards": [],
+      "number": 23,
+      "title": "Một skill · giữ chất lượng sau mỗi lần AI sửa code",
+      "minutes": 4,
+      "message": "Hướng dẫn AI đồng bộ giao diện, kiểm tra thay đổi và tối ưu code trong từng tác vụ.",
+      "visual": "git-intro-ai-workflow",
+      "cards": [
+        {
+          "title": "Giao diện nhất quán",
+          "text": "Đồng bộ thiết kế",
+          "points": [
+            "Đồng bộ font, cỡ chữ và line-height.",
+            "Căn khung, khoảng cách, icon và nút nhất quán."
+          ]
+        },
+        {
+          "title": "Kiểm tra & dọn code",
+          "text": "Giữ chất lượng thay đổi",
+          "points": [
+            "Chạy test, lint hoặc build phù hợp.",
+            "Dọn import, style và logic đã xác nhận dư."
+          ]
+        },
+        {
+          "title": "Hiệu năng & kết quả",
+          "text": "Tối ưu và báo cáo",
+          "points": [
+            "Tìm nguyên nhân giật, lag và lệch bố cục.",
+            "Báo thay đổi, kiểm tra và phần chưa xác minh."
+          ]
+        }
+      ],
+      "note": "Giới thiệu rút gọn, tổng hợp sáu nhóm chức năng từ phần chức năng cũ. Skill là hướng dẫn agent, không phải tiến trình chạy nền hay bảo đảm hết lỗi. Nguồn: https://github.com/lokie1234/Effective-Vibe-Coding",
+      "objective": "Hiểu vai trò và ba nhóm lợi ích chính của Effective Vibe Coding.",
+      "verify": "Nêu được skill hỗ trợ đồng bộ UI, kiểm tra/dọn code và hiệu năng/báo cáo.",
+      "visualConcept": "Hai cột: cụm thương hiệu GitHub và tên Effective Vibe Coding bên trái trên nền navy; ba nhóm chức năng dạng bullet bên phải trên nền kem. Bánh răng quay ngược chiều, cờ lê sửa chữa chuyển động nhẹ và ánh sáng chạy dưới tên skill, hoàn toàn tự động bằng CSS. Bỏ dải kết quả cũ. Giữ Inter và EIU; reduced motion dừng animation. Đây là minh họa trang trí, không biểu thị có tác vụ AI đang chạy."
+    },
+    {
+      "section": 1,
+      "number": 24,
+      "title": "Áp dụng skill · chọn mức mặc định",
+      "minutes": 10,
+      "visual": "git-intro-skill-defaults",
+      "message": "AI tự chọn theo tác vụ; quy tắc project hoặc global bổ sung hướng dẫn mặc định.",
+      "cards": [
+        {
+          "title": "AI tự chọn skill",
+          "label": "implicit",
+          "text": "AI chọn theo mô tả skill và tác vụ.",
+          "points": [
+            "Chỉ nạp khi cần, gọn ngữ cảnh.",
+            "Không bảo đảm dùng ở mọi lượt."
+          ]
+        },
+        {
+          "title": "Theo từng project",
+          "label": "project",
+          "text": "AGENTS.md nhắc AI áp dụng trong repo.",
+          "points": [
+            "Chia sẻ cùng team qua repo.",
+            "Thiết lập riêng cho mỗi project."
+          ]
+        },
+        {
+          "title": "Mọi project",
+          "label": "global",
+          "text": "Hướng dẫn chung cho các repo trên máy.",
+          "points": [
+            "Cài một lần cho mỗi công cụ AI.",
+            "Có thể lệch quy tắc của project."
+          ]
+        }
+      ],
+      "prompt": "Khi sửa code hoặc UI, áp dụng skill effective-vibe-coding đã cài. Giữ phạm vi yêu cầu và quy tắc của project; báo thay đổi, kiểm tra đã chạy và phần chưa xác minh.",
+      "note": "Đối chiếu ngày 16/10/2026: https://learn.chatgpt.com/docs/build-skills ; https://learn.chatgpt.com/docs/agent-configuration/agents-md ; https://antigravity.google/docs/skills?app=antigravity-ide ; https://www.antigravity.google/docs/rules/ . Codex cho phép implicit invocation theo mô tả; hướng dẫn project/global không phải cơ chế bảo đảm agent tuân thủ 100%. Codex global skill ~/.agents/skills; instructions mặc định ~/.codex/AGENTS.md (CODEX_HOME tùy chỉnh có thể khác), AGENTS.override.md ưu tiên hơn. Antigravity IDE global skill ~/.gemini/config/skills; ~/.gemini/GEMINI.md là hướng dẫn global luôn hoạt động; CLI có đường dẫn skills riêng. Antigravity AGENTS.md/GEMINI.md là always_on; rule modular dùng trigger: always_on. Global chỉ là phạm vi, không đồng nghĩa tự nạp nếu thiếu hướng dẫn. Chỉ hướng dẫn, không chỉnh cấu hình AI thật trong tác vụ soạn slide. Hướng dẫn cài và gọi skill gộp từ phần cài đặt: Nguồn đã đọc trực tiếp: https://github.com/lokie1234/Effective-Vibe-Coding/blob/main/README.md và scripts/install.mjs, ngày 16/10/2026. Bộ cài dùng Node.js 20+, chép skill vào .agents/skills/effective-vibe-coding và bổ sung AGENTS.md. Terminal bắt đầu tại folder project đích; clone repo skill sang folder anh em rồi chạy installer với --target .; không cd vào repo skill. Folder ../Effective-Vibe-Coding phải chưa tồn tại cho lệnh clone đầu. Nếu đã tải trước đó, dùng đường dẫn tới bản tải hiện có. Không cần npm install. Mở phiên mới để nạp hướng dẫn. Skill là hướng dẫn trong tác vụ, không phải daemon. Quyền của agent và đăng nhập AI vẫn theo công cụ đang dùng.",
+      "objective": "Phân biệt AI tự chọn skill với việc bổ sung hướng dẫn mặc định ở phạm vi project hoặc global; các cách có thể kết hợp.",
+      "verify": "Mở phiên mới và yêu cầu AI nêu đường dẫn skill cùng nguồn hướng dẫn đang áp dụng trước khi giao một thay đổi nhỏ.",
+      "visualConcept": "Ba hàng so sánh nền kem, mô tả cách áp dụng tách khỏi lợi ích và hạn chế. Popup AI tự chọn dùng chung một đường dẫn cho Codex/Antigravity; popup project phân biệt installer tự thêm AGENTS.md với mẫu dùng khi cài thủ công. Rule ngắn không kể lại chức năng đã giới thiệu. Popup cài đặt chỉ dùng luồng clone/installer, không thêm lựa chọn ZIP trùng tải.",
+      "regionDetails": [
+        {
+          "section": 1,
+          "number": 23,
+          "title": "Cài vào project & sử dụng",
+          "minutes": 8,
+          "message": "Bạn nêu yêu cầu → AI sửa, kiểm tra, dọn code và báo kết quả.",
+          "visual": "git-intro-ai-workflow",
+          "cards": [
+            {
+              "title": "1. Tải skill vào folder bên cạnh",
+              "text": "Chỉ Clone ở lần cài đầu tiên.",
+              "code": "git clone https://github.com/lokie1234/Effective-Vibe-Coding.git ../Effective-Vibe-Coding"
+            },
+            {
+              "title": "2. Cài vào project đang mở",
+              "text": "Dấu chấm là project hiện tại.",
+              "code": "node ../Effective-Vibe-Coding/scripts/install.mjs --target ."
+            },
+            {
+              "title": "Codex",
+              "text": "Gọi skill trong chat",
+              "prompt": "$effective-vibe-coding [yêu cầu sửa code]"
+            },
+            {
+              "title": "Antigravity",
+              "text": "Gọi skill bằng tên",
+              "prompt": "Áp dụng skill effective-vibe-coding: [yêu cầu sửa code]."
+            }
+          ],
+          "note": "Nguồn đã đọc trực tiếp: https://github.com/lokie1234/Effective-Vibe-Coding/blob/main/README.md và scripts/install.mjs, ngày 16/10/2026. Bộ cài dùng Node.js 20+, chép skill vào .agents/skills/effective-vibe-coding và bổ sung AGENTS.md. Terminal bắt đầu tại folder project đích; clone repo skill sang folder anh em rồi chạy installer với --target .; không cd vào repo skill. Folder ../Effective-Vibe-Coding phải chưa tồn tại cho lệnh clone đầu. Nếu đã tải trước đó, dùng đường dẫn tới bản tải hiện có. Không cần npm install. Mở phiên mới để nạp hướng dẫn. Skill là hướng dẫn trong tác vụ, không phải daemon. Quyền của agent và đăng nhập AI vẫn theo công cụ đang dùng.",
+          "objective": "Tải, cài và gọi Effective Vibe Coding trong Codex hoặc Antigravity mà không cần ghi nhớ quy trình dài.",
+          "verify": "Skill hiện trong project đích; phiên AI mới đọc đúng effective-vibe-coding và áp dụng cho yêu cầu sửa code.",
+          "visualConcept": "Một cách cài qua Terminal: liên kết repo để xem nguồn, hai lệnh copy, mở phiên mới và hai mẫu gọi tên khi cần. Không lặp lại chức năng skill hoặc yêu cầu gọi tên ở mọi lượt."
+        }
+      ]
+    },
+    {
+      "section": 1,
+      "number": 25,
+      "title": "Repo nổi bật · từ thiết kế đến tự động hóa",
+      "visual": "git-intro-repo-showcase",
+      "message": "Phác thảo ý tưởng → thiết kế UI → dựng giao diện → tự động hóa",
+      "cards": [
+        {
+          "title": "Penpot",
+          "label": "THIẾT KẾ UI/UX",
+          "logo": "Repo Penpot",
+          "points": [
+            "Thiết kế UI/UX, prototype và design system.",
+            "Chia sẻ thiết kế, cộng tác cùng team."
+          ],
+          "text": "Nền tảng thiết kế sản phẩm.",
+          "link": "https://github.com/penpot/penpot",
+          "linkLabel": "penpot/penpot",
+          "setup": {
+            "shell": "PowerShell",
+            "requirements": "Cài và mở Docker Desktop. Mở PowerShell tại nơi muốn tạo folder Penpot mới.",
+            "steps": [
+              {
+                "title": "1. Tạo folder và tải cấu hình",
+                "code": "mkdir penpot-local\ncd penpot-local\ncurl.exe -L -o docker-compose.yaml https://raw.githubusercontent.com/penpot/penpot/main/docker/images/docker-compose.yaml"
+              },
+              {
+                "title": "2. Khởi động Penpot",
+                "code": "docker compose -p penpot -f docker-compose.yaml up -d"
+              },
+              {
+                "title": "3. Mở ứng dụng",
+                "text": "Chờ các container khởi động, mở http://localhost:9001 và tạo tài khoản để bắt đầu thiết kế."
+              }
+            ],
+            "docs": "https://help.penpot.app/technical-guide/getting-started/docker/",
+            "appUrl": "http://localhost:9001",
+            "appLabel": "Mở Penpot local"
+          }
+        },
+        {
+          "title": "Excalidraw",
+          "label": "PHÁC THẢO & SƠ ĐỒ",
+          "logo": "Repo Excalidraw",
+          "points": [
+            "Vẽ wireframe, sơ đồ và luồng ý tưởng.",
+            "Xuất PNG/SVG để dùng trong tài liệu, slide."
+          ],
+          "text": "Bảng vẽ phác thảo và cộng tác.",
+          "link": "https://github.com/excalidraw/excalidraw",
+          "linkLabel": "excalidraw/excalidraw",
+          "setup": {
+            "shell": "PowerShell · project React",
+            "requirements": "Node.js LTS và project React đã chạy được. Mở Terminal tại folder chứa package.json.",
+            "steps": [
+              {
+                "title": "1. Cài thư viện",
+                "code": "npm.cmd install react react-dom @excalidraw/excalidraw"
+              },
+              {
+                "title": "2. Nhúng bảng vẽ",
+                "text": "Import Excalidraw và CSS @excalidraw/excalidraw/index.css. Đặt bảng vẽ trong khung có chiều cao, ví dụ 500px."
+              },
+              {
+                "title": "3. Hiển thị trong app",
+                "text": "Render component Excalidraw trên trang muốn dùng. Với Next.js, dùng client component và dynamic() với ssr: false. Bản web dùng ngay nằm ở nút bên dưới."
+              }
+            ],
+            "docs": "https://docs.excalidraw.com/docs/@excalidraw/excalidraw/integration",
+            "appUrl": "https://excalidraw.com",
+            "appLabel": "Dùng bản web"
+          }
+        },
+        {
+          "title": "shadcn/ui",
+          "label": "THƯ VIỆN GIAO DIỆN",
+          "logo": "Repo shadcn-ui",
+          "points": [
+            "Dùng component UI, chỉnh theo thương hiệu.",
+            "Xây form, dialog và dashboard nhất quán."
+          ],
+          "text": "Component giao diện có thể tùy chỉnh.",
+          "link": "https://github.com/shadcn-ui/ui",
+          "linkLabel": "shadcn-ui/ui",
+          "setup": {
+            "shell": "PowerShell · project Next.js",
+            "requirements": "Node.js LTS; project Next.js có Tailwind CSS và alias @/*. Mở Terminal tại gốc project.",
+            "steps": [
+              {
+                "title": "1. Thiết lập shadcn/ui",
+                "text": "Chọn các tùy chọn theo CLI cho project đang mở.",
+                "code": "npx.cmd shadcn@latest init"
+              },
+              {
+                "title": "2. Thêm component",
+                "code": "npx.cmd shadcn@latest add button card dialog"
+              },
+              {
+                "title": "3. Áp dụng vào giao diện",
+                "text": "Import component từ @/components/ui/ và nhờ AI tích hợp vào màn hình cần sửa. Chạy app để xem kết quả.",
+                "code": "npm.cmd run dev"
+              }
+            ],
+            "docs": "https://ui.shadcn.com/docs/installation/next"
+          }
+        },
+        {
+          "title": "n8n",
+          "label": "TỰ ĐỘNG HÓA",
+          "logo": "Repo n8n",
+          "points": [
+            "Nối ứng dụng, dữ liệu và AI thành workflow.",
+            "Tự động hóa việc lặp lại bằng kéo thả."
+          ],
+          "text": "Nền tảng tự động hóa workflow.",
+          "link": "https://github.com/n8n-io/n8n",
+          "linkLabel": "n8n-io/n8n",
+          "setup": {
+            "shell": "WSL / Bash · không dùng PowerShell",
+            "requirements": "Docker Desktop đang chạy, có Docker Compose v2 và bật WSL Integration. Mở Terminal WSL trong thư mục Linux, ví dụ thư mục home.",
+            "steps": [
+              {
+                "title": "1. Kiểm tra Docker trong WSL",
+                "code": "docker compose version"
+              },
+              {
+                "title": "2. Cài bản mới bằng bộ cài chính thức",
+                "text": "Chạy trong thư mục cha; bộ cài tự tạo folder n8n, cấu hình và tải các container.",
+                "code": "curl -fsSL https://get.n8n.io | sh"
+              },
+              {
+                "title": "3. Tạo workflow đầu tiên",
+                "text": "Khi Terminal báo sẵn sàng, mở http://localhost:5678 và tạo tài khoản local. n8n Assistant là tùy chọn riêng, cần cấu hình model/API key."
+              }
+            ],
+            "docs": "https://docs.n8n.io/deploy/host-n8n/install-options/one-line-setup.md",
+            "appUrl": "http://localhost:5678",
+            "appLabel": "Mở n8n local"
+          }
+        }
+      ],
       "minutes": 5,
-      "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Mở app đã sửa và repo thật để đối chiếu, rồi trả lời câu hỏi.",
-      "verify": "Mở app đã sửa và repo thật để đối chiếu, rồi trả lời câu hỏi.",
-      "visualConcept": "EIU kem–navy–vàng; bước chọn cố định, nội dung chi tiết tại chỗ."
+      "note": "Đối chiếu README và mức phổ biến trên GitHub ngày 16/10/2026: https://github.com/penpot/penpot (61.2k sao); https://github.com/excalidraw/excalidraw ; https://github.com/shadcn-ui/ui (125.7k sao); https://github.com/n8n-io/n8n (207.6k sao). Không hiển thị số sao biến động hoặc ngụ ý đây là xếp hạng trending thời gian thực. Logo từ avatar tài khoản chính thức của từng dự án, lưu nguồn trong repo-icons/sources.json và nhúng data URL để slide không gọi mạng. n8n là fair-code, không gắn nhãn tất cả repo là open source. Đây là repo công cụ và thư viện, không phải tất cả đều là skill. Cài đặt đối chiếu ngày 16/10/2026: https://help.penpot.app/technical-guide/getting-started/docker/ ; https://docs.excalidraw.com/docs/@excalidraw/excalidraw/integration ; https://ui.shadcn.com/docs/installation/next ; https://docs.n8n.io/deploy/host-n8n/install-options/one-line-setup.md. Popup hướng dẫn cài, không thực thi lệnh. Penpot Docker Compose theo tài liệu; Excalidraw là thư viện React không hỗ trợ SSR; shadcn minh họa project Next.js đã có Tailwind/alias. n8n dùng one-line setup mới trong WSL, không dùng npm đã deprecated từ 3.0. Các lệnh npm/npx thêm .cmd cho PowerShell Windows.",
+      "objective": "Nhận diện repo phục vụ thiết kế, phác thảo, giao diện và tự động hóa; mở đúng nguồn chính thức.",
+      "verify": "Mở được bốn repo chính thức và phân biệt mục đích sử dụng.",
+      "visualConcept": "Bốn khung kem 2×2, logo chính thức nổi bên trái tên và nhãn chức năng, hai bullet cùng link GitHub trong mỗi khung. Icon lơ lửng nhẹ lệch pha; chữ và khung đứng yên. Hiệu ứng nút đồng bộ slide 22, reduced motion dừng icon. Thay phần tự kiểm tra, không thêm slide. Mỗi khung có thêm nút Cách cài đặt, mở popup riêng gồm môi trường Terminal, điều kiện, các bước có copy, liên kết tài liệu và ứng dụng. Popup đóng bằng nút/Escape/backdrop, giữ focus."
     },
     {
       "section": 2,
