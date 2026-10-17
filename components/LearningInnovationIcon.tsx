@@ -1,4 +1,7 @@
-import { useId } from "react";
+"use client";
+
+import { useEffect, useId, useRef } from "react";
+import { registerLearningIcon } from "./learningIconRegistry";
 import styles from "./LearningInnovationIcon.module.css";
 
 type Props = { kind: "folder" | "course" | "section" | "spark"; className?: string; active?: boolean; compact?: boolean; electric?: boolean };
@@ -15,8 +18,13 @@ function IdeaBulb({ className, fill }: { className?: string; fill: string }) {
 /** Shared materials and distinct silhouettes; cursor tilt is delegated by the portal. */
 export default function LearningInnovationIcon({ kind, className = "", active = false, compact = false, electric = false }: Props) {
   const id = useId().replace(/:/g, "");
+  const iconRef = useRef<HTMLSpanElement>(null);
+  useEffect(() => {
+    if (compact || kind === "spark" || !iconRef.current) return;
+    return registerLearningIcon({ element: iconRef.current, kind, active, electric });
+  }, [kind, compact, active, electric]);
   const blue = `${id}-blue`, gold = `${id}-gold`, glass = `${id}-glass`;
-  return <span className={`${styles.icon} ${className}`} data-kind={kind} data-active={active || undefined} aria-hidden="true">
+  return <span ref={iconRef} className={`${styles.icon} ${className}`} data-kind={kind} data-active={active || undefined} aria-hidden="true">
     {compact ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" focusable="false">
       {kind === "folder" ? <>
         <path d="M8 13a5.5 5.5 0 1 1 8 0c-1.3 1.2-1.5 2.2-1.5 3.5h-5C9.5 15.2 9.3 14.2 8 13Zm2 6h4m-3 2h2m-1-5v-5m-2-2 2 2 2-2" />
@@ -47,6 +55,8 @@ export default function LearningInnovationIcon({ kind, className = "", active = 
           <path fill={`url(#${blue})`} stroke="#9bd5e8" d="M14 27a6 6 0 0 1 6-6h21l10 11h36a6 6 0 0 1 6 6v44H14Z" />
           <path d="M20 25h18l10 11h38" stroke="#d7f4ff" strokeOpacity=".7" />
           <g className={styles.ideaCards}>
+            <g className={styles.extraCardLeft}><rect x="35" y="28" width="25" height="37" rx="4" fill="#18547f" stroke="#79e3ff" /><path d="m42 39-3 3 3 3m8-6 3 3-3 3m-3-8-2 10" stroke="#e9ca8b" /></g>
+            <g className={styles.extraCardRight}><rect x="48" y="27" width="25" height="37" rx="4" fill="#f7f4ed" stroke="#b6d2df" /><path d="M54 52V42m6 10V37m6 15V33" stroke="#2d7fb4" strokeWidth="3" /></g>
             <g className={styles.leftCard}><rect x="25" y="35" width="30" height="36" rx="5" fill="#f7f4ed" stroke="#b6d2df" /><path d="m32 46 8-4 8 4-8 4Zm8 4v11" stroke="#2d7fb4" /><circle cx="40" cy="61" r="2" fill="#b39159" /></g>
             <g className={styles.rightCard}><rect x="59" y="34" width="26" height="37" rx="5" fill="#123f68" stroke="#79e3ff" /><path d="m65 47 6-5 7 5-7 6Zm6 6v9" stroke="#e9ca8b" /></g>
           </g>

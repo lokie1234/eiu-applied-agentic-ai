@@ -27,7 +27,11 @@ export default function SectionEnergy() {
           width: element.offsetWidth + 16, height: element.offsetHeight + 14,
         }));
         const next = { width, height, exclusions };
-        setGeometry(previous => JSON.stringify(previous) === JSON.stringify(next) ? previous : next);
+        setGeometry(previous => previous?.width === width && previous.height === height &&
+          previous.exclusions.length === exclusions.length && previous.exclusions.every((box, index) => {
+            const value = exclusions[index];
+            return box.x === value.x && box.y === value.y && box.width === value.width && box.height === value.height;
+          }) ? previous : next);
       });
     }
     const observer = new ResizeObserver(schedule);
@@ -45,11 +49,10 @@ export default function SectionEnergy() {
     .map(([x, y]) => [x * width, y * height])
     .find(([x, y]) => isClear(x, y));
   const [cx, cy] = center ?? [width * .5, height * .55];
-  const ends = [[8, 8], [width * .5, 6], [width - 8, 8], [width - 6, height * .33],
-    [width - 6, height * .66], [width - 8, height - 8], [width * .66, height - 6],
-    [width * .33, height - 6], [8, height - 8], [6, height * .66], [6, height * .33], [width * .25, 6]];
+  const ends = [[8, 8], [width * .5, 6], [width - 8, 8], [width - 6, height * .5],
+    [width - 8, height - 8], [width * .5, height - 6], [8, height - 8], [6, height * .5]];
   return <svg ref={ref} className={styles.sectionEnergy} viewBox={`0 0 ${width} ${height}`}
-    aria-hidden="true" focusable="false">
+    aria-hidden="true" focusable="false" shapeRendering="geometricPrecision">
     {geometry && <>
       <defs><mask id={maskId} maskUnits="userSpaceOnUse" x="0" y="0" width={width} height={height}>
         <rect x="3" y="3" width={Math.max(0, width - 6)} height={Math.max(0, height - 6)} rx="12" fill="white" />
@@ -59,9 +62,9 @@ export default function SectionEnergy() {
         {ends.map(([x, y], index) => {
           const mx = cx + (x - cx) * .35, my = cy + (y - cy) * .5;
           const route = `M${cx} ${cy}L${mx} ${cy}L${mx} ${my}L${x} ${y}`;
-          return <g key={index} style={{ "--ray-delay": `${-(index % 6) * .42}s`, "--ray-duration": `${2.8 + (index % 3) * .4}s` } as CSSProperties}>
-            <path className={styles.sectionEnergyTrack} d={route} />
-            <path className={styles.sectionEnergyPulse} d={route} pathLength="100" />
+          return <g key={index} style={{ "--ray-delay": `${-(index % 6) * .42}s`, "--ray-duration": `${3.6 + (index % 3) * .4}s` } as CSSProperties}>
+            <path className={styles.sectionEnergyTrack} d={route} vectorEffect="non-scaling-stroke" />
+            <path className={styles.sectionEnergyPulse} d={route} pathLength="100" vectorEffect="non-scaling-stroke" />
             <circle className={styles.sectionEnergyEnd} cx={x} cy={y} r="2" />
           </g>;
         })}

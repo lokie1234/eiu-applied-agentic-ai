@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import styles from "./EntranceBootOverlay.module.css";
 
@@ -8,57 +8,51 @@ interface EntranceBootOverlayProps {
   onComplete: () => void;
   onStartExit?: () => void;
   prefersReduced?: boolean | null;
+  ready?: boolean;
 }
 
 export default function EntranceBootOverlay({
   onComplete,
   onStartExit,
   prefersReduced = false,
+  ready = true,
 }: EntranceBootOverlayProps) {
   const [shimmerActive, setShimmerActive] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const startedAtRef = useRef<number | null>(null);
+  const exitAtRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (prefersReduced) {
-      const exitTimer = setTimeout(() => {
-        setIsExiting(true);
-        onStartExit?.();
-      }, 150);
-      const completeTimer = setTimeout(() => {
-        onComplete();
-      }, 400);
-
-      return () => {
-        clearTimeout(exitTimer);
-        clearTimeout(completeTimer);
-      };
-    }
-
-    // Sequence for standard entrance (Total ~1.55 seconds):
-    // 0ms - 200ms: Environment awake, ambient glow fades in
-    // 200ms - 680ms: EIU logo emerges (opacity + subtle scale + blur clear)
-    // 680ms - 1100ms: Single photonic light sweep across EIU logo
-    // 1080ms: Underlying page ready -> overlay starts smooth dissolve
-    // 1560ms: Complete reveal, overlay unmounts
+    const now = performance.now();
+    startedAtRef.current ??= now;
+    const elapsed = now - startedAtRef.current;
+    // Keep the logo's minimum duration, but wait for GPU preparation on cold loads.
+    // The deadline always releases the sign-in form, even if WebGL never becomes ready.
+    const minimum = prefersReduced ? 150 : 1080;
+    const exitDelay = exitAtRef.current !== null ? 0 : Math.max(0, (ready || prefersReduced ? minimum : 4500) - elapsed);
+    const fadeDuration = prefersReduced ? 250 : 480;
+    let completeTimer: ReturnType<typeof setTimeout> | undefined;
     const shimmerTimer = setTimeout(() => {
       setShimmerActive(true);
-    }, 680);
+    }, Math.max(0, 680 - elapsed));
 
     const exitTimer = setTimeout(() => {
-      setIsExiting(true);
-      onStartExit?.();
-    }, 1080);
-
-    const completeTimer = setTimeout(() => {
-      onComplete();
-    }, 1560);
+      if (exitAtRef.current === null) {
+        exitAtRef.current = performance.now();
+        setIsExiting(true);
+        onStartExit?.();
+      }
+      // Start the fade's timer after the exit actually runs. GPU work can delay
+      // timers on a cold load; two absolute deadlines could otherwise fire together.
+      completeTimer = setTimeout(onComplete, Math.max(0, fadeDuration - (performance.now() - exitAtRef.current)));
+    }, exitDelay);
 
     return () => {
       clearTimeout(shimmerTimer);
       clearTimeout(exitTimer);
-      clearTimeout(completeTimer);
+      if (completeTimer !== undefined) clearTimeout(completeTimer);
     };
-  }, [onComplete, onStartExit, prefersReduced]);
+  }, [onComplete, onStartExit, prefersReduced, ready]);
 
   return (
     <div

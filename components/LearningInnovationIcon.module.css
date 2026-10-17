@@ -1,11 +1,18 @@
 .icon { display: block; flex-shrink: 0; color: #79e3ff; pointer-events: none; }
 .icon svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.icon[data-webgl-ready] > svg { visibility: hidden; transition: none; }
+.icon[data-webgl-ready] > svg * { animation-play-state: paused !important; transition: none !important; }
 .scene { transform: perspective(360px) rotateX(var(--ai-rotate-x, 0deg)) rotateY(var(--ai-rotate-y, 0deg)); transform-origin: 50% 60%; transition: transform 100ms ease-out; }
 .shadow { fill: #010d1b; opacity: .5; transform-origin: 55px 97px; transition: transform 350ms ease, opacity 350ms ease; }
 .halo { fill: #51c9ef; opacity: .045; transition: opacity 300ms ease; }
 .object, .ideaCards, .leftCard, .rightCard, .idea, .continueBody { transition: transform 500ms cubic-bezier(.22,1,.36,1); }
 .folderLid { transform-origin: 55px 88px; transition: transform 500ms cubic-bezier(.22,1,.36,1); }
 .leftCard, .rightCard { transform-origin: 55px 72px; }
+.extraCardLeft, .extraCardRight { transform-origin: 55px 72px; transition: transform 500ms cubic-bezier(.22,1,.36,1); }
+:global([data-icon-surface="folder"]:is([aria-pressed="true"], :hover, :focus-visible)) .icon .extraCardLeft { animation: fileFanLeft 2200ms ease-in-out infinite; }
+:global([data-icon-surface="folder"]:is([aria-pressed="true"], :hover, :focus-visible)) .icon .extraCardRight { animation: fileFanRight 2200ms 120ms ease-in-out infinite; }
+@keyframes fileFanLeft { 0%, 100% { transform: translate(0, 0); } 40%, 65% { transform: translate(-8px, -12px) rotate(-16deg); } }
+@keyframes fileFanRight { 0%, 100% { transform: translate(0, 0); } 40%, 65% { transform: translate(8px, -15px) rotate(17deg); } }
 .glints { opacity: .25; }
 .circuit { opacity: .5; }
 .status { opacity: .7; }

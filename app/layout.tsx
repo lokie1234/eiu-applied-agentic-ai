@@ -3,7 +3,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "EIU · Applied Agentic AI",
+  title: "EIU · Interactive Learning Space",
   description: "AI learning, automation and interactive course experiences at EIU.",
 };
 

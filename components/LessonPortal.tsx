@@ -12,6 +12,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
 import styles from "./LessonPortal.module.css";
 import LearningInnovationIcon from "./LearningInnovationIcon";
+import CourseDiscoveryHeading from "./CourseDiscoveryHeading";
 import HairlineLoading from "./HairlineLoading";
 import CourseToolRow from "./CourseToolRow";
 import SectionEnergy from "./SectionEnergy";
@@ -24,6 +25,7 @@ const loadSectionTwo = () => import("./section2/SectionTwoDeck");
 const SectionOneDeck = dynamic(() => import("./PdfDeck"), { ssr: false, loading: () => <HairlineLoading /> });
 const SectionTwoDeck = dynamic(() => import("./section2/SectionTwoDeck"), { ssr: false, loading: () => <HairlineLoading /> });
 const UploadedSectionDeck = dynamic(() => import("./deck/UploadedSectionDeck"), { ssr: false, loading: () => <HairlineLoading /> });
+const LearningIcon3DLayer = dynamic(() => import("./LearningIcon3DLayer"), { ssr: false });
 
 type SectionId = "section1" | "section2";
 
@@ -32,30 +34,41 @@ function useInnovationTilt() {
   const surfaceRef = useRef<HTMLElement | null>(null);
   const frameRef = useRef<number | null>(null);
   const pointerRef = useRef({ x: 0, y: 0 });
-  function reset() {
+  const boundsRef = useRef<DOMRect | null>(null);
+  const motionAllowedRef = useRef(true);
+  const reset = useCallback(() => {
     if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
     frameRef.current = null;
     surfaceRef.current?.style.removeProperty("--ai-rotate-x");
     surfaceRef.current?.style.removeProperty("--ai-rotate-y");
-    surfaceRef.current?.style.removeProperty("--ai-shift-x");
-    surfaceRef.current?.style.removeProperty("--ai-shift-y");
     surfaceRef.current?.removeAttribute("data-pointer-active");
     surfaceRef.current = null;
-  }
-  useEffect(() => () => {
-    if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
-    surfaceRef.current?.style.removeProperty("--ai-rotate-x");
-    surfaceRef.current?.style.removeProperty("--ai-rotate-y");
-    surfaceRef.current?.style.removeProperty("--ai-shift-x");
-    surfaceRef.current?.style.removeProperty("--ai-shift-y");
-    surfaceRef.current?.removeAttribute("data-pointer-active");
+    boundsRef.current = null;
   }, []);
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce), (hover: none)");
+    const update = () => { motionAllowedRef.current = !media.matches; if (media.matches) reset(); };
+    update();
+    media.addEventListener("change", update);
+    window.addEventListener("resize", reset, { passive: true });
+    window.addEventListener("blur", reset);
+    document.addEventListener("scroll", reset, { capture: true, passive: true });
+    document.addEventListener("visibilitychange", reset);
+    return () => {
+      reset();
+      media.removeEventListener("change", update);
+      window.removeEventListener("resize", reset);
+      window.removeEventListener("blur", reset);
+      document.removeEventListener("scroll", reset, true);
+      document.removeEventListener("visibilitychange", reset);
+    };
+  }, [reset]);
   function onPointerMove(event: PointerEvent<HTMLElement>) {
-    if (event.pointerType !== "mouse") return;
+    if (event.pointerType !== "mouse" || !motionAllowedRef.current) return;
     const surface = (event.target as Element).closest<HTMLElement>("[data-icon-surface]");
     if (surface !== surfaceRef.current) {
       reset();
-      if (!surface || surface.matches(":disabled") || window.matchMedia("(prefers-reduced-motion: reduce), (hover: none)").matches) return;
+      if (!surface || surface.matches(":disabled, [data-disabled=\"true\"]")) return;
       surfaceRef.current = surface;
       surface.setAttribute("data-pointer-active", "true");
     }
@@ -66,15 +79,14 @@ function useInnovationTilt() {
       frameRef.current = null;
       const target = surfaceRef.current;
       if (!target?.isConnected) return;
-      const bounds = target.getBoundingClientRect();
+      const bounds = boundsRef.current ?? target.getBoundingClientRect();
+      boundsRef.current = bounds;
       if (!bounds.width || !bounds.height) return;
       const x = Math.max(-1, Math.min(1, ((pointerRef.current.x - bounds.left) / bounds.width - .5) * 2));
       const y = Math.max(-1, Math.min(1, ((pointerRef.current.y - bounds.top) / bounds.height - .5) * 2));
       const strength = target.dataset.iconSurface === "folder" ? 1 : 1.4;
       target.style.setProperty("--ai-rotate-x", `${(-y * 8 * strength).toFixed(2)}deg`);
       target.style.setProperty("--ai-rotate-y", `${(x * 11 * strength).toFixed(2)}deg`);
-      target.style.setProperty("--ai-shift-x", `${(x * 4).toFixed(2)}px`);
-      target.style.setProperty("--ai-shift-y", `${(y * 3).toFixed(2)}px`);
     });
   }
   return { onPointerMove, onPointerLeave: reset };
@@ -923,7 +935,13 @@ export default function LessonPortal({
                   <span data-energy-exclude>SECTION {courseSection.position}</span>
                   <strong data-energy-exclude className={styles.illustratedTitle} title={courseSection.title}><LearningAccent kind="page" /><span>{courseSection.title}</span></strong>
                   {canOpen && <div className={styles.sectionEnergySpace} aria-hidden="true" />}
-                  <small data-energy-exclude className={canOpen ? styles.sectionSlideBadge : undefined} aria-live="polite">{canOpen ? `${count ?? "…"} slides` : "Content has not been uploaded yet"}</small>
+                  <small data-energy-exclude className={canOpen ? styles.sectionSlideBadge : undefined} aria-live="polite" aria-atomic="true">
+                    {canOpen ? <>
+                      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="7" y="7" width="14" height="13" rx="2" /><path d="M17 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2M11 12h6m-6 4h4" /></svg>
+                      <b className={styles.sectionSlideCount}>{count ?? "…"}</b>
+                      <span>slides</span>
+                    </> : "Content has not been uploaded yet"}
+                  </small>
                   {(isAdmin || courseSection.canFacilitate) && coreSection && <div data-energy-exclude className={styles.cardLiveUsers}>
                     <span className={styles.liveDot} />
                     <span>{presenceCounts[coreSection]} active learners</span>
@@ -969,6 +987,7 @@ export default function LessonPortal({
     return (
       <main className={`${styles.portal} ${styles.innovationPortal}`} {...iconTilt}>
         <div className={styles.innovationBackdrop} aria-hidden="true" />
+        <LearningIcon3DLayer />
         <div className={styles.selectorActions}>
           {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
@@ -1022,11 +1041,7 @@ export default function LessonPortal({
 
           <div className={styles.libraryHeaderToolbar}>
             <div className={styles.libraryHeaderTitleArea}>
-              <h1 className={styles.libraryHeaderTitle}>
-                <LearningInnovationIcon kind="spark" className={styles.titleInnovationLeft} />
-                <span className={styles.titleInnovationText}>Choose a <span className={styles.titleWord}>course</span></span>
-                <LearningInnovationIcon kind="spark" className={styles.titleInnovationRight} />
-              </h1>
+              <CourseDiscoveryHeading />
             </div>
 
             <div className={styles.librarySearchArea}>

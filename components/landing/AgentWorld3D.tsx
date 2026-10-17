@@ -36,16 +36,7 @@ function DynamicOrbitRing({
   const currentSpeed = useRef(0);
   const currentRot = useRef(phase);
 
-  const mat = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        color: new THREE.Color(color),
-        transparent: true,
-        opacity: 0,
-        side: THREE.DoubleSide,
-      }),
-    [color]
-  );
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
 
   const geo = useMemo(
     () => new THREE.TorusGeometry(radius, thickness, 8, 80),
@@ -53,6 +44,9 @@ function DynamicOrbitRing({
   );
 
   useFrame((_, delta) => {
+    const mat = matRef.current;
+    if (!mat) return;
+    delta = Math.min(delta, .05);
     // Orbits activate at stage >= 4 ("move" word reveals)
     const active = stage >= 4;
     const targetOp = active ? targetOpacity : 0;
@@ -74,7 +68,9 @@ function DynamicOrbitRing({
     }
   });
 
-  return <mesh ref={meshRef} rotation={tilt} geometry={geo} material={mat} />;
+  return <mesh ref={meshRef} rotation={tilt} geometry={geo}>
+    <meshBasicMaterial ref={matRef} color={color} transparent opacity={0} side={THREE.DoubleSide} />
+  </mesh>;
 }
 
 // ─── Traveling Signal Data Packet ─────────────────────────────────────────────
@@ -101,19 +97,14 @@ function SignalDataPacket({
   const dotRef = useRef<THREE.Mesh>(null);
   const angleRef = useRef(startAngle);
 
-  const mat = useMemo(
-    () =>
-      new THREE.MeshBasicMaterial({
-        color: new THREE.Color(color),
-        transparent: true,
-        opacity: 0,
-      }),
-    [color]
-  );
+  const matRef = useRef<THREE.MeshBasicMaterial>(null);
 
   const geo = useMemo(() => new THREE.SphereGeometry(size, 8, 6), [size]);
 
   useFrame((_, delta) => {
+    const mat = matRef.current;
+    if (!mat) return;
+    delta = Math.min(delta, .05);
     const isReady = stage >= activationStage;
     const targetOp = isReady ? 0.95 : 0;
     mat.opacity = THREE.MathUtils.damp(mat.opacity, targetOp, 3.0, delta);
@@ -127,7 +118,9 @@ function SignalDataPacket({
 
   return (
     <group ref={nodeRef} rotation={tilt}>
-      <mesh ref={dotRef} geometry={geo} material={mat} />
+      <mesh ref={dotRef} geometry={geo}>
+        <meshBasicMaterial ref={matRef} color={color} transparent opacity={0} />
+      </mesh>
     </group>
   );
 }
@@ -135,14 +128,17 @@ function SignalDataPacket({
 // ─── Ambient Academic Data Dust ──────────────────────────────────────────────
 function AcademicDataDust({ stage }: { stage: number }) {
   const pointsRef = useRef<THREE.Points>(null);
+  const matRef = useRef<THREE.PointsMaterial>(null);
 
   const positions = useMemo(() => {
     const count = 90;
     const positions = new Float32Array(count * 3);
     for (let i = 0; i < count; i++) {
-      positions[i * 3 + 0] = (Math.random() - 0.5) * 8.5;
-      positions[i * 3 + 1] = (Math.random() - 0.5) * 7.5;
-      positions[i * 3 + 2] = (Math.random() - 0.5) * 5.0 - 1.2;
+      for (let axis = 0; axis < 3; axis++) {
+        const seed = Math.sin((i * 3 + axis + 1) * 12.9898) * 43758.5453;
+        const spread = [8.5, 7.5, 5][axis];
+        positions[i * 3 + axis] = (seed - Math.floor(seed) - .5) * spread - (axis === 2 ? 1.2 : 0);
+      }
     }
     return positions;
   }, []);
@@ -153,18 +149,10 @@ function AcademicDataDust({ stage }: { stage: number }) {
     return g;
   }, [positions]);
 
-  const mat = useMemo(
-    () =>
-      new THREE.PointsMaterial({
-        color: "#E9CA8B",
-        size: 0.024,
-        transparent: true,
-        opacity: 0,
-      }),
-    []
-  );
-
   useFrame((_, delta) => {
+    const mat = matRef.current;
+    if (!mat) return;
+    delta = Math.min(delta, .05);
     const targetOp = stage >= 1 ? 0.42 : 0;
     mat.opacity = THREE.MathUtils.damp(mat.opacity, targetOp, 1.5, delta);
     if (pointsRef.current) {
@@ -172,7 +160,9 @@ function AcademicDataDust({ stage }: { stage: number }) {
     }
   });
 
-  return <points ref={pointsRef} geometry={geo} material={mat} />;
+  return <points ref={pointsRef} geometry={geo}>
+    <pointsMaterial ref={matRef} color="#E9CA8B" size={.024} transparent opacity={0} />
+  </points>;
 }
 
 // ─── Main AgentWorld3D Component ──────────────────────────────────────────────

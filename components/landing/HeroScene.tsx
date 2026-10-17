@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Component, type ReactNode, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
@@ -13,25 +13,71 @@ interface HeroSceneProps {
   robotState?: RobotInteractionState;
   isCtaHovered?: boolean;
   ctaPulsed?: boolean;
+  enter?: boolean;
+  onReady?: () => void;
+  onUnavailable?: () => void;
+}
+
+class SceneBoundary extends Component<{ children: ReactNode; onUnavailable?: () => void }, { failed: boolean }> {
+  state = { failed: false };
+  static getDerivedStateFromError() { return { failed: true }; }
+  componentDidCatch() { this.props.onUnavailable?.(); }
+  render() { return this.state.failed ? null : this.props.children; }
+}
+
+// This mounts only after every Suspense texture has resolved. Prepare the exact
+// scene while its canvas is transparent, before starting any entrance movement.
+function SceneWarmup({ onReady, onUnavailable }: { onReady: () => void; onUnavailable?: () => void }) {
+  const get = useThree(state => state.get);
+  useEffect(() => {
+    let cancelled = false;
+    let frame = 0;
+    frame = requestAnimationFrame(() => {
+      const { gl, scene, camera } = get();
+      scene.updateMatrixWorld(true);
+      void Promise.resolve().then(() => gl.compileAsync(scene, camera)).then(() => {
+        if (cancelled) return;
+        frame = requestAnimationFrame(() => {
+          if (cancelled) return;
+          // Upload even the actors waiting outside the viewport. Otherwise their
+          // buffers and transmission shaders would still stall the first fly-in.
+          const culling = new Map<THREE.Object3D, boolean>();
+          scene.traverse(object => { culling.set(object, object.frustumCulled); object.frustumCulled = false; });
+          try { gl.render(scene, camera); }
+          catch { onUnavailable?.(); return; }
+          finally { culling.forEach((value, object) => { object.frustumCulled = value; }); }
+          frame = requestAnimationFrame(() => {
+            frame = requestAnimationFrame(() => { if (!cancelled) onReady(); });
+          });
+        });
+      }).catch(() => {
+        // A shader warmup failure must not block sign-in or expose a partial scene.
+        if (!cancelled) onUnavailable?.();
+      });
+    });
+    return () => { cancelled = true; cancelAnimationFrame(frame); };
+  }, [get, onReady, onUnavailable]);
+  return null;
 }
 
 // Keep the full scene and interactions; reduce only pixel workload on slower GPUs.
-function ScenePerformance({ onDprChange, onRunningChange }: {
+function ScenePerformance({ onDprChange, onRunningChange, active }: {
   onDprChange: (dpr: number) => void;
   onRunningChange: (running: boolean) => void;
+  active: boolean;
 }) {
   const get = useThree((state) => state.get);
-  const sample = useRef({ elapsed: 0, frames: 0, warmup: 4 });
+  const sample = useRef({ elapsed: 0, frames: 0, warmup: 1 });
 
   useEffect(() => {
     const { gl, clock, setFrameloop } = get();
     // The visor keeps its physical glass material with a smaller refraction buffer.
     const originalScale = gl.transmissionResolutionScale;
-    gl.transmissionResolutionScale = 0.75;
+    gl.transmissionResolutionScale = 0.5;
     let inView = true;
-    let running = true;
+    let running: boolean | null = null;
     const syncVisibility = () => {
-      const next = !document.hidden && inView;
+      const next = active && !document.hidden && inView;
       if (next === running) return;
       running = next;
       // Fiber resets the clock on loop changes. Preserve animation phase on resume.
@@ -39,7 +85,7 @@ function ScenePerformance({ onDprChange, onRunningChange }: {
       setFrameloop(next ? "always" : "never");
       clock.elapsedTime = elapsed;
       onRunningChange(next);
-      sample.current = { elapsed: 0, frames: 0, warmup: 4 };
+      sample.current = { elapsed: 0, frames: 0, warmup: 1 };
     };
     const observer = new IntersectionObserver(([entry]) => {
       inView = entry.isIntersecting;
@@ -53,7 +99,7 @@ function ScenePerformance({ onDprChange, onRunningChange }: {
       document.removeEventListener("visibilitychange", syncVisibility);
       gl.transmissionResolutionScale = originalScale;
     };
-  }, [get, onRunningChange]);
+  }, [get, active, onRunningChange]);
 
   useFrame((state, delta) => {
     const measurement = sample.current;
@@ -63,13 +109,13 @@ function ScenePerformance({ onDprChange, onRunningChange }: {
     }
     measurement.elapsed += delta;
     measurement.frames++;
-    if (measurement.elapsed < 2) return;
+    if (measurement.elapsed < 1) return;
     const fps = measurement.frames / measurement.elapsed;
     // Sustained slow frames lower DPR gradually, without quality oscillation.
     if (fps < 48 && state.viewport.dpr > 0.85) {
       onDprChange(Math.max(0.85, Number((state.viewport.dpr - 0.15).toFixed(2))));
     }
-    sample.current = { elapsed: 0, frames: 0, warmup: 2 };
+    sample.current = { elapsed: 0, frames: 0, warmup: 1 };
   });
   return null;
 }
@@ -78,9 +124,10 @@ function ScenePerformance({ onDprChange, onRunningChange }: {
 // Injects physical studio softbox reflections into scene.environment with 0 network calls.
 // Provides realistic Fresnel reflections for anodized metals, gold trims, and glass.
 function EiuStudioLightingEnvironment() {
-  const { gl, scene } = useThree();
+  const get = useThree(state => state.get);
 
   useEffect(() => {
+    const { gl, scene } = get();
     const envScene = new THREE.Scene();
 
     // 1. Spatial hemisphere: Deep navy zenith, dark ink bounce
@@ -122,7 +169,7 @@ function EiuStudioLightingEnvironment() {
 
     const pmremGenerator = new THREE.PMREMGenerator(gl);
     pmremGenerator.compileEquirectangularShader();
-    const renderTarget = pmremGenerator.fromScene(envScene, 0.04);
+    const renderTarget = pmremGenerator.fromScene(envScene, 0.04, 0.1, 100, { size: 128 });
 
     scene.environment = renderTarget.texture;
     scene.environmentIntensity = 0.88;
@@ -135,7 +182,7 @@ function EiuStudioLightingEnvironment() {
       pKey.material.dispose();
       pRim.material.dispose();
     };
-  }, [gl, scene]);
+  }, [get]);
 
   return null;
 }
@@ -146,10 +193,19 @@ export default function HeroScene({
   robotState = "idle",
   isCtaHovered = false,
   ctaPulsed = false,
+  enter = true,
+  onReady,
+  onUnavailable,
 }: HeroSceneProps) {
-  const [dpr, setDpr] = useState(1.25);
-  const [running, setRunning] = useState(true);
+  const [dpr, setDpr] = useState(1);
+  const [prepared, setPrepared] = useState(false);
+  const [running, setRunning] = useState(false);
+  const handleReady = useCallback(() => { setPrepared(true); onReady?.(); }, [onReady]);
+  const revealed = prepared && enter;
   return (
+    <div style={{ width: "100%", height: "100%", opacity: revealed ? 1 : 0,
+      pointerEvents: revealed ? "auto" : "none", transition: "opacity 1.2s cubic-bezier(.22,1,.36,1)" }}>
+    <SceneBoundary onUnavailable={onUnavailable}>
     <Canvas
       dpr={[0.85, dpr]}
       frameloop={running ? "always" : "never"}
@@ -165,10 +221,10 @@ export default function HeroScene({
         background: "transparent",
         width: "100%",
         height: "100%",
-        pointerEvents: "auto",
+        pointerEvents: revealed ? "auto" : "none",
       }}
     >
-      <ScenePerformance onDprChange={setDpr} onRunningChange={setRunning} />
+      <ScenePerformance onDprChange={setDpr} onRunningChange={setRunning} active={revealed} />
       <PerspectiveCamera makeDefault position={[0, 0, 10.5]} fov={50} />
 
       <Suspense fallback={null}>
@@ -176,7 +232,7 @@ export default function HeroScene({
         <EiuStudioLightingEnvironment />
 
         {/* Spatial AI World Orbits & Signals — renders behind and around robot */}
-        <AgentWorld3D stage={stage} />
+        <AgentWorld3D stage={revealed ? stage : 0} />
 
         {/* EIU Guardian Robot — Hero subject */}
         <GuardianRobot3D
@@ -185,8 +241,12 @@ export default function HeroScene({
           robotState={robotState}
           isCtaHovered={isCtaHovered}
           ctaPulsed={ctaPulsed}
+          enter={revealed}
         />
+        <SceneWarmup onReady={handleReady} onUnavailable={onUnavailable} />
       </Suspense>
     </Canvas>
+    </SceneBoundary>
+    </div>
   );
 }

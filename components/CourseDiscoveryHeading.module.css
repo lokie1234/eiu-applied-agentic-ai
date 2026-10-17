@@ -1,0 +1,41 @@
+.heading { position: relative; display: flex; align-items: center; gap: 18px; isolation: isolate; max-width: 100%; padding: 8px 0; }
+.companion { position: relative; flex: 0 0 96px; width: 96px; height: 96px; padding: 0; border: 0; background: transparent; cursor: pointer; perspective: 420px; -webkit-tap-highlight-color: transparent; border-radius: 24px; }
+.companion:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 5px; }
+.webgl { position: absolute; inset: -12px; z-index: 3; pointer-events: none; }
+.companion[data-ready] > :is(.robot, .orbit) { visibility: hidden; }
+.companion[data-ready] .robot, .companion[data-ready] .robot * { animation: none !important; transition: none !important; }
+.companion::before { content: ''; position: absolute; inset: -12px; border-radius: 50%; background: radial-gradient(circle, #51c9ef22, transparent 68%); transition: opacity 250ms; opacity: .6; }
+.robot { position: absolute; inset: 17px 10px 18px; z-index: 2; transform-style: preserve-3d; transform: rotateX(var(--robot-look-y, -5deg)) rotateY(var(--robot-look-x, -12deg)); transition: transform 75ms ease-out; }
+.shell { position: absolute; inset: 0; border-radius: 25px 25px 23px 23px; background: linear-gradient(135deg, #f5ffff 0%, #c2e3ef 20%, #65a8c4 60%, #18547f 100%); border: 1px solid #c6f2ff; box-shadow: inset 2px 3px 4px #fff9, inset -4px -5px 7px #041c3180, 5px 6px 0 #123f68, 6px 7px 0 #397fa8, 0 12px 18px #010d1b80; }
+.visor { position: absolute; inset: 10px 7px 15px; border-radius: 17px 17px 14px 14px; background: radial-gradient(ellipse at 40% 0, #18547f, #041c31 75%); border: 1px solid #082945; box-shadow: inset 0 3px 5px #010d1b, 0 1px 0 #eaf4ff90; overflow: hidden; }
+.visor::after { content: ''; position: absolute; top: 2px; left: 8px; width: 30px; height: 5px; border-radius: 50%; background: #b4ebff25; transform: rotate(-12deg); }
+.eyes { position: absolute; inset: 10px 10px auto; display: flex; justify-content: space-between; transform: translateX(var(--eye-x, 0px)); transition: transform 75ms ease-out; }
+.eyes i { width: 9px; height: 12px; border-radius: 6px; background: #a1f1ff; box-shadow: 0 0 9px #51c9ef99, inset 0 2px 2px #fff; transition: height 200ms, transform 200ms; }
+.smile { position: absolute; width: 10px; height: 5px; border: solid #79e3ff; border-width: 0 0 2px; border-radius: 0 0 50% 50%; bottom: 4px; left: calc(50% - 5px); }
+.antenna { position: absolute; width: 3px; height: 12px; background: #b39159; top: -12px; left: 37px; }
+.antenna::before { content: ''; position: absolute; width: 9px; height: 9px; top: -5px; left: -3px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #fff9dd, #e9ca8b 35%, #9d7944); box-shadow: 0 0 12px #e9ca8b66; }
+.earLeft, .earRight { position: absolute; top: 21px; width: 9px; height: 21px; border-radius: 6px; background: linear-gradient(90deg, #18547f, #9bd5e8); border: 1px solid #79b5cd; }
+.earLeft { left: -6px; }.earRight { right: -9px; }
+.chin { position: absolute; bottom: 6px; left: 28px; display: flex; gap: 3px; }.chin i { width: 3px; height: 3px; border-radius: 50%; background: #082945; }.chin i:first-child { background: #f4dfb0; }
+.orbit { position: absolute; inset: 20px -5px; border: 1px solid #79e3ff50; border-top-color: #79e3ff12; border-radius: 50%; transform: rotate(-26deg) rotateX(55deg); }
+.orbit::after { content: ''; position: absolute; right: 10px; bottom: 4px; width: 6px; height: 6px; border-radius: 50%; background: #e9ca8b; box-shadow: 0 0 10px #e9ca8b70; }
+.shadow { position: absolute; bottom: 2px; left: 20px; width: 65px; height: 8px; border-radius: 50%; background: radial-gradient(ellipse, #010d1b90, transparent 70%); }
+.spark { position: absolute; right: -3px; top: 4px; color: #e9ca8b; font-size: 15px; transition: transform 300ms; }
+.copy { min-width: 0; perspective: 800px; }
+.eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; font-size: 10px; font-weight: 600; letter-spacing: .18em; color: #e9ca8b; }
+.eyebrow i { width: 4px; height: 4px; border-radius: 50%; background: #e9ca8b; box-shadow: 0 0 8px #e9ca8b55; }
+.title { margin: 0; color: #eaf4ff; font-size: clamp(28px, 3.2vw, 46px); font-weight: 650; letter-spacing: -.045em; line-height: 1.15; transform-origin: left center; transform: none; }
+.word { position: relative; display: inline-block; color: #93e5fa; transition: color 250ms, text-shadow 250ms; }
+.signal { position: absolute; height: 1px; left: 0; right: 0; bottom: -10px; background: linear-gradient(90deg, #51c9ef10, #79e3ff80, #e9ca8b); transform-origin: left; transition: transform 300ms; transform: scaleX(.7); }
+.signal::after { content: ''; position: absolute; right: -2px; top: -2px; width: 5px; height: 5px; border-radius: 50%; background: #e9ca8b; box-shadow: 0 0 8px #e9ca8b70; }
+.heading:is(:hover, :focus-within, [data-energized]) .word { color: #c3f5ff; text-shadow: 0 0 22px #51c9ef35; }
+.heading:is(:hover, :focus-within, [data-energized]) .signal { transform: scaleX(1); }
+.heading:is(:hover, :focus-within, [data-energized]) .spark { transform: rotate(90deg) scale(1.2); }
+.heading:is(:hover, :focus-within, [data-energized]) .companion::before { opacity: 1; }
+.heading[data-energized] .robot { animation: greet 700ms cubic-bezier(.22,1,.36,1) 2; }
+.heading[data-energized] .eyes i { height: 5px; transform: translateY(3px); border-radius: 7px 7px 2px 2px; }
+.heading[data-energized] .signal::after { animation: transmit 700ms ease-in-out 2; }
+@keyframes greet { 0%, 100% { transform: rotateY(-12deg); } 45% { transform: translateY(-7px) rotateY(14deg) rotateZ(-6deg); } }
+@keyframes transmit { from { right: 100%; opacity: 0; } 25% { opacity: 1; } to { right: -2px; opacity: 1; } }
+@media (max-width: 600px) { .heading { gap: 12px; }.companion { flex-basis: 80px; width: 80px; height: 88px; }.robot { inset: 18px 6px 16px; }.antenna { left: 33px; }.chin { left: 24px; }.title { font-size: clamp(24px, 6vw, 34px); }.eyebrow { font-size: 8px; letter-spacing: .12em; }.eyes { left: 8px; right: 8px; } }
+@media (prefers-reduced-motion: reduce) { .heading *, .heading *::before, .heading *::after { animation: none !important; transition: none !important; }.robot, .title, .eyes { transform: none !important; } }

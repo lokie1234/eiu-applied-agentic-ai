@@ -145,6 +145,10 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
   // ── Initial Entrance Boot State (Single run per page visit) ──
   const [isEntranceActive, setIsEntranceActive] = useState(true);
   const [isOverlayExiting, setIsOverlayExiting] = useState(false);
+  const [sceneReady, setSceneReady] = useState(false);
+  const [sceneUnavailable, setSceneUnavailable] = useState(false);
+  const handleSceneReady = useCallback(() => setSceneReady(true), []);
+  const handleSceneUnavailable = useCallback(() => { setSceneUnavailable(true); setSceneReady(true); }, []);
 
   const handleEntranceComplete = useCallback(() => {
     setIsEntranceActive(false);
@@ -170,6 +174,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
           onComplete={handleEntranceComplete}
           onStartExit={handleEntranceStartExit}
           prefersReduced={prefersReduced}
+          ready={sceneReady || reducedMotionReady}
         />
       )}
       {/* ── Background layers (Atmosphere) ── */}
@@ -201,6 +206,9 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
             robotState={robotState}
             isCtaHovered={isCtaHovered}
             ctaPulsed={ctaPulsed}
+            enter={isOverlayExiting || !isEntranceActive}
+            onReady={handleSceneReady}
+            onUnavailable={handleSceneUnavailable}
           />
         </div>
       )}
@@ -275,7 +283,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
           style={{ position: "relative", minHeight: 520, pointerEvents: "none" }}
           aria-hidden="true"
         >
-          {reducedMotionReady && <EiuAgentBot />}
+          {(reducedMotionReady || sceneUnavailable) && <EiuAgentBot />}
         </div>
       </section>
 

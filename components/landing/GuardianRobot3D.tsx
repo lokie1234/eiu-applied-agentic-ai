@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef, useMemo, useEffect, useState, useCallback } from "react";
-import { useFrame, useThree, type ThreeEvent } from "@react-three/fiber";
-import { useTexture } from "@react-three/drei";
+import { useFrame, useLoader, useThree, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
 
 // ─── EIU DESIGN DNA PALETTE ───────────────────────────────────────────────────
@@ -27,13 +26,37 @@ interface GuardianRobotProps {
   robotState?: RobotInteractionState;
   isCtaHovered?: boolean;
   ctaPulsed?: boolean;
+  enter?: boolean;
+}
+
+const BRAND_LOGOS = ["/branding/robot-chest-logo-white.png", "/branding/robot-drone-logo-white.png"];
+const compactLogoTextures = new WeakMap<THREE.Texture, THREE.Texture>();
+if (typeof window !== "undefined") BRAND_LOGOS.forEach(url => useLoader.preload(THREE.TextureLoader, url));
+
+function compactLogo(source: THREE.Texture) {
+  const cached = compactLogoTextures.get(source);
+  if (cached) return cached;
+  // These PNGs are 3750px square. A shared 1024px GPU texture is ample for decals,
+  // using about 1/13 of the texture pixels; don't upload the full-size originals.
+  const image = source.image as HTMLImageElement;
+  const canvas = document.createElement("canvas");
+  const scale = Math.min(1, 1024 / Math.max(image.width, image.height));
+  canvas.width = Math.max(1, Math.round(image.width * scale));
+  canvas.height = Math.max(1, Math.round(image.height * scale));
+  const context = canvas.getContext("2d");
+  if (!context) return source;
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  compactLogoTextures.set(source, texture);
+  return texture;
 }
 
 // ─── EIU Crest Badge on Robot Breastplate (Prominently mounted on torso front) ──
 function useBrandLogoTexture(chest = false) {
-  const source = useTexture(chest ? "/branding/robot-chest-logo-white.png" : "/branding/robot-drone-logo-white.png");
+  const source = useLoader(THREE.TextureLoader, BRAND_LOGOS[chest ? 0 : 1]);
   const texture = useMemo(() => {
-    const cropped = source.clone();
+    const cropped = compactLogo(source).clone();
     cropped.colorSpace = THREE.SRGBColorSpace;
     // Preserve the supplied transparent PNG; crop its empty margins using UVs.
     cropped.offset.set((chest ? 260 : 524) / 3750, (chest ? 576 : 1499) / 3750);
@@ -174,11 +197,10 @@ function VisorLoadingDisplay() {
   const textureRef = useRef<THREE.CanvasTexture | null>(null);
   const lastDotsRef = useRef(-1);
 
-  const { texture, geometry } = useMemo(() => {
+  const { texture, geometry, canvas } = useMemo(() => {
     const canvas = document.createElement("canvas");
     canvas.width = 1280;
     canvas.height = 256;
-    canvasRef.current = canvas;
 
     const context = canvas.getContext("2d");
     if (context) {
@@ -192,7 +214,6 @@ function VisorLoadingDisplay() {
     }
     const display = new THREE.CanvasTexture(canvas);
     display.colorSpace = THREE.SRGBColorSpace;
-    textureRef.current = display;
 
     const surface = new THREE.PlaneGeometry(0.55, 0.14, 48, 8);
     const positions = surface.attributes.position;
@@ -203,13 +224,19 @@ function VisorLoadingDisplay() {
     }
     surface.computeVertexNormals();
 
-    return { texture: display, geometry: surface };
+    return { texture: display, geometry: surface, canvas };
   }, []);
 
-  useEffect(() => () => {
-    texture.dispose();
-    geometry.dispose();
-  }, [texture, geometry]);
+  useEffect(() => {
+    canvasRef.current = canvas;
+    textureRef.current = texture;
+    return () => {
+      canvasRef.current = null;
+      textureRef.current = null;
+      texture.dispose();
+      geometry.dispose();
+    };
+  }, [texture, geometry, canvas]);
 
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
@@ -539,6 +566,7 @@ function OrbitingCompanionDrone({
   orbit,
   mouseRef,
   stage = 5,
+  enter = true,
   goldMat,
   navyMat,
   deepNavyMat,
@@ -549,6 +577,7 @@ function OrbitingCompanionDrone({
   orbit: DroneOrbitParams;
   mouseRef: React.MutableRefObject<{ x: number; y: number }>;
   stage?: number;
+  enter?: boolean;
   goldMat: THREE.Material;
   navyMat: THREE.Material;
   deepNavyMat: THREE.Material;
@@ -557,21 +586,15 @@ function OrbitingCompanionDrone({
   whiteSpecMat: THREE.Material;
 }) {
   const droneRef = useRef<THREE.Group>(null);
+  const flightTime = useRef(0);
   const droneEyeMatRef = useRef<THREE.MeshStandardMaterial | null>(null);
 
-  if (!droneEyeMatRef.current) {
-    droneEyeMatRef.current = new THREE.MeshStandardMaterial({
-      color: "#2D7FB4",
-      emissive: "#2D7FB4",
-      emissiveIntensity: 1.4,
-      roughness: 0.12,
-    });
-  }
-  const droneEyeMat = droneEyeMatRef.current;
-
-  useFrame(({ clock }, delta) => {
-    if (!droneRef.current) return;
-    const t = clock.getElapsedTime();
+  useFrame((_, delta) => {
+    if (!droneRef.current || !enter) return;
+    delta = Math.min(delta, .05);
+    flightTime.current += delta;
+    const t = flightTime.current;
+    const entry = THREE.MathUtils.smootherstep((t - .2 - orbit.id * .18) / 2.6, 0, 1);
 
     // 3D Orbital Trajectory
     const theta = t * orbit.speed + orbit.phase;
@@ -584,6 +607,14 @@ function OrbitingCompanionDrone({
     const targetY = y0 * Math.cos(orbit.tiltX) + z0 * Math.sin(orbit.tiltX);
     const targetZ = z0 * Math.cos(orbit.tiltX) - y0 * Math.sin(orbit.tiltX);
 
+    if (entry < 1) {
+      // Stagger the satellites from depth into their existing orbital paths.
+      droneRef.current.position.set(
+        THREE.MathUtils.lerp(Math.cos(orbit.phase) * 1.5, targetX, entry),
+        THREE.MathUtils.lerp(-4 - orbit.id * .25, targetY, entry),
+        THREE.MathUtils.lerp(-7, targetZ, entry),
+      );
+    } else {
     droneRef.current.position.x = THREE.MathUtils.damp(
       droneRef.current.position.x,
       targetX,
@@ -602,6 +633,8 @@ function OrbitingCompanionDrone({
       5.0,
       delta
     );
+    }
+    droneRef.current.scale.setScalar((orbit.scale || .72) * THREE.MathUtils.lerp(.7, 1, entry));
 
     // Orientation: blend tangent heading with eager gaze toward cursor
     const tangentHeading = Math.atan2(-Math.sin(theta) * orbit.speed, Math.cos(theta) * orbit.speed);
@@ -633,13 +666,13 @@ function OrbitingCompanionDrone({
       stage >= 4
         ? 1.25 + Math.sin(t * 3.5 + orbit.phase) * 0.55
         : 0.2;
-    droneEyeMat.emissiveIntensity = dronePulse;
+    if (droneEyeMatRef.current) droneEyeMatRef.current.emissiveIntensity = dronePulse;
   });
 
   const scale = orbit.scale || 0.72;
 
   return (
-    <group ref={droneRef} scale={scale}>
+    <group ref={droneRef} scale={scale * .7} position={[Math.cos(orbit.phase) * 1.5, -4 - orbit.id * .25, -7]}>
       <DroneLogoDecals />
       {/* 1. Precision Faceted Avionics Core Fuselage */}
       <mesh material={navyMat} castShadow>
@@ -685,8 +718,9 @@ function OrbitingCompanionDrone({
           <sphereGeometry args={[0.048, 20, 16, 0, Math.PI * 2, 0, Math.PI * 0.48]} />
         </mesh>
         {/* Internal Optical Aperture & Glint */}
-        <mesh position={[0, 0, 0.048]} material={droneEyeMat}>
+        <mesh position={[0, 0, 0.048]}>
           <sphereGeometry args={[0.018, 14, 10]} />
+          <meshStandardMaterial ref={droneEyeMatRef} color="#2D7FB4" emissive="#2D7FB4" emissiveIntensity={1.4} roughness={.12} />
         </mesh>
         <mesh position={[-0.005, 0.005, 0.058]} material={whiteSpecMat}>
           <sphereGeometry args={[0.0035, 8, 8]} />
@@ -896,6 +930,7 @@ export default function GuardianRobot3D({
   robotState = "idle",
   isCtaHovered = false,
   ctaPulsed = false,
+  enter = true,
 }: GuardianRobotProps) {
   const device = useRef({ isMobile: false, isReduced: false });
   const orbitScratch = useMemo(() => ({ point: new THREE.Vector3(), next: new THREE.Vector3() }), []);
@@ -1005,7 +1040,7 @@ export default function GuardianRobot3D({
   // Core Drag Initiation (Callable from 3D hit or global window raycast)
   const startDrag = useCallback(
     () => {
-      if (isDragging.current) return;
+      if (!enter || entranceTimer.current < 3.2 || isDragging.current) return;
       isDragging.current = true;
       isError.current = false;
       setShowErrorBadge(false);
@@ -1073,7 +1108,7 @@ export default function GuardianRobot3D({
       window.addEventListener("pointermove", onPointerMove);
       window.addEventListener("pointerup", onPointerUp);
     },
-    [camera, gl, raycaster]
+    [camera, gl, raycaster, enter]
   );
 
   const handlePointerDown = useCallback(
@@ -1334,6 +1369,8 @@ export default function GuardianRobot3D({
 
   // ─── FRAME-RATE INDEPENDENT FRAME UPDATE ────────────────────────────────────
   useFrame(({ clock }, delta) => {
+    if (!enter) return;
+    delta = Math.min(delta, .05);
     const t = clock.getElapsedTime();
 
     // Check device / reduced motion constraints
@@ -1371,9 +1408,9 @@ export default function GuardianRobot3D({
 
     // Entrance settle & scale doubling (4.0x scale)
     entranceTimer.current += delta;
-    const entranceT = Math.min(1.0, entranceTimer.current / 1.0);
-    const entranceOffset = (1.0 - entranceT) * -0.35;
-    const currentScale = THREE.MathUtils.lerp(0.96, 1.0, entranceT) * 4.0;
+    const entranceT = Math.min(1.0, entranceTimer.current / 3.2);
+    const entranceEase = THREE.MathUtils.smootherstep(entranceT, 0, 1);
+    const currentScale = THREE.MathUtils.lerp(.86, 1, entranceEase) * 4.0;
     if (rootRef.current) {
       rootRef.current.scale.set(currentScale, currentScale, currentScale);
     }
@@ -1472,11 +1509,14 @@ export default function GuardianRobot3D({
       const pointerLocalOffsetX = px * 0.060;
       const pointerLocalOffsetY = py * 0.045;
 
-      const targetPosX = orbitPos.x + microFloatX + pointerLocalOffsetX;
-      const targetPosY = orbitPos.y + microFloatY + pointerLocalOffsetY + entranceOffset;
-      const targetPosZ = orbitPos.z + microFloatZ;
+      const targetPosX = THREE.MathUtils.lerp(-1.5, orbitPos.x + microFloatX + pointerLocalOffsetX, entranceEase);
+      const targetPosY = THREE.MathUtils.lerp(-12, orbitPos.y + microFloatY + pointerLocalOffsetY, entranceEase);
+      const targetPosZ = THREE.MathUtils.lerp(-6, orbitPos.z + microFloatZ, entranceEase);
 
       if (rootRef.current) {
+        if (entranceT < 1) {
+          rootRef.current.position.set(targetPosX, targetPosY, targetPosZ);
+        } else {
         rootRef.current.position.x = THREE.MathUtils.damp(
           rootRef.current.position.x,
           targetPosX,
@@ -1495,6 +1535,7 @@ export default function GuardianRobot3D({
           5.0,
           delta
         );
+        }
       }
     }
 
@@ -1746,6 +1787,8 @@ export default function GuardianRobot3D({
 
       <group
         ref={rootRef}
+        position={[-1.5, -12, -6]}
+        scale={3.44}
         onPointerDown={handlePointerDown}
         onPointerOver={() => {
           if (gl.domElement) gl.domElement.style.cursor = "grab";
@@ -2383,6 +2426,7 @@ export default function GuardianRobot3D({
             orbit={orbit}
             mouseRef={mouseRef}
             stage={stage}
+            enter={enter}
             goldMat={materials.goldPrimary}
             navyMat={materials.navyArmor}
             deepNavyMat={materials.deepNavy}
