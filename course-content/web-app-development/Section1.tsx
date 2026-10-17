@@ -2100,9 +2100,9 @@ function openSkillDefault(s:SlideData,index:number,trigger:any){
  const root=trigger.closest('.eiu');if(!root)return;
  const card=index<0?s.regionDetails?.[0]:s.cards[index];if(!card)return;let overlay:any;
  const close=()=>{overlay.remove();if(trigger.isConnected)trigger.focus();};
- const closeButton=<button type="button" className="skillDefaultClose" onClick={close}>Đóng ×</button>;
+ const closeButton:any=<button type="button" className="skillDefaultClose" onClick={close}>Đóng ×</button>;
  let body:any;
- if(index<0)body=skillInstall(card);
+ if(index<0){const installation=s.regionDetails?.[0];if(!installation)return;body=skillInstall(installation);}
  else if(index===0)body=<section className="skillDefaultPlatform"><h3>Codex &amp; Antigravity</h3><p>Chép thư mục skill vào project:</p><code>.agents/skills/effective-vibe-coding/</code><p>AI tự chọn theo mô tả trong SKILL.md. Cách này không thêm lời nhắc vào AGENTS.md.</p></section>;
  else if(index===1)body=<div><p>Bộ cài đã thêm lời nhắc vào AGENTS.md ở gốc repo. Mở phiên AI mới sau khi cài.</p><p>Nếu cài thủ công, thêm mẫu dưới đây vào AGENTS.md:</p><div className="skillDefaultRule"><pre>{s.prompt}</pre>{skillAction(localCopyButton(s.prompt||''))}</div></div>;
  else body=<div><p>Chép thư mục skill vào vị trí global của từng AI và thêm lời nhắc dưới đây vào file hướng dẫn tương ứng.</p><div className="skillDefaultPlatforms"><section className="skillDefaultPlatform"><h3>Codex</h3><p>Thư mục skill:</p><code>~/.agents/skills/effective-vibe-coding/</code><p>File hướng dẫn (mặc định):</p><code>~/.codex/AGENTS.md</code></section><section className="skillDefaultPlatform"><h3>Antigravity IDE</h3><p>Thư mục skill:</p><code>~/.gemini/config/skills/effective-vibe-coding/</code><p>File hướng dẫn luôn bật:</p><code>~/.gemini/GEMINI.md</code></section></div><div className="skillDefaultRule"><pre>{s.prompt}</pre>{skillAction(localCopyButton(s.prompt||''))}</div></div>;
@@ -2131,7 +2131,7 @@ function openRepoInstall(c:Card,trigger:any){
  root.querySelector('.repoInstallOverlay')?.remove();
  let overlay:any;
  const close=()=>{overlay.remove();if(trigger.isConnected)trigger.focus();};
- const closeButton=<button type="button" className="skillDefaultClose" aria-label={'Đóng hướng dẫn '+c.title} onClick={close}>Đóng ×</button>;
+ const closeButton:any=<button type="button" className="skillDefaultClose" aria-label={'Đóng hướng dẫn '+c.title} onClick={close}>Đóng ×</button>;
  const dialog:any=<section className="skillDefaultDialog repoInstallDialog" role="dialog" aria-modal="true" aria-labelledby="repo-install-title"><header><img src={assets[c.logo||'']} alt=""/><h2 id="repo-install-title">Cài đặt · {c.title}</h2>{closeButton}</header><p className="repoInstallPrereq"><strong>{setup.shell}</strong>{setup.requirements}</p><div className="repoInstallSteps">{setup.steps.map(step=><section className="repoInstallStep"><h3>{step.title}</h3>{step.text&&<p>{step.text}</p>}{step.code&&<div className="repoInstallCommand"><pre>{step.code}</pre>{skillAction(localCopyButton(step.code))}</div>}</section>)}</div><footer className="repoInstallFooter">{skillAction(<a className="repoShowcaseLink" href={setup.docs} target="_blank" rel="noopener noreferrer">Tài liệu chính thức ↗</a>)}{setup.appUrl&&skillAction(<a className="repoShowcaseLink" href={setup.appUrl} target="_blank" rel="noopener noreferrer">{setup.appLabel} ↗</a>)}</footer></section>;
  overlay=<div className="skillDefaultOverlay repoInstallOverlay" onClick={(e:any)=>{if(e.target===overlay)close();}} onKeyDown={(e:any)=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();close();}if(e.key==='Tab'){const controls=[...dialog.querySelectorAll('button:not(:disabled),a[href]')];const first=controls[0],last=controls[controls.length-1];if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}}}}>{dialog}</div>;
  root.append(overlay);closeButton.focus();
