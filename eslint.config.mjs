@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
     "tmp/**",
+    ".local/**",
     "scripts/**",
     "desktop-player/dist/**",
     "desktop-player/ui/lesson-runtime.js",

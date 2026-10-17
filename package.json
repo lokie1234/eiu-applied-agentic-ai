@@ -12,7 +12,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "generate-slides": "node scripts/generate-slides-pdf.js"
+    "generate-slides": "node scripts/generate-slides-pdf.js",
+    "player:publish": "node scripts/prepare-player-publication.cjs",
+    "player:publication-status": "node scripts/finish-player-publication.cjs"
   },
   "dependencies": {
     "@aiden0z/pptx-renderer": "^1.3.0",
@@ -25,7 +27,7 @@
     "google-auth-library": "^11.1.0",
     "jszip": "^3.10.2",
     "motion": "^13.5.0",
-    "next": "16.3.4",
+    "next": "16.3.8",
     "pdfjs-dist": "^6.3.289",
     "react": "19.2.8",
     "react-dom": "19.2.8",
@@ -39,8 +41,9 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.3.4",
+    "eslint-config-next": "16.3.8",
     "happy-dom": "^20.14.5",
+    "libsodium-wrappers": "^0.8.4",
     "typescript": "^5"
   },
   "overrides": {
