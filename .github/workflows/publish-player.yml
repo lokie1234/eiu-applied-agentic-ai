@@ -1,0 +1,26 @@
+name: Publish public player downloads
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: node scripts/publish-player-cloud.cjs
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PLAYER_WINDOWS: ${{ secrets.EIU_PLAYER_UPLOAD_WINDOWS }}
+          PLAYER_MAC_ARM64: ${{ secrets.EIU_PLAYER_UPLOAD_MAC_ARM64 }}
+          PLAYER_MAC_X64: ${{ secrets.EIU_PLAYER_UPLOAD_MAC_X64 }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: player-public-manifest
+          path: public/downloads/player-releases.json
+          retention-days: 3
