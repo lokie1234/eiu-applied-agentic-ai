@@ -1,0 +1,15 @@
+{
+  "name": "effective-vibe-coding",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A portable quality workflow skill for Codex and Antigravity",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test",
+    "validate": "node scripts/validate.mjs",
+    "install:project": "node scripts/install.mjs"
+  },
+  "repository": { "type": "git", "url": "https://github.com/lokie1234/Effective-Vibe-Coding.git" },
+  "license": "MIT"
+}

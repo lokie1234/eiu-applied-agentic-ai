@@ -1,0 +1,6 @@
+interface:
+  display_name: "Effective Vibe Coding"
+  short_description: "Ship clearer changes with UI consistency and checks"
+  default_prompt: "Use $effective-vibe-coding to implement my requested change, verify the result, and explain the concrete improvements."
+policy:
+  allow_implicit_invocation: true
