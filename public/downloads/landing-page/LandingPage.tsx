@@ -19,13 +19,6 @@ export default function LandingPage() {
   const isAdminEmail = email.trim().toLowerCase() === "son.lam@eiu.edu.vn";
 
   useEffect(() => {
-    try {
-      const saved = localStorage.getItem(SAVED_EMAIL_KEY);
-      if (saved) setEmail(saved);
-    } catch {}
-  }, []);
-
-  useEffect(() => {
     if (!modal) return;
     const onKey = (event: KeyboardEvent) => event.key === "Escape" && setModal(null);
     window.addEventListener("keydown", onKey);

@@ -1,11 +1,13 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { currentUserAccess, requireAdminAccess } from "@/lib/auth/currentUser";
+import { currentAccessSession } from "@/lib/auth/session";
 import { getSlideTemplates, saveSlideTemplates } from "@/lib/auth/courseAccessStorage";
 
 export const runtime = "nodejs";
 export async function GET(request?: Request) {
-  const actor = await requireAdminAccess(request?.signal) ?? await currentUserAccess(request?.signal);
+  const session = await currentAccessSession(request?.signal);
+  const actor = session?.role === "admin" ? { isActive: true } : await currentUserAccess(request?.signal, session);
   if (!actor?.isActive) return NextResponse.json({ message: "Authentication required." }, { status: 401 });
   try { return NextResponse.json({ templates: await getSlideTemplates(request?.signal) }, { headers: { "Cache-Control": "no-store" } }); }
   catch { return NextResponse.json({ message: "Unable to load layouts." }, { status: 500 }); }

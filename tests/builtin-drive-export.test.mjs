@@ -11,13 +11,13 @@ function load(file, dependencies) {
   return exports;
 }
 
-test("both built-in TSX decks compile independently and embed all image and font assets", () => {
-  const { compileTsx } = load("lib/sectionContent.ts", {});
+test("both built-in JS decks validate independently and embed all image and font assets", () => {
+  const { validateInteractiveJs } = load("lib/sectionContent.ts", {});
   for (const [section, count] of [[1, 38], [2, 37]]) {
-    const source = fs.readFileSync(`lib/drive/builtin-decks/section${section}.tsx.txt`, "utf8");
-    const slides = JSON.parse(source.match(/^const slides = (.*);$/m)[1]);
+    const source = fs.readFileSync(`lib/drive/builtin-decks/section${section}.js`, "utf8");
+    const slides = JSON.parse(source.match(/const slides = ([\s\S]*?);\r?\nfunction render/)[1]);
     assert.equal(slides.length, count);
-    compileTsx(source);
+    validateInteractiveJs(source);
     const inspect = node => {
       if (typeof node === "string") return;
       if (node.tag === "img") assert.match(node.props.src, /^data:/);
@@ -45,7 +45,7 @@ test("saving built-in slides checks the course, exports compiled JS and leaves t
   assert.equal(uploads[0].folderId, "destination123");
   assert.equal(uploads[0].name, "Section 1 — From Prompt to Web App.js");
   const { compileTsx } = load("lib/sectionContent.ts", {});
-  assert.equal(Buffer.from(uploads[0].body).toString(), compileTsx(fs.readFileSync("lib/drive/builtin-decks/section1.tsx.txt", "utf8")));
+  assert.equal(Buffer.from(uploads[0].body).toString(), fs.readFileSync("lib/drive/builtin-decks/section1.js", "utf8"));
   section.position = 3; section.title = "Tên mới trên web";
   await api.saveBuiltinSection({}, { sectionId: "s1", folderId: "destination123" });
   assert.equal(uploads[1].name, "Section 3 — Tên mới trên web.js");

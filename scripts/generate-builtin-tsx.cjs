@@ -1,6 +1,7 @@
 // Run with PLAYWRIGHT_MODULE pointing to Playwright when it is not installed locally.
 const fs = require("node:fs/promises");
 const path = require("node:path");
+const ts = require("typescript");
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
 
 (async () => {
@@ -45,7 +46,8 @@ const { chromium } = require(process.env.PLAYWRIGHT_MODULE || "playwright");
       const source = `// EIU Agentic AI · Section ${section} · self-contained presentation snapshot.\n// Quiz, submissions and live application state are kept in the web lesson.\nconst css = ${JSON.stringify(data.css)};\nconst slides = ${JSON.stringify(data.slides)};\nfunction render(node) { if (typeof node === "string") return node; return h(node.tag, node.props, ...node.children.map(render)); }\nexport default slides.map(slide => <svg data-preserve-original="true" width="100%" height="100%" viewBox="0 0 960 540" xmlns="http://www.w3.org/2000/svg"><foreignObject width="960" height="540"><div xmlns="http://www.w3.org/1999/xhtml" style={{width:"960px",height:"540px",overflow:"hidden"}}><style>{css}</style>{render(slide)}</div></foreignObject></svg>);\n`;
       const directory = path.resolve("lib/drive/builtin-decks");
       await fs.mkdir(directory, { recursive: true });
-      await fs.writeFile(path.join(directory, `section${section}.tsx.txt`), source);
+      const compiled = ts.transpileModule(source, {fileName:"section.tsx", compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,jsxFactory:"h",jsxFragmentFactory:"Fragment",esModuleInterop:true}}).outputText;
+      await fs.writeFile(path.join(directory, `section${section}.js`), compiled);
       console.log(`Section ${section}: ${data.slides.length} slides, ${Buffer.byteLength(source)} bytes`);
       await page.close();
     }

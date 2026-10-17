@@ -1,0 +1,35 @@
+{
+  "compiler": "TypeScript ES2020 CommonJS, h/Fragment",
+  "files": [
+    {
+      "source": "course-content/web-app-development/Section1.tsx",
+      "runtime": "course-content/web-app-development/Section1.js",
+      "sha256": "7566ac3e5c503fa7e8d5f549f0532c4d37ae01a85e7e85ae2af9f8544af9c8b2",
+      "bytes": 1409443
+    },
+    {
+      "source": "course-content/web-app-development/Section2.tsx",
+      "runtime": "course-content/web-app-development/Section2.js",
+      "sha256": "b63e0766f8b34b0a9199a65897d38058879e4e3fdcbbca1b6d97a3a30ae3f394",
+      "bytes": 2518683
+    },
+    {
+      "source": "course-content/mis301/PandasPracticePart2.tsx",
+      "runtime": "course-content/mis301/PandasPracticePart2.js",
+      "sha256": "cd15d74b1a001a2be8b22afd0967737a460b89804db92ef2124d3fa01c6875a1",
+      "bytes": 297652
+    },
+    {
+      "source": "lib/drive/builtin-decks/section1.tsx.txt",
+      "runtime": "lib/drive/builtin-decks/section1.js",
+      "sha256": "536b4accb28edce2d3e907af10567776ebaf12d379db430a5ef9153512b8d1a1",
+      "bytes": 904202
+    },
+    {
+      "source": "lib/drive/builtin-decks/section2.tsx.txt",
+      "runtime": "lib/drive/builtin-decks/section2.js",
+      "sha256": "68be4df79906540228253f316f1241bb370acadc823f8c6315e766cdf2661fc5",
+      "bytes": 858920
+    }
+  ]
+}

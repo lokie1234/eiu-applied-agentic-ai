@@ -1,0 +1,57 @@
+{
+  "name": "eiu-lesson-player",
+  "version": "1.0.0",
+  "description": "EIU Learning Space — offline JavaScript lesson player",
+  "author": "EIU Learning Space",
+  "private": true,
+  "main": "main.cjs",
+  "scripts": {
+    "test": "node smoke.cjs --native",
+    "prepare:assets": "node ../scripts/prepare-player.cjs",
+    "start": "npm run prepare:assets && electron .",
+    "dist:win": "npm run prepare:assets && electron-builder --win nsis --x64",
+    "dist:mac": "npm run prepare:assets && electron-builder --mac zip --x64 --arm64"
+  },
+  "build": {
+    "appId": "vn.eiu.lessonplayer",
+    "productName": "EIU Lesson Player",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.cjs",
+      "preload.cjs",
+      "ui/**/*",
+      "package.json"
+    ],
+    "artifactName": "EIU-Lesson-Player-${version}-${os}-${arch}.${ext}",
+    "win": {
+      "target": "nsis",
+      "icon": "ui/icon.ico",
+      "signExecutable": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "installerIcon": "ui/icon.ico",
+      "uninstallerIcon": "ui/icon.ico",
+      "installerHeader": "ui/installer-header.bmp",
+      "installerSidebar": "ui/installer-sidebar.bmp",
+      "uninstallerSidebar": "ui/installer-sidebar.bmp"
+    },
+    "mac": {
+      "target": "zip",
+      "category": "public.app-category.education",
+      "identity": null,
+      "icon": "ui/icon.icns"
+    }
+  },
+  "devDependencies": {
+    "electron": "^44.8.0",
+    "electron-builder": "^26.15.3",
+    "playwright": "^1.64.1"
+  }
+}

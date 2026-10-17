@@ -91,7 +91,7 @@ test("Pandas exports recover the exact bundled TSX and publish a Drive source", 
   assert.equal(plan[0].unavailable, undefined);
   await f.api.exportDocument(f.client, { sectionId: f.state.section.id, folderId: "target" });
   const { compileTsx } = load("lib/sectionContent.ts", {});
-  assert.equal(Buffer.from(f.state.uploads[0].body).toString(), compileTsx(fs.readFileSync("course-content/mis301/PandasPracticePart2.tsx", "utf8")));
+  assert.equal(Buffer.from(f.state.uploads[0].body).toString(), fs.readFileSync("course-content/mis301/PandasPracticePart2.js", "utf8"));
   assert.equal(f.state.downloads.length, 0);
   assert.equal(f.state.published.content_path, "drive:uploaded-file-123");
   assert.equal(f.state.published.original_content_path, null);
@@ -168,13 +168,13 @@ test("folder exports nest course folders and validate built-in membership before
   assert.equal(saves.length, 2);
 });
 
-for (const filename of ["Section1.tsx", "Section2.tsx"]) {
+for (const filename of ["Section1.js", "Section2.js"]) {
  test("project " + filename + " exports current slide bytes without changing its source", async () => {
   const f = fixture(); f.state.catalog.courses[0] = { id: "a857595d-def0-4543-9216-a680c6abfe26", title: "Renamed course", folderGroupId: "group" };
-  Object.assign(f.state.section, { id: filename === "Section1.tsx" ? "47c1183e-a26e-4c5d-9937-88ec5a755a32" : "2faaf285-a215-4874-a367-82c84ce46b2e", course_id: "a857595d-def0-4543-9216-a680c6abfe26", content_type: "tsx", source_filename: "Renamed source.tsx", content_path: "drive:stale-copy-123", original_content_path: null });
-  const plan = await f.api.exportPlan("group"); assert.equal(plan[0].unavailable, undefined); assert.match(plan[0].note, /Compiled JavaScript/);
+  Object.assign(f.state.section, { id: filename === "Section1.js" ? "47c1183e-a26e-4c5d-9937-88ec5a755a32" : "2faaf285-a215-4874-a367-82c84ce46b2e", course_id: "a857595d-def0-4543-9216-a680c6abfe26", content_type: "tsx", source_filename: "Renamed source.tsx", content_path: "drive:stale-copy-123", original_content_path: null });
+  const plan = await f.api.exportPlan("group"); assert.equal(plan[0].unavailable, undefined); assert.match(plan[0].note, /Self-contained JavaScript/);
   for (const target of ["first-target", "second-target"]) await f.api.exportDocument(f.client, { sectionId: f.state.section.id, folderId: target, name: "Renamed backup" });
-  const original = load("lib/sectionContent.ts", {}).compileTsx(fs.readFileSync("course-content/web-app-development/" + filename, "utf8"));
+  const original = fs.readFileSync("course-content/web-app-development/" + filename, "utf8");
   assert.equal(f.state.uploads.length, 2); for (const upload of f.state.uploads) { assert.equal(Buffer.from(upload.body).toString(), original); assert.equal(upload.name, "Renamed backup.js"); }
   assert.equal(f.state.downloads.length, 0); assert.equal(f.state.requests.length, 0); assert.equal(f.state.published, undefined);
   assert.equal(f.state.section.source_filename, "Renamed source.tsx"); assert.equal(f.state.section.content_path, "drive:stale-copy-123");

@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "test": "node --test --test-concurrency=2 tests/*.test.mjs",
+    "audit:project": "node scripts/audit-project.cjs",
+    "player:prepare": "node scripts/prepare-player.cjs",
+    "player:windows": "npm --prefix desktop-player run dist:win",
+    "player:mac": "npm --prefix desktop-player run dist:mac",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

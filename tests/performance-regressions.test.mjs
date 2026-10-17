@@ -160,7 +160,7 @@ test("TSX documents are reused for parent updates and rebuilt only when the disp
   } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
 });
 
-test("section electricity reaches twelve edges and masks measured content after resize", async () => {
+test("section electricity reaches eight edges and masks measured content after resize", async () => {
   const window = new Window();
   for (const name of ["window", "document", "HTMLElement", "navigator"])
     Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
@@ -185,7 +185,7 @@ test("section electricity reaches twelve edges and masks measured content after 
     await act(async () => { resized(); await new Promise(resolve => window.requestAnimationFrame(resolve)); });
     const svg = container.querySelector("svg");
     assert.equal(svg.getAttribute("viewBox"), "0 0 500 220");
-    assert.equal(svg.querySelectorAll('g[style]').length, 12);
+    assert.equal(svg.querySelectorAll('g[style]').length, 8);
     const mask = svg.querySelector("mask");
     assert.equal(mask.querySelectorAll('rect[fill="black"]').length, 2);
     const titleMask = mask.querySelector('rect[fill="black"]');
@@ -223,6 +223,7 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     "@/lib/supabase/browser": { getSupabaseBrowserClient: () => null },
     "./HairlineLoading": { __esModule: true, default: ({ label }) => React.createElement("span", { role: "status" }, label) },
     "./CourseToolRow": { __esModule: true, default: () => null },
+    "./CourseDiscoveryHeading": { __esModule: true, default: () => null },
     "./SectionEnergy": { __esModule: true, default: () => null },
     "./LearningInnovationIcon": { __esModule: true, default: () => null },
     "./useSectionOpening": load("components/useSectionOpening.ts", {}, {

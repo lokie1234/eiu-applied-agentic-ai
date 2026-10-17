@@ -1,0 +1,54 @@
+const { chromium, _electron: electron } = require('playwright');
+const {pathToFileURL}=require('node:url');
+const assert=require('node:assert/strict');
+const path=require('node:path');
+const fs=require('node:fs');
+async function main(){
+ const root=path.resolve(__dirname,'..'),output=path.join(root,'.local/player-qa');fs.mkdirSync(output,{recursive:true});
+ const native=process.argv.includes('--native');
+ const env={...process.env,EIU_PLAYER_TEST:'1'};delete env.ELECTRON_RUN_AS_NODE;
+ const browser=native?await electron.launch({args:[__dirname],env}):await chromium.launch({headless:true,executablePath:process.env.CHROMIUM_PATH||'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'});
+ try{
+  const page=native?await browser.firstWindow():await browser.newPage({viewport:{width:1440,height:960}});
+  if(native)await browser.evaluate(({BrowserWindow})=>BrowserWindow.getAllWindows()[0].showInactive());
+  page.setDefaultTimeout(10000);
+  page.on('console',message=>{if(message.type()==='error')console.log('Browser:',message.text().slice(0,200));});
+  if(!native)await page.goto(pathToFileURL(path.join(__dirname,'ui/index.html')).href);
+  page.on('pageerror',error=>console.log('Renderer error:',error.message));
+  await page.locator('#choose').waitFor();
+  await page.screenshot({timeout:5000,animations:'disabled',path:path.join(output,'welcome.png')});
+  assert.equal(await page.evaluate(()=>typeof require),'undefined');
+  await page.locator('#file-input').setInputFiles(path.join(root,'course-content/web-app-development/Section1.js'));
+  await page.waitForFunction(()=>document.querySelector('#total').textContent==='/ 26');
+  await page.locator('#loading').waitFor({state:'hidden'});
+  assert.equal(await page.frameLocator('.lesson-frame').locator('.openingAISupport').count(),3);
+  await page.locator('#page').fill('4');await page.locator('#page').dispatchEvent('change');
+  await page.frameLocator('.lesson-frame').locator('.vscodeName').first().waitFor();
+  await page.frameLocator('.lesson-frame').locator('.vscodeName').first().click();
+  await page.screenshot({path:path.join(output,'popup-debug.png')});
+  await page.frameLocator('.lesson-frame').locator('[role=dialog]').waitFor();
+  await page.frameLocator('.lesson-frame').locator('.workspacePopupClose').click();
+  assert.equal(await page.frameLocator('.lesson-frame').locator('[role=dialog]').count(),0);
+  await page.screenshot({path:path.join(output,'workspace.png')});
+  await page.locator('#page').fill('11');await page.locator('#page').dispatchEvent('change');
+  await page.frameLocator('.lesson-frame').locator('[data-ai=claude]').waitFor();
+  await page.screenshot({path:path.join(output,'claude.png')});
+  await page.frameLocator('.lesson-frame').locator('.aiBrandHero h1').click();
+  await page.keyboard.press('ArrowRight');
+  await page.waitForFunction(()=>document.querySelector('#page').value==='12');
+  await page.locator('#file-input').setInputFiles({name:'plain.js',mimeType:'text/javascript',buffer:Buffer.from("exports.default=[()=>h('h1',null,'Template verification')];")});
+  await page.waitForFunction(()=>document.querySelector('#total').textContent==='/ 1');
+  await page.locator('#loading').waitFor({state:'hidden'});
+  const frame=page.frames().find(frame=>frame.parentFrame());
+  assert.match(await frame.locator('#root').getAttribute('style'),/background/);
+  assert.equal(await frame.evaluate(()=>typeof window.eiuPlayer),'undefined');
+  assert.equal(await frame.evaluate(()=>typeof require),'undefined');
+  await page.screenshot({path:path.join(output,'template.png')});
+  const before=await page.locator('#file-name').textContent();
+  await page.locator('#file-input').setInputFiles({name:'invalid.js',mimeType:'text/javascript',buffer:Buffer.from('console.log(123)')});
+  await page.waitForFunction(()=>document.querySelector('#notice').textContent.includes('chưa ở dạng'));
+  assert.equal(await page.locator('#file-name').textContent(),before);
+  console.log('PASS: file opening, 26-slide count, popup, Claude design, iframe navigation, EIU template, bridge isolation, invalid-file preservation.');
+ }finally{await browser.close();}
+}
+main().catch(error=>{console.error(error);process.exitCode=1;});

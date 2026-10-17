@@ -341,18 +341,18 @@ test("Drive-backed legacy JS is served unchanged without TSX recompilation or St
 
 
 const webAppTitle = "AI-Powered Web App Development & Deployment";
-for (const filename of ["Section1.tsx", "Section2.tsx"]) {
+for (const filename of ["Section1.js", "Section2.js"]) {
   test(filename + " displays and downloads compiled JS without accessing Drive", async () => {
     const api = handlers();
     api.state.access.courses[0] = { id: "a857595d-def0-4543-9216-a680c6abfe26", title: "Renamed course" };
-    api.state.access.sections[0] = { id: filename === "Section1.tsx" ? "47c1183e-a26e-4c5d-9937-88ec5a755a32" : "2faaf285-a215-4874-a367-82c84ce46b2e", courseId: "a857595d-def0-4543-9216-a680c6abfe26" };
+    api.state.access.sections[0] = { id: filename === "Section1.js" ? "47c1183e-a26e-4c5d-9937-88ec5a755a32" : "2faaf285-a215-4874-a367-82c84ce46b2e", courseId: "a857595d-def0-4543-9216-a680c6abfe26" };
     api.state.section = { ...api.state.section, id: api.state.access.sections[0].id, course_id: "a857595d-def0-4543-9216-a680c6abfe26", content_type: "tsx", content_path: "drive:unavailable-old-copy", source_filename: "Renamed exported section.tsx" };
     const original = fs.readFileSync("course-content/web-app-development/" + filename, "utf8");
     const displayed = await api.download();
     assert.equal(displayed.status, 200);
-    assert.equal(displayed.headers.get("x-eiu-content-source"), "project-tsx");
+    assert.equal(displayed.headers.get("x-eiu-content-source"), "project-js");
     assert.equal(displayed.headers.get("cache-control"), "private, no-store");
-    const compiled = ts.transpileModule(original, { compilerOptions: { target: ts.ScriptTarget.ES2020, module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.React, jsxFactory: "h", jsxFragmentFactory: "Fragment", esModuleInterop: true }, fileName: "section.tsx" }).outputText;
+    const compiled = original;
     assert.equal(await displayed.text(), compiled);
     const downloaded = await api.download("?download=1");
     assert.equal(downloaded.headers.get("content-type"), "text/javascript; charset=utf-8");
@@ -382,6 +382,6 @@ test("upload reports when registered project TSX remains the displayed source", 
  api.state.access.sections[0] = { id: "47c1183e-a26e-4c5d-9937-88ec5a755a32", courseId: "a857595d-def0-4543-9216-a680c6abfe26" };
  api.state.section = { ...api.state.section, id: "47c1183e-a26e-4c5d-9937-88ec5a755a32", course_id: "a857595d-def0-4543-9216-a680c6abfe26" };
  const response = await api.upload("exports.default = [h('div', null, 'Uploaded copy')];", "Section1.js");
- assert.equal(response.status, 200); const result = await response.json(); assert.equal(result.contentSource, "project-tsx"); assert.match(result.message, /Slides continue/);
- const slide = await api.download(); assert.equal(slide.headers.get("x-eiu-content-source"), "project-tsx"); assert.doesNotMatch(await slide.text(), /Uploaded copy/);
+ assert.equal(response.status, 200); const result = await response.json(); assert.equal(result.contentSource, "project-js"); assert.match(result.message, /Slides continue/);
+ const slide = await api.download(); assert.equal(slide.headers.get("x-eiu-content-source"), "project-js"); assert.doesNotMatch(await slide.text(), /Uploaded copy/);
 });

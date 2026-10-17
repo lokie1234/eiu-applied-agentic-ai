@@ -1,3 +1,13 @@
+## Cập nhật Claude · 17/10/2026
+
+Section 1 hiện có 26 slide. Slide 1: logo VS Code 76px ở hàng trên; Codex, Antigravity và Claude ở ba badge 30px riêng phía dưới, cách nhau 6px, nằm trọn trong khung 128px. Slide 4: sáu nút chỉ giữ số và tên, ô 6 mang tên Trợ lý AI; giữ nguyên hotspot và popup chức năng.
+
+Slide 13: thêm Cài Claude cạnh Codex và Antigravity, ba cột bằng nhau. Claude chỉ gồm tìm Claude Code, kiểm tra nhà phát hành Anthropic, chọn Install; không thêm CLI hoặc đăng nhập. Giữ bước chung Ctrl+Shift+X và lưu ý phía dưới. Các card cao 266px, padding 22px 24px, logo 56px, tiêu đề 26px; căn đầu khung, hướng dẫn 20px ngắt theo bước.
+
+Slide 6: tiêu đề “AI nào được tích hợp để làm việc trong VS CODE”; ba lựa chọn Claude, Antigravity, Codex xếp dọc trong cột 280px. Bảng chi tiết rộng bên phải, màu theo thương hiệu. GitHub Copilot và Cline nằm trong dải 12 logo chạy bên dưới, lặp hai nhóm liền mạch; tôn trọng reduced motion.
+
+Slide 11 mới giới thiệu Claude sau Antigravity (9) và Codex (10), dùng chung logic và lưới aiBrandSlide: logo float, ba khung ưu điểm trái, ba họ model phải. Nền kem ấm, terracotta, mỗi ý một dòng; giữ Inter và reduced motion. Các slide sau tăng một số, giữ layoutNumber cũ để popup và thao tác không đổi. TSX, storyboard và renderer đồng bộ; binding và output tracing giữ nguyên.
+
 ## Gộp phần Effective Vibe Coding
 
 Tối ưu hiệu năng: giữ nguyên nội dung 25 slide, bố cục và animation icon/bánh răng. Font Inter nhúng WOFF2 dùng chung cho cả slide AI/Lab, giữ đủ glyph và trục variable. Logo tối đa 256px, ảnh workspace giữ nguyên. CSS gắn theo layout; bỏ route quiz và CSS chức năng skill cũ. Nền popup không dùng backdrop blur; animation tên model chỉ dùng transform, không thay đổi blur/color/text-shadow theo từng frame. Các yêu cầu hiệu ứng lịch sử bên dưới được áp dụng trong giới hạn này.
@@ -49,6 +59,8 @@ Slide 8 hiện tại: icon VS Code, Node.js, Git, GitHub và Terminal lơ lửng
 Slide 7 hiện tại: chữ trong sơ đồ phối hợp dưới cùng đổi thành đen, gồm tên công cụ, mô tả và nhãn Push/Pull. Nhãn Push dùng nền vàng nhạt để chữ đen dễ đọc; giữ icon, mũi tên và chuyển động.
 
 ## Slide phím tắt VS Code · 16/10/2026
+
+Cập nhật 17/10/2026: cột hướng dẫn rộng 480px, tám ô phím tắt giữ hai cột và bốn hàng. Tên thao tác, tên Keyboard Shortcuts và đường menu giữ liền dòng; câu dẫn ngắt có chủ đích trước tên Keyboard Shortcuts. Hai bước dùng câu ngắn, giữ font Inter, nền kem, khung navy và phím vàng cùng animation hiện có.
 
 Section 1 chèn một slide sau bản đồ vùng làm việc (slide 4). Slide 5 có tám phím tắt mặc định Windows và hướng dẫn mở Keyboard Shortcuts bằng Ctrl+K rồi Ctrl+S, tìm lệnh, đổi phím và đường menu. Theo chỉnh sửa tiếp theo: bỏ link trong slide; dùng đúng Inter nhúng cho cả tiêu đề, mô tả và phím. Tiêu đề navy 36px/800, gạch vàng, nền kem lưới nhẹ và viền EIU. Tám ô chia hai cột, bốn hàng bên trái; khung hướng dẫn navy bên phải. Các tổ hợp phím lơ lửng chậm chu kỳ 3–3.6 giây, lệch nhịp; khung và mô tả đứng yên. Tắt animation theo prefers-reduced-motion. Không footer. Các slide sau tăng số thứ tự; `layoutNumber` giữ định danh bố cục cũ để popup, nút và CSS hiện có không đổi hành vi. TSX, storyboard và renderer đồng bộ; binding và output tracing giữ nguyên.
 

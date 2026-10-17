@@ -16,7 +16,7 @@ test("edited JS uses multipart Drive upload, requires a target and retains the f
   const fetch = async (url, options) => {
     if (url.includes("/sections/")) {
       uploads++; sent.push(options.body);
-      return { ok: uploads > 1, json: async () => uploads > 1 ? { success: true, contentSource: uploads > 2 ? "project-tsx" : "uploaded" } : { message: "Drive unavailable" } };
+      return { ok: uploads > 1, json: async () => uploads > 1 ? { success: true, contentSource: uploads > 2 ? "project-js" : "uploaded" } : { message: "Drive unavailable" } };
     }
     return { ok: true, json: async () => options?.body ? { tasks: [] } : { destinations: [{ id: "destination", label: "Target" }] } };
   };

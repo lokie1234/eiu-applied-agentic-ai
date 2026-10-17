@@ -32,7 +32,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     const legacyJs = async (source: string) => (await import("@/lib/sectionContent")).compileTsx(source);
     let data: Blob;
     if (localSource) {
-      data = new Blob([await legacyJs(localSource.toString("utf8"))]);
+      data = new Blob([new Uint8Array(localSource)]);
     } else if (!section.content_path) {
       return NextResponse.json({ message: "This section does not have uploaded content." }, { status: 404 });
     } else if (String(section.content_path).startsWith("drive:")) {
@@ -59,7 +59,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
         "Content-Disposition": `${attachment ? "attachment" : "inline"}; filename="${fallbackFilename}"; filename*=UTF-8''${encodedFilename}`,
         "X-Content-Type-Options": "nosniff",
         "Cache-Control": "private, no-store",
-        "X-EIU-Content-Source": localSource ? "project-tsx" : "uploaded",
+        "X-EIU-Content-Source": localSource ? "project-js" : "uploaded",
       },
     });
   } catch (error) {

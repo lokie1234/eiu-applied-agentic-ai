@@ -5,15 +5,15 @@ import vm from 'node:vm';
 import ts from 'typescript';
 import { Window } from 'happy-dom';
 
-const source = fs.readFileSync('course-content/web-app-development/Section1.tsx','utf8');
+const source = fs.readFileSync('course-content/web-app-development/Section1.js','utf8');
 const sectionSlides = JSON.parse(fs.readFileSync('course-content/web-app-development/storyboard.json','utf8')).slides.filter(s=>s.section===1);
 // Existing scenarios retain their layout identities when a new slide is inserted.
-const slides = sectionSlides.filter(s=>!['vscode-shortcuts','git-intro-ai-workflow','git-intro-skill-functions','git-intro-skill-defaults'].includes(s.visual)).map(s=>({...s,number:s.layoutNumber??s.number}));
+const slides = sectionSlides.filter(s=>!['git-intro-ai-claude','vscode-shortcuts','git-intro-ai-workflow','git-intro-skill-functions','git-intro-skill-defaults'].includes(s.visual)).map(s=>({...s,number:s.layoutNumber??s.number}));
 const compiled = ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2020,jsx:ts.JsxEmit.React,jsxFactory:'h',jsxFragmentFactory:'Fragment'}}).outputText;
 const documents = {};
 vm.runInNewContext(ts.transpileModule(fs.readFileSync('lib/tsxDocument.ts','utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports:documents});
 function render(page){
- const displayPage=sectionSlides.find(s=>(s.layoutNumber??s.number)===page && !['vscode-shortcuts','git-intro-ai-workflow','git-intro-skill-functions','git-intro-skill-defaults'].includes(s.visual)).number;
+ const displayPage=sectionSlides.find(s=>(s.layoutNumber??s.number)===page && !['git-intro-ai-claude','vscode-shortcuts','git-intro-ai-workflow','git-intro-skill-functions','git-intro-skill-defaults'].includes(s.visual)).number;
  return renderDisplay(displayPage);
 }
 function renderDisplay(page){
@@ -26,7 +26,7 @@ function renderDisplay(page){
  return window;
 }
 
-test('section opening orbits four groups with two supporting AI icons inside VS Code',async()=>{
+test('section opening orbits four groups with three supporting AI icons inside VS Code',async()=>{
  const window=render(1),doc=window.document;
  try{
   const nodes=[...doc.querySelectorAll('.openingnode')];
@@ -37,8 +37,8 @@ test('section opening orbits four groups with two supporting AI icons inside VS 
   assert.deepEqual(orbits.map(orbit=>Number.parseFloat(orbit.style.animationDelay)),[0,-6.25,-12.5,-18.75]);
   orbits.slice(0,4).forEach((orbit,i)=>assert.ok(orbit.classList.contains('orbit-'+i)));
   const cluster=nodes[0].querySelector('.vscodeAICluster');
-  assert.deepEqual([...cluster.querySelectorAll('img')].map(img=>img.alt),['VS Code','Codex','Antigravity']);
-  assert.equal(cluster.querySelectorAll('.openingAISupport').length,2);
+  assert.deepEqual([...cluster.querySelectorAll('img')].map(img=>img.alt),['VS Code','Codex','Antigravity','Claude']);
+  assert.equal(cluster.querySelectorAll('.openingAISupport').length,3);
   assert.equal(doc.querySelector('.openingAIOrbit'),null);
   assert.equal(doc.querySelector('.openinglinks circle').getAttribute('r'),'170');
   assert.equal(doc.querySelector('.openinglinks path'),null);
@@ -71,7 +71,16 @@ test('renumbered flow keeps six steps and places Node.js beside VS Code for chec
 test('workspace map opens six matching region popups with compact text headers and navy emphasis',async()=>{
  const window=render(4),doc=window.document;
  try{
+  // The corner logo must stay out of document flow so the full map fits.
+  const logoStyle=window.getComputedStyle(doc.querySelector('.workspaceCornerLogo'));
+  assert.equal(logoStyle.position,'absolute');
+  assert.equal(logoStyle.width,'54px');
+  assert.equal(logoStyle.height,'54px');
+  assert.equal(logoStyle.top,'28px');
+  assert.equal(logoStyle.right,'42px');
   const names=[...doc.querySelectorAll('.vscodeName')];
+  assert.equal(doc.querySelectorAll('.vscodeName p').length,0);
+  assert.equal(names[5].querySelector('h3').textContent,'Trợ lý AI');
   const targets=[...doc.querySelectorAll('.vscodeHotspot')];
   const details=slides.find(s=>s.visual==='workspace-map').regionDetails;
   assert.equal(names.length,6);assert.equal(targets.length,6);assert.equal(details.length,6);
@@ -184,7 +193,13 @@ test('practice cards open readable details without the old app tab strip',async(
     continue;
    }
    if(slide.number===11){
-    assert.equal(buttons.length,2);
+    assert.equal(buttons.length,3);
+    const claude=buttons[2];
+    assert.equal(claude.querySelector('h2').textContent,'Cài Claude');
+    assert.match(claude.textContent,/Claude Code/);
+    assert.match(claude.textContent,/Anthropic/);
+    assert.match(claude.textContent,/Install/);
+    assert.doesNotMatch(claude.textContent,/CLI|npm|đăng nhập/i);
     assert.match(doc.querySelector('.practiceSingleAiNote').textContent,/ghi đè.*xung đột/);
     assert.equal(doc.querySelector('a'),null);
     assert.match(JSON.stringify(slide.cards),/OpenAI/);
@@ -192,7 +207,7 @@ test('practice cards open readable details without the old app tab strip',async(
     assert.ok(slide.cards.every(card=>!card.link));
     assert.equal(doc.querySelector('.practiceOpen'),null);
     assert.equal(doc.querySelector('button.gitChoice'),null);
-    assert.equal(doc.querySelectorAll('.practiceInstallCard .practiceSummary span').length,6);
+    assert.equal(doc.querySelectorAll('.practiceInstallCard .practiceSummary span').length,slide.cards.reduce((total,card)=>total+card.summary.length,0));
     continue;
    }
    assert.equal(buttons.length,slide.cards.length);
@@ -352,6 +367,44 @@ test('download uses existing ZIP and the copyable prompt preserves app behavior'
  }finally{await download.happyDOM.close();await edit.happyDOM.close();}
 });
 
+test('AI overview selects three tools and keeps Copilot and Cline in the moving logo strip',async()=>{
+ const window=renderDisplay(6),doc=window.document;
+ try{
+  const choices=[...doc.querySelectorAll('.aiChoice')];
+  assert.deepEqual(choices.map(c=>c.querySelector('strong').textContent),['Claude','Antigravity','Codex']);
+  choices.forEach((button,index)=>{
+   button.click();
+   assert.equal(button.getAttribute('aria-pressed'),'true');
+   assert.equal(doc.querySelector('.aiInfo').getAttribute('data-brand'),String(index));
+   assert.equal(doc.querySelector('.aiInfoHead h2').textContent,button.querySelector('strong').textContent);
+   assert.ok(button.querySelector('img').src.startsWith('data:image/'));
+  });
+  assert.equal(doc.querySelectorAll('.aiMarqueeGroup').length,2);
+  for(const group of doc.querySelectorAll('.aiMarqueeGroup')){
+   const names=[...group.querySelectorAll('.aiMarqueeItem')].map(n=>n.textContent);
+   assert.equal(names.length,12);
+   assert.equal(new Set(names).size,12);
+   assert.ok(names.includes('GitHub Copilot')&&names.includes('Cline'));
+  }
+ }finally{await window.happyDOM.close();}
+});
+
+test('Claude follows Codex and shares the branded AI layout without changing later layout identities',async()=>{
+ assert.equal(sectionSlides[9].visual,'git-intro-ai-codex');
+ assert.equal(sectionSlides[10].visual,'git-intro-ai-claude');
+ assert.equal(sectionSlides[11].visual,'lab-divider');
+ assert.equal(sectionSlides[11].layoutNumber,10);
+ const window=renderDisplay(11),doc=window.document;
+ try{
+  assert.equal(doc.querySelector('.aiBrandSlide').dataset.ai,'claude');
+  assert.equal(doc.querySelectorAll('.aiBrandBenefit').length,3);
+  assert.deepEqual([...doc.querySelectorAll('.aiModelName')].map(n=>n.textContent),['Claude Sonnet','Claude Opus','Claude Haiku']);
+  assert.equal(doc.querySelectorAll('.aiBenefitLine').length,6);
+  assert.ok(doc.querySelector('.aiBrandLogo').src.startsWith('data:image/'));
+  assert.equal(doc.querySelector('.aiModelCursor'),null);
+ }finally{await window.happyDOM.close();}
+});
+
 test('the two AI tools show advantages and styled model names without embedded links or model headings',async()=>{
  for(const [page,theme] of [[8,'antigravity'],[9,'codex']]){
   const window=render(page);
@@ -403,7 +456,7 @@ test('setup and practice lead to complete Push, Pull and Clone workflows',()=>{
 });
 
 test('repository showcase has official embedded icons, functions and links and remains registered',async()=>{
- const window=renderDisplay(25);
+ const window=renderDisplay(26);
  try{
   const doc=window.document;
   assert.equal(doc.querySelector('.gitGuideQuiz'),null);
@@ -411,7 +464,7 @@ test('repository showcase has official embedded icons, functions and links and r
   assert.equal(cards.length,4);
   assert.equal(new Set(cards.map(c=>c.querySelector('img').src)).size,4);
   for(let i=0;i<cards.length;i++){
-   const source=sectionSlides[24].cards[i],card=cards[i];
+   const source=sectionSlides[25].cards[i],card=cards[i];
    assert.equal(card.querySelector('h2').textContent,source.title);
    assert.match(card.querySelector('img').src,/^data:image\/png;base64,/);
    assert.equal(card.querySelectorAll('li').length,2);
@@ -423,17 +476,17 @@ test('repository showcase has official embedded icons, functions and links and r
   }
   assert.equal(new Set(cards.map(c=>c.querySelector('.repoShowcaseIcon').style.animationDelay)).size,4);
   const bindings=JSON.parse(fs.readFileSync('course-content/sources.json','utf8'));
-  assert.ok(bindings.some(b=>b.courseId==='a857595d-def0-4543-9216-a680c6abfe26'&&b.sectionId==='47c1183e-a26e-4c5d-9937-88ec5a755a32'&&b.path==='course-content/web-app-development/Section1.tsx'));
+  assert.ok(bindings.some(b=>b.courseId==='a857595d-def0-4543-9216-a680c6abfe26'&&b.sectionId==='47c1183e-a26e-4c5d-9937-88ec5a755a32'&&b.path==='course-content/web-app-development/Section1.js'));
  }finally{await window.happyDOM.close();}
 });
 
 test('each repository opens its own installation guide with copy, links and keyboard navigation',async()=>{
- const window=renderDisplay(25),doc=window.document;
+ const window=renderDisplay(26),doc=window.document;
  try{
   const triggers=[...doc.querySelectorAll('.repoShowcaseInstall')];
   assert.equal(triggers.length,4);
   for(let i=0;i<triggers.length;i++){
-   const card=sectionSlides[24].cards[i],setup=card.setup;
+   const card=sectionSlides[25].cards[i],setup=card.setup;
    triggers[i].click();
    const dialog=doc.querySelector('.repoInstallDialog');assert.ok(dialog);
    assert.equal(dialog.getAttribute('role'),'dialog');
@@ -472,12 +525,12 @@ test('each repository opens its own installation guide with copy, links and keyb
   assert.equal(doc.querySelector('[role=dialog]'),null);assert.equal(doc.activeElement,triggers[0]);
   triggers[1].click();doc.querySelector('.repoInstallDialog .skillDefaultClose').click();
   assert.equal(doc.querySelector('[role=dialog]'),null);assert.equal(doc.activeElement,triggers[1]);
-  assert.match(sectionSlides[24].cards[3].setup.shell,/WSL/);
-  assert.ok(!sectionSlides[24].cards[3].setup.steps.some(s=>s.code?.includes('npx n8n')));
+  assert.match(sectionSlides[25].cards[3].setup.shell,/WSL/);
+  assert.ok(!sectionSlides[25].cards[3].setup.steps.some(s=>s.code?.includes('npx n8n')));
  }finally{await window.happyDOM.close();}
 });
 
-test('all 25 slides retain embedded Inter while only loading their layout styles',async()=>{
+test('all 26 slides retain embedded Inter while only loading their layout styles',async()=>{
  assert.equal(fs.readFileSync('course-content/web-app-development/fonts/Inter-Variable.woff2').subarray(0,4).toString(),'wOF2');
  assert.doesNotMatch(source,/git-intro-quiz|\.skillFeatureGrid\{|\.skillOutcome\{/);
  for(const slide of sectionSlides){
@@ -489,21 +542,21 @@ test('all 25 slides retain embedded Inter while only loading their layout styles
    assert.doesNotMatch(css,/data:font\/ttf;base64,/);
    if(slide.visual!=='cover')assert.ok(!css.includes('.coverSlide{'));
    if(!slide.visual.startsWith('workspace-'))assert.ok(!css.includes('.vscodeMap{'));
-   if(slide.visual.startsWith('git-intro-')&&!['git-intro-ai-antigravity','git-intro-ai-codex'].includes(slide.visual))assert.ok(css.includes('.gitIntroSlide .copyControl'));
+   if(slide.visual.startsWith('git-intro-')&&!['git-intro-ai-antigravity','git-intro-ai-codex','git-intro-ai-claude'].includes(slide.visual))assert.ok(css.includes('.gitIntroSlide .copyControl'));
    assert.equal(doc.querySelector('.eiu')?.style.boxShadow||'','');
   }finally{await window.happyDOM.close();}
  }
 });
 
 test('installation dialog preserves repo links and copies install and invocation commands',async()=>{
- assert.equal(sectionSlides.length,25);
- assert.equal(sectionSlides[21].visual,'git-intro-pull');
- assert.equal(sectionSlides[22].visual,'git-intro-ai-workflow');
- assert.equal(sectionSlides[23].visual,'git-intro-skill-defaults');
- assert.equal(sectionSlides[24].visual,'git-intro-repo-showcase');
+ assert.equal(sectionSlides.length,26);
+ assert.equal(sectionSlides[22].visual,'git-intro-pull');
+ assert.equal(sectionSlides[23].visual,'git-intro-ai-workflow');
+ assert.equal(sectionSlides[24].visual,'git-intro-skill-defaults');
+ assert.equal(sectionSlides[25].visual,'git-intro-repo-showcase');
  assert.ok(!sectionSlides.some(s=>s.visual==='git-intro-skill-functions'));
- assert.deepEqual(sectionSlides.map(s=>s.number),Array.from({length:25},(_,i)=>i+1));
- const window=renderDisplay(24),doc=window.document;
+ assert.deepEqual(sectionSlides.map(s=>s.number),Array.from({length:26},(_,i)=>i+1));
+ const window=renderDisplay(25),doc=window.document;
  try{
   const install=doc.querySelector('.skillInstallToolbar button');install.click();
   const dialog=doc.querySelector('[role=dialog]');assert.ok(dialog);
@@ -521,7 +574,7 @@ test('installation dialog preserves repo links and copies install and invocation
    'node ../Effective-Vibe-Coding/scripts/install.mjs --target .'
   ]);
   assert.match(doc.querySelector('.skillTerminalIntro').textContent,/folder project muốn cài/);
-  const expected=[...commands,...sectionSlides[23].regionDetails[0].cards.slice(2).map(c=>c.prompt)];
+  const expected=[...commands,...sectionSlides[24].regionDetails[0].cards.slice(2).map(c=>c.prompt)];
   const buttons=[...doc.querySelectorAll('.skillSetup .copyControl')];
   assert.equal(buttons.length,4);
   const actions=[...doc.querySelectorAll('.skillSetup a,.skillSetup button')];
@@ -550,11 +603,11 @@ test('installation dialog preserves repo links and copies install and invocation
 });
 
 test('skill introduction summarizes capabilities without duplicating installation',async()=>{
- const window=renderDisplay(23),doc=window.document;
+ const window=renderDisplay(24),doc=window.document;
  try{
   assert.equal(doc.querySelectorAll('.skillBulletCard').length,3);
   assert.equal(doc.querySelectorAll('.skillBulletCard li').length,6);
-  for(const card of sectionSlides[22].cards){assert.ok(doc.body.textContent.includes(card.title));for(const point of card.points)assert.ok(doc.body.textContent.includes(point));}
+  for(const card of sectionSlides[23].cards){assert.ok(doc.body.textContent.includes(card.title));for(const point of card.points)assert.ok(doc.body.textContent.includes(point));}
   assert.equal(doc.querySelector('.skillCommands'),null);
   assert.equal(doc.querySelector('.skillOutcome'),null);
   assert.equal(doc.querySelector('.skillBrandName').textContent,'EffectiveVibe Coding');
@@ -567,7 +620,7 @@ test('skill introduction summarizes capabilities without duplicating installatio
 });
 
 test('activation comparison opens setup dialogs, copies rules and restores keyboard focus',async()=>{
- const window=renderDisplay(24),doc=window.document;
+ const window=renderDisplay(25),doc=window.document;
  try{
   const triggers=[...doc.querySelectorAll('.skillDefaultCard .skillDefaultButton')];
   assert.equal(triggers.length,3);
@@ -601,7 +654,7 @@ test('activation comparison opens setup dialogs, copies rules and restores keybo
    if(i>0){
     let copied='';doc.execCommand=()=>{copied=doc.activeElement.value;return true;};
     const copy=dialog.querySelector('.copyControl');copy.click();
-    assert.equal(copied,sectionSlides[23].prompt);
+    assert.equal(copied,sectionSlides[24].prompt);
     await new Promise(resolve=>setTimeout(resolve,500));
     assert.equal(copy.dataset.state,'copied');
    }
@@ -642,7 +695,7 @@ test('slide 8 builds copyable PowerShell identity commands from user inputs and 
 });
 
 test('slide 20 validates the GitHub URL, updates commands and copies a snapshot of the entered repository',async()=>{
- const window=renderDisplay(20),doc=window.document;
+ const window=renderDisplay(21),doc=window.document;
  try{
   const editor=doc.querySelector('.editableGit[data-mode=repo]');
   const field=editor.querySelector('input');

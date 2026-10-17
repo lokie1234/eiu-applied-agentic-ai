@@ -59,7 +59,7 @@ export default function DriveExport({ groupId, courseId, sectionId, label = "Sav
         const response = await fetch(`/api/admin/sections/${encodeURIComponent(sectionId)}/content`, { method: "POST", body: form });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Unable to update the interactive lesson.");
-        setFeedbackTone("success"); setMessage(data.contentSource === "project-tsx" ? "Interactive JS saved to Drive. Slides continue to use their project source." : "Interactive JS saved to Drive. This section now uses the new file.");
+        setFeedbackTone("success"); setMessage(data.contentSource === "project-js" ? "Interactive JS saved to Drive. Slides continue to use their project source." : "Interactive JS saved to Drive. This section now uses the new file.");
         setReplacement(null); if (fileInput.current) fileInput.current.value = "";
         setTasks([]); onSaved?.(); return;
       }

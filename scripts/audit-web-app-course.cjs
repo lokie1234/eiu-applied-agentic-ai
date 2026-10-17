@@ -7,7 +7,7 @@ const { Window } = require('happy-dom');
 
 async function main() {
   const root = 'course-content/web-app-development/';
-  const source = fs.readFileSync(root + 'Section1.tsx', 'utf8');
+  const source = fs.readFileSync(root + 'Section1.js', 'utf8');
   const slides = JSON.parse(fs.readFileSync(root + 'storyboard.json', 'utf8')).slides.filter(s => s.section === 1);
   const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, jsx: ts.JsxEmit.React, jsxFactory: 'h', jsxFragmentFactory: 'Fragment' } }).outputText;
   const documents = {};

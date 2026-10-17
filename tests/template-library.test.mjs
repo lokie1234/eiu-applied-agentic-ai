@@ -18,6 +18,7 @@ function fixture(role = "admin") {
   const route = load("app/api/templates/route.ts", {
     "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200 }) } },
     "@/lib/auth/currentUser": { currentUserAccess: async () => actor, requireAdminAccess: async () => actor?.isAdmin ? actor : null },
+    "@/lib/auth/session": { currentAccessSession: async () => actor ? { role: role === "admin" ? "admin" : "passcode" } : null },
     "@/lib/auth/courseAccessStorage": { getSlideTemplates: async () => state.templates, saveSlideTemplates: async templates => { if (state.failWrite) throw new Error("Write failed"); state.writes++; state.templates = templates; } },
   });
   return { state, get: route.GET, post: body => route.POST({ headers: { get: () => null }, json: async () => body }) };

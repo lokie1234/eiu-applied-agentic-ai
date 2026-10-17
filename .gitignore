@@ -4,6 +4,13 @@
 **/.next/
 /%SystemDrive%/
 /.local/
+/desktop-player/dist/
+/tmp/
+/desktop-player/ui/lesson-runtime.js
+/desktop-player/ui/player-assets.js
+/desktop-player/ui/Inter.woff2
+/desktop-player/ui/downloads/
+/public/downloads/EIU-Lesson-Player-*.zip
 /out
 /build
 .vercel

@@ -42,7 +42,7 @@
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Từ chỉnh sửa trên máy đến mã nguồn được quản lý rõ ràng.",
       "objective": "Từ chỉnh sửa trên máy đến mã nguồn được quản lý rõ ràng.",
-      "visualConcept": "Bốn cụm VS Code, Node.js, Git và GitHub cùng xoay trên vòng tròn bán kính 170px, cách nhau 90 độ. Khung icon 128px, logo Node.js/Git/GitHub 96px, nhãn 22px. Trong khung VS Code, dùng lưới hai hàng: logo VS Code chính 76px ở trên; Codex và Antigravity 24px trong hai badge 30px ở dưới, cách hàng trên 8px. Không chồng logo; cả cụm xoay cùng nhau và counter-rotate giữ thẳng. Reduced motion giữ bốn vị trí."
+      "visualConcept": "Bốn cụm VS Code, Node.js, Git và GitHub cùng xoay trên vòng tròn bán kính 170px, cách nhau 90 độ. Khung icon 128px, logo Node.js/Git/GitHub 96px, nhãn 22px. Trong khung VS Code, dùng lưới hai hàng: logo VS Code chính 76px ở trên; Codex và Antigravity 24px trong hai badge 30px ở dưới, cách hàng trên 8px. Không chồng logo; cả cụm xoay cùng nhau và counter-rotate giữ thẳng. Reduced motion giữ bốn vị trí. Hàng badge VS Code có ba logo Codex, Antigravity, Claude: 30px, cách 6px, ba cột riêng; không chồng nhau."
     },
     {
       "section": 1,
@@ -141,7 +141,7 @@
           "text": "Chạy lệnh tại thư mục dự án, xem log và lỗi; mở địa chỉ localhost khi chạy bản xem thử."
         },
         {
-          "title": "Codex / Chat",
+          "title": "Trợ lý AI",
           "text": "Giao việc cho AI, hỏi về mã và xem đề xuất. Đọc thay đổi, kiểm tra kết quả trước khi chấp nhận."
         }
       ],
@@ -149,7 +149,7 @@
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Biết vùng nào hiển thị file, mã, lỗi và tác vụ đang chạy.",
       "objective": "Biết vùng nào hiển thị file, mã, lỗi và tác vụ đang chạy.",
-      "visualConcept": "Sáu popup chức năng VS Code: mỗi chức năng có 2–3 bullet ngắn, chính xác; các ô nhấn luôn nền navy với chữ vàng/trắng, kể cả lưới Menu 4x2; header gọn không ảnh. Sáu nút tên vùng ở bản đồ dùng nền kem, tiêu đề navy, mô tả xanh xám; giữ badge navy–vàng và popup hiện có.",
+      "visualConcept": "Sáu popup chức năng VS Code: mỗi chức năng có 2–3 bullet ngắn, chính xác; các ô nhấn luôn nền navy với chữ vàng/trắng, kể cả lưới Menu 4x2; header gọn không ảnh. Sáu nút tên vùng ở bản đồ dùng nền kem, tiêu đề navy, mô tả xanh xám; giữ badge navy–vàng và popup hiện có. Sáu nút bản đồ chỉ giữ số và tiêu đề, bỏ dòng chú thích. Ô 6: Trợ lý AI.",
       "regionDetails": [
         {
           "section": 1,
@@ -586,37 +586,33 @@
       "note": "Nguồn: https://code.visualstudio.com/docs/configure/keybindings ; https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf . Phím mặc định Windows; keymap, extension và cấu hình cá nhân có thể thay đổi. Định dạng tài liệu cần formatter phù hợp.",
       "verify": "Mở Keyboard Shortcuts, tìm Toggle Terminal và xem phím đang được gán trên máy.",
       "objective": "Dùng phím tắt cho các thao tác thường gặp và tự tra cứu phím trên máy.",
-      "visualConcept": "Font Inter nhúng giống slide trước, tiêu đề navy 36px/800 với gạch vàng, nền kem lưới nhẹ và viền EIU. Tám phím tắt chia hai cột, bốn hàng; khung navy hướng dẫn Keyboard Shortcuts bên phải. Không link trong slide. Các tổ hợp phím lơ lửng chậm chu kỳ 3–3.6 giây, lệch pha, biên độ nhỏ; chữ mô tả và khung đứng yên, tắt khi reduced motion."
+      "visualConcept": "Font Inter nhúng giống slide trước, tiêu đề navy 36px/800 với gạch vàng, nền kem lưới nhẹ và viền EIU. Tám phím tắt chia hai cột, bốn hàng; khung navy hướng dẫn Keyboard Shortcuts bên phải. Không link trong slide. Các tổ hợp phím lơ lửng chậm chu kỳ 3–3.6 giây, lệch pha, biên độ nhỏ; chữ mô tả và khung đứng yên, tắt khi reduced motion. Khung hướng dẫn bên phải rộng 480px; tên thao tác và tổ hợp phím giữ trên một dòng. Dòng Keyboard Shortcuts tách có chủ đích; đường menu nằm trọn một hàng."
     },
     {
       "section": 1,
       "number": 6,
-      "title": "Ngoài Codex: AI nào làm việc trong VS Code?",
+      "title": "AI nào được tích hợp để làm việc trong VS CODE",
       "minutes": 6,
       "message": "Chọn trợ lý phù hợp với cách làm việc và kiểm tra mã do AI tạo.",
       "cards": [
+        {
+          "title": "Claude",
+          "text": "Trợ lý Claude làm việc với file và vùng mã đang chọn."
+        },
         {
           "title": "Antigravity",
           "text": "Extension chính thức đưa agent của Google vào VS Code."
         },
         {
-          "title": "GitHub Copilot",
-          "text": "Kết hợp gợi ý khi gõ với chat và agent trong VS Code."
-        },
-        {
-          "title": "Claude Code",
-          "text": "Trợ lý Claude làm việc với file và vùng mã đang chọn."
-        },
-        {
-          "title": "Cline",
-          "text": "Agent mã nguồn mở với nhiều lựa chọn nhà cung cấp model."
+          "title": "Codex",
+          "text": "Agent hỗ trợ đọc project, sửa mã và review."
         }
       ],
       "visual": "workspace-ai-alternatives",
       "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
       "verify": "Chọn một công cụ và giải thích ưu điểm, điểm cần cân nhắc.",
       "objective": "So sánh bốn trợ lý AI tích hợp VS Code.",
-      "visualConcept": "Khung chính EIU bo góc chứa bốn nút AI 2×2 bên trái và nội dung AI đang chọn bên phải. Khung nội dung chia header và hai ô Ưu điểm / Điểm cần cân nhắc, màu riêng từng AI, vừa khít chiều cao khung chính. Marquee nằm trong chiều rộng canvas bên dưới. Giữ logo lơ lửng và chuyển nội dung tại chỗ, không tràn hoặc cắt chữ.",
+      "visualConcept": "Ba lựa chọn Claude, Antigravity, Codex xếp dọc trong cột 280px; bảng chi tiết rộng bên phải. GitHub Copilot và Cline chuyển xuống dải logo chạy tự động. Giữ popup, bàn phím và reduced motion; tên và nhãn không ngắt dòng vụn.",
       "layoutNumber": 5
     },
     {
@@ -886,6 +882,66 @@
     {
       "section": 1,
       "number": 11,
+      "layoutNumber": 26,
+      "title": "Claude",
+      "visual": "git-intro-ai-claude",
+      "minutes": 4,
+      "message": "Đọc ngữ cảnh, lập kế hoạch và sửa mã trong VS Code.",
+      "cards": [
+        {
+          "label": "Ưu điểm",
+          "title": "Hiểu ngữ cảnh dự án",
+          "text": "",
+          "points": [
+            "Đính kèm file bằng @ và vùng mã chọn.",
+            "Trao đổi ngay trong editor."
+          ]
+        },
+        {
+          "label": "Ưu điểm",
+          "title": "Lập kế hoạch trước khi sửa",
+          "text": "",
+          "points": [
+            "Xem và góp ý kế hoạch trước khi làm.",
+            "Chọn chế độ quyền phù hợp tác vụ."
+          ]
+        },
+        {
+          "label": "Ưu điểm",
+          "title": "Review từng thay đổi",
+          "text": "",
+          "points": [
+            "Đối chiếu mã gốc và bản sửa qua diff.",
+            "Chấp nhận hoặc yêu cầu chỉnh tiếp."
+          ]
+        },
+        {
+          "label": "Model",
+          "title": "Claude Sonnet",
+          "text": "Cân bằng cho công việc phát triển hằng ngày.",
+          "detail": "sonnet"
+        },
+        {
+          "label": "Model",
+          "title": "Claude Opus",
+          "text": "Dành cho tác vụ phức tạp, cần suy luận sâu.",
+          "detail": "opus"
+        },
+        {
+          "label": "Model",
+          "title": "Claude Haiku",
+          "text": "Nhanh, hiệu quả với tác vụ đơn giản.",
+          "detail": "haiku"
+        }
+      ],
+      "note": "Model và hạn mức tùy tài khoản, nhà cung cấp và chính sách tổ chức. Kiểm tra danh sách trong model picker.",
+      "objective": "Nhận biết Claude Code trong VS Code và chọn model theo tác vụ.",
+      "verify": "Nêu cách đính kèm ngữ cảnh, xem kế hoạch và review diff.",
+      "visualConcept": "Dùng chung logic và lưới thiết kế của Antigravity/Codex: logo float, ba khung ưu điểm bên trái, ba họ model bên phải. Claude dùng nền kem ấm, accent terracotta. Hai dòng hero có chủ đích, mỗi ý một dòng; reduced motion dừng hiệu ứng. Nguồn: https://code.claude.com/docs/en/vs-code ; https://code.claude.com/docs/en/model-config (17/10/2026)."
+    },
+    {
+      "section": 1,
+      "number": 12,
       "title": "Lab 3",
       "minutes": 1,
       "message": "Thực hành thiết kế website và đẩy mã nguồn lên GitHub.",
@@ -899,7 +955,7 @@
     },
     {
       "section": 1,
-      "number": 12,
+      "number": 13,
       "title": "Cài trợ lý AI trong VS Code",
       "visual": "git-intro-ai-setup",
       "message": "Cài extension từ bảng Extensions, rồi đăng nhập và mở project để bắt đầu.",
@@ -915,8 +971,9 @@
           ],
           "summary": [
             "Tìm Codex của OpenAI.",
-            "Chọn Install, rồi click icon Codex trong vùng chat.",
-            "Đăng nhập bằng tài khoản ChatGPT."
+            "Chọn Install.",
+            "Mở icon Codex trong vùng chat.",
+            "Đăng nhập tài khoản ChatGPT."
           ]
         },
         {
@@ -930,8 +987,19 @@
           ],
           "summary": [
             "Tìm Google Antigravity.",
-            "Nhà phát hành Google → chọn Install.",
-            "Mở icon Antigravity, đăng nhập Google."
+            "Kiểm tra nhà phát hành Google.",
+            "Chọn Install, mở Antigravity.",
+            "Đăng nhập tài khoản Google."
+          ]
+        },
+        {
+          "title": "Cài Claude",
+          "logo": "AI Claude Code",
+          "text": "Trong Extensions, tìm Claude Code. Kiểm tra nhà phát hành Anthropic rồi chọn Install.",
+          "summary": [
+            "Tìm Claude Code.",
+            "Nhà phát hành: Anthropic.",
+            "Chọn Install để cài extension."
           ]
         }
       ],
@@ -939,12 +1007,12 @@
       "note": "Nhiều agent cùng sửa các file trong một thư mục có thể ghi đè thay đổi hoặc tạo xung đột mã nguồn. Khi đổi trợ lý, dừng lượt đang chạy và xem lại diff trước.",
       "objective": "Cài extension từ bảng Extensions, rồi đăng nhập và mở project để bắt đầu.",
       "verify": "Cài extension và đăng nhập; chỉ một trợ lý/model sửa project tại một thời điểm.",
-      "visualConcept": "Ba khung kem mở popup chi tiết; bỏ dải chọn app. Flow ngắn có icon tại bước dùng ứng dụng, chữ ngắt theo ý.",
+      "visualConcept": "Bước chung Mở Extensions ở phía trên; ba khung kem Codex, Antigravity, Claude ngang hàng. Logo 56px, tiêu đề 26px, hướng dẫn 20px chia dòng theo bước. Claude chỉ hướng dẫn cài extension chính chủ Anthropic, không thêm CLI hay đăng nhập. Giữ lưu ý bên dưới và reduced motion.",
       "layoutNumber": 11
     },
     {
       "section": 1,
-      "number": 13,
+      "number": 14,
       "title": "Bắt đầu · tải và mở project",
       "visual": "git-intro-starter",
       "message": "Tải bộ mẫu Lumi Studio, giải nén rồi mở trong VS Code.",
@@ -976,7 +1044,7 @@
     },
     {
       "section": 1,
-      "number": 14,
+      "number": 15,
       "title": "Chạy app · mở bản thử nghiệm",
       "visual": "git-intro-dev",
       "message": "Trong VS Code: Terminal → New Terminal. Chạy từng lệnh, chờ xong rồi sang bước tiếp theo.",
@@ -1016,7 +1084,7 @@
     },
     {
       "section": 1,
-      "number": 15,
+      "number": 16,
       "title": "Đổi text · tìm, sửa và xem ngay",
       "visual": "git-intro-prompt-structure",
       "message": "Với tiêu đề, tên thương hiệu hoặc nhãn nút, bạn có thể sửa trực tiếp trong VS Code.",
@@ -1046,7 +1114,7 @@
     },
     {
       "section": 1,
-      "number": 16,
+      "number": 17,
       "title": "Vibe coding · nói điều bạn muốn đổi",
       "visual": "git-intro-ai-edit",
       "message": "Mô tả kết quả mong muốn, để AI tìm file và thực hiện; bạn xem app rồi phản hồi tiếp.",
@@ -1079,7 +1147,7 @@
     },
     {
       "section": 1,
-      "number": 17,
+      "number": 18,
       "title": "AI có thể tạo kết quả khác nhau",
       "visual": "git-intro-model-outcomes",
       "message": "Cùng một yêu cầu, mỗi model hoặc mỗi lượt chạy có thể cho một phương án khác.",
@@ -1106,7 +1174,7 @@
     },
     {
       "section": 1,
-      "number": 18,
+      "number": 19,
       "title": "Kiểm tra app · trước khi lưu phiên bản",
       "visual": "git-intro-build",
       "message": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
@@ -1138,7 +1206,7 @@
     },
     {
       "section": 1,
-      "number": 19,
+      "number": 20,
       "title": "Lưu phiên bản đầu tiên bằng Git",
       "visual": "git-intro-initialize",
       "message": "Thực hiện trong folder project đang mở. Git lưu một mốc để bạn có thể xem lại.",
@@ -1171,7 +1239,7 @@
     },
     {
       "section": 1,
-      "number": 20,
+      "number": 21,
       "title": "Đưa mã nguồn lên GitHub",
       "visual": "git-intro-publish",
       "message": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
@@ -1205,7 +1273,7 @@
     },
     {
       "section": 1,
-      "number": 21,
+      "number": 22,
       "title": "Sau mỗi lần sửa · lưu và cập nhật",
       "visual": "git-intro-push-code",
       "message": "Sửa cùng AI, xem lại app, rồi lưu phiên bản mới và cập nhật GitHub.",
@@ -1238,7 +1306,7 @@
     },
     {
       "section": 1,
-      "number": 22,
+      "number": 23,
       "title": "Chiều ngược lại · Pull hoặc Clone",
       "visual": "git-intro-pull",
       "message": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
@@ -1286,7 +1354,7 @@
     },
     {
       "section": 1,
-      "number": 23,
+      "number": 24,
       "title": "Một skill · giữ chất lượng sau mỗi lần AI sửa code",
       "minutes": 4,
       "message": "Hướng dẫn AI đồng bộ giao diện, kiểm tra thay đổi và tối ưu code trong từng tác vụ.",
@@ -1324,7 +1392,7 @@
     },
     {
       "section": 1,
-      "number": 24,
+      "number": 25,
       "title": "Áp dụng skill · chọn mức mặc định",
       "minutes": 10,
       "visual": "git-intro-skill-defaults",
@@ -1402,7 +1470,7 @@
     },
     {
       "section": 1,
-      "number": 25,
+      "number": 26,
       "title": "Repo nổi bật · từ thiết kế đến tự động hóa",
       "visual": "git-intro-repo-showcase",
       "message": "Phác thảo ý tưởng → thiết kế UI → dựng giao diện → tự động hóa",

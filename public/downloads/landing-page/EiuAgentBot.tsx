@@ -63,7 +63,6 @@ export default function EiuAgentBot() {
   const [sparkles, setSparkles] = useState<Array<{ id: number; x: number; y: number; tx: string; ty: string; color: string }>>([]);
 
   const phaseRef = useRef<BotPhase>("flying");
-  phaseRef.current = phase;
 
   const animFrameRef = useRef<number | null>(null);
   const pauseTimerRef = useRef<NodeJS.Timeout | null>(null);

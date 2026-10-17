@@ -16,9 +16,10 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync("lib/liveRefresh.ts", "utf
 function moduleExports(path, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;
-  vm.runInNewContext(code, { exports, console, Date, AbortController, AbortSignal, crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, fetch: (...args) => globalThis.fetch(...args), require: name => {
+  vm.runInNewContext(code, { exports, console, Date, AbortController, AbortSignal, ResizeObserver: globalThis.window?.ResizeObserver, IntersectionObserver: globalThis.window?.IntersectionObserver, MutationObserver: globalThis.window?.MutationObserver, requestAnimationFrame: callback=>globalThis.window.requestAnimationFrame(callback), cancelAnimationFrame: id=>globalThis.window.cancelAnimationFrame(id), crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, fetch: (...args) => globalThis.fetch(...args), require: name => {
     if (name === "./LearnerInformationDialog") return { __esModule: true, default: component("components/landing/LearnerInformationDialog.tsx") };
     if (name === "./SectionEnergy") return { __esModule: true, default: () => null };
+    if (name === "./CourseDiscoveryHeading") return { __esModule: true, default: () => null };
     if (name === "./EiuConfirmDialog") return { __esModule: true, default: component("components/admin/EiuConfirmDialog.tsx") };
     if (name === "./LearnerInformationSettings") return { __esModule: true, default: component("components/admin/LearnerInformationSettings.tsx", { "@/lib/learningIdentity": learningIdentity }) };
     if (name === "@/lib/deckLocation") return { rememberDeckSelection() {} };
@@ -257,7 +258,7 @@ test("catalog refresh preserves an open visible section and withdraws it when hi
   const router = { refresh: () => { refreshes++; } };
   const Portal = component("components/LessonPortal.tsx", {
     "next/navigation": { useRouter: () => router },
-    "next/dynamic": { __esModule: true, default: () => () => React.createElement("div", { "data-open-deck": true }, "Deck") },
+    "next/dynamic": { __esModule: true, default: loader => /PdfDeck|SectionTwoDeck/.test(String(loader)) ? () => React.createElement("div", { "data-open-deck": true }, "Deck") : () => null },
     "next/image": { __esModule: true, default: () => null },
     "next/link": { __esModule: true, default: props => React.createElement("a", { href: props.href }, props.children) },
     "@/lib/auth/types": { APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai" },

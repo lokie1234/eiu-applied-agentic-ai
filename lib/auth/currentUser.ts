@@ -7,8 +7,8 @@ import { FIXED_ADMIN_EMAIL, type AppUserAccess } from "./types";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import type { LearnerIdentity } from "@/lib/learningIdentity";
 
-export async function currentUserAccess(signal?: AbortSignal): Promise<AppUserAccess | null> {
-  const session = await currentAccessSession(signal);
+export async function currentUserAccess(signal?: AbortSignal, resolvedSession?: Awaited<ReturnType<typeof currentAccessSession>>): Promise<AppUserAccess | null> {
+  const session = resolvedSession === undefined ? await currentAccessSession(signal) : resolvedSession;
   if (!session) return null;
   const identityQuery = session.role === "passcode" && session.identityLogId
     ? getSupabaseAdmin(signal).from("access_audit_logs").select("details").eq("id", session.identityLogId).eq("action", "PASSCODE_LOGIN").single()

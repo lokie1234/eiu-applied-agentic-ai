@@ -47,7 +47,7 @@ export async function exportPlan(groupId?: string, sectionId?: string, courseId?
     const course = courses.find(item => item.id === section.course_id);
     const local = row && course ? localSectionSourcePath(course, row) : null;
     if (local && row?.source_filename) {
-      tasks.push({ sectionId: section.id, courseId: section.course_id, name: driveSectionName(section.position, section.title, "js"), note: "Compiled JavaScript snapshot. Project TSX remains the editable slide source." });
+      tasks.push({ sectionId: section.id, courseId: section.course_id, name: driveSectionName(section.position, section.title, "js"), note: "Self-contained JavaScript lesson. Export preserves the project file bytes." });
     } else if (row?.content_path && row.source_filename) {
       const type = fileType(row.source_filename);
       tasks.push({ sectionId: section.id, courseId: section.course_id, name: driveSectionName(section.position, section.title, type === "tsx" ? "js" : type) });
@@ -83,14 +83,14 @@ export async function exportDocument(client: OAuth2Client, input: { sectionId: s
     const local = course ? await readLocalSectionSource(course, section) : null;
     let source: Uint8Array;
     let alreadyJs = false;
-    if (local) source = local;
+    if (local) { source = local; alreadyJs = true; }
     else if (section.content_path?.startsWith("drive:")) {
       source = (await readDriveFile(section.content_path, client)).bytes;
       alreadyJs = /\.js$/i.test(section.source_filename ?? "");
     } else {
       const recovered = !section.original_content_path ? await readLocalOriginal(section) : null;
       const sourcePath = section.original_content_path || section.content_path;
-      if (recovered) source = recovered;
+      if (recovered) { source = recovered; alreadyJs = true; }
       else {
         if (!sourcePath?.startsWith(section.course_id + "/" + section.id + "/")) throw new Error("Invalid stored document path.");
         const stored = await db.storage.from("course-section-content").download(sourcePath);

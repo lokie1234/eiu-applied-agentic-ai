@@ -13,7 +13,7 @@ export function localSectionSourcePath(
     item.courseId === course.id && item.sectionId === section.id,
   );
   if (!source) return null;
-  if (!/^course-content\/(?:[a-zA-Z0-9_-]+\/)+[a-zA-Z0-9_.-]+\.tsx$/.test(source.path)) {
+  if (!/^course-content\/(?:[a-zA-Z0-9_-]+\/)+[a-zA-Z0-9_.-]+\.js$/.test(source.path)) {
     throw new Error("Invalid local section source path.");
   }
   return source.path;

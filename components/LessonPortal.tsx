@@ -22,8 +22,8 @@ import { buildSectionOneDeckItems, sectionTwoDeckItems } from "@/lib/builtinDeck
 
 const loadSectionOne = () => import("./PdfDeck");
 const loadSectionTwo = () => import("./section2/SectionTwoDeck");
-const SectionOneDeck = dynamic(() => import("./PdfDeck"), { ssr: false, loading: () => <HairlineLoading /> });
-const SectionTwoDeck = dynamic(() => import("./section2/SectionTwoDeck"), { ssr: false, loading: () => <HairlineLoading /> });
+const SectionOneDeck = dynamic(loadSectionOne, { ssr: false, loading: () => <HairlineLoading /> });
+const SectionTwoDeck = dynamic(loadSectionTwo, { ssr: false, loading: () => <HairlineLoading /> });
 const UploadedSectionDeck = dynamic(() => import("./deck/UploadedSectionDeck"), { ssr: false, loading: () => <HairlineLoading /> });
 const LearningIcon3DLayer = dynamic(() => import("./LearningIcon3DLayer"), { ssr: false });
 
@@ -939,7 +939,7 @@ export default function LessonPortal({
                     {canOpen ? <>
                       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="7" y="7" width="14" height="13" rx="2" /><path d="M17 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2M11 12h6m-6 4h4" /></svg>
                       <b className={styles.sectionSlideCount}>{count ?? "…"}</b>
-                      <span>slides</span>
+                      <span> slides</span>
                     </> : "Content has not been uploaded yet"}
                   </small>
                   {(isAdmin || courseSection.canFacilitate) && coreSection && <div data-energy-exclude className={styles.cardLiveUsers}>
@@ -964,12 +964,12 @@ export default function LessonPortal({
                     View file
                   </button>
                 )}
-                {coreSection && courseSection.contentType === "pptx" && (
+                {hasUploadedDeck && (
                   <a
                     className={styles.sectionPptxLink}
                     href={`/api/sections/${encodeURIComponent(courseSection.id)}/content?download=1`}
-                    download={courseSection.sourceFilename || "Presentation.pptx"}
-                    title="Download the original attachment and open it in PowerPoint for audio, animations, and add-ins"
+                    download={courseSection.contentType === "tsx" ? (courseSection.sourceFilename || "Lesson.js").replace(/\.tsx$/i,".js") : courseSection.sourceFilename || "Presentation."+courseSection.contentType}
+                    title={courseSection.contentType === "tsx" ? "Download the JS lesson and open it with EIU Lesson Player" : "Download the original presentation"}
                   >
                     Download
                   </a>
@@ -989,6 +989,7 @@ export default function LessonPortal({
         <div className={styles.innovationBackdrop} aria-hidden="true" />
         <LearningIcon3DLayer />
         <div className={styles.selectorActions}>
+          <Link href="/player">EIU Lesson Player ↗</Link>
           {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
           {isAdmin && (

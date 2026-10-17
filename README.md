@@ -31,3 +31,9 @@ npm run build
 Các tài liệu chính: [kiến trúc](docs/ARCHITECTURE.md), [upload section](docs/SECTION_CONTENT_UPLOAD.md), [số slides tự động](docs/section-slide-counts.md), [icon cây](docs/course-garden-assets.md), [setup máy mới](NEW_MACHINE_SETUP.md).
 
 Các migration trong `supabase/migrations/` là lịch sử schema để cài mới/nâng cấp; không xóa vì không được import bởi React. Hướng dẫn đăng nhập Email OTP và lớp interaction phủ PDF cũ đã được thay bằng flow hiện tại.
+# JS lessons and desktop player · 17/10/2026
+
+Standalone section files are now `.js`; existing course IDs, permissions and lesson designs are preserved. Web Development authoring uses `storyboard.json` and `renderer.tsx.txt`; regenerate with `node scripts/build-web-app-course.cjs`. See [migration and cleanup report](docs/project-cleanup-2026-10-17.md).
+
+EIU Lesson Player downloads are available at `/player` (also linked from the course library). Windows ZIP includes an installer; macOS ZIPs support Intel and Apple Silicon. Build locally with `npm ci --prefix desktop-player`, then `npm run player:windows` or `npm run player:mac` on the corresponding OS. Tag `player-v*` runs native GitHub builds and publishes installation packages. Run `npm test`, `npm run lint`, `npm run build`, and `npm --prefix desktop-player test` for validation.
+

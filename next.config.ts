@@ -8,9 +8,9 @@ const nextConfig: NextConfig = {
     }];
   },
   outputFileTracingIncludes: {
-    "/api/sections/*/content": ["./course-content/**/*.tsx"],
+    "/api/sections/*/content": ["./course-content/**/*.js"],
     "/api/handout": ["./public/downloads/eiu-applied-agentic-ai-section-*-handout.pdf"],
-    "/api/admin/drive/export": ["./lib/drive/builtin-decks/*.tsx.txt", "./course-content/**/*.tsx"],
+    "/api/admin/drive/export": ["./lib/drive/builtin-decks/*.js", "./course-content/**/*.js"],
   },
   experimental: {
     // Proxy buffers request bodies before route handlers read FormData.
