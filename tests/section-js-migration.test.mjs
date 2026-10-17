@@ -15,13 +15,10 @@ test('all migrated lesson runtimes retain the exact pre-migration compiled bytes
   assert.equal(createHash('sha256').update(bytes).digest('hex'),file.sha256,file.runtime);
  }
 });
-test('the runtime factory allocates its SVG tag table once per frame and keyboard forwarding is opt-in',()=>{
+test('the runtime factory allocates its SVG tag table once per frame',()=>{
  const source=fs.readFileSync('lib/tsxDocument.ts','utf8');
  const exports={};vm.runInNewContext(ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,require});
  const normal=exports.createTsxDocument('exports.default=[];',1);
  assert.equal((normal.match(/const svgTags=new Set/g)||[]).length,1);
  assert.ok(normal.indexOf('const svgTags=')<normal.indexOf('const h='));
- assert.ok(normal.includes("if(false)document.addEventListener('keydown'"));
- const desktop=exports.createTsxDocument('exports.default=[];',1,'','','request',true);
- assert.ok(desktop.includes("if(true)document.addEventListener('keydown'"));
 });

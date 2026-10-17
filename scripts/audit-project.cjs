@@ -2,7 +2,7 @@ const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypt
 const root=path.resolve(__dirname,'..');
 const tracked=cp.execFileSync('git',['ls-files','-z'],{cwd:root}).toString().split('\0').filter(Boolean);
 const newFiles=cp.execFileSync('git',['ls-files','--others','--exclude-standard','-z'],{cwd:root}).toString().split('\0').filter(Boolean);
-const files=[...new Set([...tracked,...newFiles])].filter(f=>fs.existsSync(path.join(root,f))&&!f.startsWith('tmp/')&&!f.startsWith('desktop-player/dist/'));
+const files=[...new Set([...tracked,...newFiles])].filter(f=>fs.existsSync(path.join(root,f))&&!f.startsWith('tmp/'));
 const hashes=new Map(),duplicates=[],overrides=[];
 for(const file of files){
  if(!/\.(tsx?|jsx?|cjs|mjs)$/.test(file))continue;

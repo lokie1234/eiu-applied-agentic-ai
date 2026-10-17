@@ -1,8 +1,0 @@
-import Link from "next/link";
-import PlayerDownloads from "./PlayerDownloads";
-import styles from "./player.module.css";
-
-export const metadata = { title: "EIU Lesson Player · Cài đặt" };
-export default function PlayerDownload(){
- return <main className={styles.page}><nav><Link href="/">EIU <span>LEARNING SPACE</span></Link><Link href="/learn">Về khóa học ↗</Link></nav><section className={styles.hero}><div><small>KHÔNG GIAN HỌC TẬP TRÊN MÁY TÍNH</small><h1>Mở bài học.<br/><em>Tiếp nối cảm hứng.</em></h1><p>Bài giảng tương tác, thiết kế EIU và nội dung trọn vẹn — trong một ứng dụng dành riêng cho việc học.</p><PlayerDownloads /></div><aside><span>EIU</span><h2>Học.<br/>Khám phá.<br/><em>Thực hành.</em></h2><i/><p>LESSON PLAYER <b>↗</b></p></aside></section><section className={styles.steps}><article><small>01 · CÀI ĐẶT</small><h2>Một không gian quen thuộc.</h2><p>Giải nén gói tải về. Windows: chạy bộ cài và chọn thư mục. macOS: kéo ứng dụng vào Applications.</p></article><article><small>02 · MỞ BÀI HỌC</small><h2>Nội dung trong tầm tay.</h2><p>Tải tệp JS của section từ Learning Space. Chọn “Mở bài học” hoặc kéo thả tệp vào ứng dụng.</p></article><article><small>03 · BẮT ĐẦU</small><h2>Giữ trọn trải nghiệm.</h2><p>Chuyển slide, mở khung tương tác, phóng to và trình chiếu toàn màn hình. Khung EIU đã được áp sẵn.</p></article></section><footer><p>Ứng dụng 1.0 · Không cần cài Node.js. Bản phát hành đầu chưa có chữ ký nhà phát hành; hướng dẫn trong gói tải về giải thích các thông báo của Windows/macOS.</p><a href="/downloads/eiu-lesson-player-install.txt">Bản phát hành &amp; hướng dẫn ↗</a></footer></main>;
-}

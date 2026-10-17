@@ -1,6 +1,6 @@
 // Learning Space interactive lesson. Plain JavaScript; no TSX or build step.
-// The lesson player supplies h(), Fragment, React.createElement and exports.
-// Do not import modules. Embed images/fonts as data URLs for offline rendering.
+// The web lesson renderer supplies h(), Fragment, React.createElement and exports.
+// Do not import modules. Embed images/fonts as data URLs for self-contained rendering.
 exports.default = [
   function introduction() {
     let count = 0;

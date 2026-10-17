@@ -969,7 +969,7 @@ export default function LessonPortal({
                     className={styles.sectionPptxLink}
                     href={`/api/sections/${encodeURIComponent(courseSection.id)}/content?download=1`}
                     download={courseSection.contentType === "tsx" ? (courseSection.sourceFilename || "Lesson.js").replace(/\.tsx$/i,".js") : courseSection.sourceFilename || "Presentation."+courseSection.contentType}
-                    title={courseSection.contentType === "tsx" ? "Download the JS lesson and open it with EIU Lesson Player" : "Download the original presentation"}
+                    title={courseSection.contentType === "tsx" ? "Download the JavaScript lesson" : "Download the original presentation"}
                   >
                     Download
                   </a>
@@ -989,7 +989,6 @@ export default function LessonPortal({
         <div className={styles.innovationBackdrop} aria-hidden="true" />
         <LearningIcon3DLayer />
         <div className={styles.selectorActions}>
-          <Link href="/player">EIU Lesson Player ↗</Link>
           {isAdmin && <Link href="/admin/access">Access settings</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
           {isAdmin && (

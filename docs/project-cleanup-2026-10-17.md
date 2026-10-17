@@ -1,4 +1,4 @@
-# JS lessons and EIU Lesson Player
+# JS lessons and project cleanup
 
 The five standalone lesson files now ship as compiled CommonJS JavaScript. The initial conversion used the same ES2020 / h / Fragment compiler settings as the section API; `section-js-migration.json` records SHA-256 values of the exact former runtime output. Images, fonts, callbacks, popups and animation code were preserved. Section authorization and registered course/section IDs were not changed. React application components remain TypeScript/TSX.
 
@@ -16,17 +16,7 @@ Web Development authoring remains in `course-content/web-app-development/storybo
 - Removed tracked `tmp/` QA screenshots and scratch scripts. No course assets, reusable examples, source uploads, or user data were removed.
 - Updated obsolete test expectations and browser mocks (observer APIs, eight energy rays, the redesigned count badge); current interfaces and animations remain intact.
 
-## Desktop distribution
-
-`desktop-player/` contains the Windows/macOS app. The shared `lib/tsxDocument.ts` renderer is generated into the desktop shell by `scripts/prepare-player.cjs`. Its legacy name remains to avoid gratuitous import/API churn; it renders JS. The EIU template is applied by default and respects `data-preserve-original` for fully designed lessons. The same Inter font and embedded slide assets are used offline. The practice ZIP is bundled; external web links, AI services and localhost demonstrations retain their connectivity requirements.
-
-The shell has no Node integration, runs with context isolation/sandboxing, and keeps lesson code in an opaque-origin iframe without the native bridge. Native IPC is limited to the trusted main frame and a size-limited JS file chooser. Remote resource loading is disabled; explicitly opened HTTP(S) links go to the browser. Generic `.js` file defaults are not reassigned on installation.
-
-The Windows ZIP contains a branded NSIS installer and Vietnamese instructions. macOS ZIPs contain an application bundle and instructions for Intel and Apple Silicon. `.github/workflows/lesson-player.yml` builds each platform on its native runner when `player-v*` is pushed. Initial builds are unsigned; no signing identity or notarization credential is configured. The download page is `/player` and is linked from the course library; section cards expose JS downloads.
-
-The repository is private, so GitHub release URLs are not used as learner download links. `npm run player:publish` publishes only installer archives to the dedicated public `lesson-player-installers` storage bucket. It uses immutable content-hash paths and 4 MB parts to respect the storage project's file-size limit. `/player` verifies each part with SHA-256 and offers one complete ZIP, with progress and cancellation; no GitHub credential reaches the browser. The manifest is `public/downloads/player-releases.json`. The public bucket contains no course source, uploaded lessons or credentials. Repository privacy is unchanged. Re-run publication after building a new version. Publication runs on GitHub using short-lived, object-scoped upload grants encrypted as temporary Actions secrets; the storage service key stays on the maintainer machine. Run `npm run player:publication-status` after success to retrieve the public manifest and delete the grants, then commit the manifest.
-
-Validation: full Node test suite, TypeScript, ESLint, Next production build, hash comparison, and native Windows Electron smoke test. The smoke test covers slide counts, real popup clicks, Claude design, iframe keyboard navigation, EIU template application, bridge isolation, and preservation of the current lesson on an invalid file. An anonymous browser also downloaded the complete Windows ZIP from `/player` and verified its full SHA-256. Anonymous reads verified artifact hashes and packaging structure for Windows, macOS Intel and macOS Apple Silicon, including executable permissions and symlinks. Both native packaging jobs and public publication completed successfully on GitHub. Screenshots remain local in `.local/player-qa/`.
+Validation: full Node test suite, TypeScript, ESLint, Next production build, and compiled lesson hash comparison.
 
 ## Dependency validation
 

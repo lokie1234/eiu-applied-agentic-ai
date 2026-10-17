@@ -2,7 +2,7 @@
 
 Bộ nội dung cho course **AI-Powered Web App Development & Deployment**, hiển thị từ nguồn TSX đã đăng ký trong project.
 
-Từ 17/10/2026, nguồn hiển thị/download là `Section1.js` và `Section2.js`, đăng ký trong `course-content/sources.json`; server không biên dịch lại khi đọc. Chỉnh `storyboard.json` / `renderer.tsx.txt`, rồi chạy `node scripts/build-web-app-course.cjs`. Nội dung và logic tương tác được giữ nguyên qua chuyển đổi. Các tên TSX trong ghi chú lịch sử bên dưới mô tả định dạng trước khi chuyển sang JS. Xem `docs/project-cleanup-2026-10-17.md` để biết phạm vi chuyển đổi và bộ trình mở bài học Windows/macOS.
+Từ 17/10/2026, nguồn hiển thị/download là `Section1.js` và `Section2.js`, đăng ký trong `course-content/sources.json`; server không biên dịch lại khi đọc. Chỉnh `storyboard.json` / `renderer.tsx.txt`, rồi chạy `node scripts/build-web-app-course.cjs`. Nội dung và logic tương tác được giữ nguyên qua chuyển đổi. Các tên TSX trong ghi chú lịch sử bên dưới mô tả định dạng trước khi chuyển sang JS. Xem `docs/project-cleanup-2026-10-17.md` để biết phạm vi chuyển đổi.
 
 Cập nhật 17/10/2026: Section 1 có **26 slide**. Slide 11 mới là Claude, dùng cùng bố cục giới thiệu AI với slide 9–10; các slide sau tăng một số và giữ layoutNumber cũ. Slide 1 có ba badge Codex/Antigravity/Claude trong khung VS Code. Slide 4 chỉ giữ số và tên sáu vùng. Slide 6 so sánh Claude, Antigravity, Codex; GitHub Copilot và Cline chuyển xuống dải logo chạy. Phần đánh số 25 slide dưới đây mô tả phiên bản trước lần cập nhật này.
 
