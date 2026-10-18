@@ -77,41 +77,15 @@
     {
       "section": 1,
       "number": 3,
-      "title": "Một lần sửa mã đi qua những bước nào?",
-      "minutes": 5,
-      "message": "",
-      "cards": [
-        {
-          "title": "Chỉnh sửa",
-          "text": "Giao yêu cầu cho AI và đọc phần mã được sửa trong VS Code."
-        },
-        {
-          "title": "Kiểm tra",
-          "text": "Chạy app với Node.js; thử tính năng mới và cũ.",
-          "logo": "Node.js"
-        },
-        {
-          "title": "Chọn thay đổi",
-          "text": "Chọn file hoặc phần sửa sẽ đưa vào lần Commit này."
-        },
-        {
-          "title": "Commit",
-          "text": "Ghi phiên bản trên máy với thông điệp mô tả rõ thay đổi."
-        },
-        {
-          "title": "Push",
-          "text": "Gửi các Commit lên đúng kho mã nguồn và nhánh trên GitHub."
-        },
-        {
-          "title": "Xác nhận",
-          "text": "Mở GitHub, kiểm tra nhánh và phiên bản mới đã được gửi lên."
-        }
-      ],
-      "visual": "fixed-process",
-      "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-      "verify": "Đọc thay đổi và chạy thử trước khi lưu phiên bản lên GitHub.",
-      "objective": "Đọc thay đổi và chạy thử trước khi lưu phiên bản lên GitHub.",
-      "visualConcept": "Quy trình 6 bước cố định, ba khung mỗi hàng; mũi tên chuyển động nối 1→2→3↓4→5→6. Không có thao tác sắp xếp. Chọn thay đổi là chọn file hoặc phần sửa đưa vào Commit. Bước Kiểm tra có hai icon nhỏ VS Code và Node.js trong cùng header; giữ nguyên lưới sáu bước và kích thước ô. Cả sáu khung nền kem, tiêu đề navy và mô tả xanh xám đồng nhất."
+      "title": "Làm quen với VS Code",
+      "minutes": 2,
+      "message": "Mở dự án → Làm việc cùng AI → Kiểm tra ứng dụng",
+      "cards": [],
+      "visual": "vscode-intro",
+      "note": "Giảng viên giới thiệu VS Code như môi trường mở và quản lý dự án.",
+      "verify": "Nhận biết VS Code là nơi mở dự án, làm việc với AI và kiểm tra thay đổi.",
+      "objective": "Nhận biết VS Code là nơi mở dự án, làm việc với AI và kiểm tra thay đổi.",
+      "visualConcept": "Slide tối giản, tập trung vào chữ: ba nhịp Mở dự án → Làm việc cùng AI → Kiểm tra ứng dụng trên nền gradient navy có ánh sáng xanh-vàng nhẹ và ký hiệu code mờ; chuyển động nền tinh tế, tôn trọng prefers-reduced-motion."
     },
     {
       "section": 1,
@@ -141,7 +115,7 @@
           "text": "Chạy lệnh tại thư mục dự án, xem log và lỗi; mở địa chỉ localhost khi chạy bản xem thử."
         },
         {
-          "title": "Trợ lý AI",
+          "title": "Làm việc cùng AI",
           "text": "Giao việc cho AI, hỏi về mã và xem đề xuất. Đọc thay đổi, kiểm tra kết quả trước khi chấp nhận."
         }
       ],
@@ -481,7 +455,7 @@
         {
           "section": 1,
           "number": 12,
-          "title": "Codex / Chat · làm việc cùng AI",
+          "title": "Làm việc cùng AI",
           "minutes": 3,
           "message": "Giao việc có ngữ cảnh, rồi đọc và kiểm tra kết quả.",
           "cards": [
@@ -1076,11 +1050,20 @@
         }
       ],
       "minutes": 8,
-      "note": "Form lưu trên trình duyệt, chưa gửi email hoặc lưu database dùng chung. Nếu cổng 3000 bận, dùng URL Local trong Terminal.",
+      "note": "localhost:3000 là cổng mặc định cho dự án đầu tiên. Khi chạy thêm dự án song song, mở Terminal riêng, dùng cổng khác và truy cập đúng URL Terminal báo.",
       "objective": "Trong VS Code: Terminal → New Terminal. Chạy từng lệnh, chờ xong rồi sang bước tiếp theo.",
       "verify": "App hiện trong trình duyệt và các tương tác hoạt động.",
-      "visualConcept": "Luồng thực hành trực tiếp, không popup: chuẩn bị project → cài thư viện → chạy server → mở localhost:3000. Bản gọn: bỏ chú thích dưới hai khối lệnh và dải ghi chú/nghiệm thu cuối slide. Hai cột cân đối, cao tối thiểu 440px; hai bước Terminal giãn đều, cột mở app có khoảng cách 16px. Giữ nút copy, mở app và dòng Ctrl+click nổi bật.",
-      "layoutNumber": 13
+      "visualConcept": "Luồng chạy app, cài thư viện và mở localhost:3000; nút Chạy nhiều dự án? mở popup với một ví dụ localhost:3001, lệnh có nút copy và hướng dẫn đổi cổng thành 3002 cho Terminal/project tiếp theo. Mỗi project dùng Terminal riêng. Popup đóng bằng nút, Escape hoặc backdrop và trả focus về nút.",
+      "layoutNumber": 13,
+      "multiProjectPopup": {
+        "buttonLabel": "Chạy nhiều dự án?",
+        "title": "Chạy nhiều dự án song song",
+        "message": "localhost:3000 là cổng mặc định cho dự án đầu tiên. Để mở dự án khác cùng lúc, mở Terminal mới tại đúng folder dự án đó và dùng một cổng riêng.",
+        "exampleLabel": "Ví dụ · dự án thứ hai",
+        "url": "http://localhost:3001",
+        "command": "npm.cmd run dev -- --port 3001",
+        "note": "Muốn chạy dự án tiếp theo? Mở Terminal mới trong folder dự án đó, đổi 3001 thành 3002 rồi chạy lại lệnh. Tiếp tục tăng cổng cho các dự án sau; mỗi Terminal giữ một app đang chạy."
+      }
     },
     {
       "section": 1,
@@ -1162,7 +1145,7 @@
         },
         {
           "title": "AI vẫn có thể sai",
-          "text": "Website có thể trông đẹp nhưng vẫn thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng."
+          "text": "Tốc độ xử lý tùy AI model; chờ lâu thường gặp hơn ở free tier và ít gặp hơn với model mới. Dù nhanh, website vẫn có thể thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng."
         }
       ],
       "minutes": 2,
@@ -1175,6 +1158,41 @@
     {
       "section": 1,
       "number": 19,
+      "layoutNumber": 22,
+      "title": "Từ kiểm tra đến cập nhật GitHub",
+      "minutes": 2,
+      "message": "Kiểm tra app → commit bằng Git → push lên GitHub → lặp lại sau mỗi lần sửa.",
+      "cards": [
+        {
+          "title": "Kiểm tra app",
+          "text": "Chạy test/build và thử phần vừa sửa.",
+          "logo": "Node.js"
+        },
+        {
+          "title": "Lưu bằng Git",
+          "text": "Xem diff, chọn thay đổi và commit.",
+          "logo": "Git"
+        },
+        {
+          "title": "Đưa lên GitHub",
+          "text": "Đẩy commit lên repository.",
+          "logo": "GitHub"
+        },
+        {
+          "title": "Cập nhật sau sửa",
+          "text": "Kiểm tra lại, commit và push bản mới.",
+          "logo": "Git"
+        }
+      ],
+      "visual": "git-intro-workflow-summary",
+      "note": "",
+      "objective": "Nắm quy trình kiểm tra ứng dụng, lưu phiên bản và cập nhật GitHub.",
+      "verify": "Giải thích được luồng kiểm tra → Git commit → GitHub push và lặp lại sau khi sửa.",
+      "visualConcept": "Slide summary bốn bước trước phần hướng dẫn chi tiết: bốn thẻ ngang, logo công cụ, số thứ tự, nối bằng trục mảnh; nền kem, viền vàng, navy EIU; chuyển động rất nhẹ trên icon và tôn trọng prefers-reduced-motion."
+    },
+    {
+      "section": 1,
+      "number": 20,
       "title": "Kiểm tra app · trước khi lưu phiên bản",
       "visual": "git-intro-build",
       "message": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
@@ -1206,7 +1224,7 @@
     },
     {
       "section": 1,
-      "number": 20,
+      "number": 21,
       "title": "Lưu phiên bản đầu tiên bằng Git",
       "visual": "git-intro-initialize",
       "message": "Thực hiện trong folder project đang mở. Git lưu một mốc để bạn có thể xem lại.",
@@ -1239,7 +1257,7 @@
     },
     {
       "section": 1,
-      "number": 21,
+      "number": 22,
       "title": "Đưa mã nguồn lên GitHub",
       "visual": "git-intro-publish",
       "message": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
@@ -1273,7 +1291,7 @@
     },
     {
       "section": 1,
-      "number": 22,
+      "number": 23,
       "title": "Sau mỗi lần sửa · lưu và cập nhật",
       "visual": "git-intro-push-code",
       "message": "Sửa cùng AI, xem lại app, rồi lưu phiên bản mới và cập nhật GitHub.",
@@ -1306,7 +1324,7 @@
     },
     {
       "section": 1,
-      "number": 23,
+      "number": 24,
       "title": "Chiều ngược lại · Pull hoặc Clone",
       "visual": "git-intro-pull",
       "message": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
@@ -1354,7 +1372,7 @@
     },
     {
       "section": 1,
-      "number": 24,
+      "number": 25,
       "title": "Một skill · giữ chất lượng sau mỗi lần AI sửa code",
       "minutes": 4,
       "message": "Hướng dẫn AI đồng bộ giao diện, kiểm tra thay đổi và tối ưu code trong từng tác vụ.",
@@ -1392,7 +1410,7 @@
     },
     {
       "section": 1,
-      "number": 25,
+      "number": 26,
       "title": "Áp dụng skill · chọn mức mặc định",
       "minutes": 10,
       "visual": "git-intro-skill-defaults",
@@ -1470,7 +1488,7 @@
     },
     {
       "section": 1,
-      "number": 26,
+      "number": 27,
       "title": "Repo nổi bật · từ thiết kế đến tự động hóa",
       "visual": "git-intro-repo-showcase",
       "message": "Phác thảo ý tưởng → thiết kế UI → dựng giao diện → tự động hóa",

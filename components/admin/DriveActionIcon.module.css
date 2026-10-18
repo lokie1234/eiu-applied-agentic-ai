@@ -4,7 +4,7 @@
 .button:disabled { opacity:.45; cursor:default; }
 .icon { display:block; position:relative; width:27px; height:27px; }
 .icon img { position:absolute; top:0; left:0; }
-.icon svg { position:absolute; right:-1px; bottom:-1px; width:17px; height:17px; border:1px solid currentColor; border-radius:5px; background:#fff; padding:1px; }
+.icon .badge { position:absolute; right:-1px; bottom:-1px; display:grid; place-items:center; box-sizing:border-box; width:17px; height:17px; border:1px solid currentColor; border-radius:5px; background:#fff; font:800 10px/1 Arial,sans-serif; }
 .outbound { color:#b42332; }
 .inbound { color:#168451; }
 @media(prefers-reduced-motion:reduce) { .button { transition:none; } }

@@ -68,41 +68,15 @@ const course = {
         {
             "section": 1,
             "number": 3,
-            "title": "Một lần sửa mã đi qua những bước nào?",
-            "minutes": 5,
-            "message": "",
-            "cards": [
-                {
-                    "title": "Chỉnh sửa",
-                    "text": "Giao yêu cầu cho AI và đọc phần mã được sửa trong VS Code."
-                },
-                {
-                    "title": "Kiểm tra",
-                    "text": "Chạy app với Node.js; thử tính năng mới và cũ.",
-                    "logo": "Node.js"
-                },
-                {
-                    "title": "Chọn thay đổi",
-                    "text": "Chọn file hoặc phần sửa sẽ đưa vào lần Commit này."
-                },
-                {
-                    "title": "Commit",
-                    "text": "Ghi phiên bản trên máy với thông điệp mô tả rõ thay đổi."
-                },
-                {
-                    "title": "Push",
-                    "text": "Gửi các Commit lên đúng kho mã nguồn và nhánh trên GitHub."
-                },
-                {
-                    "title": "Xác nhận",
-                    "text": "Mở GitHub, kiểm tra nhánh và phiên bản mới đã được gửi lên."
-                }
-            ],
-            "visual": "fixed-process",
-            "note": "Giảng viên minh họa bằng dự án quản lý yêu cầu. Học viên giải thích thao tác và đưa minh chứng thay vì chỉ xác nhận đã bấm nút.",
-            "verify": "Đọc thay đổi và chạy thử trước khi lưu phiên bản lên GitHub.",
-            "objective": "Đọc thay đổi và chạy thử trước khi lưu phiên bản lên GitHub.",
-            "visualConcept": "Quy trình 6 bước cố định, ba khung mỗi hàng; mũi tên chuyển động nối 1→2→3↓4→5→6. Không có thao tác sắp xếp. Chọn thay đổi là chọn file hoặc phần sửa đưa vào Commit. Bước Kiểm tra có hai icon nhỏ VS Code và Node.js trong cùng header; giữ nguyên lưới sáu bước và kích thước ô. Cả sáu khung nền kem, tiêu đề navy và mô tả xanh xám đồng nhất."
+            "title": "Làm quen với VS Code",
+            "minutes": 2,
+            "message": "Mở dự án → Làm việc cùng AI → Kiểm tra ứng dụng",
+            "cards": [],
+            "visual": "vscode-intro",
+            "note": "Giảng viên giới thiệu VS Code như môi trường mở và quản lý dự án.",
+            "verify": "Nhận biết VS Code là nơi mở dự án, làm việc với AI và kiểm tra thay đổi.",
+            "objective": "Nhận biết VS Code là nơi mở dự án, làm việc với AI và kiểm tra thay đổi.",
+            "visualConcept": "Slide tối giản, tập trung vào chữ: ba nhịp Mở dự án → Làm việc cùng AI → Kiểm tra ứng dụng trên nền gradient navy có ánh sáng xanh-vàng nhẹ và ký hiệu code mờ; chuyển động nền tinh tế, tôn trọng prefers-reduced-motion."
         },
         {
             "section": 1,
@@ -132,7 +106,7 @@ const course = {
                     "text": "Chạy lệnh tại thư mục dự án, xem log và lỗi; mở địa chỉ localhost khi chạy bản xem thử."
                 },
                 {
-                    "title": "Trợ lý AI",
+                    "title": "Làm việc cùng AI",
                     "text": "Giao việc cho AI, hỏi về mã và xem đề xuất. Đọc thay đổi, kiểm tra kết quả trước khi chấp nhận."
                 }
             ],
@@ -472,7 +446,7 @@ const course = {
                 {
                     "section": 1,
                     "number": 12,
-                    "title": "Codex / Chat · làm việc cùng AI",
+                    "title": "Làm việc cùng AI",
                     "minutes": 3,
                     "message": "Giao việc có ngữ cảnh, rồi đọc và kiểm tra kết quả.",
                     "cards": [
@@ -1067,11 +1041,20 @@ const course = {
                 }
             ],
             "minutes": 8,
-            "note": "Form lưu trên trình duyệt, chưa gửi email hoặc lưu database dùng chung. Nếu cổng 3000 bận, dùng URL Local trong Terminal.",
+            "note": "localhost:3000 là cổng mặc định cho dự án đầu tiên. Khi chạy thêm dự án song song, mở Terminal riêng, dùng cổng khác và truy cập đúng URL Terminal báo.",
             "objective": "Trong VS Code: Terminal → New Terminal. Chạy từng lệnh, chờ xong rồi sang bước tiếp theo.",
             "verify": "App hiện trong trình duyệt và các tương tác hoạt động.",
-            "visualConcept": "Luồng thực hành trực tiếp, không popup: chuẩn bị project → cài thư viện → chạy server → mở localhost:3000. Bản gọn: bỏ chú thích dưới hai khối lệnh và dải ghi chú/nghiệm thu cuối slide. Hai cột cân đối, cao tối thiểu 440px; hai bước Terminal giãn đều, cột mở app có khoảng cách 16px. Giữ nút copy, mở app và dòng Ctrl+click nổi bật.",
-            "layoutNumber": 13
+            "visualConcept": "Luồng chạy app, cài thư viện và mở localhost:3000; nút Chạy nhiều dự án? mở popup với một ví dụ localhost:3001, lệnh có nút copy và hướng dẫn đổi cổng thành 3002 cho Terminal/project tiếp theo. Mỗi project dùng Terminal riêng. Popup đóng bằng nút, Escape hoặc backdrop và trả focus về nút.",
+            "layoutNumber": 13,
+            "multiProjectPopup": {
+                "buttonLabel": "Chạy nhiều dự án?",
+                "title": "Chạy nhiều dự án song song",
+                "message": "localhost:3000 là cổng mặc định cho dự án đầu tiên. Để mở dự án khác cùng lúc, mở Terminal mới tại đúng folder dự án đó và dùng một cổng riêng.",
+                "exampleLabel": "Ví dụ · dự án thứ hai",
+                "url": "http://localhost:3001",
+                "command": "npm.cmd run dev -- --port 3001",
+                "note": "Muốn chạy dự án tiếp theo? Mở Terminal mới trong folder dự án đó, đổi 3001 thành 3002 rồi chạy lại lệnh. Tiếp tục tăng cổng cho các dự án sau; mỗi Terminal giữ một app đang chạy."
+            }
         },
         {
             "section": 1,
@@ -1153,7 +1136,7 @@ const course = {
                 },
                 {
                     "title": "AI vẫn có thể sai",
-                    "text": "Website có thể trông đẹp nhưng vẫn thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng."
+                    "text": "Tốc độ xử lý tùy AI model; chờ lâu thường gặp hơn ở free tier và ít gặp hơn với model mới. Dù nhanh, website vẫn có thể thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng."
                 }
             ],
             "minutes": 2,
@@ -1166,6 +1149,41 @@ const course = {
         {
             "section": 1,
             "number": 19,
+            "layoutNumber": 22,
+            "title": "Từ kiểm tra đến cập nhật GitHub",
+            "minutes": 2,
+            "message": "Kiểm tra app → commit bằng Git → push lên GitHub → lặp lại sau mỗi lần sửa.",
+            "cards": [
+                {
+                    "title": "Kiểm tra app",
+                    "text": "Chạy test/build và thử phần vừa sửa.",
+                    "logo": "Node.js"
+                },
+                {
+                    "title": "Lưu bằng Git",
+                    "text": "Xem diff, chọn thay đổi và commit.",
+                    "logo": "Git"
+                },
+                {
+                    "title": "Đưa lên GitHub",
+                    "text": "Đẩy commit lên repository.",
+                    "logo": "GitHub"
+                },
+                {
+                    "title": "Cập nhật sau sửa",
+                    "text": "Kiểm tra lại, commit và push bản mới.",
+                    "logo": "Git"
+                }
+            ],
+            "visual": "git-intro-workflow-summary",
+            "note": "",
+            "objective": "Nắm quy trình kiểm tra ứng dụng, lưu phiên bản và cập nhật GitHub.",
+            "verify": "Giải thích được luồng kiểm tra → Git commit → GitHub push và lặp lại sau khi sửa.",
+            "visualConcept": "Slide summary bốn bước trước phần hướng dẫn chi tiết: bốn thẻ ngang, logo công cụ, số thứ tự, nối bằng trục mảnh; nền kem, viền vàng, navy EIU; chuyển động rất nhẹ trên icon và tôn trọng prefers-reduced-motion."
+        },
+        {
+            "section": 1,
+            "number": 20,
             "title": "Kiểm tra app · trước khi lưu phiên bản",
             "visual": "git-intro-build",
             "message": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
@@ -1197,7 +1215,7 @@ const course = {
         },
         {
             "section": 1,
-            "number": 20,
+            "number": 21,
             "title": "Lưu phiên bản đầu tiên bằng Git",
             "visual": "git-intro-initialize",
             "message": "Thực hiện trong folder project đang mở. Git lưu một mốc để bạn có thể xem lại.",
@@ -1230,7 +1248,7 @@ const course = {
         },
         {
             "section": 1,
-            "number": 21,
+            "number": 22,
             "title": "Đưa mã nguồn lên GitHub",
             "visual": "git-intro-publish",
             "message": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
@@ -1264,7 +1282,7 @@ const course = {
         },
         {
             "section": 1,
-            "number": 22,
+            "number": 23,
             "title": "Sau mỗi lần sửa · lưu và cập nhật",
             "visual": "git-intro-push-code",
             "message": "Sửa cùng AI, xem lại app, rồi lưu phiên bản mới và cập nhật GitHub.",
@@ -1297,7 +1315,7 @@ const course = {
         },
         {
             "section": 1,
-            "number": 23,
+            "number": 24,
             "title": "Chiều ngược lại · Pull hoặc Clone",
             "visual": "git-intro-pull",
             "message": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
@@ -1345,7 +1363,7 @@ const course = {
         },
         {
             "section": 1,
-            "number": 24,
+            "number": 25,
             "title": "Một skill · giữ chất lượng sau mỗi lần AI sửa code",
             "minutes": 4,
             "message": "Hướng dẫn AI đồng bộ giao diện, kiểm tra thay đổi và tối ưu code trong từng tác vụ.",
@@ -1383,7 +1401,7 @@ const course = {
         },
         {
             "section": 1,
-            "number": 25,
+            "number": 26,
             "title": "Áp dụng skill · chọn mức mặc định",
             "minutes": 10,
             "visual": "git-intro-skill-defaults",
@@ -1461,7 +1479,7 @@ const course = {
         },
         {
             "section": 1,
-            "number": 26,
+            "number": 27,
             "title": "Repo nổi bật · từ thiết kế đến tự động hóa",
             "visual": "git-intro-repo-showcase",
             "message": "Phác thảo ý tưởng → thiết kế UI → dựng giao diện → tự động hóa",
@@ -1712,22 +1730,8 @@ const detailCss = `
 .roleSlide,.featureSlide,.processSlide{font-family:Inter,'Segoe UI','Noto Sans',Arial,sans-serif;background:radial-gradient(ellipse at 92% 82%,#18547f0b,transparent 45%),linear-gradient(135deg,#fff,#fbfaf7 60%,#f3f7f9)}.roleSlide .title,.featureSlide .title,.processSlide .title{font-size:36px;font-weight:800;letter-spacing:-.8px;color:#082945;animation:eiuTextReveal .6s both}.roleSlide .title::after,.featureSlide .title::after,.processSlide .title::after{content:'';display:block;width:64px;height:3px;margin-top:14px;background:#b39159;animation:eiuRuleReveal .6s .1s both;transform-origin:left}.roleSlide .stage,.featureSlide .stage,.processSlide .stage{height:560px}
 .rolegrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;width:100%}.rolecard{position:relative;min-height:444px;padding:28px;background:linear-gradient(125deg,#fcfbf8,#f7f4ed);border:1px solid #b3915966;border-radius:20px;box-shadow:0 10px 25px #08294508;display:flex;flex-direction:column;animation:eiuTextReveal .65s both}.rolecard:nth-child(2){animation-delay:.12s;background:linear-gradient(125deg,#123f60,#082945);box-shadow:0 12px 28px #08294520}.rolecard:nth-child(3){animation-delay:.24s}.rolecard::before{content:'';position:absolute;left:0;top:30px;height:72px;width:5px;background:#b39159;border-radius:0 4px 4px 0}.rolelogo{width:90px;height:90px;background:#fff;border:1px solid #b3915933;border-radius:22px;padding:16px;box-shadow:0 6px 18px #08294509;margin-bottom:28px;animation:roleIconFloat 6s ease-in-out infinite}.rolecard:nth-child(2) .rolelogo{animation-delay:-2s}.rolecard:nth-child(3) .rolelogo{animation-delay:-4s}.rolecard h2{font-size:28px;line-height:1.2;letter-spacing:1.3px;text-transform:uppercase;font-weight:850;color:#123f68;margin:0 0 12px}.rolecard h3{font-size:20px;line-height:1.35;font-weight:650;color:#9d7944;margin:0 0 22px;min-height:54px}.rolecard p{font-size:20px;line-height:1.55;color:#4d6577;margin:0}.rolecard:nth-child(2) h2{color:#e9ca8b}.rolecard:nth-child(2) h3{color:#e9ca8bc9}.rolecard:nth-child(2) p{color:#e5eef5}
 .featureSlide .featuretabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-bottom:22px}.featureSlide .featuretabs .btn{height:84px;display:flex;align-items:center;justify-content:flex-start;gap:18px;padding:12px 22px;border:1px solid #b3915966;background:#f9f6ef;color:#123f68;border-radius:18px;font-size:23px;font-weight:800;letter-spacing:.4px;animation:eiuTextReveal .6s both}.featureSlide .featuretabs .btn:nth-child(2){animation-delay:.08s}.featureSlide .featuretabs .btn:nth-child(3){animation-delay:.16s}.featureSlide .featuretabs img{width:58px;height:58px;padding:10px;border-radius:14px;background:white;object-fit:contain}.featureSlide .featuretabs .btn.active{background:linear-gradient(120deg,#123f60,#082945);border-color:#b3915988;color:#e9ca8b;box-shadow:0 7px 22px #08294516}.featureSlide .featuregrid{grid-template-columns:340px minmax(0,1fr);gap:22px}.featureSlide .featurelist{gap:10px;align-content:start}.featureSlide .featurelist .btn{position:relative;min-height:60px;text-align:left;padding:12px 17px;font-size:18px;font-weight:650;background:#fbf8f2;border-color:#b3915944;border-radius:12px;line-height:1.35}.featureSlide .featurelist .btn.active{background:#123f60;color:#fff;border-color:#b3915988;box-shadow:0 4px 16px #08294512}.featureSlide .featurelist .btn.active::before{content:'';position:absolute;left:0;top:13px;bottom:13px;width:4px;background:#e9ca8b;border-radius:0 3px 3px 0}.featureSlide .featuredetail{padding:23px;border:1px solid #b3915966;border-radius:18px;background:#fff;box-shadow:0 9px 24px #08294508;animation:eiuTextReveal .35s both;min-height:340px}.featureSlide .featuredetail h3{font-size:24px;line-height:1.3;letter-spacing:.5px;font-weight:800;color:#123f68;margin:0 0 18px}.featurefacts{display:grid;gap:12px}.featurefact{border-left:3px solid #b39159;border-radius:0 10px 10px 0;background:#f8f5ef;padding:12px 15px}.featurefact b{display:block;font-size:13px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;color:#9d7944;margin-bottom:5px}.featureSlide .featurefact p{font-size:18px;line-height:1.45;color:#4d6577;margin:0}
-.fixedProcess{display:grid;grid-template-columns:minmax(0,1fr) 38px minmax(0,1fr) 38px minmax(0,1fr);grid-template-rows:215px 36px 215px;align-items:center;width:100%}.fixedStep{position:relative;height:215px;padding:20px 23px;border:1px solid #b3915966;border-radius:18px;background:linear-gradient(125deg,#fcfbf8,#f7f4ed);box-shadow:0 8px 22px #08294507;animation:eiuTextReveal .6s both}.fixedStep::before{content:'';position:absolute;left:0;top:24px;bottom:24px;width:4px;border-radius:0 3px 3px 0;background:#b39159}.fixedStep .fixedheading{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}.fixedStep img{width:46px;height:46px;padding:7px;border-radius:12px;background:#fff;border:1px solid #b3915933}.fixedStep .stepnum{width:33px;height:33px;display:grid;place-items:center;font-size:15px;font-weight:800;border-radius:50%;background:#f1e9da;color:#9d7944}.fixedStep h3{font-size:21px;line-height:1.25;font-weight:850;letter-spacing:.7px;text-transform:uppercase;margin:0 0 10px;color:#123f68}.fixedStep p{font-size:18px;line-height:1.4;color:#4d6577;margin:0}.processArrow{display:grid;place-items:center;color:#b39159;font-size:31px;line-height:1;animation:processSignal 2.8s ease-in-out infinite}.processArrow.down{font-size:29px}.processArrow svg{width:30px;height:30px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}.fixedStep:nth-of-type(2){animation-delay:.1s}.fixedStep:nth-of-type(3){animation-delay:.2s}.fixedStep:nth-of-type(4){animation-delay:.3s}.fixedStep:nth-of-type(5){animation-delay:.4s}.fixedStep:nth-of-type(6){animation-delay:.5s}
-@keyframes roleIconFloat{50%{transform:translateY(-4px)}}@keyframes processSignal{0%,100%{opacity:.35;filter:drop-shadow(0 0 0 #e9ca8b)}45%,65%{opacity:1;filter:drop-shadow(0 0 5px #e9ca8b88)}}
+@keyframes roleIconFloat{50%{transform:translateY(-4px)}}
 `;
-const processToolCss = `.fixedTools{display:flex;align-items:center;gap:10px;min-width:0}.fixedTools .gitMark{width:46px;height:46px;padding:7px;border-radius:12px;background:#fff;border:1px solid #b3915933}.fixedTools .gitMark img,.fixedTools .gitMark svg{width:100%;height:100%;padding:0;border:0;background:none;border-radius:0}.fixedStep{min-width:0}.fixedStep h3,.fixedStep p{overflow-wrap:break-word}.fixedProcess .fixedTools>img,.fixedProcess .fixedTools>.gitMark{animation:processToolFloat 4s ease-in-out infinite;animation-delay:var(--tool-delay,0s);transform-origin:center;will-change:transform}.fixedProcess .fixedStep:nth-of-type(2){--tool-delay:-.6s}.fixedProcess .fixedStep:nth-of-type(3){--tool-delay:-1.2s}.fixedProcess .fixedStep:nth-of-type(4){--tool-delay:-1.8s}.fixedProcess .fixedStep:nth-of-type(5){--tool-delay:-2.4s}.fixedProcess .fixedStep:nth-of-type(6){--tool-delay:-3s}.fixedProcess .fixedTools>:nth-child(2){animation-delay:-1.4s}@keyframes processToolFloat{0%,100%{transform:translateY(3px) rotate(-2deg)}50%{transform:translateY(-6px) rotate(2deg)}}@media(prefers-reduced-motion:reduce){.fixedProcess .fixedTools>img,.fixedProcess .fixedTools>.gitMark{animation:none!important;transform:none}}`;
-function fixedProcess(s) { const steps = s.cards.map((card, i) => ({ title: card.title, text: card.text, tool: card.logo || ['VS Code', 'VS Code', 'Git', 'Git', 'GitHub', 'GitHub'][i] })); const positions = [[1, 1], [1, 3], [1, 5], [3, 5], [3, 3], [3, 1]]; return h("div", { className: "fixedProcess" },
-    h("style", null, processToolCss),
-    steps.map((s, i) => h("article", { className: 'fixedStep ' + (i === 5 ? 'finalStep' : ''), style: { gridRow: String(positions[i][0]), gridColumn: String(positions[i][1]), animationDelay: (i * .1) + 's' } },
-        h("div", { className: "fixedheading" },
-            h("div", { className: "fixedTools" }, s.tool === 'Node.js' ? h(Fragment, null,
-                gitGuideMark('VS Code'),
-                gitGuideMark('Node.js')) : h("img", { src: assets[s.tool], alt: s.tool })),
-            h("span", { className: "stepnum" }, String(i + 1).padStart(2, '0'))),
-        h("h3", null, s.title),
-        h("p", null, s.text))),
-    [[1, 2, 'right'], [1, 4, 'right'], [2, 5, 'down'], [3, 4, 'left'], [3, 2, 'left']].map(([row, col, direction], i) => h("span", { className: 'processArrow ' + direction, style: { gridRow: String(row), gridColumn: String(col), animationDelay: (i * .35) + 's' }, "aria-hidden": "true" },
-        h("svg", { viewBox: "0 0 32 32" }, direction === 'down' ? h("path", { d: "M16 3v26m-7-7 7 7 7-7" }) : direction === 'left' ? h("path", { d: "M29 16H3m7-7-7 7 7 7" }) : h("path", { d: "M3 16h26m-7-7 7 7-7 7" }))))); }
 const vscodeRegions = [
     { name: 'Thanh menu', subtitle: 'File · Edit · View · Run', x: 48, y: 5, w: 430, h: 38, cx: 520, cy: 24, text: 'Mở file hoặc thư mục, chỉnh sửa, đổi cách hiển thị và chạy tác vụ qua các menu.' },
     { name: 'Thanh công cụ', subtitle: 'Activity Bar · bên trái', x: 8, y: 55, w: 55, h: 1087, cx: 36, cy: 760, text: 'Chuyển nhanh giữa Explorer, Search, Source Control, Run & Debug và Extensions.' },
@@ -2406,8 +2410,56 @@ function localArrowText(text) { return text.split('→').map((part, i) => h(Frag
     i > 0 && h("span", { className: "localDirectionArrow", "aria-hidden": "true", style: { animationDelay: (i * .18) + 's' } }, "\u2192"),
     part)); }
 function localTerminalHint(text) { return text.split(/(Ctrl|http:\/\/localhost:3000)/g).map(part => part === 'Ctrl' ? h("kbd", null, part) : part === 'http://localhost:3000' ? h("code", null, part) : part); }
+const multiProjectPopupCss = `
+.localRun{position:relative}.multiProjectTrigger{flex-shrink:0;min-height:40px;padding:8px 12px;border:1px solid #b39159;border-radius:11px;background:#f4dfb0;color:#082945;font:750 15px/1.2 Inter,'Segoe UI',sans-serif;white-space:nowrap;cursor:pointer;transition:background-color 180ms ease,box-shadow 180ms ease,transform 180ms ease}.multiProjectTrigger:hover,.multiProjectTrigger:focus-visible{outline:2px solid #e9ca8b;outline-offset:2px;background:#f8e8bf;box-shadow:0 5px 14px #b3915940;transform:translateY(-1px)}
+.multiProjectOverlay{position:absolute;inset:0;z-index:120;display:grid;place-items:center;padding:22px;background:#041c31c2}.practicePopup.multiProjectDialog{width:min(1080px,100%);max-height:100%;padding:22px 24px}.multiProjectDialog .practicePopupHeader{margin-bottom:12px}.multiProjectDialog .practicePopupHeader .gitMark{width:42px;height:42px;flex-basis:42px}.multiProjectDialog .practicePopupHeader h2{font-size:27px}.multiProjectDialog .practiceClose{min-width:42px;height:42px}.multiProjectIntro{margin:0 0 14px;color:#4d6577;font-size:18px;line-height:1.4}.multiProjectExample{min-width:0;padding:14px 16px;border:1px solid #b3915966;border-left:4px solid #b39159;border-radius:16px;background:#f7f4ed}.multiProjectExample header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px}.multiProjectExample h3{margin:0;color:#082945;font-size:19px;line-height:1.3}.multiProjectExample header code{color:#9d7944;font:700 16px/1.3 Inter,'Segoe UI',sans-serif;white-space:nowrap}.multiProjectCommand{display:flex;align-items:center;gap:10px;min-width:0}.multiProjectCommand pre{flex:1;min-width:0;margin:0;padding:10px 12px;border-radius:10px;background:#082945;color:#f4dfb0;font:14px/1.4 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}.multiProjectCommand .copyControl{flex-shrink:0;padding:8px 10px;font-size:14px;white-space:nowrap}.multiProjectNote{margin:12px 0 0;padding:10px 14px;border:1px solid #b3915944;border-radius:12px;background:#f2ead8;color:#4d6577;font-size:16px;line-height:1.4}.multiProjectNote strong{color:#082945}@media(max-width:760px){.multiProjectExample header{align-items:flex-start;flex-direction:column}.multiProjectCommand{align-items:flex-start;flex-direction:column}.multiProjectCommand .copyControl{align-self:flex-end}}@media(prefers-reduced-motion:reduce){.multiProjectTrigger{transition:none}.multiProjectTrigger:hover,.multiProjectTrigger:focus-visible{transform:none}}
+`;
+function openMultiProjectPopup(trigger, popup) {
+    const host = trigger.closest('.localRun');
+    if (!host)
+        return;
+    const overlay = h('div', { className: 'multiProjectOverlay' });
+    const close = () => { if (!overlay.isConnected)
+        return; overlay.remove(); if (trigger.isConnected)
+        trigger.focus(); };
+    const closeButton = h("button", { type: "button", className: "practiceClose", "aria-label": "\u0110\u00F3ng h\u01B0\u1EDBng d\u1EABn ch\u1EA1y nhi\u1EC1u d\u1EF1 \u00E1n", onClick: close }, "\u00D7");
+    const dialog = h("section", { className: "practicePopup multiProjectDialog", role: "dialog", "aria-modal": "true", "aria-labelledby": "multi-project-title" },
+        h("header", { className: "practicePopupHeader" },
+            gitGuideMark('Node.js'),
+            h("h2", { id: "multi-project-title" }, popup.title),
+            closeButton),
+        h("p", { className: "multiProjectIntro" }, popup.message),
+        h("article", { className: "multiProjectExample" },
+            h("header", null,
+                h("h3", null, popup.exampleLabel),
+                h("code", null, popup.url)),
+            h("div", { className: "multiProjectCommand" },
+                h("pre", null, popup.command),
+                localCopyButton(popup.command))),
+        h("p", { className: "multiProjectNote" }, popup.note));
+    overlay.append(dialog);
+    overlay.addEventListener('click', (event) => { if (event.target === overlay)
+        close(); });
+    overlay.addEventListener('keydown', (event) => { if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        close();
+    } if (event.key === 'Tab') {
+        const controls = Array.from(dialog.querySelectorAll('button:not(:disabled),a[href],input,textarea,select')), first = controls[0], last = controls[controls.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+        }
+        else if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+        }
+    } });
+    host.append(overlay);
+    closeButton.focus();
+}
 function gitLocalRun(s) { const finish = s.cards[2]; return h("div", { className: "localRun" },
-    h("style", null, practiceCss + starterInlineCss + localRunCss + localBrowserOptionsCss + localLaunchChoiceCss + localRunCleanCss),
+    h("style", null, practiceCss + starterInlineCss + localRunCss + localBrowserOptionsCss + localLaunchChoiceCss + localRunCleanCss + multiProjectPopupCss),
     h("p", { className: "gitLead" }, localArrowText(s.message)),
     h("div", { className: "localRunGrid" },
         h("div", { className: "localTerminalSteps" }, s.cards.slice(0, 2).map((c, i) => h("article", { className: "localStep" },
@@ -2422,7 +2474,8 @@ function gitLocalRun(s) { const finish = s.cards[2]; return h("div", { className
         h("article", { className: "localBrowser localChoiceBrowser" },
             h("header", null,
                 h("span", { className: "localStepNumber" }, "3"),
-                h("h2", null, finish.title)),
+                h("h2", null, finish.title),
+                s.multiProjectPopup && h("button", { type: "button", className: "multiProjectTrigger", "aria-haspopup": "dialog", onClick: (event) => openMultiProjectPopup(event.currentTarget, s.multiProjectPopup) }, s.multiProjectPopup.buttonLabel)),
             h("pre", { className: "localReady" }, finish.output),
             h("div", { className: "localOpenChoice" },
                 h("h3", null, "Tr\u00ECnh duy\u1EC7t tr\u00EAn m\u00E1y"),
@@ -2888,7 +2941,21 @@ function repoShowcase(s) { return h("div", { className: "repoShowcase" },
                 c.linkLabel,
                 h("span", { "aria-hidden": "true" }, "\u2197"))),
             skillAction(h("button", { type: "button", className: "repoShowcaseInstall", "aria-haspopup": "dialog", onClick: (e) => openRepoInstall(c, e.currentTarget) }, "C\u00E1ch c\u00E0i \u0111\u1EB7t \u2197"))))))); }
+const workflowSummaryCss = `
+.workflowSummary{height:100%;display:flex;flex-direction:column;justify-content:center;gap:26px}.workflowSummary>.gitLead{font-size:22px;line-height:1.4;max-width:1120px}.workflowSummaryCards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}.workflowSummaryCard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:18px;min-width:0;min-height:316px;padding:23px 21px;border:1px solid #b3915966;border-top:4px solid #b39159;border-radius:22px;background:linear-gradient(140deg,#fbfaf7,#f7f4ed);box-shadow:0 8px 22px #08294509}.workflowSummaryCard:not(:last-child)::after{content:'→';position:absolute;z-index:2;top:calc(50% - 16px);right:-24px;width:24px;text-align:center;color:#9d7944;font-size:26px;font-weight:800;animation:workflowArrowNudge 1.8s ease-in-out infinite}.workflowSummaryCard:nth-child(2)::after{animation-delay:.2s}.workflowSummaryCard:nth-child(3)::after{animation-delay:.4s}.workflowSummaryTop{display:flex;align-items:center;justify-content:space-between;width:100%}.workflowSummaryStep{color:#9d7944;font-size:15px;line-height:1;font-weight:850;letter-spacing:1px}.workflowSummaryIcon{display:grid;place-items:center;width:62px;height:62px;border:1px solid #b3915955;border-radius:17px;background:#fff;box-shadow:0 5px 14px #0829450d}.workflowSummaryIcon .gitMark{width:42px;height:42px}.workflowSummaryCard h2{margin:auto 0 0;color:#082945;font-size:22px;line-height:1.25;font-weight:800;letter-spacing:-.3px;text-wrap:balance}.workflowSummaryCard p{margin:0;color:#4d6577;font-size:18px;line-height:1.45;text-wrap:pretty}.workflowSummaryCard:nth-child(2n){background:linear-gradient(140deg,#f7f4ed,#f4dfb055)}@keyframes workflowArrowNudge{0%,100%{transform:translateX(-2px);opacity:.65}50%{transform:translateX(2px);opacity:1}}@media(prefers-reduced-motion:reduce){.workflowSummaryIcon,.workflowSummaryCard::after{animation:none!important;transform:none!important}}
+`;
+function workflowSummary(s) { return h("div", { className: "workflowSummary" },
+    h("style", null, workflowSummaryCss),
+    h("p", { className: "gitLead" }, s.message),
+    h("div", { className: "workflowSummaryCards" }, s.cards.map((c, i) => h("article", { className: "workflowSummaryCard" },
+        h("div", { className: "workflowSummaryTop" },
+            h("span", { className: "workflowSummaryStep" }, String(i + 1).padStart(2, '0')),
+            h("span", { className: "workflowSummaryIcon" }, gitGuideMark(c.logo || 'Git'))),
+        h("h2", null, c.title),
+        h("p", null, c.text))))); }
 function gitIntro(s) {
+    if (s.visual === 'git-intro-workflow-summary')
+        return workflowSummary(s);
     if (s.visual === 'git-intro-repo-showcase')
         return repoShowcase(s);
     if (s.visual === 'git-intro-ai-workflow')
@@ -2934,6 +3001,17 @@ function vscodeShortcuts(s) { return h("div", { className: "shortcutLesson" },
             h("div", { className: "shortcutMenu" },
                 h("b", null, "Ho\u1EB7c qua menu"),
                 h("span", { className: "shortcutMenuPath" }, "File \u2192 Preferences \u2192 Keyboard Shortcuts"))))); }
+const vscodeIntroCss = `
+.vscodeIntro{position:relative;height:100%;display:grid;place-items:center;overflow:hidden;padding:26px 32px;border:1px solid #b3915955;border-radius:22px;background:radial-gradient(ellipse at 20% 18%,#2d7fb42b,transparent 42%),radial-gradient(ellipse at 80% 85%,#b3915925,transparent 43%),linear-gradient(135deg,#041c31,#0b2f4c 56%,#123f68);box-shadow:inset 0 0 0 1px #ffffff08}.vscodeIntro::before{content:'</>';position:absolute;right:8%;top:50%;transform:translateY(-50%) rotate(-8deg);color:#fff;opacity:.035;font:800 260px/1 Consolas,monospace;letter-spacing:-24px;pointer-events:none}.vscodeIntro::after{content:'';position:absolute;width:490px;height:490px;left:-260px;bottom:-390px;border:1px solid #e9ca8b25;border-radius:50%;box-shadow:0 0 0 42px #e9ca8b08,0 0 0 84px #e9ca8b05;pointer-events:none;animation:vscodeIntroAmbient 12s ease-in-out infinite}.vscodeIntroTextBlock{position:relative;z-index:1;width:min(1050px,100%);text-align:center}.vscodeIntroKicker{display:inline-flex;align-items:center;gap:10px;margin:0 0 30px;color:#e9ca8b;font-size:13px;font-weight:800;letter-spacing:2.2px;text-transform:uppercase}.vscodeIntroKicker::before{content:'';width:28px;height:1px;background:#b39159}.vscodeIntroFlow{display:flex;align-items:center;justify-content:center;gap:clamp(10px,1.7vw,22px);flex-wrap:wrap}.vscodeIntroFlowPair{display:inline-flex;align-items:center;gap:clamp(10px,1.7vw,22px)}.vscodeIntroStep{color:#f5f7f9;font-size:clamp(24px,2.45vw,33px);font-weight:750;line-height:1.2;letter-spacing:-.65px;white-space:nowrap}.vscodeIntroStepAccent{color:#f4dfb0;text-shadow:0 3px 24px #e9ca8b27}.vscodeIntroArrow{color:#6eb6cf;font-size:21px;font-weight:500;animation:vscodeIntroArrow 3.6s ease-in-out infinite}.vscodeIntroRule{position:relative;width:140px;height:1px;margin:32px auto 0;background:linear-gradient(90deg,transparent,#b39159,#e9ca8b,#b39159,transparent);opacity:.9}.vscodeIntroRule::after{content:'';position:absolute;right:15px;top:-2px;width:5px;height:5px;border-radius:50%;background:#f4dfb0;box-shadow:0 0 12px #e9ca8b99;animation:vscodeIntroDot 4.2s ease-in-out infinite}@keyframes vscodeIntroAmbient{0%,100%{transform:translate(0,0)}50%{transform:translate(20px,-12px)}}@keyframes vscodeIntroArrow{0%,100%{opacity:.55;transform:translateX(0)}50%{opacity:1;transform:translateX(3px)}}@keyframes vscodeIntroDot{0%,100%{opacity:.45;transform:scale(.8)}50%{opacity:1;transform:scale(1.25)}}@media(max-width:720px){.vscodeIntro{padding:20px}.vscodeIntroFlow{flex-direction:column;gap:11px}.vscodeIntroFlowPair{flex-direction:column;gap:7px}.vscodeIntroArrow{transform:rotate(90deg)}.vscodeIntroFlowPair:last-child .vscodeIntroArrow{display:none}.vscodeIntroKicker{margin-bottom:22px}.vscodeIntroRule{margin-top:22px}}@media(prefers-reduced-motion:reduce){.vscodeIntro::after,.vscodeIntroArrow,.vscodeIntroRule::after{animation:none!important}.vscodeIntroRule::after{opacity:.8}}
+`;
+function vscodeIntro(s) { return h("div", { className: "vscodeIntro" },
+    h("style", null, vscodeIntroCss),
+    h("div", { className: "vscodeIntroTextBlock" },
+        h("p", { className: "vscodeIntroKicker" }, "M\u1ED8T QUY TR\u00CCNH \u00B7 VS CODE"),
+        h("div", { className: "vscodeIntroFlow", "aria-label": s.message }, s.message.split(' → ').map((step, i) => h("span", { className: "vscodeIntroFlowPair" },
+            h("span", { className: "vscodeIntroStep" + (i === 1 ? " vscodeIntroStepAccent" : "") }, step),
+            i < s.message.split(' → ').length - 1 && h("span", { className: "vscodeIntroArrow", "aria-hidden": "true" }, "\u2192")))),
+        h("div", { className: "vscodeIntroRule", "aria-hidden": "true" }))); }
 function content(s) {
     if (s.visual.startsWith('git-intro-'))
         return gitIntro(s);
@@ -2941,6 +3019,7 @@ function content(s) {
         return workspace(s);
     switch (s.visual) {
         case 'vscode-shortcuts': return vscodeShortcuts(s);
+        case 'vscode-intro': return vscodeIntro(s);
         case 'cover': return opening(s);
         case 'outcomes': return h("div", { className: "outcomesgrid" }, s.cards.map((c, i) => h("div", { className: "outcomestep" },
             h("span", { className: "outcomenum" }, String(i + 1).padStart(2, '0')),
@@ -2952,7 +3031,6 @@ function content(s) {
                 h("span", { className: "outcomebadge" },
                     h("i", { "aria-hidden": "true" }, ['✓', '▶', '↑', '↗'][i]),
                     h("span", { className: "outcomeBadgeLabel" }, ['DỰ ÁN', 'CHẠY THỬ', 'COMMIT · PUSH', 'PULL REQUEST'][i]))))));
-        case 'fixed-process': return fixedProcess(s);
         default: return cards(s);
     }
 }
@@ -3066,7 +3144,7 @@ function slideStyles(s) {
         styles += openingCss;
     if ((s.visual === 'cover' || s.visual === 'outcomes'))
         styles += sectionOneCss;
-    if (['roles', 'features', 'fixed-process'].includes(s.visual))
+    if (['roles', 'features'].includes(s.visual))
         styles += detailCss;
     if (s.visual.startsWith('workspace-')) {
         styles += workspaceCss;
@@ -3083,7 +3161,7 @@ function slide(s) { s = { ...s, number: s.layoutNumber ?? s.number }; if (['git-
     return aiBrandSlide(s); if (s.visual === 'lab-divider')
     return labDivider(s); return h("svg", { width: "100%", height: "100%", viewBox: "0 0 1280 720", xmlns: "http://www.w3.org/2000/svg", "data-preserve-original": "true" },
     h("foreignObject", { width: "1280", height: "720" },
-        h("div", { className: "eiu" + (s.visual === 'vscode-shortcuts' ? ' shortcutSlide' : '') + (s.visual === 'cover' ? ' coverSlide' : '') + (s.number === 1 ? ' sectionOneOpening' : '') + (s.number === 2 ? ' outcomesSlide' : '') + (s.visual === 'roles' ? ' roleSlide' : '') + (s.visual === 'features' ? ' featureSlide' : '') + (s.visual === 'fixed-process' ? ' processSlide' : '') + (s.visual.startsWith('workspace-') ? ' workspaceSlide' : '') + (s.visual.startsWith('git-intro-') ? ' gitIntroSlide' : ''), xmlns: "http://www.w3.org/1999/xhtml" },
+        h("div", { className: "eiu" + (s.visual === 'vscode-shortcuts' ? ' shortcutSlide' : '') + (s.visual === 'cover' ? ' coverSlide' : '') + (s.number === 1 ? ' sectionOneOpening' : '') + (s.number === 2 ? ' outcomesSlide' : '') + (s.visual === 'roles' ? ' roleSlide' : '') + (s.visual === 'features' ? ' featureSlide' : '') + (s.visual.startsWith('workspace-') ? ' workspaceSlide' : '') + (s.visual.startsWith('git-intro-') ? ' gitIntroSlide' : ''), xmlns: "http://www.w3.org/1999/xhtml" },
             h("style", null, slideStyles(s)),
             s.visual.startsWith('workspace-') && h("img", { className: "workspaceCornerLogo", src: assets['VS Code'], alt: "VS Code" }),
             s.visual.startsWith('git-intro-') && !(s.number >= 11 && s.number <= 21) && h("div", { className: "gitGuideCorner" },

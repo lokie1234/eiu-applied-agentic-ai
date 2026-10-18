@@ -1,8 +1,18 @@
+"use client";
+
+import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 import styles from "./HairlineLoading.module.css";
 
 /** CSS-only rocket launch, shared by the section-loading paths. */
 export default function HairlineLoading({ label = "Loading section", compact = false }: { label?: string; compact?: boolean }) {
-  return <span className={`${styles.loading} ${compact ? styles.compact : ""}`} role="status" aria-live="polite" aria-label={label}>
+  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
+
+  useEffect(() => {
+    setPortalTarget(document.body);
+  }, []);
+
+  const loader = <span className={`${styles.loading} ${compact ? styles.compact : ""}`} role="status" aria-live="polite" aria-label={label}>
     <svg className={styles.artwork} viewBox="0 0 180 180" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
       <circle cx="90" cy="81" r="64" stroke="#244e70" strokeDasharray="2 7" />
       <path d="m27 43 2-5 2 5 5 2-5 2-2 5-2-5-5-2Zm121 25 2-4 2 4 4 2-4 2-2 4-2-4-4-2Z" fill="#79e3ff" opacity=".65" />
@@ -28,4 +38,6 @@ export default function HairlineLoading({ label = "Loading section", compact = f
     <span className={styles.label}>{label}</span>
     <span className={styles.signal} aria-hidden="true"><i /><i /><i /></span>
   </span>;
+
+  return portalTarget && !compact ? createPortal(loader, portalTarget) : loader;
 }

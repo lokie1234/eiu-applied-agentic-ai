@@ -1,11 +1,11 @@
-.loading { width: 100%; height: 100%; min-height: 180px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; background: radial-gradient(ellipse at center, #123f68, #082945 65%, #041c31); color: #eaf4ff; text-align: center; }
-.artwork { display: block; width: 180px; height: 180px; flex-shrink: 0; overflow: hidden; }
-.rocket { --launch-travel: -100px; animation: launch 4.8s infinite; }
-.gantry { transform-origin: 53px 139px; animation: release 4.8s infinite; }
-.flame { transform-origin: 90px 116px; animation: ignition 4.8s infinite; }
-.smoke { transform-origin: 90px 139px; opacity: 0; animation: smoke 4.8s infinite; }
-.speedLines { opacity: 0; animation: speed 4.8s infinite; }
-.launchLights circle { fill: #355c7c; animation: light 4.8s infinite; }
+.loading { position: fixed; inset: 0; z-index: 9999; box-sizing: border-box; width: 100vw; height: 100dvh; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; padding: 24px; background: radial-gradient(ellipse at center, rgba(18, 63, 104, .96), rgba(8, 41, 69, .97) 65%, rgba(4, 28, 49, .98)); color: #eaf4ff; text-align: center; }
+.artwork { display: block; width: 180px; height: 180px; flex-shrink: 0; overflow: visible; }
+.rocket { --launch-travel: calc(-110dvh - 180px); animation: launch 3.4s infinite; }
+.gantry { transform-origin: 53px 139px; animation: release 3.4s infinite; }
+.flame { transform-origin: 90px 116px; animation: ignition 3.4s infinite; }
+.smoke { transform-origin: 90px 139px; opacity: 0; animation: smoke 3.4s infinite; }
+.speedLines { opacity: 0; animation: speed 3.4s infinite; }
+.launchLights circle { fill: #355c7c; animation: light 3.4s infinite; }
 .launchLights circle:nth-child(2) { animation-delay: .4s; }
 .launchLights circle:nth-child(3) { animation-delay: .8s; }
 .label { font-size: 15px; font-weight: 600; line-height: 1.5; }
@@ -13,7 +13,7 @@
 .signal i { width: 17px; height: 3px; border-radius: 2px; background: #79e3ff; animation: signal 1.2s ease-in-out infinite; }
 .signal i:nth-child(2) { animation-delay: .15s; }
 .signal i:nth-child(3) { animation-delay: .3s; background: #e9ca8b; }
-.compact { min-height: 0; height: auto; padding: 0; gap: 4px; background: transparent; }
+.compact { position: relative; inset: auto; z-index: auto; width: 100%; height: auto; min-height: 0; padding: 0; gap: 4px; background: transparent; }
 .compact .artwork { width: 60px; height: 60px; }
 .compact .rocket { --launch-travel: -70px; }
 .compact .label { font-size: 11px; }

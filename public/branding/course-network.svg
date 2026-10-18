@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" fill="none">
+  <g stroke="#3184c5" stroke-opacity=".28" stroke-width="1">
+    <path d="m54 115 92-30 104 126 104-57"/>
+    <path d="m604 22 55 116 86-56 84 42"/>
+    <path d="m924 72 84 113 108 25 48 114"/>
+    <path d="m24 408 126-33 86 111-42 104"/>
+    <path d="m386 338 98 74-44 118 96 68"/>
+    <path d="m764 351 104-39 90 89 124-24"/>
+    <path d="m620 650 112-54 80 111 108 20"/>
+    <path d="m930 568 104 72-42 104 92 34"/>
+    <path d="m200 676 104-59 112 41"/>
+  </g>
+  <g fill="#3184c5">
+    <circle cx="54" cy="115" r="2.4" fill-opacity=".72"/>
+    <circle cx="250" cy="211" r="2.6" fill-opacity=".8"/>
+    <circle cx="604" cy="22" r="2.2" fill-opacity=".72"/>
+    <circle cx="745" cy="82" r="2.6" fill-opacity=".62"/>
+    <circle cx="1008" cy="185" r="2.6" fill-opacity=".76"/>
+    <circle cx="1144" cy="324" r="2.4" fill-opacity=".65"/>
+    <circle cx="150" cy="375" r="2.4" fill-opacity=".68"/>
+    <circle cx="236" cy="486" r="2.2" fill-opacity=".72"/>
+    <circle cx="484" cy="412" r="2.6" fill-opacity=".62"/>
+    <circle cx="536" cy="598" r="2.2" fill-opacity=".72"/>
+    <circle cx="868" cy="312" r="2.4" fill-opacity=".7"/>
+    <circle cx="958" cy="401" r="2.2" fill-opacity=".72"/>
+    <circle cx="732" cy="596" r="2.5" fill-opacity=".72"/>
+    <circle cx="920" cy="727" r="2.8" fill-opacity=".72"/>
+    <circle cx="992" cy="744" r="2.3" fill-opacity=".6"/>
+    <circle cx="304" cy="617" r="2.2" fill-opacity=".72"/>
+  </g>
+  <g fill="#19a889">
+    <circle cx="354" cy="154" r="2.7" fill-opacity=".7"/>
+    <circle cx="829" cy="124" r="2.4" fill-opacity=".58"/>
+    <circle cx="24" cy="408" r="2.7" fill-opacity=".6"/>
+    <circle cx="194" cy="590" r="2.5" fill-opacity=".62"/>
+    <circle cx="112" cy="727" r="2.3" fill-opacity=".72"/>
+    <circle cx="812" cy="707" r="2.5" fill-opacity=".7"/>
+    <circle cx="1084" cy="744" r="2.8" fill-opacity=".75"/>
+  </g>
+  <g fill="#d0ad6e">
+    <circle cx="146" cy="85" r="2.8" fill-opacity=".68"/>
+    <circle cx="659" cy="138" r="2.8" fill-opacity=".65"/>
+    <circle cx="1116" cy="210" r="2.7" fill-opacity=".68"/>
+    <circle cx="484" cy="530" r="2.5" fill-opacity=".62"/>
+    <circle cx="930" cy="568" r="2.8" fill-opacity=".7"/>
+    <circle cx="1034" cy="640" r="2.3" fill-opacity=".6"/>
+    <circle cx="200" cy="676" r="2.5" fill-opacity=".62"/>
+  </g>
+</svg>

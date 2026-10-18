@@ -899,18 +899,22 @@ export default function LessonPortal({
       <div id={`course-sections-${course.id}`} className={styles.inlineSections}
         role="region" aria-label={`${course.title} sections`} tabIndex={-1} ref={sectionListRef}
         onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); closeCourse(true); } }}>
-        <button type="button" className={styles.backToCourses} onClick={event => closeCourse(event.detail === 0)} aria-label="Back to courses">
-          <span aria-hidden="true">←</span> Courses
-        </button>
         <div className={styles.inlineSectionsHeader}>
           <div>
-            <span>{course.folderGroupName || openFolder?.name} / SECTIONS</span>
             <h2 className={styles.illustratedTitle}><LearningAccent /><span>{course.title}</span></h2>
             {course.description && <p>{course.description}</p>}
           </div>
+          <button type="button" className={styles.backToCourses} onClick={event => closeCourse(event.detail === 0)} aria-label="Back to courses">
+            <svg className={styles.backToCoursesArrow} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M19 12H5m7 7-7-7 7-7" />
+            </svg>
+            <span className={styles.backToCoursesLabel}>Courses</span>
+          </button>
+        </div>
+        <div className={styles.sectionTools}>
+          {Boolean(course.systemIcons?.length) && <CourseToolRow tools={course.systemIcons} />}
           <span className={styles.sectionTotal}>{course.sections.length} sections</span>
         </div>
-        {Boolean(course.systemIcons?.length) && <div className={styles.sectionTools}><CourseToolRow tools={course.systemIcons} /></div>}
         {sectionOpenError && <p role="alert" className={styles.sectionOpenError}>{sectionOpenError}</p>}
           <div className={styles.cards}>
             {course.sections.map((courseSection) => {
@@ -986,7 +990,9 @@ export default function LessonPortal({
   if (!selectedCourse || (!section && !activeUploadedSection && !launchingSection)) {
     return (
       <main className={`${styles.portal} ${styles.innovationPortal}`} {...iconTilt}>
-        <div className={styles.innovationBackdrop} aria-hidden="true" />
+        <div className={styles.innovationBackdrop} aria-hidden="true">
+          {Array.from({ length: 18 }, (_, index) => <i key={index} className={styles.networkParticle} />)}
+        </div>
         <LearningIcon3DLayer />
         <div className={styles.selectorActions}>
           {isAdmin && <Link href="/admin/access">Access settings</Link>}
@@ -1080,11 +1086,6 @@ export default function LessonPortal({
                   </button>
                 )}
               </div>
-              <span className={styles.searchStatsBadge} role="status">
-                {searchQuery
-                  ? `${filteredCourseFolders.length} found`
-                  : `${courseFolders.length} ${courseFolders.length === 1 ? "course" : "courses"}`}
-              </span>
             </div>
           </div>
 

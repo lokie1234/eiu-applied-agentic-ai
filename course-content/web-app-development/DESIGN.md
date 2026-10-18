@@ -1,3 +1,11 @@
+## Slide 3 redesign · 18/10/2026
+
+Bỏ mô phỏng giao diện; trình bày ba nhịp chữ “Mở dự án → Làm việc cùng AI → Kiểm tra ứng dụng” trên nền gradient navy với ánh sáng xanh-vàng và ký hiệu code mờ. Chuyển động nền và dấu phân cách thật nhẹ; tôn trọng `prefers-reduced-motion`.
+
+## Cập nhật Section 1 · 18/10/2026
+
+Section 1 hiện có 27 slide. Slide 3 là slide chữ tối giản trên nền navy, không mô phỏng giao diện; tôn trọng `prefers-reduced-motion`. Ở slide 4, vùng 06 dùng tên “Làm việc cùng AI” trên bản đồ và popup. Slide 15 có nút “Chạy nhiều dự án?” mở popup với một lệnh mẫu cho cổng 3001 và hướng dẫn đổi sang 3002 cho dự án tiếp theo; mỗi project chạy trong Terminal riêng. Slide 18 ghi rõ tốc độ tùy AI model, thời gian chờ thường gặp hơn ở free tier. Thêm slide summary bốn bước sau slide 18; icon đứng yên để ổn định khi điều hướng qua lại. Các slide hướng dẫn cũ dịch thêm một số nhưng giữ `layoutNumber` để không đổi popup và thao tác.
+
 ## Cập nhật Claude · 17/10/2026
 
 Section 1 hiện có 26 slide. Slide 1: logo VS Code 76px ở hàng trên; Codex, Antigravity và Claude ở ba badge 30px riêng phía dưới, cách nhau 6px, nằm trọn trong khung 128px. Slide 4: sáu nút chỉ giữ số và tên, ô 6 mang tên Trợ lý AI; giữ nguyên hotspot và popup chức năng.
