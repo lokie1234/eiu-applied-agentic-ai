@@ -77,15 +77,15 @@
     {
       "section": 1,
       "number": 3,
-      "title": "Làm quen với VS Code",
+      "title": "VS Code",
       "minutes": 2,
-      "message": "Mở dự án → Làm việc cùng AI → Kiểm tra ứng dụng",
+      "message": "Nhận diện môi trường VS Code.",
       "cards": [],
       "visual": "vscode-intro",
       "note": "Giảng viên giới thiệu VS Code như môi trường mở và quản lý dự án.",
       "verify": "Nhận biết VS Code là nơi mở dự án, làm việc với AI và kiểm tra thay đổi.",
       "objective": "Nhận biết VS Code là nơi mở dự án, làm việc với AI và kiểm tra thay đổi.",
-      "visualConcept": "Slide tối giản, tập trung vào chữ: ba nhịp Mở dự án → Làm việc cùng AI → Kiểm tra ứng dụng trên nền gradient navy có ánh sáng xanh-vàng nhẹ và ký hiệu code mờ; chuyển động nền tinh tế, tôn trọng prefers-reduced-motion."
+      "visualConcept": "Slide tràn toàn khung nền gradient navy, chỉ có một cụm ngang căn chính giữa: icon VS Code lớn bên trái và chữ VS Code lớn có animation nhẹ bên phải. Bỏ hoàn toàn dải quy trình; tôn trọng prefers-reduced-motion."
     },
     {
       "section": 1,
@@ -592,6 +592,19 @@
     {
       "section": 1,
       "number": 7,
+      "title": "",
+      "minutes": 1,
+      "message": "Node.js, Git và GitHub",
+      "cards": [],
+      "visual": "tool-icons",
+      "note": "Ba biểu tượng công cụ xuất hiện độc lập, không kèm nhãn chữ.",
+      "verify": "Nhận diện biểu tượng Node.js, Git và GitHub.",
+      "objective": "Nhận diện các công cụ nền tảng cho phát triển web.",
+      "visualConcept": "Dùng cùng phong cách nền navy tràn khung và bố cục căn giữa. Ba icon Node.js, Git, GitHub đặt thành một hàng, kích thước cân nhau và chuyển động lơ lửng nhẹ. Khi hover hoặc focus, icon sáng lên và tên công cụ hiện lớn, rõ bên dưới. Tôn trọng prefers-reduced-motion."
+    },
+    {
+      "section": 1,
+      "number": 8,
       "title": "Giới thiệu · Node.js, Git & GitHub",
       "visual": "git-intro-overview",
       "message": "Node.js chạy ứng dụng, Git lưu lịch sử trên máy, GitHub chia sẻ mã nguồn từ xa.",
@@ -657,7 +670,7 @@
     },
     {
       "section": 1,
-      "number": 8,
+      "number": 9,
       "title": "Cài đặt · VS Code, Node.js, Git & GitHub",
       "visual": "git-intro-setup-overview",
       "message": "Tải và cài công cụ trước, rồi mở Terminal trong VS Code để kiểm tra một lượt.",
@@ -733,7 +746,7 @@
     },
     {
       "section": 1,
-      "number": 9,
+      "number": 10,
       "title": "Antigravity",
       "visual": "git-intro-ai-antigravity",
       "message": "Lập kế hoạch và chỉnh sửa ngay trong VS Code.",
@@ -795,7 +808,7 @@
     },
     {
       "section": 1,
-      "number": 10,
+      "number": 11,
       "title": "Codex",
       "visual": "git-intro-ai-codex",
       "message": "Đọc project, sửa mã và review cùng agent.",
@@ -855,7 +868,7 @@
     },
     {
       "section": 1,
-      "number": 11,
+      "number": 12,
       "layoutNumber": 26,
       "title": "Claude",
       "visual": "git-intro-ai-claude",
@@ -915,7 +928,7 @@
     },
     {
       "section": 1,
-      "number": 12,
+      "number": 13,
       "title": "Lab 3",
       "minutes": 1,
       "message": "Thực hành thiết kế website và đẩy mã nguồn lên GitHub.",
@@ -929,7 +942,7 @@
     },
     {
       "section": 1,
-      "number": 13,
+      "number": 14,
       "title": "Cài trợ lý AI trong VS Code",
       "visual": "git-intro-ai-setup",
       "message": "Cài extension từ bảng Extensions, rồi đăng nhập và mở project để bắt đầu.",
@@ -986,7 +999,7 @@
     },
     {
       "section": 1,
-      "number": 14,
+      "number": 15,
       "title": "Bắt đầu · tải và mở project",
       "visual": "git-intro-starter",
       "message": "Tải bộ mẫu Lumi Studio, giải nén rồi mở trong VS Code.",
@@ -1018,7 +1031,7 @@
     },
     {
       "section": 1,
-      "number": 15,
+      "number": 16,
       "title": "Chạy app · mở bản thử nghiệm",
       "visual": "git-intro-dev",
       "message": "Trong VS Code: Terminal → New Terminal. Chạy từng lệnh, chờ xong rồi sang bước tiếp theo.",
@@ -1067,7 +1080,7 @@
     },
     {
       "section": 1,
-      "number": 16,
+      "number": 17,
       "title": "Đổi text · tìm, sửa và xem ngay",
       "visual": "git-intro-prompt-structure",
       "message": "Với tiêu đề, tên thương hiệu hoặc nhãn nút, bạn có thể sửa trực tiếp trong VS Code.",
@@ -1097,7 +1110,7 @@
     },
     {
       "section": 1,
-      "number": 17,
+      "number": 18,
       "title": "Vibe coding · nói điều bạn muốn đổi",
       "visual": "git-intro-ai-edit",
       "message": "Mô tả kết quả mong muốn, để AI tìm file và thực hiện; bạn xem app rồi phản hồi tiếp.",
@@ -1130,22 +1143,33 @@
     },
     {
       "section": 1,
-      "number": 18,
+      "number": 19,
       "title": "AI có thể tạo kết quả khác nhau",
       "visual": "git-intro-model-outcomes",
-      "message": "Cùng một yêu cầu, mỗi model hoặc mỗi lượt chạy có thể cho một phương án khác.",
+  "message": "Cùng một yêu cầu, mỗi model hoặc mỗi lượt chạy có thể cho một phương án khác.",
       "cards": [
         {
           "title": "Kết quả có thể khác",
-          "text": "Bố cục, nội dung và cách viết mã có thể khác, kể cả khi dùng lại cùng một model."
+      "text": "Bố cục, nội dung và cách viết mã có thể khác, kể cả khi dùng lại cùng một model.",
+      "points": [
+        "Bố cục, nội dung và cách viết mã có thể khác, kể cả khi dùng lại cùng một model."
+      ]
         },
         {
           "title": "Tự sửa lỗi tùy model",
-          "text": "Một số model có thể tự tìm và sửa lỗi khi có công cụ và quyền phù hợp; không phải tất cả model đều làm được."
+      "text": "Một số model có thể tự tìm và sửa lỗi khi có công cụ và quyền phù hợp; không phải tất cả model đều làm được.",
+      "points": [
+        "Một số model có thể tự tìm và sửa lỗi khi có công cụ và quyền phù hợp.",
+        "Không phải tất cả model đều có thể tự sửa lỗi."
+      ]
         },
         {
           "title": "AI vẫn có thể sai",
-          "text": "Tốc độ xử lý tùy AI model; chờ lâu thường gặp hơn ở free tier và ít gặp hơn với model mới. Dù nhanh, website vẫn có thể thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng."
+      "text": "Tốc độ xử lý tùy AI model; chờ lâu thường gặp hơn ở free tier và ít gặp hơn với model mới. Dù nhanh, website vẫn có thể thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng.",
+      "points": [
+        "Tốc độ xử lý tùy AI model; chờ lâu thường gặp hơn ở free tier và ít gặp hơn với model mới.",
+        "Dù nhanh, website vẫn có thể thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng."
+      ]
         }
       ],
       "minutes": 2,
@@ -1157,7 +1181,7 @@
     },
     {
       "section": 1,
-      "number": 19,
+      "number": 20,
       "layoutNumber": 22,
       "title": "Từ kiểm tra đến cập nhật GitHub",
       "minutes": 2,
@@ -1192,7 +1216,7 @@
     },
     {
       "section": 1,
-      "number": 20,
+      "number": 21,
       "title": "Kiểm tra app · trước khi lưu phiên bản",
       "visual": "git-intro-build",
       "message": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
@@ -1224,7 +1248,7 @@
     },
     {
       "section": 1,
-      "number": 21,
+      "number": 22,
       "title": "Lưu phiên bản đầu tiên bằng Git",
       "visual": "git-intro-initialize",
       "message": "Thực hiện trong folder project đang mở. Git lưu một mốc để bạn có thể xem lại.",
@@ -1257,7 +1281,7 @@
     },
     {
       "section": 1,
-      "number": 22,
+      "number": 23,
       "title": "Đưa mã nguồn lên GitHub",
       "visual": "git-intro-publish",
       "message": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
@@ -1291,7 +1315,7 @@
     },
     {
       "section": 1,
-      "number": 23,
+      "number": 24,
       "title": "Sau mỗi lần sửa · lưu và cập nhật",
       "visual": "git-intro-push-code",
       "message": "Sửa cùng AI, xem lại app, rồi lưu phiên bản mới và cập nhật GitHub.",
@@ -1324,7 +1348,7 @@
     },
     {
       "section": 1,
-      "number": 24,
+      "number": 25,
       "title": "Chiều ngược lại · Pull hoặc Clone",
       "visual": "git-intro-pull",
       "message": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
@@ -1372,7 +1396,7 @@
     },
     {
       "section": 1,
-      "number": 25,
+      "number": 26,
       "title": "Một skill · giữ chất lượng sau mỗi lần AI sửa code",
       "minutes": 4,
       "message": "Hướng dẫn AI đồng bộ giao diện, kiểm tra thay đổi và tối ưu code trong từng tác vụ.",
@@ -1406,11 +1430,12 @@
       "note": "Giới thiệu rút gọn, tổng hợp sáu nhóm chức năng từ phần chức năng cũ. Skill là hướng dẫn agent, không phải tiến trình chạy nền hay bảo đảm hết lỗi. Nguồn: https://github.com/lokie1234/Effective-Vibe-Coding",
       "objective": "Hiểu vai trò và ba nhóm lợi ích chính của Effective Vibe Coding.",
       "verify": "Nêu được skill hỗ trợ đồng bộ UI, kiểm tra/dọn code và hiệu năng/báo cáo.",
-      "visualConcept": "Hai cột: cụm thương hiệu GitHub và tên Effective Vibe Coding bên trái trên nền navy; ba nhóm chức năng dạng bullet bên phải trên nền kem. Bánh răng quay ngược chiều, cờ lê sửa chữa chuyển động nhẹ và ánh sáng chạy dưới tên skill, hoàn toàn tự động bằng CSS. Bỏ dải kết quả cũ. Giữ Inter và EIU; reduced motion dừng animation. Đây là minh họa trang trí, không biểu thị có tác vụ AI đang chạy."
+      "visualConcept": "Hai cột: cụm thương hiệu GitHub và tên Effective Vibe Coding bên trái trên nền navy; ba nhóm chức năng dạng bullet bên phải trên nền kem. Bánh răng quay ngược chiều, cờ lê sửa chữa chuyển động nhẹ và ánh sáng chạy dưới tên skill, hoàn toàn tự động bằng CSS. Bỏ dải kết quả cũ. Giữ Inter và EIU; reduced motion dừng animation. Đây là minh họa trang trí, không biểu thị có tác vụ AI đang chạy.",
+      "layoutNumber": 25
     },
     {
       "section": 1,
-      "number": 26,
+      "number": 27,
       "title": "Áp dụng skill · chọn mức mặc định",
       "minutes": 10,
       "visual": "git-intro-skill-defaults",
@@ -1484,11 +1509,12 @@
           "verify": "Skill hiện trong project đích; phiên AI mới đọc đúng effective-vibe-coding và áp dụng cho yêu cầu sửa code.",
           "visualConcept": "Một cách cài qua Terminal: liên kết repo để xem nguồn, hai lệnh copy, mở phiên mới và hai mẫu gọi tên khi cần. Không lặp lại chức năng skill hoặc yêu cầu gọi tên ở mọi lượt."
         }
-      ]
+      ],
+      "layoutNumber": 26
     },
     {
       "section": 1,
-      "number": 27,
+      "number": 28,
       "title": "Repo nổi bật · từ thiết kế đến tự động hóa",
       "visual": "git-intro-repo-showcase",
       "message": "Phác thảo ý tưởng → thiết kế UI → dựng giao diện → tự động hóa",
@@ -1631,7 +1657,8 @@
       "note": "Đối chiếu README và mức phổ biến trên GitHub ngày 16/10/2026: https://github.com/penpot/penpot (61.2k sao); https://github.com/excalidraw/excalidraw ; https://github.com/shadcn-ui/ui (125.7k sao); https://github.com/n8n-io/n8n (207.6k sao). Không hiển thị số sao biến động hoặc ngụ ý đây là xếp hạng trending thời gian thực. Logo từ avatar tài khoản chính thức của từng dự án, lưu nguồn trong repo-icons/sources.json và nhúng data URL để slide không gọi mạng. n8n là fair-code, không gắn nhãn tất cả repo là open source. Đây là repo công cụ và thư viện, không phải tất cả đều là skill. Cài đặt đối chiếu ngày 16/10/2026: https://help.penpot.app/technical-guide/getting-started/docker/ ; https://docs.excalidraw.com/docs/@excalidraw/excalidraw/integration ; https://ui.shadcn.com/docs/installation/next ; https://docs.n8n.io/deploy/host-n8n/install-options/one-line-setup.md. Popup hướng dẫn cài, không thực thi lệnh. Penpot Docker Compose theo tài liệu; Excalidraw là thư viện React không hỗ trợ SSR; shadcn minh họa project Next.js đã có Tailwind/alias. n8n dùng one-line setup mới trong WSL, không dùng npm đã deprecated từ 3.0. Các lệnh npm/npx thêm .cmd cho PowerShell Windows.",
       "objective": "Nhận diện repo phục vụ thiết kế, phác thảo, giao diện và tự động hóa; mở đúng nguồn chính thức.",
       "verify": "Mở được bốn repo chính thức và phân biệt mục đích sử dụng.",
-      "visualConcept": "Bốn khung kem 2×2, logo chính thức nổi bên trái tên và nhãn chức năng, hai bullet cùng link GitHub trong mỗi khung. Icon lơ lửng nhẹ lệch pha; chữ và khung đứng yên. Hiệu ứng nút đồng bộ slide 22, reduced motion dừng icon. Thay phần tự kiểm tra, không thêm slide. Mỗi khung có thêm nút Cách cài đặt, mở popup riêng gồm môi trường Terminal, điều kiện, các bước có copy, liên kết tài liệu và ứng dụng. Popup đóng bằng nút/Escape/backdrop, giữ focus."
+      "visualConcept": "Bốn khung kem 2×2, logo chính thức nổi bên trái tên và nhãn chức năng, hai bullet cùng link GitHub trong mỗi khung. Icon lơ lửng nhẹ lệch pha; chữ và khung đứng yên. Hiệu ứng nút đồng bộ slide 22, reduced motion dừng icon. Thay phần tự kiểm tra, không thêm slide. Mỗi khung có thêm nút Cách cài đặt, mở popup riêng gồm môi trường Terminal, điều kiện, các bước có copy, liên kết tài liệu và ứng dụng. Popup đóng bằng nút/Escape/backdrop, giữ focus.",
+      "layoutNumber": 27
     },
     {
       "section": 2,

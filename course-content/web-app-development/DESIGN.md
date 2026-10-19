@@ -1,6 +1,10 @@
 ## Slide 3 redesign · 18/10/2026
 
-Bỏ mô phỏng giao diện; trình bày ba nhịp chữ “Mở dự án → Làm việc cùng AI → Kiểm tra ứng dụng” trên nền gradient navy với ánh sáng xanh-vàng và ký hiệu code mờ. Chuyển động nền và dấu phân cách thật nhẹ; tôn trọng `prefers-reduced-motion`.
+Bỏ mô phỏng giao diện; dùng toàn bộ khung slide làm nền gradient navy. Chỉ hiển thị một cụm ngang căn giữa: icon VS Code lớn bên trái và chữ “VS Code” cỡ lớn có animation nhẹ bên phải. Bỏ dải quy trình và mọi nội dung phụ; tôn trọng `prefers-reduced-motion`.
+
+Sau slide 6, thêm slide icon Node.js, Git và GitHub theo cùng nền navy tràn khung. Ba icon đứng thành một hàng, kích thước đồng đều, lơ lửng nhẹ và căn giữa. Khi hover hoặc focus, icon sáng lên và tên công cụ hiện lớn, rõ bên dưới. Tôn trọng `prefers-reduced-motion`.
+
+Slide 19 “AI có thể tạo kết quả khác nhau”: giữ phần dẫn và ba khung chính cùng tiêu đề phụ. Đổi nội dung trong từng khung thành bullet points; dùng chấm vàng, chữ gọn và khoảng cách đều để không tràn khung.
 
 ## Cập nhật Section 1 · 18/10/2026
 
