@@ -61,7 +61,7 @@ test("starter lab uses the existing download and completes the local-to-GitHub f
   const start = story.slides.find(slide => slide.section === 1 && slide.visual === "git-intro-starter").number;
   const end = story.slides.find(slide => slide.section === 1 && slide.visual === "git-intro-pull").number;
   const lab = story.slides.filter(slide => slide.section === 1 && slide.number >= start && slide.number <= end);
-  assert.equal(lab.length, 10);
+  assert.equal(lab.length, 11);
   assert.equal(lab[0].cards[0].link, "/downloads/eiu-advertising-starter.zip");
   const text = JSON.stringify(lab);
   for (const command of ["npm install", "npm run dev", "npm.cmd run build", "localhost", "git push -u origin main", "git pull --ff-only origin main", "git branch --show-current"])

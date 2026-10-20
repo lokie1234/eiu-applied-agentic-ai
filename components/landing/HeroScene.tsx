@@ -2,7 +2,6 @@
 
 import { Component, type ReactNode, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 import GuardianRobot3D, { type RobotInteractionState } from "./GuardianRobot3D";
 import AgentWorld3D from "./AgentWorld3D";
@@ -207,6 +206,7 @@ export default function HeroScene({
       pointerEvents: revealed ? "auto" : "none", transition: "opacity 1.2s cubic-bezier(.22,1,.36,1)" }}>
     <SceneBoundary onUnavailable={onUnavailable}>
     <Canvas
+      camera={{ position: [0, 0, 10.5], fov: 50 }}
       dpr={[0.85, dpr]}
       frameloop={running ? "always" : "never"}
       shadows={false}
@@ -225,7 +225,6 @@ export default function HeroScene({
       }}
     >
       <ScenePerformance onDprChange={setDpr} onRunningChange={setRunning} active={revealed} />
-      <PerspectiveCamera makeDefault position={[0, 0, 10.5]} fov={50} />
 
       <Suspense fallback={null}>
         {/* Procedural Studio Lighting Environment for Photorealistic Reflections */}

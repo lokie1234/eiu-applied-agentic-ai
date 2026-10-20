@@ -951,6 +951,6 @@ function slide(s) { s = { ...s, number: s.layoutNumber ?? s.number }; return h("
         h("div", { className: "eiu" + (s.visual === 'vscode-shortcuts' ? ' shortcutSlide' : '') + (s.visual === 'cover' ? ' coverSlide' : '') + ('') + ('') + ('') + ('') + ('') + (s.visual.startsWith('git-intro-') ? ' gitIntroSlide' : ''), xmlns: "http://www.w3.org/1999/xhtml" },
             h("style", null, slideStyles(s)),
             h("main", { className: "content" },
-                h("h1", { className: "title" }, s.title),
+                s.title && h("h1", { className: "title" }, s.title),
                 h("div", { className: "stage" }, content(s)))))); }
 exports.default = course.slides.map(s => () => slide(s));

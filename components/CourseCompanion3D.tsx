@@ -1,9 +1,30 @@
 "use client";
 
-import { Component, type ReactNode, type RefObject, useCallback, useEffect, useRef } from "react";
+import { Component, type ReactNode, type RefObject, useCallback, useEffect, useMemo, useRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { RoundedBox } from "@react-three/drei";
 import { Group, MathUtils } from "three";
+import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
+
+function RoundedBox({
+  args = [1, 1, 1],
+  radius = 0.05,
+  smoothness = 4,
+  children,
+  ...props
+}: {
+  args?: [number, number, number];
+  radius?: number;
+  smoothness?: number;
+  position?: [number, number, number];
+  children?: ReactNode;
+}) {
+  const [width, height, depth] = args;
+  const geometry = useMemo(
+    () => new RoundedBoxGeometry(width, height, depth, smoothness, radius),
+    [width, height, depth, smoothness, radius]
+  );
+  return <mesh geometry={geometry} {...props}>{children}</mesh>;
+}
 
 export type CompanionGaze = { x: number; y: number; reducedMotion: boolean; suspended: boolean };
 type Props = {

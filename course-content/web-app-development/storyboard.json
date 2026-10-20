@@ -1000,34 +1000,57 @@
     {
       "section": 1,
       "number": 15,
-      "title": "Bắt đầu · tải và mở project",
+      "title": "Tạo dự án mẫu cùng AI · Khởi tạo & Mở project",
       "visual": "git-intro-starter",
       "message": "Tải bộ mẫu Lumi Studio, giải nén rồi mở trong VS Code.",
       "cards": [
         {
-          "title": "Tải project mẫu",
+          "title": "Tải project mẫu (.ZIP)",
           "logo": "ZIP",
-          "text": "Nhấn nút tải để lấy bộ mã nguồn website Lumi Studio.",
+          "text": "Bộ mã nguồn mẫu tinh gọn đã tích hợp sẵn AGENTS.md, mã nguồn Lumi Studio và kiểm tra tự động.",
           "link": "/downloads/eiu-advertising-starter.zip",
           "linkLabel": "Tải project .ZIP"
         },
         {
-          "title": "Giải nén file ZIP",
-          "logo": "ZIP",
-          "text": "Nhấp phải file đã tải → Extract All → chọn nơi lưu."
+          "title": "Mở và sửa trong VS Code",
+          "logo": "VS Code",
+          "text": "Giải nén file ZIP, mở thư mục bằng VS Code (File → Open Folder), khám phá mã nguồn và sửa cùng AI."
         },
         {
-          "title": "Mở trong VS Code",
-          "logo": "VS Code",
-          "text": "File → Open Folder → chọn thư mục vừa giải nén."
+          "title": "Kiểm tra với Node.js",
+          "logo": "Node.js",
+          "text": "Chạy npm run dev xem app tại localhost:3000, npm test kiểm tra logic và sẵn sàng quản lý bằng Git."
         }
       ],
       "minutes": 5,
       "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-      "objective": "Hoàn thành phần chuẩn bị trong VS Code trước khi chạy app Lumi Studio.",
-      "verify": "Mở đúng folder có package.json.",
-      "visualConcept": "Dải Lumi Studio theo màu website mẫu: nền kem chuyển vàng nhẹ, cạnh vàng; Lumi navy, Studio vàng đậm, chữ 46px/850. Câu mô tả navy bên phải trên một dòng, không ngắt tùy ý. Ba khung tải → giải nén → mở VS Code cân hàng, cao 332px, header cùng hàng icon, tiêu đề 25px và nội dung 21px. Bỏ ba chú thích về tên file, chờ giải nén và folder/package.json; bỏ sơ đồ lặp lại phía dưới. Giữ nút tải ZIP thật cùng animation và font Inter, nền kem, viền EIU.",
-      "layoutNumber": 12
+      "objective": "Nắm vững cấu trúc prompt chuẩn để AI tạo web app và mở được project mẫu có sẵn AGENTS.md cho AI Agent.",
+      "verify": "Hiểu 4 thành phần thiết yếu của prompt và mở được project mẫu trong VS Code.",
+      "visualConcept": "Bỏ hero Lumi Studio. Hai cột cao 570px: prompt bên trái có ô sửa mô tả website, sao chép lấy nội dung mới nhất. Footer có 16 icon tròn không nhãn: VS Code, Claude, Codex, Antigravity và đủ 12 AI trong dải logo slide 6. Icon rơi, nảy, tách nhau khi chạm; rê chuột hoặc chạm hất lên rồi rơi xuống trong vùng riêng, dừng khi đứng yên. Nút tải mẫu có animation bên phải. Bốn thành phần có mô tả 18px. Giữ popup tải ZIP, cấu trúc dự án và reduced motion.",
+      "layoutNumber": 12,
+      "prompt": "Hãy tạo cho tôi một dự án web app mẫu (Next.js/React) hoàn chỉnh, tinh gọn và dễ học:\n1. Bối cảnh & Mục tiêu (Role & Context): Website giới thiệu dịch vụ (Lumi Studio) có form nhận đăng ký tư vấn. Mã nguồn sạch, dễ đọc để chỉnh sửa trong VS Code.\n2. Công nghệ & Cấu trúc (Tech & Structure): Frontend Next.js App Router, CSS thuần, không cài thư viện thừa. Tổ chức component và dữ liệu rõ ràng.\n3. Kiểm tra & Quản lý (Test & Git): Chạy thử tại localhost:3000 bằng Node.js (npm run dev) và kiểm tra bằng npm test. Sẵn sàng khởi tạo Git để commit và push lên GitHub.\n4. Định hướng AI Agent (Agent Roadmap): Tạo sẵn file AGENTS.md quy định kiến trúc dự án và định hướng lộ trình tích hợp Supabase & Vercel.",
+      "promptAnalysis": [
+        {
+          "tag": "01 · Bối cảnh",
+          "title": "Role & Context",
+          "text": "Nêu loại website, người dùng và mục tiêu cần đạt."
+        },
+        {
+          "tag": "02 · Công nghệ",
+          "title": "Tech & Structure",
+          "text": "Next.js App Router, CSS thuần; cấu trúc mã nguồn rõ ràng."
+        },
+        {
+          "tag": "03 · Kiểm tra",
+          "title": "Test & Git",
+          "text": "Chạy app, kiểm tra bằng npm test; quản lý phiên bản với Git."
+        },
+        {
+          "tag": "04 · AI Agent",
+          "title": "Agent Roadmap",
+          "text": "AGENTS.md hướng dẫn AI và lộ trình Supabase & Vercel."
+        }
+      ]
     },
     {
       "section": 1,
@@ -1111,34 +1134,47 @@
     {
       "section": 1,
       "number": 18,
-      "title": "Vibe coding · nói điều bạn muốn đổi",
+      "title": "Bạn mô tả · AI thực hiện · Bạn quyết định",
       "visual": "git-intro-ai-edit",
-      "message": "Mô tả kết quả mong muốn, để AI tìm file và thực hiện; bạn xem app rồi phản hồi tiếp.",
+      "message": "Bạn nêu yêu cầu, AI sửa và kiểm tra; bạn đánh giá kết quả trước khi đi tiếp.",
       "cards": [
         {
-          "title": "Mô tả bằng lời",
+          "title": "Bạn mô tả yêu cầu",
           "logo": "VS Code",
-          "text": "Mở project. Chọn Codex hoặc Antigravity và mô tả ý tưởng.",
-          "detail": "Ví dụ: “Làm tiêu đề lớn hơn, đổi nội dung sang workshop nhiếp ảnh”."
+          "text": "Nêu kết quả mong muốn, chức năng cần có và những phần cần giữ.",
+          "points": [
+            "Mô tả kết quả mong muốn.",
+            "Nêu chức năng cần có, phần cần giữ."
+          ],
+          "detail": "Mô tả bằng ngôn ngữ tự nhiên: giao diện trông ra sao, người dùng làm gì và ứng dụng cần xử lý thế nào."
         },
         {
-          "title": "Gửi yêu cầu rõ",
+          "title": "AI thực hiện thay đổi",
           "logo": "AI Codex",
-          "text": "Nói rõ phần muốn đổi, phong cách và chức năng cần giữ.",
-          "prompt": "Đổi website Lumi Studio thành trang quảng cáo workshop nhiếp ảnh “Light Lab”.\nĐổi tiêu đề và nút chính thành “Đăng ký workshop”.\nDùng nền kem, chữ navy và điểm nhấn vàng. Bố cục thoáng, dễ đọc trên điện thoại.\nGiữ nguyên tab, chọn gói, FAQ, form đăng ký và cách lưu dữ liệu hiện tại.\nĐọc project trước khi sửa, tự tìm file phù hợp. Kiểm tra sau khi sửa và báo rõ phần chưa kiểm tra."
+          "text": "AI đọc project, sửa giao diện và logic xử lý, chạy kiểm tra rồi báo kết quả.",
+          "points": [
+            "Đọc project, sửa giao diện và logic.",
+            "Chạy kiểm tra, báo kết quả."
+          ],
+          "prompt": "Đổi website Lumi Studio thành trang workshop nhiếp ảnh “Light Lab”.\nDùng nền kem, chữ navy, điểm nhấn vàng; bố cục thoáng trên điện thoại.\nNút chính: “Đăng ký workshop”. Giữ tab, chọn gói, FAQ, form và cách lưu dữ liệu.\nHãy đọc project, sửa giao diện và logic liên quan; chạy kiểm tra, báo kết quả và phần chưa kiểm tra.\nDừng để tôi xem giao diện và thử chức năng. Tôi sẽ quyết định chỉnh tiếp hay sang bước kế tiếp."
         },
         {
-          "title": "Xem và phản hồi tiếp",
+          "title": "Bạn kiểm tra & quyết định",
           "logo": "Browser",
-          "text": "Refresh localhost, thử các nút rồi phản hồi phần chưa đúng.",
-          "detail": "Mỗi lượt một thay đổi rõ ràng; dùng một trợ lý AI tại một thời điểm."
+          "text": "Xem giao diện, thử chức năng. Chưa đúng ý → chỉnh tiếp; hợp lý → sang bước kế tiếp.",
+          "points": [
+            "Xem giao diện, thử chức năng.",
+            "Chưa đúng ý → yêu cầu chỉnh tiếp.",
+            "Hợp lý → sang bước tiếp theo."
+          ],
+          "detail": "Bạn quyết định thay đổi đã hợp lý và chức năng đã đúng nhu cầu chưa. Phản hồi cụ thể cho AI nếu còn điểm cần sửa."
         }
       ],
       "minutes": 12,
-      "note": "Không cần chỉ đúng tên component. Hãy nói rõ bạn muốn nhìn thấy gì và chức năng nào cần giữ.",
-      "objective": "Mô tả kết quả mong muốn, để AI tìm file và thực hiện; bạn xem app rồi phản hồi tiếp.",
-      "verify": "Đính kèm file liên quan, chọn một trợ lý, rồi gửi prompt mẫu để sửa.",
-      "visualConcept": "Nội dung tĩnh hiển thị trực tiếp, không popup; thực hành đơn giản dành cho vibe coding.",
+      "note": "AI đảm nhiệm việc tìm file, sửa mã, điều chỉnh giao diện và logic xử lý, chạy kiểm tra và báo cáo. Người dùng đánh giá kết quả thực tế và quyết định chỉnh tiếp hay chuyển bước.",
+      "objective": "Phân biệt vai trò: bạn mô tả nhu cầu và quyết định; AI thực hiện thay đổi và kiểm tra kỹ thuật.",
+      "verify": "Tự xem giao diện, thử chức năng theo yêu cầu; xác nhận đã phù hợp hoặc gửi phản hồi để AI chỉnh tiếp.",
+      "visualConcept": "Cột trái rộng 420px, tiêu đề và từng bullet nằm trên một dòng; bước quyết định tách thành ba bullet. Prompt navy bên phải cho sửa toàn bộ và sao chép nội dung mới nhất, tắt spellcheck và nền xanh vùng chọn. Bốn icon Git, GitHub, VS Code, Node.js nền trong suốt ở góc dưới phải khung prompt, dùng chung vật lý rơi/nảy và rê chuột hất lên của slide 15; không che chữ, dừng theo reduced motion. Font Inter 18px, khung cao 490px. Giữ vai trò Bạn mô tả → AI thực hiện → Bạn kiểm tra và quyết định.",
       "layoutNumber": 15
     },
     {
@@ -1146,30 +1182,30 @@
       "number": 19,
       "title": "AI có thể tạo kết quả khác nhau",
       "visual": "git-intro-model-outcomes",
-  "message": "Cùng một yêu cầu, mỗi model hoặc mỗi lượt chạy có thể cho một phương án khác.",
+      "message": "Cùng một yêu cầu, mỗi model hoặc mỗi lượt chạy có thể cho một phương án khác.",
       "cards": [
         {
           "title": "Kết quả có thể khác",
-      "text": "Bố cục, nội dung và cách viết mã có thể khác, kể cả khi dùng lại cùng một model.",
-      "points": [
-        "Bố cục, nội dung và cách viết mã có thể khác, kể cả khi dùng lại cùng một model."
-      ]
+          "text": "Bố cục, nội dung và cách viết mã có thể khác, kể cả khi dùng lại cùng một model.",
+          "points": [
+            "Bố cục, nội dung và cách viết mã có thể khác, kể cả khi dùng lại cùng một model."
+          ]
         },
         {
           "title": "Tự sửa lỗi tùy model",
-      "text": "Một số model có thể tự tìm và sửa lỗi khi có công cụ và quyền phù hợp; không phải tất cả model đều làm được.",
-      "points": [
-        "Một số model có thể tự tìm và sửa lỗi khi có công cụ và quyền phù hợp.",
-        "Không phải tất cả model đều có thể tự sửa lỗi."
-      ]
+          "text": "Một số model có thể tự tìm và sửa lỗi khi có công cụ và quyền phù hợp; không phải tất cả model đều làm được.",
+          "points": [
+            "Một số model có thể tự tìm và sửa lỗi khi có công cụ và quyền phù hợp.",
+            "Không phải tất cả model đều có thể tự sửa lỗi."
+          ]
         },
         {
           "title": "AI vẫn có thể sai",
-      "text": "Tốc độ xử lý tùy AI model; chờ lâu thường gặp hơn ở free tier và ít gặp hơn với model mới. Dù nhanh, website vẫn có thể thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng.",
-      "points": [
-        "Tốc độ xử lý tùy AI model; chờ lâu thường gặp hơn ở free tier và ít gặp hơn với model mới.",
-        "Dù nhanh, website vẫn có thể thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng."
-      ]
+          "text": "Tốc độ xử lý tùy AI model; chờ lâu thường gặp hơn ở free tier và ít gặp hơn với model mới. Dù nhanh, website vẫn có thể thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng.",
+          "points": [
+            "Tốc độ xử lý tùy AI model; chờ lâu thường gặp hơn ở free tier và ít gặp hơn với model mới.",
+            "Dù nhanh, website vẫn có thể thiếu nội dung, hiểu sai yêu cầu hoặc còn lỗi chức năng."
+          ]
         }
       ],
       "minutes": 2,
@@ -1212,7 +1248,7 @@
       "note": "",
       "objective": "Nắm quy trình kiểm tra ứng dụng, lưu phiên bản và cập nhật GitHub.",
       "verify": "Giải thích được luồng kiểm tra → Git commit → GitHub push và lặp lại sau khi sửa.",
-      "visualConcept": "Slide summary bốn bước trước phần hướng dẫn chi tiết: bốn thẻ ngang, logo công cụ, số thứ tự, nối bằng trục mảnh; nền kem, viền vàng, navy EIU; chuyển động rất nhẹ trên icon và tôn trọng prefers-reduced-motion."
+      "visualConcept": "Giữ nguyên tiêu đề, câu dẫn và nội dung bốn bước. Bốn hàng ngang 1120×94px, cách 14px, cùng nền kem, chữ navy và viền vàng mảnh. Số tròn nối theo trục dọc; icon 44px, tiêu đề 24px và mô tả 20px căn cùng hàng. Toàn bộ vòng tròn và số bên trong lần lượt phóng lên 1.5 lần, giữ nhịp ngắn rồi thu về trước khi tới số tiếp theo: 01 → 02 → 03 → 04. Viền vàng dày 3px và quầng sáng rõ hơn đồng bộ với nhịp phóng; mỗi lượt 1.6 giây, chu kỳ 6.4 giây rồi lặp. Chỉ animate transform và opacity, không làm xê dịch hàng; dừng theo prefers-reduced-motion."
     },
     {
       "section": 1,
@@ -1243,7 +1279,7 @@
       "note": "",
       "objective": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
       "verify": "Nhờ AI giải thích lỗi bằng ngôn ngữ đơn giản; chỉ lưu phiên bản khi phần vừa sửa đã hoạt động.",
-      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup.",
+      "visualConcept": "Giữ nguyên nội dung và câu lệnh. Ba hàng ngang nền kem, viền vàng mảnh, bo 22px; bỏ số bước 01/02/03. Hai hàng đầu cao 156px: icon, tên bước và hướng dẫn bên trái; khung lệnh navy và nút sao chép bên phải. Hàng nhờ AI sửa lỗi cao 104px, tiêu đề và mô tả căn ngang. Tiêu đề 24px, hướng dẫn 19–20px, lệnh Inter 20px. Nút sao chép giữ nguyên nội dung lệnh; không thêm popup hoặc ghi chú dưới slide.",
       "layoutNumber": 17
     },
     {
@@ -1310,7 +1346,7 @@
       "note": "",
       "objective": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
       "verify": "Push đưa mã nguồn lên GitHub. Bản app thử nghiệm vẫn chạy trên localhost.",
-      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup. Khung Nối địa chỉ repo có ô URL GitHub HTTPS, lệnh cập nhật theo dữ liệu và nút copy; không sao chép URL mẫu hoặc dữ liệu sai.",
+      "visualConcept": "Giữ nguyên tiêu đề, câu dẫn, nội dung ba bước và câu lệnh. Ba khung kem viền vàng xếp dọc: tạo repository có nút Hướng dẫn bên phải; nối địa chỉ repo có ô URL HTTPS phía dưới hướng dẫn, preview lệnh và nút copy cạnh nhau; gửi mã nguồn có khung lệnh navy và copy bên phải. Không thêm số bước. Font Inter, tiêu đề 24px, nội dung 18px, lệnh Push 19px. Giữ popup, link GitHub, kiểm tra URL hợp lệ và snapshot sao chép; toàn bộ vừa canvas, không cuộn.",
       "layoutNumber": 19
     },
     {
@@ -1351,7 +1387,7 @@
       "number": 25,
       "title": "Chiều ngược lại · Pull hoặc Clone",
       "visual": "git-intro-pull",
-      "message": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
+      "message": "",
       "cards": [
         {
           "title": "Pull bản mới về máy",
@@ -1377,7 +1413,7 @@
         },
         {
           "title": "Clone trên máy mới",
-          "text": "Mở Terminal ở folder cha; thay USERNAME rồi Clone repo và mở folder vừa tạo trong VS Code.",
+          "text": "Mở Terminal ở folder cha. Nhập URL GitHub và tên thư mục, rồi sao chép lệnh để Clone và mở project.",
           "detail": "Clone tải code và lịch sử, tự nối origin. Repo private cần quyền và xác thực; sau đó npm install → npm run dev.",
           "logo": "GitHub",
           "code": "git clone https://github.com/USERNAME/eiu-advertising-starter.git\ncd eiu-advertising-starter\ngit remote -v\nnpm install\nnpm run dev",
@@ -1391,12 +1427,177 @@
       "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
       "objective": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
       "verify": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
-      "visualConcept": "Ba khung kem mở popup chi tiết; bỏ dải chọn app. Flow ngắn có icon tại bước dùng ứng dụng, chữ ngắt theo ý.",
+      "visualConcept": "Giữ tiêu đề và không hiện câu dẫn. Hai khung Pull xếp dọc trong cột trái 460px; khung Clone rộng bên phải trải hai hàng, tổng cao 520px. Clone có hai ô URL GitHub HTTPS và tên thư mục; lệnh git clone chỉ rõ thư mục đích, cd dùng cùng tên, quote an toàn cho PowerShell. Preview và copy cập nhật theo dữ liệu, chỉ bật khi hợp lệ; thay dữ liệu tạo snapshot copy mới. Không hiện dòng nhắc nhập URL mặc định; vẫn báo lỗi dữ liệu sai. Tắt spellcheck bằng boolean và nền xanh vùng chọn. Font Inter, nền kem và khối lệnh navy; không tràn canvas.",
       "layoutNumber": 21
     },
     {
       "section": 1,
       "number": 26,
+      "layoutNumber": 28,
+      "title": "Bạn ra yêu cầu · AI lo cả luồng",
+      "visual": "git-intro-agent-full-flow",
+      "minutes": 5,
+      "message": "AI thực hiện trong quyền đã cấp. Bạn kiểm tra kết quả: đi tiếp hoặc yêu cầu sửa.",
+      "cards": [
+        {
+          "title": "Chiều đi",
+          "text": "Từ yêu cầu đến GitHub",
+          "summary": [
+            "VS Code",
+            "Node.js",
+            "Git",
+            "GitHub"
+          ],
+          "points": [
+            "Sửa code",
+            "Test · build",
+            "Xem diff · commit",
+            "Push"
+          ]
+        },
+        {
+          "title": "Chiều về",
+          "text": "Nhận mã và chạy lại app",
+          "summary": [
+            "VS Code",
+            "Node.js",
+            "Git",
+            "GitHub"
+          ],
+          "points": [
+            "Chỉnh tiếp",
+            "Cài thư viện · chạy app",
+            "Pull / Clone",
+            "Code trên GitHub"
+          ]
+        },
+        {
+          "title": "Clone nhanh bằng VS Code",
+          "text": "Đã đăng nhập GitHub trong VS Code.",
+          "points": [
+            "Ctrl+Shift+P → Git: Clone.",
+            "Clone from GitHub → chọn repo.",
+            "Chọn thư mục lưu → Open.",
+            "Nhờ AI cài thư viện, test/build và chạy app."
+          ],
+          "detail": "Có repo local: Ctrl+Shift+P → Git: Pull."
+        }
+      ],
+      "prompt": "Yêu cầu: [mô tả việc cần làm].\nSửa code → test/build → xem diff → commit → push.\nNhận code: clone/pull → cài thư viện → chạy app.\nTự sửa lỗi, báo kết quả để tôi duyệt; dừng khi có xung đột hoặc cần quyền.",
+      "note": "Agent cần công cụ, quyền truy cập, Git và quyền ghi repository phù hợp; người dùng vẫn tự đăng nhập/xác thực khi được yêu cầu và đánh giá kết quả. Với repo đã tồn tại: kiểm tra working tree, giữ phần sửa trước khi Pull; dừng nếu lịch sử phân kỳ hoặc có conflict, không force/reset để né lỗi. Clone và Pull khác nhau: Clone tạo bản local mới, Pull cập nhật repo local đã có. Xác minh hướng dẫn Command Palette ngày 20/10/2026: https://code.visualstudio.com/docs/sourcecontrol/repos-remotes ; https://code.visualstudio.com/docs/sourcecontrol/github . Với Clone: Ctrl+Shift+P, Git: Clone, Clone from GitHub, chọn repo, chọn thư mục cha, chờ xong rồi Open. Workspace Trust chỉ chấp nhận khi tin cậy nguồn. Sơ đồ là minh họa, không thực thi Git hay tác vụ AI.",
+      "objective": "Hiểu AI Agent có thể thực hiện cả luồng đi/về theo yêu cầu và quyền đã cấp; biết Clone bằng Command Palette.",
+      "verify": "Phân biệt Clone với Pull, nêu được lệnh Git: Clone và các bước mở repo GitHub trong VS Code.",
+      "visualConcept": "Nội dung cô đọng: bạn giao việc, AI xử lý hai chiều trong quyền đã cấp, bạn kiểm tra và quyết định đi tiếp hay chỉnh sửa. Giữ sơ đồ tám chặng động, mỗi chặng chỉ còn cụm từ chính; prompt bốn dòng sửa/copy được và hướng dẫn Clone ngắn. Giữ nhắc Git: Pull cho repo local. Không thêm nội dung phụ; toàn bộ hiển thị đầy đủ trên canvas EIU 1280×720."
+    },
+    {
+      "section": 1,
+      "number": 27,
+      "layoutNumber": 29,
+      "title": "AI Agent · chọn mức quyền thực thi",
+      "visual": "git-intro-agent-permissions",
+      "minutes": 5,
+      "message": "Bạn giao việc; chế độ bạn chọn quyết định AI được tự làm đến đâu và khi nào cần hỏi.",
+      "cards": [
+        {
+          "title": "Codex",
+          "logo": "AI Codex",
+          "text": "IDE: menu quyền dưới ô chat. CLI: /permissions.",
+          "modes": [
+            {
+              "title": "Ask for approval",
+              "text": "Tự sửa và chạy trong dự án. Cần thêm quyền thì hỏi bạn."
+            },
+            {
+              "title": "Approve for me · Auto-review",
+              "text": "AI tự xem xét yêu cầu cấp quyền thay bạn; phạm vi làm việc giữ nguyên."
+            },
+            {
+              "title": "Full access",
+              "text": "AI được truy cập file và mạng rộng hơn, ít phải dừng hỏi quyền.",
+              "wide": true
+            },
+            {
+              "title": "Custom (config.toml)",
+              "text": "Bạn tự đặt giới hạn: chỉ đọc, được sửa gì và khi nào phải hỏi."
+            }
+          ],
+          "points": [
+            "Trong IDE: mở menu quyền ở bên dưới ô chat.",
+            "Chọn chế độ phù hợp với công việc bạn muốn AI làm.",
+            "Nếu dùng CLI: nhập /permissions để mở phần chọn quyền."
+          ]
+        },
+        {
+          "title": "Antigravity",
+          "logo": "AI Antigravity",
+          "text": "Settings → General / Projects → Permission Settings; Windows: Terminal execution.",
+          "modes": [
+            {
+              "title": "Default",
+              "text": "AI tự làm trong vùng cho phép; muốn làm ngoài vùng đó thì hỏi bạn."
+            },
+            {
+              "title": "Request Review",
+              "text": "AI hỏi trước khi chạy lệnh, trừ những lệnh bạn đã cho phép."
+            },
+            {
+              "title": "Turbo / Turbo mode",
+              "text": "AI tự chạy lệnh, truy cập file và mạng rộng hơn; vẫn theo quy tắc đã đặt.",
+              "wide": true
+            },
+            {
+              "title": "Always Proceed · Windows",
+              "text": "AI tự chạy lệnh Terminal. Quyền truy cập ngoài dự án được cài riêng."
+            }
+          ],
+          "points": [
+            "Mở Settings → General / Projects → Permission Settings.",
+            "Chọn Default, Request Review hoặc Turbo.",
+            "Trên Windows: chọn chính sách chạy lệnh tại Terminal execution; quyền truy cập ngoài thư mục dự án được cài riêng."
+          ]
+        },
+        {
+          "title": "Claude Code",
+          "logo": "AI Claude Code",
+          "text": "Chọn mode dưới ô chat VS Code; Bypass cần bật trong Settings.",
+          "modes": [
+            {
+              "title": "Manual",
+              "text": "Bạn duyệt các thao tác cần quyền trước khi AI thực hiện."
+            },
+            {
+              "title": "Edit automatically",
+              "text": "AI tự sửa file; khi chạy một số lệnh vẫn cần bạn đồng ý."
+            },
+            {
+              "title": "Plan",
+              "text": "AI đọc và đề xuất cách làm, chưa chỉnh sửa mã nguồn."
+            },
+            {
+              "title": "Auto",
+              "text": "AI tự đánh giá thao tác để duyệt, giảm số lần hỏi bạn."
+            },
+            {
+              "title": "Bypass permissions",
+              "text": "AI bỏ qua phần lớn lần hỏi quyền và tự làm; dùng trong môi trường cô lập.",
+              "wide": true
+            }
+          ],
+          "points": [
+            "Trong VS Code: bấm phần chọn mode bên dưới ô chat.",
+            "Chọn Manual, Edit automatically, Plan hoặc Auto.",
+            "Để hiện Bypass permissions: bật Allow dangerously skip permissions trong Settings của extension."
+          ]
+        }
+      ],
+      "note": "Chỉ là slide mô tả, không thay đổi quyền thực tế của công cụ. Đối chiếu tài liệu chính thức ngày 20/10/2026. Codex: https://learn.chatgpt.com/docs/permission-modes ; https://learn.chatgpt.com/docs/agent-approvals-security ; https://learn.chatgpt.com/docs/permissions . UI hiện tại Ask for approval / Approve for me / Full access / Custom; phiên bản cũ có thể dùng Auto, Agent (full access), Read-only. Auto-review là đổi người duyệt, không mở rộng sandbox. Full access vẫn chịu yêu cầu quản trị và quyền hệ điều hành. Antigravity: https://www.antigravity.google/docs/permissions ; https://www.antigravity.google/docs/settings ; https://www.antigravity.google/docs/sandbox . Preset Default, Request Review, Turbo theo docs hiện tại; Windows có Terminal execution policy và Outside of folder file access riêng. Always Proceed chỉ mô tả tự chạy lệnh; không đồng nghĩa tự cấp quyền ngoài project. Rule Deny/Ask/Allow vẫn có thể hạn chế Turbo. Các UI cũ có thể ghi Turbo mode, Require Review, Proceed in Sandbox hoặc Full machine. Claude: https://code.claude.com/docs/en/permission-modes . VS Code hiển thị Manual (default), Edit automatically (acceptEdits), Plan (plan), Auto (auto), Bypass permissions (bypassPermissions). dontAsk là chế độ CLI: từ chối tác vụ chưa được cho phép thay vì hỏi, không phải cấp toàn quyền. Auto phụ thuộc phiên bản, model và chính sách; Bypass cần Allow dangerously skip permissions trong extension Settings, vẫn còn ngoại lệ và không thay quyền OS/GitHub. Không thêm cờ CLI để vô hiệu hóa quyền; người học chọn mức phù hợp và vẫn xem diff, kết quả test/build trước commit/push.",
+      "objective": "Nhận biết các chế độ cho AI sửa file, chạy lệnh và tự duyệt; phân biệt Auto-review/Auto với quyền truy cập rộng.",
+      "verify": "Chỉ đúng nơi chọn chế độ trong mỗi công cụ và giải thích Full access, Turbo, Bypass không thay quyền GitHub hoặc xác thực.",
+      "visualConcept": "Ba cột kem có header icon AI lớn 58px trong nút 76px, tên AI không có chú thích. Bấm icon mở popup hướng dẫn chọn mode, đóng bằng nút, Escape hoặc nền và trả focus. Không hiện footer hướng dẫn hay link. Danh sách mode tận dụng chiều cao còn lại; Full access, Turbo và Bypass phóng nhẹ kèm viền sáng lệch nhịp. Icon tiếp tục nổi nhẹ. Tắt animation theo reduced motion; giữ font 16px và canvas 1280×720."
+    },
+    {
+      "section": 1,
+      "number": 28,
       "title": "Một skill · giữ chất lượng sau mỗi lần AI sửa code",
       "minutes": 4,
       "message": "Hướng dẫn AI đồng bộ giao diện, kiểm tra thay đổi và tối ưu code trong từng tác vụ.",
@@ -1435,7 +1636,7 @@
     },
     {
       "section": 1,
-      "number": 27,
+      "number": 29,
       "title": "Áp dụng skill · chọn mức mặc định",
       "minutes": 10,
       "visual": "git-intro-skill-defaults",
@@ -1514,7 +1715,7 @@
     },
     {
       "section": 1,
-      "number": 28,
+      "number": 30,
       "title": "Repo nổi bật · từ thiết kế đến tự động hóa",
       "visual": "git-intro-repo-showcase",
       "message": "Phác thảo ý tưởng → thiết kế UI → dựng giao diện → tự động hóa",

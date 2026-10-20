@@ -991,34 +991,57 @@ const course = {
         {
             "section": 1,
             "number": 15,
-            "title": "Bắt đầu · tải và mở project",
+            "title": "Tạo dự án mẫu cùng AI · Khởi tạo & Mở project",
             "visual": "git-intro-starter",
             "message": "Tải bộ mẫu Lumi Studio, giải nén rồi mở trong VS Code.",
             "cards": [
                 {
-                    "title": "Tải project mẫu",
+                    "title": "Tải project mẫu (.ZIP)",
                     "logo": "ZIP",
-                    "text": "Nhấn nút tải để lấy bộ mã nguồn website Lumi Studio.",
+                    "text": "Bộ mã nguồn mẫu tinh gọn đã tích hợp sẵn AGENTS.md, mã nguồn Lumi Studio và kiểm tra tự động.",
                     "link": "/downloads/eiu-advertising-starter.zip",
                     "linkLabel": "Tải project .ZIP"
                 },
                 {
-                    "title": "Giải nén file ZIP",
-                    "logo": "ZIP",
-                    "text": "Nhấp phải file đã tải → Extract All → chọn nơi lưu."
+                    "title": "Mở và sửa trong VS Code",
+                    "logo": "VS Code",
+                    "text": "Giải nén file ZIP, mở thư mục bằng VS Code (File → Open Folder), khám phá mã nguồn và sửa cùng AI."
                 },
                 {
-                    "title": "Mở trong VS Code",
-                    "logo": "VS Code",
-                    "text": "File → Open Folder → chọn thư mục vừa giải nén."
+                    "title": "Kiểm tra với Node.js",
+                    "logo": "Node.js",
+                    "text": "Chạy npm run dev xem app tại localhost:3000, npm test kiểm tra logic và sẵn sàng quản lý bằng Git."
                 }
             ],
             "minutes": 5,
             "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
-            "objective": "Hoàn thành phần chuẩn bị trong VS Code trước khi chạy app Lumi Studio.",
-            "verify": "Mở đúng folder có package.json.",
-            "visualConcept": "Dải Lumi Studio theo màu website mẫu: nền kem chuyển vàng nhẹ, cạnh vàng; Lumi navy, Studio vàng đậm, chữ 46px/850. Câu mô tả navy bên phải trên một dòng, không ngắt tùy ý. Ba khung tải → giải nén → mở VS Code cân hàng, cao 332px, header cùng hàng icon, tiêu đề 25px và nội dung 21px. Bỏ ba chú thích về tên file, chờ giải nén và folder/package.json; bỏ sơ đồ lặp lại phía dưới. Giữ nút tải ZIP thật cùng animation và font Inter, nền kem, viền EIU.",
-            "layoutNumber": 12
+            "objective": "Nắm vững cấu trúc prompt chuẩn để AI tạo web app và mở được project mẫu có sẵn AGENTS.md cho AI Agent.",
+            "verify": "Hiểu 4 thành phần thiết yếu của prompt và mở được project mẫu trong VS Code.",
+            "visualConcept": "Bỏ hero Lumi Studio. Hai cột cao 570px: prompt bên trái có ô sửa mô tả website, sao chép lấy nội dung mới nhất. Footer có 16 icon tròn không nhãn: VS Code, Claude, Codex, Antigravity và đủ 12 AI trong dải logo slide 6. Icon rơi, nảy, tách nhau khi chạm; rê chuột hoặc chạm hất lên rồi rơi xuống trong vùng riêng, dừng khi đứng yên. Nút tải mẫu có animation bên phải. Bốn thành phần có mô tả 18px. Giữ popup tải ZIP, cấu trúc dự án và reduced motion.",
+            "layoutNumber": 12,
+            "prompt": "Hãy tạo cho tôi một dự án web app mẫu (Next.js/React) hoàn chỉnh, tinh gọn và dễ học:\n1. Bối cảnh & Mục tiêu (Role & Context): Website giới thiệu dịch vụ (Lumi Studio) có form nhận đăng ký tư vấn. Mã nguồn sạch, dễ đọc để chỉnh sửa trong VS Code.\n2. Công nghệ & Cấu trúc (Tech & Structure): Frontend Next.js App Router, CSS thuần, không cài thư viện thừa. Tổ chức component và dữ liệu rõ ràng.\n3. Kiểm tra & Quản lý (Test & Git): Chạy thử tại localhost:3000 bằng Node.js (npm run dev) và kiểm tra bằng npm test. Sẵn sàng khởi tạo Git để commit và push lên GitHub.\n4. Định hướng AI Agent (Agent Roadmap): Tạo sẵn file AGENTS.md quy định kiến trúc dự án và định hướng lộ trình tích hợp Supabase & Vercel.",
+            "promptAnalysis": [
+                {
+                    "tag": "01 · Bối cảnh",
+                    "title": "Role & Context",
+                    "text": "Nêu loại website, người dùng và mục tiêu cần đạt."
+                },
+                {
+                    "tag": "02 · Công nghệ",
+                    "title": "Tech & Structure",
+                    "text": "Next.js App Router, CSS thuần; cấu trúc mã nguồn rõ ràng."
+                },
+                {
+                    "tag": "03 · Kiểm tra",
+                    "title": "Test & Git",
+                    "text": "Chạy app, kiểm tra bằng npm test; quản lý phiên bản với Git."
+                },
+                {
+                    "tag": "04 · AI Agent",
+                    "title": "Agent Roadmap",
+                    "text": "AGENTS.md hướng dẫn AI và lộ trình Supabase & Vercel."
+                }
+            ]
         },
         {
             "section": 1,
@@ -1102,34 +1125,47 @@ const course = {
         {
             "section": 1,
             "number": 18,
-            "title": "Vibe coding · nói điều bạn muốn đổi",
+            "title": "Bạn mô tả · AI thực hiện · Bạn quyết định",
             "visual": "git-intro-ai-edit",
-            "message": "Mô tả kết quả mong muốn, để AI tìm file và thực hiện; bạn xem app rồi phản hồi tiếp.",
+            "message": "Bạn nêu yêu cầu, AI sửa và kiểm tra; bạn đánh giá kết quả trước khi đi tiếp.",
             "cards": [
                 {
-                    "title": "Mô tả bằng lời",
+                    "title": "Bạn mô tả yêu cầu",
                     "logo": "VS Code",
-                    "text": "Mở project. Chọn Codex hoặc Antigravity và mô tả ý tưởng.",
-                    "detail": "Ví dụ: “Làm tiêu đề lớn hơn, đổi nội dung sang workshop nhiếp ảnh”."
+                    "text": "Nêu kết quả mong muốn, chức năng cần có và những phần cần giữ.",
+                    "points": [
+                        "Mô tả kết quả mong muốn.",
+                        "Nêu chức năng cần có, phần cần giữ."
+                    ],
+                    "detail": "Mô tả bằng ngôn ngữ tự nhiên: giao diện trông ra sao, người dùng làm gì và ứng dụng cần xử lý thế nào."
                 },
                 {
-                    "title": "Gửi yêu cầu rõ",
+                    "title": "AI thực hiện thay đổi",
                     "logo": "AI Codex",
-                    "text": "Nói rõ phần muốn đổi, phong cách và chức năng cần giữ.",
-                    "prompt": "Đổi website Lumi Studio thành trang quảng cáo workshop nhiếp ảnh “Light Lab”.\nĐổi tiêu đề và nút chính thành “Đăng ký workshop”.\nDùng nền kem, chữ navy và điểm nhấn vàng. Bố cục thoáng, dễ đọc trên điện thoại.\nGiữ nguyên tab, chọn gói, FAQ, form đăng ký và cách lưu dữ liệu hiện tại.\nĐọc project trước khi sửa, tự tìm file phù hợp. Kiểm tra sau khi sửa và báo rõ phần chưa kiểm tra."
+                    "text": "AI đọc project, sửa giao diện và logic xử lý, chạy kiểm tra rồi báo kết quả.",
+                    "points": [
+                        "Đọc project, sửa giao diện và logic.",
+                        "Chạy kiểm tra, báo kết quả."
+                    ],
+                    "prompt": "Đổi website Lumi Studio thành trang workshop nhiếp ảnh “Light Lab”.\nDùng nền kem, chữ navy, điểm nhấn vàng; bố cục thoáng trên điện thoại.\nNút chính: “Đăng ký workshop”. Giữ tab, chọn gói, FAQ, form và cách lưu dữ liệu.\nHãy đọc project, sửa giao diện và logic liên quan; chạy kiểm tra, báo kết quả và phần chưa kiểm tra.\nDừng để tôi xem giao diện và thử chức năng. Tôi sẽ quyết định chỉnh tiếp hay sang bước kế tiếp."
                 },
                 {
-                    "title": "Xem và phản hồi tiếp",
+                    "title": "Bạn kiểm tra & quyết định",
                     "logo": "Browser",
-                    "text": "Refresh localhost, thử các nút rồi phản hồi phần chưa đúng.",
-                    "detail": "Mỗi lượt một thay đổi rõ ràng; dùng một trợ lý AI tại một thời điểm."
+                    "text": "Xem giao diện, thử chức năng. Chưa đúng ý → chỉnh tiếp; hợp lý → sang bước kế tiếp.",
+                    "points": [
+                        "Xem giao diện, thử chức năng.",
+                        "Chưa đúng ý → yêu cầu chỉnh tiếp.",
+                        "Hợp lý → sang bước tiếp theo."
+                    ],
+                    "detail": "Bạn quyết định thay đổi đã hợp lý và chức năng đã đúng nhu cầu chưa. Phản hồi cụ thể cho AI nếu còn điểm cần sửa."
                 }
             ],
             "minutes": 12,
-            "note": "Không cần chỉ đúng tên component. Hãy nói rõ bạn muốn nhìn thấy gì và chức năng nào cần giữ.",
-            "objective": "Mô tả kết quả mong muốn, để AI tìm file và thực hiện; bạn xem app rồi phản hồi tiếp.",
-            "verify": "Đính kèm file liên quan, chọn một trợ lý, rồi gửi prompt mẫu để sửa.",
-            "visualConcept": "Nội dung tĩnh hiển thị trực tiếp, không popup; thực hành đơn giản dành cho vibe coding.",
+            "note": "AI đảm nhiệm việc tìm file, sửa mã, điều chỉnh giao diện và logic xử lý, chạy kiểm tra và báo cáo. Người dùng đánh giá kết quả thực tế và quyết định chỉnh tiếp hay chuyển bước.",
+            "objective": "Phân biệt vai trò: bạn mô tả nhu cầu và quyết định; AI thực hiện thay đổi và kiểm tra kỹ thuật.",
+            "verify": "Tự xem giao diện, thử chức năng theo yêu cầu; xác nhận đã phù hợp hoặc gửi phản hồi để AI chỉnh tiếp.",
+            "visualConcept": "Cột trái rộng 420px, tiêu đề và từng bullet nằm trên một dòng; bước quyết định tách thành ba bullet. Prompt navy bên phải cho sửa toàn bộ và sao chép nội dung mới nhất, tắt spellcheck và nền xanh vùng chọn. Bốn icon Git, GitHub, VS Code, Node.js nền trong suốt ở góc dưới phải khung prompt, dùng chung vật lý rơi/nảy và rê chuột hất lên của slide 15; không che chữ, dừng theo reduced motion. Font Inter 18px, khung cao 490px. Giữ vai trò Bạn mô tả → AI thực hiện → Bạn kiểm tra và quyết định.",
             "layoutNumber": 15
         },
         {
@@ -1203,7 +1239,7 @@ const course = {
             "note": "",
             "objective": "Nắm quy trình kiểm tra ứng dụng, lưu phiên bản và cập nhật GitHub.",
             "verify": "Giải thích được luồng kiểm tra → Git commit → GitHub push và lặp lại sau khi sửa.",
-            "visualConcept": "Slide summary bốn bước trước phần hướng dẫn chi tiết: bốn thẻ ngang, logo công cụ, số thứ tự, nối bằng trục mảnh; nền kem, viền vàng, navy EIU; chuyển động rất nhẹ trên icon và tôn trọng prefers-reduced-motion."
+            "visualConcept": "Giữ nguyên tiêu đề, câu dẫn và nội dung bốn bước. Bốn hàng ngang 1120×94px, cách 14px, cùng nền kem, chữ navy và viền vàng mảnh. Số tròn nối theo trục dọc; icon 44px, tiêu đề 24px và mô tả 20px căn cùng hàng. Toàn bộ vòng tròn và số bên trong lần lượt phóng lên 1.5 lần, giữ nhịp ngắn rồi thu về trước khi tới số tiếp theo: 01 → 02 → 03 → 04. Viền vàng dày 3px và quầng sáng rõ hơn đồng bộ với nhịp phóng; mỗi lượt 1.6 giây, chu kỳ 6.4 giây rồi lặp. Chỉ animate transform và opacity, không làm xê dịch hàng; dừng theo prefers-reduced-motion."
         },
         {
             "section": 1,
@@ -1234,7 +1270,7 @@ const course = {
             "note": "",
             "objective": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
             "verify": "Nhờ AI giải thích lỗi bằng ngôn ngữ đơn giản; chỉ lưu phiên bản khi phần vừa sửa đã hoạt động.",
-            "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup.",
+            "visualConcept": "Giữ nguyên nội dung và câu lệnh. Ba hàng ngang nền kem, viền vàng mảnh, bo 22px; bỏ số bước 01/02/03. Hai hàng đầu cao 156px: icon, tên bước và hướng dẫn bên trái; khung lệnh navy và nút sao chép bên phải. Hàng nhờ AI sửa lỗi cao 104px, tiêu đề và mô tả căn ngang. Tiêu đề 24px, hướng dẫn 19–20px, lệnh Inter 20px. Nút sao chép giữ nguyên nội dung lệnh; không thêm popup hoặc ghi chú dưới slide.",
             "layoutNumber": 17
         },
         {
@@ -1301,7 +1337,7 @@ const course = {
             "note": "",
             "objective": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
             "verify": "Push đưa mã nguồn lên GitHub. Bản app thử nghiệm vẫn chạy trên localhost.",
-            "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup. Khung Nối địa chỉ repo có ô URL GitHub HTTPS, lệnh cập nhật theo dữ liệu và nút copy; không sao chép URL mẫu hoặc dữ liệu sai.",
+            "visualConcept": "Giữ nguyên tiêu đề, câu dẫn, nội dung ba bước và câu lệnh. Ba khung kem viền vàng xếp dọc: tạo repository có nút Hướng dẫn bên phải; nối địa chỉ repo có ô URL HTTPS phía dưới hướng dẫn, preview lệnh và nút copy cạnh nhau; gửi mã nguồn có khung lệnh navy và copy bên phải. Không thêm số bước. Font Inter, tiêu đề 24px, nội dung 18px, lệnh Push 19px. Giữ popup, link GitHub, kiểm tra URL hợp lệ và snapshot sao chép; toàn bộ vừa canvas, không cuộn.",
             "layoutNumber": 19
         },
         {
@@ -1342,7 +1378,7 @@ const course = {
             "number": 25,
             "title": "Chiều ngược lại · Pull hoặc Clone",
             "visual": "git-intro-pull",
-            "message": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
+            "message": "",
             "cards": [
                 {
                     "title": "Pull bản mới về máy",
@@ -1368,7 +1404,7 @@ const course = {
                 },
                 {
                     "title": "Clone trên máy mới",
-                    "text": "Mở Terminal ở folder cha; thay USERNAME rồi Clone repo và mở folder vừa tạo trong VS Code.",
+                    "text": "Mở Terminal ở folder cha. Nhập URL GitHub và tên thư mục, rồi sao chép lệnh để Clone và mở project.",
                     "detail": "Clone tải code và lịch sử, tự nối origin. Repo private cần quyền và xác thực; sau đó npm install → npm run dev.",
                     "logo": "GitHub",
                     "code": "git clone https://github.com/USERNAME/eiu-advertising-starter.git\ncd eiu-advertising-starter\ngit remote -v\nnpm install\nnpm run dev",
@@ -1382,12 +1418,177 @@ const course = {
             "note": "Thao tác trên project quảng cáo đã mở; xác nhận kết quả trước khi tiếp tục.",
             "objective": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
             "verify": "Đã có repo local thì Pull; máy mới chưa có repo thì Clone.",
-            "visualConcept": "Ba khung kem mở popup chi tiết; bỏ dải chọn app. Flow ngắn có icon tại bước dùng ứng dụng, chữ ngắt theo ý.",
+            "visualConcept": "Giữ tiêu đề và không hiện câu dẫn. Hai khung Pull xếp dọc trong cột trái 460px; khung Clone rộng bên phải trải hai hàng, tổng cao 520px. Clone có hai ô URL GitHub HTTPS và tên thư mục; lệnh git clone chỉ rõ thư mục đích, cd dùng cùng tên, quote an toàn cho PowerShell. Preview và copy cập nhật theo dữ liệu, chỉ bật khi hợp lệ; thay dữ liệu tạo snapshot copy mới. Không hiện dòng nhắc nhập URL mặc định; vẫn báo lỗi dữ liệu sai. Tắt spellcheck bằng boolean và nền xanh vùng chọn. Font Inter, nền kem và khối lệnh navy; không tràn canvas.",
             "layoutNumber": 21
         },
         {
             "section": 1,
             "number": 26,
+            "layoutNumber": 28,
+            "title": "Bạn ra yêu cầu · AI lo cả luồng",
+            "visual": "git-intro-agent-full-flow",
+            "minutes": 5,
+            "message": "AI thực hiện trong quyền đã cấp. Bạn kiểm tra kết quả: đi tiếp hoặc yêu cầu sửa.",
+            "cards": [
+                {
+                    "title": "Chiều đi",
+                    "text": "Từ yêu cầu đến GitHub",
+                    "summary": [
+                        "VS Code",
+                        "Node.js",
+                        "Git",
+                        "GitHub"
+                    ],
+                    "points": [
+                        "Sửa code",
+                        "Test · build",
+                        "Xem diff · commit",
+                        "Push"
+                    ]
+                },
+                {
+                    "title": "Chiều về",
+                    "text": "Nhận mã và chạy lại app",
+                    "summary": [
+                        "VS Code",
+                        "Node.js",
+                        "Git",
+                        "GitHub"
+                    ],
+                    "points": [
+                        "Chỉnh tiếp",
+                        "Cài thư viện · chạy app",
+                        "Pull / Clone",
+                        "Code trên GitHub"
+                    ]
+                },
+                {
+                    "title": "Clone nhanh bằng VS Code",
+                    "text": "Đã đăng nhập GitHub trong VS Code.",
+                    "points": [
+                        "Ctrl+Shift+P → Git: Clone.",
+                        "Clone from GitHub → chọn repo.",
+                        "Chọn thư mục lưu → Open.",
+                        "Nhờ AI cài thư viện, test/build và chạy app."
+                    ],
+                    "detail": "Có repo local: Ctrl+Shift+P → Git: Pull."
+                }
+            ],
+            "prompt": "Yêu cầu: [mô tả việc cần làm].\nSửa code → test/build → xem diff → commit → push.\nNhận code: clone/pull → cài thư viện → chạy app.\nTự sửa lỗi, báo kết quả để tôi duyệt; dừng khi có xung đột hoặc cần quyền.",
+            "note": "Agent cần công cụ, quyền truy cập, Git và quyền ghi repository phù hợp; người dùng vẫn tự đăng nhập/xác thực khi được yêu cầu và đánh giá kết quả. Với repo đã tồn tại: kiểm tra working tree, giữ phần sửa trước khi Pull; dừng nếu lịch sử phân kỳ hoặc có conflict, không force/reset để né lỗi. Clone và Pull khác nhau: Clone tạo bản local mới, Pull cập nhật repo local đã có. Xác minh hướng dẫn Command Palette ngày 20/10/2026: https://code.visualstudio.com/docs/sourcecontrol/repos-remotes ; https://code.visualstudio.com/docs/sourcecontrol/github . Với Clone: Ctrl+Shift+P, Git: Clone, Clone from GitHub, chọn repo, chọn thư mục cha, chờ xong rồi Open. Workspace Trust chỉ chấp nhận khi tin cậy nguồn. Sơ đồ là minh họa, không thực thi Git hay tác vụ AI.",
+            "objective": "Hiểu AI Agent có thể thực hiện cả luồng đi/về theo yêu cầu và quyền đã cấp; biết Clone bằng Command Palette.",
+            "verify": "Phân biệt Clone với Pull, nêu được lệnh Git: Clone và các bước mở repo GitHub trong VS Code.",
+            "visualConcept": "Nội dung cô đọng: bạn giao việc, AI xử lý hai chiều trong quyền đã cấp, bạn kiểm tra và quyết định đi tiếp hay chỉnh sửa. Giữ sơ đồ tám chặng động, mỗi chặng chỉ còn cụm từ chính; prompt bốn dòng sửa/copy được và hướng dẫn Clone ngắn. Giữ nhắc Git: Pull cho repo local. Không thêm nội dung phụ; toàn bộ hiển thị đầy đủ trên canvas EIU 1280×720."
+        },
+        {
+            "section": 1,
+            "number": 27,
+            "layoutNumber": 29,
+            "title": "AI Agent · chọn mức quyền thực thi",
+            "visual": "git-intro-agent-permissions",
+            "minutes": 5,
+            "message": "Bạn giao việc; chế độ bạn chọn quyết định AI được tự làm đến đâu và khi nào cần hỏi.",
+            "cards": [
+                {
+                    "title": "Codex",
+                    "logo": "AI Codex",
+                    "text": "IDE: menu quyền dưới ô chat. CLI: /permissions.",
+                    "modes": [
+                        {
+                            "title": "Ask for approval",
+                            "text": "Tự sửa và chạy trong dự án. Cần thêm quyền thì hỏi bạn."
+                        },
+                        {
+                            "title": "Approve for me · Auto-review",
+                            "text": "AI tự xem xét yêu cầu cấp quyền thay bạn; phạm vi làm việc giữ nguyên."
+                        },
+                        {
+                            "title": "Full access",
+                            "text": "AI được truy cập file và mạng rộng hơn, ít phải dừng hỏi quyền.",
+                            "wide": true
+                        },
+                        {
+                            "title": "Custom (config.toml)",
+                            "text": "Bạn tự đặt giới hạn: chỉ đọc, được sửa gì và khi nào phải hỏi."
+                        }
+                    ],
+                    "points": [
+                        "Trong IDE: mở menu quyền ở bên dưới ô chat.",
+                        "Chọn chế độ phù hợp với công việc bạn muốn AI làm.",
+                        "Nếu dùng CLI: nhập /permissions để mở phần chọn quyền."
+                    ]
+                },
+                {
+                    "title": "Antigravity",
+                    "logo": "AI Antigravity",
+                    "text": "Settings → General / Projects → Permission Settings; Windows: Terminal execution.",
+                    "modes": [
+                        {
+                            "title": "Default",
+                            "text": "AI tự làm trong vùng cho phép; muốn làm ngoài vùng đó thì hỏi bạn."
+                        },
+                        {
+                            "title": "Request Review",
+                            "text": "AI hỏi trước khi chạy lệnh, trừ những lệnh bạn đã cho phép."
+                        },
+                        {
+                            "title": "Turbo / Turbo mode",
+                            "text": "AI tự chạy lệnh, truy cập file và mạng rộng hơn; vẫn theo quy tắc đã đặt.",
+                            "wide": true
+                        },
+                        {
+                            "title": "Always Proceed · Windows",
+                            "text": "AI tự chạy lệnh Terminal. Quyền truy cập ngoài dự án được cài riêng."
+                        }
+                    ],
+                    "points": [
+                        "Mở Settings → General / Projects → Permission Settings.",
+                        "Chọn Default, Request Review hoặc Turbo.",
+                        "Trên Windows: chọn chính sách chạy lệnh tại Terminal execution; quyền truy cập ngoài thư mục dự án được cài riêng."
+                    ]
+                },
+                {
+                    "title": "Claude Code",
+                    "logo": "AI Claude Code",
+                    "text": "Chọn mode dưới ô chat VS Code; Bypass cần bật trong Settings.",
+                    "modes": [
+                        {
+                            "title": "Manual",
+                            "text": "Bạn duyệt các thao tác cần quyền trước khi AI thực hiện."
+                        },
+                        {
+                            "title": "Edit automatically",
+                            "text": "AI tự sửa file; khi chạy một số lệnh vẫn cần bạn đồng ý."
+                        },
+                        {
+                            "title": "Plan",
+                            "text": "AI đọc và đề xuất cách làm, chưa chỉnh sửa mã nguồn."
+                        },
+                        {
+                            "title": "Auto",
+                            "text": "AI tự đánh giá thao tác để duyệt, giảm số lần hỏi bạn."
+                        },
+                        {
+                            "title": "Bypass permissions",
+                            "text": "AI bỏ qua phần lớn lần hỏi quyền và tự làm; dùng trong môi trường cô lập.",
+                            "wide": true
+                        }
+                    ],
+                    "points": [
+                        "Trong VS Code: bấm phần chọn mode bên dưới ô chat.",
+                        "Chọn Manual, Edit automatically, Plan hoặc Auto.",
+                        "Để hiện Bypass permissions: bật Allow dangerously skip permissions trong Settings của extension."
+                    ]
+                }
+            ],
+            "note": "Chỉ là slide mô tả, không thay đổi quyền thực tế của công cụ. Đối chiếu tài liệu chính thức ngày 20/10/2026. Codex: https://learn.chatgpt.com/docs/permission-modes ; https://learn.chatgpt.com/docs/agent-approvals-security ; https://learn.chatgpt.com/docs/permissions . UI hiện tại Ask for approval / Approve for me / Full access / Custom; phiên bản cũ có thể dùng Auto, Agent (full access), Read-only. Auto-review là đổi người duyệt, không mở rộng sandbox. Full access vẫn chịu yêu cầu quản trị và quyền hệ điều hành. Antigravity: https://www.antigravity.google/docs/permissions ; https://www.antigravity.google/docs/settings ; https://www.antigravity.google/docs/sandbox . Preset Default, Request Review, Turbo theo docs hiện tại; Windows có Terminal execution policy và Outside of folder file access riêng. Always Proceed chỉ mô tả tự chạy lệnh; không đồng nghĩa tự cấp quyền ngoài project. Rule Deny/Ask/Allow vẫn có thể hạn chế Turbo. Các UI cũ có thể ghi Turbo mode, Require Review, Proceed in Sandbox hoặc Full machine. Claude: https://code.claude.com/docs/en/permission-modes . VS Code hiển thị Manual (default), Edit automatically (acceptEdits), Plan (plan), Auto (auto), Bypass permissions (bypassPermissions). dontAsk là chế độ CLI: từ chối tác vụ chưa được cho phép thay vì hỏi, không phải cấp toàn quyền. Auto phụ thuộc phiên bản, model và chính sách; Bypass cần Allow dangerously skip permissions trong extension Settings, vẫn còn ngoại lệ và không thay quyền OS/GitHub. Không thêm cờ CLI để vô hiệu hóa quyền; người học chọn mức phù hợp và vẫn xem diff, kết quả test/build trước commit/push.",
+            "objective": "Nhận biết các chế độ cho AI sửa file, chạy lệnh và tự duyệt; phân biệt Auto-review/Auto với quyền truy cập rộng.",
+            "verify": "Chỉ đúng nơi chọn chế độ trong mỗi công cụ và giải thích Full access, Turbo, Bypass không thay quyền GitHub hoặc xác thực.",
+            "visualConcept": "Ba cột kem có header icon AI lớn 58px trong nút 76px, tên AI không có chú thích. Bấm icon mở popup hướng dẫn chọn mode, đóng bằng nút, Escape hoặc nền và trả focus. Không hiện footer hướng dẫn hay link. Danh sách mode tận dụng chiều cao còn lại; Full access, Turbo và Bypass phóng nhẹ kèm viền sáng lệch nhịp. Icon tiếp tục nổi nhẹ. Tắt animation theo reduced motion; giữ font 16px và canvas 1280×720."
+        },
+        {
+            "section": 1,
+            "number": 28,
             "title": "Một skill · giữ chất lượng sau mỗi lần AI sửa code",
             "minutes": 4,
             "message": "Hướng dẫn AI đồng bộ giao diện, kiểm tra thay đổi và tối ưu code trong từng tác vụ.",
@@ -1426,7 +1627,7 @@ const course = {
         },
         {
             "section": 1,
-            "number": 27,
+            "number": 29,
             "title": "Áp dụng skill · chọn mức mặc định",
             "minutes": 10,
             "visual": "git-intro-skill-defaults",
@@ -1505,7 +1706,7 @@ const course = {
         },
         {
             "section": 1,
-            "number": 28,
+            "number": 30,
             "title": "Repo nổi bật · từ thiết kế đến tự động hóa",
             "visual": "git-intro-repo-showcase",
             "message": "Phác thảo ý tưởng → thiết kế UI → dựng giao diện → tự động hóa",
@@ -2122,6 +2323,60 @@ function editableGitCommands(mode) {
     refresh();
     return host;
 }
+const cloneEditorCss = `
+.inlineWorkflow[data-slide="21"] .inlineWorkflowCard{padding:18px;gap:12px}.inlineWorkflow[data-slide="21"] .inlineWorkflowCard h2{font-size:23px}.cloneEditor.editableGit{gap:8px;margin-top:0}.cloneEditor .editableGitFields{grid-template-columns:1fr;gap:8px}.cloneEditor.editableGit label{font-size:14px;gap:4px}.cloneEditor.editableGit input{height:34px;padding:6px 9px;font-size:15px}.cloneEditor.editableGit .editableGitPreview{padding:10px;font:13px/1.4 Inter,sans-serif}.cloneEditor.editableGit .editableGitActions{gap:6px;align-items:stretch;flex-direction:column}.cloneEditor.editableGit .editableGitStatus{font-size:13px;line-height:1.3}.cloneEditor.editableGit .copyControl{font-size:15px;min-width:130px;padding:8px 12px}.cloneEditor input::selection,.cloneEditor pre::selection{background:transparent;color:inherit;text-shadow:none}
+
+.inlineWorkflow[data-slide="21"] .inlineWorkflowCards{grid-template-columns:460px minmax(0,1fr);grid-template-rows:252px 252px;gap:16px}.inlineWorkflow[data-slide="21"] .inlineWorkflowCard{min-height:0;padding:18px;gap:12px;justify-content:flex-start}.inlineWorkflow[data-slide="21"] .inlineWorkflowCard:nth-child(1){grid-column:1;grid-row:1}.inlineWorkflow[data-slide="21"] .inlineWorkflowCard:nth-child(2){grid-column:1;grid-row:2}.inlineWorkflow[data-slide="21"] .inlineWorkflowCard:nth-child(3){grid-column:2;grid-row:1 / span 2;padding:22px 24px;gap:18px}.inlineWorkflow[data-slide="21"] .inlineWorkflowCard>p{font-size:18px;line-height:1.4;min-height:0}.inlineWorkflow[data-slide="21"] .inlineWorkflowCode{flex-direction:row;align-items:center;gap:12px;margin-top:auto}.inlineWorkflow[data-slide="21"] .inlineWorkflowCode pre{flex:1;min-width:0;min-height:0;padding:10px;font:13px/1.45 Inter,sans-serif;white-space:pre}.inlineWorkflow[data-slide="21"] .inlineWorkflowCode .copyControl{align-self:center;min-width:110px;font-size:14px;padding:9px 11px}.cloneEditor.editableGit{flex:1;gap:14px}.cloneEditor .editableGitFields{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:14px}.cloneEditor.editableGit label{font-size:15px;gap:7px}.cloneEditor.editableGit input{height:42px;font-size:16px;padding:9px 10px}.cloneEditor.editableGit .editableGitPreview{flex:1;padding:16px;font:17px/1.65 Inter,sans-serif;overflow-wrap:anywhere}.cloneEditor.editableGit .editableGitActions{min-height:40px}.cloneEditor.editableGit .editableGitStatus:empty{display:none}.cloneEditor.editableGit .copyControl{font-size:16px;padding:10px 16px}
+`;
+function editableCloneCommands() {
+    const id = 'editable-clone-' + (++editableGitId);
+    const host = h("div", { className: "editableGit cloneEditor", "data-mode": "clone" },
+        h("style", null, editableGitCss + cloneEditorCss));
+    const preview = h("pre", { className: "editableGitPreview", "aria-label": "L\u1EC7nh Clone theo d\u1EEF li\u1EC7u \u0111\u00E3 nh\u1EADp" });
+    const status = h("span", { className: "editableGitStatus", id: id + '-status', "aria-live": "polite" });
+    const copySlot = h("div", { className: "editableGitCopy" });
+    const repo = h("input", { id: id + '-url', type: "url", placeholder: "https://github.com/owner/repo.git", autoComplete: "off", autocorrect: "off", autocapitalize: "off", "aria-describedby": id + '-status', onInput: refresh });
+    const folder = h("input", { id: id + '-folder', type: "text", value: "eiu-advertising-starter", autoComplete: "off", autocorrect: "off", autocapitalize: "off", "aria-describedby": id + '-status', onInput: refresh });
+    for (const field of [repo, folder]) {
+        field.spellcheck = false;
+        field.setAttribute('spellcheck', 'false');
+    }
+    const quote = (text) => "'" + text.replace(/'/g, "''") + "'";
+    function refresh() {
+        let url = '';
+        const raw = repo.value.trim(), dir = folder.value;
+        try {
+            const parsed = new URL(raw);
+            if (parsed.protocol !== 'https:' || parsed.hostname !== 'github.com' || parsed.port || parsed.username || parsed.password || parsed.search || parsed.hash || /[\x00-\x20\x7f]/.test(raw) || !/^\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+\/?$/.test(parsed.pathname))
+                throw Error('Invalid URL');
+            url = parsed.href.replace(/\/$/, '');
+        }
+        catch { }
+        const folderValid = Boolean(dir.trim()) && dir === dir.trim() && !/[<>:"/\\|?*\[\]\x00-\x1f\x7f]/.test(dir) && !/[. ]$/.test(dir) && !/^\.{1,2}$/.test(dir) && !/^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(dir);
+        const valid = Boolean(url) && folderValid;
+        repo.setAttribute('aria-invalid', String(Boolean(raw) && !url));
+        folder.setAttribute('aria-invalid', String(!folderValid));
+        const command = ['git clone -- ' + (url ? quote(url) : 'URL_REPO') + ' ' + quote(dir || '<thu-muc>'), 'cd ' + quote(dir || '<thu-muc>'), 'git remote -v', 'npm install', 'npm run dev'].join('\n');
+        preview.textContent = command;
+        status.textContent = !folderValid ? 'Nhập tên thư mục hợp lệ.' : raw && !url ? 'URL GitHub HTTPS không hợp lệ.' : '';
+        status.dataset.error = String(Boolean(raw) && !url || !folderValid);
+        const button = localCopyButton(command);
+        button.disabled = !valid;
+        button.setAttribute('aria-describedby', id + '-status');
+        copySlot.replaceChildren(button);
+    }
+    host.append(h("div", { className: "editableGitFields" },
+        h("label", { htmlFor: repo.id },
+            "URL GitHub c\u1EE7a b\u1EA1n",
+            repo),
+        h("label", { htmlFor: folder.id },
+            "T\u00EAn th\u01B0 m\u1EE5c Clone / cd",
+            folder)), preview, h("div", { className: "editableGitActions" },
+        status,
+        copySlot));
+    refresh();
+    return host;
+}
 function gitIdentityEditor(c) { return h("article", { className: "gitPopupCard gitIdentityEditor" },
     h("h3", null, c.title),
     h("p", null, c.text),
@@ -2375,27 +2630,244 @@ const starterInlineCss = `
 .gitPractice[data-lesson="12"]{gap:16px}.starterCards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.starterCard{min-width:0;height:410px;padding:24px;display:flex;flex-direction:column;gap:18px;border:1px solid #b3915977;border-left:4px solid #b39159;border-radius:22px;background:#f7f4ed}.starterCard header{display:flex;align-items:center;gap:14px;min-height:58px}.starterCard header .gitMark{width:54px;height:58px;flex:0 0 54px}.starterCard h2{margin:0;color:#082945;font-size:25px;line-height:1.25;text-wrap:balance}.starterCard p{font-size:19px;line-height:1.45;color:#4d6577;margin:0;text-wrap:pretty}.starterCard .starterNote{padding-top:14px;border-top:1px solid #b3915933;font-size:17px;line-height:1.45}.starterDownload{display:inline-flex;flex-direction:row;align-items:center;justify-content:center;gap:12px;margin-top:auto;padding:12px 14px;border:1px solid #b39159;border-radius:12px;background:#082945;color:#f4dfb0;text-decoration:none;font-size:17px;font-weight:750;animation:starterZipGlow 2.8s ease-in-out infinite}.starterDownload:hover,.starterDownload:focus-visible{outline:3px solid #e9ca8b;outline-offset:3px}.gitPractice[data-lesson="12"] .practiceFlow{min-height:76px;padding:12px 24px}@keyframes starterZipGlow{0%,100%{box-shadow:0 0 0 0 #e9ca8b00}50%{box-shadow:0 0 0 3px #e9ca8b66,0 6px 20px #b3915933}}@media(prefers-reduced-motion:reduce){.starterDownload{animation:none}}
 `;
 const starterRefreshCss = `
-.gitPractice.starterLesson{gap:24px;justify-content:center}.starterHero{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:36px;min-height:142px;padding:26px 32px;border:1px solid #b3915988;border-left:5px solid #b39159;border-radius:22px;background:radial-gradient(ellipse at 95% 5%,#e9ca8b99,transparent 60%),linear-gradient(115deg,#fbfaf7,#f7f4ed 45%,#f4dfb0);box-shadow:0 10px 26px #b3915914}.starterHeroLabel{display:block;font-size:14px;font-weight:750;letter-spacing:1.8px;text-transform:uppercase;color:#9d7944;margin-bottom:8px}.starterHero h2{margin:0;font-size:46px;line-height:1.1;font-weight:850;letter-spacing:-1.5px;color:#082945;white-space:nowrap}.starterHero h2 span{color:#9d7944}.starterHero>p{justify-self:end;margin:0;font-size:23px;line-height:1.45;font-weight:550;color:#17324a;white-space:nowrap}.gitPractice.starterLesson .starterCards{gap:22px}.gitPractice.starterLesson .starterCard{position:relative;height:332px;padding:28px 26px;gap:24px;border-left-width:1px;border-top:4px solid #b39159;background:linear-gradient(135deg,#fbfaf7,#f7f4ed);box-shadow:0 6px 18px #08294508}.gitPractice.starterLesson .starterCard header{gap:18px;min-height:64px}.gitPractice.starterLesson .starterCard h2{font-size:25px;font-weight:800;line-height:1.25;letter-spacing:-.5px;text-wrap:balance}.gitPractice.starterLesson .starterCard p{font-size:21px;line-height:1.5;color:#4d6577}.gitPractice.starterLesson .starterCard .starterDownload{width:100%;min-height:60px;margin-top:auto;font-size:20px}.gitPractice.starterLesson .starterCard:has(.starterDownload){border:1px solid #b39159;border-top-width:4px;animation:none;background:linear-gradient(135deg,#f4dfb044,#f7f4ed)}
+.gitPractice.starterLesson{gap:14px;justify-content:center;height:100%}
+.starterHero{display:flex;align-items:center;justify-content:space-between;gap:24px;height:64px;flex-shrink:0;padding:10px 22px;border-left:4px solid #b39159;border-radius:18px;background:linear-gradient(115deg,#fbfaf7,#f7f4ed 45%,#f4dfb0)}
+.starterHeroLabel{display:block;font-size:11px;font-weight:750;letter-spacing:1.3px;text-transform:uppercase;color:#9d7944;margin-bottom:2px}
+.starterHero h2{margin:0;font-size:28px;line-height:1.1;font-weight:850;color:#082945;white-space:nowrap}.starterHero h2 span{color:#9d7944}.starterHero>p{margin:0;font-size:17px;line-height:1.4;font-weight:600;color:#17324a}
+.starterWorkspace{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(0,1fr);grid-template-rows:384px 96px;gap:14px}
+.starterPromptPanel{display:flex;flex-direction:column;gap:10px;min-width:0;padding:16px 18px;border:1px solid #b3915977;border-radius:18px;background:#082945}
+.starterPromptPanel header{display:flex;align-items:center;justify-content:space-between;gap:12px}.starterPromptPanel h3{margin:0;color:#f4dfb0;font-size:20px;font-weight:800}
+.starterPromptBox{min-height:0;flex:1}.starterPromptText{margin:0;color:#fbfaf7;font:16px/1.45 Inter,sans-serif;white-space:pre-wrap;overflow-wrap:break-word}
+.starterPromptPanel .copyControl{padding:7px 12px;font-size:13px;flex-shrink:0}
+.starterAnalysisGrid{grid-column:2;grid-row:1 / span 2;display:grid;grid-template-columns:1fr;grid-template-rows:repeat(4,minmax(0,1fr));gap:12px;min-width:0;min-height:0}
+.starterAnalysisItem{padding:10px 16px;line-height:1.2;border:1px solid #b3915944;border-left:4px solid #b39159;border-radius:18px;background:#f7f4ed;display:flex;flex-direction:column;justify-content:center}
+.starterAnalysisHeading{display:flex;align-items:center;gap:12px}.starterAnalysisTag{font-size:12px;font-weight:800;letter-spacing:.5px;color:#9d7944;text-transform:uppercase;white-space:nowrap}.starterAnalysisItem strong{font-size:20px;color:#082945;line-height:1.2}.starterAnalysisItem p{margin:8px 0 0;font-size:16px;line-height:1.3;color:#4d6577}
+.starterSidePanel{display:contents}
+.starterAgentCard{grid-column:1;grid-row:2;padding:10px 14px;border:1px solid #b3915977;border-radius:18px;background:#fbfaf7;display:grid;grid-template-columns:1fr 1fr;gap:8px 16px;align-content:start;min-width:0}
+.starterAgentHeader{display:flex;align-items:center;gap:10px}.starterAgentHeader .gitMark{width:32px;height:32px;flex:0 0 32px}.starterAgentHeader h3{margin:0;font-size:17px;font-weight:800;color:#082945}
+.starterTreeList{grid-column:2;grid-row:1 / span 2;list-style:none;padding:0;margin:0;display:grid;gap:4px;font-size:12px;line-height:1.3;color:#17324a}.starterTreeList li{display:flex;align-items:center;gap:7px;padding:4px 6px;border-radius:6px;background:#f7f4ed}.starterTreeList code{font:700 11.5px Inter,sans-serif;color:#082945}.starterTreeList .agentBadge{margin-left:auto;font-size:10px;font-weight:750;color:#9d7944;background:#f4dfb0;padding:2px 5px;border-radius:6px}
+.starterAgentNote{margin:0;font-size:12px;line-height:1.35;color:#687987}.starterAgentCard .starterAgentNote{display:none}.starterTreeList{gap:2px;font-size:11px}.starterTreeList li{padding:2px 6px}.starterPromptFooter{display:flex;justify-content:flex-end;margin-top:auto}.starterDownloadTrigger{padding:9px 14px;border:1px solid #b39159;border-radius:10px;background:#f4dfb0;color:#082945;font:750 15px Inter,sans-serif;cursor:pointer}.starterDownloadTrigger:hover{background:#fff4d9}.starterDownloadTrigger:focus-visible,.starterDownloadClose:focus-visible{outline:3px solid #b39159;outline-offset:3px}.starterDownloadOverlay{position:absolute;inset:0;z-index:200;display:grid;place-items:center;background:#041c31bd;padding:30px}.starterDownloadDialog{width:650px;padding:28px;border:1px solid #b39159;border-radius:24px;background:#fbfaf7;box-shadow:0 24px 70px #041c3144}.starterDownloadDialog header{display:flex;align-items:center;gap:14px}.starterDownloadDialog .gitMark{width:44px;height:44px;flex:0 0 44px}.starterDownloadDialog h2{margin:0;font-size:27px;color:#082945}.starterDownloadClose{margin-left:auto;width:42px;height:42px;flex-shrink:0;border:1px solid #b39159;border-radius:10px;background:#082945;color:#f4dfb0;font-size:26px;cursor:pointer}.starterDownloadDialog p{font-size:18px;line-height:1.5;color:#4d6577}.starterDownloadDialog .starterDownload{width:100%;font-size:19px;margin-top:20px}
+.starterDownloadCard{grid-column:2;grid-row:2;padding:12px 14px;border:1px solid #b3915988;border-radius:18px;background:linear-gradient(135deg,#fbfaf7,#f4dfb044);display:flex;flex-direction:column;gap:7px;min-width:0}.starterDownloadCard header{display:flex;align-items:center;gap:10px}.starterDownloadCard header .gitMark{width:30px;height:30px;flex:0 0 30px}.starterDownloadCard h3{margin:0;font-size:16px;font-weight:800;color:#082945}.starterDownloadCard p{margin:0;font-size:12px;line-height:1.35;color:#4d6577}.starterDownloadCard .starterDownload{min-height:36px;padding:6px 12px;font-size:14px;margin-top:auto}
+
+.starterHeroLabel{font-size:13px;letter-spacing:1px}.starterHero>p{font-size:18px}
+.starterWorkspace{grid-template-columns:minmax(0,1.8fr) minmax(0,1fr);grid-template-rows:494px;gap:20px}
+.starterPromptPanel{padding:22px 24px;gap:18px;border-radius:22px;background:linear-gradient(135deg,#082945,#041c31)}
+.starterPromptPanel h3{font-size:22px}.starterPromptPanel .copyControl{font-size:15px;padding:8px 13px}
+.starterPromptText{font-size:18px;line-height:1.5}.starterPromptBox{flex:initial}.starterDownloadTrigger{font-size:17px;padding:11px 16px}
+.starterAnalysisGrid{grid-row:1;gap:16px}.starterAnalysisItem{padding:16px 18px;border-radius:20px}.starterAnalysisHeading{gap:10px}.starterAnalysisTag{font-size:13px;letter-spacing:0}.starterAnalysisItem strong{font-size:21px}.starterAnalysisItem p{font-size:17px;line-height:1.4;margin-top:10px}
+.starterDownloadDialog{width:860px;padding:30px}.starterDownloadDialog h3{font-size:21px;color:#082945;margin:22px 0 12px}
+.starterDownloadDialog .starterTreeList{display:grid;gap:10px;font-size:17px;line-height:1.4}.starterDownloadDialog .starterTreeList li{display:grid;grid-template-columns:240px 1fr;gap:20px;padding:10px 14px}.starterDownloadDialog .starterTreeList code{font:700 16px/1.4 Inter,sans-serif}
+
+.starterWorkspace{grid-template-rows:570px}.starterPromptPanel{gap:16px}.starterPromptText{font-size:18px;line-height:1.5}
+.starterContextLabel{display:block;margin:8px 0 6px;font-size:16px;font-weight:700;color:#f4dfb0}.starterContextInput{display:block;width:100%;height:52px;min-height:52px;max-height:80px;padding:8px 12px;border:1px solid #e9ca8b;border-radius:10px;background:#ffffff0d;color:#fff;font:18px/1.4 Inter,sans-serif;resize:none;overflow:auto}.starterContextInput:focus{outline:2px solid #e9ca8b;outline-offset:3px;background:#ffffff16}.starterPromptText::selection,.starterPromptText ::selection{background:transparent;color:inherit;text-shadow:none}.starterContextAfter{display:block;margin-top:8px}.starterPromptBox{flex-shrink:0}
+.starterPromptFooter{align-items:flex-end;justify-content:space-between;gap:16px}.starterToolIcons{position:relative;width:420px;height:88px;flex:0 1 420px;overflow:hidden}.starterToolIcon{position:absolute;left:0;top:0;display:grid;place-items:center;width:32px;height:32px;padding:5px;border:1px solid #e9ca8b88;border-radius:50%;overflow:hidden;background:#fbfaf7;box-shadow:0 2px 5px #041c3133;cursor:default;will-change:transform;touch-action:pan-y}.starterToolIcon img{width:100%;height:100%;border-radius:50%;object-fit:contain;pointer-events:none;user-select:none}
+.starterDownloadTrigger{display:flex;align-items:center;gap:12px;animation:starterDownloadInvite 3s ease-in-out infinite}.starterDownloadTrigger>span{display:inline-block;animation:starterDownloadArrow 1.6s ease-in-out infinite}.starterDownloadTrigger:hover,.starterDownloadTrigger:focus-visible{animation:none}
+.starterAnalysisItem{padding:20px}.starterAnalysisItem p{font-size:18px;line-height:1.45}
+@keyframes starterDownloadInvite{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){.starterToolIcon img,.starterDownloadTrigger,.starterDownloadTrigger>span{animation:none!important;transform:none!important}}
 `;
-function gitStarterInline(s) { return h("div", { className: "gitPractice starterLesson", "data-lesson": "12" },
-    h("style", null, practiceCss + starterInlineCss + localRunCss + starterRefreshCss),
-    h("section", { className: "starterHero" },
-        h("div", null,
-            h("span", { className: "starterHeroLabel" }, "Project th\u1EF1c h\u00E0nh"),
-            h("h2", null,
-                "Lumi ",
-                h("span", null, "Studio"))),
-        h("p", null, "T\u1EA3i b\u1ED9 m\u1EABu, gi\u1EA3i n\u00E9n r\u1ED3i m\u1EDF trong VS Code.")),
-    h("div", { className: "starterCards" }, s.cards.map((c, i) => h("article", { className: "starterCard" },
+function gitStarterInline(s) {
+    const promptText = s.prompt || `Hãy tạo cho tôi một dự án web app mẫu (Next.js/React) hoàn chỉnh, tinh gọn và dễ học:
+1. Bối cảnh & Mục tiêu (Role & Context): Website giới thiệu dịch vụ (Lumi Studio) có form nhận đăng ký tư vấn. Mã nguồn sạch, dễ đọc để chỉnh sửa trong VS Code.
+2. Công nghệ & Cấu trúc (Tech & Structure): Frontend Next.js App Router, CSS thuần, không cài thư viện thừa. Tổ chức component và dữ liệu rõ ràng.
+3. Kiểm tra & Quản lý (Test & Git): Chạy thử tại localhost:3000 bằng Node.js (npm run dev) và kiểm tra bằng npm test. Sẵn sàng khởi tạo Git để commit và push lên GitHub.
+4. Định hướng AI Agent (Agent Roadmap): Tạo sẵn file AGENTS.md quy định kiến trúc dự án và định hướng lộ trình tích hợp Supabase & Vercel.`;
+    const analyses = s.promptAnalysis || [
+        { tag: "01 · Bối cảnh", title: "Role & Context", text: "Website dịch vụ Lumi Studio có form đăng ký tư vấn." },
+        { tag: "02 · Công nghệ", title: "Tech & Structure", text: "Next.js App Router, CSS thuần; cấu trúc mã nguồn rõ ràng." },
+        { tag: "03 · Kiểm tra", title: "Test & Git", text: "Chạy app, kiểm tra bằng npm test; quản lý phiên bản với Git." },
+        { tag: "04 · AI Agent", title: "Agent Roadmap", text: "AGENTS.md hướng dẫn AI và lộ trình Supabase & Vercel." }
+    ];
+    const contextDefault = 'Website giới thiệu dịch vụ (Lumi Studio) có form nhận đăng ký tư vấn';
+    const contextIndex = promptText.indexOf(contextDefault);
+    let currentContext = contextDefault;
+    const currentPrompt = () => contextIndex < 0 ? promptText : promptText.slice(0, contextIndex) + currentContext + promptText.slice(contextIndex + contextDefault.length);
+    const contextInput = h("textarea", { className: "starterContextInput", autocorrect: "off", autocapitalize: "off", id: "starter-context", "aria-label": "M\u00F4 t\u1EA3 website theo nhu c\u1EA7u", rows: 2, value: contextDefault, onInput: (event) => { currentContext = event.currentTarget.value; event.currentTarget.style.height = 'auto'; event.currentTarget.style.height = event.currentTarget.scrollHeight + 'px'; } });
+    contextInput.spellcheck = false;
+    contextInput.setAttribute('spellcheck', 'false');
+    const downloadCard = s.cards.find(c => c.link) || s.cards[0];
+    return h("div", { className: "gitPractice starterLesson", "data-lesson": "12" },
+        h("style", null, practiceCss + starterInlineCss + localRunCss + starterRefreshCss),
+        h("div", { className: "starterWorkspace" },
+            h("section", { className: "starterPromptPanel" },
+                h("header", null,
+                    h("h3", null, "Prompt m\u1EABu t\u1EA1o d\u1EF1 \u00E1n cho AI"),
+                    localCopyButton(currentPrompt)),
+                h("div", { className: "starterPromptBox" },
+                    h("div", { className: "starterPromptText", "aria-label": "Prompt t\u1EA1o d\u1EF1 \u00E1n" }, contextIndex < 0 ? promptText : h(Fragment, null,
+                        promptText.slice(0, contextIndex).replace('1. Bối cảnh & Mục tiêu (Role & Context): ', ''),
+                        h("label", { className: "starterContextLabel", htmlFor: "starter-context" }, "1. B\u1ED1i c\u1EA3nh & M\u1EE5c ti\u00EAu \u00B7 ch\u1EC9nh theo nhu c\u1EA7u c\u1EE7a b\u1EA1n"),
+                        contextInput,
+                        h("span", { className: "starterContextAfter" }, promptText.slice(contextIndex + contextDefault.length).replace(/^\. /, ''))))),
+                h("div", { className: "starterPromptFooter" },
+                    starterFallingIcons(),
+                    h("button", { type: "button", className: "starterDownloadTrigger", "aria-haspopup": "dialog", onClick: (event) => openStarterDownload(event.currentTarget, downloadCard) },
+                        "T\u1EA3i project m\u1EABu .ZIP ",
+                        h("span", { "aria-hidden": "true" }, "\u2193")))),
+            h("div", { className: "starterAnalysisGrid" }, analyses.map((item) => h("div", { className: "starterAnalysisItem" },
+                h("div", { className: "starterAnalysisHeading" },
+                    h("span", { className: "starterAnalysisTag" }, item.tag),
+                    h("strong", null, item.title)),
+                h("p", null, item.text))))));
+}
+function starterFallingIcons(names) {
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const size = names ? 44 : 32, columns = names ? 4 : 8, spacing = names ? 60 : 49;
+    const tools = names ? names.map(name => [name, name]) : [['VS Code', 'VS Code'], ['Claude', 'AI Claude Code'], ['Codex', 'AI Codex'], ['Antigravity', 'AI Antigravity'], ...aiMarqueeNames.map(name => [name, 'AI ' + name])];
+    const bodies = tools.map(([name, key], i) => ({ node: h("span", { className: names ? 'vibePromptTool ' + (name === 'GitHub' ? 'github' : '') : 'starterToolIcon' }, names ? gitGuideMark(name) : h("img", { src: assets[key], alt: name })), x: 6 + (i % columns) * spacing + Math.random() * 5, y: 4 + Math.floor(i / columns) * 34, vx: (Math.random() - .5) * 90, vy: 0, angle: (Math.random() - .5) * 30, spin: (Math.random() - .5) * 140, lastHit: -1000 }));
+    const arena = h("div", { className: names ? 'vibePromptTools' : 'starterToolIcons', "aria-label": "C\u00F4ng c\u1EE5 ph\u00E1t tri\u1EC3n c\u00F9ng AI" }, bodies.map(body => body.node));
+    let running = false, lastTime = 0, elapsed = 0;
+    const paint = () => bodies.forEach(body => { body.node.style.transform = `translate(${body.x}px,${body.y}px) rotate(${body.angle}deg)`; });
+    const rest = () => { bodies.forEach((body, i) => { body.x = 6 + (i % columns) * spacing; body.y = 8 + Math.floor(i / columns) * 36; body.angle = 0; body.vx = body.vy = body.spin = 0; }); paint(); };
+    function frame(now) {
+        if (!arena.isConnected) {
+            running = false;
+            return;
+        }
+        if (reduced.matches) {
+            rest();
+            running = false;
+            return;
+        }
+        const dt = lastTime ? Math.min((now - lastTime) / 1000, .032) : .016;
+        lastTime = now;
+        elapsed += dt;
+        const right = Math.max(0, (arena.clientWidth || (names ? 260 : 420)) - size - 4), floor = Math.max(0, (arena.clientHeight || 88) - size - 4);
+        let moving = false;
+        for (const body of bodies) {
+            body.vy += 900 * dt;
+            body.x += body.vx * dt;
+            body.y += body.vy * dt;
+            body.angle += body.spin * dt;
+            if (body.x < 4) {
+                body.x = 4;
+                body.vx = Math.abs(body.vx) * .65;
+            }
+            else if (body.x > right) {
+                body.x = right;
+                body.vx = -Math.abs(body.vx) * .65;
+            }
+            if (body.y < 4) {
+                body.y = 4;
+                body.vy = Math.abs(body.vy) * .2;
+            }
+            if (body.y >= floor) {
+                body.y = floor;
+                body.vy = Math.abs(body.vy) > 45 ? -body.vy * .48 : 0;
+                body.vx *= Math.pow(.12, dt);
+                body.spin *= Math.pow(.04, dt);
+                if (Math.abs(body.vx) < 2)
+                    body.vx = 0;
+                if (Math.abs(body.spin) < 2)
+                    body.spin = 0;
+            }
+            if (body.y < floor || Math.abs(body.vy) > 1 || Math.abs(body.vx) > 1 || Math.abs(body.spin) > 1)
+                moving = true;
+        }
+        // Separate touching circles so the larger collection stays visible when it settles.
+        for (let pass = 0; pass < 3; pass++)
+            for (let i = 0; i < bodies.length; i++)
+                for (let j = i + 1; j < bodies.length; j++) {
+                    const a = bodies[i], b = bodies[j], dx = b.x - a.x, dy = b.y - a.y, distance = Math.hypot(dx, dy);
+                    if (distance >= size + 1)
+                        continue;
+                    const nx = distance ? dx / distance : 1, ny = distance ? dy / distance : 0, overlap = (size + 1 - distance) / 2;
+                    a.x -= nx * overlap;
+                    a.y -= ny * overlap;
+                    b.x += nx * overlap;
+                    b.y += ny * overlap;
+                    const speed = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+                    if (speed < 0) {
+                        const impulse = -speed * .6;
+                        a.vx -= impulse * nx;
+                        a.vy -= impulse * ny;
+                        b.vx += impulse * nx;
+                        b.vy += impulse * ny;
+                    }
+                    a.x = Math.max(4, Math.min(right, a.x));
+                    b.x = Math.max(4, Math.min(right, b.x));
+                    a.y = Math.max(4, Math.min(floor, a.y));
+                    b.y = Math.max(4, Math.min(floor, b.y));
+                }
+        paint();
+        if (moving && elapsed < 5)
+            window.requestAnimationFrame(frame);
+        else {
+            bodies.forEach(body => { body.vx = body.vy = body.spin = 0; });
+            running = false;
+        }
+    }
+    const start = () => { if (running || !arena.isConnected)
+        return; if (reduced.matches) {
+        rest();
+        return;
+    } running = true; lastTime = 0; elapsed = 0; window.requestAnimationFrame(frame); };
+    for (const body of bodies) {
+        const launch = () => { if (reduced.matches)
+            return; const now = Date.now(); if (now - body.lastHit < 200)
+            return; body.lastHit = now; body.vy = -260 - Math.random() * 120; body.vx = (Math.random() < .5 ? -1 : 1) * (90 + Math.random() * 120); body.spin = (Math.random() - .5) * 450; elapsed = 0; start(); };
+        body.node.addEventListener('pointerenter', launch);
+        body.node.addEventListener('pointerdown', launch);
+    }
+    paint();
+    setTimeout(start, 0);
+    return arena;
+}
+function openStarterDownload(trigger, card) {
+    const host = trigger.closest('.eiu');
+    if (!host)
+        return;
+    let overlay;
+    const close = () => { overlay.remove(); if (trigger.isConnected)
+        trigger.focus(); };
+    const closeButton = h("button", { type: "button", className: "starterDownloadClose", "aria-label": "\u0110\u00F3ng", onClick: close }, "\u00D7");
+    const dialog = h("section", { className: "starterDownloadDialog", role: "dialog", "aria-modal": "true", "aria-labelledby": "starter-download-title" },
         h("header", null,
-            gitGuideMark(i === 0 ? 'ZIP' : c.logo || 'VS Code'),
-            h("h2", null, c.title)),
-        h("p", null, c.text),
-        c.link && h("a", { className: "starterDownload gitGuideLink", href: c.link, download: "eiu-advertising-starter.zip" },
-            c.linkLabel,
-            h("span", { "aria-hidden": "true" }, "\u2193")))))); }
+            gitGuideMark('ZIP'),
+            h("h2", { id: "starter-download-title" }, "T\u1EA3i b\u1ED9 m\u1EABu c\u00F3 s\u1EB5n (.ZIP)"),
+            closeButton),
+        h("p", null, "D\u1EF1 \u00E1n ho\u00E0n ch\u1EC9nh \u0111\u00E3 c\u00F3 s\u1EB5n m\u00E3 ngu\u1ED3n Next.js, unit test v\u00E0 t\u1EC7p AGENTS.md \u0111\u1EC3 th\u1EF1c h\u00E0nh ngay trong VS Code."),
+        h("h3", null, "C\u1EA5u tr\u00FAc d\u1EF1 \u00E1n"),
+        h("ul", { className: "starterTreeList" },
+            h("li", null,
+                h("code", null, "components/"),
+                h("span", null, "Giao di\u1EC7n Lumi Studio")),
+            h("li", null,
+                h("code", null, "lib/registrations.mjs"),
+                h("span", null, "Form l\u01B0u tr\u00EAn tr\u00ECnh duy\u1EC7t")),
+            h("li", null,
+                h("code", null, "AGENTS.md"),
+                h("span", null, "Ki\u1EBFn tr\u00FAc v\u00E0 h\u01B0\u1EDBng d\u1EABn AI Agent")),
+            h("li", null,
+                h("code", null, "package.json"),
+                h("span", null, "L\u1EC7nh ch\u1EA1y, build v\u00E0 ki\u1EC3m tra"))),
+        h("p", null, "AGENTS.md \u0111\u1ECBnh h\u01B0\u1EDBng m\u1EDF r\u1ED9ng v\u1EDBi Supabase & Vercel."),
+        card.link && h("a", { className: "starterDownload", href: card.link, download: "eiu-advertising-starter.zip" },
+            card.linkLabel || 'Tải project .ZIP',
+            h("span", { "aria-hidden": "true" }, "\u2193")));
+    overlay = h("div", { className: "starterDownloadOverlay", onClick: (event) => { if (event.target === overlay)
+            close(); }, onKeyDown: (event) => { if (event.key === 'Escape') {
+            event.preventDefault();
+            event.stopPropagation();
+            close();
+        }
+        else if (event.key === 'Tab') {
+            const controls = Array.from(dialog.querySelectorAll('button,a[href]'));
+            const first = controls[0], last = controls[controls.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            }
+            else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
+        } } }, dialog);
+    host.append(overlay);
+    closeButton.focus();
+}
 const localRunCss = `
-.gitPractice[data-lesson="12"] .starterCard{height:340px;padding:26px;gap:20px}.gitPractice[data-lesson="12"] .starterCard header .gitMark{width:64px;height:64px;flex-basis:64px}.gitPractice[data-lesson="12"] .starterCard p{font-size:21px;line-height:1.45}.gitPractice[data-lesson="12"] .starterCard .starterNote{font-size:18px;line-height:1.45}.gitPractice[data-lesson="12"] .starterCard:has(.starterDownload){border:2px solid #b39159;background:linear-gradient(135deg,#f4dfb044,#f7f4ed);animation:starterDownloadFrame 2.2s ease-in-out infinite}.gitPractice[data-lesson="12"] .starterDownload{position:relative;isolation:isolate;overflow:hidden;min-height:62px;padding:14px 20px;font-size:21px;animation:starterDownloadAttention 2.2s ease-in-out infinite}.starterDownload::before{content:'';position:absolute;inset:-50%;background:linear-gradient(110deg,transparent 35%,#f4dfb066 50%,transparent 65%);animation:starterDownloadSweep 2.2s ease-in-out infinite;pointer-events:none}.starterDownload>span{font-size:30px;line-height:1;animation:starterDownloadArrow 1.1s ease-in-out infinite}@keyframes starterDownloadFrame{0%,100%{box-shadow:0 0 0 0 #e9ca8b00}50%{box-shadow:0 0 0 5px #e9ca8b55,0 10px 30px #b3915933}}@keyframes starterDownloadAttention{0%,100%{transform:translateY(0) scale(1);box-shadow:0 5px 16px #08294522}50%{transform:translateY(-5px) scale(1.035);box-shadow:0 10px 26px #b3915966,0 0 0 4px #e9ca8b77}}@keyframes starterDownloadSweep{0%,15%{transform:translateX(-85%)}70%,100%{transform:translateX(85%)}}@keyframes starterDownloadArrow{0%,100%{transform:translateY(-3px)}50%{transform:translateY(5px)}}@media(prefers-reduced-motion:reduce){.gitPractice[data-lesson="12"] .starterCard,.gitPractice[data-lesson="12"] .starterDownload,.starterDownload::before,.starterDownload>span{animation:none!important;transform:none!important}.starterDownload::before{display:none}}
+@keyframes starterDownloadAttention{0%,100%{transform:translateY(0) scale(1);box-shadow:0 5px 16px #08294522}50%{transform:translateY(-5px) scale(1.035);box-shadow:0 10px 26px #b3915966,0 0 0 4px #e9ca8b77}}@keyframes starterDownloadSweep{0%,15%{transform:translateX(-85%)}70%,100%{transform:translateX(85%)}}@keyframes starterDownloadArrow{0%,100%{transform:translateY(-3px)}50%{transform:translateY(5px)}}@media(prefers-reduced-motion:reduce){.gitPractice[data-lesson="12"] .starterCard,.gitPractice[data-lesson="12"] .starterDownload,.starterDownload::before,.starterDownload>span{animation:none!important;transform:none!important}.starterDownload::before{display:none}}
 
 .starterFiles{list-style:none;padding:0;margin:0;display:grid;gap:13px}.starterFiles li{display:grid;gap:4px;min-width:0}.starterFiles code{font:700 16px/1.3 Consolas,monospace;color:#082945}.starterFiles span{font-size:17px;line-height:1.35;color:#4d6577}.starterCard:has(.starterFiles){gap:16px}.starterCard:has(.starterFiles) h2{font-size:24px}.starterCard:has(.starterFiles) .starterNote{font-size:16px}
 .localRun{display:flex;flex-direction:column;justify-content:center;height:100%;gap:18px}.localRun .gitLead{font-size:21px;max-width:1160px}.localRunGrid{display:grid;grid-template-columns:1fr 1fr;gap:22px;min-height:414px}.localTerminalSteps{display:grid;grid-template-rows:1fr 1fr;gap:16px}.localStep,.localBrowser{padding:20px 24px;border:1px solid #b3915977;border-left:4px solid #b39159;border-radius:20px;background:#f7f4ed;min-width:0}.localStep header,.localBrowser header{display:flex;align-items:center;gap:12px;margin-bottom:12px}.localStep .gitMark,.localBrowser .gitMark{width:38px;height:38px}.localStep h2,.localBrowser h2{margin:0;font-size:25px;line-height:1.3;color:#082945}.localStepNumber{font-size:14px;font-weight:800;color:#9d7944}.localStep p{font-size:18px;line-height:1.4;color:#4d6577;margin:0 0 10px}.localCommand{display:flex;align-items:center;gap:12px;padding:12px 14px;background:#082945;border-radius:12px;color:#edf3f7}.localCommand code{font:19px/1.4 Consolas,monospace;white-space:nowrap}.localCommand button{margin-left:auto;padding:8px 12px;border:1px solid #b39159;border-radius:9px;background:#f4dfb0;color:#082945;min-width:115px;font-size:14px;font-weight:750;cursor:pointer}.localCommand button:focus-visible{outline:2px solid #e9ca8b;outline-offset:3px}.localStep .localStepNote{font-size:15px;margin:9px 0 0;line-height:1.35}.localBrowser{display:flex;flex-direction:column;gap:14px}.localBrowser header{margin-bottom:0}.localBrowser>p{font-size:19px;line-height:1.4;margin:0;color:#4d6577}.localReady{padding:16px 18px;border-radius:12px;background:#082945;color:#c6edc5;font:18px/1.6 Consolas,monospace;white-space:pre-wrap;margin:0}.localOpenApp{display:flex;justify-content:center;align-items:center;gap:16px;padding:16px;border:1px solid #b39159;border-radius:14px;background:linear-gradient(115deg,#123f68,#082945);color:#f4dfb0;font-size:24px;font-weight:800;text-decoration:none;animation:starterZipGlow 2.8s ease-in-out infinite}.localOpenApp:hover,.localOpenApp:focus-visible{outline:3px solid #e9ca8b;outline-offset:3px}.localBrowser .localTry{margin-top:auto;font-size:17px;padding-top:12px;border-top:1px solid #b3915933}.localRunNote{padding:14px 20px;border:1px solid #b3915966;border-radius:14px;background:#f2ead8;color:#4d6577;font-size:17px;line-height:1.4;margin:0}
@@ -2403,8 +2875,8 @@ const localRunCss = `
 const localBrowserOptionsCss = `
 .localRun{gap:14px}.localRunGrid{min-height:390px}.localStep{padding:16px 22px}.localStep header{margin-bottom:8px}.localStep header .gitMark{width:32px;height:32px}.localStep p{font-size:17px}.localCommand{padding:10px 14px}.localStep .localStepNote{font-size:14px}.localBrowser{padding:18px 22px;gap:12px}.localReady{font-size:16px;line-height:1.4;padding:12px 16px}.localOpenApp{padding:12px;font-size:23px}.localBrowser .localTry{font-size:16px;line-height:1.4}.localLaunchOptions{display:grid;grid-template-columns:1fr 1fr;gap:8px 24px;padding:14px 20px;border:1px solid #b3915966;border-radius:16px;background:#f2ead8}.localLaunchOptions>div{min-width:0}.localLaunchOptions>div+div{border-left:1px solid #b3915955;padding-left:24px}.localLaunchOptions strong{display:block;color:#082945;font-size:17px;line-height:1.3;margin-bottom:5px}.localLaunchOptions p{font-size:16px;line-height:1.4;color:#4d6577;margin:0;text-wrap:pretty}.localLaunchOptions .localRunNote{grid-column:1/-1;display:block;padding:0;margin:0;border:0;border-radius:0;background:none;font-size:14px;line-height:1.35;color:#687987}
 `;
-function localCopyButton(code) { const button = h("button", { type: "button", className: "copyControl", title: "Nh\u1EA5n \u0111\u1EC3 sao ch\u00E9p l\u1EC7nh", "aria-live": "polite", "data-state": "idle", onClick: async () => { if (button.disabled)
-        return; button.disabled = true; button.dataset.state = 'copying'; button.textContent = 'Đang sao chép…'; let ok = false; const fallback = () => { const box = document.createElement('textarea'); box.value = code; box.style.cssText = 'position:fixed;left:-9999px;opacity:0'; document.body.append(box); let result = false; try {
+function localCopyButton(source) { const button = h("button", { type: "button", className: "copyControl", title: "Nh\u1EA5n \u0111\u1EC3 sao ch\u00E9p l\u1EC7nh", "aria-live": "polite", "data-state": "idle", onClick: async () => { if (button.disabled)
+        return; const code = typeof source === 'function' ? source() : source; button.disabled = true; button.dataset.state = 'copying'; button.textContent = 'Đang sao chép…'; let ok = false; const fallback = () => { const box = document.createElement('textarea'); box.value = code; box.style.cssText = 'position:fixed;left:-9999px;opacity:0'; document.body.append(box); let result = false; try {
         box.focus();
         box.select();
         result = document.execCommand('copy');
@@ -2538,18 +3010,33 @@ function vibeTextEdit(s) { return h("div", { className: "vibeEdit vibeTextOnly" 
                 c.title)),
         h("div", { className: "vibeKey" }, ['Ctrl + Shift + F', 'Chỉnh text', 'Ctrl + S'][i]),
         h("p", null, c.text))))); }
-function vibeAiEdit(s) { return h("div", { className: "vibeEdit" },
-    h("style", null, practiceCss + vibeEditCss),
-    h("p", { className: "gitLead" }, s.message),
-    h("div", { className: "vibeAiGrid" },
-        h("div", { className: "vibeAiSteps" }, s.cards.map((c, i) => h("article", { className: "vibeAiStep" },
-            h("h2", null,
-                h("span", null, i + 1),
-                c.title),
-            h("p", null, c.text)))),
-        h("section", { className: "vibePrompt" },
-            h("h2", null, "Prompt m\u1EABu \u00B7 s\u1EEDa theo \u00FD b\u1EA1n"),
-            copyPrompt(s.cards[1].prompt || '')))); }
+const vibeAiEditableCss = `
+.vibeAiLesson .vibeAiGrid{grid-template-columns:420px minmax(0,1fr);height:490px;min-height:490px}.vibeAiLesson .vibeAiSteps{min-height:0;height:100%;grid-template-rows:repeat(3,minmax(0,1fr));gap:14px}.vibeAiLesson .vibeAiStep{padding:16px 20px;display:flex;flex-direction:column;justify-content:center}.vibeAiLesson .vibeAiStep h2{margin:0 0 12px;font-size:22px;line-height:1.2;white-space:nowrap}.vibeAiLesson .vibeAiStep ul{margin:0;padding-left:21px;color:#4d6577;font-size:18px;line-height:1.4}.vibeAiLesson .vibeAiStep li+li{margin-top:6px}.vibeAiLesson .vibeAiStep li::marker{color:#9d7944}
+.vibeAiLesson .vibePrompt{min-height:0;height:100%;display:flex;flex-direction:column;gap:18px;padding:22px 24px;background:linear-gradient(135deg,#082945,#041c31)}.vibePromptHeader{display:flex;align-items:center;justify-content:space-between;gap:16px}.vibePromptHeader h2{margin:0;font-size:24px;line-height:1.25;color:#f4dfb0}.vibePromptHeader .copyControl{padding:9px 14px;font-size:16px;flex-shrink:0}.vibePromptEditor{display:block;width:100%;flex:1;min-height:0;padding:16px;border:1px solid #b3915977;border-radius:14px;background:#ffffff08;color:#fbfaf7;font:18px/1.5 Inter,sans-serif;resize:none;overflow:auto}.vibePromptEditor:focus{outline:2px solid #e9ca8b;outline-offset:3px}.vibePromptEditor::selection{background:transparent;color:inherit;text-shadow:none}
+.vibePromptBody{position:relative;flex:1;min-height:0}.vibePromptBody .vibePromptEditor{height:100%;padding-bottom:104px}.vibePromptTools{position:absolute;width:260px;height:88px;bottom:12px;right:14px;overflow:hidden;pointer-events:none}.vibePromptTool{position:absolute;left:0;top:0;display:grid;place-items:center;width:44px;height:44px;background:transparent;pointer-events:auto;will-change:transform;touch-action:pan-y}.vibePromptTool .gitMark{display:block;width:44px;height:44px;background:transparent;border:0;box-shadow:none;pointer-events:none}.vibePromptTool img,.vibePromptTool svg{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}.vibePromptTool.github img{filter:brightness(0) invert(1)}
+
+`;
+function vibeAiEdit(s) {
+    const editor = h("textarea", { className: "vibePromptEditor", "aria-label": "Ch\u1EC9nh s\u1EEDa to\u00E0n b\u1ED9 prompt", value: s.cards[1].prompt || '', autocorrect: "off", autocapitalize: "off" });
+    editor.spellcheck = false;
+    editor.setAttribute('spellcheck', 'false');
+    return h("div", { className: "vibeEdit vibeAiLesson" },
+        h("style", null, practiceCss + vibeEditCss + vibeAiEditableCss),
+        h("p", { className: "gitLead" }, s.message),
+        h("div", { className: "vibeAiGrid" },
+            h("div", { className: "vibeAiSteps" }, s.cards.map((c, i) => h("article", { className: "vibeAiStep" },
+                h("h2", null,
+                    h("span", null, i + 1),
+                    c.title),
+                h("ul", null, (c.points || [c.text]).map(point => h("li", null, point)))))),
+            h("section", { className: "vibePrompt" },
+                h("header", { className: "vibePromptHeader" },
+                    h("h2", null, "Prompt m\u1EABu \u00B7 ch\u1EC9nh theo \u00FD b\u1EA1n"),
+                    localCopyButton(() => editor.value)),
+                h("div", { className: "vibePromptBody" },
+                    editor,
+                    starterFallingIcons(['Git', 'GitHub', 'VS Code', 'Node.js'])))));
+}
 const modelInfoCss = `
 .modelInfo{height:100%;display:flex;flex-direction:column;justify-content:center;gap:30px}.modelInfo .gitLead{font-size:23px;line-height:1.45;max-width:1100px}.modelInfoCards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px}.modelInfoCard{min-width:0;min-height:320px;padding:28px;border:1px solid #b3915977;border-left:4px solid #b39159;border-radius:24px;background:#f7f4ed;display:flex;flex-direction:column;gap:20px}.modelInfoIcon{width:56px;height:56px;padding:12px;border:1px solid #b3915955;border-radius:16px;background:#f4dfb077;color:#123f68}.modelInfoIcon svg{width:100%;height:100%;display:block}.modelInfoCard h2{margin:0;font-size:25px;line-height:1.3;letter-spacing:-.4px;color:#082945;white-space:nowrap}.modelInfoCard p{margin:0;font-size:21px;line-height:1.5;color:#4d6577;text-wrap:pretty}
 `;
@@ -2570,6 +3057,12 @@ const inlineWorkflowCss = `
 .inlineWorkflowCard:not(:has(.inlineWorkflowCode)):not(:has(.repoGuideTrigger)){justify-content:center}.inlineWorkflowCard .repoGuideTrigger{min-height:50px;font-size:19px}
 
 .inlineWorkflow{height:100%;display:flex;flex-direction:column;justify-content:center;gap:26px}.inlineWorkflow .gitLead{font-size:22px;max-width:1140px}.inlineWorkflowCards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}.inlineWorkflowCard{display:flex;flex-direction:column;gap:18px;min-width:0;min-height:320px;padding:24px;border:1px solid #b3915977;border-left:4px solid #b39159;border-radius:22px;background:#f7f4ed}.inlineWorkflowCard header{display:flex;align-items:center;gap:12px;min-height:44px}.inlineWorkflowCard header .gitMark{width:44px;height:44px;flex:0 0 44px}.inlineWorkflowCard h2{font-size:24px;line-height:1.3;color:#082945;margin:0;text-wrap:balance}.inlineWorkflowCard>p{font-size:19px;line-height:1.4;color:#4d6577;margin:0;min-height:50px;text-wrap:pretty}.inlineWorkflowCode{display:flex;flex-direction:column;gap:12px;margin-top:auto;min-width:0}.inlineWorkflowCode pre{padding:12px;margin:0;border-radius:12px;background:#082945;color:#edf3f7;font:15px/1.45 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere;min-height:92px;display:flex;align-items:center}.inlineWorkflowCode button{align-self:flex-end;padding:8px 14px;font-size:14px;min-width:150px}.inlineWorkflowCard>small{font-size:16px;line-height:1.4;color:#687987;min-height:45px}.inlineWorkflowLink{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:auto;padding:14px 16px;border:1px solid #b39159;border-radius:12px;background:#082945;color:#f4dfb0;font-size:18px;font-weight:750;text-decoration:none;animation:starterZipGlow 2.8s ease-in-out infinite}.inlineWorkflowLink:hover,.inlineWorkflowLink:focus-visible{outline:3px solid #e9ca8b;outline-offset:3px}.inlineWorkflowCard:not(:has(.inlineWorkflowCode)):not(:has(a))>small{margin-top:auto;padding-top:16px;border-top:1px solid #b3915933}.inlineWorkflowNote{padding:14px 20px;border:1px solid #b3915955;border-radius:14px;background:#f2ead8;color:#4d6577;font-size:18px;line-height:1.4;margin:0}
+`;
+const publishVerticalCss = `
+.inlineWorkflow[data-slide="19"]{gap:22px}.inlineWorkflow[data-slide="19"] .inlineWorkflowCards{grid-template-columns:1fr;gap:14px}.inlineWorkflow[data-slide="19"] .inlineWorkflowCard{display:grid;grid-template-columns:430px minmax(0,1fr);grid-template-rows:auto auto;align-items:center;gap:10px 26px;min-height:0;padding:18px 22px;border-left-width:1px;border-radius:22px;background:linear-gradient(110deg,#fbfaf7,#f7f4ed)}.inlineWorkflow[data-slide="19"] .inlineWorkflowCard header{grid-column:1;grid-row:1;align-self:end;gap:14px;min-height:44px}.inlineWorkflow[data-slide="19"] .inlineWorkflowCard h2{font-size:24px;white-space:nowrap}.inlineWorkflow[data-slide="19"] .inlineWorkflowCard>p{grid-column:1;grid-row:2;align-self:start;min-height:0;margin-left:58px;font-size:18px;line-height:1.4;text-wrap:pretty}.inlineWorkflow[data-slide="19"] .inlineWorkflowCard .repoGuideTrigger{grid-column:2;grid-row:1 / span 2;justify-self:end;align-self:center;min-width:190px;min-height:46px;margin:0;font-size:18px}.inlineWorkflow[data-slide="19"] .inlineWorkflowCode{grid-column:2;grid-row:1 / span 2;display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:18px;margin:0;padding:14px 16px;border-radius:14px;background:linear-gradient(110deg,#123f68,#082945)}.inlineWorkflow[data-slide="19"] .inlineWorkflowCode pre{min-height:0;margin:0;padding:0;border:0;background:none;font:19px/1.6 Inter,sans-serif;white-space:pre}.inlineWorkflow[data-slide="19"] .inlineWorkflowCode button{align-self:center;min-width:130px;padding:10px 14px;font-size:16px}
+.inlineWorkflow[data-slide="19"] .editableGit{grid-column:2;grid-row:1 / span 2;display:grid;grid-template-columns:minmax(0,1fr) 140px;gap:8px 14px;margin:0}.inlineWorkflow[data-slide="19"] .editableGitFields{grid-column:1 / -1;grid-row:1}.inlineWorkflow[data-slide="19"] .editableGit label{gap:6px;font-size:16px}.inlineWorkflow[data-slide="19"] .editableGit input{height:40px;font-size:17px}.inlineWorkflow[data-slide="19"] .editableGitPreview{grid-column:1;grid-row:2;padding:10px 14px;font:16px/1.45 Inter,sans-serif}.inlineWorkflow[data-slide="19"] .editableGitActions{display:contents}.inlineWorkflow[data-slide="19"] .editableGitStatus{grid-column:1 / -1;grid-row:3;min-height:20px;font-size:14px;line-height:1.35}.inlineWorkflow[data-slide="19"] .editableGitCopy{grid-column:2;grid-row:2;align-self:center}.inlineWorkflow[data-slide="19"] .editableGitCopy .copyControl{font-size:16px;padding:10px 12px;min-width:130px}
+
+.inlineWorkflow[data-slide="19"] .inlineWorkflowCard:first-child{grid-template-columns:600px minmax(0,1fr)}.inlineWorkflow[data-slide="19"] .inlineWorkflowCard:has(.editableGit){grid-template-columns:1fr;gap:8px;padding:16px 22px}.inlineWorkflow[data-slide="19"] .inlineWorkflowCard:has(.editableGit)>p{grid-column:1;grid-row:2}.inlineWorkflow[data-slide="19"] .inlineWorkflowCard .editableGit{grid-column:1;grid-row:3;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) 140px;gap:8px 14px}.inlineWorkflow[data-slide="19"] .editableGitFields{grid-column:1;grid-row:1;align-self:center}.inlineWorkflow[data-slide="19"] .editableGitPreview{grid-column:2;grid-row:1;align-self:center}.inlineWorkflow[data-slide="19"] .editableGitCopy{grid-column:3;grid-row:1;align-self:center}.inlineWorkflow[data-slide="19"] .editableGitStatus{grid-column:1 / -1;grid-row:2}
 `;
 const repositoryGuideCss = `
 .repoGuideTrigger{margin-top:auto;padding:12px 14px;border:1px solid #b39159;border-bottom:3px solid #9d7944;border-radius:12px;background:#f4dfb0;color:#082945;font:800 17px/1.3 Inter,sans-serif;cursor:pointer;box-shadow:0 3px 10px #b3915922;transition:transform .2s,box-shadow .2s}.repoGuideTrigger:hover,.repoGuideTrigger:focus-visible{transform:translateY(-2px);outline:2px solid #e9ca8b;outline-offset:3px;box-shadow:0 7px 20px #b3915944}.inlineWorkflowCard:has(.repoGuideTrigger) .inlineWorkflowLink{margin-top:0}.repoGuideOverlay{position:absolute;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:20px;background:#041c31bd;}.repoGuide{width:1120px;padding:22px 26px;border:1px solid #b39159;border-radius:24px;background:#fbfaf7;box-shadow:0 24px 70px #041c3144}.repoGuideHeader{display:flex;align-items:center;gap:14px;margin-bottom:18px}.repoGuideHeader .gitMark{width:44px;height:44px}.repoGuideHeader h2{margin:0;font-size:28px;line-height:1.25;color:#082945}.repoGuideClose{margin-left:auto;width:44px;height:44px;border:1px solid #b39159;border-radius:12px;background:#082945;color:#f4dfb0;font-size:27px;cursor:pointer}.repoGuideColumns{display:grid;grid-template-columns:1fr 1fr;gap:22px}.repoGuideGroup{padding:16px 18px;border:1px solid #b3915955;border-radius:18px;background:#f7f4ed;min-width:0}.repoGuideGroup h3{font-size:21px;line-height:1.3;color:#082945;margin:0 0 12px}.repoGuideFields{display:grid;gap:10px;margin:0}.repoGuideFields>div{padding:9px 12px;border:1px solid #b3915933;border-radius:10px;background:#fffdfa}.repoGuideFields dt{font-size:14px;font-weight:750;color:#687987;line-height:1.3;margin-bottom:4px}.repoGuideFields dd{font-size:18px;font-weight:700;line-height:1.3;color:#123f68;margin:0}.repoGuideFields small{display:block;font-size:14px;line-height:1.35;margin-top:4px;color:#687987}.repoGuideToggle{display:flex;justify-content:space-between;align-items:center;gap:14px}.repoGuideFields .repoGuideToggle dt{margin:0;font-size:16px;color:#17324a}.repoGuideToggle dd{font-size:16px;padding:5px 10px;background:#ece6d8;border:1px solid #b3915955;border-radius:8px;white-space:nowrap}.repoGuideFooter{display:flex;align-items:center;justify-content:flex-end;gap:24px;margin-top:16px}.repoGuideFooter p{flex:1;font-size:16px;line-height:1.4;color:#4d6577;margin:0}.repoGuideFooter a{display:flex;align-items:center;justify-content:center;gap:12px;padding:13px 18px;border:1px solid #b39159;border-radius:12px;background:#082945;color:#f4dfb0;font-size:17px;font-weight:750;text-decoration:none;white-space:nowrap}.repoGuideFooter a:hover,.repoGuideFooter a:focus-visible{outline:3px solid #e9ca8b;outline-offset:3px}@media(prefers-reduced-motion:reduce){.repoGuideTrigger{transition:none}.repoGuideTrigger:hover,.repoGuideTrigger:focus-visible{transform:none}}
@@ -2643,15 +3136,33 @@ function openRepositoryGuide(trigger) {
     host.append(overlay);
     closeButton.focus();
 }
-function inlineWorkflowSlide(s) { return h("div", { className: "inlineWorkflow", "data-slide": s.number },
-    h("style", null, inlineWorkflowCss + starterInlineCss + repositoryGuideCss),
+const buildReviewCss = `
+.buildReview{height:100%;display:flex;flex-direction:column;justify-content:center;gap:24px}.buildReview>.gitLead{font-size:22px;line-height:1.4}.buildReviewRows{display:grid;gap:16px}.buildReviewRow{display:grid;grid-template-columns:50px 360px minmax(0,1fr);align-items:center;gap:20px;min-height:156px;padding:22px 24px;border:1px solid #b3915966;border-radius:22px;background:linear-gradient(110deg,#fbfaf7,#f7f4ed)}.buildReviewMark{display:grid;place-items:center;width:50px;height:50px}.buildReviewMark .gitMark{width:44px;height:44px}.buildReviewMark svg{width:44px;height:44px;color:#18547f;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}.buildReviewText{min-width:0}.buildReviewText h2{margin:0 0 10px;font-size:24px;line-height:1.25;color:#082945;white-space:nowrap}.buildReviewText p{margin:0;font-size:19px;line-height:1.45;color:#4d6577;text-wrap:pretty}.buildReviewCommand{display:flex;align-items:center;justify-content:space-between;gap:20px;min-width:0;min-height:92px;padding:18px 20px;border:1px solid #b3915955;border-radius:16px;background:linear-gradient(120deg,#123f68,#082945)}.buildReviewCommand pre{margin:0;padding:0;color:#fbfaf7;font:20px/1.65 Inter,sans-serif;white-space:pre;min-width:0}.buildReviewCommand .copyControl{flex-shrink:0;padding:10px 14px;font-size:16px}.buildReviewRow:last-child{min-height:104px}.buildReviewRow:last-child .buildReviewText{grid-column:2 / -1;display:grid;grid-template-columns:360px minmax(0,1fr);align-items:center;gap:20px}.buildReviewRow:last-child h2{margin:0}.buildReviewRow:last-child p{font-size:20px}
+`;
+function buildReviewSlide(s) { return h("div", { className: "buildReview" },
+    h("style", null, buildReviewCss),
     h("p", { className: "gitLead" }, s.message),
+    h("div", { className: "buildReviewRows" }, s.cards.map(c => h("article", { className: "buildReviewRow" },
+        h("span", { className: "buildReviewMark" }, c.logo === 'Browser' ? h("svg", { viewBox: "0 0 48 48", fill: "none", "aria-label": "Tr\u00ECnh duy\u1EC7t" },
+            h("rect", { x: "4", y: "7", width: "40", height: "32", rx: "6", stroke: "currentColor", strokeWidth: "3" }),
+            h("path", { d: "M5 17h38M12 12h1m5 0h1", stroke: "currentColor", strokeWidth: "3", strokeLinecap: "round" }),
+            h("path", { d: "m20 24-5 4 5 4m8-8 5 4-5 4", stroke: "#b39159", strokeWidth: "3", strokeLinecap: "round", strokeLinejoin: "round" })) : gitGuideMark(c.logo || 'Git')),
+        h("div", { className: "buildReviewText" },
+            h("h2", null, c.title),
+            h("p", null, c.text)),
+        c.code && h("div", { className: "buildReviewCommand" },
+            h("pre", null, c.code),
+            localCopyButton(c.code)))))); }
+function inlineWorkflowSlide(s) { if (s.visual === 'git-intro-build')
+    return buildReviewSlide(s); return h("div", { className: "inlineWorkflow", "data-slide": s.number },
+    h("style", null, inlineWorkflowCss + starterInlineCss + repositoryGuideCss + (s.visual === 'git-intro-publish' ? publishVerticalCss : '')),
+    s.message && h("p", { className: "gitLead" }, s.message),
     h("div", { className: "inlineWorkflowCards" }, s.cards.map((c, i) => h("article", { className: "inlineWorkflowCard" },
         h("header", null,
             gitGuideMark(c.logo || 'Git'),
             h("h2", null, c.title)),
         h("p", null, c.text),
-        s.visual === 'git-intro-publish' && i === 1 ? editableGitCommands('repo') : c.code && h("div", { className: "inlineWorkflowCode" },
+        s.visual === 'git-intro-publish' && i === 1 ? editableGitCommands('repo') : s.visual === 'git-intro-pull' && i === 2 ? editableCloneCommands() : c.code && h("div", { className: "inlineWorkflowCode" },
             h("pre", null, c.code),
             localCopyButton(c.code)),
         s.number === 19 && i === 0 && h("button", { type: "button", className: "repoGuideTrigger", "aria-haspopup": "dialog", onClick: (e) => openRepositoryGuide(e.currentTarget) }, "H\u01B0\u1EDBng d\u1EABn"),
@@ -2659,18 +3170,20 @@ function inlineWorkflowSlide(s) { return h("div", { className: "inlineWorkflow",
             c.linkLabel,
             h("span", { "aria-hidden": "true" }, "\u2197")))))); }
 function gitPractice(s) {
-    if (s.number >= 17 && s.number <= 20)
-        return inlineWorkflowSlide(s);
-    if (s.number === 16)
-        return modelInfoSlide(s);
-    if (s.number === 14)
-        return vibeTextEdit(s);
-    if (s.number === 15)
-        return vibeAiEdit(s);
-    if (s.number === 13)
-        return gitLocalRun(s);
-    if (s.number === 12)
+    if (s.visual === 'git-intro-starter' || (s.layoutNumber ?? s.number) === 12)
         return gitStarterInline(s);
+    if (s.visual === 'git-intro-dev' || (s.layoutNumber ?? s.number) === 13)
+        return gitLocalRun(s);
+    if (s.visual === 'git-intro-prompt-structure' || (s.layoutNumber ?? s.number) === 14)
+        return vibeTextEdit(s);
+    if (s.visual === 'git-intro-ai-edit' || (s.layoutNumber ?? s.number) === 15)
+        return vibeAiEdit(s);
+    if (s.visual === 'git-intro-model-outcomes' || (s.layoutNumber ?? s.number) === 16)
+        return modelInfoSlide(s);
+    if (s.visual === 'git-intro-workflow-summary')
+        return workflowSummary(s);
+    if (s.number >= 17 && s.number <= 24 || s.visual === 'git-intro-build' || s.visual === 'git-intro-initialize' || s.visual === 'git-intro-publish' || s.visual === 'git-intro-push-code' || s.visual === 'git-intro-pull')
+        return inlineWorkflowSlide(s);
     const host = h('div', { className: 'gitPractice', 'data-lesson': s.number });
     let overlay = null;
     const flowSteps = { 11: [['VS Code', 'Extensions'], ['AI Codex', 'Cài Codex'], ['AI Antigravity', 'Cài Antigravity']], 12: [['', 'Giải nén ZIP'], ['VS Code', 'Mở project'], ['Browser', 'Khám phá app']], 13: [['VS Code', 'Mở Terminal'], ['Node.js', 'Chạy app'], ['Browser', 'Kiểm tra giao diện']], 14: [['', 'Mô tả mục tiêu'], ['', 'Giới hạn phạm vi'], ['', 'Đặt tiêu chí kiểm tra']], 15: [['VS Code', 'Mở file'], ['AI Codex', 'Gửi prompt'], ['Browser', 'Xem kết quả']], 16: [['', 'Cùng yêu cầu'], ['', 'So sánh kết quả'], ['', 'Kiểm tra thực tế']], 17: [['Node.js', 'Test & build'], ['Browser', 'Thử giao diện'], ['Git', 'Sẵn sàng Commit']], 18: [['Git', 'Init'], ['Git', 'Stage'], ['Git', 'Commit']], 19: [['GitHub', 'Tạo repo'], ['Git', 'Nối origin'], ['GitHub', 'Push lần đầu']], 20: [['VS Code', 'Xem thay đổi'], ['Git', 'Commit'], ['GitHub', 'Push']], 21: [['GitHub', 'Repo từ xa'], ['Git', 'Pull / Clone'], ['Node.js', 'Cài & chạy app']] };
@@ -2970,8 +3483,94 @@ function repoShowcase(s) { return h("div", { className: "repoShowcase" },
                 c.linkLabel,
                 h("span", { "aria-hidden": "true" }, "\u2197"))),
             skillAction(h("button", { type: "button", className: "repoShowcaseInstall", "aria-haspopup": "dialog", onClick: (e) => openRepoInstall(c, e.currentTarget) }, "C\u00E1ch c\u00E0i \u0111\u1EB7t \u2197"))))))); }
+const agentPermissionsCss = `
+.agentPermissions{position:relative;height:100%;display:flex;flex-direction:column;justify-content:center;gap:16px}.agentPermissions>.gitLead{font-size:20px;line-height:1.35;max-width:none}.agentPermissionCards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;height:550px}.agentPermissionCard{display:flex;flex-direction:column;gap:14px;min-width:0;min-height:0;padding:16px;border:1px solid #b3915966;border-radius:24px;background:linear-gradient(145deg,#fbfaf7,#f7f4ed)}.agentPermissionBrand{display:flex;align-items:center;gap:18px;min-height:80px;padding-bottom:8px;border-bottom:1px solid #b3915933}.agentPermissionBrand h2{margin:0;color:#082945;font-size:26px;line-height:1.15}.agentPermissionIcon{position:relative;flex:0 0 76px;display:grid;place-items:center;width:76px;height:76px;padding:8px;border:1px solid #b3915955;border-radius:22px;background:#fff;color:#082945;cursor:pointer;transition:background-color 180ms ease}.agentPermissionIcon:hover{background:#f4dfb055}.agentPermissionIcon:focus-visible{outline:3px solid #b39159;outline-offset:4px}.agentPermissionIcon>.gitMark{display:grid;place-items:center;width:58px;height:58px;animation:agentPermissionFloat 3.6s ease-in-out infinite}.agentPermissionIcon::after{content:'i';position:absolute;right:-3px;bottom:-3px;display:grid;place-items:center;width:21px;height:21px;border:2px solid #fbfaf7;border-radius:50%;background:#082945;color:#f4dfb0;font:750 13px Inter,sans-serif}.agentPermissionCard:nth-child(2) .agentPermissionIcon>.gitMark{animation-delay:-1.2s}.agentPermissionCard:nth-child(3) .agentPermissionIcon>.gitMark{animation-delay:-2.4s}.agentModeList{display:grid;grid-auto-rows:minmax(0,1fr);flex:1;min-height:0;gap:8px;margin:0;padding:0;list-style:none}.agentModeRow{position:relative;isolation:isolate;display:flex;flex-direction:column;justify-content:center;gap:4px;padding:6px 12px;border:1px solid #b3915926;border-left:3px solid #b39159;border-radius:14px;background:#ffffffaa;min-height:0}.agentModeRow h3{margin:0;color:#082945;font-size:17px;line-height:1.2;font-weight:800}.agentModeRow p{margin:0;color:#4d6577;font-size:16px;line-height:1.25}.agentModeRow[data-wide=true]{background:linear-gradient(110deg,#123f68,#082945);border-color:#b39159;animation:agentPermissionPulse 3.6s ease-in-out infinite}.agentModeRow[data-wide=true]::before{content:'';position:absolute;inset:-3px;z-index:-1;border:2px solid #e9ca8b;border-radius:16px;opacity:0;pointer-events:none;animation:agentPermissionHalo 3.6s ease-in-out infinite;animation-delay:inherit}.agentPermissionCard:nth-child(2) .agentModeRow[data-wide=true]{animation-delay:-1.2s}.agentPermissionCard:nth-child(3) .agentModeRow[data-wide=true]{animation-delay:-2.4s}.agentModeRow[data-wide=true] h3{color:#f4dfb0}.agentModeRow[data-wide=true] p{color:#edf3f7}
+.agentPermissionOverlay{position:absolute;inset:0;z-index:150;display:grid;place-items:center;padding:24px;background:#041c31bf;border-radius:24px}.agentPermissionDialog{width:min(640px,100%);padding:28px;border:1px solid #b39159;border-radius:24px;background:#fbfaf7;box-shadow:0 24px 70px #0004}.agentPermissionDialog header{display:flex;align-items:center;gap:16px;margin-bottom:22px}.agentPermissionDialog .gitMark{flex:0 0 56px;width:56px;height:56px}.agentPermissionDialog h2{flex:1;margin:0;font-size:27px;line-height:1.2;color:#082945}.agentPermissionClose{width:40px;height:40px;border:1px solid #b3915966;border-radius:12px;background:#082945;color:#f4dfb0;font:26px/1 Inter,sans-serif;cursor:pointer}.agentPermissionClose:focus-visible{outline:3px solid #b39159;outline-offset:3px}.agentPermissionDialog ol{display:grid;gap:14px;margin:0;padding-left:26px;font-size:20px;line-height:1.5;color:#17324a}.agentPermissionDialog li::marker{color:#9d7944;font-weight:800}
+@keyframes agentPermissionFloat{0%,100%{transform:translateY(2px) rotate(-4deg) scale(1)}50%{transform:translateY(-4px) rotate(4deg) scale(1.06)}}@keyframes agentPermissionPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.025)}}@keyframes agentPermissionHalo{0%,100%{opacity:.05;transform:scale(.99)}50%{opacity:.85;transform:scale(1.015)}}@media(prefers-reduced-motion:reduce){.agentPermissionIcon>.gitMark,.agentModeRow[data-wide=true],.agentModeRow[data-wide=true]::before{animation:none;transform:none}.agentPermissionIcon{transition:none}}
+`;
+function openAgentPermissionPopup(trigger, card) {
+    const host = trigger.closest('.agentPermissions');
+    if (!host || host.querySelector('.agentPermissionOverlay'))
+        return;
+    const overlay = h("div", { className: "agentPermissionOverlay" });
+    const close = () => { overlay.remove(); if (trigger.isConnected)
+        trigger.focus(); };
+    const closeButton = h("button", { type: "button", className: "agentPermissionClose", "aria-label": "\u0110\u00F3ng h\u01B0\u1EDBng d\u1EABn", onClick: close }, "\u00D7");
+    const dialog = h("section", { className: "agentPermissionDialog", role: "dialog", "aria-modal": "true", "aria-labelledby": "agent-permission-title" },
+        h("header", null,
+            gitGuideMark(card.logo || 'Git'),
+            h("h2", { id: "agent-permission-title" },
+                "Ch\u1ECDn mode \u00B7 ",
+                card.title),
+            closeButton),
+        h("ol", null, (card.points || [card.text]).map(point => h("li", null, point))));
+    overlay.append(dialog);
+    overlay.addEventListener('click', (event) => { if (event.target === overlay)
+        close(); });
+    overlay.addEventListener('keydown', (event) => { if (event.key === 'Escape') {
+        event.preventDefault();
+        event.stopPropagation();
+        close();
+    }
+    else if (event.key === 'Tab') {
+        event.preventDefault();
+        closeButton.focus();
+    } });
+    host.append(overlay);
+    closeButton.focus();
+}
+function agentPermissionsSlide(s) { return h("div", { className: "agentPermissions" },
+    h("style", null, agentPermissionsCss),
+    h("p", { className: "gitLead" }, s.message),
+    h("div", { className: "agentPermissionCards" }, s.cards.map(card => h("article", { className: "agentPermissionCard" },
+        h("header", { className: "agentPermissionBrand" },
+            h("button", { type: "button", className: "agentPermissionIcon", "aria-haspopup": "dialog", "aria-label": 'Hướng dẫn chọn mode ' + card.title, title: 'Bấm để xem cách chọn mode ' + card.title, onClick: (event) => openAgentPermissionPopup(event.currentTarget, card) }, gitGuideMark(card.logo || 'Git')),
+            h("h2", null, card.title)),
+        h("ul", { className: "agentModeList" }, card.modes?.map(mode => h("li", { className: "agentModeRow", "data-wide": Boolean(mode.wide) },
+            h("h3", null, mode.title),
+            h("p", null, mode.text)))))))); }
+const agentFullFlowCss = `
+.agentFullFlow{height:100%;display:flex;flex-direction:column;justify-content:center;gap:16px}.agentFullFlow>.gitLead{font-size:20px;line-height:1.35;max-width:none}.agentFlowRoutes{border:1px solid #b3915966;border-left:4px solid #b39159;border-radius:22px;background:linear-gradient(110deg,#fbfaf7,#f7f4ed);padding:8px 18px}.agentRoute{display:grid;grid-template-columns:98px minmax(0,1fr);align-items:center;gap:10px;min-height:88px}.agentRoute+.agentRoute{border-top:1px solid #b3915933}.agentRouteLabel{color:#9d7944;font-size:15px;font-weight:800;text-transform:uppercase;letter-spacing:.7px}.agentRouteNodes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-items:center;gap:24px}.agentRouteNode{position:relative;display:flex;align-items:center;gap:10px;min-width:0;min-height:66px;padding:5px 7px}.agentRouteNode::before{content:'';position:absolute;inset:0;border:1px solid #b3915988;border-radius:12px;background:#f4dfb044;pointer-events:none;opacity:0;animation:agentRouteLight 8s linear infinite;animation-delay:inherit}.agentRouteNode:not(:last-child)::after{content:'→';position:absolute;right:-23px;top:20px;width:24px;color:#9d7944;font-size:26px;font-weight:800;animation:agentArrowOut 1.5s ease-in-out infinite}.agentRoute[data-direction=back] .agentRouteNode:not(:last-child)::after{content:'←';animation-name:agentArrowBack}.agentRouteNode>.gitMark{position:relative;flex:0 0 34px;width:34px;height:34px}.agentRouteCopy{position:relative;min-width:0}.agentRouteCopy strong{display:block;margin-bottom:4px;color:#082945;font-size:20px;line-height:1.2;white-space:nowrap}.agentRouteCopy small{display:block;font-size:15px;line-height:1.3;color:#4d6577;text-wrap:pretty}
+.agentFlowBottom{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;height:300px}.agentFlowPrompt{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:0;padding:18px 20px;border:1px solid #b39159;border-radius:22px;background:linear-gradient(120deg,#123f68,#041c31)}.agentFlowPrompt header{display:flex;align-items:center;justify-content:space-between;gap:12px}.agentFlowPrompt h2{margin:0;color:#f4dfb0;font-size:22px;line-height:1.2}.agentFlowPrompt .copyControl{padding:8px 12px;font-size:15px}.agentFlowPrompt textarea{flex:1;min-height:0;width:100%;padding:12px;border:1px solid #b3915955;border-radius:12px;background:#ffffff08;color:#fbfaf7;font:16px/1.5 Inter,sans-serif;resize:none;overflow:auto}.agentCloneGuide{display:flex;flex-direction:column;min-width:0;padding:16px 18px;border:1px solid #b3915966;border-radius:22px;background:#fbfaf7}.agentCloneGuide h2{display:flex;align-items:center;gap:10px;margin:0 0 5px;color:#082945;font-size:22px;line-height:1.2}.agentCloneGuide h2 .gitMark{width:28px;height:28px}.agentCloneGuide>p{margin:0;color:#687987;font-size:14px;line-height:1.3}.agentCloneGuide ol{display:grid;gap:8px;margin:12px 0 0;padding-left:24px;color:#17324a;font-size:16px;line-height:1.35}.agentCloneGuide li{padding-left:3px}.agentCloneGuide li::marker{color:#9d7944;font-weight:800}.agentCloneGuide kbd{padding:2px 5px;border:1px solid #b3915966;border-bottom-width:2px;border-radius:5px;background:#f7f4ed;color:#082945;font:700 14px Inter,sans-serif;white-space:nowrap}.agentCloneGuide code{color:#123f68;font:700 15px Inter,sans-serif;white-space:nowrap}.agentCloneGuide .agentPullTip{margin-top:auto;padding-top:10px;border-top:1px solid #b3915933;color:#17324a;font-size:15px;line-height:1.5}
+@keyframes agentRouteLight{0%,9%{opacity:1}12.49%,100%{opacity:0}}@keyframes agentArrowOut{0%,100%{transform:translateX(-2px)}50%{transform:translateX(2px)}}@keyframes agentArrowBack{0%,100%{transform:translateX(2px)}50%{transform:translateX(-2px)}}@media(prefers-reduced-motion:reduce){.agentRouteNode::before,.agentRouteNode::after{animation:none!important;transform:none!important}.agentRouteNode::before{opacity:0}}
+`;
+function agentGuideText(text) { return text.split(/(Ctrl\+Shift\+P|Git: Clone|Clone from GitHub|Git: Pull|Open)/g).map(part => part === 'Ctrl+Shift+P' ? h("kbd", null, part) : ['Git: Clone', 'Clone from GitHub', 'Git: Pull', 'Open'].includes(part) ? h("code", null, part) : part); }
+function agentFullFlowSlide(s) {
+    const editor = h("textarea", { "aria-label": "Prompt giao vi\u1EC7c tr\u1ECDn lu\u1ED3ng cho AI", value: s.prompt || '', autocorrect: "off", autocapitalize: "off" });
+    editor.spellcheck = false;
+    editor.setAttribute('spellcheck', 'false');
+    const guide = s.cards[2];
+    return h("div", { className: "agentFullFlow" },
+        h("style", null, agentFullFlowCss),
+        h("p", { className: "gitLead" }, s.message),
+        h("div", { className: "agentFlowRoutes" }, s.cards.slice(0, 2).map((route, row) => h("section", { className: "agentRoute", "data-direction": row ? 'back' : 'out', "aria-label": route.title + ' · ' + route.text },
+            h("strong", { className: "agentRouteLabel" }, route.title),
+            h("div", { className: "agentRouteNodes" }, route.summary?.map((name, i) => h("div", { className: "agentRouteNode", style: { animationDelay: ((row ? 7 - i : i) - 8) + 's' } },
+                gitGuideMark(name),
+                h("div", { className: "agentRouteCopy" },
+                    h("strong", null, name),
+                    h("small", null, route.points?.[i])))))))),
+        h("div", { className: "agentFlowBottom" },
+            h("section", { className: "agentFlowPrompt" },
+                h("header", null,
+                    h("h2", null, "B\u1EA1n ch\u1EC9 c\u1EA7n ra y\u00EAu c\u1EA7u"),
+                    localCopyButton(() => editor.value)),
+                editor),
+            h("section", { className: "agentCloneGuide" },
+                h("h2", null,
+                    gitGuideMark('VS Code'),
+                    guide.title),
+                h("p", null, guide.text),
+                h("ol", null, guide.points?.map(point => h("li", null, agentGuideText(point)))),
+                h("p", { className: "agentPullTip" }, agentGuideText(guide.detail || '')))));
+}
 const workflowSummaryCss = `
-.workflowSummary{height:100%;display:flex;flex-direction:column;justify-content:center;gap:26px}.workflowSummary>.gitLead{font-size:22px;line-height:1.4;max-width:1120px}.workflowSummaryCards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}.workflowSummaryCard{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:18px;min-width:0;min-height:316px;padding:23px 21px;border:1px solid #b3915966;border-top:4px solid #b39159;border-radius:22px;background:linear-gradient(140deg,#fbfaf7,#f7f4ed);box-shadow:0 8px 22px #08294509}.workflowSummaryCard:not(:last-child)::after{content:'→';position:absolute;z-index:2;top:calc(50% - 16px);right:-24px;width:24px;text-align:center;color:#9d7944;font-size:26px;font-weight:800;animation:workflowArrowNudge 1.8s ease-in-out infinite}.workflowSummaryCard:nth-child(2)::after{animation-delay:.2s}.workflowSummaryCard:nth-child(3)::after{animation-delay:.4s}.workflowSummaryTop{display:flex;align-items:center;justify-content:space-between;width:100%}.workflowSummaryStep{color:#9d7944;font-size:15px;line-height:1;font-weight:850;letter-spacing:1px}.workflowSummaryIcon{display:grid;place-items:center;width:62px;height:62px;border:1px solid #b3915955;border-radius:17px;background:#fff;box-shadow:0 5px 14px #0829450d}.workflowSummaryIcon .gitMark{width:42px;height:42px}.workflowSummaryCard h2{margin:auto 0 0;color:#082945;font-size:22px;line-height:1.25;font-weight:800;letter-spacing:-.3px;text-wrap:balance}.workflowSummaryCard p{margin:0;color:#4d6577;font-size:18px;line-height:1.45;text-wrap:pretty}.workflowSummaryCard:nth-child(2n){background:linear-gradient(140deg,#f7f4ed,#f4dfb055)}@keyframes workflowArrowNudge{0%,100%{transform:translateX(-2px);opacity:.65}50%{transform:translateX(2px);opacity:1}}@media(prefers-reduced-motion:reduce){.workflowSummaryIcon,.workflowSummaryCard::after{animation:none!important;transform:none!important}}
+.workflowSummary{height:100%;display:flex;flex-direction:column;justify-content:center;gap:24px}.workflowSummary>.gitLead{font-size:22px;line-height:1.4;max-width:1120px}.workflowSummaryCards{position:relative;display:grid;grid-template-columns:1fr;gap:14px;width:1120px;max-width:100%;margin:0 auto}.workflowSummaryCards::before{content:'';position:absolute;top:46px;bottom:46px;left:45px;width:2px;background:#b3915977}.workflowSummaryCard{position:relative;display:grid;grid-template-columns:44px 52px 240px minmax(0,1fr);align-items:center;gap:22px;min-width:0;height:94px;padding:16px 22px;border:1px solid #b3915955;border-radius:20px;background:linear-gradient(110deg,#fbfaf7,#f7f4ed);box-shadow:0 4px 12px #08294505}.workflowSummaryTop{display:contents}.workflowSummaryStep{display:grid;place-items:center;width:44px;height:44px;border:1px solid #b3915977;border-radius:50%;background:#082945;color:#f4dfb0;font-size:17px;line-height:1;font-weight:800;letter-spacing:.5px}.workflowSummaryIcon{display:grid;place-items:center;width:52px;height:52px;background:transparent}.workflowSummaryIcon .gitMark{width:44px;height:44px}.workflowSummaryCard h2{margin:0;color:#082945;font-size:24px;line-height:1.25;font-weight:800;letter-spacing:-.4px;white-space:nowrap}.workflowSummaryCard p{margin:0;padding-left:24px;border-left:1px solid #b3915944;color:#4d6577;font-size:20px;line-height:1.4;white-space:nowrap}
+
+.workflowSummaryStep{position:relative;transform-origin:center;animation:workflowStepPulse 6.4s cubic-bezier(.22,1,.36,1) infinite}.workflowSummaryStep::after{content:'';position:absolute;inset:-4px;border:3px solid #f4dfb0;border-radius:50%;background:#e9ca8b33;box-shadow:0 0 18px #e9ca8b,0 0 32px #b3915988;pointer-events:none;opacity:0;animation:workflowStepGlow 6.4s linear infinite}.workflowSummaryCard:nth-child(2) .workflowSummaryStep,.workflowSummaryCard:nth-child(2) .workflowSummaryStep::after{animation-delay:1.6s}.workflowSummaryCard:nth-child(3) .workflowSummaryStep,.workflowSummaryCard:nth-child(3) .workflowSummaryStep::after{animation-delay:3.2s}.workflowSummaryCard:nth-child(4) .workflowSummaryStep,.workflowSummaryCard:nth-child(4) .workflowSummaryStep::after{animation-delay:4.8s}
+@keyframes workflowStepPulse{0%,24.99%,100%{transform:scale(1)}8%,14%{transform:scale(1.5)}}
+@keyframes workflowStepGlow{0%,20%{opacity:1}24.99%,100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.workflowSummaryStep{animation:none;transform:none}.workflowSummaryStep::after{animation:none;opacity:0}}
 `;
 function workflowSummary(s) { return h("div", { className: "workflowSummary" },
     h("style", null, workflowSummaryCss),
@@ -2983,6 +3582,10 @@ function workflowSummary(s) { return h("div", { className: "workflowSummary" },
         h("h2", null, c.title),
         h("p", null, c.text))))); }
 function gitIntro(s) {
+    if (s.visual === 'git-intro-agent-full-flow')
+        return agentFullFlowSlide(s);
+    if (s.visual === 'git-intro-agent-permissions')
+        return agentPermissionsSlide(s);
     if (s.visual === 'git-intro-workflow-summary')
         return workflowSummary(s);
     if (s.visual === 'git-intro-repo-showcase')
@@ -3175,8 +3778,13 @@ function aiBrandSlide(s) {
                             m.detail && h("code", null, m.detail)))),
                         h("p", { className: "aiModelAccess" }, s.note))))));
 }
+const sectionOneCopyCss = `
+.sectionOneCopyText::selection,.sectionOneCopyText ::selection{background:transparent!important;color:inherit!important;text-shadow:none!important}
+`;
 function slideStyles(s) {
     let styles = courseFontCss + css;
+    if (true)
+        styles += sectionOneCopyCss;
     if (s.visual === 'cover')
         styles += openingCss;
     if ((s.visual === 'cover' || s.visual === 'outcomes'))
@@ -3198,10 +3806,10 @@ function slide(s) { s = { ...s, number: s.layoutNumber ?? s.number }; if (['git-
     return aiBrandSlide(s); if (s.visual === 'lab-divider')
     return labDivider(s); return h("svg", { width: "100%", height: "100%", viewBox: "0 0 1280 720", xmlns: "http://www.w3.org/2000/svg", "data-preserve-original": "true" },
     h("foreignObject", { width: "1280", height: "720" },
-        h("div", { className: "eiu" + (s.visual === 'vscode-shortcuts' ? ' shortcutSlide' : '') + (s.visual === 'cover' ? ' coverSlide' : '') + (s.number === 1 ? ' sectionOneOpening' : '') + (s.number === 2 ? ' outcomesSlide' : '') + (s.visual === 'roles' ? ' roleSlide' : '') + (s.visual === 'features' ? ' featureSlide' : '') + (s.visual.startsWith('workspace-') ? ' workspaceSlide' : '') + (s.visual.startsWith('git-intro-') ? ' gitIntroSlide' : ''), xmlns: "http://www.w3.org/1999/xhtml" },
+        h("div", { spellcheck: s.section !== 1, autocorrect: "off", autocapitalize: "off", className: "eiu" + (' sectionOneCopyText') + (s.visual === 'vscode-shortcuts' ? ' shortcutSlide' : '') + (s.visual === 'cover' ? ' coverSlide' : '') + (s.number === 1 ? ' sectionOneOpening' : '') + (s.number === 2 ? ' outcomesSlide' : '') + (s.visual === 'roles' ? ' roleSlide' : '') + (s.visual === 'features' ? ' featureSlide' : '') + (s.visual.startsWith('workspace-') ? ' workspaceSlide' : '') + (s.visual.startsWith('git-intro-') ? ' gitIntroSlide' : ''), xmlns: "http://www.w3.org/1999/xhtml" },
             h("style", null, slideStyles(s)),
             s.visual.startsWith('workspace-') && h("img", { className: "workspaceCornerLogo", src: assets['VS Code'], alt: "VS Code" }),
-            s.visual.startsWith('git-intro-') && !(s.number >= 11 && s.number <= 21) && h("div", { className: "gitGuideCorner" },
+            s.visual.startsWith('git-intro-') && !(s.number >= 11 && s.number <= 21) && !['git-intro-agent-full-flow', 'git-intro-agent-permissions'].includes(s.visual) && h("div", { className: "gitGuideCorner" },
                 gitGuideMark(s.cards.some(c => c.logo === 'VS Code') ? 'VS Code' : 'Git'),
                 gitGuideMark('GitHub')),
             h("main", { className: "content" },

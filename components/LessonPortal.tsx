@@ -968,12 +968,12 @@ export default function LessonPortal({
                     View file
                   </button>
                 )}
-                {hasUploadedDeck && (
+                {hasUploadedDeck && courseSection.contentType !== "tsx" && course.id !== "a857595d-def0-4543-9216-a680c6abfe26" && !course.title?.includes("Web App") && (
                   <a
                     className={styles.sectionPptxLink}
                     href={`/api/sections/${encodeURIComponent(courseSection.id)}/content?download=1`}
-                    download={courseSection.contentType === "tsx" ? (courseSection.sourceFilename || "Lesson.js").replace(/\.tsx$/i,".js") : courseSection.sourceFilename || "Presentation."+courseSection.contentType}
-                    title={courseSection.contentType === "tsx" ? "Download the JavaScript lesson" : "Download the original presentation"}
+                    download={courseSection.sourceFilename || "Presentation."+courseSection.contentType}
+                    title="Download the original presentation"
                   >
                     Download
                   </a>

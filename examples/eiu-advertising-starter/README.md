@@ -1,86 +1,75 @@
-# Lumi Studio · website quảng cáo mẫu EIU
+# Lumi Studio · EIU Advertising Starter
 
-Dự án Next.js có giao diện quảng cáo, animation nhẹ, tab khám phá, chọn gói, FAQ và form đăng ký. Form kiểm tra tên/email, lưu đăng ký trên trình duyệt và hiện xác nhận. Đây là bản thực hành: chưa gửi email hoặc lưu vào database dùng chung.
+Bộ mã nguồn dự án mẫu website quảng cáo dịch vụ **Lumi Studio**, được thiết kế tinh gọn trên nền **Next.js App Router (React)** và **CSS thuần**, phục vụ bài thực hành trong khóa học **AI-Powered Web Development**.
 
-## Bắt đầu
+---
 
-1. Cài Node.js LTS từ https://nodejs.org/en/download. Next.js cần Node.js từ 20.9 trở lên.
-2. Giải nén ZIP. Mở đúng thư mục `eiu-advertising-starter` chứa `package.json` trong VS Code.
-3. Mở Terminal → New Terminal và chạy:
+## 1. Cấu trúc dự án
 
+```text
+eiu-advertising-starter/
+├── app/
+│   ├── globals.css          # Toàn bộ stylesheet và biến màu EIU
+│   ├── layout.js            # Layout gốc Next.js
+│   └── page.js              # Trang chủ hiển thị website
+├── components/
+│   └── MarketingSite.js     # Giao diện chính: Header, Hero, Plans, Modal, FAQ
+├── data/
+│   └── site.js              # Dữ liệu nội dung (kế hoạch, dịch vụ, câu hỏi)
+├── lib/
+│   └── registrations.mjs    # Xử lý đăng ký tư vấn phía client
+├── tests/
+│   └── registrations.test.mjs # Unit test kiểm tra luồng form
+├── AGENTS.md                # Tài liệu định hướng và lộ trình cho AI Agent
+├── package.json             # Cấu hình scripts dev, build, test
+└── README.md                # Tài liệu hướng dẫn này
+```
+
+---
+
+## 2. Quy trình thực hành trong Section 1
+
+### Bước 1: Mở và khám phá trong VS Code
+1. Giải nén file `.zip`.
+2. Mở VS Code: **File → Open Folder** và chọn thư mục `eiu-advertising-starter`.
+3. Xem file `data/site.js` (nơi đổi nội dung) và `app/globals.css` (nơi đổi màu sắc).
+
+### Bước 2: Chạy kiểm tra với Node.js
+Mở Terminal trong VS Code (**Terminal → New Terminal**) và chạy:
 ```bash
+# Cài đặt dependencies
 npm install
+
+# Chạy bản thử nghiệm cục bộ
 npm run dev
 ```
+Giữ phím **Ctrl** và click vào đường dẫn `http://localhost:3000` trên Terminal để xem giao diện trên trình duyệt.
 
-4. Mở **http://localhost:3000** và thử chọn tab, chọn gói, gửi form, đóng form và mở FAQ.
-5. Giữ terminal đang chạy. Lưu file sau mỗi lần sửa để xem thay đổi trên trình duyệt. Dừng bằng Ctrl+C.
-
-Nếu cổng 3000 đang được dự án khác sử dụng, dừng terminal chạy dự án đó trước khi chạy mẫu này.
-
-## Các lệnh có ý nghĩa gì?
-
-| Lệnh | Công việc |
-|---|---|
-| `npm install` | Cài thư viện khai báo trong package.json; tạo node_modules. Chạy khi mới giải nén hoặc khi thư viện thay đổi. |
-| `npm run dev` | Chạy bản phát triển; hỗ trợ xem thay đổi nhanh ở localhost:3000. |
-| `npm run build` | Tạo và kiểm tra bản production; không tự deploy, không tự mở server. |
-| `npm run start` | Chạy bản production sau khi build thành công. |
-| `npm test` | Kiểm tra chức năng lưu đăng ký mẫu. |
-
-Kiểm tra bản production trên máy:
-
+Chạy kiểm tra tự động:
 ```bash
-# Dừng dev trước bằng Ctrl+C
-npm run build
-npm run start
+npm test
 ```
 
-## Nên sửa file nào?
-
-- `data/site.js`: thương hiệu, tiêu đề, mô tả, các gói và FAQ.
-- `app/globals.css`: màu, font, bố cục, responsive và animation. Màu chính nằm trong `:root`.
-- `components/MarketingSite.js`: các mục giao diện, tab, modal và form.
-- `lib/registrations.mjs`: kiểm tra/lưu đăng ký mẫu trên trình duyệt.
-- `app/layout.js`: tiêu đề tab và mô tả website.
-
-Không sửa `node_modules` hoặc `.next`: đó là thư viện và file được công cụ tạo ra.
-
-## Chỉnh cùng AI trong VS Code
-
-Mở project này trong VS Code. Dùng trợ lý AI/Agent đã cài và đăng nhập. Trợ lý có thể tìm file, đọc mã liên quan và đề xuất hoặc áp dụng bản sửa tùy chế độ/quyền. Nó không mặc định đưa toàn bộ project vào một câu hỏi. Khi cần, đính kèm file cụ thể hoặc dùng Add Context.
-
-Prompt thử:
-
-> Hãy đọc README.md, package.json, data/site.js và components/MarketingSite.js trong project đang mở. Đổi website thành quảng cáo workshop nhiếp ảnh. Giữ form đăng ký, tab khám phá, FAQ và responsive đang hoạt động. Sửa nội dung và màu theo chủ đề mới. Nêu các file đã sửa và cách tôi kiểm tra ở localhost:3000. Chưa deploy hoặc push.
-
-Đọc diff, thử giao diện/form, rồi mới Commit. Tùy chỉnh thêm theo ý tưởng của bạn. Nếu thay thư viện, đọc và chạy lại npm install.
-
-## Đưa lên GitHub
-
-ZIP không chứa `.git`. Để tạo repo local:
-
+### Bước 3: Quản lý mã nguồn với Git & GitHub
+Khởi tạo và đẩy mã nguồn lên GitHub:
 ```bash
-git init -b main
+git init
 git add .
-git commit -m "Add advertising website"
+git commit -m "feat: khoi tao project Lumi Studio"
+git branch -M main
+git remote add origin https://github.com/<tai-khoan>/<repo-cua-ban>.git
+git push -u origin main
 ```
 
-`.gitignore` đã loại `node_modules`, `.next` và `.env`. Dùng **Publish to GitHub** trong VS Code, chọn tên repo còn trống và quyền riêng tư phù hợp.
+---
 
-Sau lần Publish đầu tiên, kiểm tra `git remote -v` và `git branch --show-current`.
+## 3. Lộ trình tích hợp Section 2 (Supabase & Vercel)
 
-- `main`: nhánh chính. Với repo cá nhân, có thể Commit/Push bản đã kiểm tra lên main; quy tắc bảo vệ nhánh có thể yêu cầu Pull Request.
-- Nhánh riêng: tạo `feature/landing-refresh` để thử thay đổi, Commit/Push nhánh đó, rồi tạo Pull Request về main và xem xét trước khi Merge.
+Trong **Section 2**, bạn sẽ sử dụng AI Agent để nâng cấp dự án:
+- **Cơ sở dữ liệu Supabase**: Chuyển việc lưu form đăng ký vào bảng `registrations` trên Supabase Database.
+- **Triển khai Vercel**: Đưa website lên internet với tên miền miễn phí thông qua Vercel.
 
-```bash
-git switch -c feature/landing-refresh
-# Chỉnh sửa, kiểm tra localhost và npm run build
-git add .
-git commit -m "Customize landing page"
-git push -u origin feature/landing-refresh
-```
+Dự án đã có sẵn file [`AGENTS.md`](./AGENTS.md). Khi bước vào Section 2, bạn chỉ cần ra lệnh cho AI Agent (Codex, Antigravity, Claude...):
+> *"Hãy đọc file AGENTS.md và tiến hành kết nối Supabase cho form đăng ký Lumi Studio, sau đó hướng dẫn deploy lên Vercel."*
 
-Nếu đang ở main và đã có remote đúng, bản sửa được kiểm tra có thể đưa lên bằng `git push origin main`. Push gửi mã lên GitHub; việc deploy website là một bước riêng.
-
-Website dùng dữ liệu minh họa. Khi làm sản phẩm thật, bổ sung nơi lưu và quy trình xử lý đăng ký phù hợp.
+AI Agent sẽ đọc hiểu kiến trúc và tự động vạch ra lộ trình thực hiện từng bước chuẩn xác!

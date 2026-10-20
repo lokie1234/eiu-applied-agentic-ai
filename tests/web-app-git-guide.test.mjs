@@ -125,7 +125,7 @@ test('practice cards open readable details without the old app tab strip',async(
    assert.ok(doc.querySelector('.gitIntroSlide'));
    const buttons=[...doc.querySelectorAll('.gitChoice')];
    if(slide.number>=17&&slide.number<=20){
-    assert.equal(doc.querySelectorAll('.inlineWorkflowCard').length,3);
+    assert.equal(doc.querySelectorAll('.inlineWorkflowCard,.buildReviewRow').length,3);
     assert.equal(doc.querySelector('.inlineWorkflowCard>small'),null);
     assert.equal(doc.querySelector('.inlineWorkflowNote'),null);
     if(slide.number===19){
@@ -140,8 +140,8 @@ test('practice cards open readable details without the old app tab strip',async(
      assert.equal(doc.querySelector('[role=dialog]'),null);
      assert.equal(doc.activeElement,trigger);
     }else assert.equal(doc.querySelector('[aria-haspopup=dialog]'),null);
-    assert.deepEqual([...doc.querySelectorAll('.inlineWorkflowCards pre')].map(el=>el.textContent),slide.cards.filter(c=>c.code).map(c=>c.code));
-    assert.equal(doc.querySelectorAll('.inlineWorkflowCards .copyControl').length,slide.cards.filter(c=>c.code).length);
+    assert.deepEqual([...doc.querySelectorAll('.inlineWorkflowCards pre,.buildReviewCommand pre')].map(el=>el.textContent),slide.cards.filter(c=>c.code).map(c=>c.code));
+    assert.equal(doc.querySelectorAll('.inlineWorkflowCards .copyControl,.buildReviewCommand .copyControl').length,slide.cards.filter(c=>c.code).length);
     continue;
    }
    if(slide.number===16){
@@ -694,8 +694,8 @@ test('slide 8 builds copyable PowerShell identity commands from user inputs and 
  }finally{await window.happyDOM.close();}
 });
 
-test('slide 20 validates the GitHub URL, updates commands and copies a snapshot of the entered repository',async()=>{
- const window=renderDisplay(21),doc=window.document;
+test('publishing slide validates the GitHub URL, updates commands and copies a snapshot of the entered repository',async()=>{
+ const window=renderDisplay(sectionSlides.find(s=>s.visual==='git-intro-publish').number),doc=window.document;
  try{
   const editor=doc.querySelector('.editableGit[data-mode=repo]');
   const field=editor.querySelector('input');

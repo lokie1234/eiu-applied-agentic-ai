@@ -1,3 +1,43 @@
+## Quy tắc text sao chép Section 1 · 20/10/2026
+
+Toàn bộ text, lệnh, prompt và ô nhập trong Section 1 không hiện nền xanh khi chọn chữ. Giữ khả năng chọn, sửa và sao chép bình thường. Tắt spellcheck bằng boolean trên khung HTML của slide để ô nhập và popup tạo sau cũng kế thừa; giữ autocorrect/autocapitalize tắt. Dùng CSS vùng chọn trong suốt, không dùng user-select:none. Quy tắc chỉ áp dụng Section 1.
+
+## Slide 27 mới · Mức quyền AI Agent · 20/10/2026
+
+Cập nhật layout: icon 58px trong nút 76px có dấu thông tin, bấm mở popup hướng dẫn chọn mode riêng cho từng AI. Popup hỗ trợ nút đóng, nền, Escape, giữ focus bên trong và trả focus về icon. Bỏ chú thích dưới tên và footer. Ba cột cao 550px, tên 26px, mô tả 16px. Full access, Turbo và Bypass phóng nhẹ 1,025 lần, kèm viền vàng sáng lệch nhịp 3,6 giây; reduced motion tắt toàn bộ chuyển động. Popup chỉ hiển thị hướng dẫn, không thay đổi quyền thực tế.
+
+Chèn sau slide 26, các slide sau tăng số hiển thị nhưng giữ layoutNumber; Section 1 hiện có 30 slide. Ba cột Codex, Antigravity và Claude Code dùng nền kem, mỗi mode là một hàng giải thích dễ hiểu về việc AI tự làm và khi nào hỏi người dùng. Full access, Turbo và Bypass được nhấn nền navy–vàng. Giữ vị trí chọn mode, bỏ các link và dòng khả dụng khỏi phần hiển thị. Ba icon nổi nhẹ, xoay và phóng nhẹ lệch nhịp theo vòng 3,6 giây; tắt khi reduced motion. Đây là nội dung giải thích, không đổi quyền thực tế. Font Inter, mô tả 16px, đủ nội dung trên canvas 1280×720, không cần cuộn. Nguồn biên soạn lưu trong ghi chú: https://learn.chatgpt.com/docs/permission-modes ; https://www.antigravity.google/docs/permissions ; https://www.antigravity.google/docs/settings ; https://code.claude.com/docs/en/permission-modes .
+
+## Slide 26 mới · AI Agent xử lý hai chiều · 20/10/2026
+
+Rút gọn nội dung: tiêu đề “Bạn ra yêu cầu · AI lo cả luồng”, thông điệp nhấn AI làm trong quyền đã cấp và người dùng kiểm tra, quyết định đi tiếp hoặc sửa. Mỗi chặng sơ đồ chỉ giữ cụm từ chính (sửa code, test/build, diff/commit, push; pull/clone, cài thư viện/chạy app, chỉnh tiếp). Prompt rút còn bốn dòng; hướng dẫn Clone giữ bốn ý ngắn và nhắc Git: Pull. Giữ bố cục, animation và chức năng chỉnh/copy prompt.
+
+Chèn ngay sau slide 25, tăng số hiển thị các slide sau nhưng giữ layoutNumber cũ; Section 1 có 29 slide. Sơ đồ hai hàng VS Code → Node.js → Git → GitHub và chiều ngược lại, gồm đọc/sửa code, test/build, diff/commit/push, pull/clone, cài thư viện và chạy lại app. Tám chặng sáng tuần tự theo đúng chiều trong vòng 8 giây; mũi tên dịch nhẹ, chỉ animate opacity/transform, dừng theo reduced motion. Phía dưới có prompt sửa toàn bộ/copy và bốn bước Clone trong VS Code qua Ctrl+Shift+P → Git: Clone → Clone from GitHub → chọn repo → thư mục cha → Open. Phân biệt Git: Pull cho repo local đã có. Nêu AI làm trong quyền đã cấp, người dùng xem kết quả; không ngụ ý bỏ qua xác thực hay quyền GitHub. Font Inter, EIU kem–navy–vàng, nội dung mặc định hiển thị đầy đủ, không gạch đỏ hoặc nền xanh vùng chọn. Nguồn hướng dẫn: https://code.visualstudio.com/docs/sourcecontrol/repos-remotes và https://code.visualstudio.com/docs/sourcecontrol/github .
+
+## Slide 25 Section 1 · 20/10/2026
+
+Giữ tiêu đề và không hiện câu dẫn. Hai khung Pull xếp dọc trong cột trái 460px; khung Clone rộng bên phải trải hai hàng, tổng cao 520px. Clone có hai ô URL GitHub HTTPS và tên thư mục; lệnh git clone chỉ rõ thư mục đích, cd dùng cùng tên, quote an toàn cho PowerShell. Preview và copy cập nhật theo dữ liệu, chỉ bật khi hợp lệ; thay dữ liệu tạo snapshot copy mới. Không hiện dòng nhắc nhập URL mặc định; vẫn báo lỗi dữ liệu sai. Tắt spellcheck bằng boolean và nền xanh vùng chọn. Font Inter, nền kem và khối lệnh navy; không tràn canvas.
+
+## Slide 23 Section 1 · 20/10/2026
+
+Giữ nguyên tiêu đề, câu dẫn, nội dung ba bước và câu lệnh. Ba khung kem viền vàng xếp dọc: tạo repository có nút Hướng dẫn bên phải; nối địa chỉ repo có ô URL HTTPS phía dưới hướng dẫn, preview lệnh và nút copy cạnh nhau; gửi mã nguồn có khung lệnh navy và copy bên phải. Không thêm số bước. Font Inter, tiêu đề 24px, nội dung 18px, lệnh Push 19px. Giữ popup, link GitHub, kiểm tra URL hợp lệ và snapshot sao chép; toàn bộ vừa canvas, không cuộn.
+
+## Slide 21 Section 1 · 20/10/2026
+
+Giữ nguyên nội dung và câu lệnh. Ba hàng ngang nền kem, viền vàng mảnh, bo 22px; bỏ số bước 01/02/03. Hai hàng đầu cao 156px: icon, tên bước và hướng dẫn bên trái; khung lệnh navy và nút sao chép bên phải. Hàng nhờ AI sửa lỗi cao 104px, tiêu đề và mô tả căn ngang. Tiêu đề 24px, hướng dẫn 19–20px, lệnh Inter 20px. Nút sao chép giữ nguyên nội dung lệnh; không thêm popup hoặc ghi chú dưới slide.
+
+## Slide 20 Section 1 · 20/10/2026
+
+Giữ nguyên tiêu đề, câu dẫn và nội dung bốn bước. Bốn hàng ngang 1120×94px, cách 14px, cùng nền kem, chữ navy và viền vàng mảnh. Số tròn nối theo trục dọc; icon 44px, tiêu đề 24px và mô tả 20px căn cùng hàng. Toàn bộ vòng tròn và số bên trong lần lượt phóng lên 1.5 lần, giữ nhịp ngắn rồi thu về trước khi tới số tiếp theo: 01 → 02 → 03 → 04. Viền vàng dày 3px và quầng sáng rõ hơn đồng bộ với nhịp phóng; mỗi lượt 1.6 giây, chu kỳ 6.4 giây rồi lặp. Chỉ animate transform và opacity, không làm xê dịch hàng; dừng theo prefers-reduced-motion.
+
+## Slide 18 Section 1 · 20/10/2026
+
+Cột trái rộng 420px, tiêu đề và từng bullet nằm trên một dòng; bước quyết định tách thành ba bullet. Khung navy bên phải cho sửa toàn bộ prompt, dùng Inter 18px và nút sao chép ở góc trên phải lấy trực tiếp giá trị hiện tại. Tắt spellcheck và không bôi xanh vùng chọn. Bốn icon Git, GitHub, VS Code, Node.js nền trong suốt ở góc dưới phải khung prompt; dùng chung vật lý rơi/nảy, rê chuột hoặc chạm hất lên của slide 15. Giữ vùng tương tác riêng, không che chữ và tôn trọng reduced motion. Prompt mẫu hiển thị đầy đủ; khung cao 490px, không tràn canvas.
+
+## Slide 15 Section 1 · 20/10/2026
+
+Bỏ hero Lumi Studio. Hai cột cao 570px: prompt bên trái có ô sửa mô tả website, sao chép lấy nội dung mới nhất. Footer có 16 icon tròn không nhãn: VS Code, Claude, Codex, Antigravity và đủ 12 AI trong dải logo slide 6. Icon rơi, nảy, tách nhau khi chạm; rê chuột hoặc chạm hất lên rồi rơi xuống trong vùng riêng, dừng khi đứng yên. Nút tải mẫu có animation bên phải. Bốn thành phần có mô tả 18px. Giữ popup tải ZIP, cấu trúc dự án và reduced motion.
+
 ## Slide 3 redesign · 18/10/2026
 
 Bỏ mô phỏng giao diện; dùng toàn bộ khung slide làm nền gradient navy. Chỉ hiển thị một cụm ngang căn giữa: icon VS Code lớn bên trái và chữ “VS Code” cỡ lớn có animation nhẹ bên phải. Bỏ dải quy trình và mọi nội dung phụ; tôn trọng `prefers-reduced-motion`.
