@@ -55,7 +55,7 @@ function easeInOutCubic(x: number): number {
 
 type BotPhase = "flying" | "docked" | "departing";
 
-export default function EiuAgentBot() {
+export default function EiuAgentBot({ reducedMotion = false }: { reducedMotion?: boolean }) {
   const containerRef = useRef<HTMLElement | null>(null);
   const botRef = useRef<HTMLDivElement | null>(null);
 
@@ -67,6 +67,8 @@ export default function EiuAgentBot() {
   const animFrameRef = useRef<number | null>(null);
   const pauseTimerRef = useRef<NodeJS.Timeout | null>(null);
   const departTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const sparkleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(() => () => { if (sparkleTimer.current) clearTimeout(sparkleTimer.current); }, []);
 
   // Helper to retrieve exact button coordinates relative to container
   // Positioned strictly BELOW the Access courses button (zero text overlap & no button overlap)
@@ -117,7 +119,8 @@ export default function EiuAgentBot() {
       };
     });
     setSparkles(burst);
-    setTimeout(() => setSparkles([]), 650);
+    if (sparkleTimer.current) clearTimeout(sparkleTimer.current);
+    sparkleTimer.current = setTimeout(() => setSparkles([]), 650);
   };
 
   // Run recurring flight loop:
@@ -126,7 +129,7 @@ export default function EiuAgentBot() {
   // stops at Access courses button with "Click here" text (KHÔNG ĐÈ NÚT),
   // pauses for ~3.8s, then departs to start a brand new flight loop!
   useEffect(() => {
-    if (typeof window === "undefined" || !containerRef.current) return;
+    if (reducedMotion || typeof window === "undefined" || !containerRef.current) return;
 
     let isCancelled = false;
 
@@ -243,10 +246,11 @@ export default function EiuAgentBot() {
       if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
       if (departTimerRef.current) clearTimeout(departTimerRef.current);
     };
-  }, []);
+  }, [reducedMotion]);
 
   // Window resize handler: maintains exact docking position below button
   useEffect(() => {
+    if (reducedMotion) return;
     const handleResize = () => {
       if (phaseRef.current === "docked" && botRef.current) {
         const landing = getButtonLandingPoint();
@@ -256,7 +260,7 @@ export default function EiuAgentBot() {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [reducedMotion]);
 
   return (
     <aside ref={containerRef} className={styles.botContainer} aria-hidden="true">
@@ -266,12 +270,12 @@ export default function EiuAgentBot() {
           =================================================================== */}
       <div
         ref={botRef}
-        className={`${styles.botWrapper} ${phase === "docked" ? styles.docked : ""}`}
+        className={`${styles.botWrapper} ${reducedMotion ? styles.staticBot : ""} ${!reducedMotion && phase === "docked" ? styles.docked : ""}`}
         onClick={handleBotClick}
         title="EIU AI Guardian & Scout Duo (Click to access courses!)"
       >
         {/* "Click here" Speech Bubble / Tooltip (Strictly BELOW Access courses button, zero text overlap) */}
-        {phase === "docked" && (
+        {!reducedMotion && phase === "docked" && (
           <div
             className={styles.clickHereBubble}
             onClick={handleBotClick}

@@ -37,8 +37,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   font-size: 10px; font-weight: 800; cursor: pointer;
 }
 .showcase-delete-button:disabled { opacity: .5; cursor: default; }
-.header-logo-window { position: relative; overflow: hidden; flex-shrink: 0; }
-.header-logo-window { width: 145px; height: 42px; }
+.header-logo-window { position: relative; overflow: hidden; flex-shrink: 0; width: 126px; height: 36px; }
 .eiu-original-logo {
   position: absolute; left: 50%; top: 50%; width: 100%; height: auto; max-width: none;
   transform: translate(-50%, -50%) scale(1.39); transform-origin: center; pointer-events: none; user-select: none;
@@ -72,11 +71,6 @@ button, a { -webkit-tap-highlight-color: transparent; }
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.header-logo-window {
-  width: 126px;
-  height: 36px;
 }
 
 .deck-brand-line {

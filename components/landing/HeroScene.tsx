@@ -1,6 +1,6 @@
 "use client";
 
-import { Component, type ReactNode, Suspense, useCallback, useEffect, useRef, useState } from "react";
+import { Component, type ReactNode, Suspense, memo, useCallback, useEffect, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 import GuardianRobot3D, { type RobotInteractionState } from "./GuardianRobot3D";
@@ -186,7 +186,7 @@ function EiuStudioLightingEnvironment() {
   return null;
 }
 
-export default function HeroScene({
+function HeroScene({
   mouseRef,
   stage,
   robotState = "idle",
@@ -249,3 +249,5 @@ export default function HeroScene({
     </div>
   );
 }
+
+export default memo(HeroScene);

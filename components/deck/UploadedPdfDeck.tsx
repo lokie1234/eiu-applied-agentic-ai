@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Document, Page, pdfjs } from "react-pdf";
+import "react-pdf/dist/Page/AnnotationLayer.css";
 import SharedDeckFrame from "./SharedDeckFrame";
 import EiuTemplateFrame from "./EiuTemplateFrame";
 import HairlineLoading from "@/components/HairlineLoading";

@@ -8,8 +8,6 @@ import styles from "./LandingExperience.module.css";
 import AnimatedHeroCopy from "./landing/AnimatedHeroCopy";
 import EntranceBootOverlay from "./landing/EntranceBootOverlay";
 import type { IdentityField } from "@/lib/learningIdentity";
-// Keep original SVG bot for reduced-motion fallback
-import EiuAgentBot from "./EiuAgentBot";
 
 import { type RobotInteractionState } from "./landing/GuardianRobot3D";
 
@@ -18,6 +16,8 @@ const HeroScene = dynamic(() => import("./landing/HeroScene"), {
   ssr: false,
   loading: () => null,
 });
+// Download the SVG fallback only when reduced motion or a renderer failure needs it.
+const EiuAgentBot = dynamic(() => import("./EiuAgentBot"), { ssr: false });
 
 // ═══════════════════════════════════════════════════════════════
 // AUTH & INTERACTION STATE
@@ -30,8 +30,15 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(googleResult && googleResult !== "connected" ? googleResult === "wrong-account" ? "Google sign-in is available only for the administrator account." : "Google sign-in did not complete. Please try again." : "");
   const [robotState, setRobotState] = useState<RobotInteractionState>("idle");
+  const resetRobotTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const accessRequest = useRef<AbortController | null>(null);
+  useEffect(() => () => {
+    if (resetRobotTimer.current) clearTimeout(resetRobotTimer.current);
+    accessRequest.current?.abort();
+  }, []);
 
   function changePasscode(value: string) {
+    if (resetRobotTimer.current) clearTimeout(resetRobotTimer.current);
     setPasscode(value);
     setIdentityFields([]);
     setInformation({});
@@ -40,13 +47,16 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (loading) return;
+    if (loading || accessRequest.current) return;
 
     const cleanPasscode = passcode.trim();
-    if (!/^[A-Za-z0-9-]{4,32}$/.test(cleanPasscode)) {
-      setError("Please enter a valid passcode.");
+    if (!/^[0-9]{6}$/.test(cleanPasscode)) {
+      setError("Enter your 6-digit passcode.");
       return;
     }
+    if (resetRobotTimer.current) clearTimeout(resetRobotTimer.current);
+    const controller = new AbortController();
+    accessRequest.current = controller;
     setLoading(true);
     setError("");
     setRobotState("loading");
@@ -55,9 +65,11 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
       const response = await fetch("/api/auth/access", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]),
         body: JSON.stringify({ passcode: cleanPasscode, ...(identityFields.length ? { information } : {}) }),
       });
       const payload = (await response.json()) as { success?: boolean; message?: string; destination?: string; requiresInformation?: boolean; fields?: IdentityField[] };
+      if (controller.signal.aborted) return;
       if (payload.requiresInformation && payload.fields?.length) {
         setIdentityFields(payload.fields);
         setLoading(false);
@@ -72,14 +84,15 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
       // Xác thực thành công: dạng users hoặc đúng pass admin
       // Kính mặt robo hiện loading.... màu xanh
       setRobotState("loading");
-      setTimeout(() => {
-        window.location.replace("/learn");
-      }, 1500);
+      window.location.replace("/learn");
     } catch (caught) {
+      if (controller.signal.aborted) return;
       setRobotState("restricted");
       setError(caught instanceof Error ? caught.message : "Unable to sign in. Please verify your credentials.");
       setLoading(false);
-      setTimeout(() => setRobotState("idle"), 2800);
+      resetRobotTimer.current = setTimeout(() => setRobotState("idle"), 2800);
+    } finally {
+      if (accessRequest.current === controller) accessRequest.current = null;
     }
   }
   // ═══════════════════════════════════════════════════════════════
@@ -91,49 +104,60 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
 
   // Mouse tracking via ref for zero per-frame React re-renders
   const mouseRef = useRef({ x: 0, y: 0 });
+  const pointerFrame = useRef<number | null>(null);
+  const pendingPointer = useRef({ x: 0, y: 0 });
+  useEffect(() => () => {
+    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
+  }, []);
 
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
-    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-    mouseRef.current = {
-      x: ((e.clientX - rect.left) / rect.width) * 2 - 1,
-      y: -((e.clientY - rect.top) / rect.height) * 2 + 1,
-    };
+  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerType === "touch") return;
+    const surface = e.currentTarget;
+    pendingPointer.current.x = e.clientX;
+    pendingPointer.current.y = e.clientY;
+    if (pointerFrame.current !== null) return;
+    pointerFrame.current = requestAnimationFrame(() => {
+      pointerFrame.current = null;
+      const rect = surface.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      mouseRef.current.x = ((pendingPointer.current.x - rect.left) / rect.width) * 2 - 1;
+      mouseRef.current.y = -((pendingPointer.current.y - rect.top) / rect.height) * 2 + 1;
+    });
   }, []);
 
   // CTA interaction synchronization
   const [isCtaHovered, setIsCtaHovered] = useState(false);
-  const ctaPulsed = false;
+  const accessHovered = useRef(false);
+  const accessFocused = useRef(false);
+  function syncAccessAttention() {
+    const active = accessHovered.current || accessFocused.current;
+    setIsCtaHovered(active);
+    setRobotState(previous => {
+      if (["loading", "processing", "shakeError", "restricted"].includes(previous)) return previous;
+      if (active && previous === "idle") return "lookingAtAccess";
+      if (!active && (previous === "lookingAtAccess" || previous === "typing")) return "idle";
+      return previous;
+    });
+  }
 
   // ── Master Cinematic Timeline (Accelerated internal emergence) ──
-  // Stage 0: 0.0s   - Environment awake
-  // Stage 1: 0.15s  - EIU logo and nav fade in
-  // Stage 2: 0.35s  - Eyebrow / Headline lead "Build systems that"
-  // Stage 3: 0.65s  - Word "think" reveals -> Robot AI Core pulse
-  // Stage 4: 0.95s  - Word "move" reveals -> Orbit system spins up & tagline
-  // Stage 5: 1.20s  - Inline Login card emerges right as overlay dissolves!
-  // Stage 6: 1.50s  - Workflow synchronization
-  // Stage 7: 1.80s  - System stable readiness
-  // Stage 8: 2.10s  - Interactive mode active
-  // Stage 9: 2.40s  - Full stable idle ambient mode
+  // Only advance stages used by copy, orbit activation and data packets.
   const [stage, setStage] = useState(0);
   const reducedMotionReady = Boolean(prefersReduced && stage > 0);
 
   useEffect(() => {
     if (prefersReduced) {
-      const timer = setTimeout(() => setStage(9), 0);
+      const timer = setTimeout(() => setStage(7), 0);
       return () => clearTimeout(timer);
     }
 
     const timers = [
       setTimeout(() => setStage(1), 150),
       setTimeout(() => setStage(2), 350),
-      setTimeout(() => setStage(3), 650),
       setTimeout(() => setStage(4), 950),
       setTimeout(() => setStage(5), 1200),
       setTimeout(() => setStage(6), 1500),
       setTimeout(() => setStage(7), 1800),
-      setTimeout(() => setStage(8), 2100),
-      setTimeout(() => setStage(9), 2400),
     ];
 
     return () => {
@@ -161,7 +185,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
   return (
     <main
       className={styles.page}
-      onMouseMove={handleMouseMove}
+      onPointerMoveCapture={handlePointerMove}
       style={{
         opacity: isOverlayExiting || !isEntranceActive ? 1 : 0.94,
         transform: isOverlayExiting || !isEntranceActive ? "scale(1)" : "scale(0.995)",
@@ -189,7 +213,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
       </div>
 
       {/* ── Fullscreen WebGL Hero Scene: Guardian Robot 3D + World Orbits (Unconstrained, Spanning Entire Web Space) ── */}
-      {!reducedMotionReady && (
+      {stage > 0 && !reducedMotionReady && !sceneUnavailable && (
         <div
           style={{
             position: "absolute",
@@ -205,7 +229,6 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
             stage={stage}
             robotState={robotState}
             isCtaHovered={isCtaHovered}
-            ctaPulsed={ctaPulsed}
             enter={isOverlayExiting || !isEntranceActive}
             onReady={handleSceneReady}
             onUnavailable={handleSceneUnavailable}
@@ -230,7 +253,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
             alt="Eastern International University"
             width={2048}
             height={2048}
-            priority
+            preload
             unoptimized
           />
         </div>
@@ -243,6 +266,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
         <div className={styles.copy}>
           <AnimatedHeroCopy
             stage={stage}
+            entranceReady={isOverlayExiting || !isEntranceActive}
             passcode={passcode}
             setPasscode={changePasscode}
               identityFields={identityFields}
@@ -253,26 +277,21 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
             loading={loading}
             error={error}
             onSubmit={submit}
-              onMethodChange={() => { setError(""); setPasscode(""); setIdentityFields([]); setInformation({}); }}
+              onMethodChange={() => { accessFocused.current = false; syncAccessAttention(); setError(""); setPasscode(""); setIdentityFields([]); setInformation({}); }}
             onInputFocus={() => {
-              setIsCtaHovered(true);
-              setRobotState((prev) => (prev === "loading" || prev === "processing" || prev === "restricted" ? prev : "lookingAtAccess"));
+              accessFocused.current = true;
+              syncAccessAttention();
             }}
             onInputBlur={() => {
-              setIsCtaHovered(false);
-              setRobotState((prev) => (prev === "loading" || prev === "processing" || prev === "shakeError" || prev === "restricted" ? prev : "idle"));
+              accessFocused.current = false;
+              syncAccessAttention();
             }}
             onInputChange={() => {
               setRobotState((prev) => (prev === "loading" || prev === "processing" ? prev : "typing"));
             }}
             onCtaHover={(hovered) => {
-              setIsCtaHovered(hovered);
-              setRobotState((prev) => {
-                if (prev === "loading" || prev === "processing" || prev === "shakeError" || prev === "restricted") return prev;
-                if (hovered && prev === "idle") return "lookingAtAccess";
-                if (!hovered && prev === "lookingAtAccess") return "idle";
-                return prev;
-              });
+              accessHovered.current = hovered;
+              syncAccessAttention();
             }}
           />
         </div>
@@ -280,10 +299,10 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
         {/* Right: Overlays / HUD / Fallback */}
         <div
           className={styles.machine}
-          style={{ position: "relative", minHeight: 520, pointerEvents: "none" }}
+          style={{ pointerEvents: "none" }}
           aria-hidden="true"
         >
-          {(reducedMotionReady || sceneUnavailable) && <EiuAgentBot />}
+          {(reducedMotionReady || sceneUnavailable) && <EiuAgentBot reducedMotion={reducedMotionReady} />}
         </div>
       </section>
 

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import "react-pdf/dist/Page/AnnotationLayer.css";
 import "./globals.css";
 
 export const metadata: Metadata = {

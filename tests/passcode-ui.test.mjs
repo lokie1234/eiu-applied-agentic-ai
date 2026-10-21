@@ -77,8 +77,117 @@ test("section cards show actual totals without formats and automatically include
 test("landing offers passcode and admin Google sign-in without username login", () => {
   const SignIn = component("components/landing/SignInCard.tsx");
   const html = renderToStaticMarkup(React.createElement(SignIn, { passcode: "", setPasscode() {}, onSubmit() {}, loading: false }));
-  assert.match(html, /Passcode/); assert.match(html, /Learner or facilitator access/);
-  assert.match(html, /Administrator account only/); assert.doesNotMatch(html, /Username|registered account/);
+  assert.match(html, /Passcode/); assert.match(html, /Learners &amp; facilitators/);
+  assert.match(html, /Administrator access/); assert.doesNotMatch(html, /Username|registered account/);
+  assert.doesNotMatch(html, /Choose a sign in method|Welcome back|<header|<h2/);
+  assert.match(html, /aria-label="Sign in"/);
+});
+
+test("landing passcode accepts six digits and enables submission only when complete", async () => {
+  const window = new Window({ url: "http://localhost" });
+  window.matchMedia = () => ({ matches: true });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const SignIn = component("components/landing/SignInCard.tsx");
+  const submissions = [];
+  let setBusy;
+  function ControlledSignIn() {
+    const [passcode, setPasscode] = React.useState("");
+    const [loading, setLoading] = React.useState(false);
+    setBusy = setLoading;
+    return React.createElement(SignIn, { passcode, setPasscode, loading,
+      onMethodChange: () => setPasscode(""),
+      onSubmit: event => { event.preventDefault(); submissions.push(passcode); },
+    });
+  }
+  const container = window.document.createElement("div"); window.document.body.append(container);
+  const root = createRoot(container);
+  try {
+    await act(async () => root.render(React.createElement(ControlledSignIn)));
+    await act(async () => [...container.querySelectorAll("button")].find(button => button.textContent.includes("Passcode")).click());
+    const input = container.querySelector("input");
+    const button = container.querySelector('button[type="submit"]');
+    const change = value => act(async () => {
+      Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(input, value);
+      input.dispatchEvent(new window.Event("input", { bubbles: true }));
+    });
+    const submit = () => act(async () => container.querySelector("form").dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true })));
+    assert.equal(input.maxLength, 6); assert.equal(input.inputMode, "numeric");
+    assert.equal(input.placeholder, "••••••"); assert.equal(button.disabled, true);
+    await change("12345"); await submit();
+    assert.equal(button.disabled, true); assert.equal(submissions.length, 0);
+    await change("0a1-2 3b45x67");
+    assert.equal(input.value, "012345", "paste strips non-digits, caps length, and preserves the leading zero");
+    assert.equal(button.disabled, false); assert.equal(button.dataset.ready, "true");
+    await submit(); assert.deepEqual(submissions, ["012345"]);
+    await change("01234"); await submit();
+    assert.equal(button.disabled, true); assert.equal(button.dataset.ready, "false");
+    assert.equal(submissions.length, 1);
+    await change("012345"); await act(async () => setBusy(true)); await submit();
+    assert.equal(button.disabled, true); assert.equal(button.dataset.ready, "false");
+    assert.equal(submissions.length, 1, "loading cannot submit another request");
+  } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
+});
+
+test("sign-in transitions wait for exit, resize smoothly, and restore focus on Back", async () => {
+  const window = new Window({ url: "http://localhost" });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const animations = [];
+  const originalAnimate = window.HTMLElement.prototype.animate;
+  window.HTMLElement.prototype.animate = function (keyframes, options) {
+    let resolve, reject, settled = false;
+    const animation = {
+      target: this, keyframes, options,
+      finished: new Promise((done, fail) => { resolve = done; reject = fail; }),
+      finish() { if (!settled) { settled = true; resolve(); } },
+      cancel() { if (!settled) { settled = true; reject(new Error("Animation cancelled")); } },
+    };
+    animations.push(animation);
+    return animation;
+  };
+  const { createRoot } = await import("react-dom/client");
+  const SignIn = component("components/landing/SignInCard.tsx");
+  const container = window.document.createElement("div"); window.document.body.append(container);
+  const root = createRoot(container);
+  let changes = 0;
+  const click = label => act(async () => [...container.querySelectorAll("button")].find(button => button.textContent.includes(label)).click());
+  const finish = (...indexes) => act(async () => indexes.forEach(index => animations[index].finish()));
+  try {
+    await act(async () => root.render(React.createElement(SignIn, { passcode: "", setPasscode() {}, loading: false, onSubmit() {}, onMethodChange() { changes++; } })));
+    await click("Passcode");
+    assert.equal(animations.length, 1); assert.equal(changes, 0);
+    assert.equal(container.querySelector("input"), null, "outgoing choices remain until their exit completes");
+    assert.equal(animations[0].target.inert, true);
+    await click("Google"); assert.equal(animations.length, 1, "repeated clicks cannot queue another transition");
+    await finish(0);
+    assert.equal(changes, 1); assert.ok(container.querySelector("input"));
+    assert.equal(animations.length, 3);
+    assert.ok(animations[1].keyframes.every(frame => "height" in frame));
+    await finish(1, 2);
+    assert.equal(window.document.activeElement, container.querySelector("input"));
+    assert.equal(animations[0].target.inert, false);
+    await click("Back"); await finish(3);
+    await act(async () => { animations[4].cancel(); animations[5].finish(); });
+    assert.equal(animations[4].target.inert, false, "cancelled resizing still releases the incoming panel");
+    assert.equal(container.querySelector("input"), null);
+    assert.equal(window.document.activeElement.querySelector("strong").textContent, "Passcode");
+    await click("Google"); await finish(6); await finish(7, 8);
+    assert.match(window.document.activeElement.textContent, /Continue with Google/);
+    assert.equal(changes, 3);
+    await click("Back");
+    await act(async () => animations[9].cancel());
+    assert.equal(animations[9].target.inert, false, "cancelled exit releases the current panel");
+    await click("Back");
+    await act(async () => root.unmount());
+    assert.equal(changes, 3, "unmount cancels pending navigation before updating the method");
+  } finally {
+    window.HTMLElement.prototype.animate = originalAnimate;
+    await act(async () => root.unmount()); await window.happyDOM.close();
+  }
 });
 
 test("completed quiz shows the identity confirmed by the server, including custom fields", async () => {
@@ -139,6 +248,7 @@ test("completed quiz restores on remount even when closed and keeps feedback ins
 
 test("learner information opens a separate modal with focus, submission, and cancel controls", async () => {
   const window = new Window({ url: "http://localhost" });
+  window.matchMedia = () => ({ matches: true });
   for (const name of ["window", "document", "HTMLElement", "navigator"])
     Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;

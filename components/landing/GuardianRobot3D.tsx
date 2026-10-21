@@ -934,6 +934,12 @@ export default function GuardianRobot3D({
 }: GuardianRobotProps) {
   const device = useRef({ isMobile: false, isReduced: false });
   const orbitScratch = useMemo(() => ({ point: new THREE.Vector3(), next: new THREE.Vector3() }), []);
+  const interactionScratch = useMemo(() => ({
+    pointer: new THREE.Vector2(), plane: new THREE.Plane(new THREE.Vector3(0, 0, 1), 0),
+    hit: new THREE.Vector3(), hits: [] as THREE.Intersection[],
+  }), []);
+  const dragCleanup = useRef<(() => void) | null>(null);
+  useEffect(() => () => { dragCleanup.current?.(); }, []);
   useEffect(() => {
     const mobile = window.matchMedia("(max-width: 767px)");
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -982,7 +988,7 @@ export default function GuardianRobot3D({
 
   // Eye blink & micro-interaction physics
   const blinkTimer = useRef(0);
-  const blinkOpen = useRef(true);
+  const blinkRemaining = useRef(0);
   const nextBlink = useRef(3.8);
 
   const microTimer = useRef(0);
@@ -1063,10 +1069,9 @@ export default function GuardianRobot3D({
         const ndcX = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
         const ndcY = -(((ev.clientY - rect.top) / rect.height) * 2 - 1);
 
-        const pointerVec = new THREE.Vector2(ndcX, ndcY);
-        raycaster.setFromCamera(pointerVec, camera);
-        const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-        const hit = new THREE.Vector3();
+        const { pointer, plane, hit } = interactionScratch;
+        pointer.set(ndcX, ndcY);
+        raycaster.setFromCamera(pointer, camera);
         if (raycaster.ray.intersectPlane(plane, hit)) {
           // Broad bounds allowing robot to be dragged across ALL sections of the webpage
           hit.x = THREE.MathUtils.clamp(hit.x, -8.8, 8.8);
@@ -1075,7 +1080,7 @@ export default function GuardianRobot3D({
         }
       };
 
-      const onPointerUp = () => {
+      const cleanup = () => {
         isDragging.current = false;
         document.body.style.cursor = "auto";
         if (gl.domElement) {
@@ -1083,6 +1088,12 @@ export default function GuardianRobot3D({
         }
         window.removeEventListener("pointermove", onPointerMove);
         window.removeEventListener("pointerup", onPointerUp);
+        window.removeEventListener("pointercancel", cleanup);
+        window.removeEventListener("blur", cleanup);
+        dragCleanup.current = null;
+      };
+      const onPointerUp = () => {
+        cleanup();
 
         const currentPos = rootRef.current
           ? rootRef.current.position
@@ -1107,77 +1118,63 @@ export default function GuardianRobot3D({
 
       window.addEventListener("pointermove", onPointerMove);
       window.addEventListener("pointerup", onPointerUp);
+      window.addEventListener("pointercancel", cleanup);
+      window.addEventListener("blur", cleanup);
+      dragCleanup.current = cleanup;
     },
-    [camera, gl, raycaster, enter]
+    [camera, gl, raycaster, enter, interactionScratch]
   );
 
   const handlePointerDown = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
+      if (e.button !== 0) return;
       e.stopPropagation();
       startDrag();
     },
     [startDrag]
   );
 
-  // Global window listener: hover grab detection & drag initiation from anywhere on webpage
+  // Share one hover hit-test per frame; UI surfaces must never drag actors behind them.
   useEffect(() => {
-    const onWindowPointerMove = (ev: PointerEvent) => {
-      if (isDragging.current) return;
-      const target = ev.target as HTMLElement | null;
-      if (target && target.closest("input, button, a, [role='button']")) {
-        if (document.body.style.cursor === "grab") {
-          document.body.style.cursor = "auto";
-        }
-        return;
-      }
-
-      if (!gl.domElement) return;
+    let hoverFrame: number | null = null;
+    let latest: PointerEvent | null = null;
+    const blocksDrag = (event: PointerEvent) => (event.target as Element | null)?.closest?.(
+      "[data-login-surface], dialog, input, button, a, [role='button'], [role='dialog']"
+    );
+    const hitRobot = (event: PointerEvent) => {
+      if (!enter || isDragging.current || blocksDrag(event)) return false;
       const rect = gl.domElement.getBoundingClientRect();
-      const ndcX = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
-      const ndcY = -(((ev.clientY - rect.top) / rect.height) * 2 - 1);
-      raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
+      if (!rect.width || !rect.height) return false;
+      const { pointer, hits } = interactionScratch;
+      pointer.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -((event.clientY - rect.top) / rect.height) * 2 + 1);
+      raycaster.setFromCamera(pointer, camera);
       const hitObj = hitBoxRef.current || rootRef.current;
-      if (hitObj) {
-        const hits = raycaster.intersectObject(hitObj, true);
-        if (hits.length > 0) {
-          document.body.style.cursor = "grab";
-          return;
-        }
-      }
-      if (document.body.style.cursor === "grab") {
-        document.body.style.cursor = "auto";
-      }
+      hits.length = 0;
+      if (hitObj) raycaster.intersectObject(hitObj, true, hits);
+      return hits.length > 0;
     };
-
-    const onWindowPointerDown = (ev: PointerEvent) => {
-      const target = ev.target as HTMLElement | null;
-      if (target && target.closest("input, button, a, [role='button']")) {
-        return;
-      }
-      if (!gl.domElement) return;
-      const rect = gl.domElement.getBoundingClientRect();
-      const ndcX = ((ev.clientX - rect.left) / rect.width) * 2 - 1;
-      const ndcY = -(((ev.clientY - rect.top) / rect.height) * 2 - 1);
-      raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
-      const hitObj = hitBoxRef.current || rootRef.current;
-      if (hitObj) {
-        const hits = raycaster.intersectObject(hitObj, true);
-        if (hits.length > 0) {
-          startDrag();
-        }
-      }
+    const onWindowPointerMove = (event: PointerEvent) => {
+      latest = event;
+      if (hoverFrame !== null) return;
+      hoverFrame = requestAnimationFrame(() => {
+        hoverFrame = null;
+        if (!latest || isDragging.current) return;
+        if (hitRobot(latest)) document.body.style.cursor = "grab";
+        else if (document.body.style.cursor === "grab") document.body.style.cursor = "auto";
+      });
     };
-
-    window.addEventListener("pointermove", onWindowPointerMove);
+    const onWindowPointerDown = (event: PointerEvent) => {
+      if (event.button === 0 && hitRobot(event)) startDrag();
+    };
+    window.addEventListener("pointermove", onWindowPointerMove, { passive: true });
     window.addEventListener("pointerdown", onWindowPointerDown);
     return () => {
+      if (hoverFrame !== null) cancelAnimationFrame(hoverFrame);
       window.removeEventListener("pointermove", onWindowPointerMove);
       window.removeEventListener("pointerdown", onWindowPointerDown);
-      if (document.body.style.cursor === "grab" || document.body.style.cursor === "grabbing") {
-        document.body.style.cursor = "auto";
-      }
+      if (document.body.style.cursor === "grab" || document.body.style.cursor === "grabbing") document.body.style.cursor = "auto";
     };
-  }, [camera, gl, raycaster, startDrag]);
+  }, [camera, gl, raycaster, startDrag, enter, interactionScratch]);
 
   // ─── MATERIALS (EIU DESIGN DNA — PHOTOREALISTIC PBR SYSTEM) ───────────────
   const materials = useMemo(() => {
@@ -1598,12 +1595,10 @@ export default function GuardianRobot3D({
     } else if (isLoading) {
       targetHeadYaw = px * 0.25;
       targetHeadPitch = -0.06 - py * 0.15;
-    } else if (isLookingAtAccess) {
-      targetHeadYaw = -0.48 + shakeOffset;
-      targetHeadPitch = -0.18;
-    } else if (isCtaHovered) {
-      targetHeadYaw = -0.40;
-      targetHeadPitch = -0.15;
+    } else if (isLookingAtAccess || isCtaHovered || isTyping) {
+      // Bias attention toward sign-in without replacing live pointer tracking.
+      targetHeadYaw -= 0.12;
+      targetHeadPitch -= 0.05;
     }
 
     microTimer.current += delta;
@@ -1621,9 +1616,9 @@ export default function GuardianRobot3D({
     // ─── 5. DIGITAL APERTURE EYES (HIGH-GAIN ATTENTION TO POINTER) ───
     let targetEyeX = px * 0.085;
     let targetEyeY = -py * 0.055;
-    if (isLookingAtAccess) {
-      targetEyeX = -0.045;
-      targetEyeY = -0.020;
+    if (isLookingAtAccess || isCtaHovered || isTyping) {
+      targetEyeX -= 0.012;
+      targetEyeY -= 0.006;
     }
 
     if (eyesGroupRef.current) {
@@ -1633,16 +1628,14 @@ export default function GuardianRobot3D({
 
     // Natural eye blink physics
     blinkTimer.current += delta;
+    blinkRemaining.current = Math.max(0, blinkRemaining.current - delta);
     if (blinkTimer.current >= nextBlink.current) {
-      blinkOpen.current = false;
-      setTimeout(() => {
-        blinkOpen.current = true;
-      }, 110);
+      blinkRemaining.current = 0.11;
       blinkTimer.current = 0;
       nextBlink.current = 3.6 + Math.random() * 3.5;
     }
 
-    const eyeScaleY = blinkOpen.current ? 1.0 : 0.06;
+    const eyeScaleY = blinkRemaining.current > 0 ? 0.06 : 1.0;
     if (leftEyeRef.current) {
       leftEyeRef.current.scale.y = THREE.MathUtils.damp(leftEyeRef.current.scale.y, eyeScaleY, 18, delta);
     }

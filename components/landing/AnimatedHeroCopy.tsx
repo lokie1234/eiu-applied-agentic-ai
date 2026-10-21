@@ -1,59 +1,18 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
-import SignInCard from "./SignInCard";
-import type { IdentityField } from "@/lib/learningIdentity";
+import SignInCard, { type SignInCardProps } from "./SignInCard";
+import styles from "../LandingExperience.module.css";
 
-interface AnimatedHeroCopyProps {
+type AnimatedHeroCopyProps = SignInCardProps & {
   stage: number;
-  passcode: string;
-  identityFields?: IdentityField[];
-  information?: Record<string, string>;
-  onInformationChange?: (id: string, value: string) => void;
-  onInformationCancel?: () => void;
-  setPasscode: (val: string) => void;
-  loading: boolean;
-  error?: string;
-  onSubmit: (e: React.FormEvent) => void;
-  onInputFocus?: () => void;
-  onInputBlur?: () => void;
-  onInputChange?: () => void;
-  onMethodChange?: () => void;
+  entranceReady?: boolean;
   onCtaHover: (hovered: boolean) => void;
-}
-
-// Staggered word-by-word reveal helper
-function SplitHeadline({
-  children,
-  delay = 0,
-}: {
-  children: string;
-  delay?: number;
-}) {
-  const words = children.split(" ");
-  return (
-    <>
-      {words.map((word, i) => (
-        <motion.span
-          key={i}
-          style={{ display: "inline-block", marginRight: "0.24em" }}
-          initial={{ opacity: 0, y: 22, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{
-            duration: 0.45,
-            delay: delay + i * 0.06,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-        >
-          {word}
-        </motion.span>
-      ))}
-    </>
-  );
-}
+};
 
 export default function AnimatedHeroCopy({
   stage,
+  entranceReady = true,
   passcode,
   identityFields,
   information,
@@ -74,15 +33,13 @@ export default function AnimatedHeroCopy({
   // Stage flags based on master sequence
   const showEyebrow = stage >= 2;
   const showHeadlineLead = stage >= 2;
-  const showThink = stage >= 3;
-  const showMove = stage >= 4;
-  const showTagline = stage >= 4;
   const showCta = stage >= 5;
 
   return (
-    <div style={{ position: "relative", zIndex: 3 }}>
+    <div className={styles.copyInner}>
       {/* ── Eyebrow: EIU AI LEARNING SPACE ── */}
       <motion.div
+        className={styles.heroEyebrow}
         initial={{ opacity: 0, x: -16, filter: "blur(4px)" }}
         animate={
           showEyebrow || prefersReduced
@@ -125,108 +82,29 @@ export default function AnimatedHeroCopy({
         </span>
       </motion.div>
 
-      {/* ── Headline: Build systems that think and move ── */}
-      <h1
-        style={{
-          margin: "24px 0 28px",
-          fontSize: "clamp(54px, 4.8vw, 86px)",
-          lineHeight: 0.98,
-          letterSpacing: "-0.055em",
-          fontWeight: 680,
-        }}
+      <motion.h1
+        className={styles.headline}
+        aria-label="Beyond Intelligence. Into Innovation."
+        initial={{ opacity: 0, y: 16 }}
+        animate={showHeadlineLead || prefersReduced ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: prefersReduced ? 0 : 0.65, ease: [0.22, 1, 0.36, 1] }}
       >
-        <span style={{ display: "block", whiteSpace: "nowrap" }}>
-          {showHeadlineLead && (
-            <SplitHeadline>Build systems that</SplitHeadline>
-          )}
-        </span>
-
-        <span style={{ display: "block", marginTop: 4 }}>
-          {/* Word: think (triggers robot AI core pulse) */}
-          {showThink && (
-            <motion.em
-              style={{
-                fontFamily: "Georgia, serif",
-                fontWeight: 400,
-                color: "#F4DFB0",
-                fontStyle: "italic",
-                display: "inline-block",
-                textShadow: "0 0 32px rgba(244,223,176,.32)",
-              }}
-              initial={{ opacity: 0, scale: 0.88, filter: "blur(5px)" }}
-              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-              transition={{
-                duration: 0.48,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              think
-            </motion.em>
-          )}
-
-          {/* Word: and */}
-          {showMove && (
-            <motion.span
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              style={{ color: "rgba(255,255,255,0.6)", margin: "0 0.2em" }}
-            >
-              and
-            </motion.span>
-          )}
-
-          {/* Word: move (triggers orbit system spin-up) */}
-          {showMove && (
-            <motion.strong
-              style={{
-                color: "#2D7FB4",
-                fontWeight: 760,
-                textShadow: "0 0 42px rgba(45,127,180,.35)",
-                display: "inline-block",
-              }}
-              initial={{ opacity: 0, x: 20, filter: "blur(4px)" }}
-              animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-              transition={{
-                duration: 0.48,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              move
-            </motion.strong>
-          )}
-        </span>
-      </h1>
-
-      {/* ── Tagline ── */}
-      <motion.p
-        initial={{ opacity: 0, y: 12, filter: "blur(4px)" }}
-        animate={
-          showTagline || prefersReduced
-            ? { opacity: 1, y: 0, filter: "blur(0px)" }
-            : {}
-        }
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-        style={{
-          maxWidth: 620,
-          margin: 0,
-          color: "rgba(255,255,255,.68)",
-          fontSize: 17,
-          lineHeight: 1.7,
-        }}
-      >
-        Turn ideas into intelligent, automated workflows
-      </motion.p>
+        <span className={styles.headlineLead} aria-hidden="true">Beyond Intelligence</span>
+        <span className={styles.headlineAction} aria-hidden="true"><strong>Into Innovation</strong></span>
+      </motion.h1>
 
       <motion.div
-        initial={{ opacity: 0, y: 16 }}
-        animate={showCta || prefersReduced ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0, scale: 0.985, filter: "blur(9px)" }}
+        animate={entranceReady && (showCta || prefersReduced)
+          ? { opacity: 1, scale: 1, filter: "blur(0px)" }
+          : {}}
+        transition={{ duration: prefersReduced ? 0 : 1.5, delay: prefersReduced ? 0 : 0.05, ease: [0.25, 0.1, 0.25, 1] }}
         onMouseEnter={() => onCtaHover(true)}
         onMouseLeave={() => onCtaHover(false)}
-        style={{ marginTop: 26, width: "100%", maxWidth: 460 }}
+        className={styles.signInWrap}
       >
         <SignInCard passcode={passcode} setPasscode={setPasscode}
+          revealReady={entranceReady && (showCta || Boolean(prefersReduced))}
           identityFields={identityFields} information={information} onInformationChange={onInformationChange} onInformationCancel={onInformationCancel}
           loading={loading} error={error} onSubmit={onSubmit}
           onInputFocus={onInputFocus} onInputBlur={onInputBlur} onInputChange={onInputChange} onMethodChange={onMethodChange} />
