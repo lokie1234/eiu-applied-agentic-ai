@@ -38,6 +38,8 @@ function fixture(role = "admin", failAudit = false) {
       update(data) { kind = "update"; patch = data; writes.push({ table, action: kind }); return this; },
       eq(key, val) { filters.push(row => value(row, key) === val); return this; },
       neq(key, val) { filters.push(row => value(row, key) !== val); return this; },
+      like(key, pattern) { filters.push(row => String(value(row,key)).startsWith(pattern.slice(0,-1))); return this; },
+      not(key, operator, pattern) { filters.push(row => !String(value(row,key)).startsWith(pattern.slice(0,-1))); return this; },
       in(key, values) { filters.push(row => values.includes(value(row, key))); return this; },
       contains(key, val) { filters.push(row => Object.entries(val).every(([k, values]) => values.every(v => row[key]?.[k]?.includes(v)))); return this; },
       async maybeSingle() { const result = await this; return { ...result, data: result.data?.[0] }; },
@@ -53,11 +55,12 @@ function fixture(role = "admin", failAudit = false) {
   } };
   const dependencies = {
     "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200 }) } },
+    "@/lib/resetLearningScope": load("lib/resetLearningScope.ts", {"./courseHierarchy":load("lib/courseHierarchy.ts",{}),"./reportScopes":load("lib/reportScopes.ts",{})}),
     "@/lib/currentRole": { currentRole: async () => role },
     "@/lib/supabase/server": { getSupabaseAdmin: () => db },
   };
   const route = load("app/api/admin/reset/route.ts", dependencies);
-  return { writes, tables, dependencies, post: (password, section = "all") => route.POST({ json: async () => ({ password, section }) }) };
+  return { writes, tables, dependencies, scoped: (scope,password="Lovekjng123@@")=>route.POST({json:async()=>({...scope,password})}), post: (password, section = "all") => route.POST({ json: async () => ({ password, section }) }) };
 }
 
 test("reset rejects the old confirmation and incorrect passcodes before any database writes", async () => {
@@ -87,7 +90,7 @@ test("reset all clears learner audit sources so a newly exported workbook has no
   assert.deepEqual(f.tables.access_audit_logs.map(row => row.action), ["PASSCODE_LOGIN_FAILED", "ADMIN_ACTION"]);
   assert.ok(f.tables.section_state.every(row => row.termination_token && row.quiz_open === false));
   const ExcelJS = require("exceljs");
-  const report = load("app/api/admin/report/route.ts", { ...f.dependencies, exceljs: { default: ExcelJS }, "@/lib/reportLearners": load("lib/reportLearners.ts", {}), "@/lib/reportScopes": load("lib/reportScopes.ts", {}) });
+  const report = load("app/api/admin/report/route.ts", { ...f.dependencies, exceljs: { default: ExcelJS }, "@/lib/reportLearners": load("lib/reportLearners.ts", {}), "@/lib/reportScopes": load("lib/reportScopes.ts", {}), "@/lib/courseHierarchy": load("lib/courseHierarchy.ts", {}) });
   const response = await report.GET({ url: "http://localhost/api/admin/report?section=all" });
   assert.equal(response.status, 200);
   const workbook = new ExcelJS.Workbook(); await workbook.xlsx.load(Buffer.from(await response.arrayBuffer()));
@@ -134,4 +137,69 @@ test("reset removes matching modern login scopes so exported learners cannot rea
   assert.deepEqual(login.details.scopes.map(scope => scope.sectionId), ["s2"]);
   const { collectReportLearners } = load("lib/reportLearners.ts", {});
   assert.deepEqual(Array.from(collectReportLearners([], [login], []), row => row.section), ["section2"]);
+});
+
+
+function scopedFixture(role='admin',failAudit=false){
+  const f=fixture(role,failAudit);
+  const folderGroups=[{id:'ai',name:'AI Training',order:1},{id:'web',name:'Web Training',order:2}];
+  f.tables.courses=[{id:'core',slug:'applied-agentic-ai',title:'Applied AI',description:JSON.stringify({folderGroups,folderGroupId:'ai'})},...['web1','web2','web3'].map(id=>({id,slug:id,title:id,description:JSON.stringify({folderGroupId:'web'})}))];
+  f.tables.course_sections=[{id:'core1',course_id:'core',section_key:'section1',title:'Core 1'},{id:'core2',course_id:'core',section_key:'section2',title:'Core 2'},...Array.from({length:4},(_,i)=>({id:'web1s'+(i+1),course_id:'web1',section_key:'section'+(i+1),title:'Web '+(i+1)})),{id:'web2s1',course_id:'web2',section_key:'section1',title:'Web 2.1'},{id:'web3s1',course_id:'web3',section_key:'section1',title:'Web 3.1'}];
+  const scopes=f.tables.course_sections.map(s=>({courseId:s.course_id,sectionId:s.id,section:s.section_key}));
+  const identity={sessionId:'shared',name:'Shared learner',email:'shared@example.test'};
+  f.tables.access_audit_logs.push({id:100,action:'PASSCODE_LOGIN',details:{...identity,scopes,sectionKeys:['section1','section2','section3','section4']}});
+  scopes.forEach((scope,i)=>f.tables.access_audit_logs.push({id:200+i,action:'SECTION_OPENED',course_id:scope.courseId,details:{...identity,...scope}}));
+  scopes.forEach(scope=>f.tables.presence_sessions.push({client_id:'v2:'+scope.sectionId+':session:tab',section:scope.section==='section2'?'section2':'section1'}));
+  f.tables.presence_sessions.push({client_id:'legacy',section:'section1'});
+  return f;
+}
+
+test('scoped reset uses actual section IDs and preserves other courses sharing section1',async()=>{
+  const f=scopedFixture();const scope={folderId:'web',courseId:'web1',sectionId:'web1s1'};
+  assert.equal((await f.scoped(scope)).status,200);
+  assert.ok(f.tables.learner_profiles.length&&f.tables.ideas.length,'legacy Applied AI rows remain');
+  assert.ok(!f.tables.access_audit_logs.some(row=>row.details.sectionId==='web1s1'));
+  assert.ok(f.tables.access_audit_logs.some(row=>row.details.sectionId==='core1'));
+  const login=f.tables.access_audit_logs.find(row=>row.id===100);assert.equal(login.details.scopes.length,7);assert.ok(login.details.scopes.some(s=>s.sectionId==='core1'));assert.ok(!login.details.scopes.some(s=>s.sectionId==='web1s1'));
+  assert.ok(f.tables.presence_sessions.some(row=>row.client_id==='legacy'));assert.ok(!f.tables.presence_sessions.some(row=>row.client_id.startsWith('v2:web1s1:')));assert.ok(f.tables.presence_sessions.some(row=>row.client_id.startsWith('v2:core1:')));
+  assert.ok(f.tables.section_state.every(row=>!row.termination_token));
+});
+
+test('folder reset includes three courses and all their sections automatically',async()=>{
+  const f=scopedFixture();assert.equal((await f.scoped({folderId:'web',courseId:'all',sectionId:'all'})).status,200);
+  const remaining=f.tables.access_audit_logs.filter(row=>row.action==='SECTION_OPENED');assert.deepEqual(remaining.map(row=>row.details.courseId),['core','core']);
+  assert.deepEqual(f.tables.access_audit_logs.find(row=>row.id===100).details.scopes.map(s=>s.sectionId),['core1','core2']);
+  assert.ok(f.tables.presence_sessions.every(row=>!row.client_id.startsWith('v2:web')));assert.equal(f.tables.ideas.length,1);
+});
+
+test('course reset includes four sections and leaves neighboring courses intact',async()=>{
+  const f=scopedFixture();assert.equal((await f.scoped({folderId:'web',courseId:'web1',sectionId:'all'})).status,200);
+  assert.ok(!f.tables.access_audit_logs.some(row=>row.action==='SECTION_OPENED'&&row.details.courseId==='web1'));
+  assert.ok(f.tables.access_audit_logs.some(row=>row.details.sectionId==='web2s1'));assert.ok(f.tables.access_audit_logs.some(row=>row.details.sectionId==='web3s1'));
+});
+
+test('Applied AI section reset keeps generic v2 presence even when its compatibility enum is section1',async()=>{
+  const f=scopedFixture();assert.equal((await f.scoped({folderId:'ai',courseId:'core',sectionId:'core1'})).status,200);
+  assert.equal(f.tables.ideas.length,0);assert.ok(!f.tables.presence_sessions.some(row=>row.client_id==='legacy'||row.client_id.startsWith('v2:core1:')));assert.ok(f.tables.presence_sessions.some(row=>row.client_id.startsWith('v2:web1s1:')));
+  assert.ok(f.tables.access_audit_logs.some(row=>row.details.sectionId==='web1s1'));assert.ok(f.tables.section_state[0].termination_token);assert.equal(f.tables.section_state[1].termination_token,undefined);
+});
+
+test('invalid hierarchy, missing selectors, wrong passcode and non-admin reset cannot write',async()=>{
+  for(const scope of [{folderId:'ai',courseId:'web1',sectionId:'all'},{folderId:'web',courseId:'web1',sectionId:'web2s1'},{folderId:'missing',courseId:'all',sectionId:'all'},{folderId:'web'},{folderId:'web',courseId:'web1',sectionId:'gone'}]){
+    const f=scopedFixture();assert.equal((await f.scoped(scope)).status,400);assert.equal(f.writes.length,0);
+  }
+  const f=scopedFixture();assert.equal((await f.scoped({folderId:'web',courseId:'web1',sectionId:'all'},'wrong')).status,401);assert.equal(f.writes.length,0);
+  const teacher=scopedFixture('section1');assert.equal((await teacher.scoped({folderId:'web',courseId:'web1',sectionId:'all'})).status,403);assert.equal(teacher.writes.length,0);
+});
+
+test('scoped reset snapshots multiple pages and does not report success on a failed deletion',async()=>{
+  const f=scopedFixture();for(let i=1000;i<2105;i++)f.tables.access_audit_logs.push({id:i,action:'SECTION_OPENED',details:{courseId:'web1',sectionId:'web1s1',section:'section1'}});
+  assert.equal((await f.scoped({folderId:'web',courseId:'web1',sectionId:'web1s1'})).status,200);assert.ok(!f.tables.access_audit_logs.some(row=>row.details.sectionId==='web1s1'));
+  const bad=scopedFixture('admin',true);assert.equal((await bad.scoped({folderId:'web',courseId:'web1',sectionId:'all'})).status,500);
+});
+
+
+test('explicit all-folder all-course all-section reset clears legacy and scoped data',async()=>{
+  const f=scopedFixture();const response=await f.scoped({folderId:'all',courseId:'all',sectionId:'all'});assert.equal(response.status,200);
+  assert.equal(f.tables.presence_sessions.length,0);assert.equal(f.tables.learner_profiles.length,0);assert.ok(!f.tables.access_audit_logs.some(row=>['PASSCODE_LOGIN','SECTION_OPENED','QUIZ_COMPLETED','FEEDBACK_SUBMITTED'].includes(row.action)));assert.deepEqual(Array.from(response.data.legacySections),['section1','section2']);
 });

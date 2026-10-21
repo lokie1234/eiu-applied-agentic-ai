@@ -1,5 +1,5 @@
 /* EIU innovation theme and two-pane course library. */
-.portal.innovationPortal { --library-title: #eaf4ff; --library-title-active: #79e3ff; --library-summary: #b5cbe0; --library-accent: #51c9ef; isolation: isolate; height: 100dvh; min-height: 0; flex-direction: column; gap: 12px; overflow: hidden; padding: 12px clamp(16px, 2.5vw, 48px) 20px; background: transparent; }
+.portal.innovationPortal { --library-title: #eaf4ff; --library-title-active: #79e3ff; --library-summary: #b5cbe0; --library-accent: #51c9ef; isolation: isolate; height: 100dvh; min-height: 0; flex-direction: column; gap: 12px; overflow: hidden; padding: 12px clamp(12px, 1.2vw, 24px) 16px; background: transparent; }
 .innovationBackdrop { position: fixed; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; background: radial-gradient(ellipse at 12% 10%, #18547f 0, transparent 48%), radial-gradient(ellipse at 90% 85%, #123f68 0, transparent 42%), #041c31; }
 .innovationBackdrop::before, .innovationBackdrop::after { content: ''; position: absolute; inset: -12%; pointer-events: none; }
 .innovationBackdrop::before { background: url('/branding/course-network.svg') center / cover no-repeat; opacity: .42; animation: courseNetworkDrift 16s ease-in-out infinite alternate; }
@@ -25,17 +25,43 @@
 .networkParticle:nth-child(18) { left: 76%; top: 83%; --particle-speed: 20s; --particle-x1: -26vw; --particle-y1: -16vh; --particle-x2: -13vw; --particle-y2: -29vh; --particle-x3: 7vw; --particle-y3: -22vh; animation-delay: -17s; }
 .networkParticle:nth-child(3n + 2) { background: #e9ca8b; box-shadow: 0 0 14px rgba(233, 202, 139, .8); }
 .networkParticle:nth-child(3n) { background: #4bd7aa; box-shadow: 0 0 14px rgba(75, 215, 170, .8); }
-.innovationPortal .learningSpacePanel { z-index: 1; width: min(1560px, 100%); max-width: 1560px; min-width: 0; min-height: 0; max-height: 100%; flex: 1 1 auto; margin: 0; padding: clamp(20px, 2vw, 30px); border-color: rgba(121, 227, 255, .22); border-radius: 28px; background: linear-gradient(135deg, rgba(8, 41, 69, .76), rgba(4, 28, 49, .76)); box-shadow: 0 24px 70px rgba(6, 30, 31, .28); backdrop-filter: none; }
+.innovationPortal .learningSpacePanel { z-index: 1; width: 100%; max-width: none; min-width: 0; min-height: 0; max-height: 100%; flex: 1 1 auto; margin: 0; padding: clamp(20px, 2vw, 30px); border-color: rgba(121, 227, 255, .22); border-radius: 28px; background: linear-gradient(135deg, rgba(8, 41, 69, .76), rgba(4, 28, 49, .76)); box-shadow: 0 24px 70px rgba(6, 30, 31, .28); backdrop-filter: none; }
 @keyframes courseNetworkDrift { 0% { transform: translate3d(-1%, 0, 0) scale(1.04); } 17% { transform: translate3d(1.5%, -1%, 0) scale(1.08); } 36% { transform: translate3d(2%, 1.5%, 0) scale(1.03); } 58% { transform: translate3d(-1.5%, 2%, 0) scale(1.07); } 79% { transform: translate3d(1%, 1%, 0) scale(1.05); } 100% { transform: translate3d(-1%, 0, 0) scale(1.04); } }
 @keyframes courseGlowDrift { 0% { transform: translate3d(1%, -1%, 0) scale(1.02); } 21% { transform: translate3d(-2%, 1%, 0) scale(1.1); } 43% { transform: translate3d(1%, 2%, 0) scale(1.04); } 66% { transform: translate3d(2%, -1%, 0) scale(1.08); } 84% { transform: translate3d(-1%, -2%, 0) scale(1.03); } 100% { transform: translate3d(1%, -1%, 0) scale(1.02); } }
 @keyframes networkParticleWander { 0%, 100% { transform: translate3d(0, 0, 0) scale(.65); opacity: .2; } 18% { transform: translate3d(var(--particle-x1), var(--particle-y1), 0) scale(1.1); opacity: .75; } 43% { transform: translate3d(var(--particle-x2), var(--particle-y2), 0) scale(.8); opacity: .36; } 72% { transform: translate3d(var(--particle-x3), var(--particle-y3), 0) scale(1); opacity: .68; } }
 .innovationPortal .brand { gap: 22px; }
 .innovationPortal .brand span { color: #b5cbe0; }
 .innovationPortal .logoWindow { width: 132px; height: 40px; flex-shrink: 0; }
-.innovationPortal .selectorActions { position: static; align-self: flex-end; flex-shrink: 0; z-index: 2; flex-wrap: wrap; }
-.innovationPortal .selectorActions a, .innovationPortal .selectorActions button { background: #082945; min-height: 40px; }
+.libraryMasthead { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-shrink: 0; }
+.functionDropdown { position: relative; margin-left: auto; flex-shrink: 0; z-index: 10; }
+.portal .functionTrigger { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding: 0 14px; border: 1px solid #e9ca8b; border-radius: 12px; color: #082945; font: inherit; font-size: 12px; font-weight: 750; cursor: pointer; }
+.functionTrigger > svg { width: 17px; height: 17px; }
+.functionTrigger .functionChevron { width: 14px; height: 14px; transition: transform 180ms ease; }
+.functionTrigger[aria-expanded="true"] .functionChevron { transform: rotate(180deg); }
+.functionTrigger:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 3px; }
+.innovationPortal .functionDropdown .selectorActions { position: absolute; inset: calc(100% + 10px) 0 auto auto; z-index: 10; display: grid; grid-template-columns: 1fr; gap: 7px; width: max-content; max-width: calc(100vw - 48px); max-height: min(380px, 65dvh); overflow-y: auto; padding: 10px; border: 1px solid #57758b; border-radius: 17px; background: #082945; box-shadow: 0 14px 30px #010d1b80; animation: functionReveal 180ms cubic-bezier(.22,1,.36,1) both; }
+.innovationPortal .functionDropdown .selectorActions :is(a, button) { justify-content: flex-start; width: 100%; min-height: 44px; padding: 0 14px; border-radius: 10px; font-size: 14px; gap: 9px; }
+.innovationPortal .functionDropdown .actionIcon { width: 19px; height: 19px; flex-basis: 19px; }
+@keyframes functionReveal { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { .innovationPortal .functionDropdown .selectorActions { animation: none; }
+  .innovationPortal .courseFolder[data-pointer-active], .innovationPortal .courseFolder:has(:focus-visible), .inlineSections .cards .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"]), .inlineSections .cards .sectionLaunchButton:has(:focus-visible) { transform: none; } }
+.innovationPortal .selectorActions :is(a, button) { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; white-space: nowrap; background: var(--toolbar-bg, #f7f4ed); color: var(--toolbar-ink, #17324a); border-color: var(--toolbar-border, #e9ca8b); box-shadow: inset 0 1px 0 #ffffff70, 0 3px 8px #010d1b25; }
+.innovationPortal .selectorActions .accessButton { --toolbar-bg: #f4dfb0; --toolbar-border: #e9ca8b; --toolbar-hover: #f7e9cd; }
+.innovationPortal .selectorActions .aiButton { --toolbar-bg: #c5e9f4; --toolbar-border: #9bd5e8; --toolbar-hover: #dceff5; }
+.innovationPortal .selectorActions .reportButton { --toolbar-bg: #d3eddf; --toolbar-border: #8ac5a8; --toolbar-ink: #18553c; --toolbar-hover: #e5f5ed; }
+.innovationPortal .selectorActions .resetDataButton { --toolbar-bg: #f4d5ce; --toolbar-border: #dba69a; --toolbar-ink: #7c302b; --toolbar-hover: #f9e4df; }
+.innovationPortal .selectorActions .signOutButton { --toolbar-bg: #e1e7ed; --toolbar-border: #b7c8d7; --toolbar-hover: #f0f3f7; }
+.actionIcon { display: block; width: 17px; height: 17px; flex: 0 0 17px; }
+.actionBarButtons :is(a, button) { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+.innovationPortal .selectorActions :is(a, button):focus-visible { outline: 2px solid #f4dfb0; outline-offset: 3px; }
 .innovationPortal .libraryHeaderToolbar { align-items: center; padding: 18px 0; margin: 14px 0 12px; border-top: 1px solid #284c6a; border-bottom: none; }
-.innovationPortal .libraryHeaderTitleArea { gap: 7px; }
+
+.clearSearchBtn:hover {
+  background: #e9ca8b;
+  color: #041c31;
+}
+.innovationPortal .libraryHeaderTitleArea { flex-direction: row; align-items: center; flex-wrap: wrap; gap: 12px 20px; }
+.innovationPortal .libraryHeaderTitleArea .activeUsersWidget { width: max-content; max-width: 100%; height: 30px; padding: 0 11px; gap: 6px; align-self: center; }
 .innovationPortal .libraryHeaderTitle { font-size: clamp(32px, 3.2vw, 46px); font-weight: 650; letter-spacing: -.045em; line-height: 1.15; animation: headingArrive 700ms cubic-bezier(.22, 1, .36, 1) both; }
 .titleWord { position: relative; display: inline-block; color: var(--library-title-active, #79e3ff); }
 .titleWord::after { content: ''; position: absolute; left: 0; right: 0; bottom: -5px; height: 2px; background: currentColor; transform-origin: left; animation: headingUnderline 6s ease-in-out infinite; }
@@ -56,9 +82,12 @@
 .folderSelectedMark { position: absolute; top: 9px; right: 8px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #e9ca8b; color: #082945; font-size: 12px; font-weight: 800; }
 .folderChoice:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 1px; }
 .folderArtwork { position: relative; display: block; width: 136px; height: min(104px, 100%); min-height: 0; justify-self: center; align-self: center; pointer-events: none; overflow: hidden; }
-.folderChoiceText { min-width: 0; display: flex; align-items: center; justify-content: center; padding-bottom: 18px; }
+.folderChoiceText { min-width: 0; display: flex; align-items: center; justify-content: center; padding-bottom: 28px; }
+.folderMetaRow { position: absolute; right: 10px; bottom: 6px; display: flex; align-items: center; justify-content: flex-end; gap: 6px; max-width: calc(100% - 20px); }
+.folderLearners, .courseLearners { display: inline-flex; align-items: center; flex-shrink: 0; gap: 6px; min-height: 27px; padding: 4px 8px; border: 1px solid #66bb963f; border-radius: 99px; background: #0c302f; color: #cbe8d5; font-size: 12px; line-height: 1.2; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.folderLearners .liveDot, .courseLearners .liveDot { width: 5px; height: 5px; }
 .folderChoiceText strong { overflow-wrap: anywhere; font-size: clamp(22px, 1.6vw, 25px); line-height: 1.15; font-weight: 700; }
-.folderCourseCount { position: absolute; right: 10px; bottom: 6px; padding: 3px 8px; border: 1px solid #355c7c; border-radius: 99px; color: #c5e9ff; background: #082945; font-size: 10px; line-height: 1.2; white-space: nowrap; }
+.folderCourseCount { display: inline-flex; align-items: center; padding: 3px 8px; border: 1px solid #355c7c; border-radius: 99px; color: #c5e9ff; background: #082945; font-size: 12px; line-height: 1.2; font-weight: 650; white-space: nowrap; }
 .folderChoiceSelected .folderCourseCount { border-color: #b89e63; color: #ffe4a6; }
 .folderPageNav { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 2px 0; margin-top: auto; min-height: 44px; color: #b5cbe0; font-size: 12px; }
 .folderPageNav > div { display: flex; align-items: center; gap: 8px; }
@@ -77,12 +106,14 @@
 .innovationPortal .libraryFolderTitle { color: #eaf4ff; font-size: 23px; font-weight: 600; }
 .innovationPortal .libraryFolderHeader svg { fill: #79e3ff; width: 18px; }
 .innovationPortal .libraryFolderBadge { color: #b5cbe0; background: transparent; border-color: #355c7c; font-size: 10px; font-weight: 600; }
-.innovationPortal .courseFolderGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; align-items: start; }
-.innovationPortal .courseFolder { position: relative; min-height: 190px; padding: 14px; gap: 8px; justify-content: flex-start; border-radius: 16px; border-color: #355c7c; background: rgba(16, 52, 82, .48); box-shadow: none; cursor: default; transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
+.innovationPortal .courseFolderGrid { grid-template-columns: repeat(auto-fit, minmax(min(100%, max(300px, calc((100% - 24px) / 3))), 1fr)); gap: 12px; align-items: start; }
+.innovationPortal .courseFolder { container-type: inline-size; position: relative; min-height: 170px; padding: 12px; gap: 8px; justify-content: flex-start; border-radius: 16px; border-color: #355c7c; background: rgba(16, 52, 82, .48); box-shadow: none; cursor: default; transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
 .innovationPortal .courseFolder::before { content: ''; position: absolute; inset: 12px auto 12px 0; width: 2px; border-radius: 2px; background: #51c9ef; opacity: .7; }
 .innovationPortal .courseFolder[data-pointer-active], .innovationPortal .courseFolder:has(:focus-visible) { transform: translateY(-2px); border-color: #79e3ff; background: rgba(18, 63, 104, .62); box-shadow: inset 0 0 0 1px rgba(121, 227, 255, .16), 0 5px 14px rgba(0, 16, 27, .2); }
 .innovationPortal .courseFolder[data-pointer-active]::before, .innovationPortal .courseFolder:has(:focus-visible)::before { opacity: 1; background: #e9ca8b; }
-.courseCardMain { display: block; min-width: 0; padding-right: 116px; }
+.courseCardHeader { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; min-width: 0; }
+.innovationPortal .courseCardHeader .courseTitle { flex: 1; min-width: 0; }
+.courseCardMain { display: block; min-width: 0; padding-right: 0; }
 .innovationPortal .courseCardBody { flex: 1; gap: 6px; padding-top: 0; }
 .innovationPortal .courseTitle { display: flex; min-width: 0; margin: 0; white-space: nowrap; background: none; -webkit-text-fill-color: currentColor; color: var(--library-title); font-size: clamp(20px, 1.6vw, 23px); font-weight: 650; line-height: 1.3; animation: none; overflow: visible; overflow-wrap: normal; }
 .innovationPortal .courseFolder[data-pointer-active] .courseTitle { transform: none; filter: none; }
@@ -90,11 +121,13 @@
 @keyframes summaryArrive { from { opacity: .7; } to { opacity: 1; } }
 @keyframes titleArrive { from { opacity: .75; } to { opacity: 1; } }
 .innovationPortal .courseDesc:empty { display: none; }
-.innovationPortal .folderBadgesRow { margin-top: auto; gap: 5px; padding-right: 116px; }
-.courseSectionBadge { display: inline-flex; align-items: center; padding: 4px 7px; border: 1px solid #ba9b57; border-radius: 99px; background: #4b4431; color: #ffe2a0; font-size: 9px; line-height: 1; font-weight: 600; text-transform: uppercase; white-space: nowrap; }
-.innovationPortal .folderLanguage { color: #e3d4b1; font-size: 9px; font-weight: 600; padding: 4px 7px; }
-.innovationPortal .unlockedFolderBadge { color: #9de3c1; font-size: 9px; font-weight: 600; padding: 4px 7px; background: #204c47; }
-.courseEnterButton { position: absolute; right: 12px; bottom: 12px; width: 110px; height: 108px; padding: 0; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 12px; background: transparent; box-shadow: none; color: #ffe4a6; cursor: pointer; opacity: 0; transform: translateY(3px); pointer-events: none; transition: opacity 140ms ease, transform 180ms cubic-bezier(.22,1,.36,1); }
+.innovationPortal .folderBadgesRow { margin-top: auto; margin-bottom: 0; gap: 5px; padding-right: 74px; flex-wrap: nowrap; min-width: 0; }
+.innovationPortal .folderBadgesRow > span { white-space: nowrap; flex-shrink: 0; }
+.innovationPortal .folderBadgesRow .folderLanguage { min-width: 0; flex-shrink: 1; overflow: hidden; text-overflow: ellipsis; }
+.courseSectionBadge { display: inline-flex; align-items: center; padding: 4px 7px; border: 1px solid #ba9b57; border-radius: 99px; background: #4b4431; color: #ffe2a0; font-size: 12px; line-height: 1.2; font-weight: 650; text-transform: uppercase; white-space: nowrap; }
+.innovationPortal .folderLanguage { color: #e3d4b1; font-size: 12px; font-weight: 650; padding: 5px 8px; }
+.innovationPortal .unlockedFolderBadge { color: #9de3c1; font-size: 12px; font-weight: 650; padding: 5px 8px; background: #204c47; }
+.courseEnterButton { position: absolute; right: 6px; bottom: 4px; width: 80px; height: 80px; padding: 0; display: flex; align-items: center; justify-content: center; border: 0; border-radius: 12px; background: transparent; box-shadow: none; color: #ffe4a6; cursor: pointer; opacity: 0; transform: translateY(3px); pointer-events: none; transition: opacity 140ms ease, transform 180ms cubic-bezier(.22,1,.36,1); }
 .innovationPortal .courseFolder:is(:hover, [data-pointer-active], :has(:focus-visible)) .courseEnterButton { opacity: 1; transform: translateY(0); pointer-events: auto; }
 .innovationPortal .courseFolder .courseEnterButton:active { transform: translateY(2px) scale(.96); }
 .courseEnterButton:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 3px; }
@@ -108,15 +141,14 @@
 .courseFolder:is([data-pointer-active], :has(:focus-visible)) .courseElectric[data-edge="top"] .electricPulse { animation-delay: -1.8s; }
 @keyframes courseElectric { 0% { stroke-dashoffset: 100; opacity: 0; } 15%, 60% { opacity: .65; } 80%, 100% { stroke-dashoffset: 0; opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .courseFolder .courseElectric { display: none; } }
-.enterArtwork { display: block; width: 110px; height: 108px; pointer-events: none; overflow: hidden; }
+.enterArtwork { display: block; width: 80px; height: 80px; pointer-events: none; overflow: hidden; }
 
 .inlineSections { min-width: 0; }
 .inlineSections:focus { outline: none; }
-.innovationPortal .backToCourses { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: max-content; min-height: 44px; padding: 0 12px; border: 1px solid #506a70; border-radius: 9px; background: rgba(16, 52, 82, .62); color: #c5e9ff; font-size: 16px; font-weight: 800; line-height: 1; white-space: nowrap; cursor: pointer; transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
+.innovationPortal .backToCourses { box-sizing: border-box; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: max-content; min-height: 44px; padding: 0 12px; border: 1px solid #506a70; border-radius: 9px; font-size: 16px; font-weight: 800; line-height: 1; white-space: nowrap; cursor: pointer; transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease; }
 .backToCoursesLabel { display: block; line-height: 1; }
 .backToCoursesArrow { display: block; flex: 0 0 22px; width: 22px; height: 22px; overflow: visible; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform-origin: center; animation: backArrowWander 1.05s ease-in-out infinite; }
 @keyframes backArrowWander { 0%, 100% { transform: translateX(-2px); } 50% { transform: translateX(2px); } }
-.backToCourses:hover { transform: translateY(-1px); border-color: #79e3ff; background: rgba(18, 63, 104, .78); box-shadow: 0 0 14px rgba(121, 227, 255, .2); }
 .backToCourses:hover .backToCoursesArrow { animation-duration: .7s; }
 .backToCourses:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 2px; }
 .inlineSectionsHeader { position: relative; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 10px 0 8px; border-bottom: 1px solid #284c6a; animation: sectionLayoutEnter 500ms ease-out both; }
@@ -124,22 +156,21 @@
 @keyframes sectionLayoutEnter { from { opacity: .78; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes sectionLayoutLine { 0% { transform: scaleX(.25); opacity: 0; } 45% { opacity: .62; } 100% { transform: scaleX(1); opacity: .3; } }
 .inlineSectionsHeader h2 { margin: 0; color: var(--library-title); font-size: clamp(23px, 2vw, 30px); line-height: 1.2; overflow-wrap: anywhere; }
-.innovationPortal .inlineSectionsHeader p { margin: 5px 0 0; color: #effaff; font-size: clamp(24px, 2.2vw, 30px); font-weight: 500; line-height: 1.4; overflow-wrap: anywhere; text-shadow: 0 0 12px rgba(121, 227, 255, .28); animation: summaryArrive 520ms 70ms ease-out backwards, summarySoftGlow 1.8s 70ms ease-out both; }
-@keyframes summarySoftGlow { 0% { color: var(--library-summary); text-shadow: 0 0 0 rgba(121, 227, 255, 0); } 48% { color: #fff; text-shadow: 0 0 22px rgba(121, 227, 255, .5); } 100% { color: #effaff; text-shadow: 0 0 12px rgba(121, 227, 255, .28); } }
+.innovationPortal .inlineSectionsHeader p { margin: 5px 0 0; color: #c5e9f4; font-size: clamp(24px, 2.2vw, 30px); font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; text-shadow: 1px 1px 0 #18547f, 2px 2px 0 #041c31; animation: summaryArrive 520ms 70ms ease-out backwards; }
 .sectionTotal { flex-shrink: 0; margin-left: auto; padding: 8px 13px; border: 1px solid rgba(121, 227, 255, .42); border-radius: 99px; background: rgba(16, 52, 82, .42); color: #d8f3ff; font-size: 16px; font-weight: 750; box-shadow: 0 0 12px rgba(121, 227, 255, .12); animation: sectionLayoutEnter 500ms 100ms ease-out both; }
 .sectionTools { display: flex; align-items: center; gap: 12px; padding: 0; }
 .sectionTools > div { flex: 1; min-width: 0; }
 .inlineSections .cards { margin-top: 12px; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview) { min-height: 148px; padding: 18px; border-radius: 14px; background: rgba(16, 52, 82, .58); }
 .inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview):hover { transform: none; border-color: #79e3ff; background: rgba(18, 63, 104, .68); }
-.inlineSections .cards .sectionLaunchButton { --section-artwork-size: 88px; cursor: default; min-height: 206px; padding-bottom: 88px; transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
+.inlineSections .cards .sectionLaunchButton { --section-artwork-size: 92px; cursor: default; min-height: 206px; padding-bottom: 104px; transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
 .inlineSections .cards .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"]), .inlineSections .cards .sectionLaunchButton:has(:focus-visible) { transform: translateY(-2px); border-color: #e9ca8b; background: rgba(24, 84, 127, .68); box-shadow: inset 0 0 0 1px rgba(233, 202, 139, .15), 0 5px 14px rgba(0, 16, 27, .2); }
 .inlineSections .cards .sectionLaunchButton[data-disabled="true"]:hover { transform: none; border-color: rgba(244, 223, 176, .15); background: #103452; box-shadow: none; }
 .inlineSections .cards .sectionLaunchButton:not([data-disabled="true"]) strong { padding-right: 0; }
 .inlineSections .cards .sectionLaunchButton strong { width: 100%; }
 .inlineSections .cards .sectionLaunchButton:not([data-disabled="true"]) small { padding-right: calc(var(--section-artwork-size) + 10px); }
-.inlineSections .cards .sectionLaunchButton .cardLiveUsers { position: absolute; left: 18px; bottom: 14px; padding-right: var(--section-artwork-size); }
-.inlineSections .cards .sectionClickCue { position: absolute; right: 12px; bottom: 12px; display: flex; flex-direction: column; align-items: center; width: var(--section-artwork-size); height: auto; aspect-ratio: 110 / 108; min-height: 44px; padding: 0; border: 0; border-radius: 12px; background: transparent; box-shadow: none; cursor: pointer; gap: 0; opacity: 0; transform: translateY(3px); pointer-events: none; color: #ffe4a6; letter-spacing: 0; transition: opacity 140ms ease, transform 180ms cubic-bezier(.22,1,.36,1); }
+.inlineSections .cards .sectionLaunchButton .cardLiveUsers { position: absolute; inset: 14px 14px auto auto; margin: 0; padding: 4px 8px; min-height: 27px; border-radius: 99px; font-size: 12px; line-height: 1.2; background: #0c302f; color: #cbe8d5; border-color: #66bb963f; white-space: nowrap; }
+.inlineSections .cards .sectionClickCue { position: absolute; right: 6px; bottom: 4px; display: flex; flex-direction: column; align-items: center; width: var(--section-artwork-size); height: auto; aspect-ratio: 1; min-height: 44px; padding: 0; border: 0; border-radius: 12px; background: transparent; box-shadow: none; cursor: pointer; gap: 0; opacity: 0; transform: translateY(3px); pointer-events: none; color: #ffe4a6; letter-spacing: 0; transition: opacity 140ms ease, transform 180ms cubic-bezier(.22,1,.36,1); }
 .sectionClickArtwork { display: block; width: var(--section-artwork-size); height: auto; aspect-ratio: 110 / 108; pointer-events: none; overflow: hidden; }
 /* Full-card rays are masked around measured text, badges and Continue. */
 .sectionEnergySpace { height: 26px; margin-top: 8px; flex-shrink: 0; }
@@ -217,12 +248,12 @@
   .innovationPortal .libraryFolderHeaderRight { width: auto; }
   .innovationPortal .courseFolderGrid, .inlineSections .cards { grid-template-columns: 1fr; }
   .innovationPortal .courseTitle { font-size: 20px; }
-  .innovationPortal .courseFolder { padding-bottom: 142px; }
+  .innovationPortal .courseFolder { padding-bottom: 120px; }
   .courseCardMain { padding-right: 0; }
   .innovationPortal .courseCardBody { padding-top: 0; }
-  .courseEnterButton { width: 96px; height: 94px; bottom: 42px; }
-  .enterArtwork { width: 96px; height: 94px; }
-  .innovationPortal .folderBadgesRow { position: absolute; left: 14px; right: 14px; bottom: 14px; padding-right: 0; }
+  .courseEnterButton { width: 80px; height: 80px; bottom: 4px; transition: opacity 140ms ease, transform 180ms cubic-bezier(.22,1,.36,1); }
+  .enterArtwork { width: 80px; height: 80px; }
+  .innovationPortal .folderBadgesRow { position: absolute; left: 14px; right: 14px; bottom: 84px; margin-bottom: 0; padding-right: 0; }
   .inlineSectionsHeader { gap: 12px; flex-wrap: wrap; }
   .inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview) strong { font-size: 22px; }
 }
@@ -243,16 +274,16 @@
   .folderChoice { padding-bottom: 6px; }
   .folderChoiceText strong { font-size: 21px; line-height: 1.1; }
   .folderChoiceText .folderNameText { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .folderCourseCount { font-size: 9px; padding: 2px 7px; bottom: 4px; }
+  .folderCourseCount { font-size: 12px; padding: 4px 7px; }
 }
 @media (max-width: 380px) {
   .innovationPortal .folderBadgesRow { gap: 3px; }
   .innovationPortal .folderBadgesRow > span { padding-left: 3px; padding-right: 3px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .courseEnterButton { transform: none; }
+  .courseEnterButton { transform: translateY(3px); transition: opacity 140ms ease, transform 180ms cubic-bezier(.22,1,.36,1); }
   .innovationPortal *, .innovationPortal *::before, .innovationPortal *::after { animation: none !important; transition: none !important; }
-  .innovationPortal .courseFolder[data-pointer-active], .innovationPortal .courseFolder:has(:focus-visible), .inlineSections .cards .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"]), .inlineSections .cards .sectionLaunchButton:has(:focus-visible) { transform: none; }
+  .innovationPortal .courseFolder:has(:focus-visible), .inlineSections .cards .sectionLaunchButton:has(:focus-visible) { transform: none; }
 }
 .learningAccent { display: inline-block; width: 20px; height: 20px; margin-left: 10px; vertical-align: middle; color: #79e3ff; flex-shrink: 0; }
 
@@ -274,11 +305,6 @@
 .innovationPortal .folderChoiceSelected .illustratedTitle::after { opacity: 1; transform: scaleX(1); }
 .innovationPortal :is(.folderChoice:focus-visible, .courseFolder:has(:focus-visible), .sectionLaunchButton:has(:focus-visible)) .illustratedTitle > span { color: var(--library-title-active); }
 .innovationPortal .courseFolder:has(:focus-visible) .courseDesc { color: #eaf4ff; }
-@media (hover: hover) {
-  .innovationPortal :is(.folderChoice:hover, .courseFolder[data-pointer-active], .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"])) .illustratedTitle > span { color: var(--library-title-active); }
-  .innovationPortal :is(.folderChoice:hover, .courseFolder[data-pointer-active], .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"])) .learningAccent { color: var(--library-title-active); }
-  .innovationPortal .courseFolder[data-pointer-active] .courseDesc { color: #eaf4ff; }
-}
 @media (prefers-reduced-motion: reduce) {
   .innovationPortal .illustratedTitle > span, .innovationPortal .courseDesc { transform: none !important; }
 }
@@ -711,11 +737,9 @@
 }
 
 .portal { font-size: 14px; }
-.portal button,
-.portal a { font-size: 12px; }
+.portal button, .portal a { font-size: 12px; }
 .portal small { font-size: clamp(10px, 0.8vw, 12px); }
-.portal p,
-.portal em { font-size: clamp(12px, 0.95vw, 14px); }
+.portal p, .portal em { font-size: clamp(12px, 0.95vw, 14px); }
 
 .courseFolder b {
   width: 30px;
@@ -741,8 +765,7 @@
   gap: 9px;
 }
 
-.selectorActions button,
-.actionBarButtons button {
+.selectorActions button, .actionBarButtons button {
   height: 36px;
   padding: 0 16px;
   border: 1px solid rgba(233, 202, 139, 0.35);
@@ -777,8 +800,7 @@
   background: #15803d;
 }
 
-.selectorActions a,
-.actionBarButtons a {
+.selectorActions a, .actionBarButtons a {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -806,8 +828,7 @@
   background: #123f68;
 }
 
-.selectorActions .aiButton,
-.actionBarButtons .aiButton {
+.selectorActions .aiButton, .actionBarButtons .aiButton {
   border-color: rgba(233, 202, 139, 0.55);
   background: linear-gradient(135deg, rgba(233, 202, 139, 0.22), rgba(207, 168, 92, 0.12));
   color: #fce7b2;
@@ -941,46 +962,13 @@
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.widgetPulsing {
-  border-color: rgba(233, 202, 139, 0.85);
-  box-shadow: 0 0 16px rgba(233, 202, 139, 0.45);
-  animation: widgetGlow 0.7s ease-out;
-}
-
-@keyframes widgetGlow {
-  0% {
-    border-color: rgba(233, 202, 139, 0.32);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
-  }
-  40% {
-    border-color: rgba(233, 202, 139, 0.9);
-    box-shadow: 0 0 18px rgba(233, 202, 139, 0.5);
-  }
-  100% {
-    border-color: rgba(233, 202, 139, 0.32);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
-  }
-}
-
 .liveDot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: #34d399;
   box-shadow: 0 0 8px rgba(52, 211, 153, 0.85);
-  animation: livePulse 2s ease-in-out infinite;
   flex-shrink: 0;
-}
-
-@keyframes livePulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.4;
-    transform: scale(0.85);
-  }
 }
 
 .liveSectionLabel {
@@ -1000,7 +988,7 @@
 .activeUsersCount {
   display: inline-block;
   color: #ffffff;
-  font-size: 13.5px;
+  font-size: 15px;
   font-weight: 900;
   min-width: 14px;
   text-align: center;
@@ -1008,31 +996,11 @@
   transition: transform 0.2s ease, color 0.2s ease;
 }
 
-.countPopAnim {
-  animation: countPop 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
 .liveUsersUnit {
   color: rgba(247, 244, 237, 0.65);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 650;
   white-space: nowrap;
-}
-
-@keyframes countPop {
-  0% {
-    transform: scale(1);
-    color: #ffffff;
-  }
-  35% {
-    transform: scale(1.38);
-    color: #fcebc2;
-    text-shadow: 0 0 12px rgba(252, 235, 194, 0.95);
-  }
-  100% {
-    transform: scale(1);
-    color: #ffffff;
-  }
 }
 
 .cardLiveUsers {
@@ -1255,13 +1223,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cards :is(.sectionLaunchButton, .sectionFilePreview),
-  .courseFolder,
-  .selectorActions button,
-  .actionBarButtons button,
-  .modalLayer,
-  .modal,
-  .modalActions button {
+  .cards :is(.sectionLaunchButton, .sectionFilePreview), .courseFolder, .selectorActions button, .actionBarButtons button, .modalLayer, .modal, .modalActions button {
     animation: none;
     transition: none;
   }
@@ -1306,7 +1268,7 @@
   background: #fff;
   color: #082945;
   font: inherit;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   outline: none;
 }
@@ -1511,7 +1473,7 @@
   flex-direction: column;
   gap: 24px;
   width: 100%;
-  /* Reserve room for lifted cards, focus outlines and hover shadows. */
+  /* Reserve room for keyboard focus outlines. */
   padding: 8px 16px 24px 12px;
   box-sizing: border-box;
   scrollbar-gutter: stable;
@@ -1710,11 +1672,6 @@
   transition: all 180ms ease;
 }
 
-.clearSearchBtn:hover {
-  background: #e9ca8b;
-  color: #041c31;
-}
-
 
 /* Keep technology marks clear of the heading. */
 .innovationPortal .libraryHeaderTitleArea { min-width: 0; }
@@ -1738,7 +1695,7 @@
 .titleInnovationRight { grid-area: 1 / 3; }
 @media (max-width: 600px) {
   .innovationPortal .libraryHeaderTitle { font-size: clamp(20px, 5.8vw, 30px); }
-  .inlineSections .cards .sectionLaunchButton:is(:not([data-disabled="true"]), [aria-busy="true"]) strong, .inlineSections .cards .sectionLaunchButton .cardLiveUsers { padding-right: 0; }
+  .inlineSections .cards .sectionLaunchButton:is(:not([data-disabled="true"]), [aria-busy="true"]) strong { padding-right: 0; }
 }
 
 /* Circuit details stay inside padding, away from titles and summaries. */
@@ -1767,17 +1724,93 @@
   transform: translateY(0);
 }
 @media (prefers-reduced-motion: reduce) {
-  .innovationPortal .courseFolder::before,
-  .innovationPortal .courseFolder::after { transform: none; }
-}
-
-/* Touch has no hover; keep the course entry discoverable and tappable. */
-@media (hover: none) and (pointer: coarse) {
-  .courseEnterButton { opacity: 1; transform: none; pointer-events: auto; }
-  .inlineSections .cards .sectionClickCue { opacity: 1; transform: none; pointer-events: auto; }
+  .innovationPortal .courseFolder::before, .innovationPortal .courseFolder::after { transform: none; }
 }
 
 .inlineSections .cards .sectionClickCue:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 2px; }
 .inlineSections .cards .sectionClickCue:disabled { cursor: wait; opacity: .65; }
 
 .inlineSections .cards .sectionLaunchButton > span { font-size: 16px; line-height: 1.4; letter-spacing: .1em; }
+
+.languageShort { display: none; }
+.inlineSections .cards .sectionLaunchButton > span:first-of-type { padding-right: 110px; }
+@container (max-width: 400px) {
+  .languageFull { display: none; }
+  .languageShort { display: inline; }
+}
+@container (max-width: 340px) {
+  .innovationPortal .folderBadgesRow { gap: 4px; }
+  .innovationPortal .folderBadgesRow > span { font-size: 11px; padding: 4px 6px; }
+}
+
+@media (max-width: 600px) { .innovationPortal .libraryMasthead .brand > div:last-child { display: none; } }
+
+/* Static metadata plaques: shared bevel, shallow extrusion, live HTML text. */
+.innovationPortal :is(.folderLearners, .courseLearners, .folderCourseCount, .courseSectionBadge, .folderLanguage, .unlockedFolderBadge, .sectionTotal, .libraryFolderBadge), .inlineSections .cards .sectionLaunchButton .cardLiveUsers, .inlineSections .cards .sectionLaunchButton small.sectionSlideBadge, .activeUsersWidget {
+  min-height: 28px;
+  border: 1px solid var(--badge-edge, #8ecde4);
+  border-top-color: var(--badge-highlight, #c5e9f4);
+  border-bottom-color: var(--badge-side, #397fa8);
+  border-radius: 8px;
+  background: var(--badge-face, linear-gradient(155deg, #18547f, #082945 65%, #041c31));
+  color: var(--badge-ink, #eaf4ff);
+  box-shadow: inset 0 1px 1px #ffffff26, 0 3px 0 var(--badge-base, #123f68), 0 5px 6px #010d1b38;
+  font-variant-numeric: tabular-nums;
+  animation: none;
+  transition: none;
+  transform: none;
+}
+.folderLearners, .courseLearners, .cardLiveUsers, .activeUsersWidget {
+  --badge-ink: #dcf2e6;
+  --badge-edge: #8ecde4;
+}
+.courseSectionBadge, .sectionTotal, .sectionSlideBadge {
+  --badge-face: linear-gradient(150deg, #f4dfb0, #e9ca8b);
+  --badge-ink: #082945;
+  --badge-edge: #b39159;
+  --badge-highlight: #f7f4ed;
+  --badge-side: #9d7944;
+  --badge-base: #9d7944;
+}
+.folderLanguage {
+  --badge-ink: #f4dfb0;
+  --badge-edge: #678ba3;
+  --badge-highlight: #9bd5e8;
+}
+.unlockedFolderBadge {
+  --badge-face: linear-gradient(155deg, #285b51, #103d36 70%, #0c302f);
+  --badge-ink: #b7efd4;
+  --badge-edge: #5f9d82;
+  --badge-highlight: #9de3c1;
+  --badge-side: #326553;
+  --badge-base: #153c31;
+}
+.folderChoiceSelected .folderCourseCount { --badge-ink: #f4dfb0; }
+.innovationPortal :is(.folderLearners, .courseLearners, .cardLiveUsers, .unlockedFolderBadge) :is(.liveDot, .dotUnlocked), .activeUsersWidget :is(.liveDot, .activeUsersCount) { animation: none; transition: none; transform: none; }
+.activeUsersWidget { backdrop-filter: none; }
+.folderMetaRow { bottom: 8px; }
+.innovationPortal .folderBadgesRow { padding-bottom: 3px; }
+@media (hover: none) and (pointer: coarse) {
+  .courseEnterButton { opacity: 1; transform: none; pointer-events: auto; }
+  .inlineSections .cards .sectionClickCue { opacity: 1; transform: none; pointer-events: auto; }
+}
+@media (hover: hover) {
+  .innovationPortal :is(.folderChoice:hover, .courseFolder[data-pointer-active], .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"])) .illustratedTitle > span { color: var(--library-title-active); }
+  .innovationPortal :is(.folderChoice:hover, .courseFolder[data-pointer-active], .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"])) .learningAccent { color: var(--library-title-active); }
+  .innovationPortal .courseFolder[data-pointer-active] .courseDesc { color: #eaf4ff; }
+}
+.innovationPortal .selectorActions :is(a, button):hover { background: var(--toolbar-hover, #fbfaf7); color: var(--toolbar-ink, #17324a); border-color: var(--toolbar-border, #e9ca8b); box-shadow: inset 0 1px 0 #ffffff90, 0 5px 12px #010d1b35; }
+
+/* Match the enlarged folder model when the static fallback is displayed. */
+.folderArtwork > svg { scale: 1.17; transform-origin: center; }
+
+/* Lightweight CSS depth for the selected course and its navigation controls. */
+.inlineSectionsHeader > div { min-width: 0; }
+.innovationPortal .inlineSectionsHeader h2 > span { color: #f7f4ed; text-shadow: 1px 1px 0 #397fa8, 2px 2px 0 #041c31; }
+.portal .functionTrigger { border-color: #f4dfb0 #b39159 #9d7944; background: linear-gradient(155deg, #fff0cd, #f4dfb0 45%, #e9ca8b); box-shadow: inset 0 1px 0 #fffdf5, inset 0 -1px 0 #b3915940, 0 4px 0 #9d7944, 0 5px 0 #082945, 0 7px 11px #010d1b55; text-shadow: 0 1px 0 #fff7dd; transform: perspective(600px) rotateX(4deg); transition: transform 150ms ease, box-shadow 150ms ease; }
+.portal .functionTrigger:hover { background: linear-gradient(155deg, #fff6e2, #f4dfb0 55%, #e9ca8b); transform: perspective(600px) rotateX(4deg) translateY(-1px); }
+.portal .functionTrigger:is(:active, [aria-expanded="true"]) { transform: perspective(600px) rotateX(2deg) translateY(2px); box-shadow: inset 0 1px 0 #fffdf5, 0 2px 0 #9d7944, 0 4px 7px #010d1b55; }
+.innovationPortal .backToCourses { flex-shrink: 0; border-color: #9bd5e8 #397fa8 #18547f; background: linear-gradient(155deg, #18547f, #123f68 55%, #082945); color: #dceff5; box-shadow: inset 0 1px 0 #dceff560, inset 0 -1px 0 #041c3170, 0 4px 0 #041c31, 1px 5px 0 #397fa8, 0 7px 11px #010d1b55; text-shadow: 0 1px 0 #041c31; transform: perspective(600px) rotateX(4deg); }
+.innovationPortal .backToCourses:hover { border-color: #c5e9f4; background: linear-gradient(155deg, #24658e, #123f68 65%, #082945); transform: perspective(600px) rotateX(4deg) translateY(-1px); box-shadow: inset 0 1px 0 #dceff570, 0 5px 0 #041c31, 1px 6px 0 #397fa8, 0 8px 12px #010d1b55; }
+.innovationPortal .backToCourses:active { transform: perspective(600px) rotateX(2deg) translateY(2px); box-shadow: inset 0 1px 0 #dceff560, 0 2px 0 #041c31, 1px 3px 0 #397fa8, 0 4px 7px #010d1b55; }
+@media (prefers-reduced-motion: reduce) { .portal .functionTrigger, .innovationPortal .backToCourses { transition: none; } }

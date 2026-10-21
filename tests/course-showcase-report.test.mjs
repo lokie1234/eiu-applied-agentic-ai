@@ -11,7 +11,7 @@ const require = createRequire(import.meta.url);
 function load(file, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, { exports, require: name => dependencies[name] ?? (name.startsWith("@/lib/report") ? load(name.replace("@/", "") + ".ts") : require(name)), URL, Response, console, Buffer });
+  vm.runInNewContext(code, { exports, require: name => dependencies[name] ?? ((name.startsWith("@/lib/report") || name === "@/lib/courseHierarchy") ? load(name.replace("@/", "") + ".ts") : require(name)), URL, Response, console, Buffer });
   return exports;
 }
 const courses = [{ id: "c-ai", slug: "applied-agentic-ai", title: "Applied Agentic AI" }, { id: "c-web", slug: "web-development", title: "AI-Powered Web Development" }];

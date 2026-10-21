@@ -1,16 +1,16 @@
 "use client";
 
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import styles from "./HairlineLoading.module.css";
+
+const subscribeTarget = () => () => {};
+const clientTarget = () => document.body;
+const serverTarget = () => null;
 
 /** CSS-only rocket launch, shared by the section-loading paths. */
 export default function HairlineLoading({ label = "Loading section", compact = false }: { label?: string; compact?: boolean }) {
-  const [portalTarget, setPortalTarget] = useState<HTMLElement | null>(null);
-
-  useEffect(() => {
-    setPortalTarget(document.body);
-  }, []);
+  const portalTarget = useSyncExternalStore(subscribeTarget, clientTarget, serverTarget);
 
   const loader = <span className={`${styles.loading} ${compact ? styles.compact : ""}`} role="status" aria-live="polite" aria-label={label}>
     <svg className={styles.artwork} viewBox="0 0 180 180" fill="none" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">

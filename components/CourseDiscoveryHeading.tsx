@@ -1,17 +1,52 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
 import dynamic from "next/dynamic";
-import type { CompanionGaze } from "./CourseCompanion3D";
+import type { CompanionEmotion, CompanionGaze } from "./CourseCompanion3D";
 import styles from "./CourseDiscoveryHeading.module.css";
 
-const CourseCompanion3D = dynamic(() => import("./CourseCompanion3D"), { ssr: false });
+const CourseCompanion3D = memo(dynamic(() => import("./CourseCompanion3D"), { ssr: false }));
 
-export default function CourseDiscoveryHeading() {
+const OnlineCounter3D = memo(function OnlineCounter3D({ count }: { count: number }) {
+  return <span className={styles.onlineCounter} role="status" aria-live="polite" aria-atomic="true" aria-label={`${count} learners online`}>
+    <i aria-hidden="true" /><strong>{count}</strong>{" "}<span>online</span>
+  </span>;
+});
+
+export default function CourseDiscoveryHeading({ onlineCount }: { onlineCount?: number }) {
+  const [emotion, setEmotion] = useState<CompanionEmotion>("normal");
+  const [emotionOpen, setEmotionOpen] = useState(false);
+  const emotionPanelId = useId();
+  const clusterRef = useRef<HTMLDivElement>(null);
+  const emotionTriggerRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!emotionOpen) return;
+    const outside = (event: PointerEvent) => {
+      if (!clusterRef.current?.contains(event.target as Node)) setEmotionOpen(false);
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { setEmotionOpen(false); emotionTriggerRef.current?.focus(); }
+    };
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    return () => {
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
+    };
+  }, [emotionOpen]);
   const [energized, setEnergized] = useState(false);
   const [ready, setReady] = useState(false);
+  const [fallback, setFallback] = useState(false);
+  const rendererReady = useCallback((value: boolean) => { setReady(value); setFallback(!value); }, []);
+  useEffect(() => {
+    if (ready) return;
+    const pending = window.setTimeout(() => setFallback(true), 4000);
+    return () => window.clearTimeout(pending);
+  }, [ready]);
   const headingRef = useRef<HTMLDivElement>(null);
-  const companionRef = useRef<HTMLButtonElement>(null);
+  const companionRef = useRef<HTMLDivElement>(null);
+  const screenRef = useRef<HTMLDivElement>(null);
+  const chinRef = useRef<HTMLDivElement>(null);
   const gazeRef = useRef<CompanionGaze>({ x: 0, y: 0, reducedMotion: false, suspended: false });
   const wakeRef = useRef<(() => void) | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -132,10 +167,26 @@ export default function CourseDiscoveryHeading() {
     timer.current = setTimeout(() => setEnergized(false), 1400);
   }
 
-  return <div ref={headingRef} className={styles.heading} data-energized={energized || undefined}>
-    <button ref={companionRef} className={styles.companion} type="button" onClick={energize} data-ready={ready || undefined}
-      aria-label="Activate AI companion animation" title="Say hello to your AI companion">
-      <span className={styles.orbit} aria-hidden="true" />
+  return <div ref={headingRef} className={styles.heading} data-energized={energized || undefined} data-emotion={emotion} data-emotion-open={emotionOpen || undefined}>
+    <div ref={clusterRef} className={styles.companionCluster}>
+    <div ref={companionRef} className={styles.companion} data-ready={ready || undefined} data-fallback={fallback || undefined}>
+    <button type="button" className={styles.greetButton} onClick={energize} aria-label="Activate AI companion animation" />
+    <div className={styles.faceControls}>
+    <button ref={emotionTriggerRef} type="button" className={styles.emotionTrigger} aria-label="Choose robot emotion" aria-expanded={emotionOpen} aria-controls={emotionPanelId} onClick={() => setEmotionOpen(open => !open)}><span className={styles.antennaBeacon} aria-hidden="true" /></button>
+    <div ref={screenRef} className={styles.faceScreen} data-open={emotionOpen || undefined}>
+    {emotionOpen && <div id={emotionPanelId} className={styles.emotionRail} role="group" aria-label="Robot emotion">
+      {([{ value: "normal", label: "Vui vẻ" }, { value: "angry", label: "Tập trung" }, { value: "surprised", label: "Ngạc nhiên" }] as const).map(option =>
+        <button key={option.value} type="button" className={styles.emotionButton} aria-label={option.label} data-emotion-choice={option.value} aria-pressed={emotion === option.value} onClick={() => { setEmotion(option.value); setEmotionOpen(false); emotionTriggerRef.current?.focus(); }}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="16" rx="5" />
+            {option.value === "normal" ? <><path d="M8 9v2m8-2v2m-7 3q3 4 6 0" /></>
+              : option.value === "angry" ? <><path d="m7 9 3 1m7-1-3 1m-5 5q3-3 6 0" /></>
+              : <><circle cx="8" cy="10" r="1" /><circle cx="16" cy="10" r="1" /><ellipse cx="12" cy="15" rx="2" ry="2.5" /></>}
+          </svg>
+        </button>)}
+    </div>}
+    </div><div ref={chinRef} className={styles.chinSignals} aria-hidden="true"><i /><i /><i /></div></div>
+      <span className={styles.skeleton} aria-hidden="true" />
       <span className={styles.robot} aria-hidden="true">
         <span className={styles.antenna} />
         <span className={styles.earLeft} /><span className={styles.earRight} />
@@ -146,10 +197,11 @@ export default function CourseDiscoveryHeading() {
       </span>
       <span className={styles.shadow} aria-hidden="true" />
       <span className={styles.spark} aria-hidden="true">✦</span>
-      <span className={styles.webgl} aria-hidden="true"><CourseCompanion3D gazeRef={gazeRef} wakeRef={wakeRef} energized={energized} onReady={setReady} /></span>
-    </button>
+      <span className={styles.webgl} aria-hidden="true"><CourseCompanion3D gazeRef={gazeRef} wakeRef={wakeRef} energized={energized} emotion={emotion} emotionOpen={emotionOpen} screenRef={screenRef} antennaRef={emotionTriggerRef} chinRef={chinRef} onReady={rendererReady} /></span>
+    </div>
+    </div>
     <div className={styles.copy}>
-      <span className={styles.eyebrow} aria-hidden="true"><i /> YOUR NEXT DISCOVERY</span>
+      <div className={styles.eyebrowLine}><span className={styles.eyebrow} aria-hidden="true"><i /> YOUR NEXT DISCOVERY</span>{onlineCount !== undefined && <OnlineCounter3D count={onlineCount} />}</div>
       <h1 className={styles.title}>Choose a <span className={styles.word}>course<span className={styles.signal} aria-hidden="true" /></span></h1>
     </div>
   </div>;

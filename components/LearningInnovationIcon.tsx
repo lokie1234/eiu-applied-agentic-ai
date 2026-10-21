@@ -4,7 +4,7 @@ import { useEffect, useId, useRef } from "react";
 import { registerLearningIcon } from "./learningIconRegistry";
 import styles from "./LearningInnovationIcon.module.css";
 
-type Props = { kind: "folder" | "course" | "section" | "spark"; className?: string; active?: boolean; compact?: boolean; electric?: boolean };
+type Props = { kind: "folder" | "course" | "section" | "spark"; className?: string; active?: boolean; compact?: boolean };
 
 function IdeaBulb({ className, fill }: { className?: string; fill: string }) {
   return <g className={className}>
@@ -16,15 +16,16 @@ function IdeaBulb({ className, fill }: { className?: string; fill: string }) {
 }
 
 /** Shared materials and distinct silhouettes; cursor tilt is delegated by the portal. */
-export default function LearningInnovationIcon({ kind, className = "", active = false, compact = false, electric = false }: Props) {
+export default function LearningInnovationIcon({ kind, className = "", active = false, compact = false }: Props) {
   const id = useId().replace(/:/g, "");
   const iconRef = useRef<HTMLSpanElement>(null);
   useEffect(() => {
     if (compact || kind === "spark" || !iconRef.current) return;
-    return registerLearningIcon({ element: iconRef.current, kind, active, electric });
-  }, [kind, compact, active, electric]);
+    return registerLearningIcon({ element: iconRef.current, kind, active });
+  }, [kind, compact, active]);
   const blue = `${id}-blue`, gold = `${id}-gold`, glass = `${id}-glass`;
-  return <span ref={iconRef} className={`${styles.icon} ${className}`} data-kind={kind} data-active={active || undefined} aria-hidden="true">
+  return <span ref={iconRef} className={`${styles.icon} ${className}`} data-kind={kind} data-render-state={!compact && kind !== "spark" ? "pending" : undefined} data-active={active || undefined} aria-hidden="true">
+    {!compact && kind !== "spark" && <span className={styles.skeleton} aria-hidden="true" />}
     {compact ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" focusable="false">
       {kind === "folder" ? <>
         <path d="M8 13a5.5 5.5 0 1 1 8 0c-1.3 1.2-1.5 2.2-1.5 3.5h-5C9.5 15.2 9.3 14.2 8 13Zm2 6h4m-3 2h2m-1-5v-5m-2-2 2 2 2-2" />
@@ -69,14 +70,13 @@ export default function LearningInnovationIcon({ kind, className = "", active = 
             <circle className={styles.status} cx="76" cy="73" r="2" fill="#79e3ff" />
           </g>
         </> : kind === "course" || kind === "section" ? <>
-          <g className={styles.continueBody}>
-            <rect x="17" y="39" width="76" height="43" rx="21.5" fill="#041c31" stroke="#123f68" />
-            <rect x="17" y="33" width="76" height="43" rx="21.5" fill={`url(#${blue})`} stroke="#9bd5e8" />
-            <path d="M35 37h39" stroke="#fffefa" strokeOpacity=".45" />
-            <g stroke="#f4dfb0" strokeWidth="3.2">
-              <path className={styles.continueArrow} d="m47 44 18 11-18 11Z" fill={`url(#${gold})`} strokeWidth="1.5" />
-            </g>
-            {electric && <g className={styles.chipElectric}><path className={styles.arc} d="M29 72h48l7-5" pathLength="100" /></g>}
+          <g className={styles.triangleBody}>
+            <path d="M22 8 102 54 22 100Z" fill="#123f68" stroke="#18547f" strokeWidth="2" transform="translate(1 3)" />
+            <path className={styles.triangleBorder} d="M21 13Q21 4 29 9L98 48Q106 52 98 57L29 96Q21 101 21 92Z M29 26 29 78Q29 84 35 80L80 55Q86 52 80 49L35 23Q29 19 29 26Z" fill="#9bd5e8" fillRule="evenodd" stroke="#d7f4ff" strokeWidth="1.5" />
+            <path d="M30 20 91 56 30 92Z" fill="#041c31" stroke="#123f68" strokeWidth="3" transform="translate(3 6)" />
+            <path d="M31 27Q31 20 37 24L80 48Q87 52 80 56L37 81Q31 85 31 78Z M43 40 43 64Q43 68 47 65L64 55Q69 52 64 49L47 39Q43 36 43 40Z" fill={`url(#${blue})`} fillRule="evenodd" stroke="#9bd5e8" strokeWidth="2.5" />
+            <path d="m33 21 52 31-52 31" stroke="#d7f4ff" strokeOpacity=".7" />
+            <path d="m48 43 15 9-15 9Z" fill={`url(#${gold})`} stroke="#fff0c9" />
           </g>
         </> : <>
           <circle cx="57" cy="58" r="29" fill="#082945" stroke="#397fa8" />

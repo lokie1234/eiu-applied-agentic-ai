@@ -12,6 +12,7 @@ export function reportScope(row: Row, courses: Row[], sections: Row[]): Row {
   const course = courses.find(course => course.id === courseId);
   const section = matchedSection || sections.find(section => section.course_id === courseId && section.section_key === sectionKey);
   return { ...row, courseId, courseTitle: String(row.courseTitle || course?.title || (courseId === "applied-agentic-ai" ? "Applied Agentic AI" : courseId)),
+    folderGroupId: String(course?.folderGroupId || row.folderGroupId || "fg-ai-agentic"), folderGroupName: String(course?.folderGroupName || row.folderGroupName || "Chương Trình AI & Agentic"),
     sectionId: explicitSection || String(section?.id || `${courseId}:${sectionKey}`), section: sectionKey || String(section?.section_key || ""),
     sectionTitle: String(row.sectionTitle || section?.title || sectionKey.replace(/^section(\d+)$/i, "Section $1")) };
 }

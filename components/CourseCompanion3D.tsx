@@ -1,8 +1,8 @@
 "use client";
 
-import { Component, type ReactNode, type RefObject, useCallback, useEffect, useMemo, useRef } from "react";
+import { Component, type ReactNode, type RefObject, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Group, MathUtils } from "three";
+import { Group, MathUtils, Vector3 } from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 
 function RoundedBox({
@@ -27,10 +27,16 @@ function RoundedBox({
 }
 
 export type CompanionGaze = { x: number; y: number; reducedMotion: boolean; suspended: boolean };
+export type CompanionEmotion = "normal" | "angry" | "surprised";
 type Props = {
   gazeRef: RefObject<CompanionGaze>;
   wakeRef: RefObject<(() => void) | null>;
   energized: boolean;
+  emotion: CompanionEmotion;
+  emotionOpen: boolean;
+  screenRef: RefObject<HTMLDivElement | null>;
+  antennaRef: RefObject<HTMLButtonElement | null>;
+  chinRef: RefObject<HTMLDivElement | null>;
   onReady: (ready: boolean) => void;
 };
 
@@ -41,11 +47,13 @@ class SceneBoundary extends Component<{ children: ReactNode; onReady: Props["onR
   render() { return this.state.failed ? null : this.props.children; }
 }
 
-function Robot({ gazeRef, wakeRef, energized }: Props) {
+function Robot({ gazeRef, wakeRef, energized, emotion, emotionOpen, screenRef, antennaRef, chinRef }: Props) {
+  const signalColor = emotion === "angry" ? "#ef5144" : emotion === "surprised" ? "#36d484" : "#f4ce65";
   const robot = useRef<Group>(null);
-  const ring = useRef<Group>(null);
   const eyes = useRef<Group>(null);
   const pulseStart = useRef<number | null>(null);
+  const screenCorners = useRef([new Vector3(), new Vector3(), new Vector3()]);
+  const antennaPosition = useRef(new Vector3());
   const invalidate = useThree(state => state.invalidate);
   const schedule = useCallback(() => {
     // Fiber coalesces invalidations into the next display frame. A timer here
@@ -65,24 +73,57 @@ function Robot({ gazeRef, wakeRef, energized }: Props) {
     schedule();
   }, [energized, schedule]);
 
-  useFrame((_, delta) => {
-    if (gazeRef.current.suspended || !robot.current || !ring.current || !eyes.current) return;
+  useEffect(() => { schedule(); }, [emotion, emotionOpen, schedule]);
+
+  useFrame((state, delta) => {
+    if (gazeRef.current.suspended || !robot.current || !eyes.current) return;
     const { x, y, reducedMotion } = gazeRef.current;
     const elapsed = pulseStart.current === null ? 2 : (performance.now() - pulseStart.current) / 1000;
-    const greeting = !reducedMotion && elapsed < 1.4;
+    const greeting = !emotionOpen && !reducedMotion && elapsed < 1.4;
     const bounce = greeting ? Math.sin(elapsed / 1.4 * Math.PI) : 0;
-    const targetY = -.12 + (reducedMotion ? 0 : x * .85);
+    const targetY = -.12 + (reducedMotion || emotionOpen ? 0 : x * .85);
     // Browser Y grows downwards; positive Three.js X rotation looks down.
-    const targetX = .05 + (reducedMotion ? 0 : y * .5);
+    const targetX = .05 + (reducedMotion || emotionOpen ? 0 : y * .5);
     const blend = reducedMotion ? 1 : 1 - Math.exp(-Math.min(delta, .05) * 55);
     robot.current.rotation.y = MathUtils.lerp(robot.current.rotation.y, targetY, blend);
     robot.current.rotation.x = MathUtils.lerp(robot.current.rotation.x, targetX, blend);
     robot.current.rotation.z = bounce * Math.sin(elapsed * 12) * .12;
     robot.current.position.y = bounce * .16;
-    ring.current.rotation.z = -.3 + bounce * .8;
     eyes.current.position.x = reducedMotion ? 0 : x * .075;
     eyes.current.position.y = reducedMotion ? 0 : -y * .045;
     eyes.current.scale.y = energized ? .65 : 1;
+    robot.current.updateWorldMatrix(true, false);
+    if (antennaRef.current) {
+      const point = antennaPosition.current.set(0, .82, 0).applyMatrix4(robot.current.matrixWorld).project(state.camera);
+      antennaRef.current.style.transform = `translate(${(point.x+1)*state.size.width/2}px,${(1-point.y)*state.size.height/2}px) translate(-50%,-50%)`;
+    }
+    // Project the real visor into the DOM so its controls stay attached while the head turns.
+    if (screenRef.current) {
+      const corners = screenCorners.current;
+      corners[0].set(-.53, .355, .525);
+      corners[1].set(.53, .355, .525);
+      corners[2].set(-.53, -.285, .525);
+      for (const corner of corners) {
+        corner.applyMatrix4(robot.current.matrixWorld).project(state.camera);
+        corner.x = (corner.x + 1) * state.size.width / 2;
+        corner.y = (1 - corner.y) * state.size.height / 2;
+      }
+      const [tl, tr, bl] = corners;
+      screenRef.current.style.transform = `matrix(${(tr.x-tl.x)/100},${(tr.y-tl.y)/100},${(bl.x-tl.x)/60},${(bl.y-tl.y)/60},${tl.x},${tl.y})`;
+    }
+    if (chinRef.current) {
+      const corners = screenCorners.current;
+      corners[0].set(-.12, -.4, .4);
+      corners[1].set(.12, -.4, .4);
+      corners[2].set(-.12, -.46, .4);
+      for (const corner of corners) {
+        corner.applyMatrix4(robot.current.matrixWorld).project(state.camera);
+        corner.x = (corner.x + 1) * state.size.width / 2;
+        corner.y = (1 - corner.y) * state.size.height / 2;
+      }
+      const [tl, tr, bl] = corners;
+      chinRef.current.style.transform = `matrix(${(tr.x-tl.x)/24},${(tr.y-tl.y)/24},${(bl.x-tl.x)/6},${(bl.y-tl.y)/6},${tl.x},${tl.y})`;
+    }
     if (greeting || Math.abs(robot.current.rotation.y - targetY) > .001 || Math.abs(robot.current.rotation.x - targetX) > .001) schedule();
   });
 
@@ -92,55 +133,71 @@ function Robot({ gazeRef, wakeRef, energized }: Props) {
     <directionalLight position={[4, 1, -2]} intensity={4} color="#51c9ef" />
     <pointLight position={[-2, -1, 2]} intensity={8} color="#e9ca8b" />
     <group ref={robot} rotation={[.05, -.22, 0]}>
-      <RoundedBox args={[1.38, 1.08, .82]} radius={.29} smoothness={3}>
+      <RoundedBox args={[1.38, 1.08, .82]} radius={.29} smoothness={5}>
         <meshStandardMaterial color="#afd7e5" metalness={.6} roughness={.25} />
       </RoundedBox>
-      <RoundedBox args={[1.13, .7, .16]} radius={.21} smoothness={3} position={[0, .035, .415]}>
+      <RoundedBox args={[1.13, .7, .16]} radius={.21} smoothness={5} position={[0, .035, .415]}>
         <meshStandardMaterial color="#041c31" metalness={.35} roughness={.22} />
       </RoundedBox>
-      <group ref={eyes} position={[0, 0, .52]}>
-        {[-.26, .26].map(x => <mesh key={x} position={[x, .08, 0]}>
-          <capsuleGeometry args={[.065, .1, 4, 8]} />
+      <group ref={eyes} position={[0, 0, .52]} visible={!emotionOpen}>
+        {[-.26, .26].map(x => <mesh key={x} position={[x, .08, 0]} scale={[emotion === "angry" ? 1.3 : 1, emotion === "angry" ? .4 : 1, 1]} rotation={[0, 0, emotion === "angry" ? Math.sign(x) * .22 : 0]}>
+          {emotion === "surprised" ? <sphereGeometry args={[.085, 12, 8]} /> : <capsuleGeometry args={[.065, .1, 4, 8]} />}
           <meshStandardMaterial color="#a5f1ff" emissive="#51c9ef" emissiveIntensity={energized ? 3 : 1.3} roughness={.25} />
         </mesh>)}
       </group>
-      <mesh position={[0, -.13, .52]} rotation={[0, 0, Math.PI]}>
-        <torusGeometry args={[.095, .014, 5, 12, Math.PI]} />
+      {!emotionOpen && <mesh position={[0, emotion === "surprised" ? -.16 : emotion === "angry" ? -.23 : -.13, .52]} rotation={[0, 0, emotion === "angry" ? 0 : Math.PI]}>
+        <torusGeometry args={[emotion === "surprised" ? .065 : .095, .014, 5, 16, emotion === "surprised" ? Math.PI * 2 : Math.PI]} />
         <meshBasicMaterial color="#79e3ff" />
-      </mesh>
+      </mesh>}
       {[-.76, .76].map(x => <mesh key={x} position={[x, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[.17, .17, .17, 12]} />
+        <cylinderGeometry args={[.17, .17, .17, 24]} />
         <meshStandardMaterial color="#2d7fb4" metalness={.65} roughness={.3} />
       </mesh>)}
       <mesh position={[0, .66, 0]}>
-        <cylinderGeometry args={[.025, .035, .25, 8]} />
+        <cylinderGeometry args={[.025, .035, .25, 16]} />
         <meshStandardMaterial color="#b39159" metalness={.6} roughness={.3} />
       </mesh>
       <mesh position={[0, .82, 0]}>
-        <sphereGeometry args={[.09, 12, 8]} />
-        <meshStandardMaterial color="#e9ca8b" emissive="#b39159" emissiveIntensity={energized ? 1 : .2} metalness={.45} roughness={.25} />
+        <sphereGeometry args={[.09, 24, 16]} />
+        <meshStandardMaterial color={signalColor} emissive={signalColor} emissiveIntensity={.8} metalness={.45} roughness={.25} />
       </mesh>
-      {[-.09, 0, .09].map((x, i) => <mesh key={x} position={[x, -.43, .37]}>
+      {[-.09, 0, .09].map(x => <mesh key={x} position={[x, -.43, .37]}>
         <sphereGeometry args={[.023, 8, 6]} />
-        <meshBasicMaterial color={i === 0 ? "#e9ca8b" : "#18547f"} />
+        <meshStandardMaterial color={signalColor} emissive={signalColor} emissiveIntensity={.1} roughness={.3} />
       </mesh>)}
-    </group>
-    <group ref={ring} rotation={[.6, .15, -.3]} position={[0, -.27, 0]}>
-      <mesh rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[1.04, .009, 4, 48]} />
-        <meshBasicMaterial color="#79e3ff" transparent opacity={.5} />
-      </mesh>
-      <mesh position={[.95, 0, .42]}>
-        <sphereGeometry args={[.045, 10, 8]} />
-        <meshStandardMaterial color="#e9ca8b" emissive="#e9ca8b" emissiveIntensity={.5} />
-      </mesh>
     </group>
   </>;
 }
 
+function RobotViewport() {
+  const get = useThree(state => state.get);
+  const height = useThree(state => state.size.height);
+  useLayoutEffect(() => {
+    const { camera, invalidate } = get();
+    // The transparent drawing surface extends 36px farther above and below.
+    // Compensate for those extra pixels so the avatar keeps its existing size.
+    camera.zoom = Math.max(1, height - 72) / Math.max(1, height);
+    camera.updateProjectionMatrix();
+    invalidate();
+  }, [get, height]);
+  return null;
+}
+
+function subscribeDisplay(callback: () => void) {
+  window.addEventListener("resize", callback, { passive: true });
+  return () => window.removeEventListener("resize", callback);
+}
+function displayResolution() {
+  // Match the CSS enlargement, including after emotion changes reconfigure the Canvas.
+  const scale = window.matchMedia("(max-width: 600px)").matches ? 1.2 : 1.25;
+  return Math.min(3, (window.devicePixelRatio || 1) * scale);
+}
+const serverResolution = () => 1.5;
+
 export default function CourseCompanion3D(props: Props) {
+  const pixelRatio = useSyncExternalStore(subscribeDisplay, displayResolution, serverResolution);
   return <SceneBoundary onReady={props.onReady}>
-    <Canvas camera={{ position: [0, .12, 4.6], fov: 34 }} dpr={[1, 2]} frameloop="demand"
+    <Canvas camera={{ position: [0, .12, 4.6], fov: 34, zoom: 2 / 3 }} dpr={pixelRatio} frameloop="demand"
       gl={{ alpha: true, antialias: true, powerPreference: "low-power" }}
       style={{ position: "absolute", inset: 0, pointerEvents: "none" }}
       fallback={null}
@@ -148,6 +205,7 @@ export default function CourseCompanion3D(props: Props) {
         props.onReady(true);
         gl.domElement.addEventListener("webglcontextlost", () => props.onReady(false), { once: true });
       }}>
+      <RobotViewport />
       <Robot {...props} />
     </Canvas>
   </SceneBoundary>;

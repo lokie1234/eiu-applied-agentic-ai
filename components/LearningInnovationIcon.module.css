@@ -1,11 +1,15 @@
-.icon { display: block; flex-shrink: 0; color: #79e3ff; pointer-events: none; }
+.icon { position: relative; display: block; flex-shrink: 0; color: #79e3ff; pointer-events: none; }
 .icon svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.icon[data-render-state] > svg { visibility: hidden; opacity: 0; transition: opacity 320ms ease; }
+.icon[data-render-state] > svg * { animation: none !important; transition: none !important; }
+.icon[data-render-state="fallback"] > svg { visibility: visible; opacity: 1; }
+.icon[data-render-state="fallback"] > svg * { animation: none !important; }
 .icon[data-webgl-ready] > svg { visibility: hidden; transition: none; }
 .icon[data-webgl-ready] > svg * { animation-play-state: paused !important; transition: none !important; }
 .scene { transform: perspective(360px) rotateX(var(--ai-rotate-x, 0deg)) rotateY(var(--ai-rotate-y, 0deg)); transform-origin: 50% 60%; transition: transform 100ms ease-out; }
 .shadow { fill: #010d1b; opacity: .5; transform-origin: 55px 97px; transition: transform 350ms ease, opacity 350ms ease; }
 .halo { fill: #51c9ef; opacity: .045; transition: opacity 300ms ease; }
-.object, .ideaCards, .leftCard, .rightCard, .idea, .continueBody { transition: transform 500ms cubic-bezier(.22,1,.36,1); }
+.object, .ideaCards, .leftCard, .rightCard, .idea, .triangleBody { transition: transform 500ms cubic-bezier(.22,1,.36,1); }
 .folderLid { transform-origin: 55px 88px; transition: transform 500ms cubic-bezier(.22,1,.36,1); }
 .leftCard, .rightCard { transform-origin: 55px 72px; }
 .extraCardLeft, .extraCardRight { transform-origin: 55px 72px; transition: transform 500ms cubic-bezier(.22,1,.36,1); }
@@ -21,15 +25,13 @@
 :global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .compactRocket { animation: compactLaunch 1500ms ease-in-out infinite; }
 :global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon :is(.compactRays, .compactFlame) { animation: signal 1500ms ease-in-out infinite; }
 @keyframes compactLaunch { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(1px, -1px); } }
-.chipElectric { opacity: 0; }
-.arc { stroke: #d9fbff; stroke-width: 1.5; stroke-dasharray: 24 76; }
 .object { transform-origin: 55px 60px; }
-.continueBody { transform-origin: 55px 57px; transition: transform 220ms cubic-bezier(.22,1,.36,1); }
+.triangleBody { transform-origin: 55px 57px; transition: transform 220ms cubic-bezier(.22,1,.36,1); }
+:global([data-icon-surface]:is(:has(:focus-visible))) .icon .triangleBody { animation: triangleGreet 1.4s ease-out, triangleFloat 2.6s 1.4s ease-in-out infinite; }
+/* Keyboard focus, touch selection and opening states. */
 :global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .continueBody { transform: translateY(-3px); }
 :global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .continueArrow,
 .icon[data-active] .continueArrow { animation: continueForward 1100ms ease-in-out infinite; }
-@keyframes continueForward { 0%, 100% { transform: translateX(0); } 55% { transform: translateX(7px); } }
-/* One interaction state shared by mouse, keyboard, touch selection and opening. */
 :global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .object, .icon[data-active] .object { transform: translateY(-2px); }
 :global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .halo, .icon[data-active] .halo { opacity: .12; }
 :global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .shadow { transform: scaleX(.85); opacity: .35; }
@@ -43,12 +45,10 @@
 :global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .circuit,
 :global([data-icon-surface]:is([data-pointer-active], :has(:focus-visible))) .icon .status,
 .icon[data-active] .circuit, .icon[data-active] .status { animation: signal 1800ms ease-in-out infinite; }
+@keyframes signal { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+/* Selected folders keep opening and closing after the pointer leaves. */
 :global(article:is([data-pointer-active], :has(:focus-visible))) .icon .chipElectric { animation: electricity 3.6s ease-in-out infinite; }
 :global(article:is([data-pointer-active], :has(:focus-visible))) .icon .arc { animation: arc 3.6s linear infinite; }
-@keyframes signal { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
-@keyframes electricity { 0%, 47%, 80%, 100% { opacity: 0; } 55%, 69% { opacity: .85; } }
-@keyframes arc { 0%, 45% { stroke-dashoffset: 100; } 80%, 100% { stroke-dashoffset: 0; } }
-/* Selected folders keep opening and closing after the pointer leaves. */
 :global([data-icon-surface="folder"]:is([aria-pressed="true"], :hover, :focus-visible)) .icon .folderLid { animation: folderOpen 2200ms cubic-bezier(.22,1,.36,1) infinite; }
 :global([data-icon-surface="folder"]:is([aria-pressed="true"], :hover, :focus-visible)) .icon .ideaCards { animation: folderCards 2200ms cubic-bezier(.22,1,.36,1) infinite; }
 :global([data-icon-surface="folder"]:is([aria-pressed="true"], :hover, :focus-visible)) .icon .leftCard { animation: folderFanLeft 2200ms ease-in-out infinite; }
@@ -62,4 +62,19 @@
 @keyframes folderIdea { 0%, 100% { transform: translateY(0); } 34% { transform: translateY(-11px); } 48% { transform: translateY(-7px); } 62% { transform: translateY(-10px); } 88% { transform: translateY(1px); } }
 @keyframes folderShadow { 0%, 88%, 100% { transform: scaleX(1); opacity: .5; } 34%, 62% { transform: scaleX(.78); opacity: .3; } }
 @media (prefers-reduced-motion: reduce) { .icon *, .scene { animation: none !important; transition: none !important; transform: none !important; } }
-@media (hover: none) { .scene { transform: none; } .icon:not([data-active]):not([data-kind="folder"]) * { animation: none !important; } }
+@media (hover: none) {
+.scene { transform: perspective(360px) rotateX(var(--ai-rotate-x, 0deg)) rotateY(var(--ai-rotate-y, 0deg)); transform-origin: 50% 60%; transition: transform 100ms ease-out; } .icon:not([data-active]):not([data-kind="folder"]) * { animation: none !important; } }
+
+.triangleBorder { transform-origin: 55px 52px; }
+:global([data-icon-surface]:is(:has(:focus-visible))) .icon .triangleBorder { transform: translateY(-1px); }
+@keyframes triangleGreet { 0%, 100% { transform: translateY(0) rotate(0); } 20% { transform: translateY(-7px) rotate(-7deg); } 42% { transform: translateY(-3px) rotate(6deg); } 66% { transform: translateY(-5px) rotate(-3deg); } }
+@keyframes triangleFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .icon .triangleBody, .icon .triangleBorder { animation: none !important; } }
+
+.skeleton { position: absolute; inset: 19% 12% 17%; overflow: hidden; border: 1px solid #9bd5e82b; border-radius: 20%; background: #18547f66; opacity: 1; transition: opacity 320ms ease, visibility 0s 320ms; }
+.skeleton::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 15%, #9bd5e828 50%, transparent 85%); transform: translateX(-100%); animation: iconSkeletonSweep 1.5s ease-in-out infinite; }
+.icon[data-kind="course"] .skeleton, .icon[data-kind="section"] .skeleton { inset: 12%; border-radius: 20%; clip-path: polygon(12% 0, 100% 50%, 12% 100%); }
+.icon[data-webgl-ready] .skeleton, .icon[data-render-state="fallback"] .skeleton { opacity: 0; visibility: hidden; }
+.icon[data-webgl-ready] .skeleton::after, .icon[data-render-state="fallback"] .skeleton::after { animation: none; }
+@keyframes iconSkeletonSweep { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .skeleton, .icon[data-render-state] > svg { transition: none; } .skeleton::after { animation: none; } }

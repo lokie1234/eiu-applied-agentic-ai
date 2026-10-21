@@ -95,10 +95,54 @@ function useInnovationTilt() {
 function LearningAccent({ kind = "book" }: { kind?: "library" | "collection" | "book" | "page" }) {
   return <LearningInnovationIcon kind={kind === "collection" || kind === "library" ? "folder" : kind === "page" ? "section" : "course"} className={styles.learningAccent} compact />;
 }
+
+function ActionIcon({ kind }: { kind: "access" | "ai" | "report" | "reset" | "signout" }) {
+  return <svg className={styles.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+    {kind === "access" ? <><path d="m10 3-.6 2.2-2 .9-2-.7-2 3.4 1.6 1.5v2.4l-1.6 1.5 2 3.4 2-.7 2 .9L10 21h4l.6-2.2 2-.9 2 .7 2-3.4-1.6-1.5v-2.4l1.6-1.5-2-3.4-2 .7-2-.9L14 3Z" /><circle cx="12" cy="12" r="3" /></>
+      : kind === "ai" ? <><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" /><path d="M20 2v4m-2-2h4" /></>
+      : kind === "report" ? <><path d="M10 3h11v18H10Z" fill="#21a366" stroke="#107c41" /><path d="M14 7h4m-4 5h4m-4 5h4" stroke="#fff" strokeWidth="1.2" /><path d="M2 6h11v12H2Z" fill="#107c41" stroke="#107c41" /><path d="m5 9 5 6m0-6-5 6" stroke="#fff" /></>
+      : kind === "reset" ? <><path d="M4 10a8 8 0 1 1 1.5 7M4 4v6h6" /><path d="M12 8v5l3 2" /></>
+      : <><path d="M10 4H4v16h6m4-13 5 5-5 5m-6-5h11" /></>}
+  </svg>;
+}
+type HierarchyChoice = { folder: string; course: string; section: string };
+function HierarchyScopeFields({ folders, courses, sections, value, onChange, disabled }: {
+  folders: ReportSectionOption[]; courses: ReportCourseOption[]; sections: ReportScopeOption[];
+  value: HierarchyChoice; onChange: (value: HierarchyChoice) => void; disabled: boolean;
+}) {
+  const courseOptions = courses.filter(course => value.folder === "all" || course.folderGroupId === value.folder);
+  const sectionOptions = sections.filter(section => (value.folder === "all" || section.folderGroupId === value.folder) && (value.course === "all" || section.courseId === value.course));
+  return <>
+    <label className={styles.exportSectionField}><span>Folder scope</span>
+      <select value={value.folder} onChange={event=>onChange({folder:event.target.value,course:"all",section:"all"})} disabled={disabled}>
+        <option value="all">All folders ({folders.length})</option>
+        {folders.map(folder=><option key={folder.value} value={folder.value}>{folder.label}</option>)}
+      </select>
+    </label>
+    <label className={styles.exportSectionField}><span>Course scope</span>
+      <select value={value.course} onChange={event=>onChange({...value,course:event.target.value,section:"all"})} disabled={disabled}>
+        <option value="all">All courses ({courseOptions.length})</option>
+        {value.folder === "all" ? folders.map(folder=><optgroup key={folder.value} label={folder.label}>
+          {courseOptions.filter(course=>course.folderGroupId===folder.value).map(course=><option key={course.value} value={course.value}>{course.label}</option>)}
+        </optgroup>) : courseOptions.map(course=><option key={course.value} value={course.value}>{course.label}</option>)}
+      </select>
+    </label>
+    <label className={styles.exportSectionField}><span>Section scope</span>
+      <select value={value.section} onChange={event=>onChange({...value,section:event.target.value})} disabled={disabled}>
+        <option value="all">All sections ({sectionOptions.length})</option>
+        {value.course === "all" ? courseOptions.map(course=><optgroup key={course.value} label={`${folders.find(folder=>folder.value===course.folderGroupId)?.label || ""} / ${course.label}`}>
+          {sectionOptions.filter(section=>section.courseId===course.value).map(section=><option key={section.value} value={section.value}>{section.label}</option>)}
+        </optgroup>) : sectionOptions.map(section=><option key={section.value} value={section.value}>{section.label}</option>)}
+      </select><small>New courses and sections appear automatically.</small>
+    </label>
+  </>;
+}
+
 type TerminateStatus = "idle" | "sending" | "success" | "error";
 type ReportStatus = "idle" | "exporting" | "error";
 type ReportSectionOption = { value: string; label: string };
-type ReportScopeOption = ReportSectionOption & { courseId: string; courseTitle: string };
+type ReportScopeOption = ReportSectionOption & { courseId: string; courseTitle: string; folderGroupId: string };
+type ReportCourseOption = ReportSectionOption & { folderGroupId: string };
 type CourseFolderSection = {
   canFacilitate?: boolean;
   id: string;
@@ -129,6 +173,37 @@ interface PresenceCounts {
   section1: number;
   section2: number;
   total: number;
+  bySection?: Record<string,number>;
+  byCourse?: Record<string,number>;
+  byFolder?: Record<string,number>;
+}
+
+function FunctionDropdown({ children }: { children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  const container = useRef<HTMLDivElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const outside = (event: globalThis.PointerEvent) => {
+      if (!container.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const escape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { event.preventDefault(); setOpen(false); trigger.current?.focus(); }
+    };
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
+    return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape); };
+  }, [open]);
+  return <div className={styles.functionDropdown} ref={container}
+    onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false); }}>
+    <button ref={trigger} type="button" className={styles.functionTrigger} aria-expanded={open} aria-controls="course-functions" onClick={() => setOpen(value => !value)}>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2" /><rect x="14" y="3" width="7" height="7" rx="2" /><rect x="3" y="14" width="7" height="7" rx="2" /><rect x="14" y="14" width="7" height="7" rx="2" /></svg>
+      Functions
+      <svg className={styles.functionChevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
+    </button>
+    {open && <nav id="course-functions" aria-label="Course functions" data-function-menu className={styles.selectorActions}
+      onClick={event => { if ((event.target as Element).closest("a,button")) setOpen(false); }}>{children}</nav>}
+  </div>;
 }
 
 function getTodayDateString(): string {
@@ -164,52 +239,39 @@ function getOrCreateClientId(): string {
 function ActiveUsersTaskbarWidget({
   counts,
   currentSection,
+  value,
+  label,
 }: {
   counts: PresenceCounts;
   currentSection?: SectionId | null;
+  value?: number;
+  label?: string;
 }) {
   const activeCount =
-    currentSection === "section1"
+    value !== undefined ? value : currentSection === "section1"
       ? counts.section1
       : currentSection === "section2"
         ? counts.section2
         : counts.total;
 
-  const prevCountRef = useRef<number>(activeCount);
-  const [isChanging, setIsChanging] = useState(false);
-
-  useEffect(() => {
-    if (prevCountRef.current !== activeCount) {
-      prevCountRef.current = activeCount;
-      setIsChanging(true);
-      const timer = window.setTimeout(() => setIsChanging(false), 700);
-      return () => window.clearTimeout(timer);
-    }
-  }, [activeCount]);
-
   const sectionLabel =
-    currentSection === "section1"
+    label || (currentSection === "section1"
       ? "Section 1"
       : currentSection === "section2"
         ? "Section 2"
-        : "Online";
+        : "Online");
 
   return (
     <div
-      className={`${styles.activeUsersWidget} ${isChanging ? styles.widgetPulsing : ""}`}
-      title={`${activeCount} learners active in ${sectionLabel}`}
-      aria-label={`Active learners in ${sectionLabel}`}
+      className={styles.activeUsersWidget}
+      aria-label={`${activeCount} learners active in ${sectionLabel}`}
     >
       <span className={styles.liveDot} aria-hidden="true" />
-      <span className={styles.liveSectionLabel}>{sectionLabel}</span>
-      <span className={styles.liveUsersDivider}>·</span>
-      <strong
-        key={activeCount}
-        className={`${styles.activeUsersCount} ${isChanging ? styles.countPopAnim : ""}`}
-      >
+      {sectionLabel !== "Online" && <><span className={styles.liveSectionLabel}>{sectionLabel}</span><span className={styles.liveUsersDivider}>·</span></>}
+      <strong className={styles.activeUsersCount}>
         {activeCount}
       </strong>
-      <span className={styles.liveUsersUnit}>users</span>
+      <span className={styles.liveUsersUnit}>online</span>
     </div>
   );
 }
@@ -220,6 +282,8 @@ function DeckShell({
   canFacilitate,
   presenceCounts,
   currentSection,
+  currentSectionId,
+  currentSectionTitle,
   statusNotice,
   onChooseSection,
   onOpenTerminate,
@@ -231,6 +295,8 @@ function DeckShell({
   canFacilitate: boolean;
   presenceCounts: PresenceCounts;
   currentSection?: SectionId | null;
+  currentSectionId?: string;
+  currentSectionTitle?: string;
   statusNotice?: string;
   onChooseSection?: (keyboard?: boolean) => void;
   onOpenTerminate?: () => void;
@@ -253,13 +319,15 @@ function DeckShell({
           <ActiveUsersTaskbarWidget
             counts={presenceCounts}
             currentSection={currentSection}
+            value={currentSectionId ? presenceCounts.bySection?.[currentSectionId] ?? 0 : undefined}
+            label={currentSectionTitle}
           />
         )}
 
         <div className={styles.actionBarButtons}>
           {isAdmin && (
             <Link href="/admin/access">
-              Access settings
+              <ActionIcon kind="access" />Access settings
             </Link>
           )}
           {isAdmin && (
@@ -267,7 +335,7 @@ function DeckShell({
               href="/admin/ai"
               className={styles.aiButton}
             >
-              ✦ AI Knowledge
+              <ActionIcon kind="ai" />AI Knowledge
             </Link>
           )}
           {onChooseSection && (
@@ -295,7 +363,7 @@ function DeckShell({
             className={styles.signOutButton}
             onClick={onSignOut}
           >
-            Sign out
+            <ActionIcon kind="signout" />Sign out
           </button>
         </div>
       </aside>
@@ -383,14 +451,15 @@ export default function LessonPortal({
   const [exportCustomDate, setExportCustomDate] = useState(() => getTodayDateString());
   const [exportSection, setExportSection] = useState("all");
   const [exportCourse, setExportCourse] = useState("all");
-  const [reportCourses, setReportCourses] = useState<ReportSectionOption[]>([]);
+  const [exportFolder, setExportFolder] = useState("all");
+  const [reportFolders, setReportFolders] = useState<ReportSectionOption[]>([]);
+  const [reportCourses, setReportCourses] = useState<ReportCourseOption[]>([]);
   const [reportScopes, setReportScopes] = useState<ReportScopeOption[]>([]);
-  const [reportSections, setReportSections] = useState<ReportSectionOption[]>([
-    { value: "section1", label: "Section 1" },
-    { value: "section2", label: "Section 2" },
-  ]);
   const [showResetModal, setShowResetModal] = useState(false);
-  const [resetSection, setResetSection] = useState("section1");
+  const [resetFolder, setResetFolder] = useState("all");
+  const [resetCourse, setResetCourse] = useState("all");
+  const [resetSection, setResetSection] = useState("all");
+  const [scopeMetadataReady, setScopeMetadataReady] = useState(false);
   const [resetPassword, setResetPassword] = useState("");
   const [resetStatus, setResetStatus] = useState<"idle" | "sending" | "success" | "error">("idle");
   const [resetNotice, setResetNotice] = useState("");
@@ -428,7 +497,7 @@ export default function LessonPortal({
   const isSearchingCourses = searchQuery.trim().length > 0;
   const visibleCourseGroups = isSearchingCourses ? groupedCourses : openFolder ? [openFolder] : [];
 
-  const COURSES_PER_PAGE = 6;
+  const COURSES_PER_PAGE = 12;
   const FOLDERS_PER_PAGE = 6;
   const folderTotalPages = Math.max(1, Math.ceil(allCourseGroups.length / FOLDERS_PER_PAGE));
   const folderPage = Math.floor(Math.max(0, allCourseGroups.findIndex(group => group.id === openFolder?.id)) / FOLDERS_PER_PAGE) + 1;
@@ -512,11 +581,18 @@ export default function LessonPortal({
     }
   }, [mobileFoldersOpen, openFolder?.id]);
 
-  const canFacilitateCurrent = isAdmin || Boolean(selectedCourse?.sections.find(item => item.sectionKey === section)?.canFacilitate);
-  const resetSectionLabel =
-    resetSection === "all"
-      ? "all sections"
-      : reportSections.find((option) => option.value === resetSection)?.label || resetSection;
+  const activeLessonSection = activeUploadedSection || selectedCourse?.sections.find(item => item.sectionKey === section);
+  const activeSectionId = activeLessonSection?.id;
+  const canFacilitateCurrent = isAdmin || Boolean(activeLessonSection?.canFacilitate);
+  const resetScopes = reportScopes.filter(scope => (resetFolder === "all" || scope.folderGroupId === resetFolder) && (resetCourse === "all" || scope.courseId === resetCourse));
+  const resetScopeValid = scopeMetadataReady && (resetFolder === "all" || reportFolders.some(folder=>folder.value===resetFolder))
+    && (resetCourse === "all" || reportCourses.some(course=>course.value===resetCourse && (resetFolder==="all" || course.folderGroupId===resetFolder)))
+    && (resetSection === "all" || resetScopes.some(scope=>scope.value===resetSection))
+    && (resetScopes.length > 0 || resetFolder==="all" && resetCourse==="all" && resetSection==="all");
+  const resetIsGlobal = resetFolder === "all" && resetCourse === "all" && resetSection === "all";
+  const resetSectionLabel = [resetFolder === "all" ? "All folders" : reportFolders.find(folder=>folder.value===resetFolder)?.label,
+    resetCourse === "all" ? "All courses" : reportCourses.find(course=>course.value===resetCourse)?.label,
+    resetSection === "all" ? `All sections (${resetScopes.length})` : resetScopes.find(scope=>scope.value===resetSection)?.label].filter(Boolean).join(" / ");
 
   const [presenceCounts, setPresenceCounts] = useState<PresenceCounts>({
     section1: 0,
@@ -534,27 +610,25 @@ export default function LessonPortal({
         const payload = (await response.json()) as {
           success?: boolean;
           sections?: ReportSectionOption[];
-          courses?: ReportSectionOption[];
+          folders?: ReportSectionOption[];
+          courses?: ReportCourseOption[];
           courseSections?: ReportScopeOption[];
         };
-        if (!response.ok || !payload.success || !Array.isArray(payload.sections)) return;
+        if (!response.ok || !payload.success || !Array.isArray(payload.folders) || !Array.isArray(payload.courses) || !Array.isArray(payload.courseSections)) throw new Error("Unable to load current folder, course and section scopes. Reopen this dialog to retry.");
         if (disposed) return;
-        setReportSections(payload.sections);
+        setScopeMetadataReady(Array.isArray(payload.folders) && Array.isArray(payload.courses) && Array.isArray(payload.courseSections));
+        if (Array.isArray(payload.folders)) setReportFolders(payload.folders);
         if (Array.isArray(payload.courses)) setReportCourses(payload.courses);
         if (Array.isArray(payload.courseSections)) setReportScopes(payload.courseSections);
         setExportCourse(current => current === "all" || payload.courses?.some(course => course.value === current) ? current : "all");
+        setExportFolder(current => current === "all" || payload.folders?.some(folder => folder.value === current) ? current : "all");
         setExportSection((current) =>
           current === "all" || payload.courseSections?.some((section) => section.value === current)
             ? current
             : "all"
         );
-        setResetSection((current) =>
-          current === "all" || payload.sections?.some((section) => section.value === current)
-            ? current
-            : payload.sections?.[0]?.value || "all"
-        );
-      } catch {
-        // Keep the current Section 1/2 fallback if metadata cannot be loaded.
+      } catch (error) {
+        if (!disposed && showResetModal) { setResetStatus("error"); setResetNotice(error instanceof Error ? error.message : "Unable to load reset scopes."); }
       }
     }
 
@@ -573,14 +647,20 @@ export default function LessonPortal({
     let refreshTimer: number | undefined;
     let inFlight = false;
     let refreshQueued = false;
+    let lastRequestedAt = 0;
     const controller = new AbortController();
 
     async function fetchCounts() {
       if (disposed || document.visibilityState !== "visible") return;
       if (inFlight) { refreshQueued = true; return; }
+      if (lastRequestedAt && Date.now() - lastRequestedAt < 750) {
+        if (!refreshTimer) refreshTimer = window.setTimeout(() => { refreshTimer=undefined;void fetchCounts(); },750-(Date.now()-lastRequestedAt));
+        return;
+      }
+      lastRequestedAt=Date.now();
       inFlight = true;
       try {
-        const response = await fetch("/api/presence", { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]) });
+        const response = await fetch("/api/presence?scope=all", { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(8_000)]) });
         if (!response.ok) return;
         const payload = (await response.json()) as {
           success?: boolean;
@@ -588,7 +668,7 @@ export default function LessonPortal({
         };
         if (!disposed && payload.success && payload.counts) {
           const counts = payload.counts;
-          setPresenceCounts(previous => previous.section1 === counts.section1 && previous.section2 === counts.section2 && previous.total === counts.total ? previous : counts);
+          setPresenceCounts(previous => JSON.stringify(previous) === JSON.stringify(counts) ? previous : counts);
         }
       } catch {
         // Ignore network glitches
@@ -597,7 +677,7 @@ export default function LessonPortal({
         if (!disposed && refreshQueued) {
           refreshQueued = false;
           window.clearTimeout(refreshTimer);
-          refreshTimer = window.setTimeout(() => void fetchCounts(), 150);
+          refreshTimer = window.setTimeout(() => { refreshTimer = undefined; void fetchCounts(); }, 80);
         }
       }
     }
@@ -607,11 +687,10 @@ export default function LessonPortal({
     const channel = supabase
       ?.channel("eiu:presence")
       .on("broadcast", { event: "presence_changed" }, () => {
-        window.clearTimeout(refreshTimer);
-        refreshTimer = window.setTimeout(() => void fetchCounts(), 150);
+        if (!refreshTimer) refreshTimer = window.setTimeout(() => { refreshTimer=undefined;void fetchCounts(); }, 80);
       })
-      .subscribe();
-    const interval = window.setInterval(() => void fetchCounts(), 15_000);
+      .subscribe(status => { if (status === "SUBSCRIBED") void fetchCounts(); });
+    const interval = window.setInterval(() => void fetchCounts(), 5_000);
     const resumeCounts = () => { if (document.visibilityState === "visible") void fetchCounts(); };
     document.addEventListener("visibilitychange", resumeCounts);
 
@@ -625,55 +704,49 @@ export default function LessonPortal({
     };
   }, [isAdmin, canFacilitate]);
 
-  // Learner heartbeat tracking
+  // One presence stream covers built-in lessons, JS, PDF and PPTX sections.
+  // Opening is logged once; steady heartbeats only update the active row.
   useEffect(() => {
-    if (isAdmin || !hasLearnerProfile || !section) return;
-
+    if (isAdmin || canFacilitateCurrent || !hasLearnerProfile || !activeSectionId) return;
     const clientId = getOrCreateClientId();
-    let disposed = false;
-    let inFlight = false;
-    let leaveSent = false;
+    const sectionId = activeSectionId;
+    const entryId = `${clientId}:${sectionId}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
+    let disposed = false, inFlight = false, leaveSent = false, needsEntry = true, resumeQueued = false;
     const controller = new AbortController();
-
+    function onLeave() {
+      if(!leaveSent && navigator.sendBeacon)leaveSent=navigator.sendBeacon("/api/presence",JSON.stringify({action:"leave",sectionId,clientId}));
+    }
     async function sendHeartbeat() {
       if (disposed || inFlight || document.visibilityState !== "visible") return;
-      inFlight = true;
-      leaveSent = false;
-      await fetch("/api/presence", {
-        method: "POST",
-        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]),
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "heartbeat", section, clientId }),
-      }).catch(() => undefined).finally(() => { inFlight = false; });
-    }
-
-    void sendHeartbeat();
-    const heartbeatTimer = window.setInterval(() => void sendHeartbeat(), 20_000);
-    const resumeHeartbeat = () => { if (document.visibilityState === "visible") void sendHeartbeat(); };
-    document.addEventListener("visibilitychange", resumeHeartbeat);
-
-    const onLeave = () => {
-      if (!leaveSent && navigator.sendBeacon) {
-        leaveSent = navigator.sendBeacon(
-          "/api/presence",
-          JSON.stringify({ action: "leave", section, clientId })
-        );
+      inFlight = true;leaveSent = false;
+      try {
+        const response = await fetch("/api/presence", {
+          method: "POST", signal: AbortSignal.any([controller.signal,AbortSignal.timeout(15_000)]),
+          headers: {"Content-Type":"application/json"},
+          body: JSON.stringify({action:needsEntry ? "enter" : "heartbeat",sectionId,clientId,entryId}),
+        });
+        if(response.ok) needsEntry=false;
+      } catch { /* A later heartbeat retries without blocking the lesson. */ }
+      finally {
+        inFlight=false;
+        if(disposed || document.visibilityState !== "visible") { resumeQueued=false;leaveSent=false;onLeave(); }
+        else if(resumeQueued) { resumeQueued=false;void sendHeartbeat(); }
       }
+    }
+    void sendHeartbeat();
+    const heartbeatTimer = window.setInterval(()=>void sendHeartbeat(),20_000);
+    const onVisibility = () => {
+      if(document.visibilityState === "visible") { if(inFlight)resumeQueued=true;else void sendHeartbeat(); }
+      else onLeave();
     };
-
-    window.addEventListener("pagehide", onLeave);
-    window.addEventListener("beforeunload", onLeave);
-
-    return () => {
-      disposed = true;
-      controller.abort();
-      clearInterval(heartbeatTimer);
-      document.removeEventListener("visibilitychange", resumeHeartbeat);
-      window.removeEventListener("pagehide", onLeave);
-      window.removeEventListener("beforeunload", onLeave);
-      onLeave();
+    document.addEventListener("visibilitychange",onVisibility);
+    window.addEventListener("pagehide",onLeave);
+    return ()=>{
+      disposed=true;controller.abort();window.clearInterval(heartbeatTimer);
+      document.removeEventListener("visibilitychange",onVisibility);window.removeEventListener("pagehide",onLeave);onLeave();
     };
-  }, [isAdmin, hasLearnerProfile, section]);
+  },[isAdmin,canFacilitateCurrent,hasLearnerProfile,activeSectionId]);
+
 
   async function exportReport() {
     if (!isAdmin || reportStatus === "exporting") return;
@@ -692,7 +765,7 @@ export default function LessonPortal({
 
     try {
       const response = await fetch(
-        `/api/admin/report?date=${encodeURIComponent(dateParam)}&tzOffset=${encodeURIComponent(tzOffset)}&courseId=${encodeURIComponent(exportCourse)}&sectionId=${encodeURIComponent(exportSection)}`,
+        `/api/admin/report?date=${encodeURIComponent(dateParam)}&tzOffset=${encodeURIComponent(tzOffset)}&folderId=${encodeURIComponent(exportFolder)}&courseId=${encodeURIComponent(exportCourse)}&sectionId=${encodeURIComponent(exportSection)}`,
         { cache: "no-store" }
       );
       if (!response.ok) {
@@ -720,12 +793,13 @@ export default function LessonPortal({
   }
 
   async function signOut() {
-    if (!isAdmin && section) {
+    if (!isAdmin && !canFacilitateCurrent && activeSectionId) {
       const clientId = getOrCreateClientId();
       await fetch("/api/presence", {
         method: "POST",
+        signal: AbortSignal.timeout(3000),
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "leave", section, clientId }),
+        body: JSON.stringify({ action: "leave", sectionId:activeSectionId, clientId }),
       }).catch(() => undefined);
     }
     await fetch("/api/signout", { method: "POST" }).catch(() => undefined);
@@ -744,6 +818,7 @@ export default function LessonPortal({
       return;
     }
 
+    if (!resetScopeValid) { setResetStatus("error"); setResetNotice("Load and choose a valid reset scope first."); return; }
     setResetStatus("sending");
     setResetNotice("");
 
@@ -753,13 +828,16 @@ export default function LessonPortal({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           password: resetPassword,
-          section: resetSection,
+          folderId: resetFolder,
+          courseId: resetCourse,
+          sectionId: resetSection,
         }),
       });
 
       const payload = (await response.json().catch(() => ({}))) as {
         success?: boolean;
         message?: string;
+        legacySections?: string[];
       };
 
       if (!response.ok || !payload.success) {
@@ -768,10 +846,8 @@ export default function LessonPortal({
 
       setResetStatus("success");
       setResetNotice(payload.message || `Data for ${resetSectionLabel} was deleted.`);
-      if (resetSection === "all") {
-        clearSlideInteractionStorage();
-      } else if (resetSection === "section1" || resetSection === "section2") {
-        clearSlideInteractionStorage(resetSection);
+      for (const section of payload.legacySections || []) {
+        if (section === "section1" || section === "section2") clearSlideInteractionStorage(section);
       }
       setResetPassword("");
       setTimeout(() => {
@@ -946,7 +1022,7 @@ export default function LessonPortal({
                 >
                   {canOpen && <SectionEnergy />}
                   <span data-energy-exclude>SECTION {courseSection.position}</span>
-                  <strong data-energy-exclude className={styles.illustratedTitle} title={courseSection.title}><LearningAccent kind="page" /><span>{courseSection.title}</span></strong>
+                  <strong data-energy-exclude className={styles.illustratedTitle}><LearningAccent kind="page" /><span>{courseSection.title}</span></strong>
                   {canOpen && <div className={styles.sectionEnergySpace} aria-hidden="true" />}
                   <small data-energy-exclude className={canOpen ? styles.sectionSlideBadge : undefined} aria-live="polite" aria-atomic="true">
                     {canOpen ? <>
@@ -955,9 +1031,9 @@ export default function LessonPortal({
                       <span> slides</span>
                     </> : "Content has not been uploaded yet"}
                   </small>
-                  {(isAdmin || courseSection.canFacilitate) && coreSection && <div data-energy-exclude className={styles.cardLiveUsers}>
+                  {(isAdmin || courseSection.canFacilitate) && <div data-energy-exclude className={styles.cardLiveUsers}>
                     <span className={styles.liveDot} />
-                    <span>{presenceCounts[coreSection]} active learners</span>
+                    <span>{presenceCounts.bySection?.[courseSection.id] ?? (coreSection ? presenceCounts[coreSection] : 0)} online</span>
                   </div>}
                   {canOpen && <button type="button" className={styles.sectionClickCue}
                     data-energy-exclude
@@ -966,7 +1042,8 @@ export default function LessonPortal({
                     aria-busy={openingSection === courseSection.sectionKey}
                   onClick={() => {
                     if (coreSection) handleLaunchBuiltin(course, courseSection, coreSection);
-                    else if (hasUploadedDeck) { iconTilt.onPointerLeave(); deckOpenRef.current = true; rememberDeckSelection(course.id, courseSection.id, true, { course: course.slug, section: courseSection.sectionKey }); setActiveUploadedSection(courseSection); }
+                    else if (hasUploadedDeck) { iconTilt.onPointerLeave();
+    deckOpenRef.current = true; rememberDeckSelection(course.id, courseSection.id, true, { course: course.slug, section: courseSection.sectionKey }); setActiveUploadedSection(courseSection); }
                   }}
                   >
                     <LearningInnovationIcon kind="section" className={styles.sectionClickArtwork} active={openingSection === courseSection.sectionKey} />
@@ -982,7 +1059,7 @@ export default function LessonPortal({
                     className={styles.sectionPptxLink}
                     href={`/api/sections/${encodeURIComponent(courseSection.id)}/content?download=1`}
                     download={courseSection.sourceFilename || "Presentation."+courseSection.contentType}
-                    title="Download the original presentation"
+                    aria-label="Download the original presentation"
                   >
                     Download
                   </a>
@@ -1003,40 +1080,9 @@ export default function LessonPortal({
           {Array.from({ length: 18 }, (_, index) => <i key={index} className={styles.networkParticle} />)}
         </div>
         <LearningIcon3DLayer />
-        <div className={styles.selectorActions}>
-          {isAdmin && <Link href="/admin/access">Access settings</Link>}
-          {isAdmin && <Link href="/admin/ai" className={styles.aiButton}>✦ AI Knowledge</Link>}
-          {isAdmin && (
-            <button
-              type="button"
-              className={styles.reportButton}
-              onClick={() => {
-                setReportNotice("");
-                setShowExportModal(true);
-              }}
-              disabled={reportStatus === "exporting"}
-            >
-              {reportStatus === "exporting" ? "Exporting…" : "Export Excel report"}
-            </button>
-          )}
-          {isAdmin && (
-            <button
-              type="button"
-              className={styles.resetDataButton}
-              onClick={() => {
-                setResetPassword("");
-                setResetStatus("idle");
-                setResetNotice("");
-                setShowResetModal(true);
-              }}
-            >
-              Reset data
-            </button>
-          )}
-          <button type="button" onClick={signOut}>Sign out</button>
-        </div>
 
         <section className={`${styles.panel} ${styles.learningSpacePanel}`}>
+          <div className={styles.libraryMasthead}>
           <div className={styles.brand}>
             <div className={styles.logoWindow}>
               <Image
@@ -1054,9 +1100,48 @@ export default function LessonPortal({
             </div>
           </div>
 
+          <FunctionDropdown>
+          {isAdmin && <Link href="/admin/access" className={styles.accessButton}><ActionIcon kind="access" />Access settings</Link>}
+          {isAdmin && <Link href="/admin/ai" className={styles.aiButton}><ActionIcon kind="ai" />AI Knowledge</Link>}
+          {isAdmin && (
+            <button
+              type="button"
+              className={styles.reportButton}
+              onClick={() => {
+                setScopeMetadataReady(false);
+                setReportNotice("");
+                setShowExportModal(true);
+              }}
+              disabled={reportStatus === "exporting"}
+            >
+              <ActionIcon kind="report" />{reportStatus === "exporting" ? "Exporting…" : "Report"}
+            </button>
+          )}
+          {isAdmin && (
+            <button
+              type="button"
+              className={styles.resetDataButton}
+              onClick={() => {
+                setScopeMetadataReady(false);
+                setResetFolder(selectedCourse?.folderGroupId || openFolder?.id || "all");
+                setResetCourse(selectedCourse?.id || "all");
+                setResetSection("all");
+                setResetPassword("");
+                setResetStatus("idle");
+                setResetNotice("");
+                setShowResetModal(true);
+              }}
+            >
+              <ActionIcon kind="reset" />Reset data
+            </button>
+          )}
+          <button type="button" className={styles.signOutButton} onClick={signOut}><ActionIcon kind="signout" />Sign out</button>
+        </FunctionDropdown>
+          </div>
+
           <div className={styles.libraryHeaderToolbar}>
             <div className={styles.libraryHeaderTitleArea}>
-              <CourseDiscoveryHeading />
+              <CourseDiscoveryHeading onlineCount={isAdmin || canFacilitate ? presenceCounts.total : undefined} />
             </div>
 
             <div className={styles.librarySearchArea}>
@@ -1117,14 +1202,17 @@ export default function LessonPortal({
                   <button type="button" key={group.id}
                     data-icon-surface="folder"
                     className={`${styles.folderChoice} ${!isSearchingCourses && openFolder?.id === group.id ? styles.folderChoiceSelected : ""}`}
-                    aria-pressed={!isSearchingCourses && openFolder?.id === group.id} aria-controls="course-folder-content" title={group.name}
+                    aria-pressed={!isSearchingCourses && openFolder?.id === group.id} aria-controls="course-folder-content"
                     onClick={() => chooseFolder(group.id)}>
                     <LearningInnovationIcon kind="folder" className={styles.folderArtwork} />
                     {!isSearchingCourses && openFolder?.id === group.id && <span className={styles.folderSelectedMark} aria-hidden="true">✓</span>}
                     <span className={styles.folderChoiceText}>
                       <strong className={styles.illustratedTitle}><LearningAccent kind="collection" /><span className={styles.folderNameText}>{group.name}</span></strong>
                     </span>
-                    <span className={styles.folderCourseCount}>{group.courses.length} {group.courses.length === 1 ? "course" : "courses"}</span>
+                    <span className={styles.folderMetaRow}>
+                      {(isAdmin || canFacilitate) && <span className={styles.folderLearners}><i className={styles.liveDot} aria-hidden="true" />{presenceCounts.byFolder?.[group.id] ?? 0} online</span>}
+                      <span className={styles.folderCourseCount}>{group.courses.length} {group.courses.length === 1 ? "course" : "courses"}</span>
+                    </span>
                   </button>
                 ))}
               </div>
@@ -1191,7 +1279,10 @@ export default function LessonPortal({
                             <path className={styles.electricTrack} d="M0 4h200l8-2h184l8 2h200" vectorEffect="non-scaling-stroke" />
                             <path className={styles.electricPulse} d="M0 4h200l8-2h184l8 2h200" pathLength="100" vectorEffect="non-scaling-stroke" />
                           </svg>)}
-                          <h3 className={`${styles.courseTitle} ${styles.illustratedTitle}`} id={`course-title-${course.id}`} title={course.title}><LearningAccent /><span className={styles.courseNameText}>{course.title}</span></h3>
+                          <div className={styles.courseCardHeader}>
+                            <h3 className={`${styles.courseTitle} ${styles.illustratedTitle}`} id={`course-title-${course.id}`}><LearningAccent /><span className={styles.courseNameText}>{course.title}</span></h3>
+                            {(isAdmin || course.sections.some(item=>item.canFacilitate)) && <span className={styles.courseLearners}><i className={styles.liveDot} aria-hidden="true" />{presenceCounts.byCourse?.[course.id] ?? 0} online</span>}
+                          </div>
                           <div className={styles.courseCardMain}>
                             <div className={styles.courseCardBody}>
                               <p className={styles.courseDesc}>{course.description ?? ""}</p>
@@ -1203,7 +1294,8 @@ export default function LessonPortal({
                               {course.sections.length} {course.sections.length === 1 ? "SECTION" : "SECTIONS"}
                             </span>
                             <span className={styles.folderLanguage}>
-                              {course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}
+                              <span className={styles.languageFull}>{course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}</span>
+                              <span className={styles.languageShort}>{course.languageLabel === "vi" ? "VI" : course.languageLabel === "en" ? "EN" : "VI · EN"}</span>
                             </span>
                             <span className={styles.unlockedFolderBadge}>
                               <i className={styles.dotUnlocked} aria-hidden="true" /><span>UNLOCKED</span>
@@ -1213,11 +1305,11 @@ export default function LessonPortal({
                             aria-label={`Open sections for ${course.title}`} onClick={() => {
                               courseScrollTop.current = (isSearchingCourses ? coursePaneRef.current : courseGridRef.current)?.scrollTop ?? 0;
                               iconTilt.onPointerLeave();
-                              rememberDeckSelection(course.id, null, false, { course: course.slug });
+    rememberDeckSelection(course.id, null, false, { course: course.slug });
                               setSelectedCourseId(course.id);
                               setMobileFoldersOpen(false);
                             }}>
-                            <LearningInnovationIcon kind="course" className={styles.enterArtwork} electric={aiTraining} />
+                            <LearningInnovationIcon kind="course" className={styles.enterArtwork} />
                           </button>
                         </article>
                       ))}
@@ -1285,32 +1377,13 @@ export default function LessonPortal({
               <span>ANALYTICS REPORT</span>
               <h2 id="export-report-title">Export Excel report</h2>
               <p>
-                Choose the course, section and time range to include.
+                Choose a folder, then a course and one or all of its sections.
               </p>
 
-              <label className={styles.exportSectionField}>
-                <span>Course scope</span>
-                <select value={exportCourse} onChange={(event) => { setExportCourse(event.target.value); setExportSection("all"); }} disabled={reportStatus === "exporting"}>
-                  <option value="all">All courses</option>
-                  {reportCourses.map(course => <option key={course.value} value={course.value}>{course.label}</option>)}
-                </select>
-              </label>
-              <label className={styles.exportSectionField}>
-                <span>Section scope</span>
-                <select
-                  value={exportSection}
-                  onChange={(event) => setExportSection(event.target.value)}
-                  disabled={reportStatus === "exporting"}
-                >
-                  <option value="all">All sections</option>
-                  {reportScopes.filter(scope => exportCourse === "all" || scope.courseId === exportCourse).map((sectionOption) => (
-                    <option key={sectionOption.value} value={sectionOption.value}>
-                      {exportCourse === "all" ? `${sectionOption.courseTitle} · ` : ""}{sectionOption.label}
-                    </option>
-                  ))}
-                </select>
-                <small>New sections appear here automatically.</small>
-              </label>
+              <HierarchyScopeFields folders={reportFolders} courses={reportCourses} sections={reportScopes}
+                value={{folder:exportFolder,course:exportCourse,section:exportSection}}
+                onChange={value=>{setExportFolder(value.folder);setExportCourse(value.course);setExportSection(value.section);}}
+                disabled={reportStatus === "exporting"} />
 
               <div className={styles.exportOptions}>
                 <label
@@ -1423,28 +1496,14 @@ export default function LessonPortal({
             >
               <span className={styles.dangerEyebrow}>DANGER · ADMINISTRATIVE ACTION</span>
               <h2 id="reset-modal-title">
-                {resetSection === "all" ? "Reset all data?" : `Reset ${resetSectionLabel}?`}
+                {resetIsGlobal ? "Reset all data?" : "Reset selected data?"}
               </h2>
 
-              <label className={styles.exportSectionField}>
-                <span>Reset scope</span>
-                <select
-                  value={resetSection}
-                  onChange={(event) => {
-                    setResetSection(event.target.value);
-                    if (resetStatus === "error") setResetNotice("");
-                  }}
-                  disabled={resetStatus === "sending" || resetStatus === "success"}
-                >
-                  {reportSections.map((sectionOption) => (
-                    <option key={sectionOption.value} value={sectionOption.value}>
-                      {sectionOption.label}
-                    </option>
-                  ))}
-                  <option value="all">All sections</option>
-                </select>
-                <small>New sections appear here automatically.</small>
-              </label>
+              <HierarchyScopeFields folders={reportFolders} courses={reportCourses} sections={reportScopes}
+                value={{folder:resetFolder,course:resetCourse,section:resetSection}}
+                onChange={value=>{setResetFolder(value.folder);setResetCourse(value.course);setResetSection(value.section);setResetNotice("");}}
+                disabled={!scopeMetadataReady || resetStatus === "sending" || resetStatus === "success"} />
+              {!scopeMetadataReady && resetStatus !== "error" && <p role="status">Loading current folders, courses and sections...</p>}
 
               <div className={styles.dangerWarningBox}>
                 <strong>This action cannot be undone:</strong>
@@ -1493,13 +1552,13 @@ export default function LessonPortal({
                 <button
                   type="submit"
                   className={styles.confirmResetButton}
-                  disabled={resetStatus === "sending" || resetStatus === "success"}
+                  disabled={!resetScopeValid || resetStatus === "sending" || resetStatus === "success"}
                 >
                   {resetStatus === "sending"
                     ? "Deleting data…"
-                    : resetSection === "all"
+                    : resetIsGlobal
                       ? "Delete all data"
-                      : `Delete ${resetSectionLabel}`}
+                      : "Delete selected data"}
                 </button>
               </div>
             </form>
@@ -1518,6 +1577,8 @@ export default function LessonPortal({
         canFacilitate={canFacilitateCurrent}
         presenceCounts={presenceCounts}
         currentSection={section}
+        currentSectionId={activeSectionId}
+        currentSectionTitle={activeLessonSection?.title}
         statusNotice={isAdmin ? terminateNotice : undefined}
         onChooseSection={(keyboard = false) => {
           cancelSectionOpening();
@@ -1527,7 +1588,7 @@ export default function LessonPortal({
             return;
           }
           iconTilt.onPointerLeave();
-          if (selectedCourseId) restoreCourseFocus.current = { id: selectedCourseId, keyboard };
+    if (selectedCourseId) restoreCourseFocus.current = { id: selectedCourseId, keyboard };
           rememberDeckSelection();
           setAdminSection(null);
           setActiveUploadedSection(null);

@@ -1,8 +1,14 @@
-.heading { position: relative; display: flex; align-items: center; gap: 18px; isolation: isolate; max-width: 100%; padding: 8px 0; }
-.companion { position: relative; flex: 0 0 96px; width: 96px; height: 96px; padding: 0; border: 0; background: transparent; cursor: pointer; perspective: 420px; -webkit-tap-highlight-color: transparent; border-radius: 24px; }
-.companion:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 5px; }
-.webgl { position: absolute; inset: -12px; z-index: 3; pointer-events: none; }
-.companion[data-ready] > :is(.robot, .orbit) { visibility: hidden; }
+.heading { position: relative; display: flex; align-items: center; gap: 18px; isolation: isolate; max-width: 100%; padding: 8px 0; --antenna-color: #f4ce65; --antenna-shade: #9d7944; --antenna-highlight: #fff3bd; }
+.companionCluster { position: relative; top: -18px; display: flex; align-items: center; flex-shrink: 0; overflow: visible; gap: 0; padding-right: 42px; }
+.emotionRail { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 4px; border-radius: 12px; background: #041c31; }
+.emotionButton { display: grid; place-items: center; width: 28px; height: 38px; padding: 2px; border: 1px solid #397fa8; border-radius: 7px; background: linear-gradient(145deg, #18547f, #082945); color: #9bd5e8; cursor: pointer; }
+.emotionButton svg { width: 100%; height: 100%; }
+.emotionButton[aria-pressed="true"] { border-color: #f4dfb0; background: linear-gradient(145deg, #f4dfb0, #e9ca8b); color: #082945; box-shadow: 0 2px 0 #b39159, inset 0 1px 0 #fff9; }
+.emotionButton:active { transform: translateY(1px); }
+.emotionButton:focus-visible { outline: 2px solid #f7f4ed; outline-offset: 3px; }
+.companion { position: relative; flex: 0 0 96px; width: 96px; height: 96px; scale: 1.25; margin: 0 12px; overflow: visible; padding: 0; border: 0; background: transparent; cursor: pointer; perspective: 420px; -webkit-tap-highlight-color: transparent; border-radius: 24px; }
+.webgl { position: absolute; inset: -60px -64px; z-index: 3; pointer-events: none; opacity: 0; transition: opacity 320ms ease; }
+.companion[data-ready] > .robot { visibility: hidden; }
 .companion[data-ready] .robot, .companion[data-ready] .robot * { animation: none !important; transition: none !important; }
 .companion::before { content: ''; position: absolute; inset: -12px; border-radius: 50%; background: radial-gradient(circle, #51c9ef22, transparent 68%); transition: opacity 250ms; opacity: .6; }
 .robot { position: absolute; inset: 17px 10px 18px; z-index: 2; transform-style: preserve-3d; transform: rotateX(var(--robot-look-y, -5deg)) rotateY(var(--robot-look-x, -12deg)); transition: transform 75ms ease-out; }
@@ -13,29 +19,93 @@
 .eyes i { width: 9px; height: 12px; border-radius: 6px; background: #a1f1ff; box-shadow: 0 0 9px #51c9ef99, inset 0 2px 2px #fff; transition: height 200ms, transform 200ms; }
 .smile { position: absolute; width: 10px; height: 5px; border: solid #79e3ff; border-width: 0 0 2px; border-radius: 0 0 50% 50%; bottom: 4px; left: calc(50% - 5px); }
 .antenna { position: absolute; width: 3px; height: 12px; background: #b39159; top: -12px; left: 37px; }
-.antenna::before { content: ''; position: absolute; width: 9px; height: 9px; top: -5px; left: -3px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, #fff9dd, #e9ca8b 35%, #9d7944); box-shadow: 0 0 12px #e9ca8b66; }
+.antenna::before { content: ''; position: absolute; width: 9px; height: 9px; top: -5px; left: -3px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, var(--antenna-highlight), var(--antenna-color) 40%, var(--antenna-shade)); box-shadow: 0 0 6px var(--antenna-color); }
 .earLeft, .earRight { position: absolute; top: 21px; width: 9px; height: 21px; border-radius: 6px; background: linear-gradient(90deg, #18547f, #9bd5e8); border: 1px solid #79b5cd; }
 .earLeft { left: -6px; }.earRight { right: -9px; }
-.chin { position: absolute; bottom: 6px; left: 28px; display: flex; gap: 3px; }.chin i { width: 3px; height: 3px; border-radius: 50%; background: #082945; }.chin i:first-child { background: #f4dfb0; }
-.orbit { position: absolute; inset: 20px -5px; border: 1px solid #79e3ff50; border-top-color: #79e3ff12; border-radius: 50%; transform: rotate(-26deg) rotateX(55deg); }
-.orbit::after { content: ''; position: absolute; right: 10px; bottom: 4px; width: 6px; height: 6px; border-radius: 50%; background: #e9ca8b; box-shadow: 0 0 10px #e9ca8b70; }
+.chin { position: absolute; bottom: 6px; left: 28px; display: flex; gap: 3px; }.chin i { width: 3px; height: 3px; border-radius: 50%; }
 .shadow { position: absolute; bottom: 2px; left: 20px; width: 65px; height: 8px; border-radius: 50%; background: radial-gradient(ellipse, #010d1b90, transparent 70%); }
 .spark { position: absolute; right: -3px; top: 4px; color: #e9ca8b; font-size: 15px; transition: transform 300ms; }
-.copy { min-width: 0; perspective: 800px; }
+.copy { min-width: 0; }
 .eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 7px; font-size: 10px; font-weight: 600; letter-spacing: .18em; color: #e9ca8b; }
 .eyebrow i { width: 4px; height: 4px; border-radius: 50%; background: #e9ca8b; box-shadow: 0 0 8px #e9ca8b55; }
-.title { margin: 0; color: #eaf4ff; font-size: clamp(28px, 3.2vw, 46px); font-weight: 650; letter-spacing: -.045em; line-height: 1.15; transform-origin: left center; transform: none; }
-.word { position: relative; display: inline-block; color: #93e5fa; transition: color 250ms, text-shadow 250ms; }
+.title { margin: 0; color: #f7f4ed; font-size: clamp(28px, 3.2vw, 46px); font-weight: 650; letter-spacing: -.025em; line-height: 1.15; transform-origin: left center; text-shadow: 1px 1px 0 #397fa8, 2px 2px 0 #041c31; transform: none; }
+.word { position: relative; display: inline-block; color: #9bd5e8; text-shadow: 1px 1px 0 #18547f, 2px 2px 0 #041c31; transition: color 250ms; }
 .signal { position: absolute; height: 1px; left: 0; right: 0; bottom: -10px; background: linear-gradient(90deg, #51c9ef10, #79e3ff80, #e9ca8b); transform-origin: left; transition: transform 300ms; transform: scaleX(.7); }
-.signal::after { content: ''; position: absolute; right: -2px; top: -2px; width: 5px; height: 5px; border-radius: 50%; background: #e9ca8b; box-shadow: 0 0 8px #e9ca8b70; }
-.heading:is(:hover, :focus-within, [data-energized]) .word { color: #c3f5ff; text-shadow: 0 0 22px #51c9ef35; }
+.signal::after { content: ''; position: absolute; right: -2px; top: -2px; width: 5px; height: 5px; border-radius: 50%; background: #e9ca8b; box-shadow: 0 0 8px #e9ca8b70; animation: discoverySignalGlow 6s ease-in-out infinite; }
+.heading:is(:hover, :focus-within, [data-energized]) .word { color: #c3f5ff; }
 .heading:is(:hover, :focus-within, [data-energized]) .signal { transform: scaleX(1); }
 .heading:is(:hover, :focus-within, [data-energized]) .spark { transform: rotate(90deg) scale(1.2); }
 .heading:is(:hover, :focus-within, [data-energized]) .companion::before { opacity: 1; }
 .heading[data-energized] .robot { animation: greet 700ms cubic-bezier(.22,1,.36,1) 2; }
 .heading[data-energized] .eyes i { height: 5px; transform: translateY(3px); border-radius: 7px 7px 2px 2px; }
+.heading[data-emotion="angry"] .eyes i { height: 5px; width: 12px; border-radius: 3px; transform: translateY(4px) rotate(12deg); }
+.heading[data-emotion="angry"] .eyes i + i { transform: translateY(4px) rotate(-12deg); }
+.heading[data-emotion="angry"] .smile { height: 5px; border-radius: 50% 50% 0 0; bottom: 3px; border-width: 2px 0 0; }
+.heading[data-emotion="surprised"] .eyes i { width: 11px; height: 11px; border-radius: 50%; transform: none; }
+.heading[data-emotion="surprised"] .smile { width: 7px; height: 9px; left: calc(50% - 3px); bottom: 2px; border-width: 2px; border-radius: 50%; }
 .heading[data-energized] .signal::after { animation: transmit 700ms ease-in-out 2; }
 @keyframes greet { 0%, 100% { transform: rotateY(-12deg); } 45% { transform: translateY(-7px) rotateY(14deg) rotateZ(-6deg); } }
 @keyframes transmit { from { right: 100%; opacity: 0; } 25% { opacity: 1; } to { right: -2px; opacity: 1; } }
-@media (max-width: 600px) { .heading { gap: 12px; }.companion { flex-basis: 80px; width: 80px; height: 88px; }.robot { inset: 18px 6px 16px; }.antenna { left: 33px; }.chin { left: 24px; }.title { font-size: clamp(24px, 6vw, 34px); }.eyebrow { font-size: 8px; letter-spacing: .12em; }.eyes { left: 8px; right: 8px; } }
 @media (prefers-reduced-motion: reduce) { .heading *, .heading *::before, .heading *::after { animation: none !important; transition: none !important; }.robot, .title, .eyes { transform: none !important; } }
+
+/* Keep the legacy CSS fallback out of the initial 3D loading frame. */
+.companion:not([data-fallback]) > :is(.robot, .shadow, .spark) { visibility: hidden; }
+.companion[data-fallback] * { animation: none !important; }
+
+.skeleton { position: absolute; inset: 16px 8px; overflow: hidden; border: 1px solid #9bd5e82b; border-radius: 25px; background: #18547f66; opacity: 1; transition: opacity 320ms ease, visibility 0s 320ms; }
+.skeleton::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 15%, #9bd5e828 50%, transparent 85%); transform: translateX(-100%); animation: companionSkeletonSweep 1.5s ease-in-out infinite; }
+.companion[data-ready] .webgl { opacity: 1; }
+.companion:is([data-ready], [data-fallback]) .skeleton { opacity: 0; visibility: hidden; }
+.companion:is([data-ready], [data-fallback]) .skeleton::after { animation: none; }
+@keyframes companionSkeletonSweep { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) { .skeleton, .webgl { transition: none; } .skeleton::after { animation: none; } }
+
+.companion > :is(.robot, .shadow, .spark) { opacity: 0; transition: opacity 320ms ease; }
+.companion[data-fallback] > :is(.robot, .shadow, .spark) { opacity: 1; }
+
+.eyebrowLine { display: flex; align-items: center; flex-wrap: wrap; gap: 10px 14px; margin-bottom: 8px; }
+.eyebrowLine .eyebrow { margin-bottom: 0; }
+.onlineCounter { position: relative; display: inline-flex; align-items: center; gap: 5px; min-height: 27px; padding: 3px 9px; border: 2px solid #9bd5e8; border-top-color: #dceff5; border-bottom-color: #397fa8; border-radius: 8px; background: linear-gradient(160deg, #18547f, #082945 55%, #041c31); color: #f7f4ed; box-shadow: 0 3px 0 #123f68, 1px 4px 0 #397fa8, 0 5px 8px #010d1b55, inset 0 1px 2px #9bd5e838; font-size: 12px; line-height: 1; white-space: nowrap; transform: perspective(300px) rotateX(7deg); }
+.onlineCounter > i { width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 5px #34d39966; }
+.onlineCounter strong { font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.onlineCounter > span { color: #dceff5; font-weight: 650; }
+
+/* The emotion control belongs to the robot and leaves the heading layout untouched. */
+
+.greetButton { position: absolute; inset: 0; z-index: 4; padding: 0; border: 0; border-radius: 24px; background: transparent; cursor: pointer; }
+.greetButton:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 4px; }
+.faceControls { position: absolute; inset: -60px -64px; z-index: 5; pointer-events: none; visibility: hidden; }
+.companion:is([data-ready], [data-fallback]) .faceControls { visibility: visible; }
+.faceScreen { position: absolute; left: 0; top: 0; width: 100px; height: 60px; transform-origin: 0 0; transform: matrix(.62,0,0,.6,81,87); }
+.companion[data-fallback] .faceScreen { transform: matrix(.62,0,0,.6,81,87) !important; }
+.faceScreen[data-open] { pointer-events: auto; border-radius: 12px; background: #041c31; }
+.emotionTrigger:focus-visible { outline: 2px solid #f4dfb0; outline-offset: 2px; }
+.heading[data-emotion-open] :is(.eyes, .smile) { visibility: hidden; }
+.heading[data-emotion-open] .robot { animation: none; transform: none; }
+
+/* A transparent hit target follows the existing antenna; only its colored tip pulses. */
+.emotionTrigger { position: absolute; left: 0; top: 0; z-index: 6; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: transparent; pointer-events: auto; cursor: pointer; transform: translate(112.5px,64.5px) translate(-50%,-50%); }
+.antennaBeacon { display: block; width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, var(--antenna-highlight), var(--antenna-color) 40%, var(--antenna-shade)); animation: antennaSignal 1.6s ease-in-out infinite; }
+.companion[data-fallback] .emotionTrigger { transform: translate(112.5px,64.5px) translate(-50%,-50%) !important; }
+.companion[data-fallback] .antennaBeacon { animation: antennaSignal 1.6s ease-in-out infinite !important; }
+@media (max-width: 600px) { .companionCluster { gap: 0; top: -14px; padding-right: 36px; } .companion[data-fallback] .faceScreen { transform: matrix(.54,0,0,.48,77,88) !important; } .heading { gap: 8px; }.companion { flex-basis: 80px; width: 80px; height: 88px; scale: 1.2; margin: 0 9px; }.robot { inset: 18px 6px 16px; }.antenna { left: 33px; }.chin { left: 24px; }.title { font-size: clamp(24px, 6vw, 34px); }.eyebrow { font-size: 8px; letter-spacing: .12em; }.eyes { left: 8px; right: 8px; }.companion[data-fallback] .emotionTrigger { transform: translate(104.5px,65.5px) translate(-50%,-50%) !important; } }
+@media (prefers-reduced-motion: reduce) { .antennaBeacon, .companion[data-fallback] .antennaBeacon { animation: none !important; } }
+.heading[data-emotion="angry"] { --antenna-color: #ef5144; --antenna-shade: #9c2728; --antenna-highlight: #ffe5d9; }
+.heading[data-emotion="surprised"] { --antenna-color: #36d484; --antenna-shade: #16794b; --antenna-highlight: #dcffe9; }
+@keyframes antennaSignal { 0%, 20%, 48%, 100% { opacity: .18; filter: brightness(.65); box-shadow: 0 0 1px var(--antenna-color); } 8%, 32% { opacity: 1; filter: brightness(1.65); box-shadow: 0 0 6px 2px var(--antenna-color), 0 0 12px 4px var(--antenna-color); } }
+
+/* The three existing chin lamps chase from left to right in the selected emotion color. */
+.chinSignals { position: absolute; top: 0; left: 0; width: 24px; height: 6px; transform-origin: 0 0; pointer-events: none; }
+.chinSignals i { position: absolute; top: 1px; left: 1px; width: 4px; height: 4px; border-radius: 50%; }
+.chinSignals i:nth-child(2) { left: 10px; }
+.chinSignals i:nth-child(3) { left: 19px; }
+.chinSignals i, .chin i, .chin i:first-child { background: var(--antenna-color); animation: chinSequence 1.8s ease-in-out infinite; }
+.chinSignals i:nth-child(2), .chin i:nth-child(2) { animation-delay: .6s; }
+.chinSignals i:nth-child(3), .chin i:nth-child(3) { animation-delay: 1.2s; }
+.companion[data-fallback] .chinSignals { display: none; }
+.companion[data-fallback] .chin i { animation: chinSequence 1.8s ease-in-out infinite !important; }
+.companion[data-fallback] .chin i:nth-child(2) { animation-delay: .6s !important; }
+.companion[data-fallback] .chin i:nth-child(3) { animation-delay: 1.2s !important; }
+@keyframes chinSequence { 0%, 38%, 100% { opacity: .25; box-shadow: none; } 12%, 24% { opacity: 1; box-shadow: 0 0 4px 1px var(--antenna-color); } }
+@media (prefers-reduced-motion: reduce) { .chinSignals i, .chin i, .companion[data-fallback] .chin i { animation: none !important; opacity: 1; } }
+@keyframes discoverySignalGlow { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }

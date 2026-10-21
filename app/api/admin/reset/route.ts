@@ -1,11 +1,12 @@
 import { NextResponse } from "next/server";
 import { currentRole } from "@/lib/currentRole";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { InvalidResetScope, resolveResetScope, resetScopedLearningData } from "@/lib/resetLearningScope";
 
 export const runtime = "nodejs";
 
 const RESET_CONFIRMATION = "Lovekjng123@@";
-const LEARNING_ACTIONS = ["PASSCODE_LOGIN", "IDEA_SUBMITTED", "SHOWCASE_SUBMITTED", "QUIZ_COMPLETED", "FEEDBACK_SUBMITTED"];
+const LEARNING_ACTIONS = ["PASSCODE_LOGIN", "SECTION_OPENED", "IDEA_SUBMITTED", "SHOWCASE_SUBMITTED", "QUIZ_COMPLETED", "FEEDBACK_SUBMITTED"];
 
 async function resetLearningActivity(supabase: ReturnType<typeof getSupabaseAdmin>, section: string) {
   if (section === "all") {
@@ -59,9 +60,12 @@ export async function POST(request: Request) {
     const body = (await request.json().catch(() => ({}))) as {
       password?: string;
       section?: string;
+      folderId?: string;
+      courseId?: string;
+      sectionId?: string;
     };
     const password = typeof body.password === "string" ? body.password : "";
-    const requestedSection = body.section?.trim().toLowerCase() || "all";
+    let requestedSection = body.section?.trim().toLowerCase() || "all";
 
     if (password !== RESET_CONFIRMATION) {
       return NextResponse.json(
@@ -71,6 +75,18 @@ export async function POST(request: Request) {
     }
 
     const supabase = getSupabaseAdmin();
+    if (body.folderId !== undefined || body.courseId !== undefined || body.sectionId !== undefined) {
+      if (![body.folderId,body.courseId,body.sectionId].every(value => typeof value === "string" && value.trim())) {
+        return NextResponse.json({success:false,message:"Choose a complete folder, course and section scope."},{status:400});
+      }
+      const scope = await resolveResetScope(supabase,{folderId:body.folderId!.trim(),courseId:body.courseId!.trim(),sectionId:body.sectionId!.trim()});
+      if (!scope.all) {
+        await resetScopedLearningData(supabase,scope);
+        return NextResponse.json({success:true,message:`Data for ${scope.label} was deleted from Supabase.`,legacySections:scope.legacySections});
+      }
+      // A scoped global reset must explicitly select all three hierarchy levels.
+      requestedSection = "all";
+    }
 
     if (requestedSection !== "all") {
       const { data: configuredSection, error: sectionError } = await supabase
@@ -136,8 +152,10 @@ export async function POST(request: Request) {
     return NextResponse.json({
       success: true,
       message: `Data for ${scopeLabel} was deleted from Supabase.`,
+      legacySections: resetAll ? ["section1","section2"] : [requestedSection],
     });
   } catch (error) {
+    if (error instanceof InvalidResetScope) return NextResponse.json({success:false,message:error.message},{status:400});
     console.error("Reset data API error:", error);
     return NextResponse.json(
       {

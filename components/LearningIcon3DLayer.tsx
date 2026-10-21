@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { RoundedBoxGeometry } from "three/examples/jsm/geometries/RoundedBoxGeometry.js";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import { learningIcons, subscribeLearningIcons, type LearningIconEntry } from "./learningIconRegistry";
+import { learningIcons, subscribeLearningIcons, setLearningIconRendererState, type LearningIconEntry } from "./learningIconRegistry";
 
 type IconModel = {
   root: THREE.Group;
@@ -12,10 +12,13 @@ type IconModel = {
   cards: THREE.Group;
   files: THREE.Group[];
   signals: THREE.Mesh[];
-  arrow: THREE.Group;
+  frame: THREE.Mesh | null;
   glow: THREE.MeshStandardMaterial;
   openness: number;
   activity: number;
+  hoverStarted: number;
+  wasHovered: boolean;
+  revealStarted: number | null;
 };
 type IconLayout = {
   entry: LearningIconEntry; surface: HTMLElement; bounds: DOMRect; surfaceBounds: DOMRect;
@@ -33,7 +36,8 @@ export default function LearningIcon3DLayer() {
     let renderer: THREE.WebGLRenderer;
     try {
       renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "low-power" });
-    } catch { return; }
+    } catch { setLearningIconRendererState("fallback"); return; }
+    setLearningIconRendererState("ready");
     renderer.setClearColor(0x000000, 0);
     renderer.autoClear = false;
     renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -50,6 +54,9 @@ export default function LearningIcon3DLayer() {
     const rim = new THREE.DirectionalLight("#51c9ef", 3);
     rim.position.set(4, 2, -3);
     scene.add(key, rim);
+    const warmFill = new THREE.PointLight("#e9ca8b", 3);
+    warmFill.position.set(-2, -1, 2);
+    scene.add(warmFill);
 
     const geometries = new Set<THREE.BufferGeometry>();
     const materials = new Set<THREE.Material>();
@@ -111,13 +118,39 @@ export default function LearningIcon3DLayer() {
     const sphere = new THREE.SphereGeometry(.07, 12, 8);
     const stem = new THREE.CylinderGeometry(.025, .025, .18, 8);
     const bulb = new THREE.SphereGeometry(.14, 12, 8);
-    const orbit = new THREE.TorusGeometry(.9, .012, 4, 40);
-    [sphere, stem, bulb, orbit].forEach(value => geometries.add(value));
+    [sphere, stem, bulb].forEach(value => geometries.add(value));
+    // Curved corners and the shared folder materials make a solid toy-like
+    // object, rather than a flat outlined play icon.
+    function roundedTriangle(points: [number, number][], radius: number) {
+      const shape = new THREE.Shape();
+      const vertices = points.map(([x,y]) => new THREE.Vector2(x,y));
+      vertices.forEach((point,index) => {
+        const before = vertices[(index + vertices.length - 1) % vertices.length];
+        const after = vertices[(index + 1) % vertices.length];
+        const start = point.clone().lerp(before, radius / point.distanceTo(before));
+        const end = point.clone().lerp(after, radius / point.distanceTo(after));
+        if (!index) shape.moveTo(start.x,start.y); else shape.lineTo(start.x,start.y);
+        shape.quadraticCurveTo(point.x,point.y,end.x,end.y);
+      });
+      shape.closePath();
+      return shape;
+    }
+    const triangle = roundedTriangle([[-.58,-.7],[.78,0],[-.58,.7]], .16);
+    const aperture = roundedTriangle([[-.36,-.35],[-.36,.35],[.31,0]], .08);
+    triangle.holes.push(aperture);
+    const triangleFrame = new THREE.ExtrudeGeometry(triangle, { depth: .28, bevelEnabled: true, bevelSegments: 5, curveSegments: 10, steps: 1, bevelSize: .055, bevelThickness: .07 });
+    geometries.add(triangleFrame);
+    const border = roundedTriangle([[-.7,-.84],[.99,0],[-.7,.84]], .2);
+    const borderHole = roundedTriangle([[-.59,-.65],[-.59,.65],[.75,0]], .16);
+    border.holes.push(borderHole);
+    const rimGeometry = new THREE.ExtrudeGeometry(border, { depth: .16, bevelEnabled: true, bevelSegments: 5, curveSegments: 10, steps: 1, bevelSize: .025, bevelThickness: .045 });
+    geometries.add(rimGeometry);
     const models = new Map<HTMLSpanElement, IconModel>();
 
     function createModel(entry: LearningIconEntry): IconModel {
-      const root = new THREE.Group(), lid = new THREE.Group(), cards = new THREE.Group(), arrow = new THREE.Group();
+      const root = new THREE.Group(), lid = new THREE.Group(), cards = new THREE.Group();
       const files: THREE.Group[] = [], signals: THREE.Mesh[] = [];
+      let frame: THREE.Mesh | null = null;
       const glow = material("#79e3ff");
       glow.emissive.set("#51c9ef");
       glow.emissiveIntensity = .35;
@@ -183,24 +216,24 @@ export default function LearningIcon3DLayer() {
         lid.add(emblem, mesh(sphere, glow, .59, .29, .09));
         root.add(cards, lid);
       } else {
-        root.add(mesh(box(1.8, .94, .32, .3), navy, 0, -.06, -.12));
-        root.add(mesh(box(1.8, .94, .29, .3), blue, 0, .02, .05));
-        root.add(mesh(box(1.46, .65, .06, .25), navy, 0, .02, .21));
-        root.add(mesh(box(.83, .025, .025, .01), ice, -.1, .39, .22));
-        arrow.add(mesh(arrowGeometry, gold, .02, .02, .29));
-        root.add(arrow);
-        root.add(mesh(sphere, glow, -.61, .02, .29));
-        if (entry.electric) {
-          const ring = mesh(orbit, glow);
-          ring.rotation.x = 1.1;
-          ring.position.y = -.15;
-          root.add(ring);
-        }
+        // A hollow, bevelled triangular frame with real side depth.
+        root.add(mesh(triangleFrame, navy, 0, -.055, -.3));
+        root.add(mesh(triangleFrame, blue, 0, .015, -.08));
+        glow.color.copy(ice.color);
+        glow.metalness = ice.metalness;
+        glow.roughness = ice.roughness;
+        glow.emissive.set("#51c9ef");
+        glow.emissiveIntensity = .04;
+        frame = mesh(rimGeometry, glow, 0, .015, .06);
+        root.add(frame);
+        const play = mesh(arrowGeometry, gold, -.09, .015, .1);
+        play.scale.setScalar(.58);
+        root.add(play);
       }
       root.rotation.set(.14, -.3, 0);
       root.visible = false;
       scene.add(root);
-      return { root, lid, cards, files, signals, arrow, glow, openness: 0, activity: 0 };
+      return { root, lid, cards, files, signals, frame, glow, openness: 0, activity: 0, hoverStarted: 0, wasHovered: false, revealStarted: null };
     }
 
     let frame = 0, previous = 0, settleUntil = 0, interactionUntil = 0, animationTime = 0;
@@ -242,9 +275,16 @@ export default function LearningIcon3DLayer() {
     }
     function resetFallbacks() {
       learningIcons.forEach(entry => { delete entry.element.dataset.webglReady; });
+      models.forEach(model => { model.revealStarted = null; });
     }
     function measureLayout() {
       modalOpen = Boolean(host!.querySelector('[aria-modal="true"]'));
+      // The shared canvas sits above the library panel. Cut out only the menu's
+      // rectangle, so its opaque surface covers icons without hiding the rest.
+      const menu = host!.querySelector<HTMLElement>("[data-function-menu]")?.getBoundingClientRect();
+      canvas!.style.clipPath = menu
+        ? `path(evenodd, "M0 0H${window.innerWidth}V${window.innerHeight}H0Z M${menu.left} ${menu.top}H${menu.right}V${menu.bottom}H${menu.left}Z")`
+        : "";
       const next: IconLayout[] = [];
       const styleCache = new Map<HTMLElement, CSSStyleDeclaration>();
       const boundsCache = new Map<HTMLElement, DOMRect>();
@@ -299,7 +339,7 @@ export default function LearningIcon3DLayer() {
         qualitySample.frames++;
         if (qualitySample.elapsed >= 2) {
           if (qualitySample.frames / qualitySample.elapsed < rate * .75 && renderer.getPixelRatio() > 1.1) {
-            // Lower only after sustained slow frames; never oscillate quality per hover.
+            // Lower only after sustained slow frames; never oscillate quality during interaction.
             qualityCap = Math.max(1, renderer.getPixelRatio() - .25);
             updateResolution();
           }
@@ -310,7 +350,7 @@ export default function LearningIcon3DLayer() {
       previous = now;
       animationTime += delta;
       if (layoutDirty || now < layoutUntil) measureLayout();
-      if (modalOpen) return;
+      if (modalOpen) { renderer.setScissorTest(false); renderer.clear(); return; }
       renderer.setScissorTest(false);
       renderer.clear();
       renderer.setScissorTest(true);
@@ -336,12 +376,19 @@ export default function LearningIcon3DLayer() {
         const tracksPointer = !media.matches && !disabled && pointerPose?.surface === surface;
         const px = tracksPointer ? THREE.MathUtils.clamp(((pointerPose!.x - surfaceBounds.left) / Math.max(1, surfaceBounds.width) - .5) * 2, -1, 1) : 0;
         const py = tracksPointer ? THREE.MathUtils.clamp(((pointerPose!.y - surfaceBounds.top) / Math.max(1, surfaceBounds.height) - .5) * 2, -1, 1) : 0;
-        const strength = entry.kind === "folder" ? 1 : 1.4;
+        const isTriangle = entry.kind !== "folder";
+        if (isTriangle && hovered && !model.wasHovered) model.hoverStarted = phase;
+        model.wasHovered = hovered;
+        const greeting = isTriangle && !media.matches ? Math.max(0,1-(phase-model.hoverStarted)/1.4) * activity : 0;
+        const bounce = Math.sin((phase-model.hoverStarted)*12) * greeting;
+        const strength = isTriangle ? 2.6 : 1;
         const tiltX = -py * 8 * strength, tiltY = px * 11 * strength;
         model.root.rotation.x = THREE.MathUtils.lerp(model.root.rotation.x, .14 - tiltX * Math.PI / 180, ease);
         model.root.rotation.y = THREE.MathUtils.lerp(model.root.rotation.y, -.3 + tiltY * Math.PI / 180, ease);
-        model.root.position.y = (entry.kind === "folder" ? -.15 : 0) + Math.sin(phase * 2.2) * .025 * activity;
-        model.root.scale.setScalar(!disabled && surface.matches(":active") ? .92 : 1);
+        model.root.rotation.z = isTriangle ? bounce * .13 : 0;
+        model.root.position.y = isTriangle ? (.06 * Math.sin(phase*2.4) + Math.abs(bounce)*.14) * activity : -.15 + Math.sin(phase*2.2)*.025*activity;
+        model.root.scale.setScalar(!disabled && surface.matches(":active") ? .86 : 1);
+        if (model.frame) model.frame.position.z = .06 + Math.abs(bounce) * .035;
         model.lid.rotation.x = model.openness * .85;
         model.cards.position.y = model.openness * .24;
         model.cards.rotation.z = Math.sin(phase * 2.2) * .025 * activity;
@@ -358,21 +405,21 @@ export default function LearningIcon3DLayer() {
           signal.position.set(Math.sin(progress * Math.PI) * (index === 1 ? -.55 : .45), -.2 + progress * 1.45, .4);
           signal.scale.setScalar(.32 * Math.sin(progress * Math.PI) * activity);
         });
-        model.arrow.position.x = (Math.sin(phase * 3.6) + 1) * .065 * activity;
-        model.arrow.rotation.y = Math.sin(phase * 2.6) * .08 * activity;
-        model.glow.emissiveIntensity = .25 + (.45 + Math.sin(phase * 3.6) * .2) * activity;
+        model.glow.emissiveIntensity = isTriangle ? .04 + .08 * activity : .25 + (.45 + Math.sin(phase * 3.6) * .2) * activity;
         camera.aspect = bounds.width / bounds.height;
-        camera.zoom = entry.kind === "folder" ? 1.18 : 1.12;
+        camera.zoom = entry.kind === "folder" ? 1.38 : 1.12;
         camera.updateProjectionMatrix();
         renderer.setViewport(bounds.left, window.innerHeight - bounds.bottom, bounds.width, bounds.height);
         renderer.setScissor(left, window.innerHeight - bottom, right - left, bottom - top);
-        surfaces.forEach(surface => { surface.opacity = alpha; });
-        model.glow.opacity = alpha;
+        model.revealStarted ??= now;
+        const reveal = media.matches ? 1 : THREE.MathUtils.smoothstep(now - model.revealStarted, 0, 320);
+        surfaces.forEach(surface => { surface.opacity = alpha * reveal; });
+        model.glow.opacity = alpha * reveal;
         model.root.visible = true;
         renderer.render(scene, camera);
         model.root.visible = false;
         if (!element.dataset.webglReady) element.dataset.webglReady = "true";
-        moving ||= running || Math.abs(model.openness - opening) > .005 || (!running && model.activity > .005);
+        moving ||= reveal < 1 || running || Math.abs(model.openness - opening) > .005 || (!running && model.activity > .005);
       }
       renderer.setScissorTest(false);
       if (moving || now < settleUntil) frame = requestAnimationFrame(draw);
@@ -383,8 +430,9 @@ export default function LearningIcon3DLayer() {
       cancelAnimationFrame(frame);
       frame = 0;
       resetFallbacks();
+      setLearningIconRendererState("fallback");
     }
-    function contextRestored() { lost = false; renderer.resetState(); resize(); }
+    function contextRestored() { lost = false; setLearningIconRendererState("ready"); renderer.resetState(); resize(); }
     const resizeObserver = new ResizeObserver(() => wake());
     function syncIcons() {
       resizeObserver.disconnect();
@@ -428,6 +476,7 @@ export default function LearningIcon3DLayer() {
       geometries.forEach(value => value.dispose());
       materials.forEach(value => value.dispose());
       renderer.dispose();
+      setLearningIconRendererState("pending");
     };
   }, []);
 

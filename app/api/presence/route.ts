@@ -3,6 +3,7 @@ import { currentRole, teachingSections } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { currentUserAccess } from "@/lib/auth/currentUser";
+import { SCOPED_PRESENCE_TTL_MS, scopedPresenceKey, summarizeScopedPresence } from "@/lib/scopedPresence";
 
 type TrackedSection = "section1" | "section2";
 const PRESENCE_TTL_MS = 35_000;
@@ -36,6 +37,22 @@ async function getPresenceCounts(allowed: readonly string[], signal?: AbortSigna
 
 export async function GET(request?: Request) {
   try {
+    if (request && new URL(request.url).searchParams.get("scope") === "all") {
+      const access = await currentUserAccess(request.signal);
+      const sections = access?.sections.filter(section => access.isAdmin || section.canFacilitate) || [];
+      if (!access?.isActive || (!access.isAdmin && !sections.length)) return NextResponse.json({ message: "Không có quyền xem learner." }, { status: 403 });
+      const rows: Array<{ client_id: string; section: string }> = [];
+      const db = getSupabaseAdmin(request.signal);
+      const cutoff = new Date(Date.now() - SCOPED_PRESENCE_TTL_MS).toISOString();
+      // One paginated stream of active rows, not one count query per section.
+      for (let offset = 0; ; offset += 1000) {
+        const { data, error } = await db.from("presence_sessions").select("client_id,section").in("section", ["section1","section2"])
+          .is("left_at",null).gt("last_seen_at",cutoff).order("client_id").range(offset,offset+999);
+        if (error) throw error;
+        rows.push(...(data || []));if (!data || data.length < 1000) break;
+      }
+      return NextResponse.json({ success:true,counts:summarizeScopedPresence(rows,sections,access.courses) },{headers:{"Cache-Control":"no-store, max-age=0"}});
+    }
     const allowed = await teachingSections(undefined, request?.signal);
     if (!allowed.length) {
       return NextResponse.json({ success: false, message: "Chỉ admin mới xem được số người đang học." }, { status: 403 });
@@ -68,6 +85,42 @@ export async function POST(request: Request) {
     const clientId = String(payload.clientId ?? "").trim().slice(0, 120);
     const section = String(payload.section ?? "").trim();
     const access = await currentUserAccess(request.signal);
+    if (typeof payload.sectionId === "string") {
+      const scope = access?.sections.find(section => section.id === payload.sectionId);
+      const course = access?.courses.find(course => course.id === scope?.courseId);
+      if (!access?.isActive || !scope || !course || scope.hidden || course.hidden) return NextResponse.json({ message:"Không có quyền mở section này." },{status:403});
+      // Admin/teaching visits must not inflate learner counts or learner exports.
+      if (access.isAdmin || scope.canFacilitate) return NextResponse.json({success:true,tracked:false});
+      if (!clientId || !["enter","heartbeat","leave"].includes(action)) return NextResponse.json({message:"Thông tin hiện diện không hợp lệ."},{status:400});
+      const identity = access.learnerIdentity || {sessionId:access.authUserId,name:access.displayName,email:access.email,information:{}};
+      const key = scopedPresenceKey(scope.id,access.authUserId,clientId);
+      const db = getSupabaseAdmin(request.signal), now = new Date().toISOString();
+      if (action === "leave") {
+        const {error} = await db.from("presence_sessions").update({left_at:now,last_seen_at:now}).eq("client_id",key);
+        if(error)throw error;
+      } else {
+        const entryId = String(payload.entryId || "").slice(0,120);
+        if (action === "enter" && !entryId) return NextResponse.json({message:"Thiếu thông tin mở section."},{status:400});
+        const saveEntry = async () => {
+          if(action !== "enter") return;
+          const eventId = scopedPresenceKey(scope.id,access.authUserId,entryId);
+          const {data:existing,error:readError} = await db.from("access_audit_logs").select("id").eq("action","SECTION_OPENED").gte("created_at",new Date(Date.now()-300_000).toISOString()).contains("details",{eventId}).limit(1).maybeSingle();
+          if(readError)throw readError;
+          if(!existing){
+            const {error} = await db.from("access_audit_logs").insert({action:"SECTION_OPENED",actor_email:identity.email,course_id:course.id,
+              details:{...identity,eventId,courseId:course.id,courseTitle:course.title,sectionId:scope.id,section:scope.sectionKey,sectionTitle:scope.title,folderGroupId:course.folderGroupId,folderGroupName:course.folderGroupName}});
+            if(error)throw error;
+          }
+        };
+        const savePresence = async () => {
+          const {error} = await db.from("presence_sessions").upsert({client_id:key,section:scope.sectionKey === "section2" ? "section2" : "section1",name:identity.name.slice(0,80),email:identity.email.slice(0,100),last_seen_at:now,left_at:null},{onConflict:"client_id"});
+          if(error)throw error;
+        };
+        // Live presence must not wait for the durable entry-history lookup.
+        await Promise.all([savePresence(), saveEntry()]);
+      }
+      return NextResponse.json({success:true},{headers:{"Cache-Control":"no-store"}});
+    }
     const role = await currentRole(access);
 
     if (!clientId || !validSection(section)) {

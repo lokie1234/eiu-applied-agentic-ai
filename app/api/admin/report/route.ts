@@ -3,6 +3,7 @@ import { currentRole } from "@/lib/currentRole";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { collectReportLearners } from "@/lib/reportLearners";
 import { reportScope, reportScopeKey, scopedReportActivity } from "@/lib/reportScopes";
+import { courseHierarchy } from "@/lib/courseHierarchy";
 
 export const runtime = "nodejs";
 
@@ -97,7 +98,7 @@ function addSheet(
     views: [{ state: "frozen", ySplit: 1 }],
     properties: { defaultRowHeight: 20 },
   });
-  columns = [...columns, { header: "Course", key: "course", width: 38 }, { header: "Section", key: "sectionTitle", width: 40 }];
+  columns = [...columns, { header: "Course", key: "course", width: 38 }, { header: "Section", key: "sectionTitle", width: 40 }, { header: "Folder", key: "folder", width: 34 }];
   sheet.columns = columns;
   sheet.addRows(rows);
   styleHeader(sheet.getRow(1));
@@ -143,7 +144,7 @@ function collectSections(groups: Row[][], configuredSections: unknown[]) {
 }
 
 function scopeValues(row: Row) {
-  return { course: String(row.courseTitle || ""), sectionTitle: String(row.sectionTitle || row.section || "") };
+  return { folder: String(row.folderGroupName || ""), course: String(row.courseTitle || ""), sectionTitle: String(row.sectionTitle || row.section || "") };
 }
 
 export async function GET(request: Request) {
@@ -154,15 +155,18 @@ export async function GET(request: Request) {
     const requestedSection = sectionKey(searchParams.get("section")) || "all";
     const requestedCourse = searchParams.get("courseId")?.trim() || "all";
     const requestedSectionId = searchParams.get("sectionId")?.trim() || "all";
-    const [courses, courseSections] = await Promise.all([fetchAll("courses", "created_at"), fetchAll("course_sections", "position")]);
+    const requestedFolder = searchParams.get("folderId")?.trim() || "all";
+    const [rawCourses, courseSections] = await Promise.all([fetchAll("courses", "created_at"), fetchAll("course_sections", "position")]);
+    const { courses, folders } = courseHierarchy(rawCourses);
     const configuredScopes = courseSections.length ? courseSections.map(section => reportScope({ sectionId: section.id, courseId: section.course_id, section: section.section_key }, courses, courseSections))
       : DEFAULT_SECTIONS.map(section => reportScope({ section }, courses, courseSections));
     if (mode === "sections") {
       const sectionStates = await fetchAll("section_state", "updated_at");
       const sections = collectSections([], sectionStates.map(row => row.section));
       return Response.json({ success: true, sections: sections.map(section => ({ value: section, label: sectionLabel(section) })),
-        courses: [...new Map(configuredScopes.map(scope => [String(scope.courseId), { value: String(scope.courseId), label: String(scope.courseTitle) }])).values()],
-        courseSections: configuredScopes.map(scope => ({ value: scope.sectionId, label: scope.sectionTitle, courseId: scope.courseId, courseTitle: scope.courseTitle })),
+        folders: folders.map(folder=>({value:folder.id,label:folder.name})),
+        courses: [...new Map(configuredScopes.map(scope => [String(scope.courseId), { value: String(scope.courseId), label: String(scope.courseTitle), folderGroupId:scope.folderGroupId }])).values()],
+        courseSections: configuredScopes.map(scope => ({ value: scope.sectionId, label: scope.sectionTitle, courseId: scope.courseId, courseTitle: scope.courseTitle, folderGroupId:scope.folderGroupId })),
       }, { headers: { "Cache-Control": "no-store, max-age=0" } });
     }
     const dateParam = searchParams.get("date")?.trim() || "";
@@ -186,12 +190,13 @@ export async function GET(request: Request) {
       if (scope.section) scopeMap.set(reportScopeKey(scope), scope);
     }
     const availableScopes = [...scopeMap.values()].sort((a,b) => String(a.courseTitle).localeCompare(String(b.courseTitle)) || String(a.section).localeCompare(String(b.section), undefined, { numeric: true }));
-    if (requestedCourse !== "all" && !availableScopes.some(scope => scope.courseId === requestedCourse)
-      || requestedSectionId !== "all" && !availableScopes.some(scope => scope.sectionId === requestedSectionId && (requestedCourse === "all" || scope.courseId === requestedCourse))
+    if (requestedFolder !== "all" && !folders.some(folder=>folder.id===requestedFolder)
+      || requestedCourse !== "all" && !availableScopes.some(scope => scope.courseId === requestedCourse && (requestedFolder === "all" || scope.folderGroupId === requestedFolder))
+      || requestedSectionId !== "all" && !availableScopes.some(scope => scope.sectionId === requestedSectionId && (requestedCourse === "all" || scope.courseId === requestedCourse) && (requestedFolder === "all" || scope.folderGroupId === requestedFolder))
       || requestedSection !== "all" && !availableScopes.some(scope => sectionKey(scope.section) === requestedSection)) {
       return Response.json({ success: false, message: "Course hoặc Section được chọn không tồn tại." }, { status: 400 });
     }
-    const selected = (row: Row) => (requestedCourse === "all" || row.courseId === requestedCourse) && (requestedSectionId === "all" || row.sectionId === requestedSectionId) && (requestedSection === "all" || sectionKey(row.section) === requestedSection);
+    const selected = (row: Row) => (requestedFolder === "all" || row.folderGroupId === requestedFolder) && (requestedCourse === "all" || row.courseId === requestedCourse) && (requestedSectionId === "all" || row.sectionId === requestedSectionId) && (requestedSection === "all" || sectionKey(row.section) === requestedSection);
     const sections = availableScopes.filter(selected);
     const scopedLearners = learners.filter(selected), scopedIdeas = ideas.filter(selected), scopedShowcase = showcase.filter(selected), scopedQuiz = quiz.filter(selected), scopedFeedback = feedback.filter(selected);
     const inScope = (rows: Row[], scope: Row) => rows.filter(row => reportScopeKey(row) === reportScopeKey(scope));
@@ -203,7 +208,7 @@ export async function GET(request: Request) {
     summary.getCell("A1").font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };summary.getCell("A1").fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF082945" } };summary.getCell("A1").alignment = { vertical: "middle", horizontal: "center" };summary.getRow(1).height=32;
     summary.addRow(["Phạm vi báo cáo", dateBounds ? `Ngày ${dateBounds.dateStr.split("-").reverse().join("/")} (Giờ VN - UTC+7)` : "Tất cả thời gian"]);
     summary.addRow(["Xuất lúc (GMT+7)", iso(new Date().toISOString())]);summary.addRow([]);
-    summary.addRow(["Loại dữ liệu", ...sections.map(scope=>`${scope.courseTitle} · ${scope.sectionTitle}`), "Tổng"]);styleHeader(summary.getRow(5));summary.getRow(5).height=48;summary.getRow(5).alignment={wrapText:true,vertical:"middle"};
+    summary.addRow(["Loại dữ liệu", ...sections.map(scope=>`${scope.folderGroupName} · ${scope.courseTitle} · ${scope.sectionTitle}`), "Tổng"]);styleHeader(summary.getRow(5));summary.getRow(5).height=64;summary.getRow(5).alignment={wrapText:true,vertical:"middle"};
     dataGroups.forEach(({label,rows})=>summary.addRow([label,...sections.map(scope=>inScope(rows,scope).length),rows.length]));
     const courseIds=[...new Set(sections.map(scope=>String(scope.courseId)))];
     const usedPrefixes = new Set<string>();
@@ -223,7 +228,7 @@ export async function GET(request: Request) {
       addSheet(workbook,`${sheetPrefix} - Quiz`,[{header:"Họ tên",key:"name",width:28},{header:"Điểm",key:"score",width:10},{header:"Tổng điểm",key:"total",width:12},{header:"Hoàn thành lúc (GMT+7)",key:"completedAt",width:26}],inScope(scopedQuiz,scope).map(row=>({...scopeValues(row),name:String(row.name??""),score:Number(row.score??0),total:Number(row.total??0),completedAt:iso(row.completed_at)})));
       addSheet(workbook,`${sheetPrefix} - Feedback`,[{header:"Họ tên",key:"name",width:28},{header:"Nội dung phản hồi",key:"feedback",width:80},{header:"Gửi lúc (GMT+7)",key:"submittedAt",width:26}],inScope(scopedFeedback,scope).map(row=>({...scopeValues(row),name:String(row.name??""),feedback:String(row.feedback??""),submittedAt:iso(row.submitted_at)})));
     });
-    const activityRows: Row[] = activity.filter(row=>["PASSCODE_LOGIN","IDEA_SUBMITTED","SHOWCASE_SUBMITTED","QUIZ_COMPLETED","FEEDBACK_SUBMITTED"].includes(String(row.action))).flatMap(row=>{
+    const activityRows: Row[] = activity.filter(row=>["PASSCODE_LOGIN","SECTION_OPENED","IDEA_SUBMITTED","SHOWCASE_SUBMITTED","QUIZ_COMPLETED","FEEDBACK_SUBMITTED"].includes(String(row.action))).flatMap(row=>{
       const details=(row.details||{}) as Row;
       if(details.accessMode==="facilitator")return [];
       return (row.action==="PASSCODE_LOGIN"?(details.scopes||[]) as Row[]:[details]).filter(selected).map(scope=>({...row,details:{...details,...scope}}));
@@ -235,7 +240,8 @@ export async function GET(request: Request) {
     const dateSuffix=dateBounds?dateBounds.dateStr:"all-time";
     const sectionSuffix=requestedSectionId!=="all"?requestedSectionId:requestedSection==="all"?"all-sections":requestedSection;
     const courseSuffix=requestedCourse==="all"?"all-courses":requestedCourse.replace(/[^a-zA-Z0-9_-]/g,"");
-    return new Response(new Uint8Array(output),{headers:{"Cache-Control":"no-store, max-age=0","Content-Disposition":`attachment; filename="eiu-interactive-report-${courseSuffix}-${sectionSuffix}-${dateSuffix}.xlsx"`,"Content-Type":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}});
+    const folderSuffix=requestedFolder==="all"?"all-folders":requestedFolder.replace(/[^a-zA-Z0-9_-]/g,"");
+    return new Response(new Uint8Array(output),{headers:{"Cache-Control":"no-store, max-age=0","Content-Disposition":`attachment; filename="eiu-interactive-report-${folderSuffix}-${courseSuffix}-${sectionSuffix}-${dateSuffix}.xlsx"`,"Content-Type":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}});
   } catch(error) {
     console.error("Report export error:",error);return Response.json({success:false,message:error instanceof Error?error.message:"Không thể xuất report."},{status:500});
   }

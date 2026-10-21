@@ -15,7 +15,7 @@ function load(path, dependencies, globals = {}) {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true,
   } }).outputText;
   vm.runInNewContext(code, { exports, console, Date, AbortController, AbortSignal, ...globals,
-    require: name => name.endsWith(".css") ? new Proxy({}, { get: (_, key) => String(key) }) : dependencies[name] ?? require(name),
+    require: name => name.endsWith(".css") ? new Proxy({}, { get: (_, key) => String(key) }) : dependencies[name] ?? (name === "@/lib/scopedPresence" ? load("lib/scopedPresence.ts", {}) : require(name)),
   });
   return exports;
 }
@@ -225,6 +225,7 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
   window.clearInterval = delay => intervals.delete(delay);
   const requests = [];
   let beacons = 0;
+  let clock = Date.now();
   let catalogRefreshes = 0;
   const router = { refresh() { catalogRefreshes++; } };
   const Portal = load("components/LessonPortal.tsx", {
@@ -244,7 +245,7 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     }),
     "./useSectionSlideCounts": { useSectionSlideCounts: () => ({}) },
     "@/lib/builtinDeckItems": load("lib/builtinDeckItems.ts", {}),
-  }, { window, document: window.document, navigator: { sendBeacon: () => { beacons++; return true; } }, clearInterval: id => window.clearInterval(id),
+  }, { Date: class extends Date { static now() { return clock; } },window, document: window.document, navigator: { sendBeacon: () => { beacons++; return true; } }, clearInterval: id => window.clearInterval(id),
     fetch: (url, options) => new Promise(resolve => requests.push({ url, options, resolve })),
   }).default;
   const container = window.document.createElement("div"); const root = createRoot(container);
@@ -255,27 +256,28 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
   }));
   try {
     await act(async () => render());
-    assert.equal(requests.length, 3);
+    assert.equal(requests.length, 2, "teaching visits never send learner heartbeats");
     await act(async () => {
       window.dispatchEvent(new window.Event("focus"));
       window.document.dispatchEvent(new window.Event("visibilitychange"));
     });
     assert.equal(catalogRefreshes, 0, "returning to a tab must not refresh the active deck");
     await act(async () => {
-      for (let i = 0; i < 3; i++) { intervals.get(20_000)(); intervals.get(15_000)(); intervals.get(30_000)(); }
+      for (let i = 0; i < 3; i++) { intervals.get(5_000)(); intervals.get(30_000)(); }
       render();
     });
-    assert.equal(requests.length, 3, "pending requests and refreshed profile objects must not create more requests");
+    assert.equal(requests.length, 2, "pending requests and refreshed profile objects must not create more requests");
     await act(async () => requests.forEach(request => request.resolve({ ok: false })));
     Object.defineProperty(window.document, "visibilityState", { configurable: true, value: "hidden" });
-    await act(async () => { intervals.get(20_000)(); intervals.get(15_000)(); intervals.get(30_000)(); });
-    assert.equal(requests.length, 3, "hidden tabs do not poll or heartbeat");
+    await act(async () => { intervals.get(5_000)(); intervals.get(30_000)(); });
+    assert.equal(requests.length, 2, "hidden tabs do not poll or heartbeat");
     Object.defineProperty(window.document, "visibilityState", { configurable: true, value: "visible" });
-    await act(async () => { intervals.get(20_000)(); intervals.get(15_000)(); intervals.get(30_000)(); });
-    assert.equal(requests.length, 6, "polling resumes after requests settle");
+    clock += 6000;
+    await act(async () => { intervals.get(5_000)(); intervals.get(30_000)(); });
+    assert.equal(requests.length, 4, "polling resumes after requests settle");
     window.dispatchEvent(new window.Event("beforeunload"));
     window.dispatchEvent(new window.Event("pagehide"));
-    assert.equal(beacons, 1, "beforeunload and pagehide must not send the same leave twice");
+    assert.equal(beacons, 0, "facilitator visits do not create learner presence or send learner leaves");
     await act(async () => [...container.querySelectorAll("button")].find(button => button.textContent === "Courses").click());
     await act(async () => window.dispatchEvent(new window.Event("focus")));
     assert.equal(catalogRefreshes, 1, "catalog refresh resumes after leaving the deck");
@@ -331,7 +333,7 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
   } finally {
     await act(async () => root.unmount());
     assert.ok(requests.filter(request => request !== requests.find(request => request.url === "/api/session/section")).every(request => request.options.signal.aborted));
-    assert.equal(beacons, 1, "unmount must not send an already queued leave again");
+    assert.equal(beacons, 0, "unmount does not send a learner leave for a facilitator");
     assert.equal(intervals.size, 0);
     await window.happyDOM.close();
   }

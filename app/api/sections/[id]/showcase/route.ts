@@ -47,7 +47,7 @@ export async function POST(request: Request, context: Context) {
     // the submission and its server-resolved course/section and learner identity.
     const { data, error } = await getSupabaseAdmin(request.signal).from("access_audit_logs").insert({
       action: "SHOWCASE_SUBMITTED", actor_email: identity.email, course_id: course.id,
-      details: { ...identity, courseId: course.id, courseTitle: course.title, sectionId: section.id, sectionTitle: section.title, section: section.sectionKey, url, submissionStorage: "audit" },
+      details: { ...identity, courseId: course.id, courseTitle: course.title, folderGroupId:course.folderGroupId,folderGroupName:course.folderGroupName,sectionId: section.id, sectionTitle: section.title, section: section.sectionKey, url, submissionStorage: "audit" },
     }).select("id, created_at, details").single();
     if (error) throw error;
     return NextResponse.json({ success: true, item: item(data as Row) });

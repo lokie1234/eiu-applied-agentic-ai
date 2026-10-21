@@ -16,10 +16,10 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync("lib/liveRefresh.ts", "utf
 function moduleExports(path, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;
-  vm.runInNewContext(code, { exports, console, Date, AbortController, AbortSignal, ResizeObserver: globalThis.window?.ResizeObserver, IntersectionObserver: globalThis.window?.IntersectionObserver, MutationObserver: globalThis.window?.MutationObserver, requestAnimationFrame: callback=>globalThis.window.requestAnimationFrame(callback), cancelAnimationFrame: id=>globalThis.window.cancelAnimationFrame(id), crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, fetch: (...args) => globalThis.fetch(...args), require: name => {
+  vm.runInNewContext(code, { exports, console, Date, URL:globalThis.window?.URL,AbortController, AbortSignal, ResizeObserver: globalThis.window?.ResizeObserver, IntersectionObserver: globalThis.window?.IntersectionObserver, MutationObserver: globalThis.window?.MutationObserver, requestAnimationFrame: callback=>globalThis.window.requestAnimationFrame(callback), cancelAnimationFrame: id=>globalThis.window.cancelAnimationFrame(id), crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, navigator:globalThis.window?.navigator,fetch: (...args) => globalThis.fetch(...args), require: name => {
     if (name === "./LearnerInformationDialog") return { __esModule: true, default: component("components/landing/LearnerInformationDialog.tsx") };
     if (name === "./SectionEnergy") return { __esModule: true, default: () => null };
-    if (name === "./CourseDiscoveryHeading") return { __esModule: true, default: () => null };
+    if (name === "./CourseDiscoveryHeading") return { __esModule: true, default: props => React.createElement("span", {"data-heading-online": props.onlineCount}) };
     if (name === "./EiuConfirmDialog") return { __esModule: true, default: component("components/admin/EiuConfirmDialog.tsx") };
     if (name === "./LearnerInformationSettings") return { __esModule: true, default: component("components/admin/LearnerInformationSettings.tsx", { "@/lib/learningIdentity": learningIdentity }) };
     if (name === "@/lib/deckLocation") return { rememberDeckSelection() {} };
@@ -65,7 +65,9 @@ test("section cards show actual totals without formats and automatically include
     await act(async () => render(course));
     assert.deepEqual(labels(), ["41 slides", "39 slides", "5 slides"]);
     assert.equal(container.querySelectorAll(".sectionSlideBadge").length, 3);
-    assert.equal(container.querySelector(".sectionLaunchButton strong").title, "Phát triển Web App");
+    assert.equal(container.querySelectorAll("[title]:not([data-course-tool])").length, 0, "only admin-assigned tool icons may display native tooltips");
+    assert.equal(container.querySelector(".sectionLaunchButton strong").textContent, "Phát triển Web App");
+    assert.equal(container.querySelector(".sectionLaunchButton strong").hasAttribute("title"), false, "card names must not create delayed native tooltips");
     await act(async () => render({ ...course, sections: [...course.sections, makeSection("new", "future", "pdf", 4)] }, true));
     assert.deepEqual(labels(), ["42 slides", "39 slides", "5 slides", "5 slides"]);
     assert.ok(labels().every(label => !/TSX|PDF|PPTX|Interactive|999/.test(label)));
@@ -344,4 +346,190 @@ test("hidden Generate waits for consent, Cancel leaves content unchanged, bulk c
     await act(async () => button("Clear passcodes").click());
     assert.equal(calls[1].operation,"clear");assert.equal(calls[1].unhide,false);
   } finally {await act(async () => root.unmount());await window.happyDOM.close();}
+});
+
+test("admin learner badges and Folder → Course → Section export apply beyond the built-in course",async()=>{
+  const window=new Window({url:'http://localhost/learn'});
+  for(const name of ['window','document','HTMLElement','navigator'])Object.defineProperty(globalThis,name,{configurable:true,value:name==='window'?window:window[name]});
+  globalThis.IS_REACT_ACT_ENVIRONMENT=true;const {createRoot}=await import('react-dom/client');
+  const previousFetch=globalThis.fetch,requests=[];
+  const folders=[{value:'f-ai',label:'AI Training'},{value:'f-web',label:'Web Training'}];
+  const courses=[{value:'c-ai',label:'Applied AI',folderGroupId:'f-ai'},{value:'c-web',label:'Web Course',folderGroupId:'f-web'}];
+  const scopes=[{value:'s-ai',label:'AI 1',courseId:'c-ai',courseTitle:'Applied AI',folderGroupId:'f-ai'},{value:'s-web',label:'Web 1',courseId:'c-web',courseTitle:'Web Course',folderGroupId:'f-web'},{value:'s-web2',label:'Web 2',courseId:'c-web',courseTitle:'Web Course',folderGroupId:'f-web'}];
+  courses.push(...[2,3].map(i=>({value:`c-web${i}`,label:`Web Course ${i}`,folderGroupId:'f-web'})));
+  scopes.push(...[3,4].map(i=>({value:`s-web${i}`,label:`Web ${i}`,courseId:'c-web',courseTitle:'Web Course',folderGroupId:'f-web'})),...courses.slice(2).map(c=>({value:`s-${c.value}`,label:'Section 1',courseId:c.value,courseTitle:c.label,folderGroupId:'f-web'})));
+  globalThis.fetch=async(url,options)=>{requests.push({url,options});if(url.includes('mode=sections'))return {ok:true,json:async()=>({success:true,sections:[],folders,courses,courseSections:scopes})};if(url.startsWith('/api/presence'))return {ok:true,json:async()=>({success:true,counts:{section1:0,section2:0,total:2,byFolder:{'f-web':2},byCourse:{'c-web':2},bySection:{'s-web':2,'s-web2':1}}})};if(url==='/api/admin/reset')return {ok:true,json:async()=>({success:true,legacySections:[]})};if(url.startsWith('/api/admin/report'))return {ok:true,headers:{get:()=>null},blob:async()=>new window.Blob(['example'])};return {ok:false};};
+  window.URL.createObjectURL=()=> 'blob:http://localhost/report';window.URL.revokeObjectURL=()=>{};
+  const Portal=component('components/LessonPortal.tsx',{'next/navigation':{useRouter:()=>({refresh(){}})},'next/dynamic':{__esModule:true,default:()=>()=>null},'next/image':{__esModule:true,default:()=>null},'next/link':{__esModule:true,default:props=>React.createElement('a',{href:props.href},props.children)},'@/lib/auth/types':{APPLIED_AGENTIC_AI_SLUG:'applied-agentic-ai'},'@/lib/supabase/browser':{getSupabaseBrowserClient:()=>null},'@/lib/slideStorage':{}});
+  const courseFolders=courses.map(c=>({id:c.value,slug:c.value==='c-ai'?'applied-agentic-ai':'web',title:c.label,folderGroupId:c.folderGroupId,folderGroupName:folders.find(f=>f.value==c.folderGroupId).label,sections:scopes.filter(s=>s.courseId===c.value).map((s,i)=>({id:s.value,sectionKey:s.value,title:s.label,contentType:'tsx',position:i+1}))}));
+  const container=window.document.createElement('div');window.document.body.append(container);const root=createRoot(container);
+  const select=async(node,value)=>act(async()=>{node.value=value;node.dispatchEvent(new window.Event('change',{bubbles:true}));});
+  try{
+    await act(async()=>root.render(React.createElement(Portal,{isAdmin:true,courseFolders,initialProfile:null})));
+    assert.equal(container.querySelector('[data-heading-online]')?.dataset.headingOnline,'2');
+    const folder=[...container.querySelectorAll('[data-icon-surface="folder"]')].find(e=>e.textContent.includes('Web Training'));
+    await act(async()=>folder.click());
+    assert.match(container.querySelector('.courseLearners').textContent,/2 online/);
+    await act(async()=>container.querySelector('#course-choice-c-web').click());
+    assert.deepEqual([...container.querySelectorAll('.cardLiveUsers')].map(e=>e.textContent),['2 online','1 online','0 online','0 online']);
+    const trigger=container.querySelector('[aria-controls="course-functions"]');
+    assert.equal(trigger.getAttribute('aria-expanded'),'false');assert.equal(container.querySelector('#course-functions'),null);
+    await act(async()=>trigger.click());assert.equal(container.querySelectorAll('#course-functions a,#course-functions button').length,5);
+    await act(async()=>window.document.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true})));
+    assert.equal(trigger.getAttribute('aria-expanded'),'false');assert.equal(window.document.activeElement,trigger);
+    await act(async()=>trigger.click());await act(async()=>window.document.body.dispatchEvent(new window.PointerEvent('pointerdown',{bubbles:true})));
+    assert.equal(container.querySelector('#course-functions'),null);
+    await act(async()=>trigger.click());
+    await act(async()=>[...container.querySelectorAll('button')].find(e=>e.textContent==='Report').click());
+    assert.equal(container.querySelector('#course-functions'),null);
+    let selects=container.querySelectorAll('[role="dialog"] select');assert.equal(selects.length,3);
+    await select(selects[0],'f-web');selects=container.querySelectorAll('[role="dialog"] select');
+    assert.deepEqual([...selects[1].options].map(o=>o.value),['all','c-web','c-web2','c-web3']);
+    assert.equal(selects[1].options[0].textContent,'All courses (3)');assert.equal(selects[2].options[0].textContent,'All sections (6)');assert.equal(selects[2].querySelectorAll('optgroup').length,3);
+    await select(selects[1],'c-web');selects=container.querySelectorAll('[role="dialog"] select');
+    assert.equal(selects[2].options[0].textContent,'All sections (4)');assert.deepEqual([...selects[2].options].map(o=>o.value),['all','s-web','s-web2','s-web3','s-web4']);
+    await select(selects[2],'s-web4');await select(selects[1],'c-web3');
+    selects=container.querySelectorAll('[role="dialog"] select');assert.equal(selects[2].value,'all');assert.deepEqual([...selects[2].options].map(o=>o.value),['all','s-c-web3']);
+    await select(selects[1],'c-web');
+    await select(selects[2],'s-web2');await select(selects[0],'f-ai');
+    selects=container.querySelectorAll('[role="dialog"] select');assert.equal(selects[1].value,'all');assert.equal(selects[2].value,'all');
+    await select(selects[0],'f-web');await select(selects[1],'c-web');
+    await act(async()=>[...container.querySelectorAll('[role="dialog"] button')].find(e=>e.textContent==='Download Excel file').click());
+    const download=requests.find(r=>r.url.startsWith('/api/admin/report?date='));assert.ok(download);const url=new URL(download.url,'http://localhost');assert.equal(url.searchParams.get('folderId'),'f-web');assert.equal(url.searchParams.get('courseId'),'c-web');assert.equal(url.searchParams.get('sectionId'),'all');
+    assert.equal(container.querySelector('[role="dialog"]'),null);
+    await act(async()=>trigger.click());await act(async()=>[...container.querySelectorAll('#course-functions button')].find(e=>e.textContent==='Reset data').click());
+    selects=container.querySelectorAll('[role="dialog"] select');assert.equal(selects.length,3);assert.deepEqual([...selects].map(s=>s.value),['f-web','c-web','all']);
+    assert.deepEqual([...selects[1].options].map(o=>o.value),['all','c-web','c-web2','c-web3']);
+    await select(selects[2],'s-web4');await select(selects[1],'c-web3');assert.equal(container.querySelectorAll('[role="dialog"] select')[2].value,'all');
+    await select(selects[0],'f-ai');selects=container.querySelectorAll('[role="dialog"] select');assert.deepEqual([...selects].map(s=>s.value),['f-ai','all','all']);
+    await select(selects[0],'f-web');await select(selects[1],'c-web');await select(selects[2],'s-web4');
+    const password=container.querySelector('input[type="password"]');await act(async()=>{Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set.call(password,'test-confirmation');password.dispatchEvent(new window.Event('input',{bubbles:true}));});
+    await act(async()=>container.querySelector('form[role="dialog"]').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true})));
+    const reset=requests.find(r=>r.url==='/api/admin/reset');assert.ok(reset);const body=JSON.parse(reset.options.body);assert.equal(body.folderId,'f-web');assert.equal(body.courseId,'c-web');assert.equal(body.sectionId,'s-web4');assert.equal(body.section,undefined);
+    assert.equal(requests.filter(r=>r.options?.method==='POST'&&r.url.startsWith('/api/presence')).length,0,'admin visits never heartbeat as learners');
+  }finally{await act(async()=>root.unmount());globalThis.fetch=previousFetch;await window.happyDOM.close();}
+});
+
+test("uploaded lessons send one entry then bounded heartbeats without blocking the deck",async()=>{
+  const window=new Window({url:'http://localhost/learn'});for(const name of ['window','document','HTMLElement','navigator'])Object.defineProperty(globalThis,name,{configurable:true,value:name==='window'?window:window[name]});
+  globalThis.IS_REACT_ACT_ENVIRONMENT=true;const {createRoot}=await import('react-dom/client');const previousFetch=globalThis.fetch;
+  const intervals=new Map(),requests=[],beacons=[];let nextId=0;
+  window.setInterval=(fn,delay)=>{const id=++nextId;intervals.set(id,{fn,delay});return id;};window.clearInterval=id=>intervals.delete(id);
+  Object.defineProperty(window.navigator,'sendBeacon',{configurable:true,value:(url,body)=>{beacons.push(JSON.parse(body));return true;}});
+  let releaseEntry;
+  globalThis.fetch=(url,options)=>{requests.push({url,options});if(options?.method==='POST'&&JSON.parse(options.body).action==='enter')return new Promise(resolve=>releaseEntry=resolve);return Promise.resolve({ok:true,json:async()=>({success:true})});};
+  const router={refresh(){}};
+  const Portal=component('components/LessonPortal.tsx',{'next/navigation':{useRouter:()=>router},'next/dynamic':{__esModule:true,default:()=>()=>null},'next/image':{__esModule:true,default:()=>null},'next/link':{__esModule:true,default:()=>null},'@/lib/auth/types':{APPLIED_AGENTIC_AI_SLUG:'applied-agentic-ai'},'@/lib/supabase/browser':{getSupabaseBrowserClient:()=>null},'@/lib/slideStorage':{}});
+  const props={isAdmin:false,initialCourseId:'web',initialSectionId:'web-section',initialProfile:{name:'Alice',email:'alice@example.test',section:'section1'},courseFolders:[{id:'web',slug:'web',title:'Web Course',sections:[{id:'web-section',sectionKey:'arbitrary-key',title:'Web Section',position:1,contentType:'tsx'}]}]};
+  const container=window.document.createElement('div');window.document.body.append(container);const root=createRoot(container);
+  const beat=()=>[...intervals.values()].filter(i=>i.delay===20_000).forEach(i=>i.fn());
+  try{
+    await act(async()=>root.render(React.createElement(Portal,props)));
+    assert.ok(container.querySelector('[aria-label="Session controls"]'),'deck is usable while presence request is still pending');
+    assert.equal(requests.length,1);assert.equal(JSON.parse(requests[0].options.body).sectionId,'web-section');assert.equal(JSON.parse(requests[0].options.body).action,'enter');
+    await act(async()=>{beat();beat();beat();root.render(React.createElement(Portal,{...props}));});assert.equal(requests.length,1,'no overlapping presence requests or catalog rerender reconnect');
+    Object.defineProperty(window.document,'visibilityState',{configurable:true,value:'hidden'});await act(async()=>window.document.dispatchEvent(new window.Event('visibilitychange')));
+    Object.defineProperty(window.document,'visibilityState',{configurable:true,value:'visible'});await act(async()=>window.document.dispatchEvent(new window.Event('visibilitychange')));
+    assert.equal(requests.length,1,'quick resume queues a refresh instead of overlapping the pending entry');
+    await act(async()=>releaseEntry({ok:true}));
+    assert.equal(JSON.parse(requests[1].options.body).action,'heartbeat');
+    Object.defineProperty(window.document,'visibilityState',{configurable:true,value:'hidden'});await act(async()=>{window.document.dispatchEvent(new window.Event('visibilitychange'));beat();});assert.equal(requests.length,2);assert.equal(beacons.length,2,'hidden learner tab leaves immediately');
+    Object.defineProperty(window.document,'visibilityState',{configurable:true,value:'visible'});await act(async()=>window.document.dispatchEvent(new window.Event('visibilitychange')));assert.equal(requests.length,3);
+    window.dispatchEvent(new window.Event('pagehide'));await act(async()=>root.unmount());assert.equal(beacons.length,3);assert.equal(beacons[0].sectionId,'web-section');assert.equal(beacons[0].action,'leave');assert.equal(intervals.size,0);
+  }finally{await act(async()=>root.unmount());globalThis.fetch=previousFetch;await window.happyDOM.close();}
+});
+
+
+test('course pages contain twelve courses and retain the remaining courses on the next page',async()=>{
+  const window=new Window({url:'http://localhost/learn'});
+  for(const name of ['window','document','HTMLElement','navigator'])Object.defineProperty(globalThis,name,{configurable:true,value:name==='window'?window:window[name]});
+  globalThis.IS_REACT_ACT_ENVIRONMENT=true;const {createRoot}=await import('react-dom/client');const previousFetch=globalThis.fetch;
+  globalThis.fetch=async()=>({ok:false});
+  const Portal=component('components/LessonPortal.tsx',{'next/navigation':{useRouter:()=>({refresh(){}})},'next/dynamic':{__esModule:true,default:()=>()=>null},'next/image':{__esModule:true,default:()=>null},'next/link':{__esModule:true,default:props=>React.createElement('a',{href:props.href},props.children)},'@/lib/auth/types':{APPLIED_AGENTIC_AI_SLUG:'applied-agentic-ai'},'@/lib/supabase/browser':{getSupabaseBrowserClient:()=>null},'@/lib/slideStorage':{}});
+  const courseFolders=Array.from({length:14},(_,i)=>({id:'course-'+i,slug:'course-'+i,title:'Course '+i,folderGroupId:'folder',folderGroupName:'Training',sections:[]}));
+  const container=window.document.createElement('div');window.document.body.append(container);const root=createRoot(container);
+  try{
+    await act(async()=>root.render(React.createElement(Portal,{isAdmin:true,courseFolders,initialProfile:null})));
+    assert.equal(container.querySelectorAll('[data-icon-surface="course"]').length,12);assert.match(container.textContent,/Showing 1\u201312 of 14 courses/);
+    await act(async()=>[...container.querySelectorAll('button')].find(e=>e.textContent.startsWith('Next')).click());
+    assert.equal(container.querySelectorAll('[data-icon-surface="course"]').length,2);assert.match(container.textContent,/Showing 13\u201314 of 14 courses/);
+    await act(async()=>[...container.querySelectorAll('button')].find(e=>e.textContent.includes('Prev')).click());
+    assert.equal(container.querySelectorAll('[data-icon-surface="course"]').length,12);
+  }finally{await act(async()=>root.unmount());globalThis.fetch=previousFetch;await window.happyDOM.close();}
+});
+
+test('3D icons start pending and only expose a static fallback on renderer failure',async()=>{
+  const window=new Window();Object.defineProperty(globalThis,'window',{configurable:true,value:window});
+  const timers=new Map();let nextId=0;window.setTimeout=(fn)=>{const id=++nextId;timers.set(id,fn);return id;};window.clearTimeout=id=>timers.delete(id);
+  const registry=moduleExports('components/learningIconRegistry.ts');const element=window.document.createElement('span');
+  const release=registry.registerLearningIcon({element,kind:'folder',active:false});
+  assert.equal(element.dataset.renderState,'pending');assert.equal(timers.size,1);
+  registry.setLearningIconRendererState('ready');assert.equal(element.dataset.renderState,'ready');assert.equal(timers.size,0);
+  registry.setLearningIconRendererState('fallback');assert.equal(element.dataset.renderState,'fallback');
+  release();assert.equal(registry.learningIcons.size,0);
+  registry.setLearningIconRendererState('pending');const second=window.document.createElement('span');const remove=registry.registerLearningIcon({element:second,kind:'course',active:false});
+  [...timers.values()][0]();assert.equal(second.dataset.renderState,'fallback');remove();await window.happyDOM.close();
+});
+
+
+test('stationary online display stays beside the eyebrow and updates without replacing the robot',async()=>{
+  const window=new Window({url:'http://localhost/learn'});for(const name of ['window','document','HTMLElement','navigator'])Object.defineProperty(globalThis,name,{configurable:true,value:name==='window'?window:window[name]});
+  globalThis.IS_REACT_ACT_ENVIRONMENT=true;const {createRoot}=await import('react-dom/client');
+  let modelRenders=0;
+  const Heading=component('components/CourseDiscoveryHeading.tsx',{'next/dynamic':{__esModule:true,default:()=>props=>{modelRenders++;return React.createElement('span',{'data-model-count':props.onlineCount,'data-model-emotion':props.emotion});}}});
+  const container=window.document.createElement('div');window.document.body.append(container);const root=createRoot(container);
+  try{
+    await act(async()=>root.render(React.createElement(Heading,{onlineCount:2})));
+    const robot=container.querySelector('[aria-label="Activate AI companion animation"]');assert.ok(robot);assert.equal(container.querySelector('[data-model-count]'),null);assert.equal(container.querySelector('[role="status"]').parentElement.className,'eyebrowLine');assert.equal(container.querySelector('[role="status"]').textContent,'2 online');
+    const trigger=container.querySelector('[aria-label="Choose robot emotion"]');
+    assert.equal(trigger.getAttribute('aria-expanded'),'false');
+    assert.ok(trigger.closest('.faceControls'),'the antenna control must stay attached to the avatar');
+    assert.equal(trigger.querySelector('svg'),null,'the external gear is removed');
+    assert.equal(container.querySelector('[aria-label="Robot emotion"]'),null);
+    for(const [index,value] of ['normal','angry','surprised'].entries()){
+      await act(async()=>trigger.click());
+      const emotions=[...container.querySelectorAll('[aria-label="Robot emotion"] button')];
+      assert.equal(emotions.length,3);assert.equal(emotions.filter(button=>button.getAttribute('aria-pressed')==='true').length,1);
+      await act(async()=>emotions[index].click());
+      assert.equal(container.querySelector('[data-emotion]').dataset.emotion,value);
+      assert.equal(container.querySelector('[data-model-emotion]').dataset.modelEmotion,value,'the selected face must reach the WebGL model');
+      assert.equal(trigger.getAttribute('aria-expanded'),'false');
+      assert.equal(window.document.activeElement,trigger);
+    }
+    await act(async()=>trigger.click());
+    await act(async()=>window.document.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true})));
+    assert.equal(trigger.getAttribute('aria-expanded'),'false');
+    await act(async()=>trigger.click());
+    await act(async()=>window.document.body.dispatchEvent(new window.PointerEvent('pointerdown',{bubbles:true})));
+    assert.equal(trigger.getAttribute('aria-expanded'),'false');
+    assert.equal(container.querySelector('[title]'),null,'emotion controls must not introduce tooltips');
+    const beforeCountChange=modelRenders;
+    await act(async()=>root.render(React.createElement(Heading,{onlineCount:5})));
+    assert.equal(modelRenders,beforeCountChange,'online count changes must not re-render the 3D model');
+    assert.equal(container.querySelector('[data-model-emotion]').dataset.modelEmotion,'surprised','presence updates must preserve the selected face');
+    assert.equal(container.querySelector('[aria-label="Activate AI companion animation"]'),robot);assert.equal(container.querySelector('[data-model-count]'),null);assert.equal(container.querySelector('[role="status"]').textContent,'5 online');
+    await act(async()=>root.render(React.createElement(Heading,{})));assert.equal(container.querySelector('[role="status"]'),null);
+  }finally{await act(async()=>root.unmount());await window.happyDOM.close();}
+});
+
+
+test('presence broadcasts refresh within one second under a continuous event burst and reconnect refreshes again',async()=>{
+  const window=new Window({url:'http://localhost/learn'});for(const name of ['window','document','HTMLElement','navigator'])Object.defineProperty(globalThis,name,{configurable:true,value:name==='window'?window:window[name]});
+  globalThis.IS_REACT_ACT_ENVIRONMENT=true;const {createRoot}=await import('react-dom/client');const savedFetch=globalThis.fetch,savedNow=Date.now;
+  let clock=10000,nextId=0,broadcast,status;Date.now=()=>clock;const timers=new Map(),intervals=new Map(),requests=[];
+  window.setTimeout=(fn,delay)=>{const id=++nextId;timers.set(id,{fn,at:clock+delay});return id;};window.clearTimeout=id=>timers.delete(id);
+  window.setInterval=(fn,delay)=>{intervals.set(delay,fn);return delay;};window.clearInterval=id=>intervals.delete(id);
+  const channel={on(type,filter,fn){broadcast=fn;return this;},subscribe(fn){status=fn;return this;}};
+  globalThis.fetch=async url=>{if(url.startsWith('/api/presence')){requests.push(clock);return {ok:true,json:async()=>({success:true,counts:{section1:0,section2:0,total:requests.length}})};}return {ok:false};};
+  const Portal=component('components/LessonPortal.tsx',{'next/navigation':{useRouter:()=>({refresh(){}})},'next/dynamic':{__esModule:true,default:()=>()=>null},'next/image':{__esModule:true,default:()=>null},'next/link':{__esModule:true,default:props=>React.createElement('a',{href:props.href},props.children)},'@/lib/auth/types':{APPLIED_AGENTIC_AI_SLUG:'applied-agentic-ai'},'@/lib/supabase/browser':{getSupabaseBrowserClient:()=>({channel:()=>channel,removeChannel(){}})},'@/lib/slideStorage':{}});
+  const mount=window.document.createElement('div'),root=createRoot(mount);
+  async function advance(ms){const end=clock+ms;while(true){const next=[...timers].sort((a,b)=>a[1].at-b[1].at)[0];if(!next||next[1].at>end)break;clock=next[1].at;timers.delete(next[0]);await act(async()=>next[1].fn());}clock=end;}
+  try{
+    await act(async()=>root.render(React.createElement(Portal,{isAdmin:true,courseFolders:[],initialProfile:null})));
+    assert.deepEqual(requests,[10000]);assert.ok(intervals.has(5000));
+    for(let i=0;i<16;i++){await act(async()=>broadcast());await advance(50);}
+    assert.equal(requests.length,2);assert.ok(requests[1]-requests[0]<=1000,'continuous signals cannot postpone the snapshot indefinitely');
+    await advance(1000);await act(async()=>status('SUBSCRIBED'));assert.equal(requests.length,3);
+    Object.defineProperty(window.document,'visibilityState',{configurable:true,value:'hidden'});await advance(1000);await act(async()=>intervals.get(5000)());assert.equal(requests.length,3);
+  }finally{await act(async()=>root.unmount());Date.now=savedNow;globalThis.fetch=savedFetch;await window.happyDOM.close();}
 });
