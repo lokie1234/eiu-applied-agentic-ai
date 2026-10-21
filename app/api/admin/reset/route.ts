@@ -32,8 +32,11 @@ async function resetLearningActivity(supabase: ReturnType<typeof getSupabaseAdmi
   }
   for (const login of logins) {
     const remaining = (login.details.sectionKeys as string[]).filter(key => key !== section);
+    const remainingScopes = Array.isArray(login.details.scopes)
+      ? login.details.scopes.filter(scope => (scope as Record<string, unknown>).section !== section)
+      : undefined;
     const result = remaining.length
-      ? await supabase.from("access_audit_logs").update({ details: { ...login.details, sectionKeys: remaining } }).eq("id", login.id)
+      ? await supabase.from("access_audit_logs").update({ details: { ...login.details, sectionKeys: remaining, ...(remainingScopes ? { scopes: remainingScopes } : {}) } }).eq("id", login.id)
       : await supabase.from("access_audit_logs").delete().eq("id", login.id);
     if (result.error) throw result.error;
   }

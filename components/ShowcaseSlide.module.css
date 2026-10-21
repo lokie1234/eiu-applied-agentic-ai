@@ -30,3 +30,6 @@
 
 /* Section 1 performance pass */
 .live i{animation:none!important}.item{animation-duration:.22s!important}
+.courseScoped ::selection{background:transparent;color:inherit}
+.courseScoped input:focus::placeholder{opacity:0}
+.courseScoped .eyebrow{letter-spacing:.06em;max-width:700px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

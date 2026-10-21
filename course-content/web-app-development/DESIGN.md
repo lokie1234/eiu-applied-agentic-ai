@@ -1,18 +1,36 @@
+## Slide 29 · Nộp bài cho giảng viên · 21/10/2026
+
+Thêm sau slide localhost; Section1 có 29 slide. Dùng ShowcaseSlide từ Applied Agentic AI với phạm vi sectionId, link HTTPS và thông tin học viên lấy từ phiên server. Native viewer hiển thị bảng và form trực tiếp, giữ tải lại/ẩn cục bộ của admin, dữ liệu vẫn xuất Excel. Slide nộp bài là slide cuối của Section 1. Không gọi API từ iframe sandbox.
+
+## Thứ tự Section 1 · cập nhật 21/10/2026
+
+Slide 15: mức quyền AI Agent (chuyển từ vị trí 27). Slide 16–26: các slide cũ 15–25. Slide 27: flow người dùng → AI → thành phẩm. Slide 28: chia sẻ localhost bằng Ports của VS Code. Slide 29: nộp bài cho giảng viên. Section 1 kết thúc ở slide 29. Giữ layoutNumber của các slide được di chuyển; Section 2 không đổi.
+
+## Slide 28 · Chia sẻ localhost và rủi ro Public · 21/10/2026
+
+Ba icon rủi ro động riêng bằng transform: tam giác nghiêng ±5°, nhấc 3px/phóng 6%; database/download và shield/code nghiêng ±4°, nhấc 3px/phóng 8%. Chu kỳ 3.4 giây, lệch pha 0/−1.1/−2.2 giây; badge và chữ đứng yên. Giữ nhịp đỏ cũ, prefers-reduced-motion tắt cả icon và nhịp cảnh báo.
+
+Nút Cách dừng cạnh bullet cuối mở popup ngắn: Ports → chuột phải cổng → Stop Forwarding Port. Hỗ trợ đóng/Escape/backdrop, giữ focus và trả focus về nút. Popup chỉ hướng dẫn, không thay đổi tunnel thật. Icon tam giác 50px/badge72; dữ liệu/API 36px trên badge kem56, viền vàng và nét đỏ để nổi bật trên navy. Nhãn được đối chiếu mã nguồn chính thức Microsoft: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/remote/browser/tunnelView.ts .
+
+Khung rủi ro: icon cảnh báo 44px trong badge 64px, giữ nhịp đỏ 2.8 giây. Hai icon database/download và shield/code 30px trong badge 48px nhấn hai ý Lộ dữ liệu và Lạm dụng API. Phần cuối là ba bullet points HTML ul/li về dữ liệu giả, dữ liệu nhạy cảm và dừng chuyển tiếp. Giữ toàn bộ khung vừa canvas, mỗi bullet một dòng.
+
+Icon và dòng PUBLIC = CÓ RỦI RO chớp đỏ #ff8178 nhẹ: opacity 0.58–1 trong 2.8 giây ease-in-out, không chuyển vị trí/kích thước hay biến mất hoàn toàn. Chỉ animate opacity; tắt khi prefers-reduced-motion, giữ opacity 1.
+
+Hai cột EIU trên canvas 1280×720: ba bước chia sẻ ngắn bên trái (khung kem, icon, lệnh copy), khung rủi ro lớn navy bên phải. Tiêu đề cảnh báo màu coral, icon tam giác và nhãn Public; câu Ai có link đều vào được app là điểm nhấn 28px. Hai rủi ro cụ thể và hai hành động giảm rủi ro nằm trong cùng khung. Bỏ bảng Ports minh họa và nội dung phụ. Chữ lớn, từng câu giữ dòng hoàn chỉnh; không footer, không cuộn. Không thay thứ tự slide hoặc tạo tunnel thật. Nội dung xác minh từ https://code.visualstudio.com/docs/debugtest/port-forwarding . Rủi ro nêu đúng dịch vụ được forward: ai có link Public đều truy cập được, không đồng nghĩa toàn bộ máy hay file bí mật tự công khai. API bị lạm dụng là hệ quả có điều kiện khi app thiếu phân quyền. Giữ source binding, layoutNumber 30 và tổng 31 slide.
+
 ## Quy tắc text sao chép Section 1 · 20/10/2026
 
 Toàn bộ text, lệnh, prompt và ô nhập trong Section 1 không hiện nền xanh khi chọn chữ. Giữ khả năng chọn, sửa và sao chép bình thường. Tắt spellcheck bằng boolean trên khung HTML của slide để ô nhập và popup tạo sau cũng kế thừa; giữ autocorrect/autocapitalize tắt. Dùng CSS vùng chọn trong suốt, không dùng user-select:none. Quy tắc chỉ áp dụng Section 1.
 
-## Slide 27 mới · Mức quyền AI Agent · 20/10/2026
+## Slide 15 · Mức quyền AI Agent · 20/10/2026
 
 Cập nhật layout: icon 58px trong nút 76px có dấu thông tin, bấm mở popup hướng dẫn chọn mode riêng cho từng AI. Popup hỗ trợ nút đóng, nền, Escape, giữ focus bên trong và trả focus về icon. Bỏ chú thích dưới tên và footer. Ba cột cao 550px, tên 26px, mô tả 16px. Full access, Turbo và Bypass phóng nhẹ 1,025 lần, kèm viền vàng sáng lệch nhịp 3,6 giây; reduced motion tắt toàn bộ chuyển động. Popup chỉ hiển thị hướng dẫn, không thay đổi quyền thực tế.
 
-Chèn sau slide 26, các slide sau tăng số hiển thị nhưng giữ layoutNumber; Section 1 hiện có 30 slide. Ba cột Codex, Antigravity và Claude Code dùng nền kem, mỗi mode là một hàng giải thích dễ hiểu về việc AI tự làm và khi nào hỏi người dùng. Full access, Turbo và Bypass được nhấn nền navy–vàng. Giữ vị trí chọn mode, bỏ các link và dòng khả dụng khỏi phần hiển thị. Ba icon nổi nhẹ, xoay và phóng nhẹ lệch nhịp theo vòng 3,6 giây; tắt khi reduced motion. Đây là nội dung giải thích, không đổi quyền thực tế. Font Inter, mô tả 16px, đủ nội dung trên canvas 1280×720, không cần cuộn. Nguồn biên soạn lưu trong ghi chú: https://learn.chatgpt.com/docs/permission-modes ; https://www.antigravity.google/docs/permissions ; https://www.antigravity.google/docs/settings ; https://code.claude.com/docs/en/permission-modes .
+Chuyển ngay sau slide 14, thành slide 15; giữ layoutNumber 29 để không đổi thiết kế. Section 1 hiện có 31 slide sau khi thêm hướng dẫn chia sẻ localhost ở vị trí 27. Ba cột Codex, Antigravity và Claude Code dùng nền kem, mỗi mode là một hàng giải thích dễ hiểu về việc AI tự làm và khi nào hỏi người dùng. Full access, Turbo và Bypass được nhấn nền navy–vàng. Giữ vị trí chọn mode, bỏ các link và dòng khả dụng khỏi phần hiển thị. Ba icon nổi nhẹ, xoay và phóng nhẹ lệch nhịp theo vòng 3,6 giây; tắt khi reduced motion. Đây là nội dung giải thích, không đổi quyền thực tế. Font Inter, mô tả 16px, đủ nội dung trên canvas 1280×720, không cần cuộn. Nguồn biên soạn lưu trong ghi chú: https://learn.chatgpt.com/docs/permission-modes ; https://www.antigravity.google/docs/permissions ; https://www.antigravity.google/docs/settings ; https://code.claude.com/docs/en/permission-modes .
 
-## Slide 26 mới · AI Agent xử lý hai chiều · 20/10/2026
+## Slide 27 ?· Flow từ yêu cầu đến thành phẩm · 21/10/2026
 
-Rút gọn nội dung: tiêu đề “Bạn ra yêu cầu · AI lo cả luồng”, thông điệp nhấn AI làm trong quyền đã cấp và người dùng kiểm tra, quyết định đi tiếp hoặc sửa. Mỗi chặng sơ đồ chỉ giữ cụm từ chính (sửa code, test/build, diff/commit, push; pull/clone, cài thư viện/chạy app, chỉnh tiếp). Prompt rút còn bốn dòng; hướng dẫn Clone giữ bốn ý ngắn và nhắc Git: Pull. Giữ bố cục, animation và chức năng chỉnh/copy prompt.
-
-Chèn ngay sau slide 25, tăng số hiển thị các slide sau nhưng giữ layoutNumber cũ; Section 1 có 29 slide. Sơ đồ hai hàng VS Code → Node.js → Git → GitHub và chiều ngược lại, gồm đọc/sửa code, test/build, diff/commit/push, pull/clone, cài thư viện và chạy lại app. Tám chặng sáng tuần tự theo đúng chiều trong vòng 8 giây; mũi tên dịch nhẹ, chỉ animate opacity/transform, dừng theo reduced motion. Phía dưới có prompt sửa toàn bộ/copy và bốn bước Clone trong VS Code qua Ctrl+Shift+P → Git: Clone → Clone from GitHub → chọn repo → thư mục cha → Open. Phân biệt Git: Pull cho repo local đã có. Nêu AI làm trong quyền đã cấp, người dùng xem kết quả; không ngụ ý bỏ qua xác thực hay quyền GitHub. Font Inter, EIU kem–navy–vàng, nội dung mặc định hiển thị đầy đủ, không gạch đỏ hoặc nền xanh vùng chọn. Nguồn hướng dẫn: https://code.visualstudio.com/docs/sourcecontrol/repos-remotes và https://code.visualstudio.com/docs/sourcecontrol/github .
+Một flow ngang: người dùng (icon users) → khối AI → sản phẩm hoàn chỉnh (minh họa trình duyệt có dấu kiểm). Khối AI navy có ba hàng kem tổng hợp slide 21–25: kiểm tra/sửa lỗi, lưu lên GitHub, nhận mã/chạy app. Mũi tên nối rõ chiều, chuyển động nhẹ opacity/transform và reduced motion. Cụm nội dung ngắn không xuống dòng vụn; tiêu đề sản phẩm chủ đích chia hai dòng. Không thêm footer, không prompt input hay nút copy; giữ EIU kem–navy–vàng và canvas 1280×720. Khối người dùng giữ ví dụ “Commit rồi push” để tránh ngụ ý git push tự tạo commit. Đầu ra là app đã kiểm tra và mã nguồn trên GitHub, không ngụ ý đã deploy công khai. Agent cần công cụ và quyền phù hợp; người dùng nghiệm thu kết quả. Nguồn kiểm chứng Git giữ trong note của storyboard.
 
 ## Slide 25 Section 1 · 20/10/2026
 
@@ -60,21 +78,9 @@ Slide 6: tiêu đề “AI nào được tích hợp để làm việc trong VS 
 
 Slide 11 mới giới thiệu Claude sau Antigravity (9) và Codex (10), dùng chung logic và lưới aiBrandSlide: logo float, ba khung ưu điểm trái, ba họ model phải. Nền kem ấm, terracotta, mỗi ý một dòng; giữ Inter và reduced motion. Các slide sau tăng một số, giữ layoutNumber cũ để popup và thao tác không đổi. TSX, storyboard và renderer đồng bộ; binding và output tracing giữ nguyên.
 
-## Gộp phần Effective Vibe Coding
-
-Tối ưu hiệu năng: giữ nguyên nội dung 25 slide, bố cục và animation icon/bánh răng. Font Inter nhúng WOFF2 dùng chung cho cả slide AI/Lab, giữ đủ glyph và trục variable. Logo tối đa 256px, ảnh workspace giữ nguyên. CSS gắn theo layout; bỏ route quiz và CSS chức năng skill cũ. Nền popup không dùng backdrop blur; animation tên model chỉ dùng transform, không thay đổi blur/color/text-shadow theo từng frame. Các yêu cầu hiệu ứng lịch sử bên dưới được áp dụng trong giới hạn này.
-
-Slide 25: mỗi repo có nút Cách cài đặt bên cạnh link GitHub. Popup riêng, nền kem, nêu môi trường/điều kiện, ba bước, nút copy cho lệnh, link tài liệu chính thức và link ứng dụng phù hợp. Penpot dùng Docker/PowerShell; Excalidraw cài thư viện trong React; shadcn/ui minh họa Next.js có Tailwind/alias; n8n dùng bộ cài Docker mới trong WSL (không dán vào PowerShell). Không chạy lệnh thật. Giữ icon float, hiệu ứng nút, Escape/backdrop/Tab trap và trả focus.
-
-Slide 25 thay phần tự kiểm tra bằng repo nổi bật cho thiết kế và tự động hóa: Penpot, Excalidraw, shadcn/ui, n8n. Bốn khung kem 2×2, nhãn lĩnh vực, hai bullet chức năng và link repo chính thức. Logo lấy từ tài khoản GitHub chính thức, nhúng PNG trong TSX và ghi nguồn tại repo-icons/sources.json. Từng icon lơ lửng nhẹ 6.5–8s lệch pha, chỉ animate transform; chữ và khung đứng yên. Giữ hiệu ứng link/nút từ slide 22 và reduced motion. Không đưa số sao hay nhận định trending thời gian thực lên slide.
-
 Slide 24 tối ưu nội dung: mô tả cách áp dụng không lặp ưu điểm; AI tự chọn dùng một đường dẫn chung cho hai công cụ. Popup project nói rõ bộ cài đã thêm AGENTS.md, mẫu rule chỉ dùng khi cài thủ công. Rút rule, không nhắc lại chức năng slide giới thiệu. Popup cài đặt dùng một luồng Terminal, bỏ tải ZIP trùng lựa chọn; mẫu gọi tên là tùy chọn khi cần. Giữ so sánh ba cách, đường dẫn global, copy và hiệu ứng nút.
 
 Slide 23 mới: bỏ dải “Kết quả cụ thể, dễ kiểm chứng”. Bố cục hai cột: bên trái khối thương hiệu navy, logo GitHub trên kem, tên Effective / Vibe Coding lớn cùng bánh răng và cờ lê tự chuyển động; bên phải ba khung kem với sáu bullet thể hiện chức năng. Animation CSS nhẹ, chỉ xoay bánh răng/cờ lê và quét sáng dưới tên, không tương tác hoặc hàm ý có tác vụ AI chạy nền. Reduced motion dừng animation. Giữ nền full frame, font Inter và màu EIU.
-
-Slide 23 giới thiệu ngắn: câu dẫn, ba nhóm chức năng (UI đồng bộ; kiểm tra/dọn code; hiệu năng/báo cáo) và quy trình kết quả. Hướng dẫn cài, repo/ZIP và mẫu gọi skill chuyển sang popup Cài đặt & sử dụng ở slide 24. Slide 24 giữ nguyên ba hàng so sánh nền kem cùng các popup Cách bật, thêm nút cài đặt phía trên; giữ copy, focus, Escape/backdrop và hiệu ứng nút. Bỏ slide chức năng riêng cũ; phần tự kiểm tra nay là slide 25. Quy tắc này thay thế các mô tả lịch sử về ba slide 23–25 dưới đây.
-
-Slide 24: rà soát nội dung theo tài liệu chính thức. Phân biệt cơ chế AI tự chọn với phạm vi hướng dẫn project/global; không ngụ ý ba chế độ loại trừ nhau hoặc bảo đảm skill luôn được gọi. Popup hướng dẫn trực tiếp, bỏ câu nhắc slide khác và câu xem lại/kiểm tra hướng dẫn. Giữ ba khung kem và hiệu ứng nút đã duyệt.
 
 Slide 23 trở đi: hiệu ứng nút đồng bộ slide 22. Nút liên kết, Cách bật, Đóng và tự kiểm tra nhấc 5px với viền/bóng vàng khi hover hoặc focus, nhấn xuống 2px. Nút copy dùng nguyên hiệu ứng copy chung của slide 22, giữ loading và xác nhận thành công. Không tooltip; reduced motion tắt chuyển động. Quy tắc này thay thế yêu cầu hover chỉ sáng trước đây.
 
@@ -87,12 +93,6 @@ Slide 20: khung Nối địa chỉ repo có ô dán URL GitHub HTTPS, preview l�
 ## Full frame · áp dụng cho toàn bộ Section 1
 
 Theo ảnh người dùng xác nhận: bỏ viền bao vàng–navy phía trong mép slide. Không dùng inset box-shadow làm khung ngoài ở gitIntroSlide hoặc shortcutSlide; nền phủ hết canvas 1280×720. Giữ khoảng cách nội dung, khung bài học, popup và nút. Quy tắc này thay thế các ghi chú lịch sử yêu cầu viền ngoài EIU bên dưới; không thêm một khung trang trí quanh toàn slide.
-
-Slide 23 sau slide 22 Pull/Clone — “Effective Vibe Coding · cài một lần, dùng mỗi ngày”: dải repo GitHub và tải ZIP, hai lệnh Terminal có copy, hai ô gọi skill trong Codex/Antigravity cũng có copy. Theo chỉnh sửa mới: nút chỉ sáng lên bằng viền/bóng vàng và brightness khi hover/focus, không dịch chuyển, không tooltip hoặc title native. Bỏ câu dẫn phụ, chú thích cạnh lệnh và dòng phiên bản/công cụ; giữ hướng dẫn mở Terminal đúng project và tạo phiên AI mới. Clone skill sang folder bên cạnh rồi chạy installer với --target .; yêu cầu kỹ thuật giữ trong note nguồn. Giữ Inter nhúng và EIU kem–navy–vàng.
-
-Slide 24 — “Tự áp dụng skill · chọn cách nào?”: thiết kế ba hàng ngang, số lớn bên trái, tên/cách áp dụng, hai cột ưu điểm/điểm cân nhắc và nút Cách bật bên phải. Hàng giữa navy–vàng, hai hàng bên kem, font và căn hàng đồng nhất. Bỏ câu dẫn, dải khuyến nghị trong ảnh và chú thích cuối popup. Tất cả nút chỉ sáng khi hover/focus, không tooltip. Popup giữ đường dẫn Codex/Antigravity IDE, mẫu rule có copy, đóng bằng nút/Escape/backdrop và giữ/trả focus. Nguồn và ghi chú giảng viên giữ trong dữ liệu.
-
-Slide 25 giới thiệu sáu chức năng: font, layout, kiểm tra/sửa lỗi, giảm lag, dọn code dư và báo kết quả. Sáu khung kem 3×2, số navy–vàng, dải navy nêu cấu trúc báo cáo cụ thể. Không tab/popup; không ngụ ý skill chạy nền hay bảo đảm tự hết lỗi. Bài tự kiểm tra chuyển sang slide 26, layoutNumber 22 giữ nguyên.
 
 Slide 16 hiện tại — “Vibe coding · nói điều bạn muốn đổi”: bỏ dải chú thích cuối slide. Giữ ba bước hướng dẫn, prompt mẫu và nút sao chép; phần ghi chú giảng viên vẫn lưu trong dữ liệu nguồn.
 

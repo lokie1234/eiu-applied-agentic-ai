@@ -87,7 +87,7 @@ test("reset all clears learner audit sources so a newly exported workbook has no
   assert.deepEqual(f.tables.access_audit_logs.map(row => row.action), ["PASSCODE_LOGIN_FAILED", "ADMIN_ACTION"]);
   assert.ok(f.tables.section_state.every(row => row.termination_token && row.quiz_open === false));
   const ExcelJS = require("exceljs");
-  const report = load("app/api/admin/report/route.ts", { ...f.dependencies, exceljs: { default: ExcelJS }, "@/lib/reportLearners": load("lib/reportLearners.ts", {}) });
+  const report = load("app/api/admin/report/route.ts", { ...f.dependencies, exceljs: { default: ExcelJS }, "@/lib/reportLearners": load("lib/reportLearners.ts", {}), "@/lib/reportScopes": load("lib/reportScopes.ts", {}) });
   const response = await report.GET({ url: "http://localhost/api/admin/report?section=all" });
   assert.equal(response.status, 200);
   const workbook = new ExcelJS.Workbook(); await workbook.xlsx.load(Buffer.from(await response.arrayBuffer()));
@@ -124,4 +124,14 @@ test("an audit cleanup failure cannot report a successful reset", async () => {
   const result = await f.post("Lovekjng123@@");
   assert.equal(result.status, 500); assert.equal(result.data.success, false);
   assert.equal(f.tables.section_state[0].termination_token, undefined);
+});
+
+test("reset removes matching modern login scopes so exported learners cannot reappear", async () => {
+  const f = fixture();
+  f.tables.access_audit_logs.push({ id: 9999, action: "PASSCODE_LOGIN", details: { sessionId: "modern", name: "Modern", email: "modern@example.test", sectionKeys: ["section1", "section2"], scopes: [{ courseId: "c", sectionId: "s1", section: "section1" }, { courseId: "c", sectionId: "s2", section: "section2" }] } });
+  assert.equal((await f.post("Lovekjng123@@", "section1")).status, 200);
+  const login = f.tables.access_audit_logs.find(row => row.id === 9999);
+  assert.deepEqual(login.details.scopes.map(scope => scope.sectionId), ["s2"]);
+  const { collectReportLearners } = load("lib/reportLearners.ts", {});
+  assert.deepEqual(Array.from(collectReportLearners([], [login], []), row => row.section), ["section2"]);
 });

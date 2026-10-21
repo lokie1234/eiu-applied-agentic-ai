@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 function load(path, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, { exports, require: name => dependencies[name] ?? (name === "@/lib/learningIdentity" ? load("lib/learningIdentity.ts") : name === "@/lib/reportLearners" ? load("lib/reportLearners.ts") : require(name)), Buffer, console, Date, process, URL, Response });
+  vm.runInNewContext(code, { exports, require: name => dependencies[name] ?? (name === "@/lib/learningIdentity" ? load("lib/learningIdentity.ts") : name === "@/lib/reportLearners" ? load("lib/reportLearners.ts") : name === "@/lib/reportScopes" ? load("lib/reportScopes.ts") : require(name)), Buffer, console, Date, process, URL, Response });
   return exports;
 }
 const response = { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200, cookies: { set(name, value) { this.value = value; } } }) } };

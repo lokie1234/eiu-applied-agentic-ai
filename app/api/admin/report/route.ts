@@ -2,6 +2,7 @@ import ExcelJS from "exceljs";
 import { currentRole } from "@/lib/currentRole";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { collectReportLearners } from "@/lib/reportLearners";
+import { reportScope, reportScopeKey, scopedReportActivity } from "@/lib/reportScopes";
 
 export const runtime = "nodejs";
 
@@ -96,6 +97,7 @@ function addSheet(
     views: [{ state: "frozen", ySplit: 1 }],
     properties: { defaultRowHeight: 20 },
   });
+  columns = [...columns, { header: "Course", key: "course", width: 38 }, { header: "Section", key: "sectionTitle", width: 40 }];
   sheet.columns = columns;
   sheet.addRows(rows);
   styleHeader(sheet.getRow(1));
@@ -140,215 +142,101 @@ function collectSections(groups: Row[][], configuredSections: unknown[]) {
   );
 }
 
-function rowsInSection(rows: Row[], section: string) {
-  return rows.filter((row) => sectionKey(row.section) === section);
+function scopeValues(row: Row) {
+  return { course: String(row.courseTitle || ""), sectionTitle: String(row.sectionTitle || row.section || "") };
 }
 
 export async function GET(request: Request) {
   try {
-    if ((await currentRole()) !== "admin") {
-      return Response.json(
-        { success: false, message: "Chỉ admin mới có quyền xuất report." },
-        { status: 403 },
-      );
-    }
-
+    if ((await currentRole()) !== "admin") return Response.json({ success: false, message: "Chỉ admin mới có quyền xuất report." }, { status: 403 });
     const { searchParams } = new URL(request.url);
     const mode = searchParams.get("mode")?.trim().toLowerCase() || "report";
     const requestedSection = sectionKey(searchParams.get("section")) || "all";
-
+    const requestedCourse = searchParams.get("courseId")?.trim() || "all";
+    const requestedSectionId = searchParams.get("sectionId")?.trim() || "all";
+    const [courses, courseSections] = await Promise.all([fetchAll("courses", "created_at"), fetchAll("course_sections", "position")]);
+    const configuredScopes = courseSections.length ? courseSections.map(section => reportScope({ sectionId: section.id, courseId: section.course_id, section: section.section_key }, courses, courseSections))
+      : DEFAULT_SECTIONS.map(section => reportScope({ section }, courses, courseSections));
     if (mode === "sections") {
       const sectionStates = await fetchAll("section_state", "updated_at");
-      const sections = collectSections([], sectionStates.map((row) => row.section));
-      return Response.json({
-        success: true,
-        sections: sections.map((section) => ({ value: section, label: sectionLabel(section) })),
+      const sections = collectSections([], sectionStates.map(row => row.section));
+      return Response.json({ success: true, sections: sections.map(section => ({ value: section, label: sectionLabel(section) })),
+        courses: [...new Map(configuredScopes.map(scope => [String(scope.courseId), { value: String(scope.courseId), label: String(scope.courseTitle) }])).values()],
+        courseSections: configuredScopes.map(scope => ({ value: scope.sectionId, label: scope.sectionTitle, courseId: scope.courseId, courseTitle: scope.courseTitle })),
       }, { headers: { "Cache-Control": "no-store, max-age=0" } });
     }
-
     const dateParam = searchParams.get("date")?.trim() || "";
     const tzOffsetMinutes = Number(searchParams.get("tzOffset") ?? -420);
-    const dateBounds =
-      dateParam && dateParam !== "all"
-        ? getDateBounds(dateParam, Number.isFinite(tzOffsetMinutes) ? tzOffsetMinutes : -420)
-        : null;
-
-    const [legacyLearners, ideas, showcase, quiz, feedback, sectionStates, activity] = await Promise.all([
-      fetchAll(
-        "learner_profiles",
-        "updated_at",
-        dateBounds ? { column: "updated_at", startIso: dateBounds.startIso, endIso: dateBounds.endIso } : null,
-      ),
-      fetchAll(
-        "ideas",
-        "submitted_at",
-        dateBounds ? { column: "submitted_at", startIso: dateBounds.startIso, endIso: dateBounds.endIso } : null,
-      ),
-      fetchAll(
-        "showcase_items",
-        "shared_at",
-        dateBounds ? { column: "shared_at", startIso: dateBounds.startIso, endIso: dateBounds.endIso } : null,
-      ),
-      fetchAll(
-        "quiz_results",
-        "completed_at",
-        dateBounds ? { column: "completed_at", startIso: dateBounds.startIso, endIso: dateBounds.endIso } : null,
-      ),
-      fetchAll(
-        "feedback",
-        "submitted_at",
-        dateBounds ? { column: "submitted_at", startIso: dateBounds.startIso, endIso: dateBounds.endIso } : null,
-      ),
-      fetchAll("section_state", "updated_at"),
-      fetchAll("access_audit_logs", "created_at", dateBounds ? { column: "created_at", startIso: dateBounds.startIso, endIso: dateBounds.endIso } : null),
+    const dateBounds = dateParam && dateParam !== "all" ? getDateBounds(dateParam, Number.isFinite(tzOffsetMinutes) ? tzOffsetMinutes : -420) : null;
+    const timed = (column: string) => dateBounds ? { column, startIso: dateBounds.startIso, endIso: dateBounds.endIso } : null;
+    const [legacyRows, ideaRows, showcaseRows, quizRows, feedbackRows, sectionStates, rawActivity] = await Promise.all([
+      fetchAll("learner_profiles", "updated_at", timed("updated_at")), fetchAll("ideas", "submitted_at", timed("submitted_at")),
+      fetchAll("showcase_items", "shared_at", timed("shared_at")), fetchAll("quiz_results", "completed_at", timed("completed_at")),
+      fetchAll("feedback", "submitted_at", timed("submitted_at")), fetchAll("section_state", "updated_at"), fetchAll("access_audit_logs", "created_at", timed("created_at")),
     ]);
-
-    const learners = collectReportLearners(legacyLearners, activity, [...ideas, ...showcase, ...quiz, ...feedback]);
-    const availableSections = collectSections(
-      [learners, ideas, showcase, quiz, feedback],
-      sectionStates.map((row) => row.section),
-    );
-    if (requestedSection !== "all" && !availableSections.includes(requestedSection)) {
-      return Response.json(
-        { success: false, message: "Section được chọn không tồn tại." },
-        { status: 400 },
-      );
+    const normalize = (rows: Row[]) => rows.map(row => reportScope(row, courses, courseSections));
+    const activity = scopedReportActivity(rawActivity, courses, courseSections);
+    const ideas = normalize(ideaRows), quiz = normalize(quizRows), feedback = normalize(feedbackRows);
+    const submissions: Row[] = activity.filter(row => row.action === "SHOWCASE_SUBMITTED" && (row.details as Row).submissionStorage === "audit")
+      .map(row => ({ ...(row.details as Row), id: row.id, shared_at: row.created_at }));
+    const showcase = [...normalize(showcaseRows), ...submissions];
+    const learners = collectReportLearners(normalize(legacyRows), activity, [...ideas, ...showcase, ...quiz, ...feedback]);
+    const scopeMap = new Map<string, Row>();
+    for (const scope of [...configuredScopes, ...sectionStates.map(row => reportScope(row, courses, courseSections)), ...learners, ...ideas, ...showcase, ...quiz, ...feedback]) {
+      if (scope.section) scopeMap.set(reportScopeKey(scope), scope);
     }
-
-    const sections = requestedSection === "all" ? availableSections : [requestedSection];
-    const scopeRows = (rows: Row[]) =>
-      requestedSection === "all" ? rows : rowsInSection(rows, requestedSection);
-    const scopedLearners = scopeRows(learners);
-    const scopedIdeas = scopeRows(ideas);
-    const scopedShowcase = scopeRows(showcase);
-    const scopedQuiz = scopeRows(quiz);
-    const scopedFeedback = scopeRows(feedback);
-    const dataGroups = [
-      { label: "Học viên", rows: scopedLearners },
-      { label: "Ý tưởng", rows: scopedIdeas },
-      { label: "Bài làm chia sẻ", rows: scopedShowcase },
-      { label: "Quiz", rows: scopedQuiz },
-      { label: "Feedback", rows: scopedFeedback },
-    ];
-    const generatedAt = new Date().toISOString();
-    const workbook = new ExcelJS.Workbook();
-    workbook.creator = "EIU Applied Agentic AI";
-    workbook.created = new Date();
-    workbook.modified = new Date();
-    workbook.title = "EIU Applied Agentic AI - Interactive Report";
-
-    const summary = workbook.addWorksheet("Tong quan", {
-      views: [{ state: "frozen", ySplit: 5 }],
+    const availableScopes = [...scopeMap.values()].sort((a,b) => String(a.courseTitle).localeCompare(String(b.courseTitle)) || String(a.section).localeCompare(String(b.section), undefined, { numeric: true }));
+    if (requestedCourse !== "all" && !availableScopes.some(scope => scope.courseId === requestedCourse)
+      || requestedSectionId !== "all" && !availableScopes.some(scope => scope.sectionId === requestedSectionId && (requestedCourse === "all" || scope.courseId === requestedCourse))
+      || requestedSection !== "all" && !availableScopes.some(scope => sectionKey(scope.section) === requestedSection)) {
+      return Response.json({ success: false, message: "Course hoặc Section được chọn không tồn tại." }, { status: 400 });
+    }
+    const selected = (row: Row) => (requestedCourse === "all" || row.courseId === requestedCourse) && (requestedSectionId === "all" || row.sectionId === requestedSectionId) && (requestedSection === "all" || sectionKey(row.section) === requestedSection);
+    const sections = availableScopes.filter(selected);
+    const scopedLearners = learners.filter(selected), scopedIdeas = ideas.filter(selected), scopedShowcase = showcase.filter(selected), scopedQuiz = quiz.filter(selected), scopedFeedback = feedback.filter(selected);
+    const inScope = (rows: Row[], scope: Row) => rows.filter(row => reportScopeKey(row) === reportScopeKey(scope));
+    const dataGroups = [{ label: "Học viên", rows: scopedLearners }, { label: "Ý tưởng", rows: scopedIdeas }, { label: "Bài làm chia sẻ", rows: scopedShowcase }, { label: "Quiz", rows: scopedQuiz }, { label: "Feedback", rows: scopedFeedback }];
+    const workbook = new ExcelJS.Workbook();workbook.creator = "EIU Learning";workbook.created = new Date();workbook.modified = new Date();workbook.title = "EIU - Course and Section Report";
+    const summary = workbook.addWorksheet("Tong quan", { views: [{ state: "frozen", ySplit: 5 }] });
+    summary.columns = [{ key: "label", width: 34 }, ...sections.map((_,i)=>({ key: `section${i+1}`, width: 36 })), { key: "total", width: 14 }];
+    summary.mergeCells(1,1,1,sections.length+2);summary.getCell("A1").value = "EIU - COURSE & SECTION REPORT";
+    summary.getCell("A1").font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };summary.getCell("A1").fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF082945" } };summary.getCell("A1").alignment = { vertical: "middle", horizontal: "center" };summary.getRow(1).height=32;
+    summary.addRow(["Phạm vi báo cáo", dateBounds ? `Ngày ${dateBounds.dateStr.split("-").reverse().join("/")} (Giờ VN - UTC+7)` : "Tất cả thời gian"]);
+    summary.addRow(["Xuất lúc (GMT+7)", iso(new Date().toISOString())]);summary.addRow([]);
+    summary.addRow(["Loại dữ liệu", ...sections.map(scope=>`${scope.courseTitle} · ${scope.sectionTitle}`), "Tổng"]);styleHeader(summary.getRow(5));summary.getRow(5).height=48;summary.getRow(5).alignment={wrapText:true,vertical:"middle"};
+    dataGroups.forEach(({label,rows})=>summary.addRow([label,...sections.map(scope=>inScope(rows,scope).length),rows.length]));
+    const courseIds=[...new Set(sections.map(scope=>String(scope.courseId)))];
+    const usedPrefixes = new Set<string>();
+    sections.forEach((scope,index)=>{
+      const prefix = `${courseIds.length>1 ? 'C'+(courseIds.indexOf(String(scope.courseId))+1)+' ' : ''}${sectionSheetPrefix(String(scope.section))}`;
+      let sheetPrefix = prefix;
+      for (let suffix = index + 1; usedPrefixes.has(sheetPrefix); suffix++) sheetPrefix = prefix + '-' + suffix;
+      usedPrefixes.add(sheetPrefix);
+      const sectionLearners=inScope(scopedLearners,scope);
+      addSheet(workbook,`${sheetPrefix} - Hoc vien`,[
+        {header:"Họ tên",key:"name",width:30},{header:"Email",key:"email",width:36},
+        ...(sectionLearners.some(row=>reportInformation(row))?[{header:"Learner information",key:"information",width:60}]:[]),
+        {header:"Tạo lúc (GMT+7)",key:"createdAt",width:26},{header:"Cập nhật lúc (GMT+7)",key:"updatedAt",width:26},
+      ],sectionLearners.map(row=>({...scopeValues(row),name:String(row.name??""),email:String(row.email??""),information:reportInformation(row),createdAt:iso(row.created_at),updatedAt:iso(row.updated_at)})));
+      addSheet(workbook,`${sheetPrefix} - Y tuong`,[{header:"Họ tên",key:"name",width:28},{header:"Ý tưởng",key:"idea",width:80},{header:"Gửi lúc (GMT+7)",key:"submittedAt",width:26}],inScope(scopedIdeas,scope).map(row=>({...scopeValues(row),name:String(row.name??""),idea:String(row.idea??""),submittedAt:iso(row.submitted_at)})));
+      addSheet(workbook,`${sheetPrefix} - Bai lam`,[{header:"Họ tên",key:"name",width:28},{header:"URL",key:"url",width:70},{header:"Chia sẻ lúc (GMT+7)",key:"sharedAt",width:26}],inScope(scopedShowcase,scope).map(row=>({...scopeValues(row),name:String(row.name??""),url:String(row.url??""),sharedAt:iso(row.shared_at)})));
+      addSheet(workbook,`${sheetPrefix} - Quiz`,[{header:"Họ tên",key:"name",width:28},{header:"Điểm",key:"score",width:10},{header:"Tổng điểm",key:"total",width:12},{header:"Hoàn thành lúc (GMT+7)",key:"completedAt",width:26}],inScope(scopedQuiz,scope).map(row=>({...scopeValues(row),name:String(row.name??""),score:Number(row.score??0),total:Number(row.total??0),completedAt:iso(row.completed_at)})));
+      addSheet(workbook,`${sheetPrefix} - Feedback`,[{header:"Họ tên",key:"name",width:28},{header:"Nội dung phản hồi",key:"feedback",width:80},{header:"Gửi lúc (GMT+7)",key:"submittedAt",width:26}],inScope(scopedFeedback,scope).map(row=>({...scopeValues(row),name:String(row.name??""),feedback:String(row.feedback??""),submittedAt:iso(row.submitted_at)})));
     });
-    summary.columns = [
-      { key: "label", width: 34 },
-      ...sections.map((_, index) => ({ key: `section${index + 1}`, width: 18 })),
-      { key: "total", width: 14 },
-    ];
-    summary.mergeCells(1, 1, 1, sections.length + 2);
-    summary.getCell("A1").value = "EIU APPLIED AGENTIC AI - INTERACTIVE REPORT";
-    summary.getCell("A1").font = { bold: true, size: 16, color: { argb: "FFFFFFFF" } };
-    summary.getCell("A1").fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF082945" } };
-    summary.getCell("A1").alignment = { vertical: "middle", horizontal: "center" };
-    summary.getRow(1).height = 32;
-
-    const filterLabel = dateBounds
-      ? `Ngày ${dateBounds.dateStr.split("-").reverse().join("/")} (Giờ VN - UTC+7)`
-      : "Tất cả thời gian";
-    summary.addRow(["Phạm vi báo cáo", filterLabel]);
-    summary.addRow(["Xuất lúc (GMT+7)", generatedAt]);
-    summary.addRow([]);
-    summary.addRow(["Loại dữ liệu", ...sections.map(sectionLabel), "Tổng"]);
-    styleHeader(summary.getRow(5));
-    dataGroups.forEach(({ label, rows }) => {
-      summary.addRow([
-        label,
-        ...sections.map((section) => rowsInSection(rows, section).length),
-        rows.length,
-      ]);
+    const activityRows: Row[] = activity.filter(row=>["PASSCODE_LOGIN","IDEA_SUBMITTED","SHOWCASE_SUBMITTED","QUIZ_COMPLETED","FEEDBACK_SUBMITTED"].includes(String(row.action))).flatMap(row=>{
+      const details=(row.details||{}) as Row;
+      if(details.accessMode==="facilitator")return [];
+      return (row.action==="PASSCODE_LOGIN"?(details.scopes||[]) as Row[]:[details]).filter(selected).map(scope=>({...row,details:{...details,...scope}}));
     });
-
-    sections.forEach((section) => {
-      const prefix = sectionSheetPrefix(section);
-      const sectionLearners = rowsInSection(scopedLearners, section);
-      const sectionIdeas = rowsInSection(scopedIdeas, section);
-      const sectionShowcase = rowsInSection(scopedShowcase, section);
-      const sectionQuiz = rowsInSection(scopedQuiz, section);
-      const sectionFeedback = rowsInSection(scopedFeedback, section);
-
-      addSheet(workbook, `${prefix} - Hoc vien`, [
-        { header: "Họ tên", key: "name", width: 30 },
-        { header: "Email", key: "email", width: 36 },
-        ...(sectionLearners.some(row => reportInformation(row)) ? [{ header: "Learner information", key: "information", width: 60 }] : []),
-        { header: "Tạo lúc (GMT+7)", key: "createdAt", width: 26 },
-        { header: "Cập nhật lúc (GMT+7)", key: "updatedAt", width: 26 },
-      ], sectionLearners.map((row) => ({
-        sessionId: String(row.sessionId || ""),
-        information: reportInformation(row),
-        name: String(row.name ?? ""), email: String(row.email ?? ""), createdAt: iso(row.created_at), updatedAt: iso(row.updated_at),
-      })));
-
-      addSheet(workbook, `${prefix} - Y tuong`, [
-        { header: "Họ tên", key: "name", width: 28 },
-        { header: "Ý tưởng", key: "idea", width: 80 },
-        { header: "Gửi lúc (GMT+7)", key: "submittedAt", width: 26 },
-      ], sectionIdeas.map((row) => ({
-        name: String(row.name ?? ""), email: String(row.email ?? ""), idea: String(row.idea ?? ""), submittedAt: iso(row.submitted_at),
-      })));
-
-      addSheet(workbook, `${prefix} - Bai lam`, [
-        { header: "Họ tên", key: "name", width: 28 },
-        { header: "URL", key: "url", width: 70 },
-        { header: "Chia sẻ lúc (GMT+7)", key: "sharedAt", width: 26 },
-      ], sectionShowcase.map((row) => ({
-        name: String(row.name ?? ""), email: String(row.email ?? ""), url: String(row.url ?? ""), sharedAt: iso(row.shared_at),
-      })));
-
-      addSheet(workbook, `${prefix} - Quiz`, [
-        { header: "Họ tên", key: "name", width: 28 },
-        { header: "Điểm", key: "score", width: 10 },
-        { header: "Tổng điểm", key: "total", width: 12 },
-        { header: "Hoàn thành lúc (GMT+7)", key: "completedAt", width: 26 },
-      ], sectionQuiz.map((row) => ({
-        name: String(row.name ?? ""), email: String(row.email ?? ""), score: Number(row.score ?? 0), total: Number(row.total ?? 0), completedAt: iso(row.completed_at),
-      })));
-
-      addSheet(workbook, `${prefix} - Feedback`, [
-        { header: "Họ tên", key: "name", width: 28 },
-        { header: "Nội dung phản hồi", key: "feedback", width: 80 },
-        { header: "Gửi lúc (GMT+7)", key: "submittedAt", width: 26 },
-      ], sectionFeedback.map((row) => ({
-        name: String(row.name ?? ""), email: String(row.email ?? ""), feedback: String(row.feedback ?? ""), submittedAt: iso(row.submitted_at),
-      })));
-    });
-
-    const activityRows = activity.filter(row => ["PASSCODE_LOGIN", "IDEA_SUBMITTED", "SHOWCASE_SUBMITTED", "QUIZ_COMPLETED", "FEEDBACK_SUBMITTED"].includes(String(row.action))).filter(row => requestedSection === "all" || (row.details as Row)?.section === requestedSection);
-    addSheet(workbook, "Learner activity", [
-      { header: "Name", key: "name", width: 28 },
-      { header: "Action", key: "action", width: 26 },
-      { header: "Section", key: "section", width: 16 },
-      ...(activityRows.some(row => reportInformation((row.details || {}) as Row, true)) ? [{ header: "Learner information", key: "information", width: 60 }] : []),
-      { header: "Time (GMT+7)", key: "createdAt", width: 26 },
-    ], activityRows.map(row => {
-      const details = (row.details || {}) as Row;
-      const information = reportInformation(details, true);
-      return { sessionId: String(details.sessionId || ""), name: String(details.name || ""), email: String(details.email || ""), action: String(row.action), section: String(details.section || ""), recordId: String(details.recordId || ""), information, createdAt: iso(row.created_at) };
-    }));
-    const output = await workbook.xlsx.writeBuffer();
-    const dateSuffix = dateBounds ? dateBounds.dateStr : "all-time";
-    const sectionSuffix = requestedSection === "all" ? "all-sections" : requestedSection;
-    return new Response(new Uint8Array(output), {
-      headers: {
-        "Cache-Control": "no-store, max-age=0",
-        "Content-Disposition": `attachment; filename="eiu-interactive-report-${sectionSuffix}-${dateSuffix}.xlsx"`,
-        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      },
-    });
-  } catch (error) {
-    console.error("Report export error:", error);
-    return Response.json(
-      { success: false, message: error instanceof Error ? error.message : "Không thể xuất report." },
-      { status: 500 },
-    );
+    addSheet(workbook,"Learner activity",[{header:"Name",key:"name",width:28},{header:"Action",key:"action",width:26},{header:"Section key",key:"section",width:16},
+      ...(activityRows.some(row=>reportInformation((row.details||{}) as Row,true))?[{header:"Learner information",key:"information",width:60}]:[]),{header:"Time (GMT+7)",key:"createdAt",width:26},
+    ],activityRows.map(row=>{const details=(row.details||{}) as Row;return {...scopeValues(details),name:String(details.name||""),action:String(row.action),section:String(details.section||""),information:reportInformation(details,true),createdAt:iso(row.created_at)};}));
+    const output=await workbook.xlsx.writeBuffer();
+    const dateSuffix=dateBounds?dateBounds.dateStr:"all-time";
+    const sectionSuffix=requestedSectionId!=="all"?requestedSectionId:requestedSection==="all"?"all-sections":requestedSection;
+    const courseSuffix=requestedCourse==="all"?"all-courses":requestedCourse.replace(/[^a-zA-Z0-9_-]/g,"");
+    return new Response(new Uint8Array(output),{headers:{"Cache-Control":"no-store, max-age=0","Content-Disposition":`attachment; filename="eiu-interactive-report-${courseSuffix}-${sectionSuffix}-${dateSuffix}.xlsx"`,"Content-Type":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}});
+  } catch(error) {
+    console.error("Report export error:",error);return Response.json({success:false,message:error instanceof Error?error.message:"Không thể xuất report."},{status:500});
   }
 }

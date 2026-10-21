@@ -15,7 +15,7 @@ type ShowcaseItem = {
 
 type ShowcaseSection = "section1" | "section2";
 
-type Props = { scale: number; isAdmin: boolean; section?: ShowcaseSection };
+type Props = { scale: number; isAdmin: boolean; section?: ShowcaseSection; sectionId?: string; courseTitle?: string; sectionTitle?: string };
 
 async function readJson(response: Response) {
   const text = await response.text();
@@ -26,14 +26,15 @@ async function readJson(response: Response) {
   }
 }
 
-export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: Props) {
+export default function ShowcaseSlide({ scale, isAdmin, section = "section1", sectionId, courseTitle, sectionTitle }: Props) {
   const [items, setItems] = useState<ShowcaseItem[]>([]);
   const [url, setUrl] = useState("");
   const [website, setWebsite] = useState("");
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
   const [message, setMessage] = useState("");
-  const hiddenStorageKey = section === "section2"
+  const endpoint = sectionId ? `/api/sections/${encodeURIComponent(sectionId)}/showcase` : `/api/showcase?section=${encodeURIComponent(section)}`;
+  const hiddenStorageKey = sectionId ? `eiu-showcase-hidden:${sectionId}` : section === "section2"
     ? SLIDE_STORAGE_KEYS.s2_hiddenShowcase
     : SLIDE_STORAGE_KEYS.s1_hiddenShowcase;
   const hiddenIdsRef = useRef<Set<string>>(new Set());
@@ -49,7 +50,7 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
 
   const readItems = useCallback(async (signal: AbortSignal) => {
     try {
-      const response = await fetch(`/api/showcase?section=${encodeURIComponent(section)}`, { cache: "no-store", signal });
+      const response = await fetch(endpoint, { cache: "no-store", signal });
       const payload = await readJson(response);
       signal.throwIfAborted();
       if (!response.ok) throw new Error(payload.message || "Không thể tải danh sách.");
@@ -66,18 +67,18 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
     } finally {
       if (!cancelledRefresh(signal)) setLoading(false);
     }
-  }, [section]);
+  }, [endpoint]);
   const loadItems = useLiveRefresh(readItems);
 
   useEffect(() => {
     const timer = window.setTimeout(() => void loadItems(), 0);
     const supabase = getSupabaseBrowserClient();
     const channel = supabase
-      ?.channel(`eiu:showcase:${section}`)
+      ?.channel(`eiu:showcase:${sectionId || section}`)
       .on("broadcast", { event: "showcase_changed" }, () => void loadItems())
       .subscribe();
     const poll = () => { if (document.visibilityState === "visible") void loadItems(false); };
-    const fallbackTimer = window.setInterval(poll, 60_000);
+    const fallbackTimer = window.setInterval(poll, sectionId ? 10_000 : 60_000);
     document.addEventListener("visibilitychange", poll);
     return () => {
       window.clearTimeout(timer);
@@ -85,7 +86,7 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
       document.removeEventListener("visibilitychange", poll);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [loadItems, section]);
+  }, [loadItems, section, sectionId]);
 
   async function shareApp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -94,7 +95,7 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
     setMessage("");
 
     try {
-      const response = await fetch("/api/showcase", {
+      const response = await fetch(sectionId ? endpoint : "/api/showcase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ section, url, website }),
@@ -106,7 +107,7 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
       setItems((current) => [sharedItem, ...current.filter((item) => item.id !== sharedItem.id)]);
       setUrl("");
       setStatus("idle");
-      setMessage(section === "section2" ? "Đã chia sẻ bài làm thành công." : "Đã chia sẻ ứng dụng thành công.");
+      setMessage(sectionId || section === "section2" ? "Đã chia sẻ bài làm thành công." : "Đã chia sẻ ứng dụng thành công.");
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Không thể chia sẻ liên kết.");
@@ -135,20 +136,21 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
     setMessage("Đã ẩn danh sách khỏi slide. Dữ liệu vẫn được giữ để xuất Excel.");
   }
 
-  const isSectionTwo = section === "section2";
-  const boardTitle = isSectionTwo ? "Không gian chia sẻ bài làm - Section 2" : "Không gian chia sẻ ứng dụng";
+  const isSectionTwo = section === "section2" || Boolean(sectionId);
+  const boardTitle = sectionId ? "Chia sẻ bài làm với giảng viên" : isSectionTwo ? "Không gian chia sẻ bài làm - Section 2" : "Không gian chia sẻ ứng dụng";
   const itemLabel = isSectionTwo ? "bài làm" : "ứng dụng";
 
   return (
     <section
-      className={styles.root}
+      className={`${styles.root} ${sectionId ? styles.courseScoped : ""}`}
+      spellCheck={sectionId ? false : undefined}
       style={{ transform: `scale(${scale})`, fontFamily: '"Segoe UI", "Noto Sans", Arial, sans-serif' }}
       data-interactive="true"
       aria-label={boardTitle}
     >
       <div className={styles.mesh} aria-hidden="true" />
       <header className={styles.header}>
-        <div><span className={styles.eyebrow}>Cộng đồng lớp học</span><h1>{boardTitle}</h1></div>
+        <div><span className={styles.eyebrow}>{sectionId ? `${courseTitle} · ${sectionTitle}` : "Cộng đồng lớp học"}</span><h1>{sectionId ? "Chia sẻ bài làm với giảng viên" : boardTitle}</h1></div>
         <span className={styles.live}><i /> {isAdmin ? "QUẢN TRỊ" : "ĐANG HOẠT ĐỘNG"}</span>
       </header>
       <div className={styles.columns}>
@@ -194,10 +196,10 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1" }: 
 
         <form className={styles.form} onSubmit={shareApp}>
           <span className={styles.formKicker}>Chia sẻ bài làm</span>
-          <h2 style={{ whiteSpace: "nowrap", fontSize: "23px", lineHeight: 1.16, letterSpacing: "-.02em" }}>Đưa bài làm của bạn lên bảng</h2>
-          <p>{isSectionTwo ? "Dán liên kết bài làm đã hoàn thiện để cả lớp cùng xem." : "Dán liên kết ứng dụng đã triển khai từ nền tảng lập trình của Google."}</p>
+          <h2 style={{ whiteSpace: "nowrap", fontSize: "23px", lineHeight: 1.16, letterSpacing: "-.02em" }}>{sectionId ? "Gửi link bài làm" : "Đưa bài làm của bạn lên bảng"}</h2>
+          <p>{sectionId ? "Dán link HTTPS của website hoặc bản demo để giảng viên xem bài. Link demo cần máy và app tiếp tục chạy." : isSectionTwo ? "Dán liên kết bài làm đã hoàn thiện để cả lớp cùng xem." : "Dán liên kết ứng dụng đã triển khai từ nền tảng lập trình của Google."}</p>
           <p>Họ tên và email được tự động lấy từ thông tin bạn đã nhập khi đăng nhập.</p>
-          <label>{isSectionTwo ? "Liên kết bài làm" : "Liên kết ứng dụng"}<input type="url" value={url} onChange={(event) => setUrl(event.target.value)} maxLength={500} placeholder={isSectionTwo ? "https://..." : "https://script.google.com/macros/s/.../exec"} required /></label>
+          <label>{isSectionTwo ? "Liên kết bài làm" : "Liên kết ứng dụng"}<input type="url" value={url} onChange={(event) => setUrl(event.target.value)} maxLength={500} placeholder={sectionId ? "https://<id>-3000.<region>.devtunnels.ms" : isSectionTwo ? "https://..." : "https://script.google.com/macros/s/.../exec"} required /></label>
           <label className={styles.honeypot} aria-hidden="true">Trang web<input value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></label>
           <button type="submit" disabled={status === "sending"}>{status === "sending" ? "Đang chia sẻ..." : isSectionTwo ? "Chia sẻ bài làm" : "Chia sẻ ứng dụng"}</button>
           {message && <div className={`${styles.message} ${status === "error" ? styles.error : ""}`} role="status">{message}</div>}

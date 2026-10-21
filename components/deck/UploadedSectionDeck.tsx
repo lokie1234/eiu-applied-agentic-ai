@@ -5,11 +5,13 @@ import dynamic from "next/dynamic";
 import SharedDeckFrame from "@/components/deck/SharedDeckFrame";
 import HairlineLoading from "@/components/HairlineLoading";
 import styles from "./UploadedSectionDeck.module.css";
+import ShowcaseSlide from "@/components/ShowcaseSlide";
 const PptxSectionDeck = dynamic(() => import("./PptxSectionDeck"), { ssr: false, loading: () => <HairlineLoading /> });
 const UploadedPdfDeck = dynamic(() => import("./UploadedPdfDeck"), { ssr: false, loading: () => <HairlineLoading /> });
 
 type Props = {
   sectionId: string;
+  isAdmin?: boolean;
   templateKey?: string;
   contentType: "pdf" | "tsx" | "pptx";
   slideCount: number | null;
@@ -20,22 +22,24 @@ type Props = {
 import { createTsxDocument } from "@/lib/tsxDocument";
 
 // Keep the large source document stable during presence updates and zooming.
-const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, title, frameRef, onLoad }: {
+const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, title, frameRef, onLoad, sectionId }: {
   code: string; page: number; background: string; templateKey?: string; title: string;
+  sectionId: string;
   frameRef: RefObject<HTMLIFrameElement | null>; onLoad: () => void;
 }) {
-  const document = useMemo(() => createTsxDocument(code, page, background, templateKey), [code, page, background, templateKey]);
+  const document = useMemo(() => createTsxDocument(code, page, background, templateKey, `${sectionId}:${page}`), [code, page, background, templateKey, sectionId]);
   return <iframe ref={frameRef} className={styles.tsxFrame}
     sandbox="allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox"
     title={`${title} · slide ${page}`} srcDoc={document} onLoad={onLoad} />;
 });
 
-export default function UploadedSectionDeck({ sectionId, contentType, slideCount, courseTitle, sectionTitle, templateKey }: Props) {
+export default function UploadedSectionDeck({ sectionId, contentType, slideCount, courseTitle, sectionTitle, templateKey, isAdmin = false }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [totalSlides, setTotalSlides] = useState(slideCount ?? 1);
   const [tsxCode, setTsxCode] = useState("");
   const [tsxReady, setTsxReady] = useState(false);
   const [slideCountReady, setSlideCountReady] = useState(false);
+  const [showcasePage, setShowcasePage] = useState<number | null>(null);
   const onTsxLoad = useCallback(() => setTsxReady(true), []);
   const [templateImage, setTemplateImage] = useState("");
   const useTemplate = Boolean(templateImage);
@@ -83,8 +87,11 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
   useEffect(() => {
     if (contentType !== "tsx") return;
     function onMessage(event: MessageEvent) {
-      const payload = event.data as { type?: string; slides?: number };
+      const payload = event.data as { type?: string; slides?: number; page?: number; interaction?: string; requestId?: string };
       if (event.source !== iframeRef.current?.contentWindow) return;
+      if (payload?.type === "eiu-slide-interaction" && Number.isSafeInteger(payload.page) && payload.requestId === `${sectionId}:${payload.page}`) {
+        setShowcasePage(payload.interaction === "showcase" ? Number(payload.page) : null);
+      }
       if (payload?.type === "eiu-tsx-ready" && Number.isSafeInteger(payload.slides) && Number(payload.slides) > 0) {
         setTotalSlides(Number(payload.slides));
         setSlideCountReady(true);
@@ -92,7 +99,7 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
     }
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
-  }, [contentType]);
+  }, [contentType, sectionId]);
 
   if (templateLoading) return <HairlineLoading label="Loading slide layout" />;
   if (error) return <div className={styles.message} role="alert">{error}</div>;
@@ -111,13 +118,14 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
       navigationReady={slideCountReady}
       frameClassName={styles.frame}
       transitionClassName={styles.slide}
-      renderSlide={(pageNumber) => {
+      renderSlide={(pageNumber, renderWidth) => {
         if (error) return <div className={styles.message}>{error}</div>;
         if (!tsxCode || (useTemplate && !templateImage)) return <HairlineLoading />;
         return (
           <div className={styles.loadingFrame}>
-          <TsxSlide frameRef={iframeRef} code={tsxCode} page={pageNumber} background={useTemplate ? templateImage : ""}
+          <TsxSlide frameRef={iframeRef} sectionId={sectionId} code={tsxCode} page={pageNumber} background={useTemplate ? templateImage : ""}
             templateKey={templateKey} title={sectionTitle} onLoad={onTsxLoad} />
+          {showcasePage === pageNumber && <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} />}
           {!tsxReady && <div className={styles.loadingOverlay}><HairlineLoading /></div>}
           </div>
         );

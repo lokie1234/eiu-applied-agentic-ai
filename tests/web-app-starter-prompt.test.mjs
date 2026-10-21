@@ -230,46 +230,27 @@ test('Clone editor copies the current URL and matching destination folder withou
   }
 });
 
-test('new agent flow follows Pull/Clone and preserves existing lesson layout identities', async () => {
+test('agent flow and submission finish the 29-slide section after Pull/Clone', async () => {
   const section = slides.filter(s => s.section === 1);
-  const slide = section.find(s => s.visual === 'git-intro-agent-full-flow');
-  assert.equal(slide.number, 26);
-  assert.equal(section[24].visual, 'git-intro-pull');
-  assert.equal(section[25], slide);
-  assert.equal(section[26].visual, 'git-intro-agent-permissions');
-  assert.equal(section[27].visual, 'git-intro-ai-workflow');
-  assert.equal(section[27].layoutNumber, 25);
-  assert.deepEqual(section.map(s => s.number), section.map((_, i) => i + 1));
-  assert.equal(section.filter(s => (s.layoutNumber ?? s.number) === slide.layoutNumber).length, 1);
-  const copies = [];
-  const window = render(slide.number, { writeText: async text => copies.push(text) });
+  assert.equal(section.length, 29);
+  assert.equal(section[25].visual, 'git-intro-pull');
+  assert.equal(section[26].visual, 'git-intro-agent-full-flow');
+  assert.equal(section[27].visual, 'git-intro-localhost-share');
+  assert.equal(section[28].visual, 'git-intro-submission');
+  assert.deepEqual(section.map(s=>s.number), Array.from({length:29},(_,i)=>i+1));
+  const window = render(27, {});
   try {
-    const doc = window.document;
-    const routes = [...doc.querySelectorAll('.agentRoute')];
-    assert.deepEqual(routes.map(route => route.getAttribute('data-direction')), ['out', 'back']);
-    for (const route of routes) {
-      assert.equal(route.querySelectorAll('.agentRouteNode').length, 4);
-      assert.deepEqual([...route.querySelectorAll('.agentRouteCopy strong')].map(el => el.textContent), ['VS Code', 'Node.js', 'Git', 'GitHub']);
-    }
-    assert.equal(doc.querySelectorAll('.agentCloneGuide li').length, 4);
-    assert.match(doc.querySelector('.agentCloneGuide ol').textContent, /Git: Clone/);
-    assert.match(doc.querySelector('.agentCloneGuide ol').textContent, /Clone from GitHub/);
-    assert.match(doc.querySelector('.agentPullTip').textContent, /Git: Pull/);
-    const editor = doc.querySelector('.agentFlowPrompt textarea');
-    assert.equal(editor.readOnly, false);
-    assert.equal(editor.spellcheck, false);
-    editor.value = 'Update the booking form, test/build, commit and push.\nStop if authentication is required.';
-    doc.querySelector('.agentFlowPrompt .copyControl').click();
-    await window.happyDOM.whenAsyncComplete();
-    assert.equal(copies[0], editor.value);
-  } finally {
-    await window.happyDOM.close();
-  }
+    const doc=window.document;
+    assert.equal(doc.querySelectorAll('.agentFlowEndpoint').length, 2);
+    assert.equal(doc.querySelectorAll('.agentFlowTask').length, 3);
+    assert.equal(doc.querySelectorAll('.agentFlowArrow').length, 2);
+    assert.equal(doc.querySelector('.agentFlowProduct').textContent.includes('GitHub'), true);
+  } finally { await window.happyDOM.close(); }
 });
 
-test('permission overview follows the agent flow and explains each tool without changing settings', async () => {
+test('permission overview follows AI setup and explains each tool without changing settings', async () => {
   const slide = slides.find(s => s.section === 1 && s.visual === 'git-intro-agent-permissions');
-  assert.equal(slide.number, 27);
+  assert.equal(slide.number, 15);
   assert.deepEqual(slide.cards.map(card => card.title), ['Codex', 'Antigravity', 'Claude Code']);
   assert.deepEqual(slide.cards.map(card => card.modes.map(mode => mode.title)), [
     ['Ask for approval', 'Approve for me · Auto-review', 'Full access', 'Custom (config.toml)'],

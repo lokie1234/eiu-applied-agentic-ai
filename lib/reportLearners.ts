@@ -6,20 +6,23 @@ export function collectReportLearners(legacy: Row[], activity: Row[], submission
     if (!["PASSCODE_LOGIN", "IDEA_SUBMITTED", "SHOWCASE_SUBMITTED", "QUIZ_COMPLETED", "FEEDBACK_SUBMITTED"].includes(String(row.action))) continue;
     const details = (row.details || {}) as Row;
     if (details.accessMode === "facilitator") continue;
-    const sections = row.action === "PASSCODE_LOGIN" ? Array.isArray(details.sectionKeys) ? details.sectionKeys : [] : [details.section];
+    const scopes: Row[] = row.action === "PASSCODE_LOGIN"
+      ? Array.isArray(details.scopes) ? details.scopes as Row[] : (Array.isArray(details.sectionKeys) ? details.sectionKeys : []).map(section => ({ section }))
+      : [details];
     if (!details.sessionId || !details.name) continue;
-    for (const section of sections) {
+    for (const scope of scopes) {
+      const section = scope.section;
       if (typeof section !== "string" || !section) continue;
-      const key = `${section}:${details.sessionId}`;
+      const key = `${scope.courseId || ""}:${scope.sectionId || section}:${details.sessionId}`;
       const previous = sessions.get(key);
-      sessions.set(key, { ...details, section, created_at: previous?.created_at || row.created_at, updated_at: row.created_at });
+      sessions.set(key, { ...details, ...scope, section, created_at: previous?.created_at || row.created_at, updated_at: row.created_at });
     }
   }
   const learners = [...sessions.values()];
-  const known = new Set(learners.map(row => `${row.section}:${String(row.email).toLowerCase()}`));
+  const known = new Set(learners.map(row => `${row.courseId || ""}:${row.sectionId || row.section}:${String(row.email).toLowerCase()}`));
   // Include existing participants, even before session identities were introduced.
   for (const row of [...legacy, ...submissions]) {
-    const key = `${row.section}:${String(row.email || "").toLowerCase()}`;
+    const key = `${row.courseId || ""}:${row.sectionId || row.section}:${String(row.email || "").toLowerCase()}`;
     if (!row.section || !row.email || !row.name || known.has(key)) continue;
     known.add(key);
     const timestamp = row.updated_at || row.completed_at || row.submitted_at || row.shared_at || row.created_at;

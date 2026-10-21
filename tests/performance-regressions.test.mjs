@@ -140,7 +140,8 @@ test("TSX documents are reused for parent updates and rebuilt only when the disp
   let builds = 0, page = 4;
   const Deck = load("components/deck/UploadedSectionDeck.tsx", {
     "next/dynamic": { __esModule: true, default: () => () => null },
-    "@/components/deck/SharedDeckFrame": { __esModule: true, default: props => props.renderSlide(page) },
+    "@/components/deck/SharedDeckFrame": { __esModule: true, default: props => props.renderSlide(page, 960) },
+    "@/components/ShowcaseSlide": { __esModule: true, default: props => React.createElement("div", { "data-native-showcase": props.sectionId }) },
     "@/components/HairlineLoading": { __esModule: true, default: () => null },
     "@/lib/tsxDocument": { createTsxDocument: (code, number) => { builds++; return `<html><body>${number}</body></html>`; } },
   }, { window, fetch: async () => ({ ok: true, text: async () => "compiled deck" }) }).default;
@@ -157,6 +158,18 @@ test("TSX documents are reused for parent updates and rebuilt only when the disp
     page = 5;
     await act(async () => root.render(React.createElement(Deck, { ...props })));
     assert.equal(builds, 2);
+    const activeFrame = container.querySelector("iframe");
+    const message = { type: "eiu-slide-interaction", interaction: "showcase", page: 5, requestId: "s:5" };
+    await act(async () => window.dispatchEvent(new window.MessageEvent("message", { source: window, data: message })));
+    assert.equal(container.querySelector("[data-native-showcase]"), null, "foreign frames cannot open interactions");
+    await act(async () => window.dispatchEvent(new window.MessageEvent("message", { source: activeFrame.contentWindow, data: { ...message, requestId: "other-section:5" } })));
+    assert.equal(container.querySelector("[data-native-showcase]"), null, "other section messages are ignored");
+    await act(async () => window.dispatchEvent(new window.MessageEvent("message", { source: activeFrame.contentWindow, data: message })));
+    assert.equal(container.querySelector("[data-native-showcase]")?.getAttribute("data-native-showcase"), "s");
+    assert.equal(builds, 2, "native board keeps the sandbox document stable");
+    page = 6;
+    await act(async () => root.render(React.createElement(Deck, { ...props })));
+    assert.equal(container.querySelector("[data-native-showcase]"), null, "board is removed on other slides");
   } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
 });
 

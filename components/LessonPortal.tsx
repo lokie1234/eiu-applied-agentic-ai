@@ -98,6 +98,7 @@ function LearningAccent({ kind = "book" }: { kind?: "library" | "collection" | "
 type TerminateStatus = "idle" | "sending" | "success" | "error";
 type ReportStatus = "idle" | "exporting" | "error";
 type ReportSectionOption = { value: string; label: string };
+type ReportScopeOption = ReportSectionOption & { courseId: string; courseTitle: string };
 type CourseFolderSection = {
   canFacilitate?: boolean;
   id: string;
@@ -381,6 +382,9 @@ export default function LessonPortal({
   const [exportRange, setExportRange] = useState<"today" | "custom" | "all">("today");
   const [exportCustomDate, setExportCustomDate] = useState(() => getTodayDateString());
   const [exportSection, setExportSection] = useState("all");
+  const [exportCourse, setExportCourse] = useState("all");
+  const [reportCourses, setReportCourses] = useState<ReportSectionOption[]>([]);
+  const [reportScopes, setReportScopes] = useState<ReportScopeOption[]>([]);
   const [reportSections, setReportSections] = useState<ReportSectionOption[]>([
     { value: "section1", label: "Section 1" },
     { value: "section2", label: "Section 2" },
@@ -530,12 +534,17 @@ export default function LessonPortal({
         const payload = (await response.json()) as {
           success?: boolean;
           sections?: ReportSectionOption[];
+          courses?: ReportSectionOption[];
+          courseSections?: ReportScopeOption[];
         };
         if (!response.ok || !payload.success || !Array.isArray(payload.sections)) return;
         if (disposed) return;
         setReportSections(payload.sections);
+        if (Array.isArray(payload.courses)) setReportCourses(payload.courses);
+        if (Array.isArray(payload.courseSections)) setReportScopes(payload.courseSections);
+        setExportCourse(current => current === "all" || payload.courses?.some(course => course.value === current) ? current : "all");
         setExportSection((current) =>
-          current === "all" || payload.sections?.some((section) => section.value === current)
+          current === "all" || payload.courseSections?.some((section) => section.value === current)
             ? current
             : "all"
         );
@@ -683,7 +692,7 @@ export default function LessonPortal({
 
     try {
       const response = await fetch(
-        `/api/admin/report?date=${encodeURIComponent(dateParam)}&tzOffset=${encodeURIComponent(tzOffset)}&section=${encodeURIComponent(exportSection)}`,
+        `/api/admin/report?date=${encodeURIComponent(dateParam)}&tzOffset=${encodeURIComponent(tzOffset)}&courseId=${encodeURIComponent(exportCourse)}&sectionId=${encodeURIComponent(exportSection)}`,
         { cache: "no-store" }
       );
       if (!response.ok) {
@@ -1276,9 +1285,16 @@ export default function LessonPortal({
               <span>ANALYTICS REPORT</span>
               <h2 id="export-report-title">Export Excel report</h2>
               <p>
-                Choose the section and time range to include.
+                Choose the course, section and time range to include.
               </p>
 
+              <label className={styles.exportSectionField}>
+                <span>Course scope</span>
+                <select value={exportCourse} onChange={(event) => { setExportCourse(event.target.value); setExportSection("all"); }} disabled={reportStatus === "exporting"}>
+                  <option value="all">All courses</option>
+                  {reportCourses.map(course => <option key={course.value} value={course.value}>{course.label}</option>)}
+                </select>
+              </label>
               <label className={styles.exportSectionField}>
                 <span>Section scope</span>
                 <select
@@ -1287,9 +1303,9 @@ export default function LessonPortal({
                   disabled={reportStatus === "exporting"}
                 >
                   <option value="all">All sections</option>
-                  {reportSections.map((sectionOption) => (
+                  {reportScopes.filter(scope => exportCourse === "all" || scope.courseId === exportCourse).map((sectionOption) => (
                     <option key={sectionOption.value} value={sectionOption.value}>
-                      {sectionOption.label}
+                      {exportCourse === "all" ? `${sectionOption.courseTitle} · ` : ""}{sectionOption.label}
                     </option>
                   ))}
                 </select>
@@ -1541,6 +1557,7 @@ export default function LessonPortal({
           <UploadedSectionDeck
             key={`${activeUploadedSection.id}-${activeUploadedSection.contentRevision ?? ""}-${activeUploadedSection.templateKey ?? ""}-${deckSessionKey}`}
             sectionId={activeUploadedSection.id}
+            isAdmin={isAdmin || Boolean(activeUploadedSection.canFacilitate)}
             templateKey={activeUploadedSection.templateKey}
             contentType={activeUploadedSection.contentType === "pptx" ? "pptx" : activeUploadedSection.contentType === "pdf" ? "pdf" : "tsx"}
             slideCount={activeUploadedSection.slideCount}

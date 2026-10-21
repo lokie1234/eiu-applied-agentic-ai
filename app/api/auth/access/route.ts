@@ -45,7 +45,8 @@ export async function POST(request: Request) {
     }
     const sessionId = randomUUID();
     const identity = { sessionId, name: information.name || (teaching ? "Facilitator" : `Learner ${sessionId.slice(0, 6)}`), email: information.email || Object.entries(information).find(([id]) => policy.fields.some(field => field.id === id && field.type === "email"))?.[1] || `${sessionId}@passcode.eiu`, information };
-    const { data: identityLog, error: identityError } = await db.from("access_audit_logs").insert({ action: "PASSCODE_LOGIN", actor_email: identity.email, details: { ...identity, accessMode: teaching ? "facilitator" : "learner", sectionKeys: [...new Set(access.sections.map(section => section.section_key))], fields: !teaching && policy.enabled ? policy.fields : [] } }).select("id").single();
+    const scopes = access.sections.map(section => ({ sectionId: section.id, section: section.section_key, sectionTitle: section.title, courseId: section.course_id, courseTitle: access.courses.find(course => course.id === section.course_id)?.title }));
+    const { data: identityLog, error: identityError } = await db.from("access_audit_logs").insert({ action: "PASSCODE_LOGIN", actor_email: identity.email, details: { ...identity, accessMode: teaching ? "facilitator" : "learner", scopes, sectionKeys: [...new Set(access.sections.map(section => section.section_key))], fields: !teaching && policy.enabled ? policy.fields : [] } }).select("id").single();
     if (identityError || !identityLog) throw identityError || new Error("Unable to save the learner identity.");
     const response = NextResponse.json({ success: true, destination: "/learn" });
     response.cookies.set(ACCESS_SESSION_COOKIE, createAccessSession({ role: "passcode", credentialHash, sessionId, identityLogId: Number(identityLog.id) }), sessionCookieOptions());
