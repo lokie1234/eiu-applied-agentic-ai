@@ -15,6 +15,7 @@ type ShowcaseItem = {
 
 type ShowcaseSection = "section1" | "section2";
 
+// Decks pass admin or section-scoped teaching access as the presenter capability.
 type Props = { scale: number; isAdmin: boolean; section?: ShowcaseSection; sectionId?: string; courseTitle?: string; sectionTitle?: string };
 
 async function readJson(response: Response) {
@@ -153,7 +154,7 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1", se
         <div><span className={styles.eyebrow}>{sectionId ? `${courseTitle} · ${sectionTitle}` : "Cộng đồng lớp học"}</span><h1>{sectionId ? "Chia sẻ bài làm với giảng viên" : boardTitle}</h1></div>
         <span className={styles.live}><i /> {isAdmin ? "QUẢN TRỊ" : "ĐANG HOẠT ĐỘNG"}</span>
       </header>
-      <div className={styles.columns}>
+      <div className={`${styles.columns} ${isAdmin ? styles.boardOnly : ""}`}>
         <section className={styles.board}>
           <div className={styles.panelHead}>
             <div><span>Đã chia sẻ</span><strong>{items.length} {itemLabel}</strong></div>
@@ -172,7 +173,7 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1", se
             </div>
           </div>
           <div className={styles.list} aria-live="polite">
-            {loading ? <div className={styles.empty}>Đang tải danh sách...</div> : items.length === 0 ? <div className={styles.empty}>{isSectionTwo ? "Chưa có bài làm nào. Hãy là người đầu tiên chia sẻ!" : "Chưa có ứng dụng nào. Hãy là người đầu tiên chia sẻ!"}</div> : items.map((item, index) => (
+            {loading ? <div className={styles.empty}>Đang tải danh sách...</div> : items.length === 0 ? <div className={styles.empty}>{isAdmin ? `Chưa có ${itemLabel} được chia sẻ.` : isSectionTwo ? "Chưa có bài làm nào. Hãy là người đầu tiên chia sẻ!" : "Chưa có ứng dụng nào. Hãy là người đầu tiên chia sẻ!"}</div> : items.map((item, index) => (
               <article className={styles.item} key={item.id}>
                 <span className={styles.number}>{String(index + 1).padStart(2, "0")}</span>
                 <div><strong>{item.name}</strong><small>{item.sharedAt ? new Date(item.sharedAt).toLocaleDateString("vi-VN") : "Vừa chia sẻ"}</small></div>
@@ -192,9 +193,10 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1", se
               </article>
             ))}
           </div>
+          {isAdmin && message && <div className={`${styles.message} ${status === "error" ? styles.error : ""}`} role="status">{message}</div>}
         </section>
 
-        <form className={styles.form} onSubmit={shareApp}>
+        {!isAdmin && <form className={styles.form} onSubmit={shareApp}>
           <span className={styles.formKicker}>Chia sẻ bài làm</span>
           <h2 style={{ whiteSpace: "nowrap", fontSize: "23px", lineHeight: 1.16, letterSpacing: "-.02em" }}>{sectionId ? "Gửi link bài làm" : "Đưa bài làm của bạn lên bảng"}</h2>
           <p>{sectionId ? "Dán link HTTPS của website hoặc bản demo để giảng viên xem bài. Link demo cần máy và app tiếp tục chạy." : isSectionTwo ? "Dán liên kết bài làm đã hoàn thiện để cả lớp cùng xem." : "Dán liên kết ứng dụng đã triển khai từ nền tảng lập trình của Google."}</p>
@@ -203,7 +205,7 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1", se
           <label className={styles.honeypot} aria-hidden="true">Trang web<input value={website} onChange={(event) => setWebsite(event.target.value)} tabIndex={-1} autoComplete="off" /></label>
           <button type="submit" disabled={status === "sending"}>{status === "sending" ? "Đang chia sẻ..." : isSectionTwo ? "Chia sẻ bài làm" : "Chia sẻ ứng dụng"}</button>
           {message && <div className={`${styles.message} ${status === "error" ? styles.error : ""}`} role="status">{message}</div>}
-        </form>
+        </form>}
       </div>
     </section>
   );

@@ -1324,10 +1324,25 @@
     {
       "section": 1,
       "number": 21,
+      "layoutNumber": 31,
+      "adminOnly": true,
+      "title": "Thực hành thiết kế tự do với AI",
+      "minutes": 15,
+      "message": "Áp dụng AI để tự do thiết kế một website theo ý tưởng của bạn trong VS Code.",
+      "cards": [],
+      "visual": "ai-free-design-practice",
+      "note": "Slide chỉ dành cho admin. Bộ đếm bắt đầu khi bấm Bắt đầu; hỗ trợ tạm dừng, tiếp tục và đặt lại 15 phút. Hết giờ: 96 icon AI/công cụ bung ra phủ kín mặt đồng hồ rồi đứng yên. Đặt lại xóa các icon.",
+      "objective": "Áp dụng AI để hiện thực hóa ý tưởng thiết kế website.",
+      "verify": "Hoàn thành một bản thiết kế thử nghiệm trong VS Code.",
+      "visualConcept": "Đồng bộ slide 20: nền kem, chữ navy, viền vàng mảnh và cạnh trái vàng 4px, góc bo 24px, không gradient/shadow nặng. Câu dẫn phía trên; ba thẻ AI bên trái và đồng hồ 128px bên phải. Bỏ AI DESIGN LAB và hàng icon công cụ bên dưới. 96 icon bung từ giữa mặt đồng hồ ra lưới chồng kín khung khi hết giờ, dừng hẳn và giữ nguyên; nút điều khiển nằm ngoài lớp icon. Đặt lại xóa icon. Chỉ transform/opacity một lượt, giải phóng animation khi xong, reduced motion fade tại chỗ. Chỉ admin thấy slide."
+    },
+    {
+      "section": 1,
+      "number": 22,
       "layoutNumber": 22,
       "title": "Từ kiểm tra đến cập nhật GitHub",
       "minutes": 2,
-      "message": "Kiểm tra app → commit bằng Git → push lên GitHub → lặp lại sau mỗi lần sửa.",
+      "message": "Đây là quy trình thực tế sau khi chúng ta hoàn tất thiết kế trong VS Code.\nKiểm tra app → commit bằng Git → push lên GitHub → lặp lại sau mỗi lần sửa.",
       "cards": [
         {
           "title": "Kiểm tra app",
@@ -1358,7 +1373,7 @@
     },
     {
       "section": 1,
-      "number": 22,
+      "number": 23,
       "title": "Kiểm tra app · trước khi lưu phiên bản",
       "visual": "git-intro-build",
       "message": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
@@ -1390,7 +1405,7 @@
     },
     {
       "section": 1,
-      "number": 23,
+      "number": 24,
       "title": "Lưu phiên bản đầu tiên bằng Git",
       "visual": "git-intro-initialize",
       "message": "Thực hiện trong folder project đang mở. Git lưu một mốc để bạn có thể xem lại.",
@@ -1423,7 +1438,7 @@
     },
     {
       "section": 1,
-      "number": 24,
+      "number": 25,
       "title": "Đưa mã nguồn lên GitHub",
       "visual": "git-intro-publish",
       "message": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
@@ -1457,7 +1472,7 @@
     },
     {
       "section": 1,
-      "number": 25,
+      "number": 26,
       "title": "Sau mỗi lần sửa · lưu và cập nhật",
       "visual": "git-intro-push-code",
       "message": "Sửa cùng AI, xem lại app, rồi lưu phiên bản mới và cập nhật GitHub.",
@@ -1490,7 +1505,7 @@
     },
     {
       "section": 1,
-      "number": 26,
+      "number": 27,
       "title": "Chiều ngược lại · Pull hoặc Clone",
       "visual": "git-intro-pull",
       "message": "",
@@ -1538,7 +1553,7 @@
     },
     {
       "section": 1,
-      "number": 27,
+      "number": 28,
       "layoutNumber": 28,
       "title": "Bạn ra yêu cầu · AI tạo thành phẩm",
       "visual": "git-intro-agent-full-flow",
@@ -1556,17 +1571,17 @@
         {
           "title": "Kiểm tra & sửa lỗi",
           "logo": "Node.js",
-          "text": "Test · Build · Chạy thử"
+          "text": ""
         },
         {
           "title": "Lưu lên GitHub",
           "logo": "Git",
-          "text": "Init · Commit · Remote · Push"
+          "text": ""
         },
         {
           "title": "Nhận mã & chạy app",
           "logo": "GitHub",
-          "text": "Pull / Clone · Cài thư viện · Chạy app"
+          "text": ""
         },
         {
           "title": "Sản phẩm hoàn chỉnh",
@@ -1585,7 +1600,7 @@
     },
     {
       "section": 1,
-      "number": 28,
+      "number": 29,
       "layoutNumber": 30,
       "title": "Chia sẻ localhost · lưu ý rủi ro Public",
       "visual": "git-intro-localhost-share",
@@ -1643,7 +1658,7 @@
     },
     {
       "section": 1,
-      "number": 29,
+      "number": 30,
       "layoutNumber": 31,
       "title": "Chia sẻ bài làm với giảng viên",
       "visual": "git-intro-submission",

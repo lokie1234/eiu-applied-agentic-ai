@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 
@@ -12,63 +12,41 @@ interface AgentWorld3DProps {
   stage: number;
 }
 
-// ─── Smooth Orbit Ring with Dynamic Opacity & Speed ───────────────────────────
+// ─── Orbit ring with entrance opacity ───────────────────────────
 function DynamicOrbitRing({
   radius,
   thickness,
   tilt,
   color,
   targetOpacity,
-  targetSpeed,
   stage,
-  phase = 0,
 }: {
   radius: number;
   thickness: number;
   tilt: [number, number, number];
   color: string;
   targetOpacity: number;
-  targetSpeed: number;
   stage: number;
-  phase?: number;
 }) {
-  const meshRef = useRef<THREE.Mesh>(null);
-  const currentSpeed = useRef(0);
-  const currentRot = useRef(phase);
-
   const matRef = useRef<THREE.MeshBasicMaterial>(null);
 
   const geo = useMemo(
     () => new THREE.TorusGeometry(radius, thickness, 8, 80),
     [radius, thickness]
   );
+  useEffect(() => () => geo.dispose(), [geo]);
 
   useFrame((_, delta) => {
     const mat = matRef.current;
     if (!mat) return;
     delta = Math.min(delta, .05);
-    // Orbits activate at stage >= 4 ("move" word reveals)
+    // Orbits activate with the scene entrance
     const active = stage >= 4;
     const targetOp = active ? targetOpacity : 0;
-    const targetSpd = active ? targetSpeed : 0;
-
-    // Smooth ramp-up of opacity and speed from zero
     mat.opacity = THREE.MathUtils.damp(mat.opacity, targetOp, 2.2, delta);
-    currentSpeed.current = THREE.MathUtils.damp(
-      currentSpeed.current,
-      targetSpd,
-      1.8,
-      delta
-    );
-
-    currentRot.current += currentSpeed.current * delta;
-
-    if (meshRef.current) {
-      meshRef.current.rotation.z = currentRot.current;
-    }
   });
 
-  return <mesh ref={meshRef} rotation={tilt} geometry={geo}>
+  return <mesh rotation={tilt} geometry={geo}>
     <meshBasicMaterial ref={matRef} color={color} transparent opacity={0} side={THREE.DoubleSide} />
   </mesh>;
 }
@@ -93,13 +71,13 @@ function SignalDataPacket({
   size?: number;
   startAngle?: number;
 }) {
-  const nodeRef = useRef<THREE.Group>(null);
   const dotRef = useRef<THREE.Mesh>(null);
   const angleRef = useRef(startAngle);
 
   const matRef = useRef<THREE.MeshBasicMaterial>(null);
 
   const geo = useMemo(() => new THREE.SphereGeometry(size, 8, 6), [size]);
+  useEffect(() => () => geo.dispose(), [geo]);
 
   useFrame((_, delta) => {
     const mat = matRef.current;
@@ -117,7 +95,7 @@ function SignalDataPacket({
   });
 
   return (
-    <group ref={nodeRef} rotation={tilt}>
+    <group rotation={tilt}>
       <mesh ref={dotRef} geometry={geo}>
         <meshBasicMaterial ref={matRef} color={color} transparent opacity={0} />
       </mesh>
@@ -148,6 +126,7 @@ function AcademicDataDust({ stage }: { stage: number }) {
     g.setAttribute("position", new THREE.BufferAttribute(positions, 3));
     return g;
   }, [positions]);
+  useEffect(() => () => geo.dispose(), [geo]);
 
   useFrame((_, delta) => {
     const mat = matRef.current;
@@ -189,9 +168,7 @@ export default function AgentWorld3D({ stage }: AgentWorld3DProps) {
         tilt={[0.42, 0, 0]}
         color="#2D7FB4"
         targetOpacity={0.36}
-        targetSpeed={0.20}
         stage={stage}
-        phase={0}
       />
 
       {/* Orbit 2: Doubled Tilted Gold Halo Trajectory (complete circular loop) */}
@@ -201,9 +178,7 @@ export default function AgentWorld3D({ stage }: AgentWorld3DProps) {
         tilt={[0.34, 0.28, -0.12]}
         color="#E9CA8B"
         targetOpacity={0.40}
-        targetSpeed={-0.12}
         stage={stage}
-        phase={Math.PI * 0.45}
       />
 
       {/* Orbit 3 (Added Complete Ring): Warm Gold Concentric Orbit */}
@@ -213,9 +188,7 @@ export default function AgentWorld3D({ stage }: AgentWorld3DProps) {
         tilt={[0.26, -0.30, 0.14]}
         color="#F4DFB0"
         targetOpacity={0.34}
-        targetSpeed={0.16}
         stage={stage}
-        phase={Math.PI * 0.85}
       />
 
       {/* Orbit 4 (Added Complete Ring): Wide Celestial Cyan Horizon Loop */}
@@ -225,9 +198,7 @@ export default function AgentWorld3D({ stage }: AgentWorld3DProps) {
         tilt={[0.48, 0.16, -0.20]}
         color="#64A8D3"
         targetOpacity={0.28}
-        targetSpeed={-0.09}
         stage={stage}
-        phase={Math.PI * 1.3}
       />
 
       {/* Orbit 5 (Cloned Complete Ring): Deep Blue Resonant Loop */}
@@ -237,9 +208,7 @@ export default function AgentWorld3D({ stage }: AgentWorld3DProps) {
         tilt={[0.22, 0.38, -0.24]}
         color="#2D7FB4"
         targetOpacity={0.35}
-        targetSpeed={0.18}
         stage={stage}
-        phase={Math.PI * 0.25}
       />
 
       {/* Orbit 6 (Cloned Complete Ring): Radiant Outer Gold Trajectory */}
@@ -249,9 +218,7 @@ export default function AgentWorld3D({ stage }: AgentWorld3DProps) {
         tilt={[-0.32, -0.24, 0.28]}
         color="#E9CA8B"
         targetOpacity={0.38}
-        targetSpeed={-0.14}
         stage={stage}
-        phase={Math.PI * 1.65}
       />
 
       {/* ─── SPATIAL SIGNAL PACKETS (Synchronized Flow along Complete Orbits) ─── */}

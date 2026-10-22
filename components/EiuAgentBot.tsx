@@ -238,13 +238,30 @@ export default function EiuAgentBot({ reducedMotion = false }: { reducedMotion?:
       animFrameRef.current = requestAnimationFrame(animate);
     };
 
-    startFlight();
-
-    return () => {
-      isCancelled = true;
+    const stopFlight = () => {
       if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
       if (pauseTimerRef.current) clearTimeout(pauseTimerRef.current);
       if (departTimerRef.current) clearTimeout(departTimerRef.current);
+    };
+    let inView = true;
+    const syncFlight = () => {
+      stopFlight();
+      if (!document.hidden && inView) startFlight();
+    };
+    const observer = typeof IntersectionObserver === "function" ? new IntersectionObserver(([entry]) => {
+      if (inView === entry.isIntersecting) return;
+      inView = entry.isIntersecting;
+      syncFlight();
+    }) : null;
+    observer?.observe(containerRef.current);
+    document.addEventListener("visibilitychange", syncFlight);
+    syncFlight();
+
+    return () => {
+      isCancelled = true;
+      observer?.disconnect();
+      document.removeEventListener("visibilitychange", syncFlight);
+      stopFlight();
     };
   }, [reducedMotion]);
 

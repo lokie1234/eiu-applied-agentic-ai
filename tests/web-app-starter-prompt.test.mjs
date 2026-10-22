@@ -20,7 +20,7 @@ function render(page, clipboard, frames) {
   testMath.random = () => ((randomSeed = (1664525 * randomSeed + 1013904223) >>> 0) / 4294967296);
   if (frames) window.requestAnimationFrame = callback => frames.push(callback);
   window.document.body.innerHTML = '<div id="root"></div>';
-  vm.runInNewContext(documents.createTsxDocument(source, page).match(/<script>([\s\S]*?)<\/script>/)[1], {
+  vm.runInNewContext(documents.createTsxDocument(source, page, "", "", "", true).match(/<script>([\s\S]*?)<\/script>/)[1], {
     window, document: window.document, navigator: { clipboard }, Node: window.Node, URL: window.URL,
     parent: { postMessage() {} }, setTimeout: window.setTimeout.bind(window), clearTimeout: window.clearTimeout.bind(window),
     ...(frames ? { Math: testMath } : {}),
@@ -230,19 +230,22 @@ test('Clone editor copies the current URL and matching destination folder withou
   }
 });
 
-test('agent flow and submission finish the 29-slide section after Pull/Clone', async () => {
+test('agent flow and submission finish the 30-slide admin section after Pull/Clone', async () => {
   const section = slides.filter(s => s.section === 1);
-  assert.equal(section.length, 29);
-  assert.equal(section[25].visual, 'git-intro-pull');
-  assert.equal(section[26].visual, 'git-intro-agent-full-flow');
-  assert.equal(section[27].visual, 'git-intro-localhost-share');
-  assert.equal(section[28].visual, 'git-intro-submission');
-  assert.deepEqual(section.map(s=>s.number), Array.from({length:29},(_,i)=>i+1));
-  const window = render(27, {});
+  assert.equal(section.length, 30);
+  assert.equal(section[26].visual, 'git-intro-pull');
+  assert.equal(section[27].visual, 'git-intro-agent-full-flow');
+  assert.equal(section[28].visual, 'git-intro-localhost-share');
+  assert.equal(section[29].visual, 'git-intro-submission');
+  assert.deepEqual(section.map(s=>s.number), Array.from({length:30},(_,i)=>i+1));
+  const window = render(28, {});
   try {
     const doc=window.document;
     assert.equal(doc.querySelectorAll('.agentFlowEndpoint').length, 2);
     assert.equal(doc.querySelectorAll('.agentFlowTask').length, 3);
+    const tasks = [...doc.querySelectorAll('.agentFlowTask')];
+    assert.deepEqual(tasks.map(task => task.querySelector('h3').textContent.trim()), section[27].cards.slice(1, 4).map(card => card.title));
+    assert.equal(doc.querySelectorAll('.agentFlowTask p').length, 0);
     assert.equal(doc.querySelectorAll('.agentFlowArrow').length, 2);
     assert.equal(doc.querySelector('.agentFlowProduct').textContent.includes('GitHub'), true);
   } finally { await window.happyDOM.close(); }

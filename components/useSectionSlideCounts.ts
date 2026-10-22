@@ -8,7 +8,7 @@ type Count = { revision: string; count: number };
 
 // Equal catalog refreshes share the same input instead of downloading and
 // rendering every section again. A changed content revision starts a fresh read.
-export function useSectionSlideCounts(courseId: string, sections?: Section[]) {
+export function useSectionSlideCounts(courseId: string, sections?: Section[], isAdmin = false) {
   const signature = sections ? JSON.stringify(sections.map(({ id, contentType, contentRevision, slideCount }) => ({ id, contentType, contentRevision, slideCount }))) : "";
   const input = useMemo<Section[] | undefined>(() => signature ? JSON.parse(signature) : undefined, [signature]);
   const [results, setResults] = useState<{ courseId: string; sections?: Section[]; counts: Record<string, Count> }>({ courseId: "", counts: {} });
@@ -20,30 +20,30 @@ export function useSectionSlideCounts(courseId: string, sections?: Section[]) {
     const controller = new AbortController();
     const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(60_000)]);
     const queue = input.filter(section => ["tsx", "pdf", "pptx"].includes(section.contentType) &&
-      completed.current.counts[section.id]?.revision !== `${section.contentType}:${section.contentRevision ?? ""}`);
+      completed.current.counts[section.id]?.revision !== `${section.contentType}:${section.contentRevision ?? ""}:${isAdmin}`);
     let next = 0;
     async function run() {
       while (next < queue.length && !signal.aborted) {
         const section = queue[next++];
         try {
-          const count = await readSectionSlideCount(section.id, section.contentType as SectionFileType, signal);
+          const count = await readSectionSlideCount(section.id, section.contentType as SectionFileType, signal, isAdmin);
           if (signal.aborted) return;
-          completed.current.counts[section.id] = { revision: `${section.contentType}:${section.contentRevision ?? ""}`, count };
+          completed.current.counts[section.id] = { revision: `${section.contentType}:${section.contentRevision ?? ""}:${isAdmin}`, count };
           setResults(current => ({ courseId, sections: input, counts: {
             ...(current.courseId === courseId ? current.counts : {}),
-            [section.id]: { revision: `${section.contentType}:${section.contentRevision ?? ""}`, count },
+            [section.id]: { revision: `${section.contentType}:${section.contentRevision ?? ""}:${isAdmin}`, count },
           } }));
         } catch { /* Keep the pending label instead of claiming an outdated count. */ }
       }
     }
     void run(); void run();
     return () => controller.abort();
-  }, [courseId, input]);
+  }, [courseId, input, isAdmin]);
   const counts: Record<string, number> = {};
   for (const section of input ?? []) {
     if (results.courseId !== courseId) continue;
     const result = results.counts[section.id];
-    if (result?.revision === `${section.contentType}:${section.contentRevision ?? ""}`) counts[section.id] = result.count;
+    if (result?.revision === `${section.contentType}:${section.contentRevision ?? ""}:${isAdmin}`) counts[section.id] = result.count;
   }
   return counts;
 }

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { type FormEvent, useEffect, useRef, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
-import { motion, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
 import styles from "./LandingExperience.module.css";
 import AnimatedHeroCopy from "./landing/AnimatedHeroCopy";
 import EntranceBootOverlay from "./landing/EntranceBootOverlay";
@@ -78,16 +78,16 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
         return;
       }
       if (!response.ok || !payload.success) {
+        if (response.status === 401) throw new Error("Wrong passcode");
         throw new Error(payload.message || "Unable to sign in. Please check your passcode.");
       }
 
       // Xác thực thành công: dạng users hoặc đúng pass admin
       // Kính mặt robo hiện loading.... màu xanh
-      setRobotState("loading");
       window.location.replace("/learn");
     } catch (caught) {
       if (controller.signal.aborted) return;
-      setRobotState("restricted");
+      setRobotState(caught instanceof Error && caught.message === "Wrong passcode" ? "wrongPasscode" : "restricted");
       setError(caught instanceof Error ? caught.message : "Unable to sign in. Please verify your credentials.");
       setLoading(false);
       resetRobotTimer.current = setTimeout(() => setRobotState("idle"), 2800);
@@ -102,16 +102,34 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
   // ── 3D & Cinematic Experience State ──
   const prefersReduced = useReducedMotion();
 
+  const pageRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const sync = () => pageRef.current?.toggleAttribute("data-animation-paused", document.hidden || identityFields.length > 0);
+    document.addEventListener("visibilitychange", sync);
+    sync();
+    return () => document.removeEventListener("visibilitychange", sync);
+  }, [identityFields.length]);
+
   // Mouse tracking via ref for zero per-frame React re-renders
   const mouseRef = useRef({ x: 0, y: 0 });
   const pointerFrame = useRef<number | null>(null);
   const pendingPointer = useRef({ x: 0, y: 0 });
-  useEffect(() => () => {
-    if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
+  useEffect(() => {
+    const stop = () => {
+      if (pointerFrame.current !== null) cancelAnimationFrame(pointerFrame.current);
+      pointerFrame.current = null;
+    };
+    window.addEventListener("blur", stop);
+    document.addEventListener("visibilitychange", stop);
+    return () => {
+      stop();
+      window.removeEventListener("blur", stop);
+      document.removeEventListener("visibilitychange", stop);
+    };
   }, []);
 
   const handlePointerMove = useCallback((e: React.PointerEvent<HTMLElement>) => {
-    if (e.pointerType === "touch") return;
+    if (e.pointerType === "touch" || prefersReduced || document.hidden || !e.currentTarget.contains(e.target as Node)) return;
     const surface = e.currentTarget;
     pendingPointer.current.x = e.clientX;
     pendingPointer.current.y = e.clientY;
@@ -123,7 +141,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
       mouseRef.current.x = ((pendingPointer.current.x - rect.left) / rect.width) * 2 - 1;
       mouseRef.current.y = -((pendingPointer.current.y - rect.top) / rect.height) * 2 + 1;
     });
-  }, []);
+  }, [prefersReduced]);
 
   // CTA interaction synchronization
   const [isCtaHovered, setIsCtaHovered] = useState(false);
@@ -133,7 +151,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
     const active = accessHovered.current || accessFocused.current;
     setIsCtaHovered(active);
     setRobotState(previous => {
-      if (["loading", "processing", "shakeError", "restricted"].includes(previous)) return previous;
+      if (["loading", "processing", "shakeError", "restricted", "wrongPasscode"].includes(previous)) return previous;
       if (active && previous === "idle") return "lookingAtAccess";
       if (!active && (previous === "lookingAtAccess" || previous === "typing")) return "idle";
       return previous;
@@ -147,7 +165,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
 
   useEffect(() => {
     if (prefersReduced) {
-      const timer = setTimeout(() => setStage(7), 0);
+      const timer = setTimeout(() => setStage(5), 0);
       return () => clearTimeout(timer);
     }
 
@@ -156,7 +174,6 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
       setTimeout(() => setStage(2), 350),
       setTimeout(() => setStage(4), 950),
       setTimeout(() => setStage(5), 1200),
-      setTimeout(() => setStage(6), 1500),
       setTimeout(() => setStage(7), 1800),
     ];
 
@@ -184,6 +201,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
 
   return (
     <main
+      ref={pageRef}
       className={styles.page}
       onPointerMoveCapture={handlePointerMove}
       style={{
@@ -230,23 +248,15 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
             robotState={robotState}
             isCtaHovered={isCtaHovered}
             enter={isOverlayExiting || !isEntranceActive}
+            paused={identityFields.length > 0}
             onReady={handleSceneReady}
             onUnavailable={handleSceneUnavailable}
           />
         </div>
       )}
 
-      {/* ── Navigation (Step 2: Smooth Emergence) ── */}
-      <motion.nav
-        className={styles.nav}
-        initial={{ opacity: 0, y: -16, filter: "blur(4px)" }}
-        animate={
-          stage >= 1 || reducedMotionReady
-            ? { opacity: 1, y: 0, filter: "blur(0px)" }
-            : {}
-        }
-        transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-      >
+      {/* ── Static EIU brand lockup ── */}
+      <nav className={styles.nav}>
         <div className={styles.logoWrap}>
           <Image
             src="/branding/EIU-logo-white.png"
@@ -257,8 +267,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
             unoptimized
           />
         </div>
-        <div className={styles.navMeta}><span>INTERACTIVE</span><i />LEARNING SPACE</div>
-      </motion.nav>
+      </nav>
 
       {/* ── Hero layout ── */}
       <section className={styles.hero} style={{ position: "relative", zIndex: 5, pointerEvents: "none" }}>
@@ -266,7 +275,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
         <div className={styles.copy}>
           <AnimatedHeroCopy
             stage={stage}
-            entranceReady={isOverlayExiting || !isEntranceActive}
+            entranceReady={!isEntranceActive}
             passcode={passcode}
             setPasscode={changePasscode}
               identityFields={identityFields}
@@ -299,7 +308,6 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
         {/* Right: Overlays / HUD / Fallback */}
         <div
           className={styles.machine}
-          style={{ pointerEvents: "none" }}
           aria-hidden="true"
         >
           {(reducedMotionReady || sceneUnavailable) && <EiuAgentBot reducedMotion={reducedMotionReady} />}

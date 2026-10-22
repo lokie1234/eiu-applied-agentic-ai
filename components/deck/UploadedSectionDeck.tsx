@@ -22,12 +22,12 @@ type Props = {
 import { createTsxDocument } from "@/lib/tsxDocument";
 
 // Keep the large source document stable during presence updates and zooming.
-const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, title, frameRef, onLoad, sectionId }: {
+const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, title, frameRef, onLoad, sectionId, isAdmin }: {
   code: string; page: number; background: string; templateKey?: string; title: string;
-  sectionId: string;
+  sectionId: string; isAdmin: boolean;
   frameRef: RefObject<HTMLIFrameElement | null>; onLoad: () => void;
 }) {
-  const document = useMemo(() => createTsxDocument(code, page, background, templateKey, `${sectionId}:${page}`), [code, page, background, templateKey, sectionId]);
+  const document = useMemo(() => createTsxDocument(code, page, background, templateKey, `${sectionId}:${page}`, isAdmin), [code, page, background, templateKey, sectionId, isAdmin]);
   return <iframe ref={frameRef} className={styles.tsxFrame}
     sandbox="allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox"
     title={`${title} · slide ${page}`} srcDoc={document} onLoad={onLoad} />;
@@ -123,7 +123,7 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
         if (!tsxCode || (useTemplate && !templateImage)) return <HairlineLoading />;
         return (
           <div className={styles.loadingFrame}>
-          <TsxSlide frameRef={iframeRef} sectionId={sectionId} code={tsxCode} page={pageNumber} background={useTemplate ? templateImage : ""}
+          <TsxSlide isAdmin={isAdmin} frameRef={iframeRef} sectionId={sectionId} code={tsxCode} page={pageNumber} background={useTemplate ? templateImage : ""}
             templateKey={templateKey} title={sectionTitle} onLoad={onTsxLoad} />
           {showcasePage === pageNumber && <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} />}
           {!tsxReady && <div className={styles.loadingOverlay}><HairlineLoading /></div>}

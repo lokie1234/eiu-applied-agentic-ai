@@ -229,6 +229,7 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
   let catalogRefreshes = 0;
   const router = { refresh() { catalogRefreshes++; } };
   const Portal = load("components/LessonPortal.tsx", {
+    "@/lib/learningLanguage": load("lib/learningLanguage.ts", {}, { window }),
     "next/navigation": { useRouter: () => router },
     "next/dynamic": { __esModule: true, default: () => () => null },
     "next/link": { __esModule: true, default: () => null }, "next/image": { __esModule: true, default: () => null },

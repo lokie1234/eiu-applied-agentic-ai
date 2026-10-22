@@ -1,6 +1,6 @@
 # AI-Powered Web Development
 
-Section 1 có **29 slide**, kết thúc ở slide **Chia sẻ bài làm với giảng viên**. Section 2 giữ nguyên nội dung.
+Section 1 có **30 slide cho admin, 29 slide cho học viên**, kết thúc ở slide **Chia sẻ bài làm với giảng viên**. Slide thực hành thiết kế tự do với AI được chèn sau slide 20 và chỉ admin nhìn thấy. Bộ đếm 15 phút có Bắt đầu, Tạm dừng/Tiếp tục và Đặt lại. Section 2 giữ nguyên nội dung.
 
 Nguồn hiển thị và tải xuống là `Section1.js` / `Section2.js`, được đăng ký bằng course/section ID trong `course-content/sources.json`. API kiểm tra quyền trước khi phục vụ nguyên byte JS; không cần upload Drive.
 
@@ -13,6 +13,6 @@ Chỉnh nội dung trong `storyboard.json` và giao diện trong `renderer.tsx.t
 - `DESIGN.md`: quy tắc EIU kem–navy–vàng, typography và tương tác.
 - `GIT_GUIDE.md`: ghi chú hướng dẫn Git và nguồn tài liệu.
 
-Slide 29 tái sử dụng bảng chia sẻ của khóa Applied Agentic AI. Viewer hiển thị form có xác thực, lấy danh tính từ phiên server và lưu bài với đúng course/section trong Supabase. Export hỗ trợ bộ lọc khóa học và section.
+Slide cuối (30 cho admin, 29 cho học viên) tái sử dụng bảng chia sẻ của khóa Applied Agentic AI. Viewer hiển thị form có xác thực, lấy danh tính từ phiên server và lưu bài với đúng course/section trong Supabase. Export hỗ trợ bộ lọc khóa học và section.
 
 Kiểm tra render: `node scripts/audit-web-app-course.cjs`. Kiểm tra luồng nộp bài và export: `node --test tests/course-showcase-report.test.mjs tests/section-content.test.mjs`.

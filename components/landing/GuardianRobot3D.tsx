@@ -1,8 +1,9 @@
 "use client";
 
-import { useRef, useMemo, useEffect, useState, useCallback } from "react";
+import { useRef, useMemo, useEffect, useState, useCallback, memo } from "react";
 import { useFrame, useLoader, useThree, type ThreeEvent } from "@react-three/fiber";
 import * as THREE from "three";
+import { DRONE_CONFIGS, createDroneFlight, createRobotObstacle, advanceRobotImpact, stepDroneFlight, updateDroneViewport, type DroneConfig, type DroneFlight, type RobotObstacle } from "@/lib/landingDroneFlight";
 
 // ─── EIU DESIGN DNA PALETTE ───────────────────────────────────────────────────
 // Navy 950: #041C31 | Navy 900: #082945 | Navy 800: #123F68 | Navy 700: #18547F
@@ -18,6 +19,7 @@ export type RobotInteractionState =
   | "loading"
   | "shakeError"
   | "restricted"
+  | "wrongPasscode"
   | "success";
 
 interface GuardianRobotProps {
@@ -25,7 +27,6 @@ interface GuardianRobotProps {
   stage?: number;
   robotState?: RobotInteractionState;
   isCtaHovered?: boolean;
-  ctaPulsed?: boolean;
   enter?: boolean;
 }
 
@@ -75,208 +76,79 @@ function DroneLogoDecals() {
   return (
     <group>
       {/* Top fuselage decal, clear of the nose sensor and thrusters. */}
-      <mesh position={[0, 0.089, -0.012]} rotation={[-Math.PI / 2, 0, 0]}>
-        <planeGeometry args={[0.19, 0.19 * 752 / 2702]} />
+      <mesh position={[0, 0.096, 0.022]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[0.20, 0.20 * 752 / 2702]} />
         <meshBasicMaterial map={texture} transparent depthWrite={false} toneMapped={false} />
       </mesh>
-      {/* Side decals stay visible as the drone turns in flight. */}
-      {[-1, 1].map((side) => (
-        <mesh key={side} position={[side * 0.126, 0.018, 0]} rotation={[0, side * Math.PI / 2, 0]}>
-          <planeGeometry args={[0.125, 0.125 * 752 / 2702]} />
-          <meshBasicMaterial map={texture} transparent depthWrite={false} toneMapped={false} />
-        </mesh>
-      ))}
     </group>
   );
 }
 
-function VisorErrorDisplay() {
+type VisorStatus = "error" | "restricted" | "loading";
+const VISOR_STYLES = {
+  error: { text: "Error....Error.....", font: "bold 104px monospace", color: "#FFD600", glow: "#FFB800", maxWidth: 1180, opacity: .75, pulse: .25, speed: 9 },
+  restricted: { text: "Access Restricted!!!", font: "bold 90px 'JetBrains Mono', 'Courier New', monospace", color: "#FF3B30", glow: "#FF2020", maxWidth: 1200, opacity: .82, pulse: .18, speed: 10 },
+  loading: { text: "loading....", font: "bold 104px 'JetBrains Mono', 'Courier New', monospace", color: "#00FF88", glow: "#00FF88", maxWidth: 1180, opacity: .82, pulse: .18, speed: 8 },
+};
+
+function drawVisorStatus(canvas: HTMLCanvasElement, status: VisorStatus, text: string) {
+  const context = canvas.getContext("2d");
+  if (!context) return;
+  const style = VISOR_STYLES[status];
+  context.clearRect(0, 0, canvas.width, canvas.height);
+  context.font = style.font;
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillStyle = style.color;
+  context.shadowColor = style.glow;
+  context.shadowBlur = 24;
+  context.fillText(text, 640, 128, style.maxWidth);
+}
+
+function VisorStatusDisplay({ status, text = VISOR_STYLES[status].text }: { status: VisorStatus; text?: string }) {
   const materialRef = useRef<THREE.MeshBasicMaterial>(null);
+  const resources = useRef<{ canvas: HTMLCanvasElement; texture: THREE.CanvasTexture } | null>(null);
+  const lastDots = useRef(-1);
   const texture = useMemo(() => {
     const canvas = document.createElement("canvas");
     canvas.width = 1280;
     canvas.height = 256;
-    const context = canvas.getContext("2d");
-    if (context) {
-      context.font = "bold 104px monospace";
-      context.textAlign = "center";
-      context.textBaseline = "middle";
-      context.fillStyle = "#FFD600";
-      context.shadowColor = "#FFB800";
-      context.shadowBlur = 24;
-      context.fillText("Error....Error.....", 640, 128, 1180);
-    }
+    drawVisorStatus(canvas, status, text);
     const display = new THREE.CanvasTexture(canvas);
     display.colorSpace = THREE.SRGBColorSpace;
     return display;
-  }, []);
+  }, [status, text]);
   const geometry = useMemo(() => {
-    const surface = new THREE.PlaneGeometry(0.55, 0.14, 48, 8);
+    const surface = new THREE.PlaneGeometry(.55, .14, 48, 8);
     const positions = surface.attributes.position;
     for (let i = 0; i < positions.count; i++) {
-      const x = positions.getX(i);
-      const y = positions.getY(i);
-      positions.setZ(i, Math.sqrt(0.32 * 0.32 - x * x - y * y) + 0.003);
+      const x = positions.getX(i), y = positions.getY(i);
+      positions.setZ(i, Math.sqrt(.32 * .32 - x * x - y * y) + .003);
     }
     surface.computeVertexNormals();
     return surface;
   }, []);
-  useEffect(() => () => { texture.dispose(); geometry.dispose(); }, [texture, geometry]);
-  useFrame(({ clock }) => {
-    if (materialRef.current) {
-      materialRef.current.opacity = 0.75 + Math.sin(clock.getElapsedTime() * 9) * 0.25;
-    }
-  });
-  return (
-    <mesh geometry={geometry} position={[0, 0.02, 0.14]} rotation={[0.06, 0, 0]}>
-      <meshBasicMaterial ref={materialRef} map={texture} transparent depthWrite={false}
-        toneMapped={false} polygonOffset polygonOffsetFactor={-2} polygonOffsetUnits={-2} />
-    </mesh>
-  );
-}
-
-function VisorRestrictedDisplay() {
-  const materialRef = useRef<THREE.MeshBasicMaterial>(null);
-  const texture = useMemo(() => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 1280;
-    canvas.height = 256;
-    const context = canvas.getContext("2d");
-    if (context) {
-      context.font = "bold 90px 'JetBrains Mono', 'Courier New', monospace";
-      context.textAlign = "center";
-      context.textBaseline = "middle";
-      context.fillStyle = "#FF3B30";
-      context.shadowColor = "#FF2020";
-      context.shadowBlur = 24;
-      context.fillText("Access Restricted!!!", 640, 128, 1200);
-    }
-    const display = new THREE.CanvasTexture(canvas);
-    display.colorSpace = THREE.SRGBColorSpace;
-    return display;
-  }, []);
-  const geometry = useMemo(() => {
-    const surface = new THREE.PlaneGeometry(0.55, 0.14, 48, 8);
-    const positions = surface.attributes.position;
-    for (let i = 0; i < positions.count; i++) {
-      const x = positions.getX(i);
-      const y = positions.getY(i);
-      positions.setZ(i, Math.sqrt(0.32 * 0.32 - x * x - y * y) + 0.003);
-    }
-    surface.computeVertexNormals();
-    return surface;
-  }, []);
-  useEffect(() => () => {
-    texture.dispose();
-    geometry.dispose();
-  }, [texture, geometry]);
-  useFrame(({ clock }) => {
-    if (materialRef.current) {
-      materialRef.current.opacity = 0.82 + Math.sin(clock.getElapsedTime() * 10) * 0.18;
-    }
-  });
-  return (
-    <mesh geometry={geometry} position={[0, 0.02, 0.14]} rotation={[0.06, 0, 0]}>
-      <meshBasicMaterial
-        ref={materialRef}
-        map={texture}
-        transparent
-        depthWrite={false}
-        toneMapped={false}
-        polygonOffset
-        polygonOffsetFactor={-2}
-        polygonOffsetUnits={-2}
-      />
-    </mesh>
-  );
-}
-
-function VisorLoadingDisplay() {
-  const materialRef = useRef<THREE.MeshBasicMaterial>(null);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const textureRef = useRef<THREE.CanvasTexture | null>(null);
-  const lastDotsRef = useRef(-1);
-
-  const { texture, geometry, canvas } = useMemo(() => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 1280;
-    canvas.height = 256;
-
-    const context = canvas.getContext("2d");
-    if (context) {
-      context.font = "bold 104px 'JetBrains Mono', 'Courier New', monospace";
-      context.textAlign = "center";
-      context.textBaseline = "middle";
-      context.fillStyle = "#00FF88";
-      context.shadowColor = "#00FF88";
-      context.shadowBlur = 24;
-      context.fillText("loading....", 640, 128, 1180);
-    }
-    const display = new THREE.CanvasTexture(canvas);
-    display.colorSpace = THREE.SRGBColorSpace;
-
-    const surface = new THREE.PlaneGeometry(0.55, 0.14, 48, 8);
-    const positions = surface.attributes.position;
-    for (let i = 0; i < positions.count; i++) {
-      const x = positions.getX(i);
-      const y = positions.getY(i);
-      positions.setZ(i, Math.sqrt(0.32 * 0.32 - x * x - y * y) + 0.003);
-    }
-    surface.computeVertexNormals();
-
-    return { texture: display, geometry: surface, canvas };
-  }, []);
-
+  useEffect(() => () => geometry.dispose(), [geometry]);
   useEffect(() => {
-    canvasRef.current = canvas;
-    textureRef.current = texture;
-    return () => {
-      canvasRef.current = null;
-      textureRef.current = null;
-      texture.dispose();
-      geometry.dispose();
-    };
-  }, [texture, geometry, canvas]);
-
+    resources.current = { canvas: texture.image as HTMLCanvasElement, texture };
+    lastDots.current = -1;
+    return () => { resources.current = null; texture.dispose(); };
+  }, [texture]);
   useFrame(({ clock }) => {
-    const t = clock.getElapsedTime();
-    if (materialRef.current) {
-      materialRef.current.opacity = 0.82 + Math.sin(t * 8) * 0.18;
-    }
-
-    // Dynamic dot progression: loading. -> loading.. -> loading... -> loading....
-    const dotsCount = (Math.floor(t * 3.5) % 4) + 1;
-    if (dotsCount !== lastDotsRef.current && canvasRef.current && textureRef.current) {
-      lastDotsRef.current = dotsCount;
-      const ctx = canvasRef.current.getContext("2d");
-      if (ctx) {
-        ctx.clearRect(0, 0, 1280, 256);
-        ctx.font = "bold 104px 'JetBrains Mono', 'Courier New', monospace";
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillStyle = "#00FF88";
-        ctx.shadowColor = "#00FF88";
-        ctx.shadowBlur = 24;
-        ctx.fillText(`loading${".".repeat(dotsCount)}`, 640, 128, 1180);
-        textureRef.current.needsUpdate = true;
-      }
-    }
+    const time = clock.getElapsedTime();
+    const style = VISOR_STYLES[status];
+    if (materialRef.current) materialRef.current.opacity = style.opacity + Math.sin(time * style.speed) * style.pulse;
+    if (status !== "loading" || !resources.current) return;
+    const dots = (Math.floor(time * 3.5) % 4) + 1;
+    if (dots === lastDots.current) return;
+    lastDots.current = dots;
+    drawVisorStatus(resources.current.canvas, status, "loading" + ".".repeat(dots));
+    resources.current.texture.needsUpdate = true;
   });
-
-  return (
-    <mesh geometry={geometry} position={[0, 0.02, 0.14]} rotation={[0.06, 0, 0]}>
-      <meshBasicMaterial
-        ref={materialRef}
-        map={texture}
-        transparent
-        depthWrite={false}
-        toneMapped={false}
-        polygonOffset
-        polygonOffsetFactor={-2}
-        polygonOffsetUnits={-2}
-      />
-    </mesh>
-  );
+  return <mesh geometry={geometry} position={[0, .02, .14]} rotation={[.06, 0, 0]}>
+    <meshBasicMaterial ref={materialRef} map={texture} transparent depthWrite={false}
+      toneMapped={false} polygonOffset polygonOffsetFactor={-2} polygonOffsetUnits={-2} />
+  </mesh>;
 }
 
 function EiuCrestBadge() {
@@ -460,235 +332,154 @@ function RobotOrbitTrack({
 }
 
 // ─── Autonomous Satellite Companion Drone Orbital Parameters (DOUBLED SIZES) ─
-interface DroneOrbitParams {
-  id: number;
-  radiusX: number;
-  radiusZ: number;
-  baseY: number;
-  speed: number;
-  phase: number;
-  tiltX: number;
-  tiltZ: number;
-  bobFreq: number;
-  bobAmp: number;
-  scale?: number;
+// Shared geometry for free-flight drones and their bounded impact effects.
+function createDroneSparks() {
+  const points = new Float32Array(48);
+  for (let i = 0; i < 8; i++) {
+    const angle = i * Math.PI * .7639;
+    const length = .35 + (i % 3) * .2;
+    for (let end = 0; end < 2; end++) {
+      const distance = length * (end ? 1 : .68);
+      const offset = i * 6 + end * 3;
+      points[offset] = Math.cos(angle) * distance * .65;
+      points[offset + 1] = distance;
+      points[offset + 2] = Math.sin(angle) * distance * .65;
+    }
+  }
+  return new THREE.BufferGeometry().setAttribute("position", new THREE.BufferAttribute(points, 3));
 }
 
-const DRONE_ORBITS: DroneOrbitParams[] = [
-  // Drone 1: Upper-Right Scout Orbit (Doubled)
-  {
-    id: 1,
-    radiusX: 4.20,
-    radiusZ: 3.40,
-    baseY: 1.80,
-    speed: 0.78,
-    phase: 0,
-    tiltX: 0.22,
-    tiltZ: -0.14,
-    bobFreq: 1.3,
-    bobAmp: 0.28,
-    scale: 2.2,
-  },
-  // Drone 2 (Cloned 1): Mid-Left Counter-Orbit Shield (Doubled)
-  {
-    id: 2,
-    radiusX: 4.72,
-    radiusZ: 3.80,
-    baseY: 0.20,
-    speed: -0.65,
-    phase: Math.PI * 0.66,
-    tiltX: -0.28,
-    tiltZ: 0.22,
-    bobFreq: 1.0,
-    bobAmp: 0.32,
-    scale: 2.15,
-  },
-  // Drone 3 (Cloned 2): Lower Perimeter Patrol Orbit (Doubled)
-  {
-    id: 3,
-    radiusX: 4.08,
-    radiusZ: 3.12,
-    baseY: -1.40,
-    speed: 0.98,
-    phase: Math.PI * 1.33,
-    tiltX: 0.32,
-    tiltZ: 0.16,
-    bobFreq: 1.5,
-    bobAmp: 0.26,
-    scale: 2.05,
-  },
-  // Drone 4 (Cloned 3): High Apex Halo Sentinel Orbit (Doubled)
-  {
-    id: 4,
-    radiusX: 3.28,
-    radiusZ: 3.28,
-    baseY: 3.10,
-    speed: -0.88,
-    phase: Math.PI * 1.85,
-    tiltX: -0.15,
-    tiltZ: -0.18,
-    bobFreq: 1.6,
-    bobAmp: 0.24,
-    scale: 2.0,
-  },
-  // Drone 5 (Cloned 4): Wide Deep-Space Lateral Orbit (Doubled, Unbounded Web Space)
-  {
-    id: 5,
-    radiusX: 4.88,
-    radiusZ: 3.65,
-    baseY: -0.65,
-    speed: -0.74,
-    phase: Math.PI * 0.44,
-    tiltX: 0.28,
-    tiltZ: -0.22,
-    bobFreq: 1.18,
-    bobAmp: 0.30,
-    scale: 2.12,
-  },
-  // Drone 6 (Cloned 5): Sweeping High-Altitude Flank Orbit (Doubled, Unbounded Web Space)
-  {
-    id: 6,
-    radiusX: 4.42,
-    radiusZ: 3.92,
-    baseY: 2.45,
-    speed: 0.86,
-    phase: Math.PI * 1.12,
-    tiltX: -0.26,
-    tiltZ: 0.18,
-    bobFreq: 1.44,
-    bobAmp: 0.28,
-    scale: 2.08,
-  },
-];
+function createDroneGeometries() {
+  return {
+    g0: new THREE.CylinderGeometry(0.135, 0.145, 0.16, 6),
+    g1: new THREE.CylinderGeometry(0.142, 0.10, 0.08, 6),
+    g2: new THREE.TorusGeometry(0.138, 0.005, 6, 36),
+    g3: new THREE.CylinderGeometry(0.075, 0.075, 0.008, 6),
+    g4: new THREE.CylinderGeometry(0.004, 0.004, 0.004, 6),
+    g5: new THREE.TorusGeometry(0.072, 0.006, 8, 28),
+    g6: new THREE.SphereGeometry(0.068, 20, 16),
+    g7: new THREE.SphereGeometry(0.048, 20, 16, 0, Math.PI * 2, 0, Math.PI * 0.48),
+    g8: new THREE.SphereGeometry(0.018, 14, 10),
+    g9: new THREE.SphereGeometry(0.0035, 8, 8),
+    g10: new THREE.SphereGeometry(0.006, 8, 8),
+    g11: new THREE.BoxGeometry(0.06, 0.014, 0.035),
+    g12: new THREE.BoxGeometry(0.058, 0.003, 0.032),
+    g13: new THREE.SphereGeometry(0.014, 10, 8),
+    g14: new THREE.CylinderGeometry(0.024, 0.028, 0.065, 16),
+    g15: new THREE.TorusGeometry(0.024, 0.004, 8, 20),
+    g16: new THREE.SphereGeometry(0.015, 12, 10),
+    g17: new THREE.TorusGeometry(0.158, 0.008, 10, 36),
+    g18: new THREE.TorusGeometry(0.150, 0.003, 8, 36),
+    g19: new THREE.BoxGeometry(0.022, 0.005, 0.008),
+    g20: new THREE.CylinderGeometry(0.032, 0.048, 0.045, 18),
+    g21: new THREE.TorusGeometry(0.046, 0.005, 8, 24),
+    g22: new THREE.SphereGeometry(0.016, 12, 10),
+    g23: new THREE.BoxGeometry(0.004, 0.09, 0.014),
+    g24: new THREE.SphereGeometry(0.004, 6, 6),
+    flash: new THREE.SphereGeometry(.075, 8, 6),
+    sparks: createDroneSparks(),
+  };
+}
 
-// ─── Autonomous Satellite Companion Drone (Orbiting Constellation) ───────────
-function OrbitingCompanionDrone({
-  orbit,
-  mouseRef,
-  stage = 5,
-  enter = true,
-  goldMat,
-  navyMat,
-  deepNavyMat,
-  visorMat,
-  accentBlueMat,
-  whiteSpecMat,
+const AutonomousDrone = memo(function AutonomousDrone({
+  config, geometries, obstacle, stage = 5, enter = true,
+  goldMat, navyMat, deepNavyMat, visorMat, accentBlueMat, whiteSpecMat,
 }: {
-  orbit: DroneOrbitParams;
-  mouseRef: React.MutableRefObject<{ x: number; y: number }>;
+  config: DroneConfig;
+  geometries: ReturnType<typeof createDroneGeometries>;
+  obstacle: React.MutableRefObject<RobotObstacle>;
   stage?: number;
   enter?: boolean;
-  goldMat: THREE.Material;
-  navyMat: THREE.Material;
-  deepNavyMat: THREE.Material;
-  visorMat: THREE.Material;
-  accentBlueMat: THREE.Material;
-  whiteSpecMat: THREE.Material;
+  goldMat: THREE.Material; navyMat: THREE.Material; deepNavyMat: THREE.Material;
+  visorMat: THREE.Material; accentBlueMat: THREE.Material; whiteSpecMat: THREE.Material;
 }) {
   const droneRef = useRef<THREE.Group>(null);
-  const flightTime = useRef(0);
+  const wreckRef = useRef<THREE.Group>(null);
+  const burstRef = useRef<THREE.Group>(null);
+  const flashRef = useRef<THREE.Mesh>(null);
   const droneEyeMatRef = useRef<THREE.MeshStandardMaterial | null>(null);
+  const flightRef = useRef<DroneFlight | null>(null);
+  if (flightRef.current === null) {
+    flightRef.current = createDroneFlight(config);
+  }
+  const { camera, size } = useThree();
+  useEffect(() => {
+    const flight = flightRef.current;
+    if (!flight || !(camera instanceof THREE.PerspectiveCamera)) return;
+    // Use the nearest flight depth so even foreground drones remain inside the canvas.
+    const halfHeight = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * Math.max(1, camera.position.z - 1.6) / camera.zoom;
+    updateDroneViewport(flight, halfHeight * camera.aspect, halfHeight);
+  }, [camera, size.width, size.height]);
+  const effects = useMemo(() => ({
+    wreck: new THREE.MeshStandardMaterial({ color:"#31536a", metalness:.8, roughness:.4, transparent:true, depthWrite:false }),
+    flash: new THREE.MeshBasicMaterial({ color:"#fff0c2", transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false }),
+    sparks: new THREE.LineBasicMaterial({ color:"#b9e6ff", transparent:true, opacity:0, depthWrite:false, blending:THREE.AdditiveBlending, toneMapped:false }),
+  }), []);
+  const impactAxes = useMemo(() => ({ up: new THREE.Vector3(0, 1, 0), normal: new THREE.Vector3() }), []);
+  const effectsRef = useRef(effects);
+  useEffect(() => () => Object.values(effects).forEach(material => material.dispose()), [effects]);
 
   useFrame((_, delta) => {
-    if (!droneRef.current || !enter) return;
-    delta = Math.min(delta, .05);
-    flightTime.current += delta;
-    const t = flightTime.current;
-    const entry = THREE.MathUtils.smootherstep((t - .2 - orbit.id * .18) / 2.6, 0, 1);
-
-    // 3D Orbital Trajectory
-    const theta = t * orbit.speed + orbit.phase;
-    const x0 = Math.cos(theta) * orbit.radiusX;
-    const z0 = Math.sin(theta) * orbit.radiusZ;
-    const y0 = orbit.baseY + Math.sin(t * orbit.bobFreq + orbit.phase) * orbit.bobAmp;
-
-    // Apply 3D orbital plane inclination
-    const targetX = x0 * Math.cos(orbit.tiltZ) - y0 * Math.sin(orbit.tiltZ);
-    const targetY = y0 * Math.cos(orbit.tiltX) + z0 * Math.sin(orbit.tiltX);
-    const targetZ = z0 * Math.cos(orbit.tiltX) - y0 * Math.sin(orbit.tiltX);
-
-    if (entry < 1) {
-      // Stagger the satellites from depth into their existing orbital paths.
-      droneRef.current.position.set(
-        THREE.MathUtils.lerp(Math.cos(orbit.phase) * 1.5, targetX, entry),
-        THREE.MathUtils.lerp(-4 - orbit.id * .25, targetY, entry),
-        THREE.MathUtils.lerp(-7, targetZ, entry),
-      );
-    } else {
-    droneRef.current.position.x = THREE.MathUtils.damp(
-      droneRef.current.position.x,
-      targetX,
-      5.0,
-      delta
-    );
-    droneRef.current.position.y = THREE.MathUtils.damp(
-      droneRef.current.position.y,
-      targetY,
-      5.0,
-      delta
-    );
-    droneRef.current.position.z = THREE.MathUtils.damp(
-      droneRef.current.position.z,
-      targetZ,
-      5.0,
-      delta
-    );
+    if (!droneRef.current || !enter || !flightRef.current) return;
+    const flight = flightRef.current;
+    const { wreck: wreckMat, flash: flashMat, sparks: sparksMat } = effectsRef.current;
+    stepDroneFlight(flight, obstacle.current, delta);
+    const body = droneRef.current;
+    body.visible = flight.visible;
+    body.position.set(flight.position.x, flight.position.y, flight.position.z);
+    body.rotation.set(flight.rotation.x, flight.rotation.y, flight.rotation.z);
+    body.scale.setScalar(config.scale * (.85 + .15 * Math.min(1, flight.age / 3.2)));
+    if (droneEyeMatRef.current) droneEyeMatRef.current.emissiveIntensity = stage >= 4 ? 1.3 + Math.sin(flight.elapsed * 3.5 + config.id) * .4 : .2;
+    if (wreckRef.current) {
+      const wreck = flight.wreck;
+      wreckRef.current.visible = wreck.active;
+      if (wreck.active) {
+        wreckRef.current.position.set(wreck.position.x, wreck.position.y, wreck.position.z);
+        wreckRef.current.rotation.set(wreck.rotation.x, wreck.rotation.y, wreck.rotation.z);
+        wreckMat.opacity = wreck.opacity;
+      }
     }
-    droneRef.current.scale.setScalar((orbit.scale || .72) * THREE.MathUtils.lerp(.7, 1, entry));
-
-    // Orientation: blend tangent heading with eager gaze toward cursor
-    const tangentHeading = Math.atan2(-Math.sin(theta) * orbit.speed, Math.cos(theta) * orbit.speed);
-    const targetRotY = tangentHeading * 0.35 + mouseRef.current.x * 0.55;
-    const targetRotX = -mouseRef.current.y * 0.38 + Math.sin(t * 2.2 + orbit.phase) * 0.08;
-    const targetRotZ = Math.sin(t * 1.8 + orbit.phase) * 0.10;
-
-    droneRef.current.rotation.y = THREE.MathUtils.damp(
-      droneRef.current.rotation.y,
-      targetRotY,
-      6.0,
-      delta
-    );
-    droneRef.current.rotation.x = THREE.MathUtils.damp(
-      droneRef.current.rotation.x,
-      targetRotX,
-      6.0,
-      delta
-    );
-    droneRef.current.rotation.z = THREE.MathUtils.damp(
-      droneRef.current.rotation.z,
-      targetRotZ,
-      5.0,
-      delta
-    );
-
-    // Drone light pulse (restrained, staggered across drones)
-    const dronePulse =
-      stage >= 4
-        ? 1.25 + Math.sin(t * 3.5 + orbit.phase) * 0.55
-        : 0.2;
-    if (droneEyeMatRef.current) droneEyeMatRef.current.emissiveIntensity = dronePulse;
+    if (burstRef.current) {
+      const burst = flight.burst;
+      burstRef.current.visible = burst.active;
+      if (burst.active) {
+        burstRef.current.position.set(
+          burst.position.x + burst.normal.x * burst.age * 1.8,
+          burst.position.y + burst.normal.y * burst.age * 1.8 - burst.age * burst.age,
+          burst.position.z + burst.normal.z * burst.age * 1.8,
+        );
+        impactAxes.normal.set(burst.normal.x, burst.normal.y, burst.normal.z);
+        burstRef.current.quaternion.setFromUnitVectors(impactAxes.up, impactAxes.normal);
+        burstRef.current.scale.setScalar(burst.scale);
+        sparksMat.opacity = burst.opacity;
+        // Two brief electrical arcs rather than a growing fireball.
+        flashMat.opacity = burst.age < .055 ? 1 : burst.age < .09 ? .15 : burst.age < .14 ? .7 : 0;
+        if (flashRef.current) {
+          const size = Math.max(.001, 1 - burst.age / .14);
+          flashRef.current.scale.set(size, size * .3, size);
+        }
+      }
+    }
   });
 
-  const scale = orbit.scale || 0.72;
-
-  return (
-    <group ref={droneRef} scale={scale * .7} position={[Math.cos(orbit.phase) * 1.5, -4 - orbit.id * .25, -7]}>
+  return <group name={"drone-actor-" + config.id}>
+    <group name={"drone-" + config.id} ref={droneRef} scale={config.scale * .7} position={[(config.id - 3.5) * 1.8, -11, -6.2]}>
       <DroneLogoDecals />
       {/* 1. Precision Faceted Avionics Core Fuselage */}
-      <mesh material={navyMat} castShadow>
-        <cylinderGeometry args={[0.135, 0.145, 0.16, 6]} />
+      <mesh material={navyMat}>
+        <primitive object={geometries.g0} attach="geometry" />
       </mesh>
       {/* Lower Chassis Undercarriage Shell */}
       <mesh position={[0, -0.06, 0]} material={deepNavyMat}>
-        <cylinderGeometry args={[0.142, 0.10, 0.08, 6]} />
+        <primitive object={geometries.g1} attach="geometry" />
       </mesh>
       {/* Equatorial Recessed Panel Seam & Service Channel */}
       <mesh rotation={[Math.PI / 2, 0, 0]} material={deepNavyMat}>
-        <torusGeometry args={[0.138, 0.005, 6, 36]} />
+        <primitive object={geometries.g2} attach="geometry" />
       </mesh>
       {/* Top Access Service Hatch with Gold Corner Fasteners */}
       <mesh position={[0, 0.082, 0]} material={deepNavyMat}>
-        <cylinderGeometry args={[0.075, 0.075, 0.008, 6]} />
+        <primitive object={geometries.g3} attach="geometry" />
       </mesh>
       {[0, 1, 2, 3, 4, 5].map((idx) => {
         const a = (idx * Math.PI) / 3;
@@ -698,7 +489,7 @@ function OrbitingCompanionDrone({
             position={[Math.cos(a) * 0.065, 0.088, Math.sin(a) * 0.065]}
             material={goldMat}
           >
-            <cylinderGeometry args={[0.004, 0.004, 0.004, 6]} />
+            <primitive object={geometries.g4} attach="geometry" />
           </mesh>
         );
       })}
@@ -707,28 +498,28 @@ function OrbitingCompanionDrone({
       <group position={[0, 0.015, 0.09]}>
         {/* Recessed Spherical Socket Collar */}
         <mesh rotation={[Math.PI / 2, 0, 0]} material={goldMat}>
-          <torusGeometry args={[0.072, 0.006, 8, 28]} />
+          <primitive object={geometries.g5} attach="geometry" />
         </mesh>
         {/* Spherical Sensor Ball Housing */}
         <mesh material={deepNavyMat}>
-          <sphereGeometry args={[0.068, 20, 16]} />
+          <primitive object={geometries.g6} attach="geometry" />
         </mesh>
         {/* Sapphire Optical Lens Element */}
         <mesh position={[0, 0, 0.038]} rotation={[0.06, 0, 0]} material={visorMat}>
-          <sphereGeometry args={[0.048, 20, 16, 0, Math.PI * 2, 0, Math.PI * 0.48]} />
+          <primitive object={geometries.g7} attach="geometry" />
         </mesh>
         {/* Internal Optical Aperture & Glint */}
         <mesh position={[0, 0, 0.048]}>
-          <sphereGeometry args={[0.018, 14, 10]} />
+          <primitive object={geometries.g8} attach="geometry" />
           <meshStandardMaterial ref={droneEyeMatRef} color="#2D7FB4" emissive="#2D7FB4" emissiveIntensity={1.4} roughness={.12} />
         </mesh>
         <mesh position={[-0.005, 0.005, 0.058]} material={whiteSpecMat}>
-          <sphereGeometry args={[0.0035, 8, 8]} />
+          <primitive object={geometries.g9} attach="geometry" />
         </mesh>
         {/* Dual Stereoscopic Laser Rangefinders */}
         {[-0.032, 0.032].map((xL, idx) => (
           <mesh key={`laser-${idx}`} position={[xL, -0.024, 0.035]} material={accentBlueMat}>
-            <sphereGeometry args={[0.006, 8, 8]} />
+            <primitive object={geometries.g10} attach="geometry" />
           </mesh>
         ))}
       </group>
@@ -743,27 +534,27 @@ function OrbitingCompanionDrone({
         <group key={`thruster-${i}`} position={[xP, yP, zP]}>
           {/* Aerofoil Pylon Bracket */}
           <mesh rotation={[0, 0, rotZ]} material={navyMat}>
-            <boxGeometry args={[0.06, 0.014, 0.035]} />
+            <primitive object={geometries.g11} attach="geometry" />
           </mesh>
           <mesh position={[0, 0.008, 0]} rotation={[0, 0, rotZ]} material={goldMat}>
-            <boxGeometry args={[0.058, 0.003, 0.032]} />
+            <primitive object={geometries.g12} attach="geometry" />
           </mesh>
           {/* Rotary Vector Trunnion Mount */}
           <mesh position={[i % 2 === 0 ? -0.032 : 0.032, 0, 0]} material={goldMat}>
-            <sphereGeometry args={[0.014, 10, 8]} />
+            <primitive object={geometries.g13} attach="geometry" />
           </mesh>
           {/* Vector Thruster Nacelle Casing */}
           <group position={[i % 2 === 0 ? -0.048 : 0.048, 0, 0]}>
             <mesh material={deepNavyMat}>
-              <cylinderGeometry args={[0.024, 0.028, 0.065, 16]} />
+              <primitive object={geometries.g14} attach="geometry" />
             </mesh>
             {/* Gold Cowling Intake Lip */}
             <mesh position={[0, 0.032, 0]} rotation={[Math.PI / 2, 0, 0]} material={goldMat}>
-              <torusGeometry args={[0.024, 0.004, 8, 20]} />
+              <primitive object={geometries.g15} attach="geometry" />
             </mesh>
             {/* Ion Exhaust Nozzle Throat */}
             <mesh position={[0, -0.034, 0]} material={accentBlueMat}>
-              <sphereGeometry args={[0.015, 12, 10]} />
+              <primitive object={geometries.g16} attach="geometry" />
             </mesh>
           </group>
         </group>
@@ -771,16 +562,16 @@ function OrbitingCompanionDrone({
 
       {/* 4. Dual Precision Beveled Gold Halo Rings with Standoff Brackets */}
       <mesh rotation={[Math.PI / 2, 0, 0]} material={goldMat}>
-        <torusGeometry args={[0.158, 0.008, 10, 36]} />
+        <primitive object={geometries.g17} attach="geometry" />
       </mesh>
       <mesh position={[0, 0.006, 0]} rotation={[Math.PI / 2, 0, 0]} material={goldMat}>
-        <torusGeometry args={[0.150, 0.003, 8, 36]} />
+        <primitive object={geometries.g18} attach="geometry" />
       </mesh>
       {/* 4 Radial Mechanical Standoff Struts Linking Ring to Fuselage */}
       {[0, Math.PI / 2, Math.PI, Math.PI * 1.5].map((ang, i) => (
         <group key={`strut-${i}`} rotation={[0, ang, 0]}>
           <mesh position={[0.144, 0, 0]} material={goldMat}>
-            <boxGeometry args={[0.022, 0.005, 0.008]} />
+            <primitive object={geometries.g19} attach="geometry" />
           </mesh>
         </group>
       ))}
@@ -789,13 +580,13 @@ function OrbitingCompanionDrone({
       <group position={[0, -0.085, -0.04]}>
         {/* Main Rear Thruster Bell */}
         <mesh material={deepNavyMat}>
-          <cylinderGeometry args={[0.032, 0.048, 0.045, 18]} />
+          <primitive object={geometries.g20} attach="geometry" />
         </mesh>
         <mesh position={[0, -0.023, 0]} rotation={[Math.PI / 2, 0, 0]} material={goldMat}>
-          <torusGeometry args={[0.046, 0.005, 8, 24]} />
+          <primitive object={geometries.g21} attach="geometry" />
         </mesh>
         <mesh position={[0, -0.025, 0]} material={accentBlueMat}>
-          <sphereGeometry args={[0.016, 12, 10]} />
+          <primitive object={geometries.g22} attach="geometry" />
         </mesh>
       </group>
 
@@ -803,16 +594,29 @@ function OrbitingCompanionDrone({
       {[-0.065, 0.065].map((xA, i) => (
         <group key={`ant-${i}`} position={[xA, 0.08, -0.04]} rotation={[0.2, 0, i === 0 ? 0.35 : -0.35]}>
           <mesh material={goldMat}>
-            <boxGeometry args={[0.004, 0.09, 0.014]} />
+            <primitive object={geometries.g23} attach="geometry" />
           </mesh>
           <mesh position={[0, 0.045, 0]} material={accentBlueMat}>
-            <sphereGeometry args={[0.004, 6, 6]} />
+            <primitive object={geometries.g24} attach="geometry" />
           </mesh>
         </group>
       ))}
     </group>
-  );
-}
+    {/* A damaged hull shares the live drone's geometry and one fading material. */}
+    <group name={"drone-wreck-" + config.id} ref={wreckRef} visible={false} scale={config.scale}>
+      <mesh geometry={geometries.g0} material={effects.wreck} />
+      <mesh geometry={geometries.g17} material={effects.wreck} rotation={[Math.PI / 2,0,0]} />
+      {[-1,1].map(side => <group key={side}>
+        <mesh geometry={geometries.g11} material={effects.wreck} position={[side * .11,0,0]} />
+        {[-1,1].map(end => <mesh key={end} geometry={geometries.g14} material={effects.wreck} position={[side * .19,0,end * .1]} />)}
+      </group>)}
+    </group>
+    <group name={"drone-burst-" + config.id} ref={burstRef} visible={false}>
+      <mesh ref={flashRef} geometry={geometries.flash} material={effects.flash} />
+      <lineSegments geometry={geometries.sparks} material={effects.sparks} />
+    </group>
+  </group>;
+});
 
 // ─── 3-FINGERED ARTICULATED ROBOTIC HAND (MINIMAL, ELEGANT, MECHANICAL) ──────
 function RoboticHand5Fingers({
@@ -844,7 +648,7 @@ function RoboticHand5Fingers({
 
       {/* 2. Angular Palm Chassis (Chiseled Aerospace Housing) */}
       <group position={[0, -0.042, 0]}>
-        <mesh material={navyMat} castShadow>
+        <mesh material={navyMat}>
           <boxGeometry args={[0.064, 0.048, 0.032]} />
         </mesh>
         {/* Palm Gold Reinforcement Truss */}
@@ -929,9 +733,11 @@ export default function GuardianRobot3D({
   stage = 5,
   robotState = "idle",
   isCtaHovered = false,
-  ctaPulsed = false,
   enter = true,
 }: GuardianRobotProps) {
+  const droneGeometries = useMemo(createDroneGeometries, []);
+  const droneObstacle = useRef(createRobotObstacle());
+  const collisionScratch = useMemo(() => new THREE.Vector3(), []);
   const device = useRef({ isMobile: false, isReduced: false });
   const orbitScratch = useMemo(() => ({ point: new THREE.Vector3(), next: new THREE.Vector3() }), []);
   const interactionScratch = useMemo(() => ({
@@ -955,7 +761,6 @@ export default function GuardianRobot3D({
 
   // Master hierarchy refs
   const rootRef = useRef<THREE.Group>(null);
-  const hoverGroupRef = useRef<THREE.Group>(null);
   const torsoRef = useRef<THREE.Group>(null);
   const headRef = useRef<THREE.Group>(null);
   const eyesGroupRef = useRef<THREE.Group>(null);
@@ -980,11 +785,6 @@ export default function GuardianRobot3D({
   // Dynamic mesh elements
   const leftEyeRef = useRef<THREE.Mesh>(null);
   const rightEyeRef = useRef<THREE.Mesh>(null);
-  const aiCoreRef = useRef<THREE.Mesh>(null);
-  const aiRingRef = useRef<THREE.Mesh>(null);
-  const antennaOrbRef = useRef<THREE.Mesh>(null);
-  const thrusterHaloL = useRef<THREE.Mesh>(null);
-  const thrusterHaloR = useRef<THREE.Mesh>(null);
 
   // Eye blink & micro-interaction physics
   const blinkTimer = useRef(0);
@@ -997,7 +797,7 @@ export default function GuardianRobot3D({
   // Shake error timer
   const shakeTimer = useRef(0);
 
-  // Entrance timer (800ms - 1200ms)
+  // Entrance timer (3.2 seconds)
   const entranceTimer = useRef(0);
 
   // Damped pointer coordinates with inertia
@@ -1005,7 +805,6 @@ export default function GuardianRobot3D({
 
   // Lighting refs
   const keyLightRef = useRef<THREE.DirectionalLight>(null);
-  const rimLightRef = useRef<THREE.DirectionalLight>(null);
   const corePointLightRef = useRef<THREE.PointLight>(null);
 
   const { camera, gl, raycaster } = useThree();
@@ -1034,10 +833,9 @@ export default function GuardianRobot3D({
   const isError = useRef(false);
   const [showErrorBadge, setShowErrorBadge] = useState(false);
   const showLoadingBadge = robotState === "loading" || robotState === "success";
-  const showRestrictedBadge = robotState === "restricted" || robotState === "shakeError";
+  const showRestrictedBadge = robotState === "restricted" || robotState === "shakeError" || robotState === "wrongPasscode";
   const errorRecoverTarget = useRef(new THREE.Vector3(0, 0, 0));
   const errorRecoverTheta = useRef(0);
-  const swimTimer = useRef(0);
   const crawlPhaseRef = useRef(0);
 
   // Drag hit-box collider ref
@@ -1112,7 +910,6 @@ export default function GuardianRobot3D({
           setShowErrorBadge(true);
           errorRecoverTarget.current.copy(evalResult.nearestPoint);
           errorRecoverTheta.current = evalResult.nearestTheta;
-          swimTimer.current = 0;
         }
       };
 
@@ -1216,7 +1013,7 @@ export default function GuardianRobot3D({
         clearcoat: 0.48,
         clearcoatRoughness: 0.10,
         reflectivity: 0.85,
-        bumpMap: microBumpTex || undefined,
+        bumpMap: microBumpTex,
         bumpScale: 0.0003,
       }),
       // Deepest Navy 950 for structural recesses and chassis joints
@@ -1226,7 +1023,7 @@ export default function GuardianRobot3D({
         roughness: 0.28,
         clearcoat: 0.16,
         clearcoatRoughness: 0.26,
-        bumpMap: microBumpTex || undefined,
+        bumpMap: microBumpTex,
         bumpScale: 0.0005,
       }),
       // Secondary Navy 800 for layered flank cowlings (matte composite contrast)
@@ -1291,16 +1088,6 @@ export default function GuardianRobot3D({
         clearcoatRoughness: 0.03,
         reflectivity: 0.95,
       }),
-      // Fine ceramic cream finish for structural emblem and badges
-      creamMat: new THREE.MeshPhysicalMaterial({
-        color: "#F7F4ED",
-        roughness: 0.34,
-        metalness: 0.10,
-        clearcoat: 0.35,
-        clearcoatRoughness: 0.22,
-        sheen: 0.25,
-        sheenColor: new THREE.Color("#FAF8F2"),
-      }),
       // Specular white for eye glints and micro reflections
       whiteSpec: new THREE.MeshBasicMaterial({ color: "#FFFFFF" }),
       // Contact ambient occlusion shadow material for mechanical grounding
@@ -1357,9 +1144,24 @@ export default function GuardianRobot3D({
     thruster: thrusterGlowMat,
   } = dynamicMatsRef.current;
 
+  useEffect(() => {
+    const dynamic = dynamicMatsRef.current;
+    return () => {
+      const textures = new Set<THREE.Texture>();
+      for (const material of Object.values(materials)) {
+        const bump = (material as THREE.MeshPhysicalMaterial).bumpMap;
+        if (bump) textures.add(bump);
+        material.dispose();
+      }
+      textures.forEach(texture => texture.dispose());
+      Object.values(droneGeometries).forEach(geometry => geometry.dispose());
+      if (dynamic) Object.values(dynamic).forEach(material => material.dispose());
+    };
+  }, [materials, droneGeometries]);
+
   // Trigger shake error when robotState is shakeError or restricted
   useEffect(() => {
-    if (robotState === "shakeError" || robotState === "restricted") {
+    if (robotState === "shakeError" || robotState === "restricted" || robotState === "wrongPasscode") {
       shakeTimer.current = 0.65; // 650ms controlled head-shake
     }
   }, [robotState]);
@@ -1369,6 +1171,8 @@ export default function GuardianRobot3D({
     if (!enter) return;
     delta = Math.min(delta, .05);
     const t = clock.getElapsedTime();
+
+    advanceRobotImpact(droneObstacle.current, delta);
 
     // Check device / reduced motion constraints
     const { isMobile, isReduced } = device.current;
@@ -1446,8 +1250,7 @@ export default function GuardianRobot3D({
         );
       }
     } else if (isError.current) {
-      // ─── DROPPED OUTSIDE ORBIT: AUTONOMOUS RECOVERY ("TỰ BƠI VỀ QUỶ ĐẠO") ───
-      swimTimer.current += delta;
+      // Return to the nearest point on the robot's patrol path.
       const targetPos = errorRecoverTarget.current;
       const currentPos = rootRef.current ? rootRef.current.position : targetPos;
       const dist = currentPos.distanceTo(targetPos);
@@ -1567,6 +1370,10 @@ export default function GuardianRobot3D({
       if (isKeyActive) targetTorsoPitch += Math.sin(keyCountRef.current * 1.5) * 0.015 * keyIntensity;
     }
 
+    const impact = droneObstacle.current;
+    const recoil = Math.cos(impact.impactAge * 26) * impact.impact;
+    targetTorsoRoll += impact.impactNormal.x * recoil * .07;
+    targetTorsoPitch -= impact.impactNormal.z * recoil * .045;
     if (torsoRef.current) {
       torsoRef.current.rotation.y = THREE.MathUtils.damp(torsoRef.current.rotation.y, targetTorsoYaw, 5.0, delta);
       torsoRef.current.rotation.z = THREE.MathUtils.damp(torsoRef.current.rotation.z, targetTorsoRoll, 5.0, delta);
@@ -1610,7 +1417,7 @@ export default function GuardianRobot3D({
     if (headRef.current) {
       headRef.current.rotation.y = THREE.MathUtils.damp(headRef.current.rotation.y, targetHeadYaw, 9.2, delta);
       headRef.current.rotation.x = THREE.MathUtils.damp(headRef.current.rotation.x, targetHeadPitch, 9.2, delta);
-      headRef.current.rotation.z = THREE.MathUtils.damp(headRef.current.rotation.z, targetHeadRoll + microTilt.current, 7.5, delta);
+      headRef.current.rotation.z = THREE.MathUtils.damp(headRef.current.rotation.z, targetHeadRoll + microTilt.current - impact.impactNormal.x * recoil * .035, 7.5, delta);
     }
 
     // ─── 5. DIGITAL APERTURE EYES (HIGH-GAIN ATTENTION TO POINTER) ───
@@ -1689,7 +1496,7 @@ export default function GuardianRobot3D({
 
     // ─── 7. LIGHTING & EMISSIVE ENERGY (ALERT ON ERROR, SERENE ON PATROL) ───
     const basePulse = Math.sin(t * 2.0) * 0.35 + 0.95;
-    const boost = isLoading ? 3.0 : isProcessing ? 2.2 : isLookingAtAccess ? 1.45 : ctaPulsed ? 2.4 : 1.0;
+    const boost = isLoading ? 3.0 : isProcessing ? 2.2 : isLookingAtAccess ? 1.45 : 1.0;
     const keyCorePulse = isKeyActive ? 1.0 + keyIntensity * 0.7 : 1.0;
 
     if (isError.current) {
@@ -1771,6 +1578,17 @@ export default function GuardianRobot3D({
       const robotPosY = rootRef.current ? rootRef.current.position.y : 0;
       keyLightRef.current.intensity = 1.25 + robotPosY * 0.12;
     }
+    const obstacle = droneObstacle.current;
+    obstacle.active = entranceT >= 1 && !isReduced;
+    if (obstacle.active && torsoRef.current && headRef.current) {
+      const scale = rootRef.current?.scale.x || 4;
+      torsoRef.current.getWorldPosition(collisionScratch);
+      obstacle.body.x = collisionScratch.x; obstacle.body.y = collisionScratch.y; obstacle.body.z = collisionScratch.z;
+      obstacle.body.radius = scale * .42;
+      headRef.current.getWorldPosition(collisionScratch);
+      obstacle.head.x = collisionScratch.x; obstacle.head.y = collisionScratch.y; obstacle.head.z = collisionScratch.z;
+      obstacle.head.radius = scale * .38;
+    }
   });
 
   return (
@@ -1779,6 +1597,7 @@ export default function GuardianRobot3D({
       <RobotOrbitTrack curve={masterOrbitCurve} isErrorRef={isError} />
 
       <group
+        name="landing-guardian-robot"
         ref={rootRef}
         position={[-1.5, -12, -6]}
         scale={3.44}
@@ -1809,7 +1628,7 @@ export default function GuardianRobot3D({
 
         {/* Rim Accent Blue Light for sharp silhouette definition */}
         <directionalLight
-          ref={rimLightRef}
+
           position={[-4.5, 3.4, -3.2]}
           intensity={1.65}
           color="#3A94D0"
@@ -1835,7 +1654,7 @@ export default function GuardianRobot3D({
         />
 
         {/* ─── HOVER SUSPENSION GROUP ───────────────────────────────────────── */}
-        <group ref={hoverGroupRef}>
+        <group>
           {/* ───────────── TORSO CHASSIS ───────────── */}
           <group ref={torsoRef}>
             {/* ───────────── COMPACT CERVICAL NECK ASSEMBLY ───────────── */}
@@ -1906,7 +1725,7 @@ export default function GuardianRobot3D({
             </mesh>
 
             {/* Sculpted Main Breastplate (Aerospace Anodized Navy Armor) */}
-            <mesh position={[0, -0.12, 0.03]} material={materials.navyArmor} castShadow>
+            <mesh position={[0, -0.12, 0.03]} material={materials.navyArmor}>
               <cylinderGeometry args={[0.33, 0.30, 0.46, 32]} />
             </mesh>
 
@@ -1981,12 +1800,12 @@ export default function GuardianRobot3D({
                 </group>
               ))}
               {/* Luminous Pulsing AI Core Heart */}
-              <mesh ref={aiCoreRef} position={[0, 0, 0.016]}>
+              <mesh position={[0, 0, 0.016]}>
                 <sphereGeometry args={[0.050, 24, 20]} />
                 <primitive object={coreEmissiveMat} attach="material" />
               </mesh>
               {/* Core Optical Outer Halo Ring */}
-              <mesh ref={aiRingRef} position={[0, 0, 0.020]} rotation={[0, 0, Math.PI / 4]}>
+              <mesh position={[0, 0, 0.020]} rotation={[0, 0, Math.PI / 4]}>
                 <torusGeometry args={[0.058, 0.005, 6, 24]} />
                 <primitive object={coreEmissiveMat} attach="material" />
               </mesh>
@@ -2044,7 +1863,7 @@ export default function GuardianRobot3D({
             {/* ─── LEVITATING REPULSOR DRIVE (SLIMMER & VERTICALLY BALANCED) ─── */}
             <group position={[0, -0.55, 0]}>
               {/* Hexagonal Pelvic Bulkhead Chassis */}
-              <mesh material={materials.deepNavy} castShadow>
+              <mesh material={materials.deepNavy}>
                 <cylinderGeometry args={[0.21, 0.13, 0.13, 6]} />
               </mesh>
               {/* Perimeter Gold Chassis Retaining Rim */}
@@ -2060,7 +1879,7 @@ export default function GuardianRobot3D({
                     <torusGeometry args={[0.066, 0.006, 8, 20]} />
                   </mesh>
                   {/* Thruster Outer Bell (Anodized Aerospace Titanium) */}
-                  <mesh material={materials.navyArmor} castShadow>
+                  <mesh material={materials.navyArmor}>
                     <cylinderGeometry args={[0.060, 0.078, 0.115, 24]} />
                   </mesh>
                   {/* Inner Ceramic Thermal Shield Sleeve */}
@@ -2076,9 +1895,7 @@ export default function GuardianRobot3D({
                     <torusGeometry args={[0.074, 0.004, 8, 24]} />
                   </mesh>
                   {/* Glowing Ion Exhaust Disk */}
-                  <mesh
-                    ref={i === 0 ? thrusterHaloL : thrusterHaloR}
-                    position={[0, -0.068, 0]}
+                  <mesh                    position={[0, -0.068, 0]}
                     rotation={[Math.PI / 2, 0, 0]}
                   >
                     <circleGeometry args={[0.070, 24]} />
@@ -2130,11 +1947,11 @@ export default function GuardianRobot3D({
             {/* Left Arm Assembly */}
             <group ref={leftArmRef} position={[-0.375, 0.02, 0.035]}>
               {/* Exposed Spherical Shoulder Ball Socket */}
-              <mesh material={materials.navyJoint} castShadow>
+              <mesh material={materials.navyJoint}>
                 <sphereGeometry args={[0.105, 24, 20]} />
               </mesh>
               {/* Layered Pauldron Armored Cowling with Gold Bezel */}
-              <mesh position={[-0.016, 0.032, 0]} rotation={[0, 0, 0.12]} material={materials.navyArmor} castShadow>
+              <mesh position={[-0.016, 0.032, 0]} rotation={[0, 0, 0.12]} material={materials.navyArmor}>
                 <sphereGeometry args={[0.125, 22, 18, 0, Math.PI * 2, 0, Math.PI * 0.58]} />
               </mesh>
               <mesh position={[-0.016, -0.012, 0]} rotation={[Math.PI / 2, 0, 0]} material={materials.goldPrimary}>
@@ -2184,7 +2001,7 @@ export default function GuardianRobot3D({
                 </mesh>
 
                 {/* Tapered Forearm Armor Housing */}
-                <mesh position={[0, -0.09, 0.018]} rotation={[0.08, 0, 0]} material={materials.navyArmor} castShadow>
+                <mesh position={[0, -0.09, 0.018]} rotation={[0.08, 0, 0]} material={materials.navyArmor}>
                   <cylinderGeometry args={[0.046, 0.036, 0.16, 20]} />
                 </mesh>
                 {/* Recessed Forearm Service Seam Channel */}
@@ -2210,11 +2027,11 @@ export default function GuardianRobot3D({
             {/* Right Arm Assembly */}
             <group ref={rightArmRef} position={[0.375, 0.02, 0.035]}>
               {/* Exposed Spherical Shoulder Ball Socket */}
-              <mesh material={materials.navyJoint} castShadow>
+              <mesh material={materials.navyJoint}>
                 <sphereGeometry args={[0.105, 24, 20]} />
               </mesh>
               {/* Layered Pauldron Armored Cowling with Gold Bezel */}
-              <mesh position={[0.016, 0.032, 0]} rotation={[0, 0, -0.12]} material={materials.navyArmor} castShadow>
+              <mesh position={[0.016, 0.032, 0]} rotation={[0, 0, -0.12]} material={materials.navyArmor}>
                 <sphereGeometry args={[0.125, 22, 18, 0, Math.PI * 2, 0, Math.PI * 0.58]} />
               </mesh>
               <mesh position={[0.016, -0.012, 0]} rotation={[Math.PI / 2, 0, 0]} material={materials.goldPrimary}>
@@ -2264,7 +2081,7 @@ export default function GuardianRobot3D({
                 </mesh>
 
                 {/* Tapered Forearm Armor Housing */}
-                <mesh position={[0, -0.09, 0.018]} rotation={[0.08, 0, 0]} material={materials.navyArmor} castShadow>
+                <mesh position={[0, -0.09, 0.018]} rotation={[0.08, 0, 0]} material={materials.navyArmor}>
                   <cylinderGeometry args={[0.046, 0.036, 0.16, 20]} />
                 </mesh>
                 {/* Recessed Forearm Service Seam Channel */}
@@ -2290,9 +2107,9 @@ export default function GuardianRobot3D({
 
           {/* ───────────── AERODYNAMIC SCULPTED HEAD WITH GIMBAL MOUNT ───────────── */}
           <group ref={headRef} position={[0, 0.41, 0]}>
-            {showErrorBadge && <VisorErrorDisplay />}
-            {showRestrictedBadge && !showErrorBadge && <VisorRestrictedDisplay />}
-            {showLoadingBadge && !showErrorBadge && !showRestrictedBadge && <VisorLoadingDisplay />}
+            {showErrorBadge && <VisorStatusDisplay status="error" />}
+            {showRestrictedBadge && !showErrorBadge && <VisorStatusDisplay status="restricted" text={robotState === "wrongPasscode" ? "Wrong passcode" : undefined} />}
+            {showLoadingBadge && !showErrorBadge && !showRestrictedBadge && <VisorStatusDisplay status="loading" />}
             {/* Sub-Cranial Occipital Mount & Underside Gimbal Socket */}
             <group position={[0, -0.15, 0]}>
               <mesh material={materials.deepNavy}>
@@ -2316,7 +2133,7 @@ export default function GuardianRobot3D({
               </mesh>
             </group>
           {/* Main Helmet Dome */}
-          <mesh material={materials.navyArmor} castShadow>
+          <mesh material={materials.navyArmor}>
             <sphereGeometry args={[0.38, 48, 32]} />
           </mesh>
 
@@ -2402,7 +2219,7 @@ export default function GuardianRobot3D({
             <mesh position={[0, -0.09, 0]} material={materials.goldHighlight}>
               <cylinderGeometry args={[0.032, 0.042, 0.02, 16]} />
             </mesh>
-            <mesh ref={antennaOrbRef} position={[0, 0.125, 0]}>
+            <mesh position={[0, 0.125, 0]}>
               <sphereGeometry args={[0.034, 16, 14]} />
               <primitive object={antennaEmissiveMat} attach="material" />
             </mesh>
@@ -2412,12 +2229,17 @@ export default function GuardianRobot3D({
           </group>
         </group>
 
-        {/* ───────────── 4 SATELLITE COMPANION DRONES (ORBITING CONSTELLATION) ───────────── */}
-        {DRONE_ORBITS.map((orbit) => (
-          <OrbitingCompanionDrone
-            key={orbit.id}
-            orbit={orbit}
-            mouseRef={mouseRef}
+
+      </group>
+    </group>
+    {/* Scene-space siblings: dragging, tilting or scaling the robot cannot move drones. */}
+    <group name="landing-drone-constellation" position={[0, 0, 0]}>
+        {DRONE_CONFIGS.map((config) => (
+          <AutonomousDrone
+            key={config.id}
+            config={config}
+            obstacle={droneObstacle}
+            geometries={droneGeometries}
             stage={stage}
             enter={enter}
             goldMat={materials.goldPrimary}
@@ -2428,7 +2250,6 @@ export default function GuardianRobot3D({
             whiteSpecMat={materials.whiteSpec}
           />
         ))}
-      </group>
     </group>
     </>
   );

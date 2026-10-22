@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import { useLearningLanguage } from "@/lib/learningLanguage";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -110,30 +111,31 @@ function HierarchyScopeFields({ folders, courses, sections, value, onChange, dis
   folders: ReportSectionOption[]; courses: ReportCourseOption[]; sections: ReportScopeOption[];
   value: HierarchyChoice; onChange: (value: HierarchyChoice) => void; disabled: boolean;
 }) {
+  const { t } = useLearningLanguage();
   const courseOptions = courses.filter(course => value.folder === "all" || course.folderGroupId === value.folder);
   const sectionOptions = sections.filter(section => (value.folder === "all" || section.folderGroupId === value.folder) && (value.course === "all" || section.courseId === value.course));
   return <>
-    <label className={styles.exportSectionField}><span>Folder scope</span>
+    <label className={styles.exportSectionField}><span>{t("Folder scope")}</span>
       <select value={value.folder} onChange={event=>onChange({folder:event.target.value,course:"all",section:"all"})} disabled={disabled}>
-        <option value="all">All folders ({folders.length})</option>
+        <option value="all">{t("All folders")} ({folders.length})</option>
         {folders.map(folder=><option key={folder.value} value={folder.value}>{folder.label}</option>)}
       </select>
     </label>
-    <label className={styles.exportSectionField}><span>Course scope</span>
+    <label className={styles.exportSectionField}><span>{t("Course scope")}</span>
       <select value={value.course} onChange={event=>onChange({...value,course:event.target.value,section:"all"})} disabled={disabled}>
-        <option value="all">All courses ({courseOptions.length})</option>
+        <option value="all">{t("All courses")} ({courseOptions.length})</option>
         {value.folder === "all" ? folders.map(folder=><optgroup key={folder.value} label={folder.label}>
           {courseOptions.filter(course=>course.folderGroupId===folder.value).map(course=><option key={course.value} value={course.value}>{course.label}</option>)}
         </optgroup>) : courseOptions.map(course=><option key={course.value} value={course.value}>{course.label}</option>)}
       </select>
     </label>
-    <label className={styles.exportSectionField}><span>Section scope</span>
+    <label className={styles.exportSectionField}><span>{t("Section scope")}</span>
       <select value={value.section} onChange={event=>onChange({...value,section:event.target.value})} disabled={disabled}>
-        <option value="all">All sections ({sectionOptions.length})</option>
+        <option value="all">{t("All sections")} ({sectionOptions.length})</option>
         {value.course === "all" ? courseOptions.map(course=><optgroup key={course.value} label={`${folders.find(folder=>folder.value===course.folderGroupId)?.label || ""} / ${course.label}`}>
           {sectionOptions.filter(section=>section.courseId===course.value).map(section=><option key={section.value} value={section.value}>{section.label}</option>)}
         </optgroup>) : sectionOptions.map(section=><option key={section.value} value={section.value}>{section.label}</option>)}
-      </select><small>New courses and sections appear automatically.</small>
+      </select><small>{t("New courses and sections appear automatically.")}</small>
     </label>
   </>;
 }
@@ -178,7 +180,9 @@ interface PresenceCounts {
   byFolder?: Record<string,number>;
 }
 
-function FunctionDropdown({ children }: { children: ReactNode }) {
+function FunctionDropdown({ children, languagePicker = false }: { children: ReactNode; languagePicker?: boolean }) {
+  const { t, language } = useLearningLanguage();
+  const menuId = languagePicker ? "course-languages" : "course-functions";
   const [open, setOpen] = useState(false);
   const container = useRef<HTMLDivElement>(null);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -194,15 +198,16 @@ function FunctionDropdown({ children }: { children: ReactNode }) {
     document.addEventListener("keydown", escape);
     return () => { document.removeEventListener("pointerdown", outside); document.removeEventListener("keydown", escape); };
   }, [open]);
-  return <div className={styles.functionDropdown} ref={container}
+  return <div className={languagePicker ? `${styles.languageDropdown} ${styles.languageControl}` : styles.functionDropdown} ref={container}
     onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setOpen(false); }}>
-    <button ref={trigger} type="button" className={styles.functionTrigger} aria-expanded={open} aria-controls="course-functions" onClick={() => setOpen(value => !value)}>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2" /><rect x="14" y="3" width="7" height="7" rx="2" /><rect x="3" y="14" width="7" height="7" rx="2" /><rect x="14" y="14" width="7" height="7" rx="2" /></svg>
-      Functions
+    <button ref={trigger} id={`${menuId}-trigger`} type="button" className={languagePicker ? styles.languageTrigger : styles.functionTrigger} aria-expanded={open} aria-controls={menuId} onClick={() => setOpen(value => !value)}>
+      {languagePicker ? <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3a18 18 0 0 1 0 18 18 18 0 0 1 0-18Z" /></svg>
+        : <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="2" /><rect x="14" y="3" width="7" height="7" rx="2" /><rect x="3" y="14" width="7" height="7" rx="2" /><rect x="14" y="14" width="7" height="7" rx="2" /></svg>}
+      {languagePicker ? <><span className={styles.languageButtonLabel}>{t("Language", "Ngôn ngữ")} · </span>{language === "vi" ? "VIE" : "ENG"}</> : t("Functions")}
       <svg className={styles.functionChevron} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
     </button>
-    {open && <nav id="course-functions" aria-label="Course functions" data-function-menu className={styles.selectorActions}
-      onClick={event => { if ((event.target as Element).closest("a,button")) setOpen(false); }}>{children}</nav>}
+    {open && <nav id={menuId} aria-label={languagePicker ? t("Language", "Ngôn ngữ") : t("Course functions")} data-function-menu={languagePicker ? undefined : true} data-language-menu={languagePicker ? true : undefined} className={styles.selectorActions}
+      onClick={event => { if ((event.target as Element).closest("a,button")) { setOpen(false); if (languagePicker) trigger.current?.focus(); } }}>{children}</nav>}
   </div>;
 }
 
@@ -247,6 +252,7 @@ function ActiveUsersTaskbarWidget({
   value?: number;
   label?: string;
 }) {
+  const { t } = useLearningLanguage();
   const activeCount =
     value !== undefined ? value : currentSection === "section1"
       ? counts.section1
@@ -271,7 +277,7 @@ function ActiveUsersTaskbarWidget({
       <strong className={styles.activeUsersCount}>
         {activeCount}
       </strong>
-      <span className={styles.liveUsersUnit}>online</span>
+      <span className={styles.liveUsersUnit}>{t("online", "trực tuyến")}</span>
     </div>
   );
 }
@@ -303,15 +309,16 @@ function DeckShell({
   onSignOut: () => void;
   courseTitle: string;
 }) {
+  const { t } = useLearningLanguage();
   return (
     <div className={styles.lessonShell}>
       <div className={styles.deckViewport}>{children}</div>
 
-      <aside className={styles.actionBar} aria-label="Session controls">
+      <aside className={styles.actionBar} aria-label={t("Session controls")}>
         <div className={styles.actionBarIdentity} aria-live="polite">
           <span>EIU · {courseTitle.toUpperCase()}</span>
           <strong>
-            {statusNotice || (isAdmin ? "Admin mode" : canFacilitate ? "Teaching mode" : "Learning session")}
+            {(statusNotice && t(statusNotice)) || (isAdmin ? t("Admin mode") : canFacilitate ? t("Teaching mode") : t("Learning session"))}
           </strong>
         </div>
 
@@ -327,25 +334,21 @@ function DeckShell({
         <div className={styles.actionBarButtons}>
           {isAdmin && (
             <Link href="/admin/access">
-              <ActionIcon kind="access" />Access settings
-            </Link>
+              <ActionIcon kind="access" />{t("Access settings")}</Link>
           )}
           {isAdmin && (
             <Link
               href="/admin/ai"
               className={styles.aiButton}
             >
-              <ActionIcon kind="ai" />AI Knowledge
-            </Link>
+              <ActionIcon kind="ai" />{t("AI Knowledge")}</Link>
           )}
           {onChooseSection && (
             <button
               type="button"
               className={styles.secondaryButton}
               onClick={event => onChooseSection(event.detail === 0)}
-            >
-              Courses
-            </button>
+            >{t("Courses")}</button>
           )}
 
           {isAdmin && onOpenTerminate && (
@@ -353,9 +356,7 @@ function DeckShell({
               type="button"
               className={styles.terminateBtn}
               onClick={onOpenTerminate}
-            >
-              Terminate Section
-            </button>
+            >{t("Terminate Section")}</button>
           )}
 
           <button
@@ -363,8 +364,7 @@ function DeckShell({
             className={styles.signOutButton}
             onClick={onSignOut}
           >
-            <ActionIcon kind="signout" />Sign out
-          </button>
+            <ActionIcon kind="signout" />{t("Sign out")}</button>
         </div>
       </aside>
     </div>
@@ -405,6 +405,7 @@ export default function LessonPortal({
   initialCourseId?: string;
   initialSectionId?: string;
 }) {
+  const { t, language, setLanguage } = useLearningLanguage();
   const router = useRouter();
   const iconTilt = useInnovationTilt();
   const [catalogRefreshing, startCatalogRefresh] = useTransition();
@@ -554,7 +555,7 @@ export default function LessonPortal({
     return selectedCourse.sections.filter(item => !(selectedCourse.slug === APPLIED_AGENTIC_AI_SLUG &&
       (item.sectionKey === "section1" || item.sectionKey === "section2")));
   }, [selectedCourse, section, activeUploadedSection, launchingSection]);
-  const sectionSlideCounts = useSectionSlideCounts(selectedCourse?.id ?? "", sectionsToCount);
+  const sectionSlideCounts = useSectionSlideCounts(selectedCourse?.id ?? "", sectionsToCount, isAdmin);
 
   useEffect(() => {
     if (section || activeUploadedSection || launchingSection) return;
@@ -590,9 +591,9 @@ export default function LessonPortal({
     && (resetSection === "all" || resetScopes.some(scope=>scope.value===resetSection))
     && (resetScopes.length > 0 || resetFolder==="all" && resetCourse==="all" && resetSection==="all");
   const resetIsGlobal = resetFolder === "all" && resetCourse === "all" && resetSection === "all";
-  const resetSectionLabel = [resetFolder === "all" ? "All folders" : reportFolders.find(folder=>folder.value===resetFolder)?.label,
-    resetCourse === "all" ? "All courses" : reportCourses.find(course=>course.value===resetCourse)?.label,
-    resetSection === "all" ? `All sections (${resetScopes.length})` : resetScopes.find(scope=>scope.value===resetSection)?.label].filter(Boolean).join(" / ");
+  const resetSectionLabel = [resetFolder === "all" ? t("All folders") : reportFolders.find(folder=>folder.value===resetFolder)?.label,
+    resetCourse === "all" ? t("All courses") : reportCourses.find(course=>course.value===resetCourse)?.label,
+    resetSection === "all" ? `${t("All sections")} (${resetScopes.length})` : resetScopes.find(scope=>scope.value===resetSection)?.label].filter(Boolean).join(" / ");
 
   const [presenceCounts, setPresenceCounts] = useState<PresenceCounts>({
     section1: 0,
@@ -982,25 +983,25 @@ export default function LessonPortal({
   function renderCourseSections(course: CourseFolder) {
     return (
       <div id={`course-sections-${course.id}`} className={styles.inlineSections}
-        role="region" aria-label={`${course.title} sections`} tabIndex={-1} ref={sectionListRef}
+        role="region" aria-label={`${course.title} · ${t("sections", "học phần")}`} tabIndex={-1} ref={sectionListRef}
         onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); closeCourse(true); } }}>
         <div className={styles.inlineSectionsHeader}>
           <div>
             <h2 className={styles.illustratedTitle}><LearningAccent /><span>{course.title}</span></h2>
             {course.description && <p>{course.description}</p>}
           </div>
-          <button type="button" className={styles.backToCourses} onClick={event => closeCourse(event.detail === 0)} aria-label="Back to courses">
+          <button type="button" className={styles.backToCourses} onClick={event => closeCourse(event.detail === 0)} aria-label={t("Back to courses")}>
             <svg className={styles.backToCoursesArrow} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
               <path d="M19 12H5m7 7-7-7 7-7" />
             </svg>
-            <span className={styles.backToCoursesLabel}>Courses</span>
+            <span className={styles.backToCoursesLabel}>{t("Courses")}</span>
           </button>
         </div>
         <div className={styles.sectionTools}>
           {Boolean(course.systemIcons?.length) && <CourseToolRow tools={course.systemIcons} />}
-          <span className={styles.sectionTotal}>{course.sections.length} sections</span>
+          <span className={styles.sectionTotal}>{course.sections.length} {t("sections", "học phần")}</span>
         </div>
-        {sectionOpenError && <p role="alert" className={styles.sectionOpenError}>{sectionOpenError}</p>}
+        {sectionOpenError && <p role="alert" className={styles.sectionOpenError}>{t(sectionOpenError)}</p>}
           <div className={styles.cards}>
             {course.sections.map((courseSection) => {
               const coreSection = course.slug === APPLIED_AGENTIC_AI_SLUG &&
@@ -1021,23 +1022,23 @@ export default function LessonPortal({
                   aria-busy={openingSection === courseSection.sectionKey}
                 >
                   {canOpen && <SectionEnergy />}
-                  <span data-energy-exclude>SECTION {courseSection.position}</span>
+                  <span data-energy-exclude>{t("SECTION")} {courseSection.position}</span>
                   <strong data-energy-exclude className={styles.illustratedTitle}><LearningAccent kind="page" /><span>{courseSection.title}</span></strong>
                   {canOpen && <div className={styles.sectionEnergySpace} aria-hidden="true" />}
                   <small data-energy-exclude className={canOpen ? styles.sectionSlideBadge : undefined} aria-live="polite" aria-atomic="true">
                     {canOpen ? <>
                       <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="7" y="7" width="14" height="13" rx="2" /><path d="M17 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2M11 12h6m-6 4h4" /></svg>
                       <b className={styles.sectionSlideCount}>{count ?? "…"}</b>
-                      <span> slides</span>
-                    </> : "Content has not been uploaded yet"}
+                      <span> {t("slides", "trang trình chiếu")}</span>
+                    </> : t("Content has not been uploaded yet")}
                   </small>
                   {(isAdmin || courseSection.canFacilitate) && <div data-energy-exclude className={styles.cardLiveUsers}>
                     <span className={styles.liveDot} />
-                    <span>{presenceCounts.bySection?.[courseSection.id] ?? (coreSection ? presenceCounts[coreSection] : 0)} online</span>
+                    <span>{presenceCounts.bySection?.[courseSection.id] ?? (coreSection ? presenceCounts[coreSection] : 0)} {t("online", "trực tuyến")}</span>
                   </div>}
                   {canOpen && <button type="button" className={styles.sectionClickCue}
                     data-energy-exclude
-                    aria-label={`Open ${courseSection.title}`}
+                    aria-label={`${t("Open", "Mở")} ${courseSection.title}`}
                     disabled={Boolean(openingSection)}
                     aria-busy={openingSection === courseSection.sectionKey}
                   onClick={() => {
@@ -1050,24 +1051,20 @@ export default function LessonPortal({
                   </button>}
                 </article>
                 {coreSection && courseSection.contentType === "pptx" && (
-                  <button type="button" className={styles.sectionFilePreview} disabled={Boolean(openingSection)} onClick={() => { rememberDeckSelection(course.id, courseSection.id, true, { course: course.slug, section: courseSection.sectionKey }); setAdminSection(null); setActiveUploadedSection(courseSection); }}>
-                    View file
-                  </button>
+                  <button type="button" className={styles.sectionFilePreview} disabled={Boolean(openingSection)} onClick={() => { rememberDeckSelection(course.id, courseSection.id, true, { course: course.slug, section: courseSection.sectionKey }); setAdminSection(null); setActiveUploadedSection(courseSection); }}>{t("View file")}</button>
                 )}
                 {hasUploadedDeck && courseSection.contentType !== "tsx" && course.id !== "a857595d-def0-4543-9216-a680c6abfe26" && !course.title?.includes("Web App") && (
                   <a
                     className={styles.sectionPptxLink}
                     href={`/api/sections/${encodeURIComponent(courseSection.id)}/content?download=1`}
                     download={courseSection.sourceFilename || "Presentation."+courseSection.contentType}
-                    aria-label="Download the original presentation"
-                  >
-                    Download
-                  </a>
+                    aria-label={t("Download the original presentation")}
+                  >{t("Download")}</a>
                 )}
                 </div>
               );
             })}
-            {course.sections.length === 0 && <p>This course does not have any sections yet.</p>}
+            {course.sections.length === 0 && <p>{t("This course does not have any sections yet.")}</p>}
           </div>
       </div>
     );
@@ -1075,7 +1072,7 @@ export default function LessonPortal({
 
   if (!selectedCourse || (!section && !activeUploadedSection && !launchingSection)) {
     return (
-      <main className={`${styles.portal} ${styles.innovationPortal}`} {...iconTilt}>
+      <main className={`${styles.portal} ${styles.innovationPortal}`} lang={language} {...iconTilt}>
         <div className={styles.innovationBackdrop} aria-hidden="true">
           {Array.from({ length: 18 }, (_, index) => <i key={index} className={styles.networkParticle} />)}
         </div>
@@ -1095,14 +1092,20 @@ export default function LessonPortal({
               />
             </div>
             <div>
-              <span>{isAdmin ? "ADMIN LEARNING SPACE" : "MY LEARNING SPACE"}</span>
+              <span>{isAdmin ? t("ADMIN LEARNING SPACE") : t("MY LEARNING SPACE")}</span>
               <strong>EIU Interactive Learning Space</strong>
             </div>
           </div>
 
+          <div className={styles.mastheadActions}>
+          <FunctionDropdown languagePicker>
+            {(["vi", "en"] as const).map(code => <button key={code} type="button" className={styles.languageOption} data-language-option={code} aria-pressed={language === code} onClick={() => setLanguage(code)}>
+              {code === "vi" ? t("Vietnamese") : t("English")}<span aria-hidden="true">{language === code ? "✓" : ""}</span>
+            </button>)}
+          </FunctionDropdown>
           <FunctionDropdown>
-          {isAdmin && <Link href="/admin/access" className={styles.accessButton}><ActionIcon kind="access" />Access settings</Link>}
-          {isAdmin && <Link href="/admin/ai" className={styles.aiButton}><ActionIcon kind="ai" />AI Knowledge</Link>}
+          {isAdmin && <Link href="/admin/access" className={styles.accessButton}><ActionIcon kind="access" />{t("Access settings")}</Link>}
+          {isAdmin && <Link href="/admin/ai" className={styles.aiButton}><ActionIcon kind="ai" />{t("AI Knowledge")}</Link>}
           {isAdmin && (
             <button
               type="button"
@@ -1114,7 +1117,7 @@ export default function LessonPortal({
               }}
               disabled={reportStatus === "exporting"}
             >
-              <ActionIcon kind="report" />{reportStatus === "exporting" ? "Exporting…" : "Report"}
+              <ActionIcon kind="report" />{reportStatus === "exporting" ? t("Exporting…") : t("Report")}
             </button>
           )}
           {isAdmin && (
@@ -1132,11 +1135,11 @@ export default function LessonPortal({
                 setShowResetModal(true);
               }}
             >
-              <ActionIcon kind="reset" />Reset data
-            </button>
+              <ActionIcon kind="reset" />{t("Reset data")}</button>
           )}
-          <button type="button" className={styles.signOutButton} onClick={signOut}><ActionIcon kind="signout" />Sign out</button>
+          <button type="button" className={styles.signOutButton} onClick={signOut}><ActionIcon kind="signout" />{t("Sign out")}</button>
         </FunctionDropdown>
+          </div>
           </div>
 
           <div className={styles.libraryHeaderToolbar}>
@@ -1164,17 +1167,17 @@ export default function LessonPortal({
                 <input
                   type="text"
                   className={styles.searchInput}
-                  placeholder="Search courses or topics..."
+                  placeholder={t("Search courses or topics...")}
                   value={searchQuery}
                   onChange={(e) => changeSearchQuery(e.target.value)}
-                  aria-label="Search courses"
+                  aria-label={t("Search courses")}
                 />
                 {searchQuery && (
                   <button
                     type="button"
                     className={styles.searchClearBtn}
                     onClick={() => changeSearchQuery("")}
-                    aria-label="Clear search"
+                    aria-label={t("Clear search")}
                   >
                     ×
                   </button>
@@ -1186,18 +1189,18 @@ export default function LessonPortal({
           <div className={styles.libraryWorkspace}>
             <button type="button" id="mobile-folder-toggle" className={styles.mobileFolderToggle} aria-expanded={mobileFoldersOpen}
               aria-controls="folder-navigation" onClick={() => setMobileFoldersOpen(value => !value)}>
-              <span><strong className={styles.illustratedTitle}><LearningAccent kind="collection" /><span>{openFolder?.name || "Course folders"}</span></strong></span>
+              <span><strong className={styles.illustratedTitle}><LearningAccent kind="collection" /><span>{openFolder?.name || t("Course folders")}</span></strong></span>
               <span aria-hidden="true">{mobileFoldersOpen ? "−" : "+"}</span>
             </button>
             <aside id="folder-navigation"
-              className={`${styles.folderNavigation} ${mobileFoldersOpen ? styles.mobileFoldersOpen : ""}`} aria-label="Folder navigation"
+              className={`${styles.folderNavigation} ${mobileFoldersOpen ? styles.mobileFoldersOpen : ""}`} aria-label={t("Folder navigation")}
               onKeyDown={event => {
                 if (event.key === "Escape" && mobileFoldersOpen) {
                   setMobileFoldersOpen(false);
                   document.getElementById("mobile-folder-toggle")?.focus({ preventScroll: true });
                 }
               }}>
-              <div className={styles.folderShelf} role="group" aria-label="Course folders">
+              <div className={styles.folderShelf} role="group" aria-label={t("Course folders")}>
                 {paginatedFolders.map(group => (
                   <button type="button" key={group.id}
                     data-icon-surface="folder"
@@ -1210,24 +1213,24 @@ export default function LessonPortal({
                       <strong className={styles.illustratedTitle}><LearningAccent kind="collection" /><span className={styles.folderNameText}>{group.name}</span></strong>
                     </span>
                     <span className={styles.folderMetaRow}>
-                      {(isAdmin || canFacilitate) && <span className={styles.folderLearners}><i className={styles.liveDot} aria-hidden="true" />{presenceCounts.byFolder?.[group.id] ?? 0} online</span>}
-                      <span className={styles.folderCourseCount}>{group.courses.length} {group.courses.length === 1 ? "course" : "courses"}</span>
+                      {(isAdmin || canFacilitate) && <span className={styles.folderLearners}><i className={styles.liveDot} aria-hidden="true" />{presenceCounts.byFolder?.[group.id] ?? 0} {t("online", "trực tuyến")}</span>}
+                      <span className={styles.folderCourseCount}>{group.courses.length} {group.courses.length === 1 ? t("course") : t("courses")}</span>
                     </span>
                   </button>
                 ))}
               </div>
               {folderTotalPages > 1 && (
-                <nav className={styles.folderPageNav} aria-label="Folder pages">
+                <nav className={styles.folderPageNav} aria-label={t("Folder pages")}>
                   <span>{folderPage} / {folderTotalPages}</span>
                   <div>
-                    <button type="button" disabled={folderPage === 1} onClick={() => changeFolderPage(folderPage - 1)} aria-label="Previous folder page">←</button>
-                    <button type="button" disabled={folderPage === folderTotalPages} onClick={() => changeFolderPage(folderPage + 1)} aria-label="Next folder page">→</button>
+                    <button type="button" disabled={folderPage === 1} onClick={() => changeFolderPage(folderPage - 1)} aria-label={t("Previous folder page")}>←</button>
+                    <button type="button" disabled={folderPage === folderTotalPages} onClick={() => changeFolderPage(folderPage + 1)} aria-label={t("Next folder page")}>→</button>
                   </div>
                 </nav>
               )}
             </aside>
             <div className={`${styles.libraryFolderSections} ${!selectedCourse && !isSearchingCourses ? styles.catalogPane : ""}`} id="course-folder-content" ref={coursePaneRef}
-              tabIndex={-1} role="region" aria-label={isSearchingCourses ? "Course library" : `${openFolder?.name || "Course library"} courses`}>
+              tabIndex={-1} role="region" aria-label={isSearchingCourses ? t("Course library") : `${openFolder?.name || t("Course library")} courses`}>
             {selectedCourse ? renderCourseSections(selectedCourse) : groupedCourses.length === 0 ? (
               <div className={styles.emptySearch}>
                 <div className={styles.emptySearchIcon} aria-hidden="true">
@@ -1236,15 +1239,13 @@ export default function LessonPortal({
                     <line x1="21" y1="21" x2="16.65" y2="16.65" />
                   </svg>
                 </div>
-                <h3>No courses found</h3>
-                <p>No courses match &ldquo;{searchQuery}&rdquo;. Try another keyword or clear search.</p>
+                <h3>{t("No courses found")}</h3>
+                <p>{t(`No courses match “${searchQuery}”. Try another keyword or clear search.`, `Không tìm thấy khóa học phù hợp với “${searchQuery}”. Thử từ khóa khác hoặc xóa tìm kiếm.`)}</p>
                 <button
                   type="button"
                   className={styles.clearSearchBtn}
                   onClick={() => changeSearchQuery("")}
-                >
-                  Clear search
-                </button>
+                >{t("Clear search")}</button>
               </div>
             ) : (
               visibleCourseGroups.map((group) => {
@@ -1265,7 +1266,7 @@ export default function LessonPortal({
                         </div>
                         <div className={styles.libraryFolderHeaderRight}>
                           <span className={styles.libraryFolderBadge}>
-                            {totalCourses} {totalCourses === 1 ? "COURSE" : "COURSES"}
+                            {totalCourses} {totalCourses === 1 ? t("COURSE") : t("COURSES")}
                           </span>
                         </div>
                       </div>
@@ -1281,7 +1282,7 @@ export default function LessonPortal({
                           </svg>)}
                           <div className={styles.courseCardHeader}>
                             <h3 className={`${styles.courseTitle} ${styles.illustratedTitle}`} id={`course-title-${course.id}`}><LearningAccent /><span className={styles.courseNameText}>{course.title}</span></h3>
-                            {(isAdmin || course.sections.some(item=>item.canFacilitate)) && <span className={styles.courseLearners}><i className={styles.liveDot} aria-hidden="true" />{presenceCounts.byCourse?.[course.id] ?? 0} online</span>}
+                            {(isAdmin || course.sections.some(item=>item.canFacilitate)) && <span className={styles.courseLearners}><i className={styles.liveDot} aria-hidden="true" />{presenceCounts.byCourse?.[course.id] ?? 0} {t("online", "trực tuyến")}</span>}
                           </div>
                           <div className={styles.courseCardMain}>
                             <div className={styles.courseCardBody}>
@@ -1291,18 +1292,18 @@ export default function LessonPortal({
                           </div>
                           <div className={styles.folderBadgesRow}>
                             <span className={styles.courseSectionBadge}>
-                              {course.sections.length} {course.sections.length === 1 ? "SECTION" : "SECTIONS"}
+                              {course.sections.length} {course.sections.length === 1 ? t("SECTION") : t("SECTIONS")}
                             </span>
                             <span className={styles.folderLanguage}>
-                              <span className={styles.languageFull}>{course.languageLabel === "vi" ? "Vietnamese" : course.languageLabel === "en" ? "English" : "Vietnamese · English"}</span>
+                              <span className={styles.languageFull}>{course.languageLabel === "vi" ? t("Vietnamese") : course.languageLabel === "en" ? t("English") : t("Vietnamese · English")}</span>
                               <span className={styles.languageShort}>{course.languageLabel === "vi" ? "VI" : course.languageLabel === "en" ? "EN" : "VI · EN"}</span>
                             </span>
                             <span className={styles.unlockedFolderBadge}>
-                              <i className={styles.dotUnlocked} aria-hidden="true" /><span>UNLOCKED</span>
+                              <i className={styles.dotUnlocked} aria-hidden="true" /><span>{t("UNLOCKED")}</span>
                             </span>
                           </div>
                           <button type="button" className={styles.courseEnterButton} id={`course-choice-${course.id}`}
-                            aria-label={`Open sections for ${course.title}`} onClick={() => {
+                            aria-label={`${t("Open sections for", "Mở học phần của")} ${course.title}`} onClick={() => {
                               courseScrollTop.current = (isSearchingCourses ? coursePaneRef.current : courseGridRef.current)?.scrollTop ?? 0;
                               iconTilt.onPointerLeave();
     rememberDeckSelection(course.id, null, false, { course: course.slug });
@@ -1318,17 +1319,14 @@ export default function LessonPortal({
                     {totalPages > 1 && (
                       <div className={styles.groupPaginationFooter}>
                         <span className={styles.paginationDetail}>
-                          Showing {startIndex + 1}–{Math.min(startIndex + COURSES_PER_PAGE, totalCourses)} of {totalCourses} courses
-                        </span>
+                          {t("Showing", "Hiển thị")} {startIndex + 1}–{Math.min(startIndex + COURSES_PER_PAGE, totalCourses)} {t("of", "trên")} {totalCourses} {t("courses")}</span>
                         <div className={styles.pagePills}>
                           <button
                             type="button"
                             className={styles.pagePillNav}
                             disabled={currentPage === 1}
                             onClick={() => handlePageChange(group.id, currentPage - 1)}
-                          >
-                            ‹ Prev
-                          </button>
+                          >{t("‹ Prev")}</button>
                           {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
                             <button
                               key={pageNum}
@@ -1344,9 +1342,7 @@ export default function LessonPortal({
                             className={styles.pagePillNav}
                             disabled={currentPage === totalPages}
                             onClick={() => handlePageChange(group.id, currentPage + 1)}
-                          >
-                            Next ›
-                          </button>
+                          >{t("Next ›")}</button>
                         </div>
                       </div>
                     )}
@@ -1374,11 +1370,9 @@ export default function LessonPortal({
               aria-modal="true"
               aria-labelledby="export-report-title"
             >
-              <span>ANALYTICS REPORT</span>
-              <h2 id="export-report-title">Export Excel report</h2>
-              <p>
-                Choose a folder, then a course and one or all of its sections.
-              </p>
+              <span>{t("ANALYTICS REPORT")}</span>
+              <h2 id="export-report-title">{t("Export Excel report")}</h2>
+              <p>{t("Choose a folder, then a course and one or all of its sections.")}</p>
 
               <HierarchyScopeFields folders={reportFolders} courses={reportCourses} sections={reportScopes}
                 value={{folder:exportFolder,course:exportCourse,section:exportSection}}
@@ -1399,8 +1393,8 @@ export default function LessonPortal({
                     onChange={() => setExportRange("today")}
                   />
                   <div className={styles.exportOptionContent}>
-                    <strong>Today ({formatVNDate(getTodayDateString())})</strong>
-                    <small>Only learners and activity recorded today</small>
+                    <strong>{t("Today", "Hôm nay")} ({formatVNDate(getTodayDateString())})</strong>
+                    <small>{t("Only learners and activity recorded today")}</small>
                   </div>
                 </label>
 
@@ -1417,8 +1411,8 @@ export default function LessonPortal({
                     onChange={() => setExportRange("custom")}
                   />
                   <div className={styles.exportOptionContent}>
-                    <strong>Specific date</strong>
-                    <small>Choose the class date to export</small>
+                    <strong>{t("Specific date")}</strong>
+                    <small>{t("Choose the class date to export")}</small>
                     {exportRange === "custom" && (
                       <input
                         type="date"
@@ -1443,15 +1437,15 @@ export default function LessonPortal({
                     onChange={() => setExportRange("all")}
                   />
                   <div className={styles.exportOptionContent}>
-                    <strong>All time</strong>
-                    <small>Export the complete learner history</small>
+                    <strong>{t("All time")}</strong>
+                    <small>{t("Export the complete learner history")}</small>
                   </div>
                 </label>
               </div>
 
               {reportStatus === "error" && reportNotice && (
                 <p className={styles.reportError} role="alert">
-                  {reportNotice}
+                  {t(reportNotice)}
                 </p>
               )}
 
@@ -1461,16 +1455,14 @@ export default function LessonPortal({
                   className={styles.cancelButton}
                   onClick={() => setShowExportModal(false)}
                   disabled={reportStatus === "exporting"}
-                >
-                  Close
-                </button>
+                >{t("Close")}</button>
                 <button
                   type="button"
                   className={styles.confirmReportButton}
                   onClick={() => void exportReport()}
                   disabled={reportStatus === "exporting"}
                 >
-                  {reportStatus === "exporting" ? "Exporting file…" : "Download Excel file"}
+                  {reportStatus === "exporting" ? t("Exporting file…") : t("Download Excel file")}
                 </button>
               </div>
             </section>
@@ -1494,25 +1486,24 @@ export default function LessonPortal({
               aria-modal="true"
               aria-labelledby="reset-modal-title"
             >
-              <span className={styles.dangerEyebrow}>DANGER · ADMINISTRATIVE ACTION</span>
+              <span className={styles.dangerEyebrow}>{t("DANGER · ADMINISTRATIVE ACTION")}</span>
               <h2 id="reset-modal-title">
-                {resetIsGlobal ? "Reset all data?" : "Reset selected data?"}
+                {resetIsGlobal ? t("Reset all data?") : t("Reset selected data?")}
               </h2>
 
               <HierarchyScopeFields folders={reportFolders} courses={reportCourses} sections={reportScopes}
                 value={{folder:resetFolder,course:resetCourse,section:resetSection}}
                 onChange={value=>{setResetFolder(value.folder);setResetCourse(value.course);setResetSection(value.section);setResetNotice("");}}
                 disabled={!scopeMetadataReady || resetStatus === "sending" || resetStatus === "success"} />
-              {!scopeMetadataReady && resetStatus !== "error" && <p role="status">Loading current folders, courses and sections...</p>}
+              {!scopeMetadataReady && resetStatus !== "error" && <p role="status">{t("Loading current folders, courses and sections...")}</p>}
 
               <div className={styles.dangerWarningBox}>
-                <strong>This action cannot be undone:</strong>
-                It permanently deletes {resetSectionLabel} data from Supabase, including learner
-                profiles, activity logs, ideas, showcase entries, quiz results, feedback, and active sessions.
+                <strong>{t("This action cannot be undone:")}</strong>
+                {t(`It permanently deletes ${resetSectionLabel} data, including learner profiles, activity logs, ideas, showcase entries, quiz results, feedback, and active sessions.`, `Thao tác này xóa vĩnh viễn dữ liệu ${resetSectionLabel}, bao gồm hồ sơ học viên, nhật ký hoạt động, ý tưởng, bài nộp, kết quả kiểm tra, phản hồi và phiên đang hoạt động.`)}
               </div>
 
               <label className={styles.resetPasswordField}>
-                <span>Confirmation passcode</span>
+                <span>{t("Confirmation passcode")}</span>
                 <input
                   type="password"
                   className={styles.resetPasswordInput}
@@ -1521,7 +1512,7 @@ export default function LessonPortal({
                     setResetPassword(e.target.value);
                     if (resetStatus === "error") setResetNotice("");
                   }}
-                  placeholder="Enter confirmation passcode"
+                  placeholder={t("Enter confirmation passcode")}
                   autoComplete="off"
                   autoFocus
                   required
@@ -1530,13 +1521,13 @@ export default function LessonPortal({
 
               {resetStatus === "error" && resetNotice && (
                 <p className={styles.resetErrorNotice} role="alert">
-                  {resetNotice}
+                  {t(resetNotice)}
                 </p>
               )}
 
               {resetStatus === "success" && resetNotice && (
                 <p className={styles.resetSuccessNotice} role="status">
-                  ✓ {resetNotice}
+                  ✓ {t(resetNotice)}
                 </p>
               )}
 
@@ -1546,19 +1537,17 @@ export default function LessonPortal({
                   className={styles.cancelButton}
                   onClick={() => setShowResetModal(false)}
                   disabled={resetStatus === "sending"}
-                >
-                  Cancel
-                </button>
+                >{t("Cancel")}</button>
                 <button
                   type="submit"
                   className={styles.confirmResetButton}
                   disabled={!resetScopeValid || resetStatus === "sending" || resetStatus === "success"}
                 >
                   {resetStatus === "sending"
-                    ? "Deleting data…"
+                    ? t("Deleting data…")
                     : resetIsGlobal
-                      ? "Delete all data"
-                      : "Delete selected data"}
+                      ? t("Delete all data")
+                      : t("Delete selected data")}
                 </button>
               </div>
             </form>
@@ -1608,13 +1597,13 @@ export default function LessonPortal({
       >
         {launchingSection ? sectionOpenError ? (
           <div role="alert" className={styles.sectionOpenError}>
-            <p>{sectionOpenError}</p>
+            <p>{t(sectionOpenError)}</p>
             <button type="button" onClick={() => {
               const item = selectedCourse.sections.find(item => item.sectionKey === launchingSection);
               if (item) handleLaunchBuiltin(selectedCourse, item, launchingSection);
-            }}>Try again</button>
+            }}>{t("Try again")}</button>
           </div>
-        ) : <HairlineLoading label="Opening lesson" /> : activeUploadedSection ? (
+        ) : <HairlineLoading label={t("Opening lesson")} /> : activeUploadedSection ? (
           <UploadedSectionDeck
             key={`${activeUploadedSection.id}-${activeUploadedSection.contentRevision ?? ""}-${activeUploadedSection.templateKey ?? ""}-${deckSessionKey}`}
             sectionId={activeUploadedSection.id}
@@ -1661,13 +1650,11 @@ export default function LessonPortal({
             aria-modal="true"
             aria-labelledby="terminate-title"
           >
-            <span>ADMIN ACTION</span>
-            <h2 id="terminate-title">Terminate current section?</h2>
-            <p>
-              Learners in this section will return to the access screen.
-            </p>
+            <span>{t("ADMIN ACTION")}</span>
+            <h2 id="terminate-title">{t("Terminate current section?")}</h2>
+            <p>{t("Learners in this section will return to the access screen.")}</p>
             {terminateStatus === "error" && terminateNotice && (
-              <p role="alert">{terminateNotice}</p>
+              <p role="alert">{t(terminateNotice)}</p>
             )}
             <div className={styles.modalActions}>
               <button
@@ -1675,16 +1662,14 @@ export default function LessonPortal({
                 className={styles.cancelButton}
                 onClick={() => setShowTerminate(false)}
                 disabled={terminateStatus === "sending"}
-              >
-                Cancel
-              </button>
+              >{t("Cancel")}</button>
               <button
                 type="button"
                 className={styles.confirmTerminateButton}
                 onClick={() => void terminateSection()}
                 disabled={terminateStatus === "sending"}
               >
-                {terminateStatus === "sending" ? "Terminating..." : "Terminate"}
+                {terminateStatus === "sending" ? t("Terminating...") : t("Terminate")}
               </button>
             </div>
           </section>

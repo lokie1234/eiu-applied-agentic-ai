@@ -2,7 +2,7 @@ import { createTsxDocument } from "./tsxDocument";
 
 export type SectionFileType = "tsx" | "pdf" | "pptx";
 
-export function countTsxSlides(code: string, signal: AbortSignal): Promise<number> {
+export function countTsxSlides(code: string, signal: AbortSignal, isAdmin = false): Promise<number> {
   return new Promise((resolve, reject) => {
     signal.throwIfAborted();
     const frame = document.createElement("iframe");
@@ -29,15 +29,15 @@ export function countTsxSlides(code: string, signal: AbortSignal): Promise<numbe
     const timer = window.setTimeout(() => { cleanup(); reject(new Error("Slide counting timed out.")); }, 10_000);
     window.addEventListener("message", receive);
     signal.addEventListener("abort", abort, { once: true });
-    frame.srcdoc = createTsxDocument(code, null, "", "", requestId);
+    frame.srcdoc = createTsxDocument(code, null, "", "", requestId, isAdmin);
     document.body.append(frame);
   });
 }
 
-export async function readSectionSlideCount(sectionId: string, type: SectionFileType, signal: AbortSignal) {
+export async function readSectionSlideCount(sectionId: string, type: SectionFileType, signal: AbortSignal, isAdmin = false) {
   const response = await fetch(`/api/sections/${encodeURIComponent(sectionId)}/content`, { cache: "no-store", signal });
   if (!response.ok) throw new Error("Unable to read section content.");
-  if (type === "tsx") return countTsxSlides(await response.text(), signal);
+  if (type === "tsx") return countTsxSlides(await response.text(), signal, isAdmin);
   const bytes = new Uint8Array(await response.arrayBuffer());
   signal.throwIfAborted();
   if (type === "pptx") {

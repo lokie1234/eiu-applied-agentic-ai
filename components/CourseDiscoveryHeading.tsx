@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useCallback, useEffect, useId, useRef, useState } from "react";
+import { useLearningLanguage } from "@/lib/learningLanguage";
 import dynamic from "next/dynamic";
 import type { CompanionEmotion, CompanionGaze } from "./CourseCompanion3D";
 import styles from "./CourseDiscoveryHeading.module.css";
@@ -8,12 +9,14 @@ import styles from "./CourseDiscoveryHeading.module.css";
 const CourseCompanion3D = memo(dynamic(() => import("./CourseCompanion3D"), { ssr: false }));
 
 const OnlineCounter3D = memo(function OnlineCounter3D({ count }: { count: number }) {
-  return <span className={styles.onlineCounter} role="status" aria-live="polite" aria-atomic="true" aria-label={`${count} learners online`}>
-    <i aria-hidden="true" /><strong>{count}</strong>{" "}<span>online</span>
+  const { t } = useLearningLanguage();
+  return <span className={styles.onlineCounter} role="status" aria-live="polite" aria-atomic="true" aria-label={t(`${count} learners online`, `${count} học viên trực tuyến`)}>
+    <i aria-hidden="true" /><strong>{count}</strong>{" "}<span>{t("online", "trực tuyến")}</span>
   </span>;
 });
 
 export default function CourseDiscoveryHeading({ onlineCount }: { onlineCount?: number }) {
+  const { t } = useLearningLanguage();
   const [emotion, setEmotion] = useState<CompanionEmotion>("normal");
   const [emotionOpen, setEmotionOpen] = useState(false);
   const emotionPanelId = useId();
@@ -170,12 +173,12 @@ export default function CourseDiscoveryHeading({ onlineCount }: { onlineCount?: 
   return <div ref={headingRef} className={styles.heading} data-energized={energized || undefined} data-emotion={emotion} data-emotion-open={emotionOpen || undefined}>
     <div ref={clusterRef} className={styles.companionCluster}>
     <div ref={companionRef} className={styles.companion} data-ready={ready || undefined} data-fallback={fallback || undefined}>
-    <button type="button" className={styles.greetButton} onClick={energize} aria-label="Activate AI companion animation" />
+    <button type="button" className={styles.greetButton} onClick={energize} aria-label={t("Activate AI companion animation")} />
     <div className={styles.faceControls}>
-    <button ref={emotionTriggerRef} type="button" className={styles.emotionTrigger} aria-label="Choose robot emotion" aria-expanded={emotionOpen} aria-controls={emotionPanelId} onClick={() => setEmotionOpen(open => !open)}><span className={styles.antennaBeacon} aria-hidden="true" /></button>
+    <button ref={emotionTriggerRef} type="button" className={styles.emotionTrigger} aria-label={t("Choose robot emotion")} aria-expanded={emotionOpen} aria-controls={emotionPanelId} onClick={() => setEmotionOpen(open => !open)}><span className={styles.antennaBeacon} aria-hidden="true" /></button>
     <div ref={screenRef} className={styles.faceScreen} data-open={emotionOpen || undefined}>
-    {emotionOpen && <div id={emotionPanelId} className={styles.emotionRail} role="group" aria-label="Robot emotion">
-      {([{ value: "normal", label: "Vui vẻ" }, { value: "angry", label: "Tập trung" }, { value: "surprised", label: "Ngạc nhiên" }] as const).map(option =>
+    {emotionOpen && <div id={emotionPanelId} className={styles.emotionRail} role="group" aria-label={t("Robot emotion")}>
+      {([{ value: "normal", label: t("Happy", "Vui vẻ") }, { value: "angry", label: t("Focused", "Tập trung") }, { value: "surprised", label: t("Surprised", "Ngạc nhiên") }] as const).map(option =>
         <button key={option.value} type="button" className={styles.emotionButton} aria-label={option.label} data-emotion-choice={option.value} aria-pressed={emotion === option.value} onClick={() => { setEmotion(option.value); setEmotionOpen(false); emotionTriggerRef.current?.focus(); }}>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true">
             <rect x="3" y="4" width="18" height="16" rx="5" />
@@ -201,8 +204,8 @@ export default function CourseDiscoveryHeading({ onlineCount }: { onlineCount?: 
     </div>
     </div>
     <div className={styles.copy}>
-      <div className={styles.eyebrowLine}><span className={styles.eyebrow} aria-hidden="true"><i /> YOUR NEXT DISCOVERY</span>{onlineCount !== undefined && <OnlineCounter3D count={onlineCount} />}</div>
-      <h1 className={styles.title}>Choose a <span className={styles.word}>course<span className={styles.signal} aria-hidden="true" /></span></h1>
+      <div className={styles.eyebrowLine}><span className={styles.eyebrow} aria-hidden="true"><i />{t("YOUR NEXT DISCOVERY")}</span>{onlineCount !== undefined && <OnlineCounter3D count={onlineCount} />}</div>
+      <h1 className={styles.title}>{t("Choose a", "Chọn")} <span className={styles.word}>{t("course")}<span className={styles.signal} aria-hidden="true" /></span></h1>
     </div>
   </div>;
 }

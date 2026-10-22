@@ -1,12 +1,12 @@
-.heading { position: relative; display: flex; align-items: center; gap: 18px; isolation: isolate; max-width: 100%; padding: 8px 0; --antenna-color: #f4ce65; --antenna-shade: #9d7944; --antenna-highlight: #fff3bd; }
-.companionCluster { position: relative; top: -18px; display: flex; align-items: center; flex-shrink: 0; overflow: visible; gap: 0; padding-right: 42px; }
+.heading { position: relative; display: flex; align-items: center; gap: 8px; isolation: isolate; max-width: 100%; padding: 8px 0; --antenna-color: #f4ce65; --antenna-shade: #9d7944; --antenna-highlight: #fff3bd; }
+.companionCluster { position: relative; top: -10px; display: flex; align-items: center; flex-shrink: 0; overflow: visible; gap: 0; padding-right: 8px; }
 .emotionRail { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; gap: 4px; padding: 4px; border-radius: 12px; background: #041c31; }
 .emotionButton { display: grid; place-items: center; width: 28px; height: 38px; padding: 2px; border: 1px solid #397fa8; border-radius: 7px; background: linear-gradient(145deg, #18547f, #082945); color: #9bd5e8; cursor: pointer; }
 .emotionButton svg { width: 100%; height: 100%; }
 .emotionButton[aria-pressed="true"] { border-color: #f4dfb0; background: linear-gradient(145deg, #f4dfb0, #e9ca8b); color: #082945; box-shadow: 0 2px 0 #b39159, inset 0 1px 0 #fff9; }
 .emotionButton:active { transform: translateY(1px); }
 .emotionButton:focus-visible { outline: 2px solid #f7f4ed; outline-offset: 3px; }
-.companion { position: relative; flex: 0 0 96px; width: 96px; height: 96px; scale: 1.25; margin: 0 12px; overflow: visible; padding: 0; border: 0; background: transparent; cursor: pointer; perspective: 420px; -webkit-tap-highlight-color: transparent; border-radius: 24px; }
+.companion { position: relative; flex: 0 0 96px; width: 96px; height: 96px; margin: 0 4px; overflow: visible; padding: 0; border: 0; background: transparent; cursor: pointer; perspective: 420px; -webkit-tap-highlight-color: transparent; border-radius: 24px; }
 .webgl { position: absolute; inset: -60px -64px; z-index: 3; pointer-events: none; opacity: 0; transition: opacity 320ms ease; }
 .companion[data-ready] > .robot { visibility: hidden; }
 .companion[data-ready] .robot, .companion[data-ready] .robot * { animation: none !important; transition: none !important; }
@@ -88,7 +88,7 @@
 .antennaBeacon { display: block; width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle at 30% 25%, var(--antenna-highlight), var(--antenna-color) 40%, var(--antenna-shade)); animation: antennaSignal 1.6s ease-in-out infinite; }
 .companion[data-fallback] .emotionTrigger { transform: translate(112.5px,64.5px) translate(-50%,-50%) !important; }
 .companion[data-fallback] .antennaBeacon { animation: antennaSignal 1.6s ease-in-out infinite !important; }
-@media (max-width: 600px) { .companionCluster { gap: 0; top: -14px; padding-right: 36px; } .companion[data-fallback] .faceScreen { transform: matrix(.54,0,0,.48,77,88) !important; } .heading { gap: 8px; }.companion { flex-basis: 80px; width: 80px; height: 88px; scale: 1.2; margin: 0 9px; }.robot { inset: 18px 6px 16px; }.antenna { left: 33px; }.chin { left: 24px; }.title { font-size: clamp(24px, 6vw, 34px); }.eyebrow { font-size: 8px; letter-spacing: .12em; }.eyes { left: 8px; right: 8px; }.companion[data-fallback] .emotionTrigger { transform: translate(104.5px,65.5px) translate(-50%,-50%) !important; } }
+@media (max-width: 600px) { .companionCluster { gap: 0; top: -8px; padding-right: 6px; } .companion[data-fallback] .faceScreen { transform: matrix(.54,0,0,.48,77,88) !important; } .heading { gap: 6px; }.companion { flex-basis: 80px; width: 80px; height: 88px; margin: 0 4px; }.robot { inset: 18px 6px 16px; }.antenna { left: 33px; }.chin { left: 24px; }.title { font-size: clamp(24px, 6vw, 34px); }.eyebrow { font-size: 8px; letter-spacing: .12em; }.eyes { left: 8px; right: 8px; }.companion[data-fallback] .emotionTrigger { transform: translate(104.5px,65.5px) translate(-50%,-50%) !important; } }
 @media (prefers-reduced-motion: reduce) { .antennaBeacon, .companion[data-fallback] .antennaBeacon { animation: none !important; } }
 .heading[data-emotion="angry"] { --antenna-color: #ef5144; --antenna-shade: #9c2728; --antenna-highlight: #ffe5d9; }
 .heading[data-emotion="surprised"] { --antenna-color: #36d484; --antenna-shade: #16794b; --antenna-highlight: #dcffe9; }

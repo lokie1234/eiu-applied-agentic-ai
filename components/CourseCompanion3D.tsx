@@ -188,9 +188,8 @@ function subscribeDisplay(callback: () => void) {
   return () => window.removeEventListener("resize", callback);
 }
 function displayResolution() {
-  // Match the CSS enlargement, including after emotion changes reconfigure the Canvas.
-  const scale = window.matchMedia("(max-width: 600px)").matches ? 1.2 : 1.25;
-  return Math.min(3, (window.devicePixelRatio || 1) * scale);
+  // Render sharply at the final CSS size, with modest supersampling on low-density displays.
+  return Math.min(2.5, Math.max(1.5, window.devicePixelRatio || 1));
 }
 const serverResolution = () => 1.5;
 

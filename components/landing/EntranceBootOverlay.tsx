@@ -17,10 +17,27 @@ export default function EntranceBootOverlay({
   prefersReduced = false,
   ready = true,
 }: EntranceBootOverlayProps) {
-  const [shimmerActive, setShimmerActive] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [isExiting, setIsExiting] = useState(false);
   const startedAtRef = useRef<number | null>(null);
   const exitAtRef = useRef<number | null>(null);
+  const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    const start = performance.now();
+    const tick = () => {
+      if (typeof document !== "undefined" && document.hidden) return;
+      // Preparation progress, capped until the scene is ready or its fallback opens.
+      const elapsed = performance.now() - start;
+      const target = prefersReduced ? 90 : Math.min(90, Math.round(90 * (1 - Math.exp(-elapsed / 850))));
+      setProgress(previous => Math.max(previous, target));
+    };
+    progressTimer.current = setInterval(tick, 60);
+    return () => {
+      if (progressTimer.current !== null) clearInterval(progressTimer.current);
+      progressTimer.current = null;
+    };
+  }, [prefersReduced]);
 
   useEffect(() => {
     const now = performance.now();
@@ -32,23 +49,26 @@ export default function EntranceBootOverlay({
     const exitDelay = exitAtRef.current !== null ? 0 : Math.max(0, (ready || prefersReduced ? minimum : 4500) - elapsed);
     const fadeDuration = prefersReduced ? 250 : 480;
     let completeTimer: ReturnType<typeof setTimeout> | undefined;
-    const shimmerTimer = setTimeout(() => {
-      setShimmerActive(true);
-    }, Math.max(0, 680 - elapsed));
+    let fadeTimer: ReturnType<typeof setTimeout> | undefined;
 
     const exitTimer = setTimeout(() => {
-      if (exitAtRef.current === null) {
-        exitAtRef.current = performance.now();
-        setIsExiting(true);
-        onStartExit?.();
-      }
-      // Start the fade's timer after the exit actually runs. GPU work can delay
-      // timers on a cold load; two absolute deadlines could otherwise fire together.
-      completeTimer = setTimeout(onComplete, Math.max(0, fadeDuration - (performance.now() - exitAtRef.current)));
+      if (progressTimer.current !== null) clearInterval(progressTimer.current);
+      progressTimer.current = null;
+      setProgress(100);
+      fadeTimer = setTimeout(() => {
+        if (exitAtRef.current === null) {
+          exitAtRef.current = performance.now();
+          setIsExiting(true);
+          onStartExit?.();
+        }
+        // Start the fade's timer after the exit actually runs. GPU preparation
+        // can delay timers on a cold load.
+        completeTimer = setTimeout(onComplete, Math.max(0, fadeDuration - (performance.now() - exitAtRef.current)));
+      }, prefersReduced ? 0 : 220);
     }, exitDelay);
 
     return () => {
-      clearTimeout(shimmerTimer);
+      if (fadeTimer !== undefined) clearTimeout(fadeTimer);
       clearTimeout(exitTimer);
       if (completeTimer !== undefined) clearTimeout(completeTimer);
     };
@@ -57,11 +77,10 @@ export default function EntranceBootOverlay({
   return (
     <div
       className={`${styles.overlay} ${isExiting ? styles.exiting : ""}`}
-      aria-hidden="true"
+      aria-label="EIU Interactive Learning Space"
     >
       {/* ── Soft EIU Brand Radial Glows ── */}
-      <div className={styles.ambientGlow} />
-      <div className={styles.subtleGoldAura} />
+      <div className={styles.ambientGlow} aria-hidden="true" />
 
       {/* ── Official EIU Logo Stage ── */}
       <div className={styles.logoStage}>
@@ -75,12 +94,6 @@ export default function EntranceBootOverlay({
             unoptimized
             className={styles.logoImage}
           />
-          {/* Single Subtle Light Sweep / Scan */}
-          <div
-            className={`${styles.shimmerBeam} ${
-              shimmerActive ? styles.shimmerActive : ""
-            }`}
-          />
         </div>
 
         {/* "Interactive Learning Space" Subtitle */}
@@ -90,8 +103,12 @@ export default function EntranceBootOverlay({
           <span className={styles.subtitleWhite}>LEARNING SPACE</span>
         </div>
 
-        {/* Minimal System Hairline Indicator */}
-        <div className={styles.systemBar} />
+        <div className={styles.progressWrap}>
+          <div className={styles.systemBar} role="progressbar" aria-label="Loading learning space" aria-valuemin={0} aria-valuemax={100} aria-valuenow={progress}>
+            <span className={styles.progressFill} style={{ transform: `scaleX(${progress / 100})` }} />
+          </div>
+          <span className={styles.progressValue} aria-hidden="true">{progress}%</span>
+        </div>
       </div>
     </div>
   );

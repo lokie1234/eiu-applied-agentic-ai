@@ -74,16 +74,71 @@ test("section cards show actual totals without formats and automatically include
   } finally { await act(async () => root.unmount()); globalThis.fetch = previousFetch; await window.happyDOM.close(); }
 });
 
-test("landing offers passcode and admin Google sign-in without username login", () => {
+test("landing asks for a language before offering sign-in methods", () => {
   const SignIn = component("components/landing/SignInCard.tsx");
   const html = renderToStaticMarkup(React.createElement(SignIn, { passcode: "", setPasscode() {}, onSubmit() {}, loading: false }));
-  assert.match(html, /Passcode/); assert.match(html, /Learners &amp; facilitators/);
-  assert.match(html, /Administrator access/); assert.doesNotMatch(html, /Username|registered account/);
-  assert.doesNotMatch(html, /Choose a sign in method|Welcome back|<header|<h2/);
-  assert.match(html, /aria-label="Sign in"/);
+  assert.match(html, /VIE/); assert.match(html, /ENG/);
+  assert.doesNotMatch(html, />English</);
+  assert.doesNotMatch(html, /<h2|WELCOME|languageBadge|Secure access/);
+  assert.doesNotMatch(html, /Passcode|Administrator access|type="password"/);
 });
 
-test("landing passcode accepts six digits and enables submission only when complete", async () => {
+test("nested login controls share one glass sampler and portaled fields do not move the background card", async () => {
+  const window = new Window({ url: "http://localhost" });
+  window.HTMLElement.prototype.animate = undefined;
+  const frames = new Map(), motionListeners = new Set();
+  let frameId = 0, reads = 0, motion = true;
+  window.requestAnimationFrame = callback => { const id = ++frameId; frames.set(id, callback); return id; };
+  window.cancelAnimationFrame = id => frames.delete(id);
+  window.matchMedia = query => ({ get matches() { return query.includes("no-preference") ? motion : query.includes(": reduce") ? !motion : true; },
+    addEventListener: (_, callback) => motionListeners.add(callback), removeEventListener: (_, callback) => motionListeners.delete(callback) });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const SignIn = component("components/landing/SignInCard.tsx");
+  const container = window.document.createElement("div"); window.document.body.append(container);
+  const root = createRoot(container);
+  const flush = () => { for (const [id, callback] of [...frames]) { frames.delete(id); callback(); } };
+  const props = { passcode: "123456", setPasscode() {}, onSubmit() {}, loading: false };
+  const move = element => element.dispatchEvent(new window.PointerEvent("pointermove", { bubbles: true, pointerType: "mouse", clientX: 300, clientY: 50 }));
+  try {
+    await act(async () => root.render(React.createElement(SignIn, props)));
+    const card = container.querySelector("section");
+    card.getBoundingClientRect = () => { reads++; return { left: 0, top: 0, width: 400, height: 200 }; };
+    const tile = card.querySelector('button[lang="en"]');
+    tile.addEventListener("pointermove", event => event.stopPropagation());
+    for (let index = 0; index < 40; index++) move(tile);
+    assert.equal(frames.size, 1); assert.equal(reads, 0);
+    flush();
+    assert.equal(reads, 1);
+    assert.equal(card.style.getPropertyValue("--glass-x"), "75%");
+    assert.equal(card.style.getPropertyValue("--glass-ry"), "3deg");
+    await act(async () => tile.click()); flush();
+    await act(async () => card.querySelector('.choice').click()); flush();
+    const input = card.querySelector("input");
+    move(input);
+    assert.equal(frames.size, 1); flush();
+    assert.equal(input.closest('.glassRig'), card.querySelector('.glassShell').parentElement);
+
+    await act(async () => root.render(React.createElement(SignIn, { ...props, identityFields: [{ id: "name", label: "Name", type: "text" }], information: {} })));
+    flush();
+    const dialog = window.document.querySelector("dialog");
+    const cardReads = reads;
+    move(dialog.querySelector("input"));
+    assert.equal(frames.size, 1, "the portal updates its own surface without scheduling the ancestor card");
+    flush();
+    assert.equal(reads, cardReads);
+    motion = false; motionListeners.forEach(callback => callback());
+    move(input); assert.equal(frames.size, 0, "reduced motion stops pointer frames");
+    motion = true; motionListeners.forEach(callback => callback());
+    move(input); assert.equal(frames.size, 1);
+    await act(async () => root.unmount());
+    assert.equal(frames.size, 0); assert.equal(motionListeners.size, 0);
+  } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
+});
+
+test("landing auto-submits six digits without a login button and supports visibility and retry", async () => {
   const window = new Window({ url: "http://localhost" });
   window.matchMedia = () => ({ matches: true });
   for (const name of ["window", "document", "HTMLElement", "navigator"])
@@ -92,43 +147,142 @@ test("landing passcode accepts six digits and enables submission only when compl
   const { createRoot } = await import("react-dom/client");
   const SignIn = component("components/landing/SignInCard.tsx");
   const submissions = [];
-  let setBusy;
+  let setBusy, setFailure;
   function ControlledSignIn() {
     const [passcode, setPasscode] = React.useState("");
     const [loading, setLoading] = React.useState(false);
+    const [error, setError] = React.useState("");
     setBusy = setLoading;
-    return React.createElement(SignIn, { passcode, setPasscode, loading,
+    setFailure = setError;
+    return React.createElement(SignIn, { passcode, setPasscode, loading, error,
       onMethodChange: () => setPasscode(""),
-      onSubmit: event => { event.preventDefault(); submissions.push(passcode); },
+      onSubmit: event => { event.preventDefault(); submissions.push(passcode); setLoading(true); },
     });
   }
   const container = window.document.createElement("div"); window.document.body.append(container);
   const root = createRoot(container);
   try {
     await act(async () => root.render(React.createElement(ControlledSignIn)));
+    await act(async () => container.querySelector('button[lang="en"]').click());
     await act(async () => [...container.querySelectorAll("button")].find(button => button.textContent.includes("Passcode")).click());
     const input = container.querySelector("input");
-    const button = container.querySelector('button[type="submit"]');
+    assert.equal(container.querySelector('button[type="submit"]'), null);
     const change = value => act(async () => {
       Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, "value").set.call(input, value);
       input.dispatchEvent(new window.Event("input", { bubbles: true }));
     });
     const submit = () => act(async () => container.querySelector("form").dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true })));
     assert.equal(input.maxLength, 6); assert.equal(input.inputMode, "numeric");
-    assert.equal(input.placeholder, "••••••"); assert.equal(button.disabled, true);
+    assert.equal(input.placeholder, "••••••");
     await change("12345"); await submit();
-    assert.equal(button.disabled, true); assert.equal(submissions.length, 0);
+    assert.equal(submissions.length, 0);
     await change("0a1-2 3b45x67");
     assert.equal(input.value, "012345", "paste strips non-digits, caps length, and preserves the leading zero");
-    assert.equal(button.disabled, false); assert.equal(button.dataset.ready, "true");
-    await submit(); assert.deepEqual(submissions, ["012345"]);
+    assert.deepEqual(submissions, ["012345"], "six sanitized digits submit automatically without a click");
+    assert.equal(input.disabled, true); assert.equal(container.querySelector('[role="status"]'), null, 'pending login adds no visible status or spinner');
+    const toggle = container.querySelector('button[aria-controls="hero-passcode-input"]');
+    assert.equal(input.type, "password"); assert.equal(toggle.getAttribute("aria-label"), "Show passcode");
+    await act(async () => toggle.click());
+    assert.equal(input.type, "text"); assert.equal(input.value, "012345");
+    assert.equal(toggle.getAttribute("aria-pressed"), "true");
+    assert.equal(toggle.getAttribute("aria-label"), "Hide passcode");
+    await act(async () => toggle.click());
+    assert.equal(input.type, "password");
+    await submit(); assert.equal(submissions.length, 1, "visibility and repeated submits cannot duplicate a pending request");
+    await act(async () => { setBusy(false); setFailure("Wrong passcode"); });
+    assert.equal(container.querySelector('[role="alert"]').textContent.trim(), "Wrong passcode");
+    assert.equal(container.querySelector('[role="alert"]').className, "screenReaderOnly", "no visible error notice is rendered in the login card");
+    assert.equal(container.querySelector('.passcodeField').dataset.error, "true");
+    assert.equal(input.getAttribute("aria-invalid"), "true");
+    assert.equal(submissions.length, 1, "a failed request must not create an automatic retry loop");
+    await submit(); assert.deepEqual(submissions, ["012345", "012345"], "Enter can explicitly retry an unchanged code");
+    await act(async () => setBusy(false));
     await change("01234"); await submit();
-    assert.equal(button.disabled, true); assert.equal(button.dataset.ready, "false");
-    assert.equal(submissions.length, 1);
-    await change("012345"); await act(async () => setBusy(true)); await submit();
-    assert.equal(button.disabled, true); assert.equal(button.dataset.ready, "false");
-    assert.equal(submissions.length, 1, "loading cannot submit another request");
+    assert.equal(container.querySelector('[role="status"]'), null);
+    assert.equal(submissions.length, 2);
+    await change("012345"); await submit();
+    assert.equal(input.disabled, true);
+    assert.equal(submissions.length, 3, "editing back to six digits starts one new request");
   } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
+});
+
+test("language choice translates login and course functions, persists separately, and can switch back", async () => {
+  const window = new Window({ url: "http://localhost" });
+  window.matchMedia = () => ({ matches: true, addEventListener() {}, removeEventListener() {} });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const SignIn = component("components/landing/SignInCard.tsx");
+  const container = window.document.createElement("div"); window.document.body.append(container);
+  const root = createRoot(container);
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async () => ({ ok: false });
+  window.localStorage.setItem("eiu-admin-language", "en");
+  const click = selector => act(async () => container.querySelector(selector).click());
+  try {
+    await act(async () => root.render(React.createElement(SignIn, { passcode: "", setPasscode() {}, loading: false, error: "Incorrect or inactive passcode. Please contact your instructor.", onSubmit() {} })));
+    assert.equal(container.querySelector("input"), null);
+    await click('button[lang="vi"]');
+    assert.match(container.textContent, /Mã truy cập/);
+    assert.match(container.textContent, /Mã truy cập không đúng/);
+    assert.equal(window.localStorage.getItem("eiu.learning-interface-language"), "vi");
+    await click('.back');
+    await click('button[lang="en"]');
+    assert.match(container.textContent, /Learners & facilitators/);
+    await click('.back');
+    await click('button[lang="vi"]');
+
+    const Portal = component("components/LessonPortal.tsx", {
+      "next/navigation": { useRouter: () => ({ refresh() {} }) },
+      "next/dynamic": { __esModule: true, default: () => () => null },
+      "next/image": { __esModule: true, default: () => null },
+      "next/link": { __esModule: true, default: props => React.createElement("a", { href: props.href }, props.children) },
+      "@/lib/auth/types": { APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai" },
+      "@/lib/supabase/browser": { getSupabaseBrowserClient: () => null }, "@/lib/slideStorage": {},
+    });
+    const course = { id: "language-course", slug: "unchanged-course", title: "Original course title", folderGroupId: "folder", folderGroupName: "Original folder", languageLabel: "en",
+      sections: [{ id: "language-section", sectionKey: "original-section", title: "Original lesson title", contentType: "pdf", position: 1 }] };
+    await act(async () => root.render(React.createElement(Portal, { isAdmin: true, initialSection: null, allowedSections: [], courseFolders: [course] })));
+    assert.equal(container.querySelector("main").lang, "vi");
+    assert.equal(container.querySelector('.searchInput').placeholder, "Tìm khóa học hoặc chủ đề...");
+    await click('.functionTrigger');
+    assert.match(container.querySelector('[data-function-menu]').textContent, /Báo cáo/);
+    assert.match(container.querySelector('[data-function-menu]').textContent, /Xóa dữ liệu/);
+    assert.match(container.querySelector('[data-function-menu]').textContent, /Đăng xuất/);
+    assert.match(container.querySelector('.courseLearners').textContent, /0 trực tuyến/);
+    assert.equal(container.querySelector('.languageTrigger').closest('[data-function-menu]'), null);
+    assert.equal(container.querySelector('.languageControl').parentElement, container.querySelector('.functionDropdown').parentElement);
+    await click('.functionTrigger');
+    const selectLanguage = async value => {
+      await click('.languageTrigger');
+      assert.ok(container.querySelector('[data-language-menu]'));
+      assert.deepEqual([...container.querySelectorAll('.languageOption')].map(option => option.textContent.replace('✓', '').trim()),
+        container.querySelector('main').lang === 'vi' ? ['Tiếng Việt', 'Tiếng Anh'] : ['Vietnamese', 'English']);
+      assert.equal(container.querySelector('.languageTrigger').getAttribute('aria-expanded'), 'true');
+      await click(`[data-language-menu] button[data-language-option="${value}"]`);
+      assert.equal(container.querySelector('[data-language-menu]'), null);
+      assert.equal(window.document.activeElement, container.querySelector('.languageTrigger'));
+    };
+    await selectLanguage('en');
+    assert.equal(container.querySelector('dialog'), null);
+    assert.equal(container.querySelector('main').lang, "en");
+    assert.equal(container.querySelector('.courseNameText').textContent, course.title);
+    assert.match(container.querySelector('.courseLearners').textContent, /0 online/);
+    await click('#course-choice-language-course');
+    assert.match(container.textContent, /Original lesson title/);
+    await selectLanguage('vi');
+    assert.match(container.textContent, /Original lesson title/);
+    assert.equal(container.querySelector('main').lang, "vi");
+    assert.match(container.querySelector('.cardLiveUsers').textContent, /0 trực tuyến/);
+    assert.equal(container.querySelector('dialog'), null);
+    assert.match(container.querySelector('.languageTrigger').textContent, /VIE/);
+    await click('.languageTrigger');
+    assert.equal(container.querySelector('[data-language-menu] button[data-language-option="vi"]').getAttribute('aria-pressed'), 'true');
+    await act(async () => window.document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true })));
+    assert.equal(container.querySelector('[data-language-menu]'), null);
+    assert.equal(window.localStorage.getItem("eiu-admin-language"), "en");
+  } finally { await act(async () => root.unmount()); globalThis.fetch = previousFetch; await window.happyDOM.close(); }
 });
 
 test("sign-in transitions wait for exit, resize smoothly, and restore focus on Back", async () => {
@@ -158,6 +312,11 @@ test("sign-in transitions wait for exit, resize smoothly, and restore focus on B
   const finish = (...indexes) => act(async () => indexes.forEach(index => animations[index].finish()));
   try {
     await act(async () => root.render(React.createElement(SignIn, { passcode: "", setPasscode() {}, loading: false, onSubmit() {}, onMethodChange() { changes++; } })));
+    await click("ENG");
+    assert.equal(container.querySelector("input"), null);
+    assert.ok(container.querySelector('button[lang="en"]'), "language tiles remain until their exit completes");
+    await finish(0); await finish(1, 2);
+    animations.length = 0;
     await click("Passcode");
     assert.equal(animations.length, 1); assert.equal(changes, 0);
     assert.equal(container.querySelector("input"), null, "outgoing choices remain until their exit completes");
@@ -260,15 +419,18 @@ test("learner information opens a separate modal with focus, submission, and can
   const render = () => root.render(React.createElement(SignIn, { passcode: "123456", setPasscode() {}, identityFields: fields, information: { name: "Alice" }, loading: false, onSubmit: e => { e.preventDefault(); submitted++; }, onInformationCancel: () => { cancelled++; fields = []; render(); } }));
   try {
     await act(async () => render());
+    await act(async () => container.querySelector('button[lang="en"]').click());
     await act(async () => Array.from(container.querySelectorAll("button")).find(b => b.textContent.includes("Passcode")).click());
     fields = [{ id: "name", label: "Name", type: "text" }];
     await act(async () => render());
     const dialog = window.document.querySelector("dialog");
     assert.equal(dialog.open, true); assert.equal(dialog.parentElement, window.document.body); assert.equal(container.querySelector("#learner-name"), null);
     assert.equal(window.document.activeElement.id, "learner-name");
-    await act(async () => dialog.querySelector('button[type="submit"]').click()); assert.equal(submitted, 1);
+    assert.equal(submitted, 1, "the full code submitted once before learner information opened");
+    await act(async () => dialog.querySelector('button[type="submit"]').click()); assert.equal(submitted, 2);
     await act(async () => dialog.querySelector('[aria-label="Close learner information"]').click());
     assert.equal(cancelled, 1); assert.equal(window.document.querySelector("dialog"), null); assert.equal(container.querySelector("#hero-passcode-input").value, "123456");
+    assert.equal(submitted, 2, "cancelling the information dialog does not auto-submit the same code again");
     fields = [{ id: "name", label: "Name", type: "text" }]; await act(async () => render());
     await act(async () => window.document.querySelector("dialog").dispatchEvent(new window.Event("cancel", { cancelable: true })));
     assert.equal(cancelled, 2); assert.equal(window.document.querySelector("dialog"), null);
@@ -348,16 +510,26 @@ test("facilitator decks enable quiz controls without exposing admin navigation o
     "next/link": { __esModule: true, default: props => React.createElement("a", { href: props.href }, props.children) },
     "@/lib/auth/types": { APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai" },
     "@/lib/supabase/browser": {}, "@/lib/slideStorage": {},
-    "./deck/UploadedSectionDeck": { __esModule: true, default: () => null },
+    "./deck/UploadedSectionDeck": { __esModule: true, default: props => React.createElement("div", { "data-teaching": String(props.isAdmin) }, "Uploaded deck") },
   });
   const course = { id: "c", slug: "applied-agentic-ai", title: "Course", sections: [{ id: "s", sectionKey: "section1", canFacilitate: true }] };
-  const render = isAdmin => renderToStaticMarkup(React.createElement(Portal, { isAdmin, canFacilitate: true, initialCourseId: "c", initialSection: "section1", courseFolders: [course] }));
+  const render = (isAdmin, initialSection = "section1") => renderToStaticMarkup(React.createElement(Portal, { isAdmin, canFacilitate: true, initialCourseId: "c", initialSection, courseFolders: [course] }));
   const teaching = render(false);
   assert.match(teaching, /data-teaching="true"/);
   assert.doesNotMatch(teaching, /href="\/admin|Terminate|Reset data|Export/);
   assert.match(render(true), /href="\/admin/);
   course.sections[0].canFacilitate = false;
   assert.match(render(false), /data-teaching="false"/);
+  course.sections.push({ id: "s2", sectionKey: "section2", canFacilitate: true });
+  assert.match(render(false, "section2"), /data-teaching="true"/);
+  course.sections[1].canFacilitate = false;
+  assert.match(render(false, "section2"), /data-teaching="false"/);
+  const web = { id: "web", slug: "web-development", title: "Web", sections: [{ id: "web-section", sectionKey: "section1", title: "Section 1", contentType: "tsx", canFacilitate: true }] };
+  const renderUploaded = isAdmin => renderToStaticMarkup(React.createElement(Portal, { isAdmin, canFacilitate: true, initialCourseId: "web", initialSection: null, initialSectionId: "web-section", courseFolders: [web] }));
+  assert.match(renderUploaded(false), /data-teaching="true"/);
+  web.sections[0].canFacilitate = false;
+  assert.match(renderUploaded(false), /data-teaching="false"/);
+  assert.match(renderUploaded(true), /data-teaching="true"/);
 });
 
 test("catalog refresh preserves an open visible section and withdraws it when hidden", async () => {

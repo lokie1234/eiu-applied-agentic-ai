@@ -11,8 +11,8 @@ interface HeroSceneProps {
   stage: number;
   robotState?: RobotInteractionState;
   isCtaHovered?: boolean;
-  ctaPulsed?: boolean;
   enter?: boolean;
+  paused?: boolean;
   onReady?: () => void;
   onUnavailable?: () => void;
 }
@@ -129,26 +129,7 @@ function EiuStudioLightingEnvironment() {
     const { gl, scene } = get();
     const envScene = new THREE.Scene();
 
-    // 1. Spatial hemisphere: Deep navy zenith, dark ink bounce
-    const hemiLight = new THREE.HemisphereLight(0x1a3b5c, 0x030d17, 1.4);
-    envScene.add(hemiLight);
-
-    // 2. Primary warm studio key softbox
-    const keySoftbox = new THREE.DirectionalLight(0xfff6ea, 3.8);
-    keySoftbox.position.set(4.5, 4.8, 3.8);
-    envScene.add(keySoftbox);
-
-    // 3. Cool cyan/blue studio rim softbox for crisp Fresnel edge reflections
-    const rimSoftbox = new THREE.DirectionalLight(0x2d7fb4, 3.0);
-    rimSoftbox.position.set(-4.8, 3.4, -3.8);
-    envScene.add(rimSoftbox);
-
-    // 4. Warm gold bounce reflector
-    const goldSoftbox = new THREE.DirectionalLight(0xe9ca8b, 1.8);
-    goldSoftbox.position.set(2.2, -2.4, 2.6);
-    envScene.add(goldSoftbox);
-
-    // 5. Diffuse studio softbox reflector panels for realistic specular highlights
+    // Emissive panels supply the reflections; lights do not illuminate these BasicMaterials.
     const panelGeo = new THREE.PlaneGeometry(6, 6);
     const pKey = new THREE.Mesh(
       panelGeo,
@@ -167,14 +148,16 @@ function EiuStudioLightingEnvironment() {
     envScene.add(pRim);
 
     const pmremGenerator = new THREE.PMREMGenerator(gl);
-    pmremGenerator.compileEquirectangularShader();
     const renderTarget = pmremGenerator.fromScene(envScene, 0.04, 0.1, 100, { size: 128 });
 
+    const previousEnvironment = scene.environment;
+    const previousIntensity = scene.environmentIntensity;
     scene.environment = renderTarget.texture;
     scene.environmentIntensity = 0.88;
 
     return () => {
-      scene.environment = null;
+      scene.environment = previousEnvironment;
+      scene.environmentIntensity = previousIntensity;
       renderTarget.dispose();
       pmremGenerator.dispose();
       panelGeo.dispose();
@@ -191,8 +174,8 @@ function HeroScene({
   stage,
   robotState = "idle",
   isCtaHovered = false,
-  ctaPulsed = false,
   enter = true,
+  paused = false,
   onReady,
   onUnavailable,
 }: HeroSceneProps) {
@@ -224,7 +207,7 @@ function HeroScene({
         pointerEvents: revealed ? "auto" : "none",
       }}
     >
-      <ScenePerformance onDprChange={setDpr} onRunningChange={setRunning} active={revealed} />
+      <ScenePerformance onDprChange={setDpr} onRunningChange={setRunning} active={revealed && !paused} />
 
       <Suspense fallback={null}>
         {/* Procedural Studio Lighting Environment for Photorealistic Reflections */}
@@ -239,8 +222,7 @@ function HeroScene({
           stage={stage}
           robotState={robotState}
           isCtaHovered={isCtaHovered}
-          ctaPulsed={ctaPulsed}
-          enter={revealed}
+                  enter={revealed}
         />
         <SceneWarmup onReady={handleReady} onUnavailable={onUnavailable} />
       </Suspense>

@@ -81,7 +81,7 @@ test("compiled slide 29 requests the native submission board only for its own pa
 test("retired final slides and their private renderer and logo assets are removed from the course",()=>{
   const base='course-content/web-app-development/';
   const slides=JSON.parse(fs.readFileSync(base+'storyboard.json')).slides.filter(s=>s.section===1);
-  assert.equal(slides.length,29);assert.equal(slides.at(-1).visual,'git-intro-submission');
+  assert.equal(slides.length,30);assert.equal(slides.filter(s=>!s.adminOnly).length,29);assert.equal(slides.at(-1).visual,'git-intro-submission');
   assert.equal(fs.existsSync(base+'repo-icons'),false);
   const retired=/git-intro-(?:ai-workflow|skill-defaults|repo-showcase)|effective-vibe-coding|Repo (?:Penpot|Excalidraw|shadcn-ui|n8n)|function (?:skillDefaults|skillInstall|aiWorkflow|repoShowcase)/i;
   for(const file of ['storyboard.json','renderer.tsx.txt','Section1.js','Section2.js','assets.json'])assert.doesNotMatch(fs.readFileSync(base+file,'utf8'),retired,file);

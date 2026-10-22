@@ -34,16 +34,22 @@
 .innovationPortal .logoWindow { width: 132px; height: 40px; flex-shrink: 0; }
 .libraryMasthead { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-shrink: 0; }
 .functionDropdown { position: relative; margin-left: auto; flex-shrink: 0; z-index: 10; }
-.portal .functionTrigger { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding: 0 14px; border: 1px solid #e9ca8b; border-radius: 12px; color: #082945; font: inherit; font-size: 12px; font-weight: 750; cursor: pointer; }
-.functionTrigger > svg { width: 17px; height: 17px; }
-.functionTrigger .functionChevron { width: 14px; height: 14px; transition: transform 180ms ease; }
-.functionTrigger[aria-expanded="true"] .functionChevron { transform: rotate(180deg); }
-.functionTrigger:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 3px; }
-.innovationPortal .functionDropdown .selectorActions { position: absolute; inset: calc(100% + 10px) 0 auto auto; z-index: 10; display: grid; grid-template-columns: 1fr; gap: 7px; width: max-content; max-width: calc(100vw - 48px); max-height: min(380px, 65dvh); overflow-y: auto; padding: 10px; border: 1px solid #57758b; border-radius: 17px; background: #082945; box-shadow: 0 14px 30px #010d1b80; animation: functionReveal 180ms cubic-bezier(.22,1,.36,1) both; }
-.innovationPortal .functionDropdown .selectorActions :is(a, button) { justify-content: flex-start; width: 100%; min-height: 44px; padding: 0 14px; border-radius: 10px; font-size: 14px; gap: 9px; }
-.innovationPortal .functionDropdown .actionIcon { width: 19px; height: 19px; flex-basis: 19px; }
+.languageDropdown { position:relative; flex-shrink:0; z-index:10; }
+.languageDropdown .selectorActions { min-width:100%; box-sizing:border-box; }
+.languageOption > span { margin-left:auto; }
+.innovationPortal .languageDropdown .languageOption[aria-pressed="true"] { background:#f4dfb0; border-color:#e9ca8b; color:#082945; }
+.mastheadActions { display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-left:auto; flex-shrink:0; }
+@media(max-width:480px) { .languageButtonLabel { display:none; } .mastheadActions { gap:8px; } }
+.portal :is(.functionTrigger,.languageTrigger) { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 42px; padding: 0 14px; border: 1px solid #e9ca8b; border-radius: 12px; color: #082945; font: inherit; font-size: 12px; font-weight: 750; cursor: pointer; }
+:is(.functionTrigger,.languageTrigger) > svg { width: 17px; height: 17px; }
+:is(.functionTrigger,.languageTrigger) .functionChevron { width: 14px; height: 14px; transition: transform 180ms ease; }
+:is(.functionTrigger,.languageTrigger)[aria-expanded="true"] .functionChevron { transform: rotate(180deg); }
+:is(.functionTrigger,.languageTrigger):focus-visible { outline: 2px solid #e9ca8b; outline-offset: 3px; }
+.innovationPortal :is(.functionDropdown,.languageDropdown) .selectorActions { position: absolute; inset: calc(100% + 10px) 0 auto auto; z-index: 10; display: grid; grid-template-columns: 1fr; gap: 7px; width: max-content; max-width: calc(100vw - 48px); max-height: min(380px, 65dvh); overflow-y: auto; padding: 10px; border: 1px solid #57758b; border-radius: 17px; background: #082945; box-shadow: 0 14px 30px #010d1b80; animation: functionReveal 180ms cubic-bezier(.22,1,.36,1) both; }
+.innovationPortal :is(.functionDropdown,.languageDropdown) .selectorActions :is(a, button) { justify-content: flex-start; width: 100%; min-height: 44px; padding: 0 14px; border-radius: 10px; font-size: 14px; gap: 9px; }
+.innovationPortal :is(.functionDropdown,.languageDropdown) .actionIcon { width: 19px; height: 19px; flex-basis: 19px; }
 @keyframes functionReveal { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
-@media (prefers-reduced-motion: reduce) { .innovationPortal .functionDropdown .selectorActions { animation: none; }
+@media (prefers-reduced-motion: reduce) { .innovationPortal :is(.functionDropdown,.languageDropdown) .selectorActions { animation: none; }
   .innovationPortal .courseFolder[data-pointer-active], .innovationPortal .courseFolder:has(:focus-visible), .inlineSections .cards .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"]), .inlineSections .cards .sectionLaunchButton:has(:focus-visible) { transform: none; } }
 .innovationPortal .selectorActions :is(a, button) { display: inline-flex; align-items: center; justify-content: center; gap: 7px; min-height: 40px; white-space: nowrap; background: var(--toolbar-bg, #f7f4ed); color: var(--toolbar-ink, #17324a); border-color: var(--toolbar-border, #e9ca8b); box-shadow: inset 0 1px 0 #ffffff70, 0 3px 8px #010d1b25; }
 .innovationPortal .selectorActions .accessButton { --toolbar-bg: #f4dfb0; --toolbar-border: #e9ca8b; --toolbar-hover: #f7e9cd; }
@@ -72,10 +78,10 @@
 .innovationPortal .searchInput { height: 44px; border-radius: 12px; background: #103452; border-color: #355c7c; backdrop-filter: none; }
 .innovationPortal .searchInput::placeholder { color: #b1c2c8; }
 
-.libraryWorkspace { position: relative; display: grid; grid-template-columns: clamp(310px, 25vw, 350px) minmax(0, 1fr); gap: 24px; flex: 1; min-height: 0; overflow: hidden; }
+.libraryWorkspace { position: relative; display: grid; grid-template-columns: clamp(338px, 27vw, 380px) minmax(0, 1fr); gap: 24px; flex: 1; min-height: 0; overflow: hidden; }
 .mobileFolderToggle { display: none; }
 .folderNavigation { min-height: 0; display: flex; flex-direction: column; border-right: 1px solid #284c6a; padding-right: 20px; }
-.folderShelf { display: grid; grid-template-rows: repeat(6, minmax(100px, 1fr)); align-content: start; gap: 8px; flex: 1; min-height: 0; max-height: 680px; padding: 2px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #355c7c transparent; }
+.folderShelf { display: grid; grid-template-rows: repeat(6, minmax(104px, 1fr)); align-content: start; gap: 8px; flex: 1; min-height: 0; max-height: 680px; padding: 2px; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; scrollbar-color: #355c7c transparent; }
 .folderChoice { position: relative; display: grid; grid-template-columns: 132px minmax(0, 1fr); align-items: center; gap: 4px; min-width: 0; min-height: 0; padding: 4px 12px 6px 0; border: 1px solid #355c7c; border-radius: 14px; color: #eaf4ff; background: rgba(16, 52, 82, .5); text-align: center; cursor: pointer; transition: background-color 180ms, border-color 180ms; }
 .folderChoice:hover { border-color: #79e3ff; }
 .folderChoiceSelected, .folderChoiceSelected:hover { border-color: #e9ca8b; background: rgba(24, 84, 127, .62); box-shadow: inset 4px 0 #e9ca8b; }
@@ -86,7 +92,7 @@
 .folderMetaRow { position: absolute; right: 10px; bottom: 6px; display: flex; align-items: center; justify-content: flex-end; gap: 6px; max-width: calc(100% - 20px); }
 .folderLearners, .courseLearners { display: inline-flex; align-items: center; flex-shrink: 0; gap: 6px; min-height: 27px; padding: 4px 8px; border: 1px solid #66bb963f; border-radius: 99px; background: #0c302f; color: #cbe8d5; font-size: 12px; line-height: 1.2; font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .folderLearners .liveDot, .courseLearners .liveDot { width: 5px; height: 5px; }
-.folderChoiceText strong { overflow-wrap: anywhere; font-size: clamp(22px, 1.6vw, 25px); line-height: 1.15; font-weight: 700; }
+.folderChoiceText strong { overflow-wrap: anywhere; font-size: clamp(22px, 1.6vw, 25px); line-height: 1.25; font-weight: 700; }
 .folderCourseCount { display: inline-flex; align-items: center; padding: 3px 8px; border: 1px solid #355c7c; border-radius: 99px; color: #c5e9ff; background: #082945; font-size: 12px; line-height: 1.2; font-weight: 650; white-space: nowrap; }
 .folderChoiceSelected .folderCourseCount { border-color: #b89e63; color: #ffe4a6; }
 .folderPageNav { display: flex; flex-shrink: 0; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 2px 0; margin-top: auto; min-height: 44px; color: #b5cbe0; font-size: 12px; }
@@ -208,7 +214,7 @@
 .inlineSections .sectionPptxLink { padding: 10px 14px; font-size: 12px; }
 
 @media (max-width: 1080px) and (min-width: 761px) {
-  .libraryWorkspace { grid-template-columns: 280px minmax(0, 1fr); gap: 18px; }
+  .libraryWorkspace { grid-template-columns: 308px minmax(0, 1fr); gap: 18px; }
   .folderNavigation { padding-right: 16px; }
   .folderChoice { grid-template-columns: 116px minmax(0, 1fr); gap: 4px; }
   .folderArtwork { width: 120px; }
@@ -268,11 +274,11 @@
   .innovationPortal .logoWindow { width: 110px; height: 32px; }
   .innovationPortal .libraryHeaderToolbar { padding: 10px 0; margin-top: 8px; margin-bottom: 10px; }
   .innovationPortal .libraryHeaderTitle { font-size: 34px; }
-  .folderShelf { gap: 6px; grid-template-rows: repeat(6, minmax(86px, 1fr)); }
+  .folderShelf { gap: 6px; grid-template-rows: repeat(6, minmax(90px, 1fr)); }
   .folderChoice { grid-template-columns: 112px minmax(0, 1fr); }
   .folderArtwork { width: 116px; height: min(84px, 100%); }
   .folderChoice { padding-bottom: 6px; }
-  .folderChoiceText strong { font-size: 21px; line-height: 1.1; }
+  .folderChoiceText strong { font-size: 21px; line-height: 1.25; }
   .folderChoiceText .folderNameText { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .folderCourseCount { font-size: 12px; padding: 4px 7px; }
 }
@@ -293,7 +299,7 @@
 .illustratedTitle .learningAccent { width: 17px; height: 17px; margin: 0; color: var(--library-accent, #51c9ef); transition: color 220ms ease; }
 .folderChoiceText strong.illustratedTitle { display: flex; justify-content: center; gap: 6px; width: 100%; }
 .folderChoiceText .illustratedTitle::after { left: calc(50% - 22px); bottom: -4px; transform-origin: center; }
-.folderNameText { min-width: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.folderNameText { box-sizing: border-box; padding: 2px 4px; min-width: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .courseNameText { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .inlineSectionsHeader .illustratedTitle { align-items: flex-start; }
 .inlineSectionsHeader .illustratedTitle .learningAccent { margin-top: 8px; }
@@ -1807,10 +1813,10 @@
 /* Lightweight CSS depth for the selected course and its navigation controls. */
 .inlineSectionsHeader > div { min-width: 0; }
 .innovationPortal .inlineSectionsHeader h2 > span { color: #f7f4ed; text-shadow: 1px 1px 0 #397fa8, 2px 2px 0 #041c31; }
-.portal .functionTrigger { border-color: #f4dfb0 #b39159 #9d7944; background: linear-gradient(155deg, #fff0cd, #f4dfb0 45%, #e9ca8b); box-shadow: inset 0 1px 0 #fffdf5, inset 0 -1px 0 #b3915940, 0 4px 0 #9d7944, 0 5px 0 #082945, 0 7px 11px #010d1b55; text-shadow: 0 1px 0 #fff7dd; transform: perspective(600px) rotateX(4deg); transition: transform 150ms ease, box-shadow 150ms ease; }
-.portal .functionTrigger:hover { background: linear-gradient(155deg, #fff6e2, #f4dfb0 55%, #e9ca8b); transform: perspective(600px) rotateX(4deg) translateY(-1px); }
-.portal .functionTrigger:is(:active, [aria-expanded="true"]) { transform: perspective(600px) rotateX(2deg) translateY(2px); box-shadow: inset 0 1px 0 #fffdf5, 0 2px 0 #9d7944, 0 4px 7px #010d1b55; }
+.portal :is(.functionTrigger,.languageTrigger) { border-color: #f4dfb0 #b39159 #9d7944; background: linear-gradient(155deg, #fff0cd, #f4dfb0 45%, #e9ca8b); box-shadow: inset 0 1px 0 #fffdf5, inset 0 -1px 0 #b3915940, 0 4px 0 #9d7944, 0 5px 0 #082945, 0 7px 11px #010d1b55; text-shadow: 0 1px 0 #fff7dd; transform: perspective(600px) rotateX(4deg); transition: transform 150ms ease, box-shadow 150ms ease; }
+.portal :is(.functionTrigger,.languageTrigger):hover { background: linear-gradient(155deg, #fff6e2, #f4dfb0 55%, #e9ca8b); transform: perspective(600px) rotateX(4deg) translateY(-1px); }
+.portal :is(.functionTrigger,.languageTrigger):is(:active, [aria-expanded="true"]) { transform: perspective(600px) rotateX(2deg) translateY(2px); box-shadow: inset 0 1px 0 #fffdf5, 0 2px 0 #9d7944, 0 4px 7px #010d1b55; }
 .innovationPortal .backToCourses { flex-shrink: 0; border-color: #9bd5e8 #397fa8 #18547f; background: linear-gradient(155deg, #18547f, #123f68 55%, #082945); color: #dceff5; box-shadow: inset 0 1px 0 #dceff560, inset 0 -1px 0 #041c3170, 0 4px 0 #041c31, 1px 5px 0 #397fa8, 0 7px 11px #010d1b55; text-shadow: 0 1px 0 #041c31; transform: perspective(600px) rotateX(4deg); }
 .innovationPortal .backToCourses:hover { border-color: #c5e9f4; background: linear-gradient(155deg, #24658e, #123f68 65%, #082945); transform: perspective(600px) rotateX(4deg) translateY(-1px); box-shadow: inset 0 1px 0 #dceff570, 0 5px 0 #041c31, 1px 6px 0 #397fa8, 0 8px 12px #010d1b55; }
 .innovationPortal .backToCourses:active { transform: perspective(600px) rotateX(2deg) translateY(2px); box-shadow: inset 0 1px 0 #dceff560, 0 2px 0 #041c31, 1px 3px 0 #397fa8, 0 4px 7px #010d1b55; }
-@media (prefers-reduced-motion: reduce) { .portal .functionTrigger, .innovationPortal .backToCourses { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .portal :is(.functionTrigger,.languageTrigger), .innovationPortal .backToCourses { transition: none; } }

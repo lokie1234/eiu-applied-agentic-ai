@@ -19,7 +19,7 @@ function render(page){
 function renderDisplay(page){
  const window = new Window();
  window.document.body.innerHTML='<div id="root"></div>';
- const script=documents.createTsxDocument(compiled,page).match(/<script>([\s\S]*?)<\/script>/)[1];
+ const script=documents.createTsxDocument(compiled,page,"","","",true).match(/<script>([\s\S]*?)<\/script>/)[1];
  vm.runInNewContext(script,{document:window.document,Node:window.Node,URL:window.URL,window,parent:{postMessage(){}},setTimeout:window.setTimeout.bind(window),clearTimeout:window.clearTimeout.bind(window)},{timeout:3000});
  const error=window.document.querySelector('#error');
  assert.ok(!error,`Slide ${page} renders: ${error?.textContent||''}`);
@@ -417,13 +417,13 @@ test('the two AI tools show advantages and styled model names without embedded l
 
 test('setup and practice lead to complete Push, Pull and Clone workflows',()=>{
  for(const command of ['code --version','node --version','git config --global user.name','npm.cmd install','npm.cmd run dev','npm.cmd test','npm.cmd run build','git init -b main','git add .','git commit -m','git remote add origin','git push -u origin main','git pull --ff-only origin main','git clone']) assert.ok(source.includes(command),command);
- assert.equal(sectionSlides.length,29);
- assert.deepEqual(sectionSlides.map(s=>s.number),Array.from({length:29},(_,i)=>i+1));
+ assert.equal(sectionSlides.length,30);
+ assert.deepEqual(sectionSlides.map(s=>s.number),Array.from({length:30},(_,i)=>i+1));
  assert.equal(sectionSlides.at(-1).visual,'git-intro-submission');
  for(const visual of ['git-intro-initialize','git-intro-publish','git-intro-push-code','git-intro-pull'])assert.ok(sectionSlides.some(s=>s.visual===visual));
 });
 
-test('all 29 slides retain embedded Inter while only loading their layout styles',async()=>{
+test('all 30 admin slides retain embedded Inter while only loading their layout styles',async()=>{
  assert.equal(fs.readFileSync('course-content/web-app-development/fonts/Inter-Variable.woff2').subarray(0,4).toString(),'wOF2');
  assert.doesNotMatch(source,/git-intro-quiz|\.skillFeatureGrid\{|\.skillOutcome\{/);
  for(const slide of sectionSlides){

@@ -17,7 +17,7 @@ async function main() {
     const window = new Window(), document = window.document;
     try {
       document.body.innerHTML = '<div id="root"></div>';
-      const script = documents.createTsxDocument(compiled, slide.number).match(/<script>([\s\S]*?)<\/script>/)[1];
+      const script = documents.createTsxDocument(compiled, slide.number, "", "", "", true).match(/<script>([\s\S]*?)<\/script>/)[1];
       const started = performance.now();
       vm.runInNewContext(script, { window, document, Node: window.Node, URL: window.URL, parent: { postMessage() {} }, setTimeout: window.setTimeout.bind(window), clearTimeout: window.clearTimeout.bind(window) }, { timeout: 5000 });
       if (document.querySelector('#error')) throw Error(document.querySelector('#error').textContent);
