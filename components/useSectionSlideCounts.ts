@@ -14,13 +14,13 @@ export function useSectionSlideCounts(courseId: string, sections?: Section[], is
   const [results, setResults] = useState<{ courseId: string; sections?: Section[]; counts: Record<string, Count> }>({ courseId: "", counts: {} });
   const completed = useRef<{ courseId: string; counts: Record<string, Count> }>({ courseId: "", counts: {} });
   useEffect(() => {
-    if (!input) { completed.current = { courseId: "", counts: {} }; return; }
+    if (!input) return;
     if (!input?.length) return;
     if (completed.current.courseId !== courseId) completed.current = { courseId, counts: {} };
     const controller = new AbortController();
     const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(60_000)]);
     const queue = input.filter(section => ["tsx", "pdf", "pptx"].includes(section.contentType) &&
-      completed.current.counts[section.id]?.revision !== `${section.contentType}:${section.contentRevision ?? ""}:${isAdmin}`);
+      completed.current.counts[`${section.id}:${isAdmin}`]?.revision !== `${section.contentType}:${section.contentRevision ?? ""}:${isAdmin}`);
     let next = 0;
     async function run() {
       while (next < queue.length && !signal.aborted) {
@@ -28,10 +28,10 @@ export function useSectionSlideCounts(courseId: string, sections?: Section[], is
         try {
           const count = await readSectionSlideCount(section.id, section.contentType as SectionFileType, signal, isAdmin);
           if (signal.aborted) return;
-          completed.current.counts[section.id] = { revision: `${section.contentType}:${section.contentRevision ?? ""}:${isAdmin}`, count };
+          completed.current.counts[`${section.id}:${isAdmin}`] = { revision: `${section.contentType}:${section.contentRevision ?? ""}:${isAdmin}`, count };
           setResults(current => ({ courseId, sections: input, counts: {
             ...(current.courseId === courseId ? current.counts : {}),
-            [section.id]: { revision: `${section.contentType}:${section.contentRevision ?? ""}:${isAdmin}`, count },
+            [`${section.id}:${isAdmin}`]: { revision: `${section.contentType}:${section.contentRevision ?? ""}:${isAdmin}`, count },
           } }));
         } catch { /* Keep the pending label instead of claiming an outdated count. */ }
       }
@@ -42,7 +42,7 @@ export function useSectionSlideCounts(courseId: string, sections?: Section[], is
   const counts: Record<string, number> = {};
   for (const section of input ?? []) {
     if (results.courseId !== courseId) continue;
-    const result = results.counts[section.id];
+    const result = results.counts[`${section.id}:${isAdmin}`];
     if (result?.revision === `${section.contentType}:${section.contentRevision ?? ""}:${isAdmin}`) counts[section.id] = result.count;
   }
   return counts;

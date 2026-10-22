@@ -502,6 +502,68 @@ test("admin passcode manager exposes two independent permission types for each t
   assert.match(html, /Search folders and courses/);
 });
 
+test("admin can preview learning and teaching decks and return without restarting session requests", async () => {
+  const window = new Window({ url: "http://localhost/learn" });
+  for (const name of ["window", "document", "HTMLElement", "navigator"])
+    Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const previousFetch = globalThis.fetch, requests = [];
+  let refreshes = 0;
+  const router = { refresh() { refreshes++; } };
+  globalThis.fetch = async (url, options) => {
+    requests.push({ url, options });
+    return { ok: true, json: async () => ({ success: true, counts: { section1: 0, section2: 0, total: 0 } }) };
+  };
+  const Portal = component("components/LessonPortal.tsx", {
+    "next/navigation": { useRouter: () => router },
+    "next/dynamic": { __esModule: true, default: () => props => props.sectionId ? React.createElement("div", { "data-preview-deck": String(props.isAdmin) }) : null },
+    "next/image": { __esModule: true, default: () => null },
+    "next/link": { __esModule: true, default: props => React.createElement("a", { href: props.href }, props.children) },
+    "@/lib/auth/types": { APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai" },
+    "@/lib/supabase/browser": { getSupabaseBrowserClient: () => null }, "@/lib/slideStorage": {},
+  });
+  const course = { id: "c", slug: "web", title: "Web course", sections: [
+    { id: "s", sectionKey: "custom", title: "Section", contentType: "tsx", position: 1, canFacilitate: true },
+    { id: "hidden", sectionKey: "hidden", title: "Hidden section", contentType: "tsx", position: 2, hidden: true },
+  ] };
+  const container = window.document.createElement("div"), root = createRoot(container);
+  const render = isAdmin => root.render(React.createElement(Portal, { isAdmin, initialProfile: { name: "Admin" }, initialCourseId: "c", initialSection: null, courseFolders: [course] }));
+  const chooseMode = async mode => {
+    await act(async () => container.querySelector('#course-functions-trigger').click());
+    await act(async () => container.querySelector(`[data-access-preview="${mode}"]`).click());
+  };
+  const back = () => [...container.querySelectorAll('button')].find(button => button.textContent === 'Back to admin');
+  try {
+    await act(async () => render(true));
+    assert.equal(container.querySelectorAll('.sectionLaunchButton').length, 2);
+    await chooseMode('learning');
+    assert.equal(container.querySelector('[data-access-preview-mode]').dataset.accessPreviewMode, 'learning');
+    assert.equal(container.querySelectorAll('.sectionLaunchButton').length, 1);
+    assert.equal(container.querySelector('.cardLiveUsers'), null);
+    await act(async () => container.querySelector('.sectionClickCue').click());
+    assert.equal(container.querySelector('[data-preview-deck]').dataset.previewDeck, 'false');
+    assert.ok(back(), 'return to admin stays available inside a lesson');
+    await act(async () => back().click());
+    assert.equal(container.querySelector('[data-preview-deck]'), null);
+    assert.equal(container.querySelectorAll('.sectionLaunchButton').length, 2);
+    await chooseMode('teaching');
+    assert.ok(container.querySelector('.cardLiveUsers'));
+    await act(async () => container.querySelector('.sectionClickCue').click());
+    assert.equal(container.querySelector('[data-preview-deck]').dataset.previewDeck, 'true');
+    await act(async () => back().click());
+    await chooseMode('learning');
+    await chooseMode('teaching');
+    await act(async () => back().click());
+    assert.equal(requests.filter(request => request.url.startsWith('/api/presence')).length, 1, 'mode changes keep the existing presence subscription');
+    assert.equal(requests.filter(request => request.options?.method === 'POST').length, 0, 'preview never logs in, signs out or records a learner presence');
+    assert.equal(refreshes, 0, 'mode changes do not refresh the server catalog');
+    await act(async () => render(false));
+    await act(async () => container.querySelector('#course-functions-trigger').click());
+    assert.equal(container.querySelector('[data-access-preview]'), null, 'learners never receive preview controls');
+  } finally { await act(async () => root.unmount()); globalThis.fetch = previousFetch; await window.happyDOM.close(); }
+});
+
 test("facilitator decks enable quiz controls without exposing admin navigation or reset functions", () => {
   const Portal = component("components/LessonPortal.tsx", {
     "next/navigation": { useRouter: () => ({ refresh() {} }) },
@@ -656,7 +718,7 @@ test("admin learner badges and Folder → Course → Section export apply beyond
     assert.deepEqual([...container.querySelectorAll('.cardLiveUsers')].map(e=>e.textContent),['2 online','1 online','0 online','0 online']);
     const trigger=container.querySelector('[aria-controls="course-functions"]');
     assert.equal(trigger.getAttribute('aria-expanded'),'false');assert.equal(container.querySelector('#course-functions'),null);
-    await act(async()=>trigger.click());assert.equal(container.querySelectorAll('#course-functions a,#course-functions button').length,5);
+    await act(async()=>trigger.click());assert.equal(container.querySelectorAll('#course-functions a,#course-functions button').length,7);
     await act(async()=>window.document.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true})));
     assert.equal(trigger.getAttribute('aria-expanded'),'false');assert.equal(window.document.activeElement,trigger);
     await act(async()=>trigger.click());await act(async()=>window.document.body.dispatchEvent(new window.PointerEvent('pointerdown',{bubbles:true})));

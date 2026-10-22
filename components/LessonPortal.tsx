@@ -147,6 +147,7 @@ type ReportScopeOption = ReportSectionOption & { courseId: string; courseTitle: 
 type ReportCourseOption = ReportSectionOption & { folderGroupId: string };
 type CourseFolderSection = {
   canFacilitate?: boolean;
+  hidden?: boolean;
   id: string;
   sectionKey: string;
   title: string;
@@ -158,6 +159,7 @@ type CourseFolderSection = {
   slideCount: number | null;
 };
 type CourseFolder = {
+  hidden?: boolean;
   id: string;
   slug: string;
   title: string;
@@ -294,6 +296,7 @@ function DeckShell({
   onChooseSection,
   onOpenTerminate,
   onSignOut,
+  onExitPreview,
   courseTitle,
 }: {
   children: ReactNode;
@@ -307,6 +310,7 @@ function DeckShell({
   onChooseSection?: (keyboard?: boolean) => void;
   onOpenTerminate?: () => void;
   onSignOut: () => void;
+  onExitPreview?: () => void;
   courseTitle: string;
 }) {
   const { t } = useLearningLanguage();
@@ -332,6 +336,7 @@ function DeckShell({
         )}
 
         <div className={styles.actionBarButtons}>
+          {onExitPreview && <button type="button" className={styles.secondaryButton} onClick={onExitPreview}>{t("Back to admin", "Quay lại admin")}</button>}
           {isAdmin && (
             <Link href="/admin/access">
               <ActionIcon kind="access" />{t("Access settings")}</Link>
@@ -389,9 +394,9 @@ function groupCourseFolders(courses: CourseFolder[]) {
 }
 
 export default function LessonPortal({
-  isAdmin,
-  canFacilitate = false,
-  courseFolders,
+  isAdmin: sessionIsAdmin,
+  canFacilitate: sessionCanFacilitate = false,
+  courseFolders: sessionCourseFolders,
   initialSection,
   initialProfile,
   initialCourseId,
@@ -408,6 +413,17 @@ export default function LessonPortal({
   const { t, language, setLanguage } = useLearningLanguage();
   const router = useRouter();
   const iconTilt = useInnovationTilt();
+  // Preview changes presentation only; the administrator session stays intact.
+  // Keep session-bound polling independent of this local mode.
+  const [accessPreview, setAccessPreview] = useState<"learning" | "teaching" | null>(null);
+  const previewMode = sessionIsAdmin ? accessPreview : null;
+  const isAdmin = sessionIsAdmin && previewMode === null;
+  const canFacilitate = previewMode ? previewMode === "teaching" : sessionCanFacilitate;
+  const courseFolders = useMemo(() => !previewMode ? sessionCourseFolders : sessionCourseFolders
+    .filter(course => !course.hidden)
+    .map(course => ({ ...course, sections: course.sections.filter(item => !item.hidden)
+      .map(item => ({ ...item, canFacilitate: previewMode === "teaching" })) }))
+    .filter(course => course.sections.length > 0), [sessionCourseFolders, previewMode]);
   const [catalogRefreshing, startCatalogRefresh] = useTransition();
   const catalogRefreshInFlight = useRef(false);
   const deckOpenRef = useRef(false);
@@ -467,6 +483,20 @@ export default function LessonPortal({
   const learnerProfile = initialProfile;
   const hasLearnerProfile = Boolean(learnerProfile);
   const [deckSessionKey, setDeckSessionKey] = useState(0);
+
+  function changeAccessPreview(mode: "learning" | "teaching" | null) {
+    if (!sessionIsAdmin || mode === previewMode) return;
+    cancelSectionOpening();
+    iconTilt.onPointerLeave();
+    setLaunchingSection(null);
+    setAdminSection(null);
+    setActiveUploadedSection(null);
+    setShowExportModal(false);
+    setShowResetModal(false);
+    setShowTerminate(false);
+    rememberDeckSelection();
+    setAccessPreview(mode);
+  }
 
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -555,7 +585,7 @@ export default function LessonPortal({
     return selectedCourse.sections.filter(item => !(selectedCourse.slug === APPLIED_AGENTIC_AI_SLUG &&
       (item.sectionKey === "section1" || item.sectionKey === "section2")));
   }, [selectedCourse, section, activeUploadedSection, launchingSection]);
-  const sectionSlideCounts = useSectionSlideCounts(selectedCourse?.id ?? "", sectionsToCount, isAdmin);
+  const sectionSlideCounts = useSectionSlideCounts(selectedCourse?.id ?? "", sectionsToCount, isAdmin || previewMode === "teaching");
 
   useEffect(() => {
     if (section || activeUploadedSection || launchingSection) return;
@@ -642,7 +672,7 @@ export default function LessonPortal({
   // Presence is refreshed by Supabase Realtime signals, with a slow fallback
   // for expired tabs that cannot send a pagehide beacon.
   useEffect(() => {
-    if (!isAdmin && !canFacilitate) return;
+    if (!sessionIsAdmin && !sessionCanFacilitate) return;
 
     let disposed = false;
     let refreshTimer: number | undefined;
@@ -703,12 +733,12 @@ export default function LessonPortal({
       document.removeEventListener("visibilitychange", resumeCounts);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [isAdmin, canFacilitate]);
+  }, [sessionIsAdmin, sessionCanFacilitate]);
 
   // One presence stream covers built-in lessons, JS, PDF and PPTX sections.
   // Opening is logged once; steady heartbeats only update the active row.
   useEffect(() => {
-    if (isAdmin || canFacilitateCurrent || !hasLearnerProfile || !activeSectionId) return;
+    if (sessionIsAdmin || canFacilitateCurrent || !hasLearnerProfile || !activeSectionId) return;
     const clientId = getOrCreateClientId();
     const sectionId = activeSectionId;
     const entryId = `${clientId}:${sectionId}:${Date.now()}:${Math.random().toString(36).slice(2)}`;
@@ -746,7 +776,7 @@ export default function LessonPortal({
       disposed=true;controller.abort();window.clearInterval(heartbeatTimer);
       document.removeEventListener("visibilitychange",onVisibility);window.removeEventListener("pagehide",onLeave);onLeave();
     };
-  },[isAdmin,canFacilitateCurrent,hasLearnerProfile,activeSectionId]);
+  },[sessionIsAdmin,canFacilitateCurrent,hasLearnerProfile,activeSectionId]);
 
 
   async function exportReport() {
@@ -794,7 +824,7 @@ export default function LessonPortal({
   }
 
   async function signOut() {
-    if (!isAdmin && !canFacilitateCurrent && activeSectionId) {
+    if (!sessionIsAdmin && !canFacilitateCurrent && activeSectionId) {
       const clientId = getOrCreateClientId();
       await fetch("/api/presence", {
         method: "POST",
@@ -897,7 +927,7 @@ export default function LessonPortal({
 
   // Admin section termination polling listener
   useEffect(() => {
-    if (isAdmin || !section) return;
+    if (sessionIsAdmin || !section) return;
 
     let disposed = false;
     let initialToken: string | null = null;
@@ -965,7 +995,7 @@ export default function LessonPortal({
       document.removeEventListener("visibilitychange", onVisibilityChange);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [isAdmin, section]);
+  }, [sessionIsAdmin, section]);
 
   const handleLaunchBuiltin = useCallback((course: CourseFolder, item: CourseFolderSection, coreSection: SectionId) => {
     iconTilt.onPointerLeave();
@@ -1104,6 +1134,10 @@ export default function LessonPortal({
             </button>)}
           </FunctionDropdown>
           <FunctionDropdown>
+          {sessionIsAdmin && <>
+            <button type="button" className={styles.accessButton} data-access-preview="learning" aria-pressed={previewMode === "learning"} onClick={() => changeAccessPreview("learning")}><ActionIcon kind="access" />{t("Try Learning Access", "Thử Learning Access")}</button>
+            <button type="button" className={styles.accessButton} data-access-preview="teaching" aria-pressed={previewMode === "teaching"} onClick={() => changeAccessPreview("teaching")}><ActionIcon kind="access" />{t("Try Teaching Access", "Thử Teaching Access")}</button>
+          </>}
           {isAdmin && <Link href="/admin/access" className={styles.accessButton}><ActionIcon kind="access" />{t("Access settings")}</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}><ActionIcon kind="ai" />{t("AI Knowledge")}</Link>}
           {isAdmin && (
@@ -1141,6 +1175,11 @@ export default function LessonPortal({
         </FunctionDropdown>
           </div>
           </div>
+
+          {previewMode && <div className={styles.accessPreviewBar} data-access-preview-mode={previewMode}>
+            <span role="status">{t("Preview", "Xem thử")} · {previewMode === "learning" ? "Learning Access" : "Teaching Access"}</span>
+            <button type="button" className={styles.functionTrigger} onClick={() => changeAccessPreview(null)}>{t("Back to admin", "Quay lại admin")}</button>
+          </div>}
 
           <div className={styles.libraryHeaderToolbar}>
             <div className={styles.libraryHeaderTitleArea}>
@@ -1568,7 +1607,8 @@ export default function LessonPortal({
         currentSection={section}
         currentSectionId={activeSectionId}
         currentSectionTitle={activeLessonSection?.title}
-        statusNotice={isAdmin ? terminateNotice : undefined}
+        statusNotice={previewMode ? `${t("Preview", "Xem thử")} · ${previewMode === "learning" ? "Learning Access" : "Teaching Access"}` : isAdmin ? terminateNotice : undefined}
+        onExitPreview={previewMode ? () => changeAccessPreview(null) : undefined}
         onChooseSection={(keyboard = false) => {
           cancelSectionOpening();
           if (launchingSection) {

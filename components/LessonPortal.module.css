@@ -1808,6 +1808,8 @@
 .innovationPortal .selectorActions :is(a, button):hover { background: var(--toolbar-hover, #fbfaf7); color: var(--toolbar-ink, #17324a); border-color: var(--toolbar-border, #e9ca8b); box-shadow: inset 0 1px 0 #ffffff90, 0 5px 12px #010d1b35; }
 
 /* Match the enlarged folder model when the static fallback is displayed. */
+.accessPreviewBar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; margin: 18px 0; padding: 14px 18px; border: 1px solid #b39159; border-radius: 16px; background: #082945; color: #f4dfb0; box-shadow: inset 0 1px 0 #ffffff30, 0 4px 0 #041c31; }
+.accessPreviewBar > span { font-weight: 700; }
 .folderArtwork > svg { scale: 1.17; transform-origin: center; }
 
 /* Lightweight CSS depth for the selected course and its navigation controls. */

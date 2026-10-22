@@ -115,3 +115,30 @@ test("counting limits reads to two, refreshes replacements, and cancels reads wh
     assert.equal(container.textContent, "{}");
   } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
 });
+
+test("role previews reuse completed slide counts when returning to a role or reopening the section list", async () => {
+  const window = new Window();
+  for (const name of ["window", "document", "HTMLElement", "navigator"]) Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const reads = [];
+  const { useSectionSlideCounts } = load("components/useSectionSlideCounts.ts", { "@/lib/sectionSlideCount": { readSectionSlideCount: async (id, type, signal, isAdmin) => { reads.push({ id, isAdmin }); return isAdmin ? 30 : 29; } } });
+  function Harness({ sections, isAdmin }) { return React.createElement("pre", null, JSON.stringify(useSectionSlideCounts("course", sections, isAdmin))); }
+  const container = window.document.createElement("div"), root = createRoot(container);
+  const sections = [{ id: "s", contentType: "tsx", contentRevision: "v1" }];
+  const render = (isAdmin, value = sections) => root.render(React.createElement(Harness, { sections: value, isAdmin }));
+  try {
+    await act(async () => render(true));
+    assert.equal(JSON.parse(container.textContent).s, 30);
+    await act(async () => render(false));
+    assert.equal(JSON.parse(container.textContent).s, 29);
+    await act(async () => render(true));
+    assert.equal(JSON.parse(container.textContent).s, 30);
+    await act(async () => render(true, null));
+    await act(async () => render(false));
+    assert.equal(JSON.parse(container.textContent).s, 29);
+    assert.equal(reads.length, 2, "each role is counted only once per content revision");
+    await act(async () => render(false, [{ ...sections[0], contentRevision: "v2" }]));
+    assert.equal(reads.length, 3, "a content replacement still invalidates the cached count");
+  } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
+});
