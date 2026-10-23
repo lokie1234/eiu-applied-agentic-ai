@@ -8,6 +8,7 @@ import styles from "./LandingExperience.module.css";
 import AnimatedHeroCopy from "./landing/AnimatedHeroCopy";
 import EntranceBootOverlay from "./landing/EntranceBootOverlay";
 import type { IdentityField } from "@/lib/learningIdentity";
+import { useLearningLanguage, type LearningLanguage } from "@/lib/learningLanguage";
 
 import { type RobotInteractionState } from "./landing/GuardianRobot3D";
 
@@ -23,6 +24,16 @@ const EiuAgentBot = dynamic(() => import("./EiuAgentBot"), { ssr: false });
 // AUTH & INTERACTION STATE
 // ═══════════════════════════════════════════════════════════════
 export default function LandingPage({ googleResult }: { googleResult?: string } = {}) {
+  const { setLanguage } = useLearningLanguage();
+  const [introPhase, setIntroPhase] = useState<"arriving" | "choosing" | "returning" | "ready">("arriving");
+  const languageAnchor = useRef<HTMLDivElement>(null);
+  const languageScreen = useRef<HTMLDivElement>(null);
+  const handleOrbitArrival = useCallback(() => setIntroPhase(phase => phase === "returning" ? "ready" : phase), []);
+  const handleLanguageArrival = useCallback(() => setIntroPhase(phase => phase === "arriving" ? "choosing" : phase), []);
+  const chooseLanguage = (language: LearningLanguage) => {
+    setLanguage(language);
+    setIntroPhase("returning");
+  };
   // ── Auth & Robot state ──
   const [passcode, setPasscode] = useState("");
   const [identityFields, setIdentityFields] = useState<IdentityField[]>([]);
@@ -129,7 +140,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
   }, []);
 
   const handlePointerMove = useCallback((e: React.PointerEvent<HTMLElement>) => {
-    if (e.pointerType === "touch" || prefersReduced || document.hidden || !e.currentTarget.contains(e.target as Node)) return;
+    if (introPhase === "arriving" || introPhase === "choosing" || e.pointerType === "touch" || prefersReduced || document.hidden || !e.currentTarget.contains(e.target as Node)) return;
     const surface = e.currentTarget;
     pendingPointer.current.x = e.clientX;
     pendingPointer.current.y = e.clientY;
@@ -141,7 +152,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
       mouseRef.current.x = ((pendingPointer.current.x - rect.left) / rect.width) * 2 - 1;
       mouseRef.current.y = -((pendingPointer.current.y - rect.top) / rect.height) * 2 + 1;
     });
-  }, [prefersReduced]);
+  }, [prefersReduced, introPhase]);
 
   // CTA interaction synchronization
   const [isCtaHovered, setIsCtaHovered] = useState(false);
@@ -199,15 +210,29 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
     setIsOverlayExiting(true);
   }, []);
 
+  useEffect(() => {
+    if (isEntranceActive || introPhase === "ready") return;
+    if (introPhase === "arriving") {
+      // The language choice remains available if WebGL never finishes preparing.
+      const timer = setTimeout(handleLanguageArrival, prefersReduced || sceneUnavailable ? 0 : 6500);
+      return () => clearTimeout(timer);
+    }
+    if (introPhase === "returning") {
+      const timer = setTimeout(handleOrbitArrival, prefersReduced || sceneUnavailable ? 150 : 9000);
+      return () => clearTimeout(timer);
+    }
+  }, [isEntranceActive, introPhase, prefersReduced, sceneUnavailable, handleLanguageArrival, handleOrbitArrival]);
+
   return (
     <main
       ref={pageRef}
       className={styles.page}
+      data-login-open={introPhase === "returning" || introPhase === "ready"}
       onPointerMoveCapture={handlePointerMove}
       style={{
         opacity: isOverlayExiting || !isEntranceActive ? 1 : 0.94,
-        transform: isOverlayExiting || !isEntranceActive ? "scale(1)" : "scale(0.995)",
-        transition: "opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1), transform 0.52s cubic-bezier(0.22, 1, 0.36, 1)",
+        transform: isEntranceActive ? isOverlayExiting ? "scale(1)" : "scale(0.995)" : undefined,
+        transition: isEntranceActive ? "opacity 0.52s cubic-bezier(0.22, 1, 0.36, 1), transform 0.52s cubic-bezier(0.22, 1, 0.36, 1)" : undefined,
       }}
     >
       {/* ── Temporary Initial Page Entrance Boot Layer (Unmounts permanently upon completion) ── */}
@@ -243,6 +268,12 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
           }}
         >
           <HeroScene
+            languageIntro={introPhase === "arriving" || introPhase === "choosing"}
+            languageAnchor={languageAnchor}
+            languageScreen={languageScreen}
+            returningToOrbit={introPhase === "returning"}
+            onOrbitArrival={handleOrbitArrival}
+            onLanguageArrival={handleLanguageArrival}
             mouseRef={mouseRef}
             stage={stage}
             robotState={robotState}
@@ -274,6 +305,12 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
         {/* Left: Copy side with staggered entrance */}
         <div className={styles.copy}>
           <AnimatedHeroCopy
+            introPhase={introPhase}
+            languageAnchor={languageAnchor}
+            languageScreen={languageScreen}
+            onChooseLanguage={chooseLanguage}
+            initialLanguageChosen
+            showFallbackRobot={Boolean(reducedMotionReady || sceneUnavailable)}
             stage={stage}
             entranceReady={!isEntranceActive}
             passcode={passcode}
@@ -310,7 +347,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
           className={styles.machine}
           aria-hidden="true"
         >
-          {(reducedMotionReady || sceneUnavailable) && <EiuAgentBot reducedMotion={reducedMotionReady} />}
+          {introPhase === "ready" && (reducedMotionReady || sceneUnavailable) && <EiuAgentBot reducedMotion={reducedMotionReady} />}
         </div>
       </section>
 

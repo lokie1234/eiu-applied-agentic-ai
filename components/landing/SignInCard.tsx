@@ -8,6 +8,7 @@ import type { IdentityField } from "@/lib/learningIdentity";
 import LearnerInformationDialog from "./LearnerInformationDialog";
 
 export type SignInCardProps = {
+  initialLanguageChosen?: boolean;
   passcode: string;
   identityFields?: IdentityField[];
   information?: Record<string, string>;
@@ -32,9 +33,9 @@ function GoogleLogo() {
   </svg>;
 }
 
-export default function SignInCard({ passcode, setPasscode, identityFields = [], information = {}, onInformationChange, onInformationCancel, loading, error = "", onSubmit, onInputFocus, onInputBlur, onInputChange, onMethodChange }: SignInCardProps) {
+export default function SignInCard({ initialLanguageChosen = false, passcode, setPasscode, identityFields = [], information = {}, onInformationChange, onInformationCancel, loading, error = "", onSubmit, onInputFocus, onInputBlur, onInputChange, onMethodChange }: SignInCardProps) {
   const { language, setLanguage, t } = useLearningLanguage();
-  const [languageChosen, setLanguageChosen] = useState(false);
+  const [languageChosen, setLanguageChosen] = useState(initialLanguageChosen);
   const [method, setMethod] = useState<"passcode" | "google" | null>(null);
   const passcodeChoice = useRef<HTMLButtonElement>(null);
   const passcodeComplete = /^[0-9]{6}$/.test(passcode);
@@ -97,7 +98,7 @@ export default function SignInCard({ passcode, setPasscode, identityFields = [],
     panelAnimations.current = [sizing, entering];
     void Promise.allSettled([sizing.finished, entering.finished]).then(finish);
   }, [method, languageChosen]);
-  async function choose(next: "passcode" | "google" | null, nextLanguage?: "vi" | "en" | "picker") {
+  async function choose(next: "passcode" | "google" | null, nextLanguage?: "vi" | "en") {
     if (loading || switching.current || (!nextLanguage && next === method)) return;
     const content = panel.current;
     switching.current = true;
@@ -123,8 +124,8 @@ export default function SignInCard({ passcode, setPasscode, identityFields = [],
     }
     setShowPasscode(false);
     if (nextLanguage) {
-      if (nextLanguage !== "picker") setLanguage(nextLanguage);
-      setLanguageChosen(nextLanguage !== "picker");
+      setLanguage(nextLanguage);
+      setLanguageChosen(true);
       return;
     }
     onMethodChange?.();
@@ -143,7 +144,14 @@ export default function SignInCard({ passcode, setPasscode, identityFields = [],
             <strong>{option.name}</strong>
           </button>)}
     </div> : <>
-    <div className={styles.topline}><button className={styles.back} type="button" disabled={loading} onClick={() => method ? choose(null) : choose(null, "picker")} aria-label={method ? t("Back to sign-in options") : t("Back to language selection", "Quay lại chọn ngôn ngữ")}><span aria-hidden="true">←</span> {t("Back")}</button></div>
+    <div className={styles.topline}>
+      {method && <button className={styles.back} type="button" disabled={loading} onClick={() => choose(null)} aria-label={t("Back to sign-in options")}><span aria-hidden="true">←</span> {t("Back")}</button>}
+      <div className={styles.languageSwitch} role="group" aria-label={t("Language", "Ngôn ngữ")}>
+        {(["vi", "en"] as const).map(code => <button key={code} className={styles.languageToggle} type="button" data-login-language={code} disabled={loading} aria-pressed={language === code} onClick={() => setLanguage(code)}>
+          {code === "vi" ? t("Vietnamese", "Tiếng Việt") : t("English", "Tiếng Anh")}
+        </button>)}
+      </div>
+    </div>
     {method && <header className={styles.heading}>
       <div className={styles.headingCopy}>
     <h2 id="sign-in-heading">{method === "passcode" ? t("Sign in with passcode") : t("Sign in with Google")}</h2>

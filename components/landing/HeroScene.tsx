@@ -7,6 +7,12 @@ import GuardianRobot3D, { type RobotInteractionState } from "./GuardianRobot3D";
 import AgentWorld3D from "./AgentWorld3D";
 
 interface HeroSceneProps {
+  languageIntro?: boolean;
+  languageAnchor?: React.RefObject<HTMLDivElement | null>;
+  languageScreen?: React.RefObject<HTMLDivElement | null>;
+  returningToOrbit?: boolean;
+  onOrbitArrival?: () => void;
+  onLanguageArrival?: () => void;
   mouseRef: React.MutableRefObject<{ x: number; y: number }>;
   stage: number;
   robotState?: RobotInteractionState;
@@ -170,6 +176,12 @@ function EiuStudioLightingEnvironment() {
 }
 
 function HeroScene({
+  languageIntro = false,
+  languageAnchor,
+  languageScreen,
+  returningToOrbit = false,
+  onOrbitArrival,
+  onLanguageArrival,
   mouseRef,
   stage,
   robotState = "idle",
@@ -218,6 +230,12 @@ function HeroScene({
 
         {/* EIU Guardian Robot — Hero subject */}
         <GuardianRobot3D
+          languageIntro={languageIntro}
+          languageAnchor={languageAnchor}
+          languageScreen={languageScreen}
+          returningToOrbit={returningToOrbit}
+          onOrbitArrival={onOrbitArrival}
+          onLanguageArrival={onLanguageArrival}
           mouseRef={mouseRef}
           stage={stage}
           robotState={robotState}

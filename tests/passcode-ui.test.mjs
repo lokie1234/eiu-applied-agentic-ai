@@ -227,11 +227,20 @@ test("language choice translates login and course functions, persists separately
     assert.match(container.textContent, /Mã truy cập/);
     assert.match(container.textContent, /Mã truy cập không đúng/);
     assert.equal(window.localStorage.getItem("eiu.learning-interface-language"), "vi");
-    await click('.back');
-    await click('button[lang="en"]');
+    assert.equal(container.querySelector('.back:not(.languageSwitch)'), null, 'language switch replaces Back on the options screen');
+    assert.deepEqual([...container.querySelectorAll('[data-login-language]')].map(button => button.textContent), ['Tiếng Việt', 'Tiếng Anh']);
+    assert.equal(container.querySelector('[data-login-language="vi"]').getAttribute('aria-pressed'), 'true');
+    await click('[data-login-language="en"]');
+    assert.deepEqual([...container.querySelectorAll('[data-login-language]')].map(button => button.textContent), ['Vietnamese', 'English']);
+    assert.equal(container.querySelector('[data-login-language="en"]').getAttribute('aria-pressed'), 'true');
+    assert.equal(container.querySelector('[data-login-language="vi"]').getAttribute('aria-pressed'), 'false');
     assert.match(container.textContent, /Learners & facilitators/);
-    await click('.back');
-    await click('button[lang="vi"]');
+    assert.equal(container.querySelector('section').dataset.step, 'login');
+    await click('.choice');
+    const passcodeInput = container.querySelector('input');
+    await click('[data-login-language="vi"]');
+    assert.equal(container.querySelector('input'), passcodeInput, 'switching language preserves the active form');
+    assert.equal(container.querySelector('section').lang, 'vi');
 
     const Portal = component("components/LessonPortal.tsx", {
       "next/navigation": { useRouter: () => ({ refresh() {} }) },
@@ -530,8 +539,10 @@ test("admin can preview learning and teaching decks and return without restartin
   const container = window.document.createElement("div"), root = createRoot(container);
   const render = isAdmin => root.render(React.createElement(Portal, { isAdmin, initialProfile: { name: "Admin" }, initialCourseId: "c", initialSection: null, courseFolders: [course] }));
   const chooseMode = async mode => {
-    await act(async () => container.querySelector('#course-functions-trigger').click());
-    await act(async () => container.querySelector(`[data-access-preview="${mode}"]`).click());
+    const button = container.querySelector(`[data-access-preview="${mode}"]`);
+    assert.ok(button, 'access modes are available with the functions menu closed');
+    assert.equal(button.closest('.functionDropdown'), null, 'access modes sit outside the functions menu');
+    await act(async () => button.click());
   };
   const back = () => [...container.querySelectorAll('button')].find(button => button.textContent === 'Back to admin');
   try {
@@ -718,7 +729,8 @@ test("admin learner badges and Folder → Course → Section export apply beyond
     assert.deepEqual([...container.querySelectorAll('.cardLiveUsers')].map(e=>e.textContent),['2 online','1 online','0 online','0 online']);
     const trigger=container.querySelector('[aria-controls="course-functions"]');
     assert.equal(trigger.getAttribute('aria-expanded'),'false');assert.equal(container.querySelector('#course-functions'),null);
-    await act(async()=>trigger.click());assert.equal(container.querySelectorAll('#course-functions a,#course-functions button').length,7);
+    await act(async()=>trigger.click());assert.equal(container.querySelectorAll('#course-functions a,#course-functions button').length,5);
+    assert.equal(container.querySelectorAll('[data-access-preview]').length,2, 'access modes remain available outside the menu');
     await act(async()=>window.document.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true})));
     assert.equal(trigger.getAttribute('aria-expanded'),'false');assert.equal(window.document.activeElement,trigger);
     await act(async()=>trigger.click());await act(async()=>window.document.body.dispatchEvent(new window.PointerEvent('pointerdown',{bubbles:true})));

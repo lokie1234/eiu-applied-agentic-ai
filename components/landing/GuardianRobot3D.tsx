@@ -23,6 +23,12 @@ export type RobotInteractionState =
   | "success";
 
 interface GuardianRobotProps {
+  languageIntro?: boolean;
+  languageAnchor?: React.RefObject<HTMLDivElement | null>;
+  languageScreen?: React.RefObject<HTMLDivElement | null>;
+  returningToOrbit?: boolean;
+  onOrbitArrival?: () => void;
+  onLanguageArrival?: () => void;
   mouseRef: React.MutableRefObject<{ x: number; y: number }>;
   stage?: number;
   robotState?: RobotInteractionState;
@@ -729,6 +735,12 @@ function RoboticHand5Fingers({
 
 // ─── Main Guardian Robot 3D ───────────────────────────────────────────────────
 export default function GuardianRobot3D({
+  languageIntro = false,
+  languageAnchor,
+  languageScreen,
+  returningToOrbit = false,
+  onOrbitArrival,
+  onLanguageArrival,
   mouseRef,
   stage = 5,
   robotState = "idle",
@@ -808,6 +820,35 @@ export default function GuardianRobot3D({
   const corePointLightRef = useRef<THREE.PointLight>(null);
 
   const { camera, gl, raycaster } = useThree();
+  const introArrived = useRef(false);
+  const introTarget = useRef({ x: -.4, y: -.1, left: 0, top: 0, width: 1, height: 1 });
+  const screenCorners = useMemo(() => [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()], []);
+  const lastScreenTransform = useRef("");
+  const returnFlight = useRef({ started: false, elapsed: 0, completed: false, start: new THREE.Vector3(), end: new THREE.Vector3() });
+  useEffect(() => {
+    if (!returningToOrbit) returnFlight.current.started = false;
+  }, [returningToOrbit]);
+  useEffect(() => {
+    if (!languageIntro) { introArrived.current = false; return; }
+    const measure = () => {
+      const anchor = languageAnchor?.current?.getBoundingClientRect();
+      const canvas = gl.domElement.getBoundingClientRect();
+      if (!anchor || !canvas.width || !canvas.height) return;
+      introTarget.current = {
+        x: ((anchor.left + anchor.width / 2 - canvas.left) / canvas.width - .5),
+        y: .5 - (anchor.top + Math.min(230, Math.max(90, anchor.height * .55)) - canvas.top) / canvas.height,
+        left: canvas.left - anchor.left, top: canvas.top - anchor.top,
+        width: canvas.width, height: canvas.height,
+      };
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    if (languageAnchor?.current) observer.observe(languageAnchor.current);
+    observer.observe(gl.domElement);
+    window.addEventListener("resize", measure);
+    document.addEventListener("scroll", measure, true);
+    return () => { observer.disconnect(); window.removeEventListener("resize", measure); document.removeEventListener("scroll", measure, true); };
+  }, [languageIntro, languageAnchor, gl]);
 
   // ─── MASTER PATROL ORBIT CURVE (DOUBLED, COVERS EMPTY SPACE) ─────────────────
   const masterOrbitCurve = useMemo(() => {
@@ -844,7 +885,7 @@ export default function GuardianRobot3D({
   // Core Drag Initiation (Callable from 3D hit or global window raycast)
   const startDrag = useCallback(
     () => {
-      if (!enter || entranceTimer.current < 3.2 || isDragging.current) return;
+      if (!enter || languageIntro || returningToOrbit || entranceTimer.current < 3.2 || isDragging.current) return;
       isDragging.current = true;
       isError.current = false;
       setShowErrorBadge(false);
@@ -919,7 +960,7 @@ export default function GuardianRobot3D({
       window.addEventListener("blur", cleanup);
       dragCleanup.current = cleanup;
     },
-    [camera, gl, raycaster, enter, interactionScratch]
+    [camera, gl, raycaster, enter, languageIntro, returningToOrbit, interactionScratch]
   );
 
   const handlePointerDown = useCallback(
@@ -933,13 +974,14 @@ export default function GuardianRobot3D({
 
   // Share one hover hit-test per frame; UI surfaces must never drag actors behind them.
   useEffect(() => {
+    if (!enter || languageIntro || returningToOrbit) return;
     let hoverFrame: number | null = null;
     let latest: PointerEvent | null = null;
     const blocksDrag = (event: PointerEvent) => (event.target as Element | null)?.closest?.(
       "[data-login-surface], dialog, input, button, a, [role='button'], [role='dialog']"
     );
     const hitRobot = (event: PointerEvent) => {
-      if (!enter || isDragging.current || blocksDrag(event)) return false;
+      if (!enter || languageIntro || returningToOrbit || isDragging.current || blocksDrag(event)) return false;
       const rect = gl.domElement.getBoundingClientRect();
       if (!rect.width || !rect.height) return false;
       const { pointer, hits } = interactionScratch;
@@ -951,6 +993,10 @@ export default function GuardianRobot3D({
       return hits.length > 0;
     };
     const onWindowPointerMove = (event: PointerEvent) => {
+      if (isDragging.current || document.hidden || blocksDrag(event)) {
+        if (document.body.style.cursor === "grab") document.body.style.cursor = "auto";
+        return;
+      }
       latest = event;
       if (hoverFrame !== null) return;
       hoverFrame = requestAnimationFrame(() => {
@@ -971,7 +1017,7 @@ export default function GuardianRobot3D({
       window.removeEventListener("pointerdown", onWindowPointerDown);
       if (document.body.style.cursor === "grab" || document.body.style.cursor === "grabbing") document.body.style.cursor = "auto";
     };
-  }, [camera, gl, raycaster, startDrag, enter, interactionScratch]);
+  }, [camera, gl, raycaster, startDrag, enter, languageIntro, returningToOrbit, interactionScratch]);
 
   // ─── MATERIALS (EIU DESIGN DNA — PHOTOREALISTIC PBR SYSTEM) ───────────────
   const materials = useMemo(() => {
@@ -1167,7 +1213,7 @@ export default function GuardianRobot3D({
   }, [robotState]);
 
   // ─── FRAME-RATE INDEPENDENT FRAME UPDATE ────────────────────────────────────
-  useFrame(({ clock }, delta) => {
+  useFrame(({ clock, viewport }, delta) => {
     if (!enter) return;
     delta = Math.min(delta, .05);
     const t = clock.getElapsedTime();
@@ -1178,8 +1224,8 @@ export default function GuardianRobot3D({
     const { isMobile, isReduced } = device.current;
 
     // 1. POINTER INERTIA (Snappy damping for high-response tracking)
-    const targetMouseX = isReduced || isMobile ? 0 : mouseRef.current.x;
-    const targetMouseY = isReduced || isMobile ? 0 : mouseRef.current.y;
+    const targetMouseX = languageIntro || isReduced || isMobile ? 0 : mouseRef.current.x;
+    const targetMouseY = languageIntro || isReduced || isMobile ? 0 : mouseRef.current.y;
 
     pointerCurrent.current.x = THREE.MathUtils.damp(
       pointerCurrent.current.x,
@@ -1211,7 +1257,8 @@ export default function GuardianRobot3D({
     entranceTimer.current += delta;
     const entranceT = Math.min(1.0, entranceTimer.current / 3.2);
     const entranceEase = THREE.MathUtils.smootherstep(entranceT, 0, 1);
-    const currentScale = THREE.MathUtils.lerp(.86, 1, entranceEase) * 4.0;
+    const desiredScale = 4;
+    const currentScale = THREE.MathUtils.damp(rootRef.current?.scale.x ?? desiredScale, desiredScale, 4, delta);
     if (rootRef.current) {
       rootRef.current.scale.set(currentScale, currentScale, currentScale);
     }
@@ -1219,7 +1266,47 @@ export default function GuardianRobot3D({
     let travelVelX = 0;
     let travelVelY = 0;
 
-    if (isDragging.current) {
+    if (languageIntro) {
+      const x = introTarget.current.x * viewport.width;
+      const y = introTarget.current.y * viewport.height + Math.sin(t * 1.6) * .025;
+      if (rootRef.current) {
+        if (entranceT < 1) rootRef.current.position.set(
+          THREE.MathUtils.lerp(-1.5, x, entranceEase),
+          THREE.MathUtils.lerp(-12, y, entranceEase),
+          THREE.MathUtils.lerp(-6, 0, entranceEase),
+        );
+        else {
+          rootRef.current.position.x = THREE.MathUtils.damp(rootRef.current.position.x, x, 4, delta);
+          rootRef.current.position.y = THREE.MathUtils.damp(rootRef.current.position.y, y, 4, delta);
+          rootRef.current.position.z = THREE.MathUtils.damp(rootRef.current.position.z, 0, 4, delta);
+        }
+        if (entranceT >= 1 && !introArrived.current && Math.abs(rootRef.current.position.x - x) < .1 && Math.abs(rootRef.current.position.y - y) < .1) {
+          introArrived.current = true;
+          onLanguageArrival?.();
+        }
+      }
+    } else if (returningToOrbit && rootRef.current) {
+      const flight = returnFlight.current;
+      if (!flight.started) {
+        flight.started = true;
+        flight.elapsed = 0;
+        flight.completed = false;
+        flight.start.copy(rootRef.current.position);
+        getMasterOrbitPoint(progressTheta.current, flight.end);
+      }
+      flight.elapsed += delta;
+      const progress = Math.min(1, flight.elapsed / 4.8);
+      const ease = THREE.MathUtils.smootherstep(progress, 0, 1);
+      rootRef.current.position.lerpVectors(flight.start, flight.end, ease);
+      rootRef.current.position.y += Math.sin(Math.PI * ease) * .55;
+      rootRef.current.position.z += Math.sin(Math.PI * ease) * .3;
+      travelVelX = (flight.end.x - flight.start.x) * Math.sin(Math.PI * progress) / 4.8;
+      travelVelY = (flight.end.y - flight.start.y) * Math.sin(Math.PI * progress) / 4.8;
+      if (progress === 1 && !flight.completed) {
+        flight.completed = true;
+        onOrbitArrival?.();
+      }
+    } else if (isDragging.current) {
       // ─── USER IS ACTIVELY DRAGGING THE ROBOT ───
       dragVelocity.current
         .subVectors(dragTargetPos.current, prevDragPos.current)
@@ -1378,6 +1465,8 @@ export default function GuardianRobot3D({
       torsoRef.current.rotation.y = THREE.MathUtils.damp(torsoRef.current.rotation.y, targetTorsoYaw, 5.0, delta);
       torsoRef.current.rotation.z = THREE.MathUtils.damp(torsoRef.current.rotation.z, targetTorsoRoll, 5.0, delta);
       torsoRef.current.rotation.x = THREE.MathUtils.damp(torsoRef.current.rotation.x, targetTorsoPitch, 5.0, delta);
+      // Keep the visor square to the viewer throughout language selection.
+      if (languageIntro) torsoRef.current.rotation.set(-impact.impactNormal.z * recoil * .045, 0, impact.impactNormal.x * recoil * .07);
     }
 
     // ─── 4. HEAD INDEPENDENT STABILIZATION & HIGH-GAIN POINTER TRACKING ───
@@ -1418,6 +1507,7 @@ export default function GuardianRobot3D({
       headRef.current.rotation.y = THREE.MathUtils.damp(headRef.current.rotation.y, targetHeadYaw, 9.2, delta);
       headRef.current.rotation.x = THREE.MathUtils.damp(headRef.current.rotation.x, targetHeadPitch, 9.2, delta);
       headRef.current.rotation.z = THREE.MathUtils.damp(headRef.current.rotation.z, targetHeadRoll + microTilt.current - impact.impactNormal.x * recoil * .035, 7.5, delta);
+      if (languageIntro) headRef.current.rotation.set(0, 0, 0);
     }
 
     // ─── 5. DIGITAL APERTURE EYES (HIGH-GAIN ATTENTION TO POINTER) ───
@@ -1579,6 +1669,23 @@ export default function GuardianRobot3D({
       keyLightRef.current.intensity = 1.25 + robotPosY * 0.12;
     }
     const obstacle = droneObstacle.current;
+    // Project the actual visor plane into the accessible HTML language buttons.
+    // All three corners inherit the robot's head movement and perspective.
+    if (languageIntro && languageScreen?.current && headRef.current) {
+      headRef.current.updateWorldMatrix(true, false);
+      const [a, b, c] = screenCorners;
+      a.set(-.245, .10, .36); b.set(.245, .10, .36); c.set(-.245, -.065, .36);
+      for (const point of screenCorners) {
+        point.applyMatrix4(headRef.current.matrixWorld).project(camera);
+        point.x = (point.x * .5 + .5) * introTarget.current.width + introTarget.current.left;
+        point.y = (-point.y * .5 + .5) * introTarget.current.height + introTarget.current.top;
+      }
+      const transform = `matrix(${((b.x-a.x)/220).toFixed(4)},${((b.y-a.y)/220).toFixed(4)},${((c.x-a.x)/64).toFixed(4)},${((c.y-a.y)/64).toFixed(4)},${a.x.toFixed(2)},${a.y.toFixed(2)})`;
+      if (transform !== lastScreenTransform.current) {
+        languageScreen.current.style.setProperty("--visor-transform", transform);
+        lastScreenTransform.current = transform;
+      }
+    }
     obstacle.active = entranceT >= 1 && !isReduced;
     if (obstacle.active && torsoRef.current && headRef.current) {
       const scale = rootRef.current?.scale.x || 4;
@@ -1600,10 +1707,10 @@ export default function GuardianRobot3D({
         name="landing-guardian-robot"
         ref={rootRef}
         position={[-1.5, -12, -6]}
-        scale={3.44}
+        scale={4}
         onPointerDown={handlePointerDown}
         onPointerOver={() => {
-          if (gl.domElement) gl.domElement.style.cursor = "grab";
+          if (gl.domElement && !languageIntro && !returningToOrbit) gl.domElement.style.cursor = "grab";
         }}
         onPointerOut={() => {
           if (gl.domElement && !isDragging.current) gl.domElement.style.cursor = "auto";
@@ -1656,7 +1763,7 @@ export default function GuardianRobot3D({
         {/* ─── HOVER SUSPENSION GROUP ───────────────────────────────────────── */}
         <group>
           {/* ───────────── TORSO CHASSIS ───────────── */}
-          <group ref={torsoRef}>
+          <group ref={torsoRef} name="landing-guardian-torso">
             {/* ───────────── COMPACT CERVICAL NECK ASSEMBLY ───────────── */}
             {/* Cervical Bulkhead Base Plate with Hexagonal Structural Mount */}
             <mesh position={[0, 0.16, 0]} material={materials.deepNavy}>
@@ -2172,7 +2279,7 @@ export default function GuardianRobot3D({
           </mesh>
 
           {/* ─── INTELLIGENT DIGITAL APERTURE EYES ─── */}
-          <group ref={eyesGroupRef} position={[0, 0.025, 0.305]} visible={!showErrorBadge && !showLoadingBadge && !showRestrictedBadge}>
+          <group ref={eyesGroupRef} position={[0, 0.025, 0.305]} visible={!languageIntro && !showErrorBadge && !showLoadingBadge && !showRestrictedBadge}>
             {/* Left Eye */}
             <group position={[-0.115, 0, 0]}>
               <mesh ref={leftEyeRef}>

@@ -5,6 +5,7 @@ import vm from "node:vm";
 import { createRequire } from "node:module";
 import ts from "typescript";
 import React, { act } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
 import { Window } from "happy-dom";
 
 const require = createRequire(import.meta.url);
@@ -29,16 +30,17 @@ async function fixture() {
   return { window, container, root, close: async () => { await act(async () => root.unmount()); await window.happyDOM.close(); } };
 }
 function landing(f, fetch, frameGlobals = {}) {
-  let props, entrance;
+  let props, entrance, scene;
   const empty = { __esModule: true, default: () => null };
   const Component = load("components/LandingPage.tsx", {
-    "next/image": empty, "next/dynamic": { __esModule: true, default: () => () => null },
+    "@/lib/learningLanguage": { useLearningLanguage: () => ({ setLanguage: language => f.window.localStorage.setItem("eiu.learning-interface-language", language) }) },
+    "next/image": empty, "next/dynamic": { __esModule: true, default: () => current => { if (current.mouseRef) scene = current; return null; } },
     "motion/react": { useReducedMotion: () => frameGlobals.reducedMotion ?? true, motion: { nav: ({ children, className }) => React.createElement("nav", { className }, children) } },
     "./EiuAgentBot": empty, "./landing/EntranceBootOverlay": { __esModule: true, default: current => { entrance = current; return null; } },
     "./landing/AnimatedHeroCopy": { __esModule: true, default: current => { props = current; return null; } },
   }, { window: f.window, document: f.window.document, fetch,
     requestAnimationFrame: callback => f.window.requestAnimationFrame(callback), cancelAnimationFrame: id => f.window.cancelAnimationFrame(id), ...frameGlobals });
-  return { Component, props: () => props, entrance: () => entrance };
+  return { Component, props: () => props, entrance: () => entrance, scene: () => scene };
 }
 
 test("language card stays hidden throughout the boot fade and resets its entrance on reload", async () => {
@@ -51,8 +53,81 @@ test("language card stays hidden throughout the boot fade and resets its entranc
     assert.equal(view.props().entranceReady, false, "card must not finish fading beneath the boot overlay");
     await act(async () => view.entrance().onComplete());
     assert.equal(view.props().entranceReady, true);
+    assert.equal(f.container.querySelector('main').style.transform, '', 'the full-page compositing transform is released after boot');
     await act(async () => f.root.render(React.createElement(view.Component, { key: "reload" })));
     assert.equal(view.props().entranceReady, false, "a new visit starts with the card concealed again");
+  } finally { await f.close(); }
+});
+
+test("hero reveals login immediately after language selection while the robot returns", () => {
+  const Copy = load("components/landing/AnimatedHeroCopy.tsx", {
+    "motion/react": { useReducedMotion: () => false, motion: { div: ({ children, inert }) => React.createElement("div", { inert }, children) } },
+    "./SignInCard": { __esModule: true, default: () => React.createElement("div", { "data-login-card": true }) },
+    "../EiuAgentBot": { __esModule: true, default: () => null },
+  }, {});
+  const render = phase => renderToStaticMarkup(React.createElement(Copy, {
+    stage: 7, entranceReady: true, introPhase: phase, languageAnchor: { current: null }, onChooseLanguage() {},
+  }));
+  for (const phase of ["arriving", "choosing"]) {
+    const html = render(phase);
+    assert.doesNotMatch(html, /data-login-card/);
+    assert.match(html, new RegExp(`data-visible="${phase === "choosing"}"`));
+  }
+  assert.match(render("returning"), /data-login-card/);
+  assert.doesNotMatch(render("returning"), />VIE<|>ENG</);
+  assert.match(render("ready"), /data-login-card/);
+  assert.doesNotMatch(render("ready"), />VIE<|>ENG</);
+});
+
+test("robot waits for a language choice and continues returning alongside login", async () => {
+  const f = await fixture(), timers = new Map(); let nextId = 0;
+  const view = landing(f, () => { throw new Error("No request expected"); }, {
+    setTimeout: (callback, delay) => { timers.set(++nextId, { callback, delay }); return nextId; },
+    clearTimeout: id => timers.delete(id),
+  });
+  try {
+    await act(async () => f.root.render(React.createElement(view.Component)));
+    assert.equal(view.props().introPhase, "arriving");
+    await act(async () => view.entrance().onComplete());
+    const arrival = [...timers.values()].filter(timer => timer.delay === 0).at(-1);
+    await act(async () => arrival.callback());
+    assert.equal(view.props().introPhase, "choosing");
+    await act(async () => view.props().onChooseLanguage("vi"));
+    assert.equal(f.window.localStorage.getItem("eiu.learning-interface-language"), "vi");
+    assert.equal(view.props().introPhase, "returning", "robot continues returning while login is available");
+    const returning = [...timers.values()].find(timer => timer.delay === 150);
+    await act(async () => returning.callback());
+    assert.equal(view.props().introPhase, "ready");
+    assert.equal(view.props().initialLanguageChosen, true, "the login card skips its old language step");
+    await act(async () => f.root.render(React.createElement(view.Component, { key: "reload" })));
+    assert.equal(view.props().introPhase, "arriving", "reload presents the robot greeting again");
+  } finally { await f.close(); }
+});
+
+test("full 3D greeting waits for the robot arrival and return callbacks", async () => {
+  const f = await fixture(), timers = new Map(); let nextId = 0;
+  const view = landing(f, () => { throw new Error("No request expected"); }, {
+    reducedMotion: false,
+    setTimeout: (callback, delay) => { timers.set(++nextId, { callback, delay }); return nextId; },
+    clearTimeout: id => timers.delete(id),
+  });
+  try {
+    await act(async () => f.root.render(React.createElement(view.Component)));
+    await act(async () => [...timers.values()].find(timer => timer.delay === 150).callback());
+    await act(async () => view.entrance().onComplete());
+    assert.equal(view.props().introPhase, "arriving");
+    assert.equal(view.scene().languageScreen, view.props().languageScreen, 'buttons share the actual 3D visor anchor');
+    await act(async () => view.scene().onLanguageArrival());
+    assert.equal(view.props().introPhase, "choosing");
+    await act(async () => view.props().onChooseLanguage("en"));
+    assert.equal(view.props().introPhase, "returning");
+    assert.equal(view.scene().returningToOrbit, true);
+    assert.equal(view.scene().languageIntro, false);
+    await act(async () => view.scene().onLanguageArrival());
+    assert.equal(view.props().introPhase, "returning", 'late greeting callbacks cannot interrupt the return flight');
+    await act(async () => view.scene().onOrbitArrival());
+    assert.equal(view.props().introPhase, "ready");
+    assert.equal(view.scene().returningToOrbit, false);
   } finally { await f.close(); }
 });
 
@@ -144,6 +219,9 @@ test("landing reads pointer geometry once per frame and cancels pending work on 
     await act(async () => f.root.render(React.createElement(view.Component)));
     const main = f.container.querySelector("main");
     main.getBoundingClientRect = () => { reads++; return { left: 0, top: 0, width: 1000, height: 700 }; };
+    main.dispatchEvent(new f.window.PointerEvent("pointermove", { bubbles: true, pointerType: "mouse", clientX: 20, clientY: 20 }));
+    assert.equal(frames.size, 0, 'language selection does not schedule unused pointer tracking');
+    await act(async () => view.props().onChooseLanguage("en"));
     for (let i = 0; i < 40; i++) main.dispatchEvent(new f.window.PointerEvent("pointermove", { bubbles: true, pointerType: "mouse", clientX: i, clientY: i }));
     assert.equal(frames.size, 1); assert.equal(reads, 0);
     const [id, callback] = [...frames][0]; frames.delete(id); callback();

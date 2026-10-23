@@ -97,9 +97,11 @@ function LearningAccent({ kind = "book" }: { kind?: "library" | "collection" | "
   return <LearningInnovationIcon kind={kind === "collection" || kind === "library" ? "folder" : kind === "page" ? "section" : "course"} className={styles.learningAccent} compact />;
 }
 
-function ActionIcon({ kind }: { kind: "access" | "ai" | "report" | "reset" | "signout" }) {
+function ActionIcon({ kind }: { kind: "access" | "learning" | "teaching" | "ai" | "report" | "reset" | "signout" }) {
   return <svg className={styles.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
     {kind === "access" ? <><path d="m10 3-.6 2.2-2 .9-2-.7-2 3.4 1.6 1.5v2.4l-1.6 1.5 2 3.4 2-.7 2 .9L10 21h4l.6-2.2 2-.9 2 .7 2-3.4-1.6-1.5v-2.4l1.6-1.5-2-3.4-2 .7-2-.9L14 3Z" /><circle cx="12" cy="12" r="3" /></>
+      : kind === "learning" ? <><path d="M12 6C9 3.5 5 3.5 2 5v14c3-1.5 7-1.5 10 1 3-2.5 7-2.5 10-1V5c-3-1.5-7-1.5-10 1Z" fill="currentColor" fillOpacity=".14" /><path d="M12 6v14M5 8l4 1M5 12l4 1m6-4 4-1m-4 5 4-1" /></>
+      : kind === "teaching" ? <><path d="M8 3h14v12H11M15 7h4m-6 4h6M15 15v5m-3 1 3-1 3 1" /><circle cx="5" cy="9" r="2.5" fill="currentColor" fillOpacity=".2" /><path d="M1 21v-4a4 4 0 0 1 4-4h2l5-5M5 17v4" /></>
       : kind === "ai" ? <><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" /><path d="M20 2v4m-2-2h4" /></>
       : kind === "report" ? <><path d="M10 3h11v18H10Z" fill="#21a366" stroke="#107c41" /><path d="M14 7h4m-4 5h4m-4 5h4" stroke="#fff" strokeWidth="1.2" /><path d="M2 6h11v12H2Z" fill="#107c41" stroke="#107c41" /><path d="m5 9 5 6m0-6-5 6" stroke="#fff" /></>
       : kind === "reset" ? <><path d="M4 10a8 8 0 1 1 1.5 7M4 4v6h6" /><path d="M12 8v5l3 2" /></>
@@ -1128,16 +1130,16 @@ export default function LessonPortal({
           </div>
 
           <div className={styles.mastheadActions}>
+          {sessionIsAdmin && <div className={styles.accessModes}>
+            <button type="button" className={styles.accessModeButton} data-access-preview="learning" aria-pressed={previewMode === "learning"} onClick={() => changeAccessPreview("learning")}><ActionIcon kind="learning" />{t("Learning Access", "Learning Access")}</button>
+            <button type="button" className={styles.accessModeButton} data-access-preview="teaching" aria-pressed={previewMode === "teaching"} onClick={() => changeAccessPreview("teaching")}><ActionIcon kind="teaching" />{t("Teaching Access", "Teaching Access")}</button>
+          </div>}
           <FunctionDropdown languagePicker>
             {(["vi", "en"] as const).map(code => <button key={code} type="button" className={styles.languageOption} data-language-option={code} aria-pressed={language === code} onClick={() => setLanguage(code)}>
               {code === "vi" ? t("Vietnamese") : t("English")}<span aria-hidden="true">{language === code ? "✓" : ""}</span>
             </button>)}
           </FunctionDropdown>
           <FunctionDropdown>
-          {sessionIsAdmin && <>
-            <button type="button" className={styles.accessButton} data-access-preview="learning" aria-pressed={previewMode === "learning"} onClick={() => changeAccessPreview("learning")}><ActionIcon kind="access" />{t("Try Learning Access", "Thử Learning Access")}</button>
-            <button type="button" className={styles.accessButton} data-access-preview="teaching" aria-pressed={previewMode === "teaching"} onClick={() => changeAccessPreview("teaching")}><ActionIcon kind="access" />{t("Try Teaching Access", "Thử Teaching Access")}</button>
-          </>}
           {isAdmin && <Link href="/admin/access" className={styles.accessButton}><ActionIcon kind="access" />{t("Access settings")}</Link>}
           {isAdmin && <Link href="/admin/ai" className={styles.aiButton}><ActionIcon kind="ai" />{t("AI Knowledge")}</Link>}
           {isAdmin && (

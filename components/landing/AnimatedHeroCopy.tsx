@@ -1,18 +1,31 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
 import SignInCard, { type SignInCardProps } from "./SignInCard";
 import styles from "../LandingExperience.module.css";
+import type { RefObject } from "react";
+import type { LearningLanguage } from "@/lib/learningLanguage";
+import EiuAgentBot from "../EiuAgentBot";
 
 type AnimatedHeroCopyProps = SignInCardProps & {
   stage: number;
   entranceReady?: boolean;
+  introPhase: "arriving" | "choosing" | "returning" | "ready";
+  languageAnchor: RefObject<HTMLDivElement | null>;
+  languageScreen: RefObject<HTMLDivElement | null>;
+  onChooseLanguage: (language: LearningLanguage) => void;
+  showFallbackRobot?: boolean;
   onCtaHover: (hovered: boolean) => void;
 };
 
 export default function AnimatedHeroCopy({
   stage,
   entranceReady = true,
+  introPhase,
+  languageAnchor,
+  languageScreen,
+  onChooseLanguage,
+  showFallbackRobot = false,
   onCtaHover,
   ...signInProps
 }: AnimatedHeroCopyProps) {
@@ -20,7 +33,8 @@ export default function AnimatedHeroCopy({
 
   // Stage flags based on master sequence
   const showHeadlineLead = entranceReady && (stage >= 2 || prefersReduced);
-  const showCta = stage >= 5;
+  const languageSelected = introPhase === "returning" || introPhase === "ready";
+  const showCta = stage >= 5 && languageSelected;
 
   return (
     <div className={styles.copyInner}>
@@ -33,20 +47,22 @@ export default function AnimatedHeroCopy({
         <span className={styles.headlineAction} data-depth="Into Innovation" aria-hidden="true"><strong>Into Innovation</strong></span>
       </h1>
 
-      <motion.div
-        inert={!entranceReady || !(showCta || prefersReduced)}
-        initial={{ opacity: 0, y: 18, scale: .96 }}
-        animate={entranceReady && (showCta || prefersReduced)
-          ? { opacity: 1, y: 0, scale: 1 }
-          : { opacity: 0, y: 18, scale: .96 }}
-        transition={{ duration: prefersReduced ? .15 : 1.2, delay: prefersReduced ? 0 : .12, ease: [0.22, 1, 0.36, 1] }}
-        style={{ transformOrigin: "left top" }}
+      {!languageSelected && <div ref={languageAnchor} className={styles.robotLanguageStage} data-phase={introPhase} aria-label="Chọn ngôn ngữ · Choose your language">
+        {showFallbackRobot && entranceReady && <div className={styles.languageFallbackRobot}><EiuAgentBot reducedMotion /></div>}
+        <div ref={languageScreen} className={styles.robotLanguageChoices} data-fallback={showFallbackRobot} inert={!entranceReady || introPhase !== "choosing"} data-visible={entranceReady && introPhase === "choosing"}>
+          <button type="button" lang="vi" aria-label="Tiếng Việt" onClick={() => onChooseLanguage("vi")}>VIE</button>
+          <button type="button" lang="en" aria-label="English" onClick={() => onChooseLanguage("en")}>ENG</button>
+        </div>
+      </div>}
+      {languageSelected && <div
+        inert={!entranceReady || !showCta}
+        data-login-visible={entranceReady && showCta}
         onMouseEnter={() => onCtaHover(true)}
         onMouseLeave={() => onCtaHover(false)}
-        className={styles.signInWrap}
+        className={`${styles.signInWrap} ${styles.loginReveal}`}
       >
         <SignInCard {...signInProps} />
-      </motion.div>
+      </div>}
     </div>
   );
 }

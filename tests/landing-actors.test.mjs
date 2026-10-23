@@ -62,7 +62,7 @@ test("shared visor preserves status styling, throttles loading uploads and dispo
 });
 
 // Exercise the actual actor hierarchy and flight callbacks without requiring a GPU.
-function actors() {
+function actors(props = {}) {
   const frames = [];
   const hooks = {
     useRef: current => ({ current }), useMemo: create => create(),
@@ -84,7 +84,8 @@ function actors() {
     return require(name);
   } });
   const mouseRef = { current: { x: 0, y: 0 } };
-  const tree = exports.default({ mouseRef, stage: 5, enter: true });
+  const tree = exports.default({ mouseRef, stage: 5, enter: true, ...props });
+  const updateRobot = frames.at(-1);
   frames.length = 0;
   const drones = [];
 
@@ -115,8 +116,24 @@ function actors() {
   }
   const scene = new THREE.Scene();
   mount(tree, scene);
-  return { scene, drones, mouseRef, robot: scene.getObjectByName("landing-guardian-robot") };
+  return { scene, drones, mouseRef, updateRobot, robot: scene.getObjectByName("landing-guardian-robot") };
 }
+
+test("language greeting keeps collision hulls active and responds to impact before language selection", () => {
+  const fixture = actors({ languageIntro: true });
+  const state = { clock: { getElapsedTime: () => 4 }, viewport: { width: 16, height: 10 } };
+  for (let frame = 0; frame < 200; frame++) fixture.updateRobot(state, 1 / 60);
+  const obstacle = fixture.drones[0].obstacle.current;
+  assert.equal(obstacle.active, true);
+  assert.ok(obstacle.body.radius > 1);
+  assert.ok(obstacle.head.radius > 1);
+  obstacle.impact = 1;
+  obstacle.impactAge = 0;
+  obstacle.impactNormal.x = 1;
+  fixture.updateRobot(state, 1 / 60);
+  const torso = fixture.robot.getObjectByName("landing-guardian-torso");
+  assert.ok(Math.abs(torso.rotation.z) > .001, 'the robot recoils while its language screen remains available');
+});
 
 test("drones keep autonomous world-space flight through robot drag, scale, pose and pointer changes", () => {
   const control = actors(), interactive = actors();
