@@ -1,0 +1,20 @@
+{
+  "47c1183e-a26e-4c5d-9937-88ec5a755a32": {
+    "courseId": "a857595d-def0-4543-9216-a680c6abfe26",
+    "path": "course-content/web-app-development/Section1.js",
+    "revision": "3c87614ca217b0a247ab54e0b45a8ae06b9d454de0774087651a22c36da337da",
+    "bytes": 1449560,
+    "teachingSlides": 32,
+    "learnerSlides": 31,
+    "preservesBusinessTemplate": true
+  },
+  "2faaf285-a215-4874-a367-82c84ce46b2e": {
+    "courseId": "a857595d-def0-4543-9216-a680c6abfe26",
+    "path": "course-content/web-app-development/Section2.js",
+    "revision": "cc0812e60b57fd699be10cd161a3cc2ce2bdd2860929f42c636d032cfa5e0d51",
+    "bytes": 591547,
+    "teachingSlides": 20,
+    "learnerSlides": 20,
+    "preservesBusinessTemplate": true
+  }
+}

@@ -24,6 +24,7 @@ export type CourseAccess = {
 };
 
 export type SectionAccess = {
+  terminationEnabled?: boolean;
   hidden?: boolean;
   id: string;
   courseId: string;

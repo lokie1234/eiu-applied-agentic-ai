@@ -156,6 +156,7 @@ function scopedFixture(role='admin',failAudit=false){
 
 test('scoped reset uses actual section IDs and preserves other courses sharing section1',async()=>{
   const f=scopedFixture();const scope={folderId:'web',courseId:'web1',sectionId:'web1s1'};
+  for (const [index, action] of ['SECTION_TERMINATED','QUIZ_OPENED','QUIZ_COMPLETED','FEEDBACK_SUBMITTED'].entries()) f.tables.access_audit_logs.push({id:500+index,action,course_id:'web1',details:{courseId:'web1',sectionId:'web1s1',section:'section1',submissionStorage:'audit'}});
   assert.equal((await f.scoped(scope)).status,200);
   assert.ok(f.tables.learner_profiles.length&&f.tables.ideas.length,'legacy Applied AI rows remain');
   assert.ok(!f.tables.access_audit_logs.some(row=>row.details.sectionId==='web1s1'));

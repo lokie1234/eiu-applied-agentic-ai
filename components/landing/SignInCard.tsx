@@ -137,7 +137,7 @@ export default function SignInCard({ initialLanguageChosen = false, passcode, se
       <span className={styles.energyFrame} />
       <span className={styles.surfaceLight} />
     </span>
-    <div ref={panel} className={styles.glassContent}>
+    <div ref={panel} className={styles.glassContent} data-login-content>
     {!languageChosen ? <div className={styles.languageChoices}>
         {([{ code: "vi", name: "VIE" }, { code: "en", name: "ENG" }] as const).map(option =>
           <button key={option.code} type="button" className={styles.languageChoice} lang={option.code} onClick={() => choose(method, option.code)}>

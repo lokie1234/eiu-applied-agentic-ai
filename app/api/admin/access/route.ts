@@ -81,7 +81,17 @@ export async function POST(request: Request) {
     let createdCourseIds: string[] | undefined;
     let createdFolderGroupId: string | undefined;
 
-    if (action === "set_learning_identity_policy") {
+    if (action === "set_section_termination") {
+      if (!actor.isAdmin) return NextResponse.json({ message: "Administrator access required." }, { status: 403 });
+      if (typeof body.sectionId !== "string" || typeof body.enabled !== "boolean") return NextResponse.json({ message: "Choose a section and termination setting." }, { status: 400 });
+      const catalog = await getCoursesAndSectionsData();
+      const target = catalog.sections.find(section => section.id === body.sectionId);
+      if (!target) return NextResponse.json({ message: "Section not found." }, { status: 404 });
+      await updateCourseMetadata(target.course_id, current => ({ ...current,
+        terminableSectionIds: body.enabled ? [...new Set([...(current.terminableSectionIds || []), target.id])]
+          : (current.terminableSectionIds || []).filter(id => id !== target.id),
+      }));
+    } else if (action === "set_learning_identity_policy") {
       const policy = parseIdentityPolicy(body.policy);
       if (typeof body.policy?.enabled !== "boolean" || !Array.isArray(body.policy.fields) || body.policy.fields.length !== policy.fields.length || (policy.enabled && !policy.fields.length)) return NextResponse.json({ message: "Choose up to six valid fields, with at least one field when enabled." }, { status: 400 });
       const catalog = await getCoursesAndSectionsData();

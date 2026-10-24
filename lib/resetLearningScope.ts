@@ -6,7 +6,7 @@ type Row = Record<string, unknown>;
 type Database = ReturnType<typeof getSupabaseAdmin>;
 export type ResetScopeInput = { folderId: string; courseId: string; sectionId: string };
 export class InvalidResetScope extends Error {}
-const ACTIONS = ["PASSCODE_LOGIN", "SECTION_OPENED", "IDEA_SUBMITTED", "SHOWCASE_SUBMITTED", "QUIZ_COMPLETED", "FEEDBACK_SUBMITTED"];
+const ACTIONS = ["PASSCODE_LOGIN", "SECTION_OPENED", "SECTION_TERMINATED", "IDEA_SUBMITTED", "SHOWCASE_SUBMITTED", "QUIZ_OPENED", "QUIZ_COMPLETED", "FEEDBACK_SUBMITTED"];
 
 async function readAll(db: Database, table: string, columns: string, learningOnly = false) {
   const rows: Row[] = [];

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { currentUserAccess } from "@/lib/auth/currentUser";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { readSectionTermination } from "@/lib/sectionTermination";
 
 type Context = { params: Promise<{ id: string }> };
 type Row = { id: string | number; created_at: string; details: { name?: string; url?: string } };
@@ -18,10 +19,12 @@ export async function GET(request: Request, context: Context) {
   try {
     const scope = await resolve(request, context);
     if (!scope) return NextResponse.json({ message: "Bạn không có quyền xem bài làm của section này." }, { status: 403 });
-    const { data, error } = await getSupabaseAdmin(request.signal).from("access_audit_logs")
+    const termination = await readSectionTermination(scope.course.id, scope.section.id, request.signal);
+    let query = getSupabaseAdmin(request.signal).from("access_audit_logs")
       .select("id, created_at, details").eq("action", "SHOWCASE_SUBMITTED")
-      .contains("details", { courseId: scope.course.id, sectionId: scope.section.id, submissionStorage: "audit" })
-      .order("created_at", { ascending: false }).limit(50);
+      .contains("details", { courseId: scope.course.id, sectionId: scope.section.id, submissionStorage: "audit" });
+    if (termination) query = query.gt("id", termination.id);
+    const { data, error } = await query.order("created_at", { ascending: false }).limit(50);
     if (error) throw error;
     return NextResponse.json({ success: true, items: (data as Row[]).map(item) }, { headers: { "Cache-Control": "no-store, max-age=0" } });
   } catch (error) {

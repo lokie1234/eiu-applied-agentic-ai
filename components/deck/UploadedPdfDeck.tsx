@@ -28,7 +28,7 @@ export default function UploadedPdfDeck({ contentUrl, slideCount, courseTitle, s
           className={styles.pdfDocument}
           file={contentUrl}
           suspense={false}
-          loading={<HairlineLoading label="Loading PDF" />}
+          loading={<HairlineLoading contained label="Loading PDF" />}
           error={<div className={styles.message} role="alert">Unable to display this PDF.</div>}
           onLoadSuccess={({ numPages }) => { setTotalSlides(numPages); setDocumentReady(true); }}
         >{children}</Document>
@@ -36,7 +36,7 @@ export default function UploadedPdfDeck({ contentUrl, slideCount, courseTitle, s
       renderSlide={(pageNumber, renderWidth) => {
         const page = <Page className={styles.pdfPage} pageNumber={pageNumber}
           suspense={false}
-          loading={<HairlineLoading label="Loading slide" />}
+          loading={<HairlineLoading contained label="Loading slide" />}
           error={<div className={styles.message} role="alert">Unable to display this slide.</div>}
           width={templateImage ? renderWidth * .888 : renderWidth}
           renderTextLayer={false} renderAnnotationLayer />;

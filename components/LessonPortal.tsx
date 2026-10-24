@@ -23,9 +23,9 @@ import { buildSectionOneDeckItems, sectionTwoDeckItems } from "@/lib/builtinDeck
 
 const loadSectionOne = () => import("./PdfDeck");
 const loadSectionTwo = () => import("./section2/SectionTwoDeck");
-const SectionOneDeck = dynamic(loadSectionOne, { ssr: false, loading: () => <HairlineLoading /> });
-const SectionTwoDeck = dynamic(loadSectionTwo, { ssr: false, loading: () => <HairlineLoading /> });
-const UploadedSectionDeck = dynamic(() => import("./deck/UploadedSectionDeck"), { ssr: false, loading: () => <HairlineLoading /> });
+const SectionOneDeck = dynamic(loadSectionOne, { ssr: false, loading: () => <HairlineLoading contained /> });
+const SectionTwoDeck = dynamic(loadSectionTwo, { ssr: false, loading: () => <HairlineLoading contained /> });
+const UploadedSectionDeck = dynamic(() => import("./deck/UploadedSectionDeck"), { ssr: false, loading: () => <HairlineLoading contained /> });
 const LearningIcon3DLayer = dynamic(() => import("./LearningIcon3DLayer"), { ssr: false });
 
 type SectionId = "section1" | "section2";
@@ -148,6 +148,7 @@ type ReportSectionOption = { value: string; label: string };
 type ReportScopeOption = ReportSectionOption & { courseId: string; courseTitle: string; folderGroupId: string };
 type ReportCourseOption = ReportSectionOption & { folderGroupId: string };
 type CourseFolderSection = {
+  terminationEnabled?: boolean;
   canFacilitate?: boolean;
   hidden?: boolean;
   id: string;
@@ -354,8 +355,9 @@ function DeckShell({
             <button
               type="button"
               className={styles.secondaryButton}
+              aria-label={t("Back to course", "Quay lại khóa học")}
               onClick={event => onChooseSection(event.detail === 0)}
-            >{t("Courses")}</button>
+            >{t("Back to course", "Quay lại khóa học")}</button>
           )}
 
           {isAdmin && onOpenTerminate && (
@@ -617,6 +619,7 @@ export default function LessonPortal({
   const activeLessonSection = activeUploadedSection || selectedCourse?.sections.find(item => item.sectionKey === section);
   const activeSectionId = activeLessonSection?.id;
   const canFacilitateCurrent = isAdmin || Boolean(activeLessonSection?.canFacilitate);
+  const terminationEnabled = activeLessonSection?.terminationEnabled === true;
   const resetScopes = reportScopes.filter(scope => (resetFolder === "all" || scope.folderGroupId === resetFolder) && (resetCourse === "all" || scope.courseId === resetCourse));
   const resetScopeValid = scopeMetadataReady && (resetFolder === "all" || reportFolders.some(folder=>folder.value===resetFolder))
     && (resetCourse === "all" || reportCourses.some(course=>course.value===resetCourse && (resetFolder==="all" || course.folderGroupId===resetFolder)))
@@ -636,10 +639,11 @@ export default function LessonPortal({
   useEffect(() => {
     if (!isAdmin || (!showExportModal && !showResetModal)) return;
     let disposed = false;
+    const controller = new AbortController();
 
     async function loadReportSections() {
       try {
-        const response = await fetch("/api/admin/report?mode=sections", { cache: "no-store" });
+        const response = await fetch("/api/admin/report?mode=sections", { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]) });
         const payload = (await response.json()) as {
           success?: boolean;
           sections?: ReportSectionOption[];
@@ -668,6 +672,7 @@ export default function LessonPortal({
     void loadReportSections();
     return () => {
       disposed = true;
+      controller.abort();
     };
   }, [isAdmin, showExportModal, showResetModal]);
 
@@ -683,9 +688,9 @@ export default function LessonPortal({
     let lastRequestedAt = 0;
     const controller = new AbortController();
 
-    async function fetchCounts() {
+    async function fetchCounts(queueIfBusy = true) {
       if (disposed || document.visibilityState !== "visible") return;
-      if (inFlight) { refreshQueued = true; return; }
+      if (inFlight) { if (queueIfBusy) refreshQueued = true; return; }
       if (lastRequestedAt && Date.now() - lastRequestedAt < 750) {
         if (!refreshTimer) refreshTimer = window.setTimeout(() => { refreshTimer=undefined;void fetchCounts(); },750-(Date.now()-lastRequestedAt));
         return;
@@ -723,7 +728,7 @@ export default function LessonPortal({
         if (!refreshTimer) refreshTimer = window.setTimeout(() => { refreshTimer=undefined;void fetchCounts(); }, 80);
       })
       .subscribe(status => { if (status === "SUBSCRIBED") void fetchCounts(); });
-    const interval = window.setInterval(() => void fetchCounts(), 5_000);
+    const interval = window.setInterval(() => void fetchCounts(false), 5_000);
     const resumeCounts = () => { if (document.visibilityState === "visible") void fetchCounts(); };
     document.addEventListener("visibilitychange", resumeCounts);
 
@@ -895,16 +900,16 @@ export default function LessonPortal({
   }
 
   async function terminateSection() {
-    if (!isAdmin || !section || terminateStatus === "sending") return;
+    if (!isAdmin || !activeSectionId || !terminationEnabled || terminateStatus === "sending") return;
 
     setTerminateStatus("sending");
     setTerminateNotice("");
 
     try {
-      const response = await fetch("/api/section-control", {
+      const response = await fetch(`/api/sections/${encodeURIComponent(activeSectionId)}/control`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "terminate", section }),
+        body: JSON.stringify({ action: "terminate" }),
       });
 
       const payload = (await response.json()) as { message?: string };
@@ -914,9 +919,10 @@ export default function LessonPortal({
 
       setTerminateStatus("success");
       setTerminateNotice(
-        `${section === "section1" ? "Section 1" : "Section 2"} ended. Slide data was refreshed and learners are returning to the access screen.`
+        `${activeLessonSection?.title || "Section"} ended. Quiz was reset and learners are returning to the access screen.`
       );
-      clearSlideInteractionStorage(section);
+      if (section) clearSlideInteractionStorage(section);
+      window.sessionStorage.removeItem(`eiu-showcase-hidden:${activeSectionId}`);
       setDeckSessionKey((current) => current + 1);
       setShowTerminate(false);
     } catch (error) {
@@ -929,7 +935,7 @@ export default function LessonPortal({
 
   // Admin section termination polling listener
   useEffect(() => {
-    if (sessionIsAdmin || !section) return;
+    if (sessionIsAdmin || !activeSectionId || !terminationEnabled) return;
 
     let disposed = false;
     let initialToken: string | null = null;
@@ -941,7 +947,7 @@ export default function LessonPortal({
       if (disposed || inFlight || document.visibilityState !== "visible") return;
       inFlight = true;
       try {
-        const response = await fetch(`/api/section-control?section=${section}`, {
+        const response = await fetch(`/api/sections/${encodeURIComponent(activeSectionId!)}/control`, {
           cache: "no-store",
           signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]),
         });
@@ -950,16 +956,17 @@ export default function LessonPortal({
         const payload = (await response.json()) as {
           success?: boolean;
           terminationToken?: string;
+          enabled?: boolean;
         };
 
-        if (!disposed && payload.success) {
+        if (!disposed && payload.success && payload.enabled !== false) {
           const currentToken = payload.terminationToken ?? null;
           if (!isInitialized) {
             initialToken = currentToken;
             isInitialized = true;
           } else if (currentToken && currentToken !== initialToken) {
-            localStorage.clear();
-            sessionStorage.clear();
+            if (section) clearSlideInteractionStorage(section);
+            window.sessionStorage.removeItem(`eiu-showcase-hidden:${activeSectionId}`);
             window.location.replace("/");
           }
         }
@@ -973,18 +980,18 @@ export default function LessonPortal({
     void checkTermination();
     const supabase = getSupabaseBrowserClient();
     const channel = supabase
-      ?.channel(`eiu:section:${section}`)
+      ?.channel(`eiu:section:${section || activeSectionId}`)
       .on("broadcast", { event: "section_terminated" }, (payload) => {
         const targetSection = (payload.payload as { section?: string })?.section;
-        if (targetSection === section) {
-          localStorage.clear();
-          sessionStorage.clear();
+        if (targetSection === section || targetSection === activeSectionId) {
+          if (section) clearSlideInteractionStorage(section);
+          window.sessionStorage.removeItem(`eiu-showcase-hidden:${activeSectionId}`);
           window.location.replace("/");
         }
       })
       .subscribe();
 
-    const timer = window.setInterval(() => void checkTermination(), 30_000);
+    const timer = window.setInterval(() => void checkTermination(), 5_000);
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") void checkTermination();
     };
@@ -997,7 +1004,7 @@ export default function LessonPortal({
       document.removeEventListener("visibilitychange", onVisibilityChange);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [sessionIsAdmin, section]);
+  }, [sessionIsAdmin, section, activeSectionId, terminationEnabled]);
 
   const handleLaunchBuiltin = useCallback((course: CourseFolder, item: CourseFolderSection, coreSection: SectionId) => {
     iconTilt.onPointerLeave();
@@ -1611,7 +1618,7 @@ export default function LessonPortal({
         currentSectionTitle={activeLessonSection?.title}
         statusNotice={previewMode ? `${t("Preview", "Xem thử")} · ${previewMode === "learning" ? "Learning Access" : "Teaching Access"}` : isAdmin ? terminateNotice : undefined}
         onExitPreview={previewMode ? () => changeAccessPreview(null) : undefined}
-        onChooseSection={(keyboard = false) => {
+        onChooseSection={() => {
           cancelSectionOpening();
           if (launchingSection) {
             setLaunchingSection(null);
@@ -1619,14 +1626,12 @@ export default function LessonPortal({
             return;
           }
           iconTilt.onPointerLeave();
-    if (selectedCourseId) restoreCourseFocus.current = { id: selectedCourseId, keyboard };
-          rememberDeckSelection();
+          rememberDeckSelection(selectedCourse.id, null, false, { course: selectedCourse.slug });
           setAdminSection(null);
           setActiveUploadedSection(null);
-          setSelectedCourseId(null);
         }}
         onOpenTerminate={
-          isAdmin && section
+          isAdmin && activeSectionId && terminationEnabled
             ? () => {
                 setTerminateStatus("idle");
                 setTerminateNotice("");
@@ -1645,7 +1650,7 @@ export default function LessonPortal({
               if (item) handleLaunchBuiltin(selectedCourse, item, launchingSection);
             }}>{t("Try again")}</button>
           </div>
-        ) : <HairlineLoading label={t("Opening lesson")} /> : activeUploadedSection ? (
+        ) : <HairlineLoading contained label={t("Opening lesson")} /> : activeUploadedSection ? (
           <UploadedSectionDeck
             key={`${activeUploadedSection.id}-${activeUploadedSection.contentRevision ?? ""}-${activeUploadedSection.templateKey ?? ""}-${deckSessionKey}`}
             sectionId={activeUploadedSection.id}
@@ -1673,7 +1678,7 @@ export default function LessonPortal({
         )}
       </DeckShell>
 
-      {isAdmin && section && showTerminate && (
+      {isAdmin && activeSectionId && terminationEnabled && showTerminate && (
         <div
           className={styles.modalLayer}
           role="presentation"
@@ -1695,6 +1700,7 @@ export default function LessonPortal({
             <span>{t("ADMIN ACTION")}</span>
             <h2 id="terminate-title">{t("Terminate current section?")}</h2>
             <p>{t("Learners in this section will return to the access screen.")}</p>
+            <p>{t("The quiz will close and start fresh next session. Saved scores and feedback remain in reports.")}</p>
             {terminateStatus === "error" && terminateNotice && (
               <p role="alert">{t(terminateNotice)}</p>
             )}

@@ -113,6 +113,16 @@ test("section template survives unrelated metadata edits and can be disabled", a
   assert.deepEqual(saved.sectionTemplates, { b: "eiu-business-v1" });
 });
 
+test("termination permission is off by default and survives unrelated course metadata edits", async () => {
+  const { state, storage } = fixture();
+  assert.deepEqual(Array.from(storage.parseCourseMetadata(state.courses[0].description).terminableSectionIds || []), []);
+  await storage.updateCourseMetadata("core", current => ({ ...current, terminableSectionIds: ["lesson-id"] }));
+  await storage.updateCourseSummary("core", "Updated course");
+  assert.deepEqual(JSON.parse(state.courses[0].description).terminableSectionIds, ["lesson-id"]);
+  await storage.updateCourseMetadata("core", current => ({ ...current, terminableSectionIds: [] }));
+  assert.deepEqual(JSON.parse(state.courses[0].description).terminableSectionIds, []);
+});
+
 test("owned folder metadata survives catalog loading and rename", async () => {
   const { state, storage } = fixture();
   const folder = await storage.createFolderGroup("Teacher folder", "", "teacher-a");

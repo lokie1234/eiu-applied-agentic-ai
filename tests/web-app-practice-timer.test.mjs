@@ -42,13 +42,13 @@ function open(isAdmin, page = 21, reducedMotion = false) {
 test("only admins see the practice slide after slide 20; learners keep their original count and flow", async () => {
   const admin = open(true), learner = open(false), count = open(false, null);
   try {
-    assert.equal(admin.messages[0].slides, 30);
+    assert.equal(admin.messages[0].slides, 32);
     assert.ok(admin.doc.querySelector(".freeDesignPractice"));
     assert.equal(admin.doc.querySelector('.practiceWorkspace'), null);
     assert.equal(admin.doc.querySelector('.practiceEyebrow'), null);
     assert.equal(admin.doc.querySelector('.practiceBurst').parentElement.className, 'practiceTimerFace');
-    assert.equal(learner.messages[0].slides, 29);
-    assert.equal(count.messages[0].slides, 29);
+    assert.equal(learner.messages[0].slides, 31);
+    assert.equal(count.messages[0].slides, 31);
     assert.equal(learner.doc.querySelector(".freeDesignPractice"), null);
     assert.ok(learner.doc.querySelector(".workflowSummary"), "learners proceed straight to the workflow overview");
     assert.equal(count.doc.querySelector(".practiceTimer"), null, "count mode never starts a timer");

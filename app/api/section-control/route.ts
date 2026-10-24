@@ -2,6 +2,8 @@ import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { currentRole } from "@/lib/currentRole";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
+import { currentUserAccess } from "@/lib/auth/currentUser";
+import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 
 type SectionId = "section1" | "section2";
 
@@ -70,6 +72,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Section không hợp lệ." }, { status: 400 });
     }
 
+    const access = await currentUserAccess(request.signal);
+    const core = access?.courses.find(course => course.slug === APPLIED_AGENTIC_AI_SLUG);
+    if (!access?.sections.some(item => item.courseId === core?.id && item.sectionKey === section && item.terminationEnabled)) {
+      return NextResponse.json({ message: "Enable Terminate section in Admin Access Settings first." }, { status: 403 });
+    }
     const token = crypto.randomUUID();
     const sessionStartedAt = new Date().toISOString();
     const { error } = await getSupabaseAdmin().from("section_state").upsert(

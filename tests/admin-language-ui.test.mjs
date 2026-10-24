@@ -16,7 +16,7 @@ test("language saves retain the scrolling workspace and report pending, success 
     Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   const courses = [{ id: "c1", slug: "course", title: "Course", status: "active", language_label: "vi", folderGroupId: "f1", metadata: {} }];
-  const catalog = () => ({ success: true, courses: courses.map(course => ({ ...course })), sections: [], folderGroups: [{ id: "f1", name: "Folder", order: 0 }] });
+  const catalog = () => ({ success: true, courses: courses.map(course => ({ ...course })), sections: [{ id:"s1",course_id:"c1",section_key:"section1",title:"Lesson",position:1,status:"active",content_type:"tsx" }], folderGroups: [{ id: "f1", name: "Folder", order: 0 }] });
   const calls = [];
   let finish;
   const fetch = async (url, options) => {
@@ -87,6 +87,18 @@ test("language saves retain the scrolling workspace and report pending, success 
     assert.equal(button("English").getAttribute("aria-pressed"), "true");
     assert.equal(button("Vietnamese").disabled, false);
     stable();
+    const termination = () => container.querySelector('[aria-label="Enable Terminate section for Lesson"]');
+    assert.equal(termination().checked, false);
+    await act(async () => termination().click());
+    assert.deepEqual(calls.at(-1), {action:"set_section_termination",sectionId:"s1",enabled:true});
+    courses[0].metadata.terminableSectionIds = ["s1"];
+    await act(async () => finish({ ok: true, json: async () => catalog() }));
+    assert.equal(termination().checked, true);
+    await act(async () => termination().click());
+    assert.equal(calls.at(-1).enabled, false);
+    courses[0].metadata.terminableSectionIds = [];
+    await act(async () => finish({ ok: true, json: async () => catalog() }));
+    assert.equal(termination().checked, false);
   } finally {
     await act(async () => root.unmount());
     await window.happyDOM.close();

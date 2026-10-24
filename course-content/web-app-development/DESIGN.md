@@ -1,3 +1,16 @@
+## Slide 32 · Quiz Section 1 · 24/10/2026
+
+Đặt quiz 10 câu sau slide chia sẻ bài làm (31). Tái sử dụng nguyên giao diện QuizSlide của Applied Agentic AI: màn hình chờ, nút mở/xác nhận dành cho admin hoặc teacher của section, danh sách đã hoàn thành; học viên trả lời từng câu, xem đúng/sai, điểm và gửi feedback sau khi kết quả được lưu. Nhãn khóa học là AI-Powered Web Development; không hiển thị link handout của Applied AI. Native overlay dùng marker data-eiu-quiz, không gọi API từ sandbox. Tổng 32 slide cho giảng dạy / 31 cho học viên. Giữ nguyên các slide khác và source binding.
+
+## Slide 28 · Thông điệp GenAI · 24/10/2026
+
+Cụm “mình muốn gì” được khoanh bằng nét graphite bất đối xứng: cạnh trên và dưới cong không đều, bên phải hơi nghiêng, đầu nét chồng nhẹ và chỉ đồ lại mờ một phần vòng như bút chì vẽ tay. Chừa khoảng đệm trong vòng và khoảng cách với chữ bên cạnh để không đè lên nội dung khác. Nét tự vẽ hết vòng, giữ ngắn rồi mờ đi và lặp theo chu kỳ 4,2 giây, đi cùng chuyển động lơ lửng của chữ; reduced motion giữ nét hoàn chỉnh, đứng yên.
+
+Tiêu đề “Với sự phát triển của các mô hình GenAI hiện tại” ở trên cao, Inter 46px navy, giữ một dòng. Nội dung chính “Bạn chỉ cần hiểu rõ mình muốn gì” căn giữa, 56px, vừa một dòng; nhấn “mình muốn gì” bằng vàng trầm và cho lơ lửng nhẹ từ +3px đến −6px theo chu kỳ 4,2 giây. Nền kem EIU, không thêm nội dung phụ. Một hàng 15 icon AI đã nhúng trong bài ở phía dưới làm nền, lần lượt bật lên từ trái sang phải và lặp theo chu kỳ 4,8 giây, lệch nhịp 0,16 giây; chỉ dùng CSS transform, không tương tác chuột. Tôn trọng prefers-reduced-motion. Giữ slide flow đã khôi phục ở vị trí 29, tổng 31 slide admin / 30 slide học viên và source binding hiện có.
+
+
+Current revision: keep the title at 46px and the single-line body at 56px. The gold purpose phrase stays still. Replace its pencil circle with a thin horizontal pencil underline drawn left to right, held briefly, faded and repeated every 4.2 seconds. Retain the 15 bouncing AI icons, slide order and source binding. Reduced motion keeps the underline complete and all motion disabled.
+
 ## Slide 29 · Nộp bài cho giảng viên · 21/10/2026
 
 Thêm sau slide localhost; Section1 có 29 slide. Dùng ShowcaseSlide từ Applied Agentic AI với phạm vi sectionId, link HTTPS và thông tin học viên lấy từ phiên server. Native viewer hiển thị bảng và form trực tiếp, giữ tải lại/ẩn cục bộ của admin, dữ liệu vẫn xuất Excel. Slide nộp bài là slide cuối của Section 1. Không gọi API từ iframe sandbox.

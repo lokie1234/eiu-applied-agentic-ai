@@ -40,6 +40,7 @@ function handlers(options = {}) {
   const supabase = {
     storage: { from: () => storage },
     from(table) {
+      if (table === "course_sections") state.sectionReads = (state.sectionReads || 0) + 1;
       let update;
       return {
         select() { return this; }, eq() { return this; }, is() { return this; },
@@ -341,6 +342,22 @@ test("Drive-backed legacy JS is served unchanged without TSX recompilation or St
 
 
 const webAppTitle = "AI-Powered Web App Development & Deployment";
+test("authorized repository lessons avoid a second section lookup without caching permission or bytes", async () => {
+  const api = handlers();
+  const courseId = "a857595d-def0-4543-9216-a680c6abfe26", id = "47c1183e-a26e-4c5d-9937-88ec5a755a32";
+  api.state.access.courses = [{ id: courseId }];
+  api.state.access.sections = [{ id, courseId, contentType:"tsx", sourceFilename:"Section1.js" }];
+  api.state.section.id = id;
+  const before = api.state.sectionReads || 0;
+  const response = await api.download();
+  assert.equal(response.status,200);
+  assert.equal(api.state.sectionReads || 0,before,"the freshly authorized catalog is sufficient for a registered local lesson");
+  assert.equal(await response.text(),fs.readFileSync("course-content/web-app-development/Section1.js","utf8"));
+  api.state.access.sections[0].hidden = true;
+  assert.equal((await api.download()).status,403,"visibility is rechecked on each request");
+  api.state.access = null;
+  assert.equal((await api.download()).status,401,"completed content is never reused across revoked sessions");
+});
 for (const filename of ["Section1.js", "Section2.js"]) {
   test(filename + " displays and downloads compiled JS without accessing Drive", async () => {
     const api = handlers();

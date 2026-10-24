@@ -37,7 +37,15 @@ export function createSupabaseFetch(fetcher: typeof fetch = fetch, requestSignal
     let entry = pending.get(key);
     if (!entry) {
       const controller = new AbortController();
-      entry = { controller, consumers: 0, settled: false, promise: run(controller) };
+      // Keep ownership until the body is complete, not just until headers arrive.
+      // Returning streaming clones here detaches cancellation too early and lets
+      // another catalog request start while the first body is still downloading.
+      const response = run(controller).then(async response => {
+        if (method === "HEAD" || response.status === 204 || response.status === 205 || response.status === 304) return response;
+        const bytes = await response.arrayBuffer();
+        return new Response(bytes, { status: response.status, statusText: response.statusText, headers: response.headers });
+      });
+      entry = { controller, consumers: 0, settled: false, promise: response };
       const created = entry;
       created.promise = created.promise.finally(() => {
         created.settled = true;

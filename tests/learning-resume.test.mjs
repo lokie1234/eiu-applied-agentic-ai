@@ -72,11 +72,11 @@ test("readable URLs reset explicit reentry while refresh preserves progress and 
 
 test("quiz restoration uses the signed session and section, checks the result still exists, and restores feedback", async () => {
   const calls = [];
-  let missing = false;
+  let missing = false, startedAt = "1970-01-01T00:00:00Z";
   const db = { from(table) {
     const query = { table, filters: {} }; calls.push(query);
     return { select() { return this; }, eq(key, value) { query.filters[key] = value; return this; }, contains(key, value) { query.filters[key] = value; return this; }, order() { return this; }, limit() { return this; }, async maybeSingle() {
-      return { data: table === "quiz_results" ? missing ? null : { score: 8, total: 10, answers: [], completed_at: "now" } : query.filters.action === "QUIZ_COMPLETED" ? { details: { recordId: "record" } } : { id: 1 } };
+      return { data: table === "section_state" ? { session_started_at: startedAt } : table === "quiz_results" ? missing ? null : { score: 8, total: 10, answers: [], completed_at: "now" } : query.filters.action === "QUIZ_COMPLETED" ? { created_at:"2026-10-01T00:00:00Z",details: { recordId: "record" } } : { id: 1, created_at:"2026-10-01T00:00:00Z" } };
     } };
   } };
   const { readQuizProgress } = load("lib/quizProgress.ts", {}, { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => db } });
@@ -84,8 +84,11 @@ test("quiz restoration uses the signed session and section, checks the result st
   const result = await readQuizProgress(identity, "section2");
   assert.equal(result.score, 8); assert.equal(result.feedbackSubmitted, true);
   assert.equal(calls[0].filters.details.sessionId, "signed-session"); assert.equal(calls[0].filters.details.section, "section2");
-  assert.equal(calls[1].filters.id, "record"); assert.equal(calls[1].filters.section, "section2");
+  const resultRead = calls.find(call => call.table === "quiz_results");
+  assert.equal(resultRead.filters.id, "record"); assert.equal(resultRead.filters.section, "section2");
   missing = true; assert.equal(await readQuizProgress(identity, "section2"), null);
+  missing = false; startedAt = "2026-10-02T00:00:00Z";
+  assert.equal(await readQuizProgress(identity, "section2"), null, "termination starts a fresh quiz without deleting prior scores");
 });
 
 test("quiz endpoint denies another section and returns an existing result without inserting another attempt", async () => {

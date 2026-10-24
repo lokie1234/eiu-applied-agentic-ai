@@ -417,13 +417,14 @@ test('the two AI tools show advantages and styled model names without embedded l
 
 test('setup and practice lead to complete Push, Pull and Clone workflows',()=>{
  for(const command of ['code --version','node --version','git config --global user.name','npm.cmd install','npm.cmd run dev','npm.cmd test','npm.cmd run build','git init -b main','git add .','git commit -m','git remote add origin','git push -u origin main','git pull --ff-only origin main','git clone']) assert.ok(source.includes(command),command);
- assert.equal(sectionSlides.length,30);
- assert.deepEqual(sectionSlides.map(s=>s.number),Array.from({length:30},(_,i)=>i+1));
- assert.equal(sectionSlides.at(-1).visual,'git-intro-submission');
+ assert.equal(sectionSlides.length,32);
+ assert.deepEqual(sectionSlides.map(s=>s.number),Array.from({length:32},(_,i)=>i+1));
+ assert.equal(sectionSlides.at(-2).visual,'git-intro-submission');
+ assert.equal(sectionSlides.at(-1).visual,'git-intro-section-quiz');
  for(const visual of ['git-intro-initialize','git-intro-publish','git-intro-push-code','git-intro-pull'])assert.ok(sectionSlides.some(s=>s.visual===visual));
 });
 
-test('all 30 admin slides retain embedded Inter while only loading their layout styles',async()=>{
+test('all 32 admin slides retain embedded Inter while only loading their layout styles',async()=>{
  assert.equal(fs.readFileSync('course-content/web-app-development/fonts/Inter-Variable.woff2').subarray(0,4).toString(),'wOF2');
  assert.doesNotMatch(source,/git-intro-quiz|\.skillFeatureGrid\{|\.skillOutcome\{/);
  for(const slide of sectionSlides){

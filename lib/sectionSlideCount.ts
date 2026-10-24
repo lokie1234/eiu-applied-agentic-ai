@@ -1,4 +1,6 @@
 import { createTsxDocument } from "./tsxDocument";
+import { getCompiledSectionMetadata } from "./compiledSectionMetadata";
+export { getCompiledSectionMetadata } from "./compiledSectionMetadata";
 
 export type SectionFileType = "tsx" | "pdf" | "pptx";
 
@@ -35,6 +37,11 @@ export function countTsxSlides(code: string, signal: AbortSignal, isAdmin = fals
 }
 
 export async function readSectionSlideCount(sectionId: string, type: SectionFileType, signal: AbortSignal, isAdmin = false) {
+  signal.throwIfAborted();
+  const compiled = type === "tsx" ? getCompiledSectionMetadata(sectionId) : undefined;
+  // Generated with the JS, including the same adminOnly filtering as the frame.
+  // Reading two counters must not download and evaluate two entire lessons.
+  if (compiled) return isAdmin ? compiled.teachingSlides : compiled.learnerSlides;
   const response = await fetch(`/api/sections/${encodeURIComponent(sectionId)}/content`, { cache: "no-store", signal });
   if (!response.ok) throw new Error("Unable to read section content.");
   if (type === "tsx") return countTsxSlides(await response.text(), signal, isAdmin);

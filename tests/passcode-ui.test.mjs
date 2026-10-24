@@ -22,9 +22,9 @@ function moduleExports(path, dependencies = {}) {
     if (name === "./CourseDiscoveryHeading") return { __esModule: true, default: props => React.createElement("span", {"data-heading-online": props.onlineCount}) };
     if (name === "./EiuConfirmDialog") return { __esModule: true, default: component("components/admin/EiuConfirmDialog.tsx") };
     if (name === "./LearnerInformationSettings") return { __esModule: true, default: component("components/admin/LearnerInformationSettings.tsx", { "@/lib/learningIdentity": learningIdentity }) };
-    if (name === "@/lib/deckLocation") return { rememberDeckSelection() {} };
+    if (name === "@/lib/deckLocation") return dependencies[name] || { rememberDeckSelection() {} };
     if (name === "@/lib/liveRefresh") return liveRefresh;
-    if (name === "@/lib/sectionSlideCount") return { readSectionSlideCount: async () => 5 };
+    if (name === "@/lib/sectionSlideCount" || name === "@/lib/compiledSectionMetadata") return { getCompiledSectionMetadata: () => undefined, readSectionSlideCount: async () => 5 };
     if (name.endsWith(".css")) return new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) });
     if (dependencies[name]) return dependencies[name];
     if (name.startsWith(".")) {
@@ -603,6 +603,78 @@ test("facilitator decks enable quiz controls without exposing admin navigation o
   web.sections[0].canFacilitate = false;
   assert.match(renderUploaded(false), /data-teaching="false"/);
   assert.match(renderUploaded(true), /data-teaching="true"/);
+  assert.doesNotMatch(renderUploaded(true), /class="terminateBtn"/);
+  web.sections[0].terminationEnabled = true;
+  assert.match(renderUploaded(true), /class="terminateBtn"/);
+  assert.doesNotMatch(renderUploaded(false), /class="terminateBtn"/);
+  course.sections[0].terminationEnabled = true;
+  assert.match(render(true), /class="terminateBtn"/);
+  assert.doesNotMatch(render(false), /class="terminateBtn"/);
+});
+
+test("enabled uploaded sections automatically return participants to access when terminated", async () => {
+  const window = new Window({ url: "http://localhost/learn" });
+  for (const name of ["window", "document", "HTMLElement", "navigator", "sessionStorage"]) Object.defineProperty(globalThis, name, { configurable:true, value:name === "window" ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  const { createRoot } = await import("react-dom/client");
+  const intervals = new Map(); let intervalId = 0;
+  window.setInterval = (fn,delay) => { const id = ++intervalId; intervals.set(id,{fn,delay}); return id; };
+  window.clearInterval = id => intervals.delete(id);
+  const previousFetch = globalThis.fetch, requests = [], redirects = []; let token = "initial";
+  globalThis.fetch = async url => { requests.push(url); return {ok:true,json:async()=>({success:true,enabled:true,terminationToken:token})}; };
+  Object.defineProperty(window.location, "replace", {configurable:true,value:url=>redirects.push(url)});
+  const Portal = component("components/LessonPortal.tsx", {
+    "next/navigation": {useRouter:()=>({refresh(){}})}, "next/dynamic":{__esModule:true,default:()=>()=>null},
+    "next/image":{__esModule:true,default:()=>null},"next/link":{__esModule:true,default:()=>null},
+    "@/lib/auth/types":{APPLIED_AGENTIC_AI_SLUG:"applied-agentic-ai"},"@/lib/supabase/browser":{getSupabaseBrowserClient:()=>null},"@/lib/slideStorage":{},
+  });
+  const container = window.document.createElement("div"), root = createRoot(container);
+  const course = {id:"web",slug:"web",title:"Web",sections:[{id:"web-section",sectionKey:"section1",title:"Section 1",contentType:"tsx",terminationEnabled:false}]};
+  const props = {isAdmin:false,initialProfile:null,initialCourseId:"web",initialSectionId:"web-section",courseFolders:[course]};
+  try {
+    await act(async()=>root.render(React.createElement(Portal,props)));
+    assert.equal(requests.length,0,"disabled sections do not poll termination");
+    course.sections[0].terminationEnabled=true;
+    await act(async()=>root.render(React.createElement(Portal,{...props,courseFolders:[{...course}]})));
+    assert.equal(requests.at(-1),"/api/sections/web-section/control");
+    await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));
+    assert.equal(redirects.length,0);
+    token="next-session";
+    await act(async()=>{for(const timer of intervals.values())if(timer.delay===5000)await timer.fn();});
+    await act(async()=>new Promise(resolve=>setTimeout(resolve,10)));
+    assert.deepEqual(redirects,["/"]);
+  } finally {await act(async()=>root.unmount());globalThis.fetch=previousFetch;await window.happyDOM.close();}
+});
+
+test("Back to course retains the selected course and clears only slide selection for built-in and uploaded decks", async () => {
+  for (const uploaded of [false,true]) {
+    const window=new Window({url:`http://localhost/learn?course=${uploaded?'web':'applied-agentic-ai'}&section=section1&slide=8${uploaded?'&view=file':''}`});
+    for(const name of ['window','document','HTMLElement','navigator'])Object.defineProperty(globalThis,name,{configurable:true,value:name==='window'?window:window[name]});
+    globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+    const {createRoot}=await import('react-dom/client');const previousFetch=globalThis.fetch;
+    globalThis.fetch=async()=>({ok:false});
+    const Portal=component('components/LessonPortal.tsx',{
+      'next/navigation':{useRouter:()=>({refresh(){}})},'next/dynamic':{__esModule:true,default:()=>()=>null},
+      'next/image':{__esModule:true,default:()=>null},'next/link':{__esModule:true,default:()=>null},
+      '@/lib/auth/types':{APPLIED_AGENTIC_AI_SLUG:'applied-agentic-ai'},'@/lib/supabase/browser':{getSupabaseBrowserClient:()=>null},
+      '@/lib/deckLocation':moduleExports('lib/deckLocation.ts'),
+    });
+    const course={id:'selected-course',slug:uploaded?'web':'applied-agentic-ai',title:'Selected course',sections:[
+      {id:'selected-section',sectionKey:'section1',title:'First lesson',contentType:uploaded?'tsx':'builtin',position:1},
+      {id:'second-section',sectionKey:'section2',title:'Second lesson',contentType:'pdf',position:2},
+    ]};
+    const container=window.document.createElement('div');window.document.body.append(container);const root=createRoot(container);
+    try{
+      await act(async()=>root.render(React.createElement(Portal,{isAdmin:true,initialProfile:null,initialCourseId:course.id,initialSection:uploaded?null:'section1',initialSectionId:uploaded?'selected-section':undefined,courseFolders:[course]})));
+      assert.ok(container.querySelector('[aria-label="Session controls"]'));
+      await act(async()=>container.querySelector('[aria-label="Back to course"]').click());
+      assert.equal(container.querySelector('[aria-label="Session controls"]'),null);
+      assert.deepEqual([...container.querySelectorAll('.sectionLaunchButton strong')].map(node=>node.textContent),['First lesson','Second lesson']);
+      assert.equal(container.querySelector('[id="course-choice-selected-course"]'),null,"course grid is one further navigation step away");
+      const url=new URL(window.location.href);assert.equal(url.searchParams.get('course'),course.slug);
+      for(const key of ['section','sectionId','slide','view'])assert.equal(url.searchParams.has(key),false);
+    }finally{await act(async()=>root.unmount());globalThis.fetch=previousFetch;await window.happyDOM.close();}
+  }
 });
 
 test("catalog refresh preserves an open visible section and withdraws it when hidden", async () => {

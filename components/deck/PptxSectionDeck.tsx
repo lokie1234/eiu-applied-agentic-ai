@@ -51,7 +51,7 @@ function PreviewSlide({ viewer, page, width }: { viewer: PptxViewer; page: numbe
       {error ? <div className={styles.message}>{error}</div> :
         <>
           <div ref={container} style={{ position: "relative", flexShrink: 0, width: viewer.slideWidth * scale, height: viewer.slideHeight * scale }} />
-          {readyRender !== renderKey && <div className={styles.loadingOverlay}><HairlineLoading label="Loading slide" /></div>}
+          {readyRender !== renderKey && <div className={styles.loadingOverlay}><HairlineLoading contained label="Loading slide" /></div>}
         </>}
     </div>
   );
@@ -97,7 +97,7 @@ export default function PptxSectionDeck({ sectionId, courseTitle, sectionTitle, 
         frameClassName={styles.frame} transitionClassName={styles.slide}
         renderSlide={(page, width) => viewer
           ? useTemplate ? <EiuTemplateFrame page={page} background={templateImage}><PreviewSlide viewer={viewer} page={page} width={Math.min(width * .888, width * 9 / 16 * .774 * viewer.slideWidth / viewer.slideHeight)} /></EiuTemplateFrame> : <PreviewSlide viewer={viewer} page={page} width={width} />
-          : error ? <div className={styles.message} role="alert">{error}</div> : <HairlineLoading label="Loading presentation" />} />
+          : error ? <div className={styles.message} role="alert">{error}</div> : <HairlineLoading contained label="Loading presentation" />} />
     </div>
   );
 }

@@ -2474,3 +2474,5 @@
   .passcodeLayout { grid-template-columns: minmax(0,1fr); }
   .scrollAreaLayouts { display: block; overflow: visible; }
 }
+.terminationToggle { display:inline-flex; align-items:center; gap:7px; padding:8px 10px; color:#17324a; font-size:12px; line-height:1.3; white-space:nowrap; cursor:pointer; }
+.terminationToggle input { width:16px; height:16px; margin:0; accent-color:#123f68; }

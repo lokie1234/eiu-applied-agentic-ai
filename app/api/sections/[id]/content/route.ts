@@ -8,26 +8,41 @@ import { readLocalSectionSource } from "@/lib/localSectionContent";
 export const runtime = "nodejs";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
-  const access = await currentUserAccess();
+  const access = await currentUserAccess(request.signal);
   if (!access?.isActive) return NextResponse.json({ message: "Authentication required." }, { status: 401 });
   try {
     const { id } = await context.params;
-    const supabase = getSupabaseAdmin();
-    const { data: section, error } = await supabase
+    const supabase = getSupabaseAdmin(request.signal);
+    type ContentSection = { id: string; course_id: string; content_type: string; content_path: string | null; source_filename: string | null };
+    const granted = access.sections?.find(item => item.id === id);
+    const grantedCourse = access.courses.find(item => item.id === granted?.courseId);
+    if (!access.isAdmin && (granted?.hidden || grantedCourse?.hidden)) return NextResponse.json({ message: "Course access required." }, { status: 403 });
+    let section: ContentSection | null = null;
+    let localSource: Awaited<ReturnType<typeof readLocalSectionSource>> = null;
+    // The fresh access catalog already resolved active, authorized local lessons.
+    // Avoid querying the same section again before reading its repository bytes.
+    if (granted?.contentType === "tsx" && grantedCourse && (access.isAdmin || (!granted.hidden && !grantedCourse.hidden))) {
+      localSource = await readLocalSectionSource(grantedCourse, { id, content_type: "tsx" });
+      if (localSource) section = { id, course_id: granted.courseId, content_type: "tsx", content_path: null, source_filename: granted.sourceFilename || null };
+    }
+    if (!section) {
+      const { data, error } = await supabase
       .from("course_sections")
       .select("id, course_id, content_type, content_path, source_filename")
       .eq("id", id)
       .eq("status", "active")
       .maybeSingle();
-    if (error) throw error;
+      if (error) throw error;
+      section = data;
+    }
     if (!section || !["pdf", "tsx", "pptx"].includes(section.content_type)) {
       return NextResponse.json({ message: "This section does not have uploaded content." }, { status: 404 });
     }
     const course = access.courses.find((item) => item.id === String(section.course_id));
     const canAccess = Boolean(access.isAdmin || access.sections.some(item => item.id === id && item.courseId === String(section.course_id)));
-    if (!course || !canAccess) return NextResponse.json({ message: "Course access required." }, { status: 403 });
+    if (!course || !canAccess || (!access.isAdmin && (course.hidden || granted?.hidden))) return NextResponse.json({ message: "Course access required." }, { status: 403 });
 
-    const localSource = await readLocalSectionSource(course, section);
+    localSource ??= await readLocalSectionSource(course, section);
     // JS lesson bytes are served directly; only legacy TSX needs compilation.
     const legacyJs = async (source: string) => (await import("@/lib/sectionContent")).compileTsx(source);
     let data: Blob;

@@ -5,6 +5,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import styles from "./QuizSlide.module.css";
 import type { IdentityField } from "@/lib/learningIdentity";
 import { useLiveRefresh, cancelledRefresh } from "@/lib/liveRefresh";
+import { WEB_DEVELOPMENT_QUESTIONS } from "@/lib/webDevelopmentQuiz";
 
 type Question = {
   question: string;
@@ -59,10 +60,11 @@ function resultLabel(score: number) {
   return "Nên xem lại bài";
 }
 
-type Props = { scale: number; variant?: QuizVariant; isAdmin?: boolean };
+type Props = { scale: number; variant?: QuizVariant; isAdmin?: boolean; sectionId?: string; courseTitle?: string };
 
-export default function QuizSlide({ scale, variant = "section1", isAdmin = false }: Props) {
-  const questions = variant === "section2" ? SECTION_TWO_QUESTIONS : SECTION_ONE_QUESTIONS;
+export default function QuizSlide({ scale, variant = "section1", isAdmin = false, sectionId, courseTitle = "Applied Agentic AI" }: Props) {
+  const questions = sectionId ? WEB_DEVELOPMENT_QUESTIONS : variant === "section2" ? SECTION_TWO_QUESTIONS : SECTION_ONE_QUESTIONS;
+  const scopedEndpoint = sectionId ? `/api/sections/${encodeURIComponent(sectionId)}/quiz` : "";
   const handoutHref = variant === "section2"
     ? "/api/handout?section=section2"
     : "/api/handout?section=section1";
@@ -89,6 +91,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
   const [openMessage, setOpenMessage] = useState("");
   const timerRef = useRef<number | null>(null);
   const autoSubmitStartedRef = useRef(false);
+  const quizSessionRef = useRef<string | null>(null);
 
   useEffect(() => () => {
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
@@ -96,17 +99,18 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
 
   const readQuizState = useCallback(async (signal: AbortSignal) => {
     try {
-      const response = await fetch(`/api/quiz-control?section=${variant}${isAdmin ? "" : "&includeProgress=1"}`, { cache: "no-store", signal });
+      const response = await fetch(scopedEndpoint || `/api/quiz-control?section=${variant}${isAdmin ? "" : "&includeProgress=1"}`, { cache: "no-store", signal });
       const payload = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(payload.message || "Không thể tải trạng thái Quiz.");
       // Compatibility with an older server during rolling deployments.
       let progress = payload;
-      if (!isAdmin && !("result" in payload)) {
+      if (!scopedEndpoint && !isAdmin && !("result" in payload)) {
         const progressResponse = await fetch(`/api/quiz-results?section=${variant}`, { cache: "no-store", signal });
         if (!progressResponse.ok) throw new Error("Unable to restore quiz progress.");
         progress = await progressResponse.json();
       }
       signal.throwIfAborted();
+      if (scopedEndpoint) quizSessionRef.current = payload.quizSession || null;
       if (progress?.result && !autoSubmitStartedRef.current) {
         autoSubmitStartedRef.current = true;
         setAnswers(progress.result.answers);
@@ -122,7 +126,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
       if (cancelledRefresh(signal)) return;
       setQuizStateStatus("error");
     }
-  }, [isAdmin, variant]);
+  }, [isAdmin, variant, scopedEndpoint]);
   const loadQuizState = useLiveRefresh(readQuizState);
 
   useEffect(() => {
@@ -135,7 +139,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
     const initialTimer = window.setTimeout(() => void loadQuizState(), 0);
     const supabase = getSupabaseBrowserClient();
     const channel = supabase
-      ?.channel(`eiu:quiz:${variant}`)
+      ?.channel(`eiu:quiz:${sectionId || variant}`)
       .on("broadcast", { event: "quiz_state_changed" }, refresh)
       .on("broadcast", { event: "quiz_results_changed" }, refresh)
       .subscribe();
@@ -150,7 +154,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
       document.removeEventListener("visibilitychange", poll);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [loadQuizState, variant, isAdmin]);
+  }, [loadQuizState, variant, isAdmin, sectionId]);
 
   const score = answers.filter((item) => item.isCorrect).length;
   const current = questions[index];
@@ -184,10 +188,10 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
     setOpenMessage("");
 
     try {
-      const response = await fetch("/api/quiz-control", {
+      const response = await fetch(scopedEndpoint || "/api/quiz-control", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ section: variant }),
+        body: JSON.stringify(scopedEndpoint ? { action: "open" } : { section: variant }),
       });
       const payload = (await response.json().catch(() => ({}))) as { message?: string };
       if (!response.ok) throw new Error(payload.message || "Không thể mở Quiz.");
@@ -209,10 +213,11 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
     setMessage("");
 
     try {
-      const response = await fetch("/api/quiz-results", {
+      const response = await fetch(scopedEndpoint || "/api/quiz-results", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...(scopedEndpoint ? { action: "result", quizSession: quizSessionRef.current } : {}),
           section: variant,
           score,
           total: questions.length,
@@ -231,7 +236,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "Không thể gửi kết quả.");
     }
-  }, [answers, questions.length, score, variant]);
+  }, [answers, questions.length, score, variant, scopedEndpoint]);
 
   useEffect(() => {
     if (isAdmin || !finished || autoSubmitStartedRef.current) return;
@@ -247,10 +252,11 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
     setFeedbackMessage("");
 
     try {
-      const response = await fetch("/api/quiz-feedback", {
+      const response = await fetch(scopedEndpoint || "/api/quiz-feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          ...(scopedEndpoint ? { action: "feedback", quizSession: quizSessionRef.current } : {}),
           section: variant,
           feedback: feedbackText.trim(),
           submittedAt: new Date().toISOString(),
@@ -289,7 +295,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
 
         {!quizOpen ? (
           <div className={styles.adminLaunchStage}>
-            <span className={styles.adminKicker}>ADMIN CONTROL · {sectionLabel}</span>
+            <span className={styles.adminKicker}>{sectionId ? "ĐIỀU KHIỂN QUIZ" : "ADMIN CONTROL"} · {sectionLabel}</span>
             <h1>Quiz chưa được mở</h1>
             <p>Học viên đang chờ tại màn hình Quiz time.</p>
             {quizStateStatus === "error" ? (
@@ -388,7 +394,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
         <div className={styles.orbA} aria-hidden="true" />
         <div className={styles.orbB} aria-hidden="true" />
         <div className={styles.waitingStage} aria-live="polite">
-          <span className={styles.waitingKicker}>EIU · APPLIED AGENTIC AI · {sectionLabel}</span>
+          <span className={styles.waitingKicker}>EIU · {courseTitle} · {sectionLabel}</span>
           <h1>Quiz time!</h1>
           <p>
             {quizStateStatus === "error"
@@ -414,18 +420,18 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
       <div className={styles.orbB} aria-hidden="true" />
       <header className={styles.header}>
         <div>
-          <span className={styles.eyebrow}>EIU - Applied Agentic AI · {variant === "section2" ? "Section 2" : "Section 1"}</span>
+          <span className={styles.eyebrow}>EIU - {courseTitle} · {sectionLabel}</span>
           <h1>Quiz time!</h1>
         </div>
         <div className={styles.headerActions}>
-          <a
+          {!sectionId && <a
             className={styles.downloadButton}
             href={handoutHref}
             download={handoutName}
           >
             <span aria-hidden="true">↓</span>
             Tải handout
-          </a>
+          </a>}
           <div className={styles.counter}>{finished ? "Hoàn thành" : `Câu ${index + 1} / ${questions.length}`}</div>
         </div>
       </header>

@@ -1,4 +1,4 @@
-import ExcelJS from "exceljs";
+import type ExcelJS from "exceljs";
 import { currentRole } from "@/lib/currentRole";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { collectReportLearners } from "@/lib/reportLearners";
@@ -180,7 +180,10 @@ export async function GET(request: Request) {
     ]);
     const normalize = (rows: Row[]) => rows.map(row => reportScope(row, courses, courseSections));
     const activity = scopedReportActivity(rawActivity, courses, courseSections);
-    const ideas = normalize(ideaRows), quiz = normalize(quizRows), feedback = normalize(feedbackRows);
+    const audited = (action: string, timestamp: string) => activity.filter(row => row.action === action && (row.details as Row).submissionStorage === "audit")
+      .map(row => ({ ...(row.details as Row), id: row.id, [timestamp]: row.created_at }));
+    const ideas = normalize(ideaRows), quiz = [...normalize(quizRows), ...audited("QUIZ_COMPLETED", "completed_at")],
+      feedback = [...normalize(feedbackRows), ...audited("FEEDBACK_SUBMITTED", "submitted_at")];
     const submissions: Row[] = activity.filter(row => row.action === "SHOWCASE_SUBMITTED" && (row.details as Row).submissionStorage === "audit")
       .map(row => ({ ...(row.details as Row), id: row.id, shared_at: row.created_at }));
     const showcase = [...normalize(showcaseRows), ...submissions];
@@ -201,6 +204,7 @@ export async function GET(request: Request) {
     const scopedLearners = learners.filter(selected), scopedIdeas = ideas.filter(selected), scopedShowcase = showcase.filter(selected), scopedQuiz = quiz.filter(selected), scopedFeedback = feedback.filter(selected);
     const inScope = (rows: Row[], scope: Row) => rows.filter(row => reportScopeKey(row) === reportScopeKey(scope));
     const dataGroups = [{ label: "Học viên", rows: scopedLearners }, { label: "Ý tưởng", rows: scopedIdeas }, { label: "Bài làm chia sẻ", rows: scopedShowcase }, { label: "Quiz", rows: scopedQuiz }, { label: "Feedback", rows: scopedFeedback }];
+    const { default: ExcelJS } = await import("exceljs");
     const workbook = new ExcelJS.Workbook();workbook.creator = "EIU Learning";workbook.created = new Date();workbook.modified = new Date();workbook.title = "EIU - Course and Section Report";
     const summary = workbook.addWorksheet("Tong quan", { views: [{ state: "frozen", ySplit: 5 }] });
     summary.columns = [{ key: "label", width: 34 }, ...sections.map((_,i)=>({ key: `section${i+1}`, width: 36 })), { key: "total", width: 14 }];

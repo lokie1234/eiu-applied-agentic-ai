@@ -1342,7 +1342,7 @@
       "layoutNumber": 22,
       "title": "Từ kiểm tra đến cập nhật GitHub",
       "minutes": 2,
-      "message": "Đây là quy trình thực tế sau khi chúng ta hoàn tất thiết kế trong VS Code.\nKiểm tra app → commit bằng Git → push lên GitHub → lặp lại sau mỗi lần sửa.",
+      "message": "Quy trình thực tế",
       "cards": [
         {
           "title": "Kiểm tra app",
@@ -1369,7 +1369,7 @@
       "note": "",
       "objective": "Nắm quy trình kiểm tra ứng dụng, lưu phiên bản và cập nhật GitHub.",
       "verify": "Giải thích được luồng kiểm tra → Git commit → GitHub push và lặp lại sau khi sửa.",
-      "visualConcept": "Giữ nguyên tiêu đề, câu dẫn và nội dung bốn bước. Bốn hàng ngang 1120×94px, cách 14px, cùng nền kem, chữ navy và viền vàng mảnh. Số tròn nối theo trục dọc; icon 44px, tiêu đề 24px và mô tả 20px căn cùng hàng. Toàn bộ vòng tròn và số bên trong lần lượt phóng lên 1.5 lần, giữ nhịp ngắn rồi thu về trước khi tới số tiếp theo: 01 → 02 → 03 → 04. Viền vàng dày 3px và quầng sáng rõ hơn đồng bộ với nhịp phóng; mỗi lượt 1.6 giây, chu kỳ 6.4 giây rồi lặp. Chỉ animate transform và opacity, không làm xê dịch hàng; dừng theo prefers-reduced-motion."
+      "visualConcept": "Centered animated heading, Inter 46px, navy, weight 800; preserve the four workflow steps and reduced-motion support."
     },
     {
       "section": 1,
@@ -1554,6 +1554,21 @@
     {
       "section": 1,
       "number": 28,
+      "layoutNumber": 32,
+      "title": "Với sự phát triển của các mô hình GenAI hiện tại",
+      "visual": "git-intro-genai-purpose",
+      "minutes": 5,
+      "message": "Bạn chỉ cần hiểu rõ mình muốn gì",
+      "cards": [],
+      "prompt": "",
+      "note": "",
+      "objective": "Explain a clear purpose when working with GenAI.",
+      "verify": "Describe the intended outcome clearly.",
+      "visualConcept": "Title at top, centered Inter 46px navy, kept on one line; main statement on one line at 56px, with the gold purpose phrase stationary. A thin horizontal pencil underline draws left to right beneath only the purpose phrase, holds, fades and repeats every 4.2 seconds. No circle and no text float. Keep the 15 AI icons bouncing in a staggered horizontal row; reduced motion shows a static underline and static icons. Preserve all other slides and display binding."
+    },
+    {
+      "section": 1,
+      "number": 29,
       "layoutNumber": 28,
       "title": "Bạn ra yêu cầu · AI tạo thành phẩm",
       "visual": "git-intro-agent-full-flow",
@@ -1600,7 +1615,7 @@
     },
     {
       "section": 1,
-      "number": 29,
+      "number": 30,
       "layoutNumber": 30,
       "title": "Chia sẻ localhost · lưu ý rủi ro Public",
       "visual": "git-intro-localhost-share",
@@ -1658,7 +1673,7 @@
     },
     {
       "section": 1,
-      "number": 30,
+      "number": 31,
       "layoutNumber": 31,
       "title": "Chia sẻ bài làm với giảng viên",
       "visual": "git-intro-submission",
@@ -1669,6 +1684,20 @@
       "objective": "Nộp link bài làm đúng course và section, dùng thông tin học viên đã đăng nhập.",
       "verify": "Gửi link HTTPS và thấy bài xuất hiện trên bảng; admin xuất được học viên và bài làm theo course/section.",
       "visualConcept": "Slide 29 sau hướng dẫn localhost. Dùng nguyên logic bảng chia sẻ, form nộp HTTPS, tự lấy tên/email, tải lại, ẩn bài cho admin và giữ dữ liệu để export. Native ShowcaseSlide hiển thị trong viewer thay placeholder cùng tỷ lệ16:9; placeholder vẫn có nội dung dễ hiểu khi tải JS/offline. Phần nhập liệu Section1 tắt spellcheck và selection trong suốt."
+    },
+    {
+      "section": 1,
+      "number": 32,
+      "layoutNumber": 33,
+      "title": "Quiz time!",
+      "minutes": 5,
+      "message": "10 câu hỏi ôn tập Section 1",
+      "cards": [],
+      "visual": "git-intro-section-quiz",
+      "note": "Native authenticated quiz uses the same QuizSlide UI as Applied Agentic AI, with a dedicated course/section-scoped endpoint. Admin and section teachers can open it; learners complete ten questions, receive a score and submit feedback. Scores are graded on the server and saved with course, section and signed learner identity.",
+      "objective": "Review the key concepts from Section 1.",
+      "verify": "Complete ten questions and save the result and feedback.",
+      "visualConcept": "Reuse the Applied Agentic AI native quiz interface. Waiting screen before opening, teacher launch and completion list, learner multiple choice, score and inline feedback after completion. No API calls from the sandbox."
     },
     {
       "section": 2,

@@ -34,6 +34,7 @@ export type CourseSystemIcon = {
 };
 
 type CourseMetadata = {
+  terminableSectionIds?: string[];
   hidden?: boolean;
   templateKey?: string;
   sectionTemplates?: Record<string, string>;
@@ -393,7 +394,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   }, [loadData]);
 
   const refreshData = useCallback(() => {
-    void loadData().catch(caught => {
+    void loadData().then(() => setError("")).catch(caught => {
       if (caught?.name !== "AbortError") setError(caught instanceof Error ? caught.message : "Unable to refresh your workspace.");
     });
   }, [loadData]);
@@ -1044,7 +1045,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
         </div>
       )}
 
-      {error && <div className={styles.error} role="alert">{error}</div>}
+      {error && <div className={styles.error} role="alert">{error} <button type="button" onClick={refreshData} disabled={loading || Boolean(processingMessage)}>Retry loading workspace</button></div>}
       {notice && !processingMessage && <div className={styles.notice} role="status">{notice}</div>}
 
       <div className={`${styles.scrollArea} ${tab === "courses" ? styles.scrollAreaCourses : tab === "layouts" ? styles.scrollAreaLayouts : ""}`}>
@@ -1833,6 +1834,12 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                   </DraggableScrollArea>
                                 </div>
                                 <div className={styles.sectionItemRight}>
+                                  {isAdmin && <label className={styles.terminationToggle} title="Allow the administrator to end this section, close its quiz and return learners to the access screen.">
+                                    <input type="checkbox" aria-label={`Enable Terminate section for ${section.title}`} checked={selectedCourse.metadata?.terminableSectionIds?.includes(section.id) === true}
+                                      disabled={Boolean(processingMessage) || busy.has(`termination:${section.id}`)}
+                                      onChange={event => void mutate({ action: "set_section_termination", sectionId: section.id, enabled: event.target.checked }, `termination:${section.id}`, "Section termination setting updated.", "loading..... Updating Terminate section setting...")} />
+                                    Terminate section
+                                  </label>}
                                   <VisibilityToggle hidden={Boolean(section.hidden)} label={`section ${section.title}`} busy={busy.has(`hide-section:${section.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-section:${section.id}`)} onToggle={() => void mutate({ action: "set_section_hidden", sectionId: section.id, hidden: !section.hidden }, `hide-section:${section.id}`, "Section visibility updated.")} />
                                   {isAdmin && <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} allowReplace={!isDefault} onSaved={refreshData} disabled={Boolean(processingMessage)} />}
                                   {isAdmin && <DriveImport sectionId={section.id} title={section.title} onSaved={refreshData} disabled={Boolean(processingMessage)} />}

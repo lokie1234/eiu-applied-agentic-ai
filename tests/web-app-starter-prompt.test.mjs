@@ -230,25 +230,38 @@ test('Clone editor copies the current URL and matching destination folder withou
   }
 });
 
-test('agent flow and submission finish the 30-slide admin section after Pull/Clone', async () => {
+test('GenAI statement precedes the restored agent flow in the 32-slide admin section', async () => {
   const section = slides.filter(s => s.section === 1);
-  assert.equal(section.length, 30);
+  assert.equal(section.length, 32);
   assert.equal(section[26].visual, 'git-intro-pull');
-  assert.equal(section[27].visual, 'git-intro-agent-full-flow');
-  assert.equal(section[28].visual, 'git-intro-localhost-share');
-  assert.equal(section[29].visual, 'git-intro-submission');
-  assert.deepEqual(section.map(s=>s.number), Array.from({length:30},(_,i)=>i+1));
+  assert.equal(section[27].visual, 'git-intro-genai-purpose');
+  assert.equal(section[28].visual, 'git-intro-agent-full-flow');
+  assert.equal(section[29].visual, 'git-intro-localhost-share');
+  assert.equal(section[30].visual, 'git-intro-submission');
+  assert.equal(section[31].visual, 'git-intro-section-quiz');
+  assert.deepEqual(section.map(s=>s.number), Array.from({length:32},(_,i)=>i+1));
   const window = render(28, {});
   try {
     const doc=window.document;
+    const statement = doc.querySelector('.genAiStatement');
+    assert.equal(doc.querySelector('.title').textContent, section[27].title);
+    assert.equal(statement.getAttribute('aria-label'), 'B\u1ea1n ch\u1ec9 c\u1ea7n hi\u1ec3u r\u00f5 m\u00ecnh mu\u1ed1n g\u00ec');
+    assert.equal([...statement.querySelector('h2').children].map(node => node.textContent).join(' '), section[27].message);
+    assert.equal(statement.querySelector('.genAiIconRow').getAttribute('aria-hidden'), 'true');
+    assert.equal(statement.querySelectorAll('.genAiIconSlot').length, 15);
+    for (const image of statement.querySelectorAll('.genAiIconSlot img')) assert.ok(image.src.startsWith('data:image/'));
+    assert.equal(statement.querySelector('button'), null);
+    assert.equal(doc.querySelector('.agentFlowTask'), null);
+  } finally { await window.happyDOM.close(); }
+  const restored = render(29, {});
+  try {
+    const doc = restored.document;
     assert.equal(doc.querySelectorAll('.agentFlowEndpoint').length, 2);
     assert.equal(doc.querySelectorAll('.agentFlowTask').length, 3);
-    const tasks = [...doc.querySelectorAll('.agentFlowTask')];
-    assert.deepEqual(tasks.map(task => task.querySelector('h3').textContent.trim()), section[27].cards.slice(1, 4).map(card => card.title));
-    assert.equal(doc.querySelectorAll('.agentFlowTask p').length, 0);
     assert.equal(doc.querySelectorAll('.agentFlowArrow').length, 2);
     assert.equal(doc.querySelector('.agentFlowProduct').textContent.includes('GitHub'), true);
-  } finally { await window.happyDOM.close(); }
+    assert.equal(doc.querySelector('.genAiStatement'), null);
+  } finally { await restored.happyDOM.close(); }
 });
 
 test('permission overview follows AI setup and explains each tool without changing settings', async () => {

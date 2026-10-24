@@ -42,6 +42,7 @@ export type CourseMetadata = {
   sectionAccessCodes?: Record<string, AccessCodes>;
   sectionPasscodes?: Record<string, string>; // retained for backward compatibility
   sectionTemplates?: Record<string, string>;
+  terminableSectionIds?: string[];
   unlocked?: boolean; // When true, course can be accessed without a passcode
   unlockedEmails?: string[]; // Fallback list of emails that unlocked this course
   folderGroupId?: string; // ID of the parent folder (Folder lớn)
@@ -179,6 +180,7 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
         sectionAccessCodes: parsed.sectionAccessCodes && typeof parsed.sectionAccessCodes === "object" ? Object.fromEntries(Object.entries(parsed.sectionAccessCodes).map(([id, codes]) => [id, parseAccessCodes(codes)])) : {},
         hidden: parsed.hidden === true,
         hiddenSectionIds: Array.isArray(parsed.hiddenSectionIds) ? [...new Set<string>(parsed.hiddenSectionIds.filter((id: unknown): id is string => typeof id === "string"))] : [],
+        terminableSectionIds: Array.isArray(parsed.terminableSectionIds) ? [...new Set<string>(parsed.terminableSectionIds.filter((id: unknown): id is string => typeof id === "string"))] : [],
         templateKey: typeof parsed.templateKey === "string" ? parsed.templateKey : undefined,
         slideTemplates: Array.isArray(parsed.slideTemplates) ? parsed.slideTemplates : undefined,
         sectionTemplates: Object.fromEntries(Object.entries(parsed.sectionTemplates ?? {}).filter(([, value]) => typeof value === "string").map(([key, value]) => [key, String(value)])),
@@ -218,6 +220,7 @@ export function serializeCourseMetadata(metadata: CourseMetadata): string {
     learningIdentityPolicy: parseIdentityPolicy(metadata.learningIdentityPolicy),
     hidden: Boolean(metadata.hidden),
     hiddenSectionIds: metadata.hiddenSectionIds || [],
+    terminableSectionIds: metadata.terminableSectionIds || [],
     ...(metadata.templateKey !== undefined ? { templateKey: metadata.templateKey } : {}),
     ...(metadata.slideTemplates !== undefined ? { slideTemplates: metadata.slideTemplates } : {}),
     summary: metadata.summary || "",

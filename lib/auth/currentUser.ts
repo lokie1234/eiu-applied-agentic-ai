@@ -28,6 +28,7 @@ export async function currentUserAccess(signal?: AbortSignal, resolvedSession?: 
     sourceFilename: section.source_filename, slideCount: section.slide_count,
     contentRevision: section.content_path ? createHash("sha256").update(section.content_path).digest("hex").slice(0, 16) : null,
     hidden: Boolean(section.hidden),
+    terminationEnabled: resolved.courses.find(course => course.id === section.course_id)?.metadata.terminableSectionIds?.includes(section.id) === true,
     canFacilitate: session.role === "admin" || ("canFacilitate" in section && section.canFacilitate === true),
   }));
   return {

@@ -139,9 +139,12 @@ test("TSX documents are reused for parent updates and rebuilt only when the disp
   const { createRoot } = await import("react-dom/client");
   let builds = 0, page = 4;
   const Deck = load("components/deck/UploadedSectionDeck.tsx", {
-    "next/dynamic": { __esModule: true, default: () => () => null },
+    "next/dynamic": { __esModule: true, default: loader => String(loader).includes("ShowcaseSlide") ? props => React.createElement("div", { "data-native-showcase": props.sectionId }) : () => null },
     "@/components/deck/SharedDeckFrame": { __esModule: true, default: props => props.renderSlide(page, 960) },
     "@/components/ShowcaseSlide": { __esModule: true, default: props => React.createElement("div", { "data-native-showcase": props.sectionId }) },
+    "@/components/QuizSlide": { __esModule: true, default: () => null },
+    "@/lib/compiledSectionMetadata": { getCompiledSectionMetadata: () => undefined },
+    "@/lib/webDevelopmentQuiz": load("lib/webDevelopmentQuiz.ts", {}),
     "@/components/HairlineLoading": { __esModule: true, default: () => null },
     "@/lib/tsxDocument": { createTsxDocument: (code, number) => { builds++; return `<html><body>${number}</body></html>`; } },
   }, { window, fetch: async () => ({ ok: true, text: async () => "compiled deck" }) }).default;
@@ -221,8 +224,9 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   const { createRoot } = await import("react-dom/client");
   const intervals = new Map();
-  window.setInterval = (callback, delay) => { intervals.set(delay, callback); return delay; };
-  window.clearInterval = delay => intervals.delete(delay);
+  let nextInterval = 0;
+  window.setInterval = (callback, delay) => { const id = ++nextInterval; intervals.set(id, { callback, delay }); return id; };
+  window.clearInterval = id => intervals.delete(id);
   const requests = [];
   let beacons = 0;
   let clock = Date.now();
@@ -250,7 +254,7 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     fetch: (url, options) => new Promise(resolve => requests.push({ url, options, resolve })),
   }).default;
   const container = window.document.createElement("div"); const root = createRoot(container);
-  const course = { id: "course", slug: "applied-agentic-ai", title: "Course", sections: [{ id: "s", sectionKey: "section1", title: "Section", canFacilitate: true }] };
+  const course = { id: "course", slug: "applied-agentic-ai", title: "Course", sections: [{ id: "s", sectionKey: "section1", title: "Section", canFacilitate: true, terminationEnabled: true }] };
   const render = () => root.render(React.createElement(Portal, { isAdmin: false, canFacilitate: true,
     initialProfile: { name: "Alice", email: "alice@test.example", section: "section1" },
     initialCourseId: "course", initialSection: "section1", courseFolders: [{ ...course }],
@@ -264,24 +268,26 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     });
     assert.equal(catalogRefreshes, 0, "returning to a tab must not refresh the active deck");
     await act(async () => {
-      for (let i = 0; i < 3; i++) { intervals.get(5_000)(); intervals.get(30_000)(); }
+      for (let i = 0; i < 3; i++) { for (const timer of intervals.values()) if ([5_000,30_000].includes(timer.delay)) timer.callback(); }
       render();
     });
     assert.equal(requests.length, 2, "pending requests and refreshed profile objects must not create more requests");
     await act(async () => requests.forEach(request => request.resolve({ ok: false })));
     Object.defineProperty(window.document, "visibilityState", { configurable: true, value: "hidden" });
-    await act(async () => { intervals.get(5_000)(); intervals.get(30_000)(); });
+    await act(async () => { for (const timer of intervals.values()) if ([5_000,30_000].includes(timer.delay)) timer.callback(); });
     assert.equal(requests.length, 2, "hidden tabs do not poll or heartbeat");
     Object.defineProperty(window.document, "visibilityState", { configurable: true, value: "visible" });
     clock += 6000;
-    await act(async () => { intervals.get(5_000)(); intervals.get(30_000)(); });
+    await act(async () => { for (const timer of intervals.values()) if ([5_000,30_000].includes(timer.delay)) timer.callback(); });
     assert.equal(requests.length, 4, "polling resumes after requests settle");
     window.dispatchEvent(new window.Event("beforeunload"));
     window.dispatchEvent(new window.Event("pagehide"));
     assert.equal(beacons, 0, "facilitator visits do not create learner presence or send learner leaves");
-    await act(async () => [...container.querySelectorAll("button")].find(button => button.textContent === "Courses").click());
+    await act(async () => container.querySelector('[aria-label="Back to course"]').click());
     await act(async () => window.dispatchEvent(new window.Event("focus")));
     assert.equal(catalogRefreshes, 1, "catalog refresh resumes after leaving the deck");
+    assert.ok(container.querySelector('article[data-icon-surface="section"]'), "leaving slides returns directly to the current course");
+    await act(async () => container.querySelector('[aria-label="Back to courses"]').click());
     window.document.body.append(container);
     const folder = container.querySelector('[data-icon-surface="folder"]');
     folder.getBoundingClientRect = () => ({ left: 0, top: 0, width: 200, height: 100 });
@@ -326,7 +332,7 @@ test("slow background requests do not overlap or restart on a catalog refresh, a
     assert.ok(container.querySelector('[role="alert"]'));
     await act(async () => [...container.querySelectorAll("button")].find(button => button.textContent === "Try again").click());
     assert.equal(openingRequests().length, 2);
-    await act(async () => [...container.querySelectorAll("button")].find(button => button.textContent === "Courses").click());
+    await act(async () => container.querySelector('[aria-label="Back to course"]').click());
     assert.equal(openingRequests()[1].options.signal.aborted, true);
     assert.ok(container.querySelector('article[data-icon-surface="section"]'), "leaving an unfinished load returns to the section list");
     await act(async () => openingRequests()[1].resolve({ ok: true }));
@@ -463,6 +469,33 @@ test("cancelling one reader does not cancel another reader, and cancelling all r
   const cancelled = [assert.rejects(third, { name: "AbortError" }), assert.rejects(fourth, { name: "AbortError" })];
   c.abort(); d.abort(); await Promise.all(cancelled);
   assert.equal(f.calls[1].options.signal.aborted, true);
+});
+
+test("catalog sharing and cancellation remain active while a slow response body downloads", async () => {
+  const f = transportFixture();
+  let body;
+  const stream = new ReadableStream({ start(controller) { body = controller; } });
+  const a = new AbortController(), b = new AbortController();
+  const first = f.fetch(f.url, { signal: a.signal });
+  f.calls[0].resolve(new Response(stream));
+  await new Promise(resolve => setImmediate(resolve));
+  const second = f.fetch(f.url, { signal: b.signal });
+  assert.equal(f.calls.length, 1, "headers must not end in-flight sharing");
+  const cancelled = assert.rejects(first, { name: "AbortError" });
+  a.abort(); await cancelled;
+  assert.equal(f.calls[0].options.signal.aborted, false);
+  body.enqueue(new TextEncoder().encode('{"ready":true}')); body.close();
+  assert.equal((await (await second).json()).ready, true);
+
+  const c = new AbortController();
+  const third = f.fetch(f.url, { signal: c.signal });
+  const thirdCancelled = assert.rejects(third, { name: "AbortError" });
+  let slowBody;
+  f.calls[1].resolve(new Response(new ReadableStream({ start(controller) { slowBody = controller; } })));
+  await new Promise(resolve => setImmediate(resolve));
+  c.abort(); await thirdCancelled;
+  assert.equal(f.calls[1].options.signal.aborted, true, "departure aborts transport even after headers");
+  slowBody.error(new DOMException("Aborted", "AbortError"));
 });
 
 test("transport never shares different credentials or learner-specific reads, and writes invalidate pending reads", async () => {
