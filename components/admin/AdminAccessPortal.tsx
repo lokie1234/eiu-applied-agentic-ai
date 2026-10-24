@@ -1,4 +1,5 @@
 "use client";
+import Link from "next/link";
 import PasscodeManager from "./PasscodeManager";
 import type { AccessCodes } from "@/lib/auth/passcodes";
 import { DEFAULT_IDENTITY_POLICY, type LearningIdentityPolicy } from "@/lib/learningIdentity";
@@ -1843,7 +1844,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                   <VisibilityToggle hidden={Boolean(section.hidden)} label={`section ${section.title}`} busy={busy.has(`hide-section:${section.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-section:${section.id}`)} onToggle={() => void mutate({ action: "set_section_hidden", sectionId: section.id, hidden: !section.hidden }, `hide-section:${section.id}`, "Section visibility updated.")} />
                                   {isAdmin && <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} allowReplace={!isDefault} onSaved={refreshData} disabled={Boolean(processingMessage)} />}
                                   {isAdmin && <DriveImport sectionId={section.id} title={section.title} onSaved={refreshData} disabled={Boolean(processingMessage)} />}
-                                  <a className={styles.sectionUploadButton} href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}&sectionId=${encodeURIComponent(section.id)}`}>View</a>
+                                  <Link className={styles.sectionUploadButton} href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}&sectionId=${encodeURIComponent(section.id)}`}>View</Link>
 
                                   {(<button
                                     type="button"

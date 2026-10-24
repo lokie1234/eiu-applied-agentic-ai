@@ -165,3 +165,33 @@ test("role previews reuse completed slide counts when returning to a role or reo
     assert.equal(reads.length, 3, "a content replacement still invalidates the cached count");
   } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
 });
+
+test("uploaded replacement of a registered lesson counts the new runtime instead of the compiled manifest", async () => {
+  const window = new Window(); let reads = 0;
+  const counter = load("lib/sectionSlideCount.ts", { "./compiledSectionMetadata": metadata, "./tsxDocument": documents }, {
+    window, document: window.document,
+    fetch: async () => { reads++; return { ok: true, json: async () => ({ slideCount: null }), text: async () => "exports.default = [];" }; },
+  });
+  try {
+    const id = "47c1183e-a26e-4c5d-9937-88ec5a755a32";
+    const promise = counter.readSectionSlideCount(id, "tsx", new AbortController().signal, false, true);
+    await new Promise(resolve => setTimeout(resolve, 0));
+    const frame = window.document.querySelector("iframe"); assert.ok(frame);
+    const requestId = frame.srcdoc.match(/requestId:"([^"]+)"/)[1];
+    window.dispatchEvent(new window.MessageEvent("message", { source: frame.contentWindow, data: { type: "eiu-tsx-ready", requestId, slides: 3 } }));
+    assert.equal(await promise, 3); assert.equal(reads, 2);
+  } finally { await window.happyDOM.close(); }
+});
+
+test("uploaded lesson counters receive metadata without downloading or evaluating the lesson", async () => {
+ const window = new Window(); const reads = [];
+ const counter = load("lib/sectionSlideCount.ts", { "./compiledSectionMetadata": metadata, "./tsxDocument": documents }, {
+   window, document: window.document,
+   fetch: async url => { reads.push(url); return { ok: true, json: async () => ({ slideCount: 20 }), text: async () => { throw Error("Must not download source"); } }; },
+ });
+ try {
+   assert.equal(await counter.readSectionSlideCount("uploaded", "tsx", new AbortController().signal, true, true), 20);
+   assert.deepEqual(reads, ["/api/sections/uploaded/content?metadata=1&role=teaching"]);
+   assert.equal(window.document.querySelector("iframe"), null);
+ } finally { await window.happyDOM.close(); }
+});

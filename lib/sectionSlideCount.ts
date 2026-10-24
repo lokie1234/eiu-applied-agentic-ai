@@ -36,13 +36,20 @@ export function countTsxSlides(code: string, signal: AbortSignal, isAdmin = fals
   });
 }
 
-export async function readSectionSlideCount(sectionId: string, type: SectionFileType, signal: AbortSignal, isAdmin = false) {
+export async function readSectionSlideCount(sectionId: string, type: SectionFileType, signal: AbortSignal, isAdmin = false, uploadedContent = false) {
   signal.throwIfAborted();
-  const compiled = type === "tsx" ? getCompiledSectionMetadata(sectionId) : undefined;
+  const compiled = type === "tsx" && !uploadedContent ? getCompiledSectionMetadata(sectionId) : undefined;
   // Generated with the JS, including the same adminOnly filtering as the frame.
   // Reading two counters must not download and evaluate two entire lessons.
   if (compiled) return isAdmin ? compiled.teachingSlides : compiled.learnerSlides;
-  const response = await fetch(`/api/sections/${encodeURIComponent(sectionId)}/content`, { cache: "no-store", signal });
+  const url = `/api/sections/${encodeURIComponent(sectionId)}/content`;
+  if (type === "tsx") {
+    const metadata = await fetch(`${url}?metadata=1&role=${isAdmin ? "teaching" : "learner"}`, { cache: "no-store", signal });
+    if (!metadata.ok) throw new Error("Unable to read section content.");
+    const { slideCount } = await metadata.json();
+    if (Number.isSafeInteger(slideCount) && slideCount >= 0 && slideCount <= 10_000) return slideCount;
+  }
+  const response = await fetch(url, { cache: "no-store", signal });
   if (!response.ok) throw new Error("Unable to read section content.");
   if (type === "tsx") return countTsxSlides(await response.text(), signal, isAdmin);
   const bytes = new Uint8Array(await response.arrayBuffer());

@@ -80,13 +80,30 @@ export async function validateSectionContent(bytes: Uint8Array, name: string) {
 }
 
 export function validateInteractiveJs(source: string) {
-  if (/\b(?:import|require|fetch)\s*(?:\(|["'{*])|\b(?:XMLHttpRequest|WebSocket|localStorage|sessionStorage)\b|document\s*\.\s*cookie|window\s*\.\s*(?:parent|top|opener)/.test(source)) throw new Error("JS lessons must be self-contained and cannot import modules or access browser/session data.");
   if (!/\bexports\s*(?:\.\s*(?:default|slides)\b|\[\s*["'](?:default|slides)["']\s*\])/.test(source)) throw new Error("Use compiled lesson JS exporting exports.default or exports.slides. Rename-only TSX and ES module files are not supported.");
   const parsed = ts.createSourceFile("section.js", source, ts.ScriptTarget.ES2020, true, ts.ScriptKind.JS);
   // Parse without executing administrator-supplied JavaScript on the server.
   const diagnostics = (parsed as typeof parsed & { parseDiagnostics: readonly ts.Diagnostic[] }).parseDiagnostics;
   if (diagnostics.length) throw new Error("Invalid JavaScript lesson. Export a compiled JS file from Learning Space.");
   function check(node: ts.Node) {
+    // Inspect executable syntax, not lesson text, comments or embedded assets.
+    // A slide explaining localStorage must remain a valid upload.
+    const restrictedIdentifier = ts.isIdentifier(node) &&
+      ["require", "fetch", "XMLHttpRequest", "WebSocket", "localStorage", "sessionStorage"].includes(node.text);
+    const dynamicImport = ts.isCallExpression(node) && node.expression.kind === ts.SyntaxKind.ImportKeyword;
+    const property = ts.isPropertyAccessExpression(node) ? node.name.text
+      : ts.isElementAccessExpression(node) && node.argumentExpression && ts.isStringLiteralLike(node.argumentExpression) ? node.argumentExpression.text : null;
+    const receiver = ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node) ? node.expression : null;
+    const restrictedProperty = property && (
+      ["require", "fetch", "XMLHttpRequest", "WebSocket", "localStorage", "sessionStorage"].includes(property) ||
+      (receiver && ts.isIdentifier(receiver) && (
+        (receiver.text === "document" && property === "cookie") ||
+        (receiver.text === "window" && ["parent", "top", "opener"].includes(property))
+      ))
+    );
+    if (restrictedIdentifier || dynamicImport || restrictedProperty || ts.isImportDeclaration(node) || ts.isImportEqualsDeclaration(node)) {
+      throw new Error("JS lessons must be self-contained and cannot import modules or access browser/session data.");
+    }
     const hasExport = ts.canHaveModifiers(node) && ts.getModifiers(node)?.some(modifier => modifier.kind === ts.SyntaxKind.ExportKeyword);
     if (
       ts.isImportDeclaration(node) || ts.isImportEqualsDeclaration(node) ||

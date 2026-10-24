@@ -21,9 +21,12 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
     let localSource: Awaited<ReturnType<typeof readLocalSectionSource>> = null;
     // The fresh access catalog already resolved active, authorized local lessons.
     // Avoid querying the same section again before reading its repository bytes.
-    if (granted?.contentType === "tsx" && grantedCourse && (access.isAdmin || (!granted.hidden && !grantedCourse.hidden))) {
+    if (granted?.contentType === "tsx" && !granted.uploadedContent && grantedCourse && (access.isAdmin || (!granted.hidden && !grantedCourse.hidden))) {
       localSource = await readLocalSectionSource(grantedCourse, { id, content_type: "tsx" });
       if (localSource) section = { id, course_id: granted.courseId, content_type: "tsx", content_path: null, source_filename: granted.sourceFilename || null };
+    }
+    if (!section && granted && grantedCourse && granted.contentPath !== undefined) {
+      section = { id, course_id: granted.courseId, content_type: granted.contentType, content_path: granted.contentPath, source_filename: granted.sourceFilename || null };
     }
     if (!section) {
       const { data, error } = await supabase
@@ -59,6 +62,15 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       const stored = await supabase.storage.from("course-section-content").download(String(section.content_path));
       if (stored.error || !stored.data) throw Error("Stored content unavailable.");
       data = stored.data;
+    }
+    if (section.content_type === "tsx" && new URL(request.url).searchParams.get("metadata") === "1") {
+      const { interactiveLessonCounts } = await import("@/lib/interactiveLessonMetadata");
+      const text = localSource ? new TextDecoder().decode(localSource) : await data.text();
+      const counts = interactiveLessonCounts(text);
+      const teaching = new URL(request.url).searchParams.get("role") === "teaching" && (access.isAdmin || granted?.canFacilitate);
+      return NextResponse.json({ slideCount: counts ? (teaching ? counts.teachingSlides : counts.learnerSlides) : null }, {
+        headers: { "Cache-Control": "private, no-store" },
+      });
     }
     const isPptx = section.content_type === "pptx";
     const attachment = isPptx || new URL(request.url).searchParams.get("download") === "1";

@@ -32,7 +32,7 @@ export async function saveDriveOriginal(client: OAuth2Client, input: {
   const result = await client.request<{ id: string }>({
     url: location, method: "PUT", timeout: 90000,
     headers: { "Content-Type": input.mimeType, "Content-Length": String(input.body.byteLength) },
-    data: Buffer.from(input.body),
+    data: Buffer.from(input.body.buffer, input.body.byteOffset, input.body.byteLength),
   });
   if (!result.data.id) throw new Error("Drive upload did not return a file ID.");
   return result.data.id;

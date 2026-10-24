@@ -22,7 +22,6 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const { data: section, error } = await db.from("course_sections").select("id,course_id,section_key,content_type,content_path").eq("id", id).maybeSingle();
     if (error) throw Error();
     if (!section) return NextResponse.json({ message: "Section not found." }, { status: 404 });
-    if (localSectionSourcePath({ id: String(section.course_id) }, { id, content_type: "tsx" })) return NextResponse.json({ message: "This lesson uses project TSX. Edit its registered project file to update the slides." }, { status: 409 });
     const parent = await db.from("courses").select("slug").eq("id", section.course_id).maybeSingle();
     if (parent.error || !parent.data) throw Error();
     const file = await readDriveFile(body.fileId);
@@ -33,7 +32,8 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const revision = createHash("sha256").update(file.bytes).digest("hex");
     if (body.action === "preview") return NextResponse.json({ file: { id: file.id, name: validated.name, bytes: validated.bytes.byteLength, type: validated.contentType, revision } }, { headers: { "Cache-Control": "no-store" } });
     if (body.revision !== revision) return NextResponse.json({ message: "The Drive file changed. Choose it again before connecting." }, { status: 409 });
-    const contentPath = `drive:${file.id}`;
+    const registered = localSectionSourcePath({ id: String(section.course_id) }, { id, content_type: "tsx" });
+    const contentPath = `drive:${registered ? "override:" : ""}${file.id}`;
     let update = db.from("course_sections").update({ content_type: validated.contentType, content_path: contentPath, original_content_path: null, source_filename: validated.name, slide_count: validated.slideCount, updated_at: new Date().toISOString() }).eq("id", id);
     update = section.content_path ? update.eq("content_path", section.content_path) : update.is("content_path", null);
     const saved = await update.select("id").maybeSingle();

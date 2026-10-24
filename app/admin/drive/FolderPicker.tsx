@@ -29,8 +29,10 @@ export default function FolderPicker({ configured }: { configured: boolean }) {
     working.current = true;
     setBusy(true); setMessage("");
     try {
-      await loadPicker();
-      const response = await fetch("/api/admin/drive/picker", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "browse" }) });
+      const [, response] = await Promise.all([
+        loadPicker(),
+        fetch("/api/admin/drive/picker", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "browse" }) }),
+      ]);
       const data = await response.json(); if (!response.ok) throw new Error(data.message);
       const view = new google.picker.DocsView(google.picker.ViewId.FOLDERS).setIncludeFolders(true).setSelectFolderEnabled(true).setMimeTypes("application/vnd.google-apps.folder");
       const picker = new google.picker.PickerBuilder().addView(view).setOAuthToken(data.accessToken).setDeveloperKey(data.apiKey).setAppId(data.appId).setOrigin(window.location.origin).setTitle("Choose a Drive destination").setCallback(result => {

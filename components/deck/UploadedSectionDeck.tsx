@@ -14,6 +14,7 @@ const UploadedPdfDeck = dynamic(() => import("./UploadedPdfDeck"), { ssr: false,
 
 type Props = {
   sectionId: string;
+  uploadedContent?: boolean;
   isAdmin?: boolean;
   templateKey?: string;
   contentType: "pdf" | "tsx" | "pptx";
@@ -23,6 +24,8 @@ type Props = {
 };
 
 import { createTsxDocument } from "@/lib/tsxDocument";
+
+const sectionCodeCache = new Map<string, string>();
 
 // Keep the large source document stable during presence updates and zooming.
 const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, title, frameRef, sectionId, isAdmin }: {
@@ -36,13 +39,14 @@ const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, t
     title={`${title} · slide ${page}`} srcDoc={document} />;
 });
 
-export default function UploadedSectionDeck({ sectionId, contentType, slideCount, courseTitle, sectionTitle, templateKey, isAdmin = false }: Props) {
-  const compiled = contentType === "tsx" ? getCompiledSectionMetadata(sectionId) : undefined;
+export default function UploadedSectionDeck({ sectionId, uploadedContent, contentType, slideCount, courseTitle, sectionTitle, templateKey, isAdmin = false }: Props) {
+  const compiled = contentType === "tsx" && !uploadedContent ? getCompiledSectionMetadata(sectionId) : undefined;
   const compiledCount = compiled ? isAdmin ? compiled.teachingSlides : compiled.learnerSlides : undefined;
   const needsTemplate = Boolean(templateKey && !(templateKey === "eiu-business-v1" && compiled?.preservesBusinessTemplate));
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const contentUrl = `/api/sections/${encodeURIComponent(sectionId)}/content`;
   const [totalSlides, setTotalSlides] = useState(compiledCount ?? slideCount ?? 1);
-  const [tsxCode, setTsxCode] = useState("");
+  const [tsxCode, setTsxCode] = useState(() => sectionCodeCache.get(contentUrl) ?? "");
   const [tsxReady, setTsxReady] = useState(false);
   const [slideCountReady, setSlideCountReady] = useState(compiledCount !== undefined);
   const [showcasePage, setShowcasePage] = useState<number | null>(null);
@@ -51,7 +55,6 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
   const useTemplate = Boolean(templateImage);
   const [templateLoading, setTemplateLoading] = useState(needsTemplate);
   const [error, setError] = useState("");
-  const contentUrl = `/api/sections/${encodeURIComponent(sectionId)}/content`;
 
   useEffect(() => {
     if (!needsTemplate) return;
@@ -86,6 +89,7 @@ export default function UploadedSectionDeck({ sectionId, contentType, slideCount
       })
       .then((code) => {
         if (!code.trim()) throw new Error("This section has no slide content yet.");
+        sectionCodeCache.set(contentUrl, code);
         if (!disposed) setTsxCode(code);
       })
       .catch((reason) => { if (!disposed) setError(reason instanceof Error ? reason.message : "Unable to load content."); });

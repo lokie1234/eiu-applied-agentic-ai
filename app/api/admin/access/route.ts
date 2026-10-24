@@ -51,13 +51,13 @@ function slugify(value: string) {
 }
 
 export async function GET(request?: Request) {
-  const actor = await requireCourseManager(request?.signal);
+  const actorPromise = requireCourseManager(request?.signal);
+  const dataPromise = getCoursesAndSectionsData(request?.signal);
+  const [actor, data] = await Promise.all([actorPromise, dataPromise]);
   if (!actor) {
     return NextResponse.json({ success: false, message: "Course management access required." }, { status: 403 });
   }
   try {
-
-    const data = await getCoursesAndSectionsData(request?.signal);
     return NextResponse.json({ success: true, ...workspaceCatalog(data) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Load admin data error:", error);

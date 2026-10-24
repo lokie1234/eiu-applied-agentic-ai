@@ -7,7 +7,7 @@ import { driveDocumentName, driveSectionName, sectionSourceType } from "@/lib/se
 import { saveDriveOriginal } from "./sourceUpload";
 import { driveFolderId } from "./destinations";
 import { readLocalOriginal } from "./localOriginal";
-import { readDriveFile } from "./sectionContent";
+import { driveFileId, readDriveFile } from "./sectionContent";
 import { compileTsx, validateInteractiveJs } from "@/lib/sectionContent";
 import { localSectionSourcePath, readLocalSectionSource } from "@/lib/localSectionContent";
 function fileType(name: string) { return /\.js$/i.test(name) ? "js" as const : sectionSourceType(name); }
@@ -35,10 +35,14 @@ export async function exportPlan(groupId?: string, sectionId?: string, courseId?
   const sections = catalog.sections.filter(section => courseIds.has(section.course_id) && (!sectionId || section.id === sectionId));
   if (!sections.length) return [];
   const db = getSupabaseAdmin();
-  const { data: stored, error } = await db.from("course_sections").select("id,course_id,content_type,content_path,original_content_path,source_filename").in("id", sections.map(item => item.id));
-  if (error) throw error;
-  const { data: sources, error: sourceError } = await db.from("section_source_files").select("id,section_id,original_filename,file_type").in("section_id", sections.map(item => item.id)).eq("status", "ready");
-  if (sourceError) throw sourceError;
+  const [storedResult, sourcesResult] = await Promise.all([
+    db.from("course_sections").select("id,course_id,content_type,content_path,original_content_path,source_filename").in("id", sections.map(item => item.id)),
+    db.from("section_source_files").select("id,section_id,original_filename,file_type").in("section_id", sections.map(item => item.id)).eq("status", "ready"),
+  ]);
+  if (storedResult.error) throw storedResult.error;
+  if (sourcesResult.error) throw sourcesResult.error;
+  const stored = storedResult.data;
+  const sources = sourcesResult.data;
   const tasks: { sectionId: string; courseId: string; sourceId?: string; name: string; builtin?: boolean; note?: string; unavailable?: string }[] = [];
   for (const section of sections) {
     const row = stored?.find(item => item.id === section.id);
@@ -141,7 +145,7 @@ export async function exportDocument(client: OAuth2Client, input: { sectionId: s
     return fileId;
   }
   if (storagePath.startsWith("drive:")) {
-    const fileId = storagePath.slice(6);
+    const fileId = driveFileId(storagePath);
     if (!/^[\w-]{10,200}$/.test(fileId)) throw new Error("Invalid Drive file reference.");
     const copy = await client.request<{ id: string }>({ url: "https://www.googleapis.com/drive/v3/files/" + encodeURIComponent(fileId) + "/copy", method: "POST", timeout: 30000, params: { supportsAllDrives: true, fields: "id" }, data: { name, parents: [input.folderId] } });
     // Already Drive-backed: exporting a copy must not change the live source.

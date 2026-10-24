@@ -25,7 +25,8 @@ const loadSectionOne = () => import("./PdfDeck");
 const loadSectionTwo = () => import("./section2/SectionTwoDeck");
 const SectionOneDeck = dynamic(loadSectionOne, { ssr: false, loading: () => <HairlineLoading contained /> });
 const SectionTwoDeck = dynamic(loadSectionTwo, { ssr: false, loading: () => <HairlineLoading contained /> });
-const UploadedSectionDeck = dynamic(() => import("./deck/UploadedSectionDeck"), { ssr: false, loading: () => <HairlineLoading contained /> });
+const loadUploadedDeck = () => import("./deck/UploadedSectionDeck");
+const UploadedSectionDeck = dynamic(loadUploadedDeck, { ssr: false, loading: () => <HairlineLoading contained /> });
 const LearningIcon3DLayer = dynamic(() => import("./LearningIcon3DLayer"), { ssr: false });
 
 type SectionId = "section1" | "section2";
@@ -159,6 +160,7 @@ type CourseFolderSection = {
   templateKey?: string;
   sourceFilename: string | null;
   contentRevision?: string | null;
+  uploadedContent?: boolean;
   slideCount: number | null;
 };
 type CourseFolder = {
@@ -584,6 +586,12 @@ export default function LessonPortal({
   useEffect(() => {
     deckOpenRef.current = Boolean(section || activeUploadedSection || openingSection || launchingSection);
   }, [section, activeUploadedSection, openingSection, launchingSection]);
+
+  useEffect(() => {
+    if (selectedCourse?.sections.some(item => ["pdf", "tsx", "pptx"].includes(item.contentType))) {
+      void loadUploadedDeck().catch(() => {});
+    }
+  }, [selectedCourse]);
   const sectionsToCount = useMemo(() => {
     if (!selectedCourse || section || activeUploadedSection || launchingSection) return undefined;
     return selectedCourse.sections.filter(item => !(selectedCourse.slug === APPLIED_AGENTIC_AI_SLUG &&
@@ -1652,6 +1660,7 @@ export default function LessonPortal({
           </div>
         ) : <HairlineLoading contained label={t("Opening lesson")} /> : activeUploadedSection ? (
           <UploadedSectionDeck
+            uploadedContent={activeUploadedSection.uploadedContent}
             key={`${activeUploadedSection.id}-${activeUploadedSection.contentRevision ?? ""}-${activeUploadedSection.templateKey ?? ""}-${deckSessionKey}`}
             sectionId={activeUploadedSection.id}
             isAdmin={isAdmin || Boolean(activeUploadedSection.canFacilitate)}

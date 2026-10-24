@@ -40,6 +40,22 @@ test("plain JS sample runs in the lesson runtime and retains button interactions
   } finally { await window.happyDOM.close(); }
 });
 
+test("JS validation permits teaching text and comments while rejecting executable restricted APIs", async () => {
+  const source = `// fetch('/example'); document.cookie; window.parent
+exports.default = [h('p', null, 'localStorage và sessionStorage',
+  'import React from "react"; require("example"); fetch("/example")',
+  \`XMLHttpRequest, WebSocket, document.cookie, window.top\`)];`;
+  const ready = await content.prepareSectionFile(Buffer.from(source), "storage-lesson.js");
+  assert.equal(Buffer.from(ready.bytes).toString(), source);
+  for (const expression of [
+    'localStorage.getItem("key")', 'sessionStorage.clear()', 'document.cookie',
+    'window.parent', 'window["top"]', 'document["cookie"]', 'window["localStorage"]',
+    'fetch("/example")', 'window["fetch"]("/example")', 'require("example")',
+    'import("example")', 'new XMLHttpRequest()', 'new WebSocket("wss://example.test")',
+    '`storage: ${localStorage.getItem("key")}`',
+  ]) await assert.rejects(content.prepareSectionFile(Buffer.from(`exports.default=[]; ${expression};`), "lesson.js"), /self-contained/);
+});
+
 function fixture() {
   const state = { admin: true, project: false, reads: 0, writes: [], conflict: false, name: "lesson.js", bytes: Buffer.from(sample), section: { id: "s1", course_id: "c1", section_key: "custom", content_type: "tsx", content_path: "drive:previous-file-123" } };
   const db = { from: table => {
@@ -68,13 +84,11 @@ test("Drive import previews without writes, then connects exact JS only after co
   assert.equal(f.state.writes[0].content_path, "drive:selected-drive-123");
   assert.equal(f.state.writes[0].original_content_path, null);
 });
-test("Drive import rejects revoked access, cross-origin, project bindings, TSX and changed files", async () => {
+test("Drive import rejects revoked access, cross-origin, TSX and changed files", async () => {
   const f = fixture(); f.state.admin = false;
   assert.equal((await f.submit({ action: "preview" })).status, 403); assert.equal(f.state.reads, 0);
   f.state.admin = true;
   assert.equal((await f.submit({ action: "preview" }, "https://other.test")).status, 403);
-  f.state.project = true;
-  assert.equal((await f.submit({ action: "preview" })).status, 409); assert.equal(f.state.reads, 0);
   f.state.project = false; f.state.name = "lesson.tsx";
   assert.equal((await f.submit({ action: "preview" })).status, 400);
   f.state.name = "lesson.js";
@@ -121,4 +135,12 @@ test("Drive import UI previews, confirms, prevents duplicate clicks and cancels 
     assert.equal(calls.at(-1).options.signal.aborted, true);
     await act(async () => calls.at(-1).resolve({ ok: true, json: async () => ({ file: {} }) }));
   } finally { await window.happyDOM.close(); }
+});
+
+test("registered project lessons can preview and connect an explicit Drive replacement", async () => {
+  const f = fixture(); f.state.project = true;
+  const preview = await f.submit({ action: "preview" });
+  assert.equal(preview.status, 200); assert.equal(f.state.writes.length, 0);
+  assert.equal((await f.submit({ action: "connect", revision: preview.body.file.revision })).status, 200);
+  assert.equal(f.state.writes[0].content_path, "drive:override:selected-drive-123");
 });

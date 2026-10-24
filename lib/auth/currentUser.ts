@@ -27,6 +27,8 @@ export async function currentUserAccess(signal?: AbortSignal, resolvedSession?: 
     title: section.title, position: section.position, contentType: section.content_type,
     sourceFilename: section.source_filename, slideCount: section.slide_count,
     contentRevision: section.content_path ? createHash("sha256").update(section.content_path).digest("hex").slice(0, 16) : null,
+    uploadedContent: section.content_path?.startsWith("drive:override:") === true,
+    contentPath: section.content_path,
     hidden: Boolean(section.hidden),
     terminationEnabled: resolved.courses.find(course => course.id === section.course_id)?.metadata.terminableSectionIds?.includes(section.id) === true,
     canFacilitate: session.role === "admin" || ("canFacilitate" in section && section.canFacilitate === true),

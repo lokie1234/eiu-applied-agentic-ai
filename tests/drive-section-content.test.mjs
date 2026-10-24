@@ -16,6 +16,7 @@ function fixture(options={}) {
 }
 test("Drive content IDs accept file links and reject other hosts and injected paths",()=>{
  const {helper}=fixture();assert.equal(helper.driveFileId("https://drive.google.com/file/d/file-test-id-12345/view"),"file-test-id-12345");assert.equal(helper.driveFileId("drive:file-test-id-12345"),"file-test-id-12345");
+ assert.equal(helper.driveFileId("drive:override:file-test-id-12345"),"file-test-id-12345");
  for(const value of ["https://example.com/file/d/file-test-id-12345/view","../file-test-id-12345","https://drive.google.com/drive/folders/folder-test-id"] ) assert.throws(()=>helper.driveFileId(value));
 });
 test("private Drive download uses server credentials and validates content length",async()=>{
@@ -28,4 +29,45 @@ test("truncated media is rejected",async()=>{const {helper}=fixture({downloadByt
 test("uploaded files are read back and hashed before receiving a published Drive reference",async()=>{
  const {helper,bytes}=fixture();const id=await helper.uploadDriveSection({sectionId:"section",destinationId:"dest",name:"lesson.pdf",mimeType:"application/pdf",bytes});assert.equal(id,"file-test-id-12345");
  const f=fixture({downloadBytes:Buffer.from(bytes.toString().replace("Verified","Modified"))});await assert.rejects(f.helper.uploadDriveSection({sectionId:"section",destinationId:"dest",name:"lesson.pdf",mimeType:"application/pdf",bytes}),/verification failed/);
+});
+
+test("Drive media is reused only after checking current permissions and revision", async () => {
+ const metadata = { version: "1" };
+ const { helper, requests } = fixture({ metadata });
+ await helper.readDriveFile("file-test-id-12345");
+ await helper.readDriveFile("file-test-id-12345");
+ assert.equal(requests.filter(request => request.params?.alt === "media").length, 1);
+ assert.equal(requests.filter(request => !request.params?.alt).length, 2);
+ metadata.version = "2";
+ await helper.readDriveFile("file-test-id-12345");
+ assert.equal(requests.filter(request => request.params?.alt === "media").length, 2);
+ metadata.trashed = true;
+ await assert.rejects(helper.readDriveFile("file-test-id-12345"), /Unable to read/);
+ assert.equal(requests.filter(request => request.params?.alt === "media").length, 2);
+});
+
+test("concurrent Drive readers share media work but each checks metadata", async () => {
+ const { helper, requests } = fixture({ metadata: { version: "1" } });
+ const files = await Promise.all([helper.readDriveFile("file-test-id-12345"), helper.readDriveFile("file-test-id-12345")]);
+ assert.equal(requests.filter(request => request.params?.alt === "media").length, 1);
+ assert.equal(requests.filter(request => !request.params?.alt).length, 2);
+ assert.deepEqual(files[0].bytes, files[1].bytes);
+});
+
+test("Drive files without a revision are downloaded again instead of cached", async () => {
+ const { helper, requests } = fixture();
+ await helper.readDriveFile("file-test-id-12345"); await helper.readDriveFile("file-test-id-12345");
+ assert.equal(requests.filter(request => request.params?.alt === "media").length, 2);
+});
+
+test("media caches are isolated between Drive credentials", async () => {
+ const { helper, bytes } = fixture(); let downloads = 0;
+ const client = () => ({ request: async input => {
+   if (input.params?.alt === "media") { downloads++; return { data: bytes }; }
+   return { data: { name: "lesson.pdf", size: String(bytes.length), version: "1", mimeType: "application/pdf" } };
+ } });
+ const first = client(), second = client();
+ await helper.readDriveFile("file-test-id-12345", first);
+ await helper.readDriveFile("file-test-id-12345", second);
+ assert.equal(downloads, 2);
 });

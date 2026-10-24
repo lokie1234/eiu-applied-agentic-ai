@@ -13,8 +13,10 @@ export async function POST(request: Request) {
   try {
     const input = await request.json();
     if (input.action === "plan") return NextResponse.json({ tasks: await exportPlan(input.groupId, input.sectionId, input.courseId) }, { headers: { "Cache-Control": "no-store" } });
-    const destination = await selectedDestination(String(input.destinationId ?? ""));
-    const client = await authorizedDriveClient();
+    const [destination, client] = await Promise.all([
+      selectedDestination(String(input.destinationId ?? "")),
+      authorizedDriveClient(),
+    ]);
     await verifyDriveFolder(client, destination.folder_id);
     if (input.action === "save_builtin" && typeof input.sectionId === "string" && !input.groupId && !input.courseId) {
       const fileId = await saveBuiltinSection(client, { sectionId: input.sectionId, folderId: destination.folder_id });
