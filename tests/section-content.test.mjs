@@ -85,7 +85,8 @@ function handlers(options = {}) {
           state.stored.set("drive:"+id,Buffer.from(input.bytes));return id;
         },
         async readDriveFile(value) {
-          const key=value.startsWith("drive:") ? value : "drive:"+value;
+          const normalized=value.replace("drive:override:","drive:");
+          const key=normalized.startsWith("drive:") ? normalized : "drive:"+normalized;
           const bytes=state.stored.get(key);if(!bytes) throw Error("Drive unavailable");
           return {id:key.slice(6),name:state.driveName || state.section.source_filename || "slides.pdf",bytes:new Uint8Array(bytes)};
         },
@@ -110,7 +111,7 @@ function handlers(options = {}) {
       form.set("file", new File([bytes], name));
       form.set("destinationId","destination-test");
       for (const [key, value] of Object.entries(extra)) form.set(key, value);
-      return post(new Request("http://localhost/api/admin/sections/section-id/content", { method: "POST", body: form }), context());
+      return post(new Request("http://localhost/api/admin/sections/section-id/content", { method: "POST", headers: { Origin: "http://localhost" }, body: form }), context());
     },
     download: (query = "") => get(new Request(`http://localhost/api/sections/section-id/content${query}`), context()),
   };
@@ -208,7 +209,7 @@ test("truncated multipart requests return a useful 400 response without storing 
   const api = handlers();
   const request = new Request("http://localhost/api/admin/sections/section-id/content", {
     method: "POST",
-    headers: { "content-type": "multipart/form-data; boundary=upload-test" },
+    headers: { Origin: "http://localhost", "content-type": "multipart/form-data; boundary=upload-test" },
     body: '--upload-test\r\nContent-Disposition: form-data; name="file"; filename="slides.pptx"\r\n\r\ntruncated',
   });
   const response = await api.submit(request);
@@ -293,7 +294,7 @@ test("a metadata failure retains the previous lesson and leaves the Drive upload
   await api.upload(bytes, "first.pptx");
   const previousPath = api.state.section.content_path;
   api.state.updateError = { message: "Simulated metadata failure" };
-  assert.equal((await api.upload(bytes, "second.pptx")).status, 502);
+  assert.equal((await api.upload(bytes, "second.pptx")).status, 409);
   assert.equal(api.state.section.content_path, previousPath);
   assert.deepEqual(api.state.stored.get(previousPath), bytes);
   assert.equal(api.state.stored.size, 2);
@@ -334,7 +335,7 @@ test("JS keeps exact runtime bytes on Drive and needs no TSX intermediate", asyn
   assert.equal(await (await api.download("?download=1")).text(),original);
   const previousOriginal = api.state.section.content_path;
   api.state.updateError = { message: "metadata failure" };
-  assert.equal((await api.upload(original, "replacement.js")).status, 502);
+  assert.equal((await api.upload(original, "replacement.js")).status, 409);
   assert.equal(api.state.stored.size, 2);
   assert.equal(api.state.stored.get(previousOriginal).toString(), original);
 });
@@ -344,7 +345,7 @@ test("retired Drive import and migration requests cannot change or delete web co
  const api=handlers();const legacy="course-id/section-id/legacy.pdf",bytes=Buffer.from("%PDF-1.4\nLegacy");
  api.state.stored.set(legacy,bytes);api.state.section={...api.state.section,content_path:legacy,content_type:"pdf",source_filename:"legacy.pdf"};
  for(const action of ["link","migrate"]) {
-  const response=await api.submit(new Request("http://localhost/api/admin/sections/section-id/content",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,fileId:"existing-drive-file",destinationId:"destination-test"})}));
+  const response=await api.submit(new Request("http://localhost/api/admin/sections/section-id/content",{method:"POST",headers:{Origin:"http://localhost","Content-Type":"application/json"},body:JSON.stringify({action,fileId:"existing-drive-file",destinationId:"destination-test"})}));
   assert.equal(response.status,410);assert.match((await response.json()).message,/no longer supported/);
   assert.equal(api.state.section.content_path,legacy);assert.equal(api.state.driveUploads,0);
  }
@@ -425,4 +426,46 @@ test("upload reports when registered project TSX remains the displayed source", 
  const response = await api.upload("exports.default = [h('div', null, 'Uploaded copy')];", "Section1.js");
  assert.equal(response.status, 200); const result = await response.json(); assert.equal(result.contentSource, "project-js"); assert.match(result.message, /Slides continue/);
  const slide = await api.download(); assert.equal(slide.headers.get("x-eiu-content-source"), "project-js"); assert.doesNotMatch(await slide.text(), /Uploaded copy/);
+});
+
+
+test("PC upload replaces registered project JS and displays the uploaded bytes", async () => {
+ const api = handlers();
+ const courseId = "a857595d-def0-4543-9216-a680c6abfe26", sectionId = "47c1183e-a26e-4c5d-9937-88ec5a755a32";
+ api.state.access.courses[0] = { id: courseId };
+ api.state.access.sections[0] = { id: sectionId, courseId };
+ api.state.section = { ...api.state.section, id: sectionId, course_id: courseId };
+ const source = "exports.default = [h('div', null, 'PC replacement')];";
+ const response = await api.upload(source, "replacement.js", { replaceLesson: "1" });
+ assert.equal(response.status, 200);
+ assert.equal((await response.json()).contentSource, "uploaded");
+ assert.match(api.state.section.content_path, /^drive:override:/);
+ const displayed = await api.download();
+ assert.equal(displayed.status, 200);
+ assert.equal(await displayed.text(), source);
+});
+
+test("upload rejects cross-origin requests and oversized bodies before saving", async () => {
+ const api = handlers();
+ const url = "http://localhost/api/admin/sections/section-id/content";
+ assert.equal((await api.submit(new Request(url, { method: "POST", headers: { Origin: "https://other.test" } }))).status, 403);
+ assert.equal((await api.submit(new Request(url, { method: "POST", headers: { Origin: "http://localhost", "content-length": String(52 * 1024 * 1024) } }))).status, 413);
+ assert.equal(api.state.driveUploads, 0);
+});
+
+test("concurrent upload is rejected and the guard is released after invalid input", async () => {
+ const api = handlers();
+ const request = new Request("http://localhost/api/admin/sections/section-id/content", { method: "POST", headers: { Origin: "http://localhost" } });
+ let release;
+ let started;
+ const reading = new Promise(resolve => { started = resolve; });
+ Object.defineProperty(request, "formData", { value: () => { started(); return new Promise(resolve => { release = resolve; }); } });
+ const first = api.submit(request);
+ await reading;
+ const duplicate = await api.upload("%PDF-1.4", "slides.pdf");
+ assert.equal(duplicate.status, 429);
+ assert.equal(api.state.driveUploads, 0);
+ release(new FormData());
+ assert.equal((await first).status, 400);
+ assert.equal((await api.upload("%PDF-1.4", "slides.pdf")).status, 200);
 });

@@ -13,6 +13,9 @@ import styles from "./AdminAccessPortal.module.css";
 import DriveExport from "./DriveExport";
 import CourseSystemIcons from "./CourseSystemIcons";
 import DriveImport from "./DriveImport";
+import SectionFileUpload from "./SectionFileUpload";
+import PcActionIcon from "./PcActionIcon";
+import actionIconStyles from "./DriveActionIcon.module.css";
 import EiuConfirmDialog from "./EiuConfirmDialog";
 
 type LanguageLabel = "vi" | "en" | "vi_en";
@@ -521,6 +524,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
+        signal: AbortSignal.timeout(30_000),
       });
       const payload = (await response.json()) as Payload;
       catalogVersion.current++;
@@ -1695,7 +1699,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                       </div>
 
                       <p className={styles.sectionUploadHelp}>
-                        Choose a Drive icon to save web section files. Select the destination in the popup.
+                        Upload a file from your PC or connect a Drive file. Select a Drive destination when saving files.
                       </p>
 
                       {/* Multi-Section Batch Action Toolbar */}
@@ -1838,25 +1842,34 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                   </DraggableScrollArea>
                                 </div>
                                 <div className={styles.sectionItemRight}>
-                                  {isAdmin && <label className={styles.terminationToggle} title="Allow the administrator to end this section, close its quiz and return learners to the access screen.">
-                                    <input type="checkbox" aria-label={`Enable Terminate section for ${section.title}`} checked={selectedCourse.metadata?.terminableSectionIds?.includes(section.id) === true}
-                                      disabled={Boolean(processingMessage) || busy.has(`termination:${section.id}`)}
-                                      onChange={event => void mutate({ action: "set_section_termination", sectionId: section.id, enabled: event.target.checked }, `termination:${section.id}`, "Section termination setting updated.", "loading..... Updating Terminate section setting...")} />
-                                    Terminate section
-                                  </label>}
+                                  {isAdmin && <button type="button"
+                                    className={`${styles.visibilityToggle} ${selectedCourse.metadata?.terminableSectionIds?.includes(section.id) ? styles.terminationEnabled : styles.visibilityToggleHidden}`}
+                                    aria-label={`Enable Terminate section for ${section.title}`}
+                                    title={`${selectedCourse.metadata?.terminableSectionIds?.includes(section.id) ? "Disable" : "Enable"} Terminate section`}
+                                    aria-pressed={selectedCourse.metadata?.terminableSectionIds?.includes(section.id) === true}
+                                    disabled={Boolean(processingMessage) || busy.has(`termination:${section.id}`)}
+                                    onClick={event => { event.stopPropagation(); void mutate({ action: "set_section_termination", sectionId: section.id, enabled: !selectedCourse.metadata?.terminableSectionIds?.includes(section.id) }, `termination:${section.id}`, "Section termination setting updated.", "Updating Terminate section setting..."); }}>
+                                    {busy.has(`termination:${section.id}`) ? <span className={styles.btnSpinnerSm} /> : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                                      <path opacity={selectedCourse.metadata?.terminableSectionIds?.includes(section.id) ? 1 : .35} d="M5 5h14M12 5v15" />
+                                      {!selectedCourse.metadata?.terminableSectionIds?.includes(section.id) && <path d="m3 3 18 18" />}
+                                    </svg>}
+                                  </button>}
                                   <VisibilityToggle hidden={Boolean(section.hidden)} label={`section ${section.title}`} busy={busy.has(`hide-section:${section.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-section:${section.id}`)} onToggle={() => void mutate({ action: "set_section_hidden", sectionId: section.id, hidden: !section.hidden }, `hide-section:${section.id}`, "Section visibility updated.")} />
-                                  {isAdmin && <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} allowReplace={!isDefault} onSaved={refreshData} disabled={Boolean(processingMessage)} />}
-                                  {isAdmin && <DriveImport sectionId={section.id} title={section.title} onSaved={refreshData} disabled={Boolean(processingMessage)} />}
-                                  {isAdmin && (isDefault || section.content_type === "tsx") && <a
-                                    className={`${styles.sectionUploadButton} ${styles.sectionActionIcon}`}
-                                    href={`/api/sections/${encodeURIComponent(section.id)}/content?download=1${isDefault ? "&builtin=1" : ""}`}
-                                    download={isDefault ? `${section.section_key}.js` : (section.source_filename || "section.js").replace(/\.tsx$/i, ".js")}
-                                    aria-label={`Download ${section.title} as JS`}
-                                    title="Download JS"
-                                    onClick={event => event.stopPropagation()}
-                                  >
-                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4" /></svg>
-                                  </a>}
+                                  {isAdmin && <div className={styles.sectionFileActions} role="group" aria-label="PC file actions">
+                                    <SectionFileUpload key={section.id} sectionId={section.id} title={section.title} builtin={isDefault} onSaved={refreshData} disabled={Boolean(processingMessage)} />
+                                    {(isDefault || section.content_path || section.content_type === "tsx") && <a
+                                      className={actionIconStyles.button}
+                                      href={`/api/sections/${encodeURIComponent(section.id)}/content?download=1${isDefault ? "&builtin=1" : ""}`}
+                                      download={isDefault ? `${section.section_key}.js` : (section.source_filename || `section.${section.content_type === "tsx" ? "js" : section.content_type}`).replace(/\.tsx$/i, ".js")}
+                                      aria-label={isDefault || section.content_type === "tsx" ? `Download ${section.title} as JS` : `Download ${section.title} to PC`}
+                                      title="Download to PC"
+                                      onClick={event => event.stopPropagation()}
+                                    ><PcActionIcon direction="download" /></a>}
+                                  </div>}
+                                  {isAdmin && <div className={styles.sectionFileActions} role="group" aria-label="Drive file actions">
+                                    <DriveImport sectionId={section.id} title={section.title} onSaved={refreshData} disabled={Boolean(processingMessage)} />
+                                    <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} allowReplace={!isDefault} onSaved={refreshData} disabled={Boolean(processingMessage)} />
+                                  </div>}
                                   <Link className={styles.sectionUploadButton} href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}&sectionId=${encodeURIComponent(section.id)}`}>View</Link>
 
                                   {(<button

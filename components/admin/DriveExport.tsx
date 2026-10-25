@@ -56,7 +56,7 @@ export default function DriveExport({ groupId, courseId, sectionId, label = "Sav
       if (replacement && sectionId && allowReplace) {
         const form = new FormData(); form.set("file", replacement); form.set("destinationId", destinationId);
         setMessage(`Saving interactive JS: ${replacement.name}`);
-        const response = await fetch(`/api/admin/sections/${encodeURIComponent(sectionId)}/content`, { method: "POST", body: form });
+        const response = await fetch(`/api/admin/sections/${encodeURIComponent(sectionId)}/content`, { method: "POST", body: form, signal: AbortSignal.timeout(120_000) });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Unable to update the interactive lesson.");
         setFeedbackTone("success"); setMessage(data.contentSource === "project-js" ? "Interactive JS saved to Drive. Slides continue to use their project source." : "Interactive JS saved to Drive. This section now uses the new file.");

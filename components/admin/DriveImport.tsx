@@ -19,7 +19,7 @@ export default function DriveImport({ sectionId, title, disabled, onSaved }: { s
   const [saved, setSaved] = useState(false);
   useEffect(() => { disposed.current = false; return () => { disposed.current = true; read.current?.abort(); picker.current?.dispose(); }; }, []);
   async function request(body: object, signal?: AbortSignal) {
-    const response = await fetch(`/api/admin/sections/${encodeURIComponent(sectionId)}/drive`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal });
+    const response = await fetch(`/api/admin/sections/${encodeURIComponent(sectionId)}/drive`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: signal ?? AbortSignal.timeout(120_000) });
     const data = await response.json();
     if (!response.ok) throw new Error(data.message || "Unable to load from Drive.");
     return data;
