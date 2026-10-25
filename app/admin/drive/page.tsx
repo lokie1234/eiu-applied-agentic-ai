@@ -1,22 +1,21 @@
 import DriveWorkspaceNav from "@/components/admin/DriveWorkspaceNav";
 import { redirect } from "next/navigation";
 import { requireAdminAccess } from "@/lib/auth/currentUser";
-import { authorizedDriveClient, storedDriveToken } from "@/lib/drive/connection";
+import { authorizedDriveClient } from "@/lib/drive/connection";
 import styles from "./page.module.css";
 import FolderPicker from "./FolderPicker";
 import Image from "next/image";
 export const metadata = { title: "EIU · Drive export setup" };
 const messages: Record<string, string> = { connected: "Google Drive is connected.", cancelled: "Google authorization was cancelled.", "wrong-account": "Choose the administrator Google account.", "missing-scope": "Allow Drive access to save course documents.", failed: "Unable to connect. Check your Google configuration and try again." };
 export default async function DriveConnectionPage({ searchParams }: { searchParams: Promise<{ result?: string }> }) {
-  const [admin, token, query] = await Promise.all([
+  const [admin, query] = await Promise.all([
     requireAdminAccess(),
-    storedDriveToken(),
     searchParams,
   ]);
   if (!admin) redirect("/");
   let connected = false; let error = "";
-  try { if (token) { await authorizedDriveClient(); connected = true; } }
-  catch { error = "Unable to verify Drive access. Reconnect your administrator Google account."; }
+  try { await authorizedDriveClient(); connected = true; }
+  catch (reason) { if (!(reason instanceof Error && reason.message === "Google Drive is not connected.")) error = "Unable to verify Drive access. Reconnect your administrator Google account."; }
   return <main className={styles.page}>
     <header className={styles.header}><div><p className={styles.eyebrow}>EIU · LEARNING PLATFORM ADMINISTRATION</p><h1>Drive export setup</h1><p>Choose where to save copies of your web section files.</p></div><DriveWorkspaceNav /></header>
     <div className={styles.workspace}>

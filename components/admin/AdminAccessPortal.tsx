@@ -284,6 +284,9 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
   const [addMultipleSections, setAddMultipleSections] = useState(false);
   const [templates, setTemplates] = useState<SlideTemplate[]>([]);
   const [templateError, setTemplateError] = useState("");
+  const [templatesLoadedFor, setTemplatesLoadedFor] = useState<boolean | null>(null);
+  const loadLayoutImages = tab === "layouts";
+  const templateLoading = templatesLoadedFor !== loadLayoutImages;
   useEffect(() => {
     let disposed = false;
     let inFlight = false;
@@ -291,14 +294,14 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
     const refresh = () => {
       if (disposed || inFlight || document.visibilityState === "hidden") return;
       inFlight = true;
-      void fetch("/api/templates", { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]) }).then(async response => {
+      void fetch(loadLayoutImages ? "/api/templates" : "/api/templates?summary=1", { cache: "no-store", signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]) }).then(async response => {
       const payload = await response.json();
       if (!response.ok || !Array.isArray(payload.templates)) throw new Error(payload.message || "Unable to load layouts.");
       if (!disposed) { setTemplates(payload.templates); setTemplateError(""); }
-    }).catch(() => { if (!disposed) setTemplateError("Unable to load templates. Refresh to try again."); }).finally(() => { inFlight = false; }); };
+    }).catch(() => { if (!disposed) setTemplateError("Unable to load templates. Refresh to try again."); }).finally(() => { inFlight = false; if (!disposed) setTemplatesLoadedFor(loadLayoutImages); }); };
     refresh(); window.addEventListener("focus", refresh);
     return () => { disposed = true; controller.abort(); window.removeEventListener("focus", refresh); };
-  }, []);
+  }, [loadLayoutImages]);
   const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
   const [sectionTitleValue, setSectionTitleValue] = useState("");
 
@@ -1050,7 +1053,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
       {notice && !processingMessage && <div className={styles.notice} role="status">{notice}</div>}
 
       <div className={`${styles.scrollArea} ${tab === "courses" ? styles.scrollAreaCourses : tab === "layouts" ? styles.scrollAreaLayouts : ""}`}>
-        {tab === "layouts" ? templateError ? <div className={styles.error} role="alert">{templateError}</div> : <TemplateLibrary key="admin" isAdmin={isAdmin} initialTemplates={templates} onTemplatesChange={setTemplates} /> : loading ? (
+        {tab === "layouts" ? templateError ? <div className={styles.error} role="alert">{templateError}</div> : templateLoading ? <div className={styles.loading}>Loading layouts...</div> : <TemplateLibrary key="admin" isAdmin={isAdmin} initialTemplates={templates} onTemplatesChange={setTemplates} /> : loading ? (
           <div className={styles.loading}>Loading your workspace…</div>
         ) : tab === "passcodes" ? <PasscodeManager globalCodes={globalAccessCodes} identityPolicy={learningIdentityPolicy} courses={courses} folders={folderGroups} onSave={body => {
           if (body.action === "set_learning_identity_policy") return mutate(body, "learner-information", "Learner information settings saved.", "Loading… Saving learner information settings...");
@@ -1827,7 +1830,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                     )}
                                     <span className={styles.sectionContentMeta}>
                                       {section.source_filename
-                                        ? `${isDefault ? "Built-in deck + PPTX attachment" : section.content_type.toUpperCase()} · ${section.content_path?.startsWith("drive:") ? "Drive" : "Legacy file"} · ${section.source_filename}`
+                                        ? `${isDefault ? "Built-in deck + PPTX attachment" : section.content_type === "tsx" ? "JS" : section.content_type.toUpperCase()} · ${section.content_path?.startsWith("drive:") ? "Drive" : "Legacy file"} · ${section.content_type === "tsx" ? section.source_filename.replace(/\.tsx$/i, ".js") : section.source_filename}`
                                         : isDefault
                                           ? "Built-in interactive deck"
                                           : "No presentation file"}
@@ -1844,6 +1847,16 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                   <VisibilityToggle hidden={Boolean(section.hidden)} label={`section ${section.title}`} busy={busy.has(`hide-section:${section.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-section:${section.id}`)} onToggle={() => void mutate({ action: "set_section_hidden", sectionId: section.id, hidden: !section.hidden }, `hide-section:${section.id}`, "Section visibility updated.")} />
                                   {isAdmin && <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} allowReplace={!isDefault} onSaved={refreshData} disabled={Boolean(processingMessage)} />}
                                   {isAdmin && <DriveImport sectionId={section.id} title={section.title} onSaved={refreshData} disabled={Boolean(processingMessage)} />}
+                                  {isAdmin && (isDefault || section.content_type === "tsx") && <a
+                                    className={`${styles.sectionUploadButton} ${styles.sectionActionIcon}`}
+                                    href={`/api/sections/${encodeURIComponent(section.id)}/content?download=1${isDefault ? "&builtin=1" : ""}`}
+                                    download={isDefault ? `${section.section_key}.js` : (section.source_filename || "section.js").replace(/\.tsx$/i, ".js")}
+                                    aria-label={`Download ${section.title} as JS`}
+                                    title="Download JS"
+                                    onClick={event => event.stopPropagation()}
+                                  >
+                                    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4" /></svg>
+                                  </a>}
                                   <Link className={styles.sectionUploadButton} href={`/learn?courseId=${encodeURIComponent(selectedCourse.id)}&sectionId=${encodeURIComponent(section.id)}`}>View</Link>
 
                                   {(<button

@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 function load(file, dependencies) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, { exports, Buffer, Date, console, require: name => dependencies[name] ?? (name === "@/lib/learningIdentity" ? learningIdentity : require(name)) });
+  vm.runInNewContext(code, { exports, Buffer, Date, URL, console, require: name => dependencies[name] ?? (name === "@/lib/learningIdentity" ? learningIdentity : require(name)) });
   return exports;
 }
 function fixture(role = "admin") {
@@ -49,6 +49,24 @@ test("invalid layout uploads and failed persistence never report successful chan
   f.state.failWrite = true;
   assert.equal((await f.post({ action: "delete", id: "eiu-business-v1" })).status, 500);
   assert.equal(f.state.templates.length, 1);
+});
+
+test("a section downloads only its selected layout while the full library remains available", async () => {
+  const f = fixture("teacher");
+  f.state.templates.push({ id: "large-unused", name: "Unused", background: "data:image/png;base64," + "A".repeat(1_000_000) });
+  const all = await f.get();
+  const selected = await f.get({ url: "https://example.test/api/templates?id=eiu-business-v1" });
+  assert.equal(selected.status, 200);
+  assert.deepEqual(Array.from(selected.data.templates, item => item.id), ["eiu-business-v1"]);
+  assert.ok(JSON.stringify(all.data).length > 1_000_000);
+  assert.ok(JSON.stringify(selected.data).length < 200);
+  const summary = await f.get({ url: "https://example.test/api/templates?summary=1" });
+  assert.equal(summary.data.templates.length, 2);
+  assert.equal(summary.data.templates[1].background, "");
+  assert.ok(JSON.stringify(summary.data).length < 200);
+  assert.equal((await f.get()).data.templates.length, 2, "filtering does not mutate the stored library");
+  assert.equal((await f.get({ url: "https://example.test/api/templates?id=deleted" })).data.templates.length, 0);
+  assert.equal((await fixture(null).get({ url: "https://example.test/api/templates?id=eiu-business-v1" })).status, 401);
 });
 
 test("hidden courses and folders are excluded from both passcode roles while admin retains them", async () => {

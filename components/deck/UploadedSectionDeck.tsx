@@ -1,14 +1,20 @@
 "use client";
 
-import { memo, type RefObject, useEffect, useMemo, useRef, useState } from "react";
+import { memo, type ComponentProps, type ReactNode, type RefObject, useEffect, useMemo, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import SharedDeckFrame from "@/components/deck/SharedDeckFrame";
 import HairlineLoading from "@/components/HairlineLoading";
 import styles from "./UploadedSectionDeck.module.css";
 import { WEB_DEVELOPMENT_SECTION_ID } from "@/lib/webDevelopmentQuiz";
 import { getCompiledSectionMetadata } from "@/lib/compiledSectionMetadata";
-const ShowcaseSlide = dynamic(() => import("@/components/ShowcaseSlide"), { loading: () => <HairlineLoading contained /> });
-const QuizSlide = dynamic(() => import("@/components/QuizSlide"), { loading: () => <HairlineLoading contained /> });
+const ShowcaseSlide = dynamic(async () => {
+  const { default: Showcase } = await import("@/components/ShowcaseSlide");
+  return function LoadedShowcase(props: ComponentProps<typeof Showcase>) { return <div className={styles.nativeContent} data-slide-content-ready="true"><Showcase {...props} /></div>; };
+}, { loading: () => <HairlineLoading contained /> });
+const QuizSlide = dynamic(async () => {
+  const { default: Quiz } = await import("@/components/QuizSlide");
+  return function LoadedQuiz(props: ComponentProps<typeof Quiz>) { return <div className={styles.nativeContent} data-slide-content-ready="true"><Quiz {...props} /></div>; };
+}, { loading: () => <HairlineLoading contained /> });
 const PptxSectionDeck = dynamic(() => import("./PptxSectionDeck"), { ssr: false, loading: () => <HairlineLoading contained /> });
 const UploadedPdfDeck = dynamic(() => import("./UploadedPdfDeck"), { ssr: false, loading: () => <HairlineLoading contained /> });
 
@@ -25,7 +31,17 @@ type Props = {
 
 import { createTsxDocument } from "@/lib/tsxDocument";
 
-const sectionCodeCache = new Map<string, string>();
+function SlideSurface({ ready, native, onError, children }: { ready: boolean; native: boolean; onError: (message: string) => void; children: ReactNode }) {
+  useEffect(() => {
+    if (ready) return;
+    const timer = window.setTimeout(() => onError("This lesson took too long to display. Please reopen the section."), 15_000);
+    return () => window.clearTimeout(timer);
+  }, [ready, onError]);
+  return <div className={styles.loadingFrame}>
+    <div className={styles.slideContent} data-slide-ready={ready} data-native-slide={native} data-slide-content-ready={ready && !native}>{children}</div>
+    {!ready && <div className={styles.loadingOverlay}><HairlineLoading contained /></div>}
+  </div>;
+}
 
 // Keep the large source document stable during presence updates and zooming.
 const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, title, frameRef, sectionId, isAdmin }: {
@@ -46,8 +62,8 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const contentUrl = `/api/sections/${encodeURIComponent(sectionId)}/content`;
   const [totalSlides, setTotalSlides] = useState(compiledCount ?? slideCount ?? 1);
-  const [tsxCode, setTsxCode] = useState(() => sectionCodeCache.get(contentUrl) ?? "");
-  const [tsxReady, setTsxReady] = useState(false);
+  const [tsxCode, setTsxCode] = useState("");
+  const [resolvedRequest, setResolvedRequest] = useState("");
   const [slideCountReady, setSlideCountReady] = useState(compiledCount !== undefined);
   const [showcasePage, setShowcasePage] = useState<number | null>(null);
   const [quizPage, setQuizPage] = useState<number | null>(null);
@@ -60,7 +76,7 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
     if (!needsTemplate) return;
     const controller = new AbortController();
     const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]);
-    fetch("/api/templates", { cache: "no-store", signal }).then(async response => {
+    fetch(`/api/templates?id=${encodeURIComponent(templateKey!)}`, { cache: "no-store", signal }).then(async response => {
       if (!response.ok) throw new Error("Unable to load slide layout.");
       const { templates } = await response.json();
       const template = templates.find((item: { id: string; background: string }) => item.id === templateKey);
@@ -84,12 +100,11 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
     const signal = AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]);
     fetch(contentUrl, { cache: "no-store", signal })
       .then(async (response) => {
-        if (!response.ok) throw new Error("Unable to load TSX section content.");
+        if (!response.ok) throw new Error("Unable to load interactive JS section content.");
         return response.text();
       })
       .then((code) => {
         if (!code.trim()) throw new Error("This section has no slide content yet.");
-        sectionCodeCache.set(contentUrl, code);
         if (!disposed) setTsxCode(code);
       })
       .catch((reason) => { if (!disposed) setError(reason instanceof Error ? reason.message : "Unable to load content."); });
@@ -105,11 +120,11 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
         setError("Unable to display this lesson. Please reload the section.");
       }
       if (payload?.type === "eiu-slide-interaction" && Number.isSafeInteger(payload.page) && payload.requestId === `${sectionId}:${payload.page}`) {
+        setResolvedRequest(payload.requestId);
         setShowcasePage(payload.interaction === "showcase" ? Number(payload.page) : null);
         setQuizPage(payload.interaction === "quiz" && sectionId === WEB_DEVELOPMENT_SECTION_ID ? Number(payload.page) : null);
       }
       if (payload?.type === "eiu-tsx-ready" && Number.isSafeInteger(payload.slides) && Number(payload.slides) > 0) {
-        setTsxReady(true);
         setTotalSlides(Number(payload.slides));
         setSlideCountReady(true);
       }
@@ -117,12 +132,6 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
   }, [contentType, sectionId]);
-
-  useEffect(() => {
-    if (contentType !== "tsx" || !tsxCode || templateLoading || (tsxReady && slideCountReady)) return;
-    const timer = window.setTimeout(() => setError("This lesson took too long to display. Please reopen the section."), 15_000);
-    return () => window.clearTimeout(timer);
-  }, [contentType, tsxCode, templateLoading, tsxReady, slideCountReady]);
 
   if (templateLoading) return <HairlineLoading contained label="Loading slide layout" />;
   if (error) return <div className={styles.message} role="alert">{error}</div>;
@@ -141,17 +150,23 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
       navigationReady={slideCountReady}
       frameClassName={styles.frame}
       transitionClassName={styles.slide}
+      slideTransitions={sectionId === WEB_DEVELOPMENT_SECTION_ID && Boolean(compiled)}
       renderSlide={(pageNumber, renderWidth) => {
         if (error) return <div className={styles.message}>{error}</div>;
-        if (!tsxCode || (useTemplate && !templateImage)) return <HairlineLoading contained />;
+        const native = compiled?.nativeSlides?.[isAdmin ? "teaching" : "learner"]?.[String(pageNumber)];
+        const showcase = native === "showcase" || (!native && showcasePage === pageNumber);
+        const quiz = native === "quiz" || (!native && quizPage === pageNumber);
+        const ready = Boolean(native || resolvedRequest === `${sectionId}:${pageNumber}`);
+        if ((!tsxCode && !native) || (useTemplate && !templateImage)) return <HairlineLoading contained />;
         return (
-          <div className={styles.loadingFrame}>
+          <SlideSurface key={`${sectionId}:${pageNumber}`} ready={ready} native={showcase || quiz} onError={setError}>
+          {!native && <div className={showcase || quiz ? styles.inactiveSource : styles.sourceLayer} aria-hidden={showcase || quiz || undefined}>
           <TsxSlide isAdmin={isAdmin} frameRef={iframeRef} sectionId={sectionId} code={tsxCode} page={pageNumber} background={useTemplate ? templateImage : ""}
             templateKey={templateKey} title={sectionTitle} />
-          {showcasePage === pageNumber && <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} />}
-          {quizPage === pageNumber && <QuizSlide key={sectionId} scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} />}
-          {!tsxReady && <div className={styles.loadingOverlay}><HairlineLoading contained /></div>}
-          </div>
+          </div>}
+          {showcase && <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} />}
+          {quiz && <QuizSlide key={sectionId} scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} />}
+          </SlideSurface>
         );
       }}
     />

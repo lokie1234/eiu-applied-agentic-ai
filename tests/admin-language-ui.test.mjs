@@ -16,7 +16,7 @@ test("language saves retain the scrolling workspace and report pending, success 
     Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
   globalThis.IS_REACT_ACT_ENVIRONMENT = true;
   const courses = [{ id: "c1", slug: "course", title: "Course", status: "active", language_label: "vi", folderGroupId: "f1", metadata: {} }];
-  const catalog = () => ({ success: true, courses: courses.map(course => ({ ...course })), sections: [{ id:"s1",course_id:"c1",section_key:"section1",title:"Lesson",position:1,status:"active",content_type:"tsx" }], folderGroups: [{ id: "f1", name: "Folder", order: 0 }] });
+  const catalog = () => ({ success: true, courses: courses.map(course => ({ ...course })), sections: [{ id:"s1",course_id:"c1",section_key:"section1",title:"Lesson",position:1,status:"active",content_type:"tsx",content_path:"drive:lesson-id",source_filename:"Lesson.js" }], folderGroups: [{ id: "f1", name: "Folder", order: 0 }] });
   const calls = [];
   let finish;
   const fetch = async (url, options) => {
@@ -56,6 +56,13 @@ test("language saves retain the scrolling workspace and report pending, success 
   const root = createRoot(container);
   try {
     await act(async () => root.render(React.createElement(Component, { adminEmail: "admin@example.test" })));
+    assert.match(container.textContent, /JS \u00b7 Drive \u00b7 Lesson\.js/);
+    assert.doesNotMatch(container.textContent, /TSX \u00b7 Drive/);
+    const downloadJs = container.querySelector('a[aria-label="Download Lesson as JS"]');
+    assert.equal(downloadJs.getAttribute("href"), "/api/sections/s1/content?download=1");
+    assert.equal(downloadJs.getAttribute("download"), "Lesson.js");
+    assert.equal(downloadJs.getAttribute("title"), "Download JS");
+    assert.equal(downloadJs.textContent, "", "the action stays a compact icon");
     const workspace = container.querySelector(".scrollArea");
     const language = container.querySelector('[aria-labelledby="course-language-heading"]');
     const button = text => [...language.querySelectorAll("button")].find(button => button.textContent === text);

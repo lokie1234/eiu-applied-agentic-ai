@@ -6,13 +6,20 @@ import { getSlideTemplates, saveSlideTemplates } from "@/lib/auth/courseAccessSt
 
 export const runtime = "nodejs";
 export async function GET(request?: Request) {
-  const sessionPromise = currentAccessSession(request?.signal);
-  const templatesPromise = getSlideTemplates(request?.signal);
-  const [session, templates] = await Promise.all([sessionPromise, templatesPromise]);
-  const actor = session?.role === "admin" ? { isActive: true } : await currentUserAccess(request?.signal, session);
-  if (!actor?.isActive) return NextResponse.json({ message: "Authentication required." }, { status: 401 });
-  try { return NextResponse.json({ templates }, { headers: { "Cache-Control": "no-store" } }); }
-  catch { return NextResponse.json({ message: "Unable to load layouts." }, { status: 500 }); }
+  try {
+    const [session, templates] = await Promise.all([
+      currentAccessSession(request?.signal), getSlideTemplates(request?.signal),
+    ]);
+    const actor = session?.role === "admin" ? { isActive: true } : await currentUserAccess(request?.signal, session);
+    if (!actor?.isActive) return NextResponse.json({ message: "Authentication required." }, { status: 401 });
+    const templateId = request?.url ? new URL(request.url).searchParams.get("id") : null;
+    const summaryOnly = request?.url ? new URL(request.url).searchParams.get("summary") === "1" : false;
+    const selected = templateId ? templates.filter(template => template.id === templateId) : templates;
+    return NextResponse.json({ templates: summaryOnly ? selected.map(({ id, name }) => ({ id, name, background: "" })) : selected }, { headers: { "Cache-Control": "no-store" } });
+  } catch {
+    if (request?.signal.aborted) return NextResponse.json({ message: "Request cancelled." }, { status: 499, headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ message: "Unable to load layouts." }, { status: 500 });
+  }
 }
 export async function POST(request: Request) {
   if (!await requireAdminAccess()) return NextResponse.json({ message: "Administrator access required." }, { status: 403 });

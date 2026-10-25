@@ -11,7 +11,7 @@ function load(file, dependencies = {}, globals = {}) {
   const exports = {};
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText, {
     exports, Buffer, Uint8Array, TextDecoder, TextEncoder, AbortController, AbortSignal, console, URL,
-    require: name => dependencies[name] ?? (name.endsWith(".css") ? { __esModule: true, default: new Proxy({}, { get: (_, key) => String(key) }) } : require(name)), ...globals,
+    require: name => dependencies[name] ?? (name.endsWith(".css") ? { __esModule: true, default: new Proxy({}, { get: (_, key) => String(key) }) } : (name === "./sectionLimits" ? load("lib/sectionLimits.ts", {}) : require(name))), ...globals,
   });
   return exports;
 }

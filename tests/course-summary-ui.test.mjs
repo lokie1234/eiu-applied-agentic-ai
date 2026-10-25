@@ -23,7 +23,7 @@ test("admin can clear a summary and reopen or cancel the editor without restorin
   };
   const calls = [];
   const fetch = async (url, options) => {
-    if (url === "/api/templates") return { ok: true, json: async () => ({ templates: [{ id: "eiu-business-v1", name: "EIU Business" }] }) };
+    if (url.startsWith("/api/templates")) return { ok: true, json: async () => ({ templates: [{ id: "eiu-business-v1", name: "EIU Business" }] }) };
     const body = options?.body ? JSON.parse(options.body) : null;
     if (body) calls.push(body);
     if (body?.action === "set_course_template") course.metadata.templateKey = body.templateKey;

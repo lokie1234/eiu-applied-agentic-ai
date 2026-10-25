@@ -5,9 +5,10 @@ import vm from "node:vm";
 import { createRequire } from "node:module";
 import ts from "typescript";
 const require = createRequire(import.meta.url);
+const catalogStorage = { getCoursesAndSectionsData: async () => ({ courses: [], sections: [], folderGroups: [] }) };
 function load(file, dependencies) {
   const exports = {};
-  vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, Buffer, Uint8Array, URL, process, require: name => name in dependencies ? dependencies[name] : require(name) });
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, Buffer, Uint8Array, URL, process, require: name => name === "@/lib/auth/courseAccessStorage" && !(name in dependencies) ? catalogStorage : name in dependencies ? dependencies[name] : (name === "./sectionLimits" ? load("lib/sectionLimits.ts", {}) : require(name)) });
   return exports;
 }
 

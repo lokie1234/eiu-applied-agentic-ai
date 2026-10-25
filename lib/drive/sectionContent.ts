@@ -4,7 +4,7 @@ import type { OAuth2Client } from "google-auth-library";
 import { authorizedDriveClient } from "./connection";
 import { selectedDestination, verifyDriveFolder } from "./destinations";
 import { saveDriveOriginal } from "./sourceUpload";
-import { MAX_SECTION_BYTES } from "@/lib/sectionContent";
+import { MAX_SECTION_BYTES } from "@/lib/sectionLimits";
 
 // Recheck Drive permissions/version on every read; reuse only verified media.
 // Credential changes create a different client and therefore a separate cache.
@@ -68,8 +68,9 @@ export async function readDriveFile(value: string, client?: OAuth2Client) {
   } catch { throw new Error("Unable to read this Drive file. Check the connected account, file access, and the 50 MB limit."); }
 }
 export async function uploadDriveSection(input: { sectionId: string; destinationId: string; name: string; bytes: Uint8Array; mimeType: string }) {
-  const client = await authorizedDriveClient();
-  const destination = await selectedDestination(input.destinationId);
+  const [client, destination] = await Promise.all([
+    authorizedDriveClient(), selectedDestination(input.destinationId),
+  ]);
   await verifyDriveFolder(client, destination.folder_id);
   const sha256 = createHash("sha256").update(input.bytes).digest("hex");
   const id = await saveDriveOriginal(client, { sourceId: randomUUID(), sectionId: input.sectionId, folderId: destination.folder_id, name: input.name, mimeType: input.mimeType, sha256, body: input.bytes });

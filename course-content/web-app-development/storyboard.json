@@ -732,9 +732,9 @@
           "logo": "Terminal",
           "title": "Kiểm tra phiên bản một lượt",
           "text": "Trong VS Code, mở Terminal → New Terminal → PowerShell. Dán khối lệnh và chạy.",
-          "code": "Write-Output \"=== VS Code ===\"\ncode --version\nWrite-Output \"=== Node.js / npm ===\"\nnode --version\nnpm.cmd --version\nWrite-Output \"=== Git / GCM ===\"\ngit --version\ngit credential-manager --version",
-          "output": "=== VS Code ===\n1.105.0\n<mã commit của VS Code>\nx64\n=== Node.js / npm ===\nv24.0.0\n11.0.0\n=== Git / GCM ===\ngit version 2.50.0.windows.1\n2.6.1",
-          "detail": "Các số chỉ là ví dụ, không cần giống hệt. Đạt khi mọi lệnh đều trả phiên bản, không báo “not recognized”. npm.cmd tránh lỗi chặn npm.ps1 trong PowerShell. Nếu thiếu lệnh, kiểm tra PATH hoặc bộ cài."
+          "code": "powershell -NoProfile -Command \"Write-Output '========== DEVELOPMENT ENVIRONMENT =========='; Write-Output ''; Write-Output ('VS Code  : ' + (code --version | Select-Object -First 1)); Write-Output ('Node.js  : ' + (node --version)); Write-Output ('npm      : ' + (npm.cmd --version)); Write-Output ('Git      : ' + ((git --version) -replace '^git version ', '')); Write-Output ('GCM      : ' + ((git credential-manager --version) -replace '\\+.*$', '')); Write-Output ''; Write-Output '============================================='\"",
+          "output": "========== DEVELOPMENT ENVIRONMENT ==========\n\nVS Code  : 1.143.1\nNode.js  : v24.19.0\nnpm      : 11.17.0\nGit      : 2.55.0.windows.5\nGCM      : 2.9.1",
+          "detail": "Các số phiên bản chỉ là ví dụ, đạt khi mọi lệnh đều trả về phiên bản, không báo \"not recognized\"."
         }
       ],
       "minutes": 23,
@@ -1106,26 +1106,21 @@
     {
       "section": 1,
       "number": 16,
-      "title": "Tạo dự án mẫu cùng AI · Khởi tạo & Mở project",
+      "title": "Project mẫu · Khởi tạo & Mở project",
       "visual": "git-intro-starter",
       "message": "Tải bộ mẫu Lumi Studio, giải nén rồi mở trong VS Code.",
       "cards": [
         {
-          "title": "Tải project mẫu (.ZIP)",
+          "title": "Tải project mẫu",
           "logo": "ZIP",
           "text": "Bộ mã nguồn mẫu tinh gọn đã tích hợp sẵn AGENTS.md, mã nguồn Lumi Studio và kiểm tra tự động.",
           "link": "/downloads/eiu-advertising-starter.zip",
-          "linkLabel": "Tải project .ZIP"
-        },
-        {
-          "title": "Mở và sửa trong VS Code",
-          "logo": "VS Code",
-          "text": "Giải nén file ZIP, mở thư mục bằng VS Code (File → Open Folder), khám phá mã nguồn và sửa cùng AI."
-        },
-        {
-          "title": "Kiểm tra với Node.js",
-          "logo": "Node.js",
-          "text": "Chạy npm run dev xem app tại localhost:3000, npm test kiểm tra logic và sẵn sàng quản lý bằng Git."
+          "linkLabel": "Tải project .ZIP",
+          "points": [
+            "Mã nguồn Lumi Studio.",
+            "Có sẵn AGENTS.md.",
+            "Giải nén ZIP vào máy."
+          ]
         }
       ],
       "minutes": 5,
@@ -1133,30 +1128,8 @@
       "objective": "Nắm vững cấu trúc prompt chuẩn để AI tạo web app và mở được project mẫu có sẵn AGENTS.md cho AI Agent.",
       "verify": "Hiểu 4 thành phần thiết yếu của prompt và mở được project mẫu trong VS Code.",
       "visualConcept": "Bỏ hero Lumi Studio. Hai cột cao 570px: prompt bên trái có ô sửa mô tả website, sao chép lấy nội dung mới nhất. Footer có 16 icon tròn không nhãn: VS Code, Claude, Codex, Antigravity và đủ 12 AI trong dải logo slide 6. Icon rơi, nảy, tách nhau khi chạm; rê chuột hoặc chạm hất lên rồi rơi xuống trong vùng riêng, dừng khi đứng yên. Nút tải mẫu có animation bên phải. Bốn thành phần có mô tả 18px. Giữ popup tải ZIP, cấu trúc dự án và reduced motion.",
-      "layoutNumber": 12,
-      "prompt": "Hãy tạo cho tôi một dự án web app mẫu (Next.js/React) hoàn chỉnh, tinh gọn và dễ học:\n1. Bối cảnh & Mục tiêu (Role & Context): Website giới thiệu dịch vụ (Lumi Studio) có form nhận đăng ký tư vấn. Mã nguồn sạch, dễ đọc để chỉnh sửa trong VS Code.\n2. Công nghệ & Cấu trúc (Tech & Structure): Frontend Next.js App Router, CSS thuần, không cài thư viện thừa. Tổ chức component và dữ liệu rõ ràng.\n3. Kiểm tra & Quản lý (Test & Git): Chạy thử tại localhost:3000 bằng Node.js (npm run dev) và kiểm tra bằng npm test. Sẵn sàng khởi tạo Git để commit và push lên GitHub.\n4. Định hướng AI Agent (Agent Roadmap): Tạo sẵn file AGENTS.md quy định kiến trúc dự án và định hướng lộ trình tích hợp Supabase & Vercel.",
-      "promptAnalysis": [
-        {
-          "tag": "01 · Bối cảnh",
-          "title": "Role & Context",
-          "text": "Nêu loại website, người dùng và mục tiêu cần đạt."
-        },
-        {
-          "tag": "02 · Công nghệ",
-          "title": "Tech & Structure",
-          "text": "Next.js App Router, CSS thuần; cấu trúc mã nguồn rõ ràng."
-        },
-        {
-          "tag": "03 · Kiểm tra",
-          "title": "Test & Git",
-          "text": "Chạy app, kiểm tra bằng npm test; quản lý phiên bản với Git."
-        },
-        {
-          "tag": "04 · AI Agent",
-          "title": "Agent Roadmap",
-          "text": "AGENTS.md hướng dẫn AI và lộ trình Supabase & Vercel."
-        }
-      ]
+      "prompt": "Tạo một starter project hoàn chỉnh để thực hành workflow:\n\nGiai đoạn 1: VS Code → Node.js/npm → Git → GitHub\nGiai đoạn 2 (sau này): Supabase → Vercel\n\nYêu cầu:\n1. Sử dụng Next.js App Router, React, JavaScript, CSS thuần và npm, tương thích Node.js 24.\n2. Xây dựng website hiện đại, responsive, có giao diện đẹp, nội dung mẫu và các chức năng tương tác cơ bản.\n3. Dữ liệu tạm lưu bằng localStorage, chưa tích hợp database hoặc dịch vụ bên ngoài.\n4. Cấu trúc chuẩn gồm app/, components/, data/, lib/, tests/, public/, package.json, package-lock.json, .gitignore, AGENTS.md và README.md.\n5. Code sạch, dễ hiểu, ít dependencies, tách biệt giao diện, dữ liệu và logic, có unit tests.\n6. README tiếng Việt hướng dẫn đầy đủ quy trình Node.js/npm → Git → GitHub trên VS Code Windows CMD.\n7. Kiến trúc dễ mở rộng Supabase và Vercel sau này nhưng chưa tích hợp.\n8. Chạy test/build, sửa lỗi và đóng gói toàn bộ source thành file ZIP, loại trừ node_modules, .git, .next, .env và file thừa.\n9. Không thay đổi project hiện có, không tự push GitHub hoặc deploy.\nƯu tiên: Đơn giản, chuyên nghiệp, dễ thực hành, dễ mở rộng và tiết kiệm token. Thực hiện trực tiếp, chỉ báo kết quả, đường dẫn ZIP và cách chạy project.",
+      "layoutNumber": 12
     },
     {
       "section": 1,
@@ -1324,21 +1297,6 @@
     {
       "section": 1,
       "number": 21,
-      "layoutNumber": 31,
-      "adminOnly": true,
-      "title": "Thực hành thiết kế tự do với AI",
-      "minutes": 15,
-      "message": "Áp dụng AI để tự do thiết kế một website theo ý tưởng của bạn trong VS Code.",
-      "cards": [],
-      "visual": "ai-free-design-practice",
-      "note": "Slide chỉ dành cho admin. Bộ đếm bắt đầu khi bấm Bắt đầu; hỗ trợ tạm dừng, tiếp tục và đặt lại 15 phút. Hết giờ: 96 icon AI/công cụ bung ra phủ kín mặt đồng hồ rồi đứng yên. Đặt lại xóa các icon.",
-      "objective": "Áp dụng AI để hiện thực hóa ý tưởng thiết kế website.",
-      "verify": "Hoàn thành một bản thiết kế thử nghiệm trong VS Code.",
-      "visualConcept": "Đồng bộ slide 20: nền kem, chữ navy, viền vàng mảnh và cạnh trái vàng 4px, góc bo 24px, không gradient/shadow nặng. Câu dẫn phía trên; ba thẻ AI bên trái và đồng hồ 128px bên phải. Bỏ AI DESIGN LAB và hàng icon công cụ bên dưới. 96 icon bung từ giữa mặt đồng hồ ra lưới chồng kín khung khi hết giờ, dừng hẳn và giữ nguyên; nút điều khiển nằm ngoài lớp icon. Đặt lại xóa icon. Chỉ transform/opacity một lượt, giải phóng animation khi xong, reduced motion fade tại chỗ. Chỉ admin thấy slide."
-    },
-    {
-      "section": 1,
-      "number": 22,
       "layoutNumber": 22,
       "title": "Từ kiểm tra đến cập nhật GitHub",
       "minutes": 2,
@@ -1373,72 +1331,73 @@
     },
     {
       "section": 1,
-      "number": 23,
+      "number": 22,
       "title": "Kiểm tra app · trước khi lưu phiên bản",
       "visual": "git-intro-build",
-      "message": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
+      "message": "Mở Terminal mới trong VS Code, chạy kiểm tra rồi đọc kết quả.",
       "cards": [
         {
-          "title": "Chạy kiểm tra",
+          "title": "Chạy test & build",
           "logo": "Node.js",
-          "text": "Dừng app bằng Ctrl+C, rồi chạy hai lệnh.",
-          "code": "npm.cmd test\nnpm.cmd run build"
+          "text": "Test kiểm tra chức năng; build kiểm tra việc đóng gói website. Test đạt thì tự chạy build.",
+          "code": "npm.cmd test && npm.cmd run build"
         },
         {
-          "title": "Mở bản đã build",
-          "logo": "Browser",
-          "text": "Chạy app, rồi mở địa chỉ Local trong Terminal.",
-          "code": "npm.cmd run start"
+          "title": "ĐẠT · chuyển sang lưu phiên bản",
+          "logo": "Git",
+          "text": "Ví dụ: 3 kiểm tra đạt, 0 lỗi. Build chạy đến cuối, hiện danh sách trang và không báo lỗi → sang Git commit.",
+          "code": "ℹ pass 3\nℹ fail 0\n✓ Compiled successfully\nRoute (app)"
         },
         {
-          "title": "Nhờ AI sửa nếu lỗi",
+          "title": "LỖI · sửa rồi chạy lại",
           "logo": "AI Codex",
-          "text": "Dán thông báo lỗi vào chat và nói phần nào chưa đúng."
+          "text": "Ví dụ: fail lớn hơn 0, hoặc build báo Error và kết thúc lỗi. Gửi lỗi cho AI sửa, rồi chạy lại; chưa commit.",
+          "code": "Test lỗi:  ℹ fail 1\nhoặc build lỗi:\nError: Module not found"
         }
       ],
       "minutes": 12,
       "note": "",
-      "objective": "Chạy lệnh trong Terminal VS Code, rồi mở app và thử những phần vừa sửa.",
-      "verify": "Nhờ AI giải thích lỗi bằng ngôn ngữ đơn giản; chỉ lưu phiên bản khi phần vừa sửa đã hoạt động.",
-      "visualConcept": "Giữ nguyên nội dung và câu lệnh. Ba hàng ngang nền kem, viền vàng mảnh, bo 22px; bỏ số bước 01/02/03. Hai hàng đầu cao 156px: icon, tên bước và hướng dẫn bên trái; khung lệnh navy và nút sao chép bên phải. Hàng nhờ AI sửa lỗi cao 104px, tiêu đề và mô tả căn ngang. Tiêu đề 24px, hướng dẫn 19–20px, lệnh Inter 20px. Nút sao chép giữ nguyên nội dung lệnh; không thêm popup hoặc ghi chú dưới slide.",
+      "objective": "Chạy test và build, phân biệt kết quả đạt hoặc lỗi trước khi lưu phiên bản.",
+      "verify": "Test đạt mới tự chạy build qua &&; nếu test hoặc build lỗi, nhờ AI sửa và chạy lại trước khi commit.",
+      "visualConcept": "Một khung lệnh test && build phía trên, có nút sao chép. Bên dưới là hai khung ví dụ đạt và lỗi cân đối ngang nhau; nhấn xanh và đỏ nhẹ. Không có bước dừng app hay mở bản đã build. Giữ nền kem, navy, viền vàng và chữ dễ đọc, không tràn khung.",
       "layoutNumber": 17
     },
     {
       "section": 1,
-      "number": 24,
+      "number": 23,
       "title": "Lưu phiên bản đầu tiên bằng Git",
       "visual": "git-intro-initialize",
       "message": "Thực hiện trong folder project đang mở. Git lưu một mốc để bạn có thể xem lại.",
       "cards": [
         {
-          "title": "Bật Git cho project",
+          "title": "1. Khởi tạo Git",
           "logo": "Git",
-          "text": "Tạo lịch sử Git cho bộ mẫu vừa giải nén.",
-          "code": "git init -b main\ngit status"
+          "text": "Thành công: Git báo đã tạo kho lưu phiên bản và liệt kê các file chưa được theo dõi.",
+          "code": "git init -b main && git status"
         },
         {
-          "title": "Chọn mã nguồn",
+          "title": "2. Chọn file để lưu",
           "logo": "Git",
-          "text": "Chọn file và xem danh sách trước khi lưu.",
-          "code": "git add .\ngit diff --cached --stat"
+          "text": "Thành công: hiện danh sách file và số dòng thay đổi, sẵn sàng để lưu phiên bản.",
+          "code": "git add . && git diff --cached --stat"
         },
         {
-          "title": "Lưu một mốc",
+          "title": "3. Lưu phiên bản",
           "logo": "Git",
-          "text": "Commit là một phiên bản được lưu trên máy.",
-          "code": "git commit -m \"Save website\"\ngit status"
+          "text": "Thành công: hiện mã phiên bản vừa lưu; working tree clean nghĩa là không còn thay đổi chưa lưu.",
+          "code": "git commit -m \"Save website\" && git status"
         }
       ],
       "minutes": 6,
       "note": "",
       "objective": "Thực hiện trong folder project đang mở. Git lưu một mốc để bạn có thể xem lại.",
       "verify": "File .env, node_modules và .next cần được loại trừ trong .gitignore.",
-      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup.",
+      "visualConcept": "Một khung nền kem gom ba hàng gọn theo thứ tự 01 → 02 → 03. Mỗi hàng có số bước và tiêu đề bên trái; vùng lệnh navy cùng nút sao chép bên phải, dấu hiệu thành công nằm ngay dưới lệnh. Viền vàng nhẹ, góc bo đồng bộ, Inter dễ đọc. Giảm khoảng trống giữa tên bước và nội dung, không thêm thông tin riêng của project. Giữ nguyên lệnh CMD ghép &&, mỗi lệnh một dòng và không tràn khung.",
       "layoutNumber": 18
     },
     {
       "section": 1,
-      "number": 25,
+      "number": 24,
       "title": "Đưa mã nguồn lên GitHub",
       "visual": "git-intro-publish",
       "message": "Tạo repository trống, nối địa chỉ rồi gửi phiên bản đã lưu lên GitHub.",
@@ -1453,14 +1412,14 @@
         {
           "title": "Nối địa chỉ repo",
           "logo": "Git",
-          "text": "Dán địa chỉ HTTPS của repository vào ô bên dưới.",
-          "code": "git remote add origin URL_REPO\ngit remote -v"
+          "text": "Dán địa chỉ HTTPS của repository vừa tạo, rồi sao chép lệnh để kết nối.",
+          "code": "git remote add origin https://github.com/USERNAME/REPO.git && git remote -v"
         },
         {
           "title": "Gửi mã nguồn",
           "logo": "GitHub",
           "text": "Chạy Push, đăng nhập nếu có yêu cầu.",
-          "code": "git push -u origin main\ngit status"
+          "code": "git push -u origin main && git status"
         }
       ],
       "minutes": 7,
@@ -1472,40 +1431,7 @@
     },
     {
       "section": 1,
-      "number": 26,
-      "title": "Sau mỗi lần sửa · lưu và cập nhật",
-      "visual": "git-intro-push-code",
-      "message": "Sửa cùng AI, xem lại app, rồi lưu phiên bản mới và cập nhật GitHub.",
-      "cards": [
-        {
-          "title": "Xem phần vừa sửa",
-          "logo": "VS Code",
-          "text": "Mở app thử lại, rồi xem các thay đổi.",
-          "code": "git branch --show-current\ngit status\ngit diff"
-        },
-        {
-          "title": "Lưu phiên bản mới",
-          "logo": "Git",
-          "text": "Chọn thay đổi và ghi một tên Commit dễ hiểu.",
-          "code": "git add .\ngit diff --cached --stat\ngit commit -m \"Update website\""
-        },
-        {
-          "title": "Cập nhật GitHub",
-          "logo": "GitHub",
-          "text": "Gửi Commit mới, rồi refresh repository.",
-          "code": "git push\ngit status"
-        }
-      ],
-      "minutes": 7,
-      "note": "",
-      "objective": "Sửa cùng AI, xem lại app, rồi lưu phiên bản mới và cập nhật GitHub.",
-      "verify": "Nếu lệnh báo lỗi, gửi thông báo cho AI để được hướng dẫn xử lý.",
-      "visualConcept": "Ba khung nội dung trực tiếp gọn; bỏ chú thích dưới từng khung và ghi chú cuối slide. Slide 19 có một nút Hướng dẫn mở popup.",
-      "layoutNumber": 20
-    },
-    {
-      "section": 1,
-      "number": 27,
+      "number": 25,
       "title": "Chiều ngược lại · Pull hoặc Clone",
       "visual": "git-intro-pull",
       "message": "",
@@ -1553,7 +1479,7 @@
     },
     {
       "section": 1,
-      "number": 28,
+      "number": 26,
       "layoutNumber": 32,
       "title": "Với sự phát triển của các mô hình GenAI hiện tại",
       "visual": "git-intro-genai-purpose",
@@ -1568,7 +1494,7 @@
     },
     {
       "section": 1,
-      "number": 29,
+      "number": 27,
       "layoutNumber": 28,
       "title": "Bạn ra yêu cầu · AI tạo thành phẩm",
       "visual": "git-intro-agent-full-flow",
@@ -1615,7 +1541,22 @@
     },
     {
       "section": 1,
-      "number": 30,
+      "number": 28,
+      "layoutNumber": 31,
+      "adminOnly": true,
+      "title": "Thực hành thiết kế tự do với AI",
+      "minutes": 15,
+      "message": "Áp dụng AI để tự do thiết kế một website theo ý tưởng của bạn trong VS Code.",
+      "cards": [],
+      "visual": "ai-free-design-practice",
+      "note": "Slide chỉ dành cho admin. Bộ đếm bắt đầu khi bấm Bắt đầu; hỗ trợ tạm dừng, tiếp tục và đặt lại 15 phút. Hết giờ: 96 icon AI/công cụ bung ra phủ kín mặt đồng hồ rồi đứng yên. Đặt lại xóa các icon.",
+      "objective": "Áp dụng AI để hiện thực hóa ý tưởng thiết kế website.",
+      "verify": "Hoàn thành một bản thiết kế thử nghiệm trong VS Code.",
+      "visualConcept": "Đồng bộ slide 20: nền kem, chữ navy, viền vàng mảnh và cạnh trái vàng 4px, góc bo 24px, không gradient/shadow nặng. Câu dẫn phía trên; ba thẻ AI bên trái và đồng hồ 128px bên phải. Bỏ AI DESIGN LAB và hàng icon công cụ bên dưới. 96 icon bung từ giữa mặt đồng hồ ra lưới chồng kín khung khi hết giờ, dừng hẳn và giữ nguyên; nút điều khiển nằm ngoài lớp icon. Đặt lại xóa icon. Chỉ transform/opacity một lượt, giải phóng animation khi xong, reduced motion fade tại chỗ. Chỉ admin thấy slide."
+    },
+    {
+      "section": 1,
+      "number": 29,
       "layoutNumber": 30,
       "title": "Chia sẻ localhost · lưu ý rủi ro Public",
       "visual": "git-intro-localhost-share",
@@ -1673,7 +1614,7 @@
     },
     {
       "section": 1,
-      "number": 31,
+      "number": 30,
       "layoutNumber": 31,
       "title": "Chia sẻ bài làm với giảng viên",
       "visual": "git-intro-submission",
@@ -1687,7 +1628,7 @@
     },
     {
       "section": 1,
-      "number": 32,
+      "number": 31,
       "layoutNumber": 33,
       "title": "Quiz time!",
       "minutes": 5,

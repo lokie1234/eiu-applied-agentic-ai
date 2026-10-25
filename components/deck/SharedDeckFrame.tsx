@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { flushSync } from "react-dom";
 import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DeckSideAmbient from "@/components/DeckSideAmbient";
 import WorkshopLaunchButton from "@/components/WorkshopLaunchButton";
@@ -18,6 +19,7 @@ type Props = {
   renderSlideContainer?: (children: ReactNode) => ReactNode;
   frameClassName?: string;
   transitionClassName?: string;
+  slideTransitions?: boolean;
   showWorkshopApps?: boolean;
   showDemoApp?: boolean;
   aspectRatio?: number;
@@ -32,6 +34,7 @@ export default function SharedDeckFrame({
   renderSlideContainer,
   frameClassName = "slide-frame",
   transitionClassName = "section-one-slide-transition",
+  slideTransitions = false,
   showWorkshopApps = false,
   showDemoApp = false,
   aspectRatio = SLIDE_ASPECT_RATIO,
@@ -39,9 +42,12 @@ export default function SharedDeckFrame({
   const safeTotal = Math.max(1, totalSlides);
   const [pageNumber, setPageNumber] = useState(1);
   const [pageInput, setPageInput] = useState("1");
+  const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [zoom, setZoom] = useState(1);
   const [viewerWidth, setViewerWidth] = useState(0);
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const surfaceRef = useRef<HTMLDivElement | null>(null);
+  const transitionRef = useRef<{ cancel: () => void } | null>(null);
   const pageRef = useRef(pageNumber);
   const totalRef = useRef(safeTotal);
   const wheelAccumulatorRef = useRef(0);
@@ -49,6 +55,7 @@ export default function SharedDeckFrame({
   const lastWheelNavigationRef = useRef(0);
   const wheelResetTimerRef = useRef<number | null>(null);
   const positionRestored = useRef(false);
+  useEffect(() => () => transitionRef.current?.cancel(), []);
 
   useEffect(() => {
     totalRef.current = safeTotal;
@@ -64,15 +71,77 @@ export default function SharedDeckFrame({
     [viewerWidth, zoom],
   );
 
-  const goToPage = useCallback((page: number) => {
+  const goToPage = useCallback((page: number, animate = true) => {
     if (!navigationReady) return;
     const next = Math.min(Math.max(Math.round(page), 1), totalRef.current);
     if (next === pageRef.current) { setPageInput(String(next)); return; }
-    pageRef.current = next;
-    setPageNumber(next);
-    setPageInput(String(next));
-    rememberSlide(next);
-  }, [navigationReady]);
+    const forward = next > pageRef.current;
+    const commit = () => {
+      setDirection(forward ? "forward" : "backward");
+      pageRef.current = next;
+      setPageNumber(next);
+      setPageInput(String(next));
+      rememberSlide(next);
+    };
+    transitionRef.current?.cancel();
+    const surface = surfaceRef.current;
+    if (!slideTransitions || !animate || !surface || window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      (typeof document.startViewTransition !== "function" && typeof surface.animate !== "function")) {
+      commit(); return;
+    }
+    let cancelled = false;
+    let stopWaiting = () => {};
+    let view: ViewTransition | undefined;
+    let animation: Animation | undefined;
+    const operation = { cancel: () => { cancelled = true; stopWaiting(); view?.skipTransition(); animation?.cancel(); } };
+    transitionRef.current = operation;
+    const finish = () => {
+      if (transitionRef.current !== operation) return;
+      transitionRef.current = null;
+      document.documentElement.removeAttribute("data-eiu-slide-transition");
+      surface.removeAttribute("data-slide-transition");
+    };
+    const update = async () => {
+      if (cancelled) return;
+      flushSync(commit);
+      // Wait behind the outgoing visual snapshot, not behind another loading
+      // animation. Native modules and sandbox slides report real content readiness.
+      await new Promise<void>(resolve => {
+        const ready = () => Boolean(surface.querySelector('[data-slide-content-ready="true"], [role="alert"]'));
+        if (ready()) { resolve(); return; }
+        const observer = new MutationObserver(() => { if (ready()) cleanup(); });
+        const timer = window.setTimeout(() => cleanup(), 4000);
+        function cleanup() { observer.disconnect(); window.clearTimeout(timer); resolve(); }
+        stopWaiting = cleanup;
+        observer.observe(surface, { subtree: true, childList: true, attributes: true, attributeFilter: ["data-slide-content-ready"] });
+      });
+      surface.setAttribute("data-slide-transition", "animating");
+    };
+    surface.setAttribute("data-slide-transition", "preparing");
+    document.documentElement.setAttribute("data-eiu-slide-transition", forward ? "forward" : "backward");
+    if (typeof document.startViewTransition === "function") {
+      // Browser-owned pixels preserve the old slide without retaining a second
+      // iframe, rerunning its JS, or duplicating quiz/presence subscriptions.
+      view = document.startViewTransition(update);
+      void view.ready.catch(() => {});
+      void view.updateCallbackDone.catch(() => {});
+      void view.finished.catch(() => {}).finally(finish);
+    } else {
+      // Older browsers use a short exit, then reveal the prepared next slide.
+      void (async () => {
+        try {
+          animation = surface.animate([{ transform: "translateX(0)", opacity: 1 }, { transform: `translateX(${forward ? -10 : 10}px)`, opacity: .3 }], { duration: 160, easing: "ease-in" });
+          await animation.finished;
+          if (cancelled) return;
+          await update();
+          if (cancelled) return;
+          animation = surface.animate([{ transform: `translateX(${forward ? 10 : -10}px)`, opacity: .3 }, { transform: "translateX(0)", opacity: 1 }], { duration: 220, easing: "ease-out" });
+          await animation.finished;
+        } catch { /* A newer navigation or unmount cancels the old animation. */ }
+        finally { finish(); }
+      })();
+    }
+  }, [navigationReady, slideTransitions]);
 
   const nextPage = useCallback(() => goToPage(pageRef.current + 1), [goToPage]);
   const previousPage = useCallback(() => goToPage(pageRef.current - 1), [goToPage]);
@@ -81,7 +150,7 @@ export default function SharedDeckFrame({
     if (!navigationReady || positionRestored.current) return;
     const frame = window.requestAnimationFrame(() => {
       positionRestored.current = true;
-      goToPage(restoredSlide(totalRef.current));
+      goToPage(restoredSlide(totalRef.current), false);
     });
     return () => window.cancelAnimationFrame(frame);
   }, [goToPage, navigationReady]);
@@ -233,10 +302,10 @@ export default function SharedDeckFrame({
           {renderWidth > 0 && <DeckSideAmbient slideWidth={renderWidth} />}
           {renderWidth > 0 ? (
             <>
-              <div className={frameClassName} style={{ width: renderWidth, aspectRatio: `${aspectRatio}` }}>
+              <div ref={surfaceRef} className={frameClassName} style={{ width: renderWidth, aspectRatio: `${aspectRatio}`, viewTransitionName: slideTransitions ? "eiu-web-section-slide" : undefined }}>
                 {renderSlideContainer
-                  ? renderSlideContainer(<div key={pageNumber} className={transitionClassName}>{renderSlide(pageNumber, renderWidth)}</div>)
-                  : <div key={pageNumber} className={transitionClassName}>{renderSlide(pageNumber, renderWidth)}</div>}
+                  ? renderSlideContainer(<div key={pageNumber} className={transitionClassName} data-slide-direction={direction}>{renderSlide(pageNumber, renderWidth)}</div>)
+                  : <div key={pageNumber} className={transitionClassName} data-slide-direction={direction}>{renderSlide(pageNumber, renderWidth)}</div>}
               </div>
               {showWorkshopApps && <WorkshopLaunchButton slideWidth={renderWidth} showDemoApp={showDemoApp} />}
             </>

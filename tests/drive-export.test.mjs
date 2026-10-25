@@ -5,9 +5,10 @@ import vm from "node:vm";
 import { createRequire } from "node:module";
 import ts from "typescript";
 const require = createRequire(import.meta.url);
+const catalogStorage = { getCoursesAndSectionsData: async () => ({ courses: [], sections: [], folderGroups: [] }) };
 function load(file, dependencies) {
   const exports = {};
-  vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, Buffer, URL, Uint8Array, process, TextDecoder, require: name => name in dependencies ? dependencies[name] : require(name) });
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, esModuleInterop: true, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, Buffer, URL, Uint8Array, process, TextDecoder, require: name => name === "@/lib/auth/courseAccessStorage" && !(name in dependencies) ? catalogStorage : name in dependencies ? dependencies[name] : (name === "./sectionLimits" ? load("lib/sectionLimits.ts", {}) : require(name)) });
   return exports;
 }
 function fixture() {
@@ -29,6 +30,27 @@ test("web folder exports preserve the web name and reuse the existing folder", a
   await f.api.webFolder(f.client, "parent", "group");
   assert.equal(f.state.requests.filter(item => item.method === "POST").length, 0);
   assert.equal(f.state.requests.at(-1).data.name, "MIS 301");
+});
+
+test("concurrent exports create a shared folder once and later operations still check Drive", async () => {
+  const f = fixture();
+  const results = await Promise.all([
+    f.api.webFolder(f.client, "parent", "group", undefined, f.state.catalog),
+    f.api.webFolder(f.client, "parent", "group", undefined, f.state.catalog),
+  ]);
+  assert.deepEqual(results, ["web-folder", "web-folder"]);
+  assert.equal(f.state.requests.length, 2, "one lookup and one creation instead of two of each");
+  await f.api.webFolder(f.client, "parent", "group", undefined, f.state.catalog);
+  assert.equal(f.state.requests.length, 4, "a completed write must not cache folder permissions");
+});
+
+test("failed folder operations are released so retry can recover", async () => {
+  const f = fixture();
+  const request = f.client.request;
+  f.client.request = async () => { throw new Error("Temporary Drive error"); };
+  await assert.rejects(f.api.webFolder(f.client, "parent", "group"), /Temporary/);
+  f.client.request = request;
+  assert.equal(await f.api.webFolder(f.client, "parent", "group"), "web-folder");
 });
 test("legacy TSX exports compiled JS with custom safe names", async () => {
   const f = fixture();
@@ -143,20 +165,24 @@ test("folder plans include built-in snapshots and stored attachments", async () 
 
 test("folder exports nest course folders and validate built-in membership before saving", async () => {
   const folders = []; const saves = [];
+  const catalog = { courses: [], sections: [], folderGroups: [] };
+  let catalogReads = 0;
   const route = load("app/api/admin/drive/export/route.ts", {
     "next/cache": { revalidatePath() {} }, "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200 }) } },
     "@/lib/auth/currentUser": { requireAdminAccess: async () => true },
+    "@/lib/auth/courseAccessStorage": { getCoursesAndSectionsData: async () => { catalogReads++; return catalog; } },
     "@/lib/drive/connection": { driveConfig: () => ({ redirectUri: "https://example.com/api/admin/drive/callback" }), authorizedDriveClient: async () => ({}) },
     "@/lib/drive/destinations": { selectedDestination: async () => ({ folder_id: "target" }), verifyDriveFolder: async () => {} },
     "@/lib/drive/export": {
-      exportPlan: async () => [{ sectionId: "builtin", courseId: "course", builtin: true }, { sectionId: "pdf", courseId: "course" }],
-      webFolder: async (_client, parent, groupId, courseId) => { folders.push({ parent, groupId, courseId }); return groupId ? "group-folder" : "course-folder"; },
-      exportDocument: async (_client, input) => { saves.push(input); return "pdf-copy"; },
+      exportPlan: async (_group, _section, _course, received) => { assert.equal(received, catalog); return [{ sectionId: "builtin", courseId: "course", builtin: true }, { sectionId: "pdf", courseId: "course" }]; },
+      webFolder: async (_client, parent, groupId, courseId, received) => { assert.equal(received, catalog); folders.push({ parent, groupId, courseId }); return groupId ? "group-folder" : "course-folder"; },
+      exportDocument: async (_client, input, received) => { assert.equal(received, catalog); saves.push(input); return "pdf-copy"; },
     },
     "@/lib/drive/builtinExport": { saveBuiltinSection: async (_client, input) => { saves.push(input); return "builtin-copy"; } },
   });
   const request = (sectionId, action) => ({ headers: new Headers({ origin: "https://example.com" }), json: async () => ({ destinationId: "destination", groupId: "group", sectionId, action }) });
   assert.equal((await route.POST(request("builtin", "save_builtin"))).status, 200);
+  assert.equal(catalogReads, 1, "membership and both folder operations share one fresh catalog");
   assert.equal(folders[0].parent, "target");
   assert.equal(folders[0].groupId, "group");
   assert.equal(folders[1].parent, "group-folder");
@@ -166,6 +192,7 @@ test("folder exports nest course folders and validate built-in membership before
   assert.equal((await route.POST(request("outside", "save_builtin"))).status, 400);
   assert.equal((await route.POST(request("builtin", "save"))).status, 400);
   assert.equal(saves.length, 2);
+  assert.equal(catalogReads, 4, "each new request must read fresh catalog data");
 });
 
 for (const filename of ["Section1.js", "Section2.js"]) {

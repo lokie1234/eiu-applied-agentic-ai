@@ -48,8 +48,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     if (/\.tsx$/i.test(file.name)) return json({ message: "Upload lesson JS instead of TSX." }, 400);
     // Keep the existing database category for interactive lessons; the filename
     // and stored bytes are JS, with no schema migration needed for old records.
-    const catalogFilename = isJs ? file.name.replace(/\.js$/i, ".tsx") : file.name;
-    try { type = sectionSourceType(catalogFilename); } catch { return json({ message: "Only PDF, PPTX and JS files are supported." }, 400); }
+    try { type = sectionSourceType(file.name); } catch { return json({ message: "Only PDF, PPTX and JS files are supported." }, 400); }
     const body = new Uint8Array(await file.arrayBuffer());
     if (isJs) {
       try { validateInteractiveJs(new TextDecoder().decode(body)); }
@@ -68,7 +67,7 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const course = catalog.courses.find(item => item.id === section?.course_id);
     if (!section || !course) return json({ message: "Section not found." }, 404);
     const folder = catalog.folderGroups.find(item => item.id === course.folderGroupId);
-    const exported = describeSectionSource({ folderName: folder?.name ?? course.folderGroupName, courseTitle: course.title, sectionTitle: section.title, originalFilename: catalogFilename, sourceId, uploadedAt: new Date() });
+    const exported = describeSectionSource({ folderName: folder?.name ?? course.folderGroupName, courseTitle: course.title, sectionTitle: section.title, originalFilename: file.name, sourceId, uploadedAt: new Date() });
     const client = await authorizedDriveClient();
     const destination = await selectedDestination(String(form.get("destinationId") ?? ""));
     await verifyDriveFolder(client, destination.folder_id);

@@ -71,14 +71,19 @@ test("Access Settings coalesces focus reads, cancels requests on departure and i
   try {
     await act(async () => root.render(React.createElement(Portal, { adminEmail: "admin@example.test" })));
     assert.equal(requests.length, 2);
+    assert.ok(requests.some(request => request.url === "/api/templates?summary=1"), "opening admin fetches names without layout images");
     await act(async () => { for (let i = 0; i < 8; i++) window.dispatchEvent(new window.Event("focus")); });
     assert.equal(requests.length, 2, "focus bursts must share the pending layouts read");
+    await act(async () => [...container.querySelectorAll('[role="tab"]')].find(tab => tab.textContent.includes("Slide Layouts")).click());
+    assert.equal(requests.length, 3);
+    assert.equal(requests.at(-1).url, "/api/templates", "opening Slide Layouts requests complete backgrounds");
+    assert.equal(requests.find(request => request.url.includes("summary=1")).options.signal.aborted, true);
     await act(async () => root.unmount());
     assert.ok(requests.every(request => request.options.signal.aborted));
     await act(async () => requests.forEach(request => request.resolve({ ok: true, json: async () => ({ success: true, courses: [], sections: [], folderGroups: [], templates: [] }) })));
     assert.equal(container.innerHTML, "");
     window.dispatchEvent(new window.Event("focus"));
-    assert.equal(requests.length, 2);
+    assert.equal(requests.length, 3, "departed pages must not fetch on focus");
   } finally { await window.happyDOM.close(); }
 });
 
@@ -97,7 +102,7 @@ test("Access Settings rejects duplicate saves, orders metadata writes and ignore
     "./DriveExport": { __esModule: true, default: ({ onSaved }) => React.createElement("button", { className: "refresh-test", onClick: onSaved }, "Refresh") },
   }, { window, document: window.document, fetch: (url, options) => {
     if (options?.method === "POST") return new Promise(resolve => posts.push({ body: JSON.parse(options.body), resolve }));
-    if (url === "/api/templates") return Promise.resolve({ ok: true, json: async () => ({ templates: [{ id: "t1", name: "Layout" }] }) });
+    if (url.startsWith("/api/templates")) return Promise.resolve({ ok: true, json: async () => ({ templates: [{ id: "t1", name: "Layout" }] }) });
     if (!initialized) { initialized = true; return Promise.resolve({ ok: true, json: async () => catalog({}) }); }
     return new Promise(resolve => reads.push({ options, resolve }));
   } }).default;

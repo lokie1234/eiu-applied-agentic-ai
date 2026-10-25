@@ -22,12 +22,13 @@ const courseId = bank.WEB_DEVELOPMENT_COURSE_ID, sectionId = bank.WEB_DEVELOPMEN
 const questions = bank.WEB_DEVELOPMENT_QUESTIONS;
 function fixture() {
   const rows = [];
+  const afterTasks = [], broadcasts = [], queriedActions = [];
   let access = { isActive: true, isAdmin: false, authUserId: 'auth', displayName: 'Alice', email: 'alice@example.test',
     learnerIdentity: { sessionId: 'learner-one', name: 'Alice', email: 'alice@example.test', information: { department: 'IT' }, fields: [{ id: 'department', label: 'Department' }] },
     courses: [{ id: courseId, title: 'AI-Powered Web Development' }], sections: [{ id: sectionId, courseId, sectionKey: 'section1', title: 'Section 1' }] };
   const db = { from() {
     const filters = []; let cap = Infinity, inserted;
-    const query = { select() { return query; }, eq(key, value) { filters.push(row => row[key] === value); return query; },
+    const query = { select() { return query; }, eq(key, value) { if(key==='action')queriedActions.push(value); filters.push(row => row[key] === value); return query; },
       contains(key, value) { filters.push(row => Object.entries(value).every(([k,v]) => row[key]?.[k] === v)); return query; },
       gt(key, value) { filters.push(row => row[key] > value); return query; },
       order() { return query; }, limit(value) { cap = value; return query; },
@@ -38,8 +39,10 @@ function fixture() {
     const matching = () => rows.filter(row => filters.every(filter => filter(row))).reverse().slice(0, cap);
     return query;
   } };
+  db.channel = topic => ({ httpSend: async (event, payload) => { broadcasts.push({ topic, event, payload }); return { success: true }; } });
+  db.removeChannel = async () => 'ok';
   const dependencies = {
-    'next/server': { NextResponse: Response }, '@/lib/auth/currentUser': { currentUserAccess: async () => access },
+    'next/server': { NextResponse: Response, after: callback => afterTasks.push(callback) }, '@/lib/auth/currentUser': { currentUserAccess: async () => access },
     '@/lib/supabase/server': { getSupabaseAdmin: () => db }, '@/lib/webDevelopmentQuiz': bank,
     '@/lib/auth/types': { APPLIED_AGENTIC_AI_SLUG: 'applied-agentic-ai' },
   };
@@ -51,9 +54,24 @@ function fixture() {
   const post = body => route.POST(new Request('http://localhost/api/sections/' + sectionId + '/quiz', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ quizSession: rows.findLast(row => row.action === 'SECTION_TERMINATED')?.details.token || 'initial', ...body }) }), context);
   const controlGet = () => control.GET(new Request('http://localhost/control'), context);
   const terminate = () => control.POST(new Request('http://localhost/control', { method: 'POST' }), context);
-  return { rows, get, post, route, controlGet, terminate, get access() { return access; }, set access(value) { access = value; } };
+  return { rows, get, post, route, controlGet, terminate, afterTasks, broadcasts, queriedActions, get access() { return access; }, set access(value) { access = value; } };
 }
 const allCorrect = () => questions.map(question => ({ selected: question.options[question.answer], isCorrect: true }));
+
+test('closed teaching quizzes skip completion reads and opening notifies the scoped channel after persistence', async () => {
+  const f = fixture(); f.access.isAdmin = true;
+  assert.equal((await (await f.get()).json()).isOpen, false);
+  assert.ok(!f.queriedActions.includes('QUIZ_COMPLETED'));
+  f.access.isAdmin = false;
+  assert.equal((await f.post({action:'open'})).status,403);
+  assert.equal(f.afterTasks.length,0,'unauthorized requests cannot broadcast');
+  f.access.sections[0].canFacilitate = true;
+  assert.equal((await f.post({action:'open'})).status,200);
+  assert.equal(f.rows.filter(row=>row.action==='QUIZ_OPENED').length,1);
+  assert.equal(f.broadcasts.length,0,'realtime delivery must not block the response');
+  for(const task of f.afterTasks.splice(0))await task();
+  assert.deepEqual(JSON.parse(JSON.stringify(f.broadcasts)),[{topic:`eiu:quiz:${sectionId}`,event:'quiz_state_changed',payload:{}}]);
+});
 
 test('only the admin or the teacher of this course section can open the quiz', async () => {
   const f = fixture();
@@ -229,6 +247,37 @@ test('teacher opens the shared quiz, learner completes ten questions, restores t
     assert.equal(container.querySelector('.inlineFeedbackForm'), null);
     assert.ok(requests.every(url => url === `/api/sections/${sectionId}/quiz`));
   } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
+});
+
+test('teacher can open before the initial read finishes, duplicate confirmation is ignored and late closed state cannot undo success', async () => {
+  const window = new Window({url:'http://localhost'});
+  for(const name of ['window','document','navigator','HTMLElement'])Object.defineProperty(globalThis,name,{configurable:true,value:name==='window'?window:window[name]});
+  globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+  const {createRoot}=await import('react-dom/client');
+  const reads=[];let writes=0;
+  const Quiz=load('components/QuizSlide.tsx',{
+    '@/lib/webDevelopmentQuiz':bank,'@/lib/liveRefresh':load('lib/liveRefresh.ts'),
+    '@/lib/supabase/browser':{getSupabaseBrowserClient:()=>null},
+  },{window,document:window.document,fetch:async(_url,options)=>{
+    if(options?.method==='POST'){writes++;return {ok:true,json:async()=>({success:true,isOpen:true})};}
+    return new Promise(resolve=>reads.push(resolve));
+  }}).default;
+  const container=window.document.createElement('div'),root=createRoot(container);
+  try{
+    await act(async()=>{root.render(React.createElement(Quiz,{isAdmin:true,sectionId,courseTitle:'Web',sectionTitle:'Section 1',scale:1}));await new Promise(resolve=>setTimeout(resolve,15));});
+    await act(async()=>new Promise(resolve=>setTimeout(resolve,15)));
+    assert.equal(reads.length,1);
+    assert.equal(container.querySelector('.openQuizButton').disabled,false,'the server rechecks permission on the open action');
+    await act(async()=>container.querySelector('.openQuizButton').click());
+    await act(async()=>{container.querySelector('.confirmOpenButton').click();container.querySelector('.confirmOpenButton').click();});
+    assert.equal(writes,1);
+    assert.ok(container.querySelector('.adminResultsStage'),'successful persistence updates the teacher screen without another GET');
+    await act(async()=>reads[0]({ok:true,json:async()=>({isOpen:false,completedLearners:[]})}));
+    assert.ok(container.querySelector('.adminResultsStage'),'a late pre-open read must not close the UI again');
+    assert.equal(reads.length,2,'one queued refresh reads the new state in the background');
+    await act(async()=>reads[1]({ok:true,json:async()=>({isOpen:true,completedLearners:[]})}));
+    assert.ok(container.querySelector('.adminResultsStage'));
+  }finally{await act(async()=>root.unmount());await window.happyDOM.close();}
 });
 
 test('uploaded deck binds the quiz marker to the active frame, section and page', async () => {

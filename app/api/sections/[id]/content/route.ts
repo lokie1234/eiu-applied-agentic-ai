@@ -8,14 +8,29 @@ import { readLocalSectionSource } from "@/lib/localSectionContent";
 export const runtime = "nodejs";
 
 export async function GET(request: Request, context: { params: Promise<{ id: string }> }) {
-  const access = await currentUserAccess(request.signal);
-  if (!access?.isActive) return NextResponse.json({ message: "Authentication required." }, { status: 401 });
   try {
+    const access = await currentUserAccess(request.signal);
+    if (!access?.isActive) return NextResponse.json({ message: "Authentication required." }, { status: 401 });
     const { id } = await context.params;
     const supabase = getSupabaseAdmin(request.signal);
     type ContentSection = { id: string; course_id: string; content_type: string; content_path: string | null; source_filename: string | null };
     const granted = access.sections?.find(item => item.id === id);
     const grantedCourse = access.courses.find(item => item.id === granted?.courseId);
+    if (new URL(request.url).searchParams.get("builtin") === "1") {
+      if (!access.isAdmin) return NextResponse.json({ message: "Admin access required." }, { status: 403 });
+      if (grantedCourse?.slug !== "applied-agentic-ai" || !granted || !["section1", "section2"].includes(granted.sectionKey)) {
+        return NextResponse.json({ message: "Built-in section not found." }, { status: 404 });
+      }
+      const { readFile } = await import("node:fs/promises");
+      const { join } = await import("node:path");
+      const bytes = await readFile(join(process.cwd(), "lib/drive/builtin-decks", `${granted.sectionKey}.js`));
+      return new NextResponse(new Uint8Array(bytes), { headers: {
+        "Content-Type": "text/javascript; charset=utf-8",
+        "Content-Disposition": `attachment; filename="${granted.sectionKey}.js"`,
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "private, no-store",
+      } });
+    }
     if (!access.isAdmin && (granted?.hidden || grantedCourse?.hidden)) return NextResponse.json({ message: "Course access required." }, { status: 403 });
     let section: ContentSection | null = null;
     let localSource: Awaited<ReturnType<typeof readLocalSectionSource>> = null;
@@ -90,6 +105,7 @@ export async function GET(request: Request, context: { params: Promise<{ id: str
       },
     });
   } catch (error) {
+    if (request.signal.aborted) return NextResponse.json({ message: "Request cancelled." }, { status: 499, headers: { "Cache-Control": "private, no-store" } });
     void error;
     return NextResponse.json({ message: "Unable to load section content." }, { status: 500 });
   }

@@ -8,7 +8,7 @@ const require = createRequire(import.meta.url);
 function load(file, dependencies) {
   const exports = {};
   vm.runInNewContext(ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, esModuleInterop: true } }).outputText,
-    { exports, Buffer, File, Date, TextDecoder, require: name => name in dependencies ? dependencies[name] : require(name) });
+    { exports, Buffer, File, Date, TextDecoder, require: name => name in dependencies ? dependencies[name] : (name === "./sectionLimits" ? load("lib/sectionLimits.ts", {}) : require(name)) });
   return exports;
 }
 
@@ -56,6 +56,8 @@ test("source library keeps exact JS bytes and writes only catalog metadata", asy
   assert.equal((await f.post("Bài học.js", original)).status, 200);
   assert.equal(Buffer.from(f.state.originals[0].body).toString("utf8"), original);
   assert.ok(f.state.originals[0].name.endsWith(".js"));
+  assert.equal(f.state.writes[0].original_filename, "Bài học.js");
+  assert.equal(f.state.writes[0].file_type, "tsx", "the schema category does not change JS bytes or filenames");
   assert.equal(f.state.originals[0].folderId, "chosen-drive-folder");
   assert.equal(f.state.writes.at(-1).status, "ready");
   assert.equal(f.state.writes.at(-1).drive_file_id, "drive-id");

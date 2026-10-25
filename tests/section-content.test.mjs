@@ -76,6 +76,7 @@ function handlers(options = {}) {
       if (name === "server-only") return {};
       if (name === "@/course-content/sources.json") return JSON.parse(fs.readFileSync("course-content/sources.json", "utf8"));
       if (name === "@/lib/localSectionContent") return load("lib/localSectionContent.ts");
+      if (name === "./sectionLimits") return load("lib/sectionLimits.ts");
       if (name === "@/lib/sectionContent") return load("lib/sectionContent.ts");
       if (name === "@/lib/drive/sectionContent") return {
         async uploadDriveSection(input) {
@@ -114,6 +115,29 @@ function handlers(options = {}) {
     download: (query = "") => get(new Request(`http://localhost/api/sections/section-id/content${query}`), context()),
   };
 }
+
+test("admin downloads the built-in JS snapshot without Drive, including sections with PPTX attachments", async () => {
+  for (const sectionKey of ["section1", "section2"]) {
+    const api = handlers({ access: { isActive: true, isAdmin: true,
+      sections: [{ id: "section-id", courseId: "course-id", sectionKey }],
+      courses: [{ id: "course-id", slug: "applied-agentic-ai" }],
+    } });
+    const response = await api.download("?download=1&builtin=1");
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("content-disposition"), new RegExp(`attachment; filename="${sectionKey}\\.js"`));
+    assert.equal(response.headers.get("cache-control"), "private, no-store");
+    assert.deepEqual(Buffer.from(await response.arrayBuffer()), fs.readFileSync(`lib/drive/builtin-decks/${sectionKey}.js`));
+    assert.equal(api.state.driveUploads, 0);
+    api.state.access.isAdmin = false;
+    assert.equal((await api.download("?builtin=1")).status, 403);
+    api.state.access.isAdmin = true;
+    api.state.access.courses[0].slug = "another-course";
+    assert.equal((await api.download("?builtin=1")).status, 404);
+    api.state.access.courses[0].slug = "applied-agentic-ai";
+    api.state.access.sections[0].sectionKey = "../../private";
+    assert.equal((await api.download("?builtin=1")).status, 404);
+  }
+});
 
 async function presentation(paddingBytes = 0) {
   const zip = new JSZip();

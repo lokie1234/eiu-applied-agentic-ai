@@ -92,12 +92,16 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
   const timerRef = useRef<number | null>(null);
   const autoSubmitStartedRef = useRef(false);
   const quizSessionRef = useRef<string | null>(null);
+  const stateVersionRef = useRef(0);
+  const openRequestRef = useRef<AbortController | null>(null);
 
   useEffect(() => () => {
     if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+    openRequestRef.current?.abort();
   }, []);
 
   const readQuizState = useCallback(async (signal: AbortSignal) => {
+    const version = stateVersionRef.current;
     try {
       const response = await fetch(scopedEndpoint || `/api/quiz-control?section=${variant}${isAdmin ? "" : "&includeProgress=1"}`, { cache: "no-store", signal });
       const payload = await response.json().catch(() => ({}));
@@ -110,6 +114,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
         progress = await progressResponse.json();
       }
       signal.throwIfAborted();
+      if (version !== stateVersionRef.current) return;
       if (scopedEndpoint) quizSessionRef.current = payload.quizSession || null;
       if (progress?.result && !autoSubmitStartedRef.current) {
         autoSubmitStartedRef.current = true;
@@ -123,7 +128,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
       if (isAdmin) setCompletedLearners(payload.completedLearners ?? []);
       setQuizStateStatus("ready");
     } catch {
-      if (cancelledRefresh(signal)) return;
+      if (cancelledRefresh(signal) || version !== stateVersionRef.current) return;
       setQuizStateStatus("error");
     }
   }, [isAdmin, variant, scopedEndpoint]);
@@ -183,7 +188,10 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
   }
 
   async function openQuiz() {
-    if (!isAdmin || openStatus === "sending") return;
+    if (!isAdmin || openRequestRef.current) return;
+    const controller = new AbortController();
+    openRequestRef.current = controller;
+    stateVersionRef.current++;
     setOpenStatus("sending");
     setOpenMessage("");
 
@@ -192,20 +200,24 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(scopedEndpoint ? { action: "open" } : { section: variant }),
+        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]),
       });
       const payload = (await response.json().catch(() => ({}))) as { message?: string };
       if (!response.ok) throw new Error(payload.message || "Không thể mở Quiz.");
+      if (controller.signal.aborted) return;
+      stateVersionRef.current++;
 
       setQuizOpen(true);
       setCompletedLearners([]);
       setQuizStateStatus("ready");
       setShowOpenConfirm(false);
       setOpenStatus("idle");
-      await loadQuizState();
+      void loadQuizState();
     } catch (error) {
+      if (controller.signal.aborted) return;
       setOpenStatus("error");
       setOpenMessage(error instanceof Error ? error.message : "Không thể mở Quiz.");
-    }
+    } finally { if (openRequestRef.current === controller) openRequestRef.current = null; }
   }
 
   const submitResult = useCallback(async () => {
@@ -311,9 +323,8 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
                   setOpenMessage("");
                   setShowOpenConfirm(true);
                 }}
-                disabled={quizStateStatus === "loading"}
               >
-                {quizStateStatus === "loading" ? "Đang kiểm tra..." : "Mở Quiz!!!!"}
+                Mở Quiz!!!!
               </button>
             )}
           </div>

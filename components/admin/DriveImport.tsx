@@ -33,10 +33,12 @@ export default function DriveImport({ sectionId, title, disabled, onSaved }: { s
     working.current = true; setBusy(true); setMessage(""); setSaved(false); setFile(null);
     const controller = new AbortController(); read.current = controller;
     try {
-      const response = await fetch("/api/admin/drive/picker", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "browse" }), signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]) });
+      const [, response] = await Promise.all([
+        loadPicker(),
+        fetch("/api/admin/drive/picker", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "browse" }), signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]) }),
+      ]);
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Unable to open Drive.");
-      await loadPicker();
       if (disposed.current || controller.signal.aborted) return;
       // A modal dialog would cover Google's Picker; reopen it after selection.
       dialog.current?.close();

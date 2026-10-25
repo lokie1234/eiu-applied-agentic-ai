@@ -11,23 +11,36 @@ import { driveFileId, readDriveFile } from "./sectionContent";
 import { compileTsx, validateInteractiveJs } from "@/lib/sectionContent";
 import { localSectionSourcePath, readLocalSectionSource } from "@/lib/localSectionContent";
 function fileType(name: string) { return /\.js$/i.test(name) ? "js" as const : sectionSourceType(name); }
-export async function webFolder(client: OAuth2Client, parent: string, groupId?: string, courseId?: string) {
-  const catalog = await getCoursesAndSectionsData();
+type Catalog = Awaited<ReturnType<typeof getCoursesAndSectionsData>>;
+// Only concurrent folder creation is shared; subsequent exports check Drive again.
+const folderWrites = new WeakMap<OAuth2Client, Map<string, Promise<string>>>();
+export async function webFolder(client: OAuth2Client, parent: string, groupId?: string, courseId?: string, catalog?: Catalog) {
+  catalog ??= await getCoursesAndSectionsData();
   const group = courseId ? catalog.courses.find(item => item.id === courseId) : catalog.folderGroups.find(item => item.id === groupId);
   if (!group) throw new Error("Web folder not found.");
   const folderName = "name" in group ? group.name : group.title;
   const key = createHash("sha256").update((courseId ? "course:" : "") + group.id).digest("hex");
-  const { data } = await client.request<{ files: { id: string; name: string }[] }>({ url: "https://www.googleapis.com/drive/v3/files", timeout: 10000,
-    params: { q: "'" + driveFolderId(parent) + "' in parents and trashed=false and mimeType='application/vnd.google-apps.folder' and appProperties has { key='eiuWebFolder' and value='" + key + "' }", fields: "files(id,name)", pageSize: 10 } });
-  if (data.files[0]) {
-    if (data.files[0].name !== folderName) await client.request({ url: "https://www.googleapis.com/drive/v3/files/" + data.files[0].id, method: "PATCH", params: { supportsAllDrives: true }, data: { name: folderName }, timeout: 10000 });
-    return data.files[0].id;
-  }
-  const created = await client.request<{ id: string }>({ url: "https://www.googleapis.com/drive/v3/files", method: "POST", timeout: 10000, params: { supportsAllDrives: true, fields: "id" }, data: { name: folderName, mimeType: "application/vnd.google-apps.folder", parents: [parent], appProperties: { eiuWebFolder: key } } });
-  return created.data.id;
+  let pending = folderWrites.get(client);
+  if (!pending) { pending = new Map(); folderWrites.set(client, pending); }
+  const operationKey = JSON.stringify([driveFolderId(parent), key, folderName]);
+  const existing = pending.get(operationKey);
+  if (existing) return existing;
+  const write = async () => {
+    const { data } = await client.request<{ files: { id: string; name: string }[] }>({ url: "https://www.googleapis.com/drive/v3/files", timeout: 10000,
+      params: { q: "'" + driveFolderId(parent) + "' in parents and trashed=false and mimeType='application/vnd.google-apps.folder' and appProperties has { key='eiuWebFolder' and value='" + key + "' }", fields: "files(id,name)", pageSize: 10 } });
+    if (data.files[0]) {
+      if (data.files[0].name !== folderName) await client.request({ url: "https://www.googleapis.com/drive/v3/files/" + data.files[0].id, method: "PATCH", params: { supportsAllDrives: true }, data: { name: folderName }, timeout: 10000 });
+      return data.files[0].id;
+    }
+    const created = await client.request<{ id: string }>({ url: "https://www.googleapis.com/drive/v3/files", method: "POST", timeout: 10000, params: { supportsAllDrives: true, fields: "id" }, data: { name: folderName, mimeType: "application/vnd.google-apps.folder", parents: [parent], appProperties: { eiuWebFolder: key } } });
+    return created.data.id;
+  };
+  const operation = write().finally(() => pending.delete(operationKey));
+  pending.set(operationKey, operation);
+  return operation;
 }
-export async function exportPlan(groupId?: string, sectionId?: string, courseId?: string) {
-  const catalog = await getCoursesAndSectionsData();
+export async function exportPlan(groupId?: string, sectionId?: string, courseId?: string, catalog?: Catalog) {
+  catalog ??= await getCoursesAndSectionsData();
   if (groupId && !catalog.folderGroups.some(item => item.id === groupId)) throw new Error("Web folder not found.");
   if (courseId && !catalog.courses.some(item => item.id === courseId)) throw new Error("Course not found.");
   const courses = catalog.courses.filter(course => (!groupId || course.folderGroupId === groupId) && (!courseId || course.id === courseId));
@@ -60,7 +73,7 @@ export async function exportPlan(groupId?: string, sectionId?: string, courseId?
   }
   return tasks;
 }
-export async function exportDocument(client: OAuth2Client, input: { sectionId: string; sourceId?: string; folderId: string; name?: string }) {
+export async function exportDocument(client: OAuth2Client, input: { sectionId: string; sourceId?: string; folderId: string; name?: string }, catalog?: Catalog) {
   const db = getSupabaseAdmin();
   const { data: section, error } = await db.from("course_sections").select("id,course_id,title,position,content_type,content_path,original_content_path,source_filename").eq("id", input.sectionId).maybeSingle();
   if (error || !section) throw new Error("Section not found.");
@@ -82,7 +95,7 @@ export async function exportDocument(client: OAuth2Client, input: { sectionId: s
     return copy.data.id;
   }
   if (section.content_type === "tsx" || /\.(tsx|js)$/i.test(section.source_filename ?? "")) {
-    const catalog = await getCoursesAndSectionsData();
+    catalog ??= await getCoursesAndSectionsData();
     const course = catalog.courses.find(item => item.id === section.course_id);
     const local = course ? await readLocalSectionSource(course, section) : null;
     let source: Uint8Array;

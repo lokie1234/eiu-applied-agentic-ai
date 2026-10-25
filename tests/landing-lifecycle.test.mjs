@@ -100,8 +100,42 @@ test("robot waits for a language choice and continues returning alongside login"
     assert.equal(view.props().introPhase, "ready");
     assert.equal(view.props().initialLanguageChosen, true, "the login card skips its old language step");
     await act(async () => f.root.render(React.createElement(view.Component, { key: "reload" })));
-    assert.equal(view.props().introPhase, "arriving", "reload presents the robot greeting again");
+    await act(async () => new Promise(resolve => setTimeout(resolve, 20)));
+    assert.equal(view.props().introPhase, "ready", "a recent choice restores login on reload");
   } finally { await f.close(); }
+});
+
+test("refresh within ten minutes skips language and boot without extending the choice lifetime", async () => {
+  const f=await fixture();let now=Date.now();
+  class ClockDate extends Date { static now(){return now;} }
+  const key="eiu.landing-language-choice";
+  f.window.localStorage.setItem("eiu.learning-interface-language","vi");
+  const selectedAt=now-599_000;
+  f.window.localStorage.setItem(key,JSON.stringify({language:"vi",selectedAt}));
+  const view=landing(f,()=>{throw Error("Restoring language must not make requests");},{Date:ClockDate,reducedMotion:false});
+  const render=async id=>{
+    await act(async()=>f.root.render(React.createElement(view.Component,{key:id})));
+    await act(async()=>new Promise(resolve=>setTimeout(resolve,20)));
+  };
+  try{
+    await render('recent');
+    assert.equal(view.props().introPhase,'ready');
+    assert.equal(view.props().entranceReady,true);
+    assert.equal(view.props().stage,7);
+    assert.equal(JSON.parse(f.window.localStorage.getItem(key)).selectedAt,selectedAt,'refresh does not restart the ten-minute window');
+    await act(async()=>new Promise(resolve=>setTimeout(resolve,180)));
+    assert.equal(view.props().stage,7,'the old boot timeline cannot hide login again');
+    now=selectedAt+600_000;
+    await render('expired');
+    assert.equal(view.props().introPhase,'arriving');
+    f.window.localStorage.setItem(key,'invalid json');
+    await render('invalid');
+    assert.equal(view.props().introPhase,'arriving');
+    await act(async()=>view.props().onChooseLanguage('en'));
+    assert.deepEqual(JSON.parse(f.window.localStorage.getItem(key)),{language:'en',selectedAt:now});
+    await render('new-choice');
+    assert.equal(view.props().introPhase,'ready');
+  }finally{await f.close();}
 });
 
 test("full 3D greeting waits for the robot arrival and return callbacks", async () => {

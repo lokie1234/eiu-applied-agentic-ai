@@ -42,9 +42,9 @@ test('section opening orbits four groups with three supporting AI icons inside V
   assert.equal(Boolean(doc.querySelector('.openingAIOrbit')),false);
   assert.equal(doc.querySelector('.openinglinks circle').getAttribute('r'),'170');
   assert.equal(Boolean(doc.querySelector('.openinglinks path')),false);
-  assert.match(doc.querySelector('.openingSubtitle').textContent,/Node.js/);
-  assert.match(doc.querySelector('.openingcopy p').textContent,/Node.js chạy và kiểm tra/);
-  assert.deepEqual([...doc.querySelectorAll('.openingroles>span')].map(item=>item.textContent),['Chỉnh sửa cùng AI','Chạy app với Node.js','Kiểm tra kết quả','Quản lý phiên bản']);
+  assert.equal(doc.querySelector('.openingSubtitle').textContent,'VS Code \u00b7 Node.js \u00b7 Git \u00b7 GitHub');
+  assert.equal(doc.querySelector('.openingcopy p'),null);
+  assert.deepEqual([...doc.querySelectorAll('.openingroles>span')].map(item=>item.textContent),['Chỉnh sửa cùng AI','Chạy app cục bộ','Kiểm tra kết quả','Quản lý phiên bản']);
   assert.equal(Boolean(doc.querySelector('.openingNodeSummary')),false);
   assert.equal(Boolean(doc.querySelector('.openingroles code')),false);
  }finally{await window.happyDOM.close();}

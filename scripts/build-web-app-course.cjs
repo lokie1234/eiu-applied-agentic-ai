@@ -20,7 +20,7 @@ for (const [name,filter] of [['Section1.js',1],['Section2.js',2]]) {
  // The renderer keeps embedded assets for its standalone source. Replace that
  // block before injecting the selected asset catalog to avoid declaring twice.
  const template = renderer.replace(/const assets: Record<string,string> = [\s\S]*?;\r?\n/, '');
- const source = template.replace('// __COURSE_DATA__',`// Nội dung phần ${filter}: chỉnh các slide trong mảng bên dưới.\nconst course: { title: string; summary: string; slides: SlideData[] } = ${JSON.stringify(section,null,2)};\nconst assets: Record<string,string> = ${JSON.stringify(assets,null,2)};`);
+ const source = template.replace('// __COURSE_DATA__',()=>`// Nội dung phần ${filter}: chỉnh các slide trong mảng bên dưới.\nconst course: { title: string; summary: string; slides: SlideData[] } = ${JSON.stringify(section,null,2)};\nconst assets: Record<string,string> = ${JSON.stringify(assets,null,2)};`);
  const cleaned = pruneAssets(pruneSection(source, section), assets);
  const result=ts.transpileModule(cleaned,{fileName:'section.tsx',reportDiagnostics:true,compilerOptions:{target:ts.ScriptTarget.ES2020,module:ts.ModuleKind.CommonJS,jsx:ts.JsxEmit.React,jsxFactory:'h',jsxFragmentFactory:'Fragment',esModuleInterop:true}});
  const errors=(result.diagnostics||[]).filter(d=>d.category===ts.DiagnosticCategory.Error);
@@ -35,6 +35,12 @@ for (const [name,filter] of [['Section1.js',1],['Section2.js',2]]) {
   teachingSlides: section.slides.length,
   learnerSlides: section.slides.filter(slide => !slide.adminOnly).length,
   preservesBusinessTemplate: true,
+  nativeSlides: Object.fromEntries([['teaching', section.slides], ['learner', section.slides.filter(slide => !slide.adminOnly)]].map(([role, slides]) => [role,
+   Object.fromEntries(slides.flatMap((slide, index) => {
+    const interaction = { 'git-intro-submission': 'showcase', 'git-intro-section-quiz': 'quiz' }[slide.visual];
+    return interaction ? [[String(index + 1), interaction]] : [];
+   })),
+  ])),
  };
  console.log(name,section.slides.length,'slides',Buffer.byteLength(result.outputText),'bytes');
 }

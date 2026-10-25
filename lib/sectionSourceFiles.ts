@@ -9,8 +9,10 @@ export type SectionSourceType = keyof typeof SECTION_SOURCE_DESTINATIONS;
 
 export function sectionSourceType(filename: string): SectionSourceType {
   const extension = filename.split(".").pop()?.toLowerCase();
+  // JS lessons keep the legacy database category; never rename their files to TSX.
+  if (extension === "js") return "tsx";
   if (extension !== "tsx" && extension !== "pdf" && extension !== "pptx") {
-    throw new Error("Only PDF, PPTX and TSX source files are supported.");
+    throw new Error("Only PDF, PPTX and lesson JS files are supported.");
   }
   return extension;
 }
@@ -39,7 +41,7 @@ export function describeSectionSource(input: {
     label(input.folderName, "Unassigned folder"),
     label(input.courseTitle, "Untitled course"),
     label(input.sectionTitle, "Untitled section"),
-  ].join(" — ") + `.${type}`;
+  ].join(" — ") + `.${/\.js$/i.test(input.originalFilename) ? "js" : type}`;
   return { type, driveFolderId: SECTION_SOURCE_DESTINATIONS[type] as string, name };
 }
 

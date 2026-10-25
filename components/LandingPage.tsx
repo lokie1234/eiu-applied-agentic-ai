@@ -12,6 +12,17 @@ import { useLearningLanguage, type LearningLanguage } from "@/lib/learningLangua
 
 import { type RobotInteractionState } from "./landing/GuardianRobot3D";
 
+const LANGUAGE_CHOICE_KEY = "eiu.landing-language-choice";
+const LANGUAGE_CHOICE_TTL = 10 * 60 * 1000;
+
+function hasRecentLanguageChoice() {
+  try {
+    const choice = JSON.parse(window.localStorage.getItem(LANGUAGE_CHOICE_KEY) || "null");
+    const elapsed = Date.now() - choice?.selectedAt;
+    return (choice?.language === "vi" || choice?.language === "en") && Number.isFinite(choice.selectedAt) && elapsed >= 0 && elapsed < LANGUAGE_CHOICE_TTL;
+  } catch { return false; }
+}
+
 // ── Lazy-load the WebGL scene to avoid SSR hydration issues ──
 const HeroScene = dynamic(() => import("./landing/HeroScene"), {
   ssr: false,
@@ -26,12 +37,14 @@ const EiuAgentBot = dynamic(() => import("./EiuAgentBot"), { ssr: false });
 export default function LandingPage({ googleResult }: { googleResult?: string } = {}) {
   const { setLanguage } = useLearningLanguage();
   const [introPhase, setIntroPhase] = useState<"arriving" | "choosing" | "returning" | "ready">("arriving");
+  const [skipIntro, setSkipIntro] = useState(false);
   const languageAnchor = useRef<HTMLDivElement>(null);
   const languageScreen = useRef<HTMLDivElement>(null);
   const handleOrbitArrival = useCallback(() => setIntroPhase(phase => phase === "returning" ? "ready" : phase), []);
   const handleLanguageArrival = useCallback(() => setIntroPhase(phase => phase === "arriving" ? "choosing" : phase), []);
   const chooseLanguage = (language: LearningLanguage) => {
     setLanguage(language);
+    try { window.localStorage.setItem(LANGUAGE_CHOICE_KEY, JSON.stringify({ language, selectedAt: Date.now() })); } catch { /* Language selection still works when storage is unavailable. */ }
     setIntroPhase("returning");
   };
   // ── Auth & Robot state ──
@@ -175,6 +188,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
   const reducedMotionReady = Boolean(prefersReduced && stage > 0);
 
   useEffect(() => {
+    if (skipIntro) return;
     if (prefersReduced) {
       const timer = setTimeout(() => setStage(5), 0);
       return () => clearTimeout(timer);
@@ -191,7 +205,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
     return () => {
       timers.forEach(clearTimeout);
     };
-  }, [prefersReduced]);
+  }, [prefersReduced, skipIntro]);
 
 
   // ── Initial Entrance Boot State (Single run per page visit) ──
@@ -199,6 +213,17 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
   const [isOverlayExiting, setIsOverlayExiting] = useState(false);
   const [sceneReady, setSceneReady] = useState(false);
   const [sceneUnavailable, setSceneUnavailable] = useState(false);
+  useEffect(() => {
+    // Read after hydration; no server request, recurring timer or new scene.
+    const timer = window.setTimeout(() => {
+      if (!hasRecentLanguageChoice()) return;
+      setIntroPhase("ready");
+      setSkipIntro(true);
+      setIsEntranceActive(false);
+      setStage(7);
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, []);
   const handleSceneReady = useCallback(() => setSceneReady(true), []);
   const handleSceneUnavailable = useCallback(() => { setSceneUnavailable(true); setSceneReady(true); }, []);
 

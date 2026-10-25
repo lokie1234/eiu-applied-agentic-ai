@@ -1,6 +1,8 @@
 import ts from "typescript";
 import JSZip from "jszip";
 import { createHash } from "node:crypto";
+import { MAX_SECTION_BYTES } from "./sectionLimits";
+export { MAX_SECTION_BYTES } from "./sectionLimits";
 
 // Only derived code is cached. Authorization and original file reads remain live.
 const compiledSections = new Map<string, { code: string; bytes: number }>();
@@ -60,7 +62,6 @@ export function compileTsx(source: string) {
   return result.outputText;
 }
 
-export const MAX_SECTION_BYTES = 50 * 1024 * 1024;
 export async function validateSectionContent(bytes: Uint8Array, name: string) {
   if (!bytes.byteLength || bytes.byteLength > MAX_SECTION_BYTES) throw new Error("Choose a nonempty file up to 50 MB.");
   const type = name.split(".").pop()?.toLowerCase();
@@ -76,6 +77,8 @@ export async function validateSectionContent(bytes: Uint8Array, name: string) {
       slideCount = slides.length;
     } catch { throw new Error("This file is not a valid .pptx presentation."); }
   }
+  // "tsx" is the database/player category, not the uploaded file format.
+  // JS stays byte-for-byte JS; validation parses syntax without transpiling it.
   return { contentType: (type === "js" ? "tsx" : type) as "pdf" | "tsx" | "pptx", slideCount, mimeType: type === "pdf" ? "application/pdf" : type === "js" ? "text/javascript" : "application/vnd.openxmlformats-officedocument.presentationml.presentation" };
 }
 

@@ -51,15 +51,16 @@ function slugify(value: string) {
 }
 
 export async function GET(request?: Request) {
-  const actorPromise = requireCourseManager(request?.signal);
-  const dataPromise = getCoursesAndSectionsData(request?.signal);
-  const [actor, data] = await Promise.all([actorPromise, dataPromise]);
-  if (!actor) {
-    return NextResponse.json({ success: false, message: "Course management access required." }, { status: 403 });
-  }
   try {
+    const [actor, data] = await Promise.all([
+      requireCourseManager(request?.signal), getCoursesAndSectionsData(request?.signal),
+    ]);
+    if (!actor) return NextResponse.json({ success: false, message: "Course management access required." }, { status: 403 });
     return NextResponse.json({ success: true, ...workspaceCatalog(data) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
+    // Supabase wraps an aborted fetch in a plain error object. Check the
+    // incoming signal instead of suppressing errors by their message/name.
+    if (request?.signal.aborted) return NextResponse.json({ success: false, message: "Request cancelled." }, { status: 499, headers: { "Cache-Control": "no-store" } });
     console.error("Load admin data error:", error);
     return NextResponse.json({ success: false, message: "Unable to load workspace data." }, { status: 500 });
   }

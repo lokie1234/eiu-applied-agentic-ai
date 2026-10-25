@@ -63,18 +63,29 @@ export default function DriveExport({ groupId, courseId, sectionId, label = "Sav
         setReplacement(null); if (fileInput.current) fileInput.current.value = "";
         setTasks([]); onSaved?.(); return;
       }
-      for (const [index, task] of tasks.entries()) {
-        if (task.unavailable || task.status === "done") continue;
-        setMessage(`Saving ${completed + 1} of ${tasks.filter(item => !item.unavailable).length}: ${task.name}`);
-        try {
-          await request({ action: task.builtin ? "save_builtin" : "save", sectionId: task.sectionId, sourceId: task.sourceId, name: task.name });
-          completed++;
-          setTasks(current => current.map((item, i) => i === index ? { ...item, status: "done", message: undefined } : item));
-        } catch (error) {
-          failures++;
-          setTasks(current => current.map((item, i) => i === index ? { ...item, status: "failed", message: error instanceof Error ? error.message : "Unable to save document." } : item));
+      // Two sections can upload together; files within one section stay ordered
+      // because publishing an export can update that section's source reference.
+      const sections = [...new Set(tasks.filter(task => !task.unavailable && task.status !== "done").map(task => task.sectionId))];
+      const total = tasks.filter(task => !task.unavailable).length;
+      let next = 0;
+      async function worker() {
+        while (next < sections.length) {
+          const section = sections[next++];
+          for (const [index, task] of tasks.entries()) {
+            if (task.sectionId !== section || task.unavailable || task.status === "done") continue;
+            setMessage(`Saving ${completed + 1} of ${total}: ${task.name}`);
+            try {
+              await request({ action: task.builtin ? "save_builtin" : "save", sectionId: task.sectionId, sourceId: task.sourceId, name: task.name });
+              completed++;
+              setTasks(current => current.map((item, i) => i === index ? { ...item, status: "done", message: undefined } : item));
+            } catch (error) {
+              failures++;
+              setTasks(current => current.map((item, i) => i === index ? { ...item, status: "failed", message: error instanceof Error ? error.message : "Unable to save document." } : item));
+            }
+          }
         }
       }
+      await Promise.all([worker(), worker()]);
       const unavailable = tasks.filter(task => task.unavailable).length;
       const target = destinations.find(item => item.id === destinationId)?.label ?? "your Drive destination";
       setFeedbackTone(failures || unavailable ? "warning" : "success");

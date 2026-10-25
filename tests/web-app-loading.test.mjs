@@ -78,12 +78,18 @@ test('opening a web lesson fetches content once, skips an ignored default layout
     assert.deepEqual(native,[]);
     assert.ok(f.container.querySelector('[data-loading]'));
     await send(null,page,'eiu-tsx-ready');
+    assert.ok(f.container.querySelector('[data-loading]'),'slide counts arrive before the slide is rendered');
+    await send(null);
     assert.equal(f.container.querySelector('[data-loading]'),null,'ready slides dismiss loading without waiting for iframe load/assets');
     await act(async()=>render());assert.equal(built.length,1);assert.equal(reads.length,1);
-    page=32;await act(async()=>render());await send('quiz');assert.ok(f.container.querySelector('[data-native="quiz"]'));
-    page=31;await act(async()=>render());await send('showcase');assert.ok(f.container.querySelector('[data-native="showcase"]'));
+    page=32;await act(async()=>render());assert.ok(f.container.querySelector('[data-native="quiz"]'));
+    assert.equal(f.container.querySelector('iframe'),null,'quiz opens directly without rendering the standalone fallback');
+    page=31;await act(async()=>render());assert.ok(f.container.querySelector('[data-native="showcase"]'));
+    assert.equal(f.container.querySelector('iframe'),null,'showcase opens directly without rendering the standalone fallback');
+    assert.equal(built.length,1,'native slides do not build sandbox documents');
+    page=8;
     await act(async()=>{render({key:'custom',templateKey:'custom'});await new Promise(resolve=>setTimeout(resolve,10));});
-    assert.ok(reads.includes('/api/templates'),'custom layouts remain supported');
+    assert.ok(reads.includes('/api/templates?id=custom'),'custom layouts remain supported');
     assert.equal(built.at(-1)[2],'data:image/png;base64,AA==');
     await send(null,page,'eiu-tsx-error');
     assert.match(f.container.querySelector('[role="alert"]').textContent,/Unable to display/);
@@ -103,6 +109,37 @@ test('a contained lesson loader stays inside the player while route loading stil
     await act(async()=>f.root.render(React.createElement(Loader,{})));
     assert.equal(f.container.querySelector('[role="status"]'),null);
     assert.ok(f.window.document.body.querySelector('[role="status"]'),'route loading retains its full-page overlay');
+  }finally{await f.close();}
+});
+
+test('native pages open directly for both roles while explicit uploaded replacements keep their own runtime',async()=>{
+  const f=await dom();let page=31,builds=0,frameProps;
+  const native=kind=>function NativePreview(props){return React.createElement('div',{'data-native':kind,'data-admin':String(props.isAdmin)});};
+  const Deck=load('components/deck/UploadedSectionDeck.tsx',{
+    'next/dynamic':{__esModule:true,default:loader=>String(loader).includes('QuizSlide')?native('quiz'):String(loader).includes('ShowcaseSlide')?native('showcase'):()=>null},
+    '@/components/deck/SharedDeckFrame':{__esModule:true,default:props=>{frameProps=props;return props.renderSlide(page,960);}},
+    '@/components/HairlineLoading':{__esModule:true,default:()=>React.createElement('i',{'data-loading':true})},
+    '@/lib/webDevelopmentQuiz':{WEB_DEVELOPMENT_SECTION_ID:ids[0]},'@/lib/compiledSectionMetadata':metadata,
+    '@/lib/tsxDocument':{createTsxDocument:()=>{builds++;return '<html><body>Uploaded lesson</body></html>';}},
+  },{window:f.window,fetch:async()=>({ok:true,text:async()=>'exports.default=[];'})}).default;
+  const props={sectionId:ids[0],contentType:'tsx',slideCount:32,courseTitle:'Web',sectionTitle:'Section 1'};
+  try{
+    for(const [isAdmin,pages] of [[true,[31,32]],[false,[30,31]]]){
+      for(const [index,target] of pages.entries()){
+        page=target;
+        await act(async()=>f.root.render(React.createElement(Deck,{...props,isAdmin,key:`${isAdmin}:${page}`})));
+        assert.equal(f.container.querySelector('[data-native]').dataset.native,index===0?'showcase':'quiz');
+        assert.equal(f.container.querySelector('iframe'),null);
+        assert.equal(frameProps.totalSlides,isAdmin?32:31);
+        assert.equal(frameProps.slideTransitions,true);
+      }
+    }
+    assert.equal(builds,0,'opening native pages performs zero sandbox evaluations');
+    page=31;
+    await act(async()=>f.root.render(React.createElement(Deck,{...props,isAdmin:true,uploadedContent:true,key:'override'})));
+    assert.ok(f.container.querySelector('iframe'));
+    assert.equal(f.container.querySelector('[data-native]'),null,'replacement JS must not inherit project interaction mappings');
+    assert.equal(f.container.querySelector('[data-slide-ready]').dataset.slideReady,'false');
   }finally{await f.close();}
 });
 

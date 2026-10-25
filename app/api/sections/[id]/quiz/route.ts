@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { currentUserAccess } from "@/lib/auth/currentUser";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { WEB_DEVELOPMENT_COURSE_ID, WEB_DEVELOPMENT_SECTION_ID, WEB_DEVELOPMENT_QUESTIONS } from "@/lib/webDevelopmentQuiz";
@@ -50,12 +50,30 @@ async function save(scope: Scope, action: string, details: Record<string, unknow
 }
 const denied = () => NextResponse.json({ message: "Bạn không có quyền truy cập quiz này." }, { status: 403 });
 
+function notifyQuiz(scope: Scope, event: "quiz_state_changed" | "quiz_results_changed") {
+  // Broadcast only an invalidation after persistence. Recipients still fetch
+  // their authorized state; delivery is not on the teacher's response path.
+  after(async () => {
+    const db = getSupabaseAdmin();
+    const channel = db.channel(`eiu:quiz:${scope.section.id}`);
+    try {
+      const result = await channel.httpSend(event, {}, { timeout: 5000 });
+      if (!result.success) console.error("Quiz broadcast unavailable:", result.error);
+    } catch (error) { console.error("Quiz broadcast unavailable:", error); }
+    finally { await db.removeChannel(channel); }
+  });
+}
+
 export async function GET(request: Request, context: Context) {
   try {
     const scope = await resolve(request, context);
     if (!scope) return denied();
+    if (!scope.teaching) {
+      const [state, result] = await Promise.all([latest(scope, "QUIZ_OPENED", false, request.signal), progress(scope, request.signal)]);
+      return NextResponse.json({ success: true, isOpen: Boolean(state), quizSession: scope.quizSession, result }, { headers: { "Cache-Control": "no-store" } });
+    }
     const state = await latest(scope, "QUIZ_OPENED", false, request.signal);
-    if (!scope.teaching) return NextResponse.json({ success: true, isOpen: Boolean(state), quizSession: scope.quizSession, result: await progress(scope, request.signal) }, { headers: { "Cache-Control": "no-store" } });
+    if (!state) return NextResponse.json({ success: true, isOpen: false, completedLearners: [] }, { headers: { "Cache-Control": "no-store" } });
     const { data, error } = await records(scope, "QUIZ_COMPLETED", request.signal).order("created_at", { ascending: false });
     if (error) throw error;
     const seen = new Set<string>();
@@ -77,7 +95,8 @@ export async function POST(request: Request, context: Context) {
     const body = await request.json();
     if (body.action === "open") {
       if (!scope.teaching) return denied();
-      if (!await latest(scope, "QUIZ_OPENED", false)) await save(scope, "QUIZ_OPENED", {}, request.signal);
+      if (!await latest(scope, "QUIZ_OPENED", false, request.signal)) await save(scope, "QUIZ_OPENED", {}, request.signal);
+      notifyQuiz(scope, "quiz_state_changed");
       return NextResponse.json({ success: true, isOpen: true });
     }
     if (scope.teaching) return denied();
@@ -94,6 +113,7 @@ export async function POST(request: Request, context: Context) {
       if (answers.some((answer, index) => !WEB_DEVELOPMENT_QUESTIONS[index].options.includes(answer.selected))) return NextResponse.json({ message: "Câu trả lời không hợp lệ." }, { status: 400 });
       const score = answers.filter(answer => answer.isCorrect).length;
       const saved = await save(scope, "QUIZ_COMPLETED", { score, total: answers.length, answers }, request.signal);
+      notifyQuiz(scope, "quiz_results_changed");
       return NextResponse.json({ success: true, score, total: answers.length, answers, completedAt: saved.created_at, learner: { ...scope.identity, fields: scope.identity.fields || [] } });
     }
     if (body.action === "feedback") {

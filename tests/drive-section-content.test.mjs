@@ -9,7 +9,7 @@ function fixture(options={}) {
  const bytes=Buffer.from("%PDF-1.4\nVerified original");const requests=[];
  const client={request:async input=>{requests.push(input);return input.params?.alt==="media" ? {data:options.downloadBytes || bytes} : {data:{name:"lesson.pdf",size:String(bytes.length),mimeType:"application/pdf",capabilities:{canDownload:true},...options.metadata}};}};
  const exports={};
- const deps={"server-only":{},"./connection":{authorizedDriveClient:async()=>client},"./destinations":{selectedDestination:async()=>({folder_id:"folder-test-id"}),verifyDriveFolder:async()=>{}},"./sourceUpload":{saveDriveOriginal:async()=>"file-test-id-12345"},"@/lib/sectionContent":{MAX_SECTION_BYTES:50*1024*1024}};
+ const deps={"server-only":{},"./connection":{authorizedDriveClient:async()=>client},"./destinations":{selectedDestination:async()=>({folder_id:"folder-test-id"}),verifyDriveFolder:async()=>{}},"./sourceUpload":{saveDriveOriginal:async()=>"file-test-id-12345"},"@/lib/sectionLimits":{MAX_SECTION_BYTES:50*1024*1024}};
  const code=ts.transpileModule(fs.readFileSync("lib/drive/sectionContent.ts","utf8"),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
  vm.runInNewContext(code,{exports,Buffer,TextDecoder,Uint8Array,URL,require:n=>deps[n]??require(n)});
  return {helper:exports,bytes,requests};

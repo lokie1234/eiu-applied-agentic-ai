@@ -39,6 +39,14 @@ test("readable names omit timestamps and IDs while preserving safe labels", () =
   assert.ok(!/[\/\\\n]/.test(sanitized));
 });
 
+test("JS originals keep their extension and use the compatible interactive category", () => {
+  const file = exports.describeSectionSource({ ...input, originalFilename: "Lesson.JS" });
+  assert.equal(exports.sectionSourceType("Lesson.JS"), "tsx");
+  assert.equal(file.type, "tsx");
+  assert.equal(file.driveFolderId, exports.SECTION_SOURCE_DESTINATIONS.tsx);
+  assert.ok(file.name.endsWith(".js"));
+});
+
 test("unsupported types, invalid identifiers and dates fail before upload", () => {
   assert.throws(() => exports.describeSectionSource({ ...input, originalFilename: "file.exe" }));
   assert.throws(() => exports.describeSectionSource({ ...input, sourceId: "../unsafe" }));

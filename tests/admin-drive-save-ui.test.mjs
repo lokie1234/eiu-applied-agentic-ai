@@ -66,6 +66,10 @@ test("Drive actions only export copies, guard repeated clicks and report partial
     assert.doesNotMatch(container.textContent, /Load from Drive|Move existing|Upload files to Drive/);
     assert.equal(container.querySelectorAll('button[aria-label^="Save "][aria-label$="to Drive"]').length, 5);
     assert.equal(container.querySelector('[aria-label="Drive save destination"]'), null);
+    const builtinDownload = container.querySelector('a[aria-label="Download Web App as JS"]');
+    assert.equal(builtinDownload.getAttribute("href"), "/api/sections/s1/content?download=1&builtin=1");
+    assert.equal(builtinDownload.getAttribute("download"), "section1.js");
+    assert.equal(container.querySelector('a[aria-label="Download Document as JS"]'), null, "PDF sections are not offered as JS");
     const batch = container.querySelector('button[aria-label="Save course files to Drive"]');
     await act(async () => { batch.click(); batch.click(); });
     assert.equal(calls.length, 1, "opening only loads the plan");
@@ -76,11 +80,14 @@ test("Drive actions only export copies, guard repeated clicks and report partial
     assert.equal(save.disabled, true, "target must be chosen explicitly");
     await act(async () => { select.value = "d1"; select.dispatchEvent(new window.Event("change", { bubbles: true })); });
     await act(async () => { save.click(); save.click(); });
-    assert.equal(calls.length, 2);
+    assert.equal(calls.length, 3, "two sections upload concurrently and repeated clicks add no requests");
+    assert.equal(pending.length, 2, "the third section waits for a worker");
     assert.equal(save.disabled, true);
     assert.match(dialog.querySelector('[role="status"]').textContent, /System is working/);
     assert.match(dialog.querySelector('[role="status"]').textContent, /Saving 1 of 3/);
     await act(async () => pending.shift()({ ok: true, json: async () => ({ success: true }) }));
+    assert.equal(calls.length, 4);
+    assert.equal(pending.length, 2, "finishing one file starts exactly one waiting section");
     await act(async () => pending.shift()({ ok: false, json: async () => ({ success: false, message: "Drive unavailable" }) }));
     await act(async () => pending.shift()({ ok: true, json: async () => ({ success: true }) }));
     assert.deepEqual(calls.slice(1).map(call => call.body.action), ["save_builtin", "save_builtin", "save"]);

@@ -732,3 +732,29 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .section-one-slide-transition::after { animation: none !important; }
 }
 @keyframes sectionOneLiteEnter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+/* Section 1: capture outgoing pixels while the next slide prepares. Loading
+   remains an initial-load state; navigation animates the slide surfaces only. */
+html[data-eiu-slide-transition]::view-transition-old(root) { display: none; }
+html[data-eiu-slide-transition]::view-transition-new(root) { animation: none; }
+html[data-eiu-slide-transition]::view-transition-group(eiu-web-section-slide) { animation: none; }
+html[data-eiu-slide-transition]::view-transition-old(eiu-web-section-slide) {
+  animation: eiu-slide-leave 180ms ease-in both;
+  mix-blend-mode: normal;
+}
+html[data-eiu-slide-transition]::view-transition-new(eiu-web-section-slide) {
+  animation: eiu-slide-enter 260ms cubic-bezier(.22,.61,.36,1) 80ms both;
+  mix-blend-mode: normal;
+}
+html[data-eiu-slide-transition="forward"] { --eiu-slide-out: -12px; --eiu-slide-in: 12px; }
+html[data-eiu-slide-transition="backward"] { --eiu-slide-out: 12px; --eiu-slide-in: -12px; }
+@keyframes eiu-slide-leave {
+  to { opacity: 0; transform: translateX(var(--eiu-slide-out)); }
+}
+@keyframes eiu-slide-enter {
+  from { opacity: 0; transform: translateX(var(--eiu-slide-in)); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  html[data-eiu-slide-transition]::view-transition-old(eiu-web-section-slide),
+  html[data-eiu-slide-transition]::view-transition-new(eiu-web-section-slide) { animation: none; }
+}
