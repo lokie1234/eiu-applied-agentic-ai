@@ -13,14 +13,14 @@ const source = fs.readFileSync('course-content/web-app-development/Section1.js',
 const slides = JSON.parse(fs.readFileSync('course-content/web-app-development/storyboard.json', 'utf8')).slides;
 const starter = slides.find(s => s.section === 1 && s.visual === 'git-intro-starter');
 
-function render(page, clipboard, frames) {
+function render(page, clipboard, frames, isAdmin = true) {
   const window = new Window();
   let randomSeed = 42;
   const testMath = Object.create(Math);
   testMath.random = () => ((randomSeed = (1664525 * randomSeed + 1013904223) >>> 0) / 4294967296);
   if (frames) window.requestAnimationFrame = callback => frames.push(callback);
   window.document.body.innerHTML = '<div id="root"></div>';
-  vm.runInNewContext(documents.createTsxDocument(source, page, "", "", "", true).match(/<script>([\s\S]*?)<\/script>/)[1], {
+  vm.runInNewContext(documents.createTsxDocument(source, page, "", "", "", isAdmin).match(/<script>([\s\S]*?)<\/script>/)[1], {
     window, document: window.document, navigator: { clipboard }, Node: window.Node, URL: window.URL,
     parent: { postMessage() {} }, setTimeout: window.setTimeout.bind(window), clearTimeout: window.clearTimeout.bind(window),
     ...(frames ? { Math: testMath } : {}),
@@ -29,35 +29,27 @@ function render(page, clipboard, frames) {
   return window;
 }
 
-test('starter copies the current website description and preserves all other prompt instructions', async () => {
+test('starter opens its full prompt, copies it unchanged and retains the ZIP download', async () => {
   const copies = [];
   const window = render(starter.number, { writeText: async text => copies.push(text) });
   try {
     const doc = window.document;
-    const input = doc.querySelector('.starterContextInput');
-    assert.equal(input.spellcheck, false);
-    assert.equal(input.getAttribute('spellcheck'), 'false');
-    const original = input.value;
-    const button = doc.querySelector('.starterPromptPanel .copyControl');
+    const trigger = doc.querySelector('.starterPromptTrigger');
+    trigger.click();
+    const dialog = doc.querySelector('.starterPromptDialog');
+    assert.equal(dialog.querySelector('pre').textContent, starter.prompt);
+    const button = dialog.querySelector('.copyControl');
     button.click();
     await window.happyDOM.whenAsyncComplete();
     assert.equal(copies[0], starter.prompt);
-    for (const value of ['Website đặt lịch khám, có form chọn ngày và bác sĩ', 'Cửa hàng "Hoa & Lá"\nCó giỏ hàng và form đặt hoa']) {
-      input.value = value;
-      input.dispatchEvent(new window.Event('input', { bubbles: true }));
-      button.click();
-      await window.happyDOM.whenAsyncComplete();
-      assert.equal(copies.at(-1), starter.prompt.replace(original, value));
-    }
     assert.equal(doc.querySelector('.starterHero'), null);
     const names = [...doc.querySelectorAll('.starterToolIcon img')].map(img => img.alt);
     assert.deepEqual(names.slice(0, 4), ['VS Code', 'Claude', 'Codex', 'Antigravity']);
     assert.deepEqual(names.slice(4), ['GitHub Copilot', 'Cline', 'Gemini Code Assist', 'Amazon Q', 'Continue', 'Augment', 'Kilo Code', 'Qodo', 'Bito', 'CodeGeeX', 'Tabby', 'CodeGPT']);
-    doc.querySelector('.starterDownloadTrigger').click();
-    const dialog = doc.querySelector('[role="dialog"]');
-    assert.equal(dialog.querySelector('a[download]').getAttribute('href'), '/downloads/eiu-advertising-starter.zip');
+    assert.equal(doc.querySelector('a.starterDownloadTrigger[download]').getAttribute('href'), '/downloads/eiu-advertising-starter.zip');
     dialog.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     assert.equal(doc.querySelector('[role="dialog"]'), null);
+    assert.equal(doc.activeElement, trigger);
   } finally {
     await window.happyDOM.close();
   }
@@ -171,15 +163,16 @@ test('four transparent tool icons in the editing lesson use hover physics', asyn
   }
 });
 
-test('build review keeps all instructions and copies both command blocks', async () => {
+test('build review keeps all instructions, result examples and the runnable command copy', async () => {
   const slide = slides.find(s => s.section === 1 && s.visual === 'git-intro-build');
   const copies = [];
   const window = render(slide.number, { writeText: async text => copies.push(text) });
   try {
-    const rows = [...window.document.querySelectorAll('.buildReviewRow')];
+    const rows = [...window.document.querySelectorAll('.buildRunCard,.buildResultCard')];
     assert.deepEqual(rows.map(row => row.querySelector('h2').textContent), slide.cards.map(c => c.title));
     assert.deepEqual(rows.map(row => row.querySelector('p').textContent), slide.cards.map(c => c.text));
-    const codes = slide.cards.filter(c => c.code).map(c => c.code);
+    assert.deepEqual([...window.document.querySelectorAll('.buildResultCard pre')].map(p => p.textContent), slide.cards.slice(1).map(c => c.code || ''));
+    const codes = [slide.cards[0].code];
     assert.deepEqual([...window.document.querySelectorAll('.buildReviewCommand pre')].map(p => p.textContent), codes);
     for (const button of window.document.querySelectorAll('.buildReviewCommand .copyControl')) {
       button.click();
@@ -230,38 +223,64 @@ test('Clone editor copies the current URL and matching destination folder withou
   }
 });
 
-test('GenAI statement precedes the restored agent flow in the 32-slide admin section', async () => {
+test('practice follows the agent flow and showcase opens localhost guidance for both roles', async () => {
   const section = slides.filter(s => s.section === 1);
-  assert.equal(section.length, 32);
-  assert.equal(section[26].visual, 'git-intro-pull');
-  assert.equal(section[27].visual, 'git-intro-genai-purpose');
-  assert.equal(section[28].visual, 'git-intro-agent-full-flow');
-  assert.equal(section[29].visual, 'git-intro-localhost-share');
-  assert.equal(section[30].visual, 'git-intro-submission');
-  assert.equal(section[31].visual, 'git-intro-section-quiz');
-  assert.deepEqual(section.map(s=>s.number), Array.from({length:32},(_,i)=>i+1));
-  const window = render(28, {});
+  assert.equal(section.length, 30);
+  assert.equal(section[24].visual, 'git-intro-pull');
+  assert.equal(section[25].visual, 'git-intro-genai-purpose');
+  assert.equal(section[26].visual, 'git-intro-agent-full-flow');
+  assert.equal(section[27].visual, 'ai-free-design-practice');
+  assert.equal(section[28].visual, 'git-intro-submission');
+  assert.equal(section[28].guideSlide.visual, 'git-intro-localhost-share');
+  assert.equal(section[29].visual, 'git-intro-section-quiz');
+  assert.deepEqual(section.map(s=>s.number), Array.from({length:30},(_,i)=>i+1));
+  const window = render(26, {});
   try {
     const doc=window.document;
     const statement = doc.querySelector('.genAiStatement');
-    assert.equal(doc.querySelector('.title').textContent, section[27].title);
+    assert.equal(doc.querySelector('.title').textContent, section[25].title);
     assert.equal(statement.getAttribute('aria-label'), 'B\u1ea1n ch\u1ec9 c\u1ea7n hi\u1ec3u r\u00f5 m\u00ecnh mu\u1ed1n g\u00ec');
-    assert.equal([...statement.querySelector('h2').children].map(node => node.textContent).join(' '), section[27].message);
+    assert.equal([...statement.querySelector('h2').children].map(node => node.textContent).join(' '), section[25].message);
     assert.equal(statement.querySelector('.genAiIconRow').getAttribute('aria-hidden'), 'true');
     assert.equal(statement.querySelectorAll('.genAiIconSlot').length, 15);
     for (const image of statement.querySelectorAll('.genAiIconSlot img')) assert.ok(image.src.startsWith('data:image/'));
     assert.equal(statement.querySelector('button'), null);
     assert.equal(doc.querySelector('.agentFlowTask'), null);
   } finally { await window.happyDOM.close(); }
-  const restored = render(29, {});
+  const flow = render(27, {});
+  try {
+    assert.equal(flow.document.querySelectorAll('.agentFlowTask').length, 3);
+    assert.equal(flow.document.querySelector('.agentGuideTrigger'), null);
+  } finally { await flow.happyDOM.close(); }
+  for (const isAdmin of [true, false]) {
+  const restored = render(isAdmin ? 29 : 28, {}, undefined, isAdmin);
   try {
     const doc = restored.document;
-    assert.equal(doc.querySelectorAll('.agentFlowEndpoint').length, 2);
-    assert.equal(doc.querySelectorAll('.agentFlowTask').length, 3);
-    assert.equal(doc.querySelectorAll('.agentFlowArrow').length, 2);
-    assert.equal(doc.querySelector('.agentFlowProduct').textContent.includes('GitHub'), true);
+    const trigger = doc.querySelector('.title .agentGuideTrigger');
+    assert.equal(trigger.textContent, 'Hướng dẫn');
+    assert.equal(doc.querySelector('.agentFlowTask'), null);
+    assert.ok(doc.querySelector('[data-eiu-showcase]'));
+    trigger.click();
+    assert.equal(doc.querySelectorAll('.agentGuideOverlay').length, 1);
+    assert.equal(doc.activeElement, doc.querySelector('.agentGuideClose'));
+    assert.equal(doc.querySelectorAll('.localhostShareStep').length, 3);
+    assert.equal(doc.querySelectorAll('.localhostRiskItem').length, 2);
+    assert.match(doc.querySelector('.localhostRisk').textContent, /PUBLIC = CÓ RỦI RO/);
+    const stop = doc.querySelector('.localhostStopHelp');
+    stop.click();assert.ok(doc.querySelector('.localhostStopDialog'));
+    doc.querySelector('.localhostStopClose').click();
     assert.equal(doc.querySelector('.genAiStatement'), null);
+    doc.activeElement.dispatchEvent(new restored.KeyboardEvent('keydown', {key:'Tab', bubbles:true}));
+    assert.equal(doc.activeElement, doc.querySelector('.agentGuideClose'));
+    doc.activeElement.dispatchEvent(new restored.KeyboardEvent('keydown', {key:'Escape', bubbles:true}));
+    assert.equal(doc.querySelector('.agentGuideOverlay'), null);
+    assert.equal(doc.activeElement, trigger);
+    trigger.click();doc.querySelector('.agentGuideOverlay').click();
+    assert.equal(doc.querySelector('.agentGuideOverlay'), null);
+    trigger.click();doc.querySelector('.agentGuideClose').click();
+    assert.equal(doc.querySelector('.agentGuideOverlay'), null);
   } finally { await restored.happyDOM.close(); }
+  }
 });
 
 test('permission overview follows AI setup and explains each tool without changing settings', async () => {

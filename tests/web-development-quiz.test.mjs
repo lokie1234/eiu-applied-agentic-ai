@@ -58,6 +58,35 @@ function fixture() {
 }
 const allCorrect = () => questions.map(question => ({ selected: question.options[question.answer], isCorrect: true }));
 
+test('quiz session lookup starts alongside authorization rather than after it', async () => {
+  let finishAccess, sessionRead = false;
+  const accessPending = new Promise(resolve => { finishAccess = resolve; });
+  const route = load('app/api/sections/[id]/quiz/route.ts', {
+    'next/server': { NextResponse: Response },
+    '@/lib/auth/currentUser': { currentUserAccess: () => accessPending },
+    '@/lib/supabase/server': {}, '@/lib/webDevelopmentQuiz': bank,
+    '@/lib/sectionTermination': { readSectionTermination: async () => { sessionRead = true; return null; } },
+  });
+  const response = route.GET(new Request('http://localhost/quiz'), { params: Promise.resolve({ id: sectionId }) });
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(sessionRead, true, 'session query does not wait for the access database round trips');
+  finishAccess(null);
+  assert.equal((await response).status, 403, 'parallel reads still require authorization');
+});
+
+test('uncompleted learners skip feedback reads while completed progress still restores feedback', async () => {
+  const f = fixture();
+  const state = await (await f.get()).json();
+  assert.equal(state.result, null);
+  assert.deepEqual(f.queriedActions, ['SECTION_TERMINATED', 'QUIZ_OPENED', 'QUIZ_COMPLETED']);
+  f.access.isAdmin = true; await f.post({ action: 'open' }); f.access.isAdmin = false;
+  await f.post({ action: 'result', answers: allCorrect() });
+  await f.post({ action: 'feedback', feedback: 'Useful' });
+  f.queriedActions.length = 0;
+  assert.equal((await (await f.get()).json()).result.feedbackSubmitted, true);
+  assert.ok(f.queriedActions.includes('FEEDBACK_SUBMITTED'));
+});
+
 test('closed teaching quizzes skip completion reads and opening notifies the scoped channel after persistence', async () => {
   const f = fixture(); f.access.isAdmin = true;
   assert.equal((await (await f.get()).json()).isOpen, false);
@@ -278,6 +307,41 @@ test('teacher can open before the initial read finishes, duplicate confirmation 
     await act(async()=>reads[1]({ok:true,json:async()=>({isOpen:true,completedLearners:[]})}));
     assert.ok(container.querySelector('.adminResultsStage'));
   }finally{await act(async()=>root.unmount());await window.happyDOM.close();}
+});
+
+test('learners detect an open quiz within the two-second fallback without realtime and slow polling after opening', async () => {
+  const window = new Window({ url: 'http://localhost' });
+  for (const name of ['window', 'document', 'navigator', 'HTMLElement']) Object.defineProperty(globalThis, name, { configurable: true, value: name === 'window' ? window : window[name] });
+  globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+  Object.defineProperty(window.document, 'visibilityState', { value: 'visible', configurable: true });
+  const intervals = new Map(); let nextId = 0, open = false, reads = 0;
+  window.setInterval = (callback, delay) => { const id = ++nextId; intervals.set(id, { callback, delay }); return id; };
+  window.clearInterval = id => intervals.delete(id);
+  const { createRoot } = await import('react-dom/client');
+  const Quiz = load('components/QuizSlide.tsx', {
+    '@/lib/webDevelopmentQuiz': bank, '@/lib/liveRefresh': load('lib/liveRefresh.ts'),
+    '@/lib/supabase/browser': { getSupabaseBrowserClient: () => null },
+  }, { window, document: window.document, fetch: async () => {
+    reads++; return { ok: true, json: async () => ({ isOpen: open, quizSession: 'initial', result: null }) };
+  } }).default;
+  const container = window.document.createElement('div'), root = createRoot(container);
+  try {
+    await act(async () => root.render(React.createElement(Quiz, { sectionId, scale: 1 })));
+    await act(async () => new Promise(resolve => setTimeout(resolve, 15)));
+    assert.equal(reads, 1);
+    assert.equal(intervals.size, 1);
+    assert.equal([...intervals.values()][0].delay, 2000);
+    assert.equal(container.querySelector('.questionCard'), null);
+    open = true;
+    await act(async () => { [...intervals.values()][0].callback(); await Promise.resolve(); });
+    assert.equal(reads, 2);
+    assert.ok(container.querySelector('.questionCard'));
+    assert.equal(intervals.size, 1);
+    assert.equal([...intervals.values()][0].delay, 8000);
+    Object.defineProperty(window.document, 'visibilityState', { value: 'hidden', configurable: true });
+    await act(async () => [...intervals.values()][0].callback());
+    assert.equal(reads, 2, 'hidden quiz does not poll');
+  } finally { await act(async () => root.unmount()); assert.equal(intervals.size, 0); await window.happyDOM.close(); }
 });
 
 test('uploaded deck binds the quiz marker to the active frame, section and page', async () => {

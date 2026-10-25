@@ -8,13 +8,17 @@ type Context = { params: Promise<{ id: string }> };
 type AuditRow = { id: number; created_at: string; details: Record<string, unknown> };
 
 async function resolve(request: Request, context: Context) {
-  const [{ id }, access] = await Promise.all([context.params, currentUserAccess(request.signal)]);
+  const { id } = await context.params;
+  if (id !== WEB_DEVELOPMENT_SECTION_ID) return null;
+  const [access, termination] = await Promise.all([
+    currentUserAccess(request.signal),
+    readSectionTermination(WEB_DEVELOPMENT_COURSE_ID, id, request.signal),
+  ]);
   const section = access?.sections.find(section => section.id === id);
   const course = access?.courses.find(course => course.id === section?.courseId);
   if (!access?.isActive || !section || !course || id !== WEB_DEVELOPMENT_SECTION_ID || course.id !== WEB_DEVELOPMENT_COURSE_ID
     || (!access.isAdmin && (section.hidden || course.hidden))) return null;
   const identity = access.learnerIdentity || { sessionId: access.authUserId, name: access.displayName, email: access.email, information: {}, fields: [] };
-  const termination = await readSectionTermination(course.id, section.id, request.signal);
   return { access, section, course, identity, afterId: termination?.id, quizSession: termination?.details.token || "initial", teaching: access.isAdmin || section.canFacilitate === true };
 }
 type Scope = NonNullable<Awaited<ReturnType<typeof resolve>>>;
@@ -33,7 +37,9 @@ async function latest(scope: Scope, action: string, learner: boolean, signal?: A
   return data as AuditRow | null;
 }
 async function progress(scope: Scope, signal?: AbortSignal) {
-  const [result, feedback] = await Promise.all([latest(scope, "QUIZ_COMPLETED", true, signal), latest(scope, "FEEDBACK_SUBMITTED", true, signal)]);
+  const result = await latest(scope, "QUIZ_COMPLETED", true, signal);
+  if (!result) return null;
+  const feedback = await latest(scope, "FEEDBACK_SUBMITTED", true, signal);
   return result ? { ...result.details, completedAt: result.created_at, feedbackSubmitted: Boolean(feedback),
     learner: { ...scope.identity, fields: scope.identity.fields || [] } } : null;
 }

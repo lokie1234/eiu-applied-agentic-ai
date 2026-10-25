@@ -11,7 +11,7 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync("lib/tsxDocument.ts", "utf
 }).outputText, { exports: documents });
 const source = fs.readFileSync("course-content/web-app-development/Section1.js", "utf8");
 
-function open(isAdmin, page = 21, reducedMotion = false) {
+function open(isAdmin, page = 28, reducedMotion = false) {
   const window = new Window(), messages = [], intervals = new Map(), animations = [];
   window.matchMedia = () => ({ matches: reducedMotion });
   window.HTMLElement.prototype.animate = function(frames, options) {
@@ -39,20 +39,40 @@ function open(isAdmin, page = 21, reducedMotion = false) {
   };
 }
 
-test("only admins see the practice slide after slide 20; learners keep their original count and flow", async () => {
+test("only teaching access sees practice after the agent flow; learners continue to showcase", async () => {
   const admin = open(true), learner = open(false), count = open(false, null);
   try {
-    assert.equal(admin.messages[0].slides, 32);
+    assert.equal(admin.messages[0].slides, 30);
     assert.ok(admin.doc.querySelector(".freeDesignPractice"));
     assert.equal(admin.doc.querySelector('.practiceWorkspace'), null);
     assert.equal(admin.doc.querySelector('.practiceEyebrow'), null);
     assert.equal(admin.doc.querySelector('.practiceBurst').parentElement.className, 'practiceTimerFace');
-    assert.equal(learner.messages[0].slides, 31);
-    assert.equal(count.messages[0].slides, 31);
+    assert.equal(learner.messages[0].slides, 29);
+    assert.equal(count.messages[0].slides, 29);
     assert.equal(learner.doc.querySelector(".freeDesignPractice"), null);
-    assert.ok(learner.doc.querySelector(".workflowSummary"), "learners proceed straight to the workflow overview");
+    assert.ok(learner.doc.querySelector('[data-eiu-showcase]'), "learners proceed to showcase without the teaching timer");
     assert.equal(count.doc.querySelector(".practiceTimer"), null, "count mode never starts a timer");
   } finally { await Promise.all([admin.close(), learner.close(), count.close()]); }
+});
+
+test("teaching duration is configurable, validates input, and resets without changing pause or expiry behavior", async () => {
+  const f=open(true);
+  try {
+    const input=f.doc.querySelector('.practiceDuration input');
+    const [toggle,reset]=f.doc.querySelectorAll('.practiceTimerControls button');
+    const output=f.doc.querySelector('[role=timer]');
+    const choose=value=>{input.value=value;input.dispatchEvent(new f.window.Event('change',{bubbles:true}));};
+    choose('7');assert.equal(output.textContent,'07:00');assert.equal(f.intervals.size,0);
+    for(const invalid of ['0','46','180','1.5','']){choose(invalid);assert.equal(input.value,'7');assert.equal(output.textContent,'07:00');}
+    toggle.click();assert.equal(input.disabled,true);f.advance(60_000);assert.equal(output.textContent,'06:00');
+    toggle.click();assert.equal(input.disabled,false);assert.equal(f.intervals.size,0);
+    choose('2');assert.equal(output.textContent,'02:00');assert.equal(toggle.textContent,'Bắt đầu');
+    toggle.click();f.advance(120_000);assert.equal(output.textContent,'00:00');assert.equal(input.disabled,false);
+    assert.equal(f.doc.querySelector('.freeDesignPractice').dataset.completed,'true');
+    reset.click();assert.equal(output.textContent,'02:00');assert.equal(toggle.disabled,false);
+    choose('45');assert.equal(output.textContent,'45:00');
+    choose('1');assert.equal(output.textContent,'01:00');
+  } finally {await f.close();}
 });
 
 test("only timer controls remain; expiry scatters the icons and reset cancels them", async () => {
@@ -107,7 +127,7 @@ test("filled timer keeps the icons still, releases its animations and leaves con
 });
 
 test("reduced-motion expiry fades the icons in place without sending them across the slide", async () => {
-  const f = open(true, 21, true);
+  const f = open(true, 28, true);
   try {
     f.doc.querySelector('.practiceTimerControls button').click(); f.advance(900_000);
     assert.equal(f.animations.length, 96);

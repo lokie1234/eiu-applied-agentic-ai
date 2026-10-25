@@ -2,19 +2,78 @@
   "47c1183e-a26e-4c5d-9937-88ec5a755a32": {
     "courseId": "a857595d-def0-4543-9216-a680c6abfe26",
     "path": "course-content/web-app-development/Section1.js",
-    "revision": "5f01f83c65aaedf2c26281f8f6a963576c8e09b95a541694dcaee50c1aaafd03",
-    "bytes": 1467924,
-    "teachingSlides": 31,
-    "learnerSlides": 30,
+    "revision": "7b343626a5eb857c9487ec209edd9491c49e70885949eac71a6141c329ba3556",
+    "bytes": 1402735,
+    "teachingSlides": 30,
+    "learnerSlides": 29,
+    "showcaseGuide": {
+      "section": 1,
+      "number": 29,
+      "layoutNumber": 30,
+      "title": "Chia sẻ localhost · lưu ý rủi ro Public",
+      "visual": "git-intro-localhost-share",
+      "minutes": 5,
+      "message": "Gửi link demo qua Ports của VS Code. Chỉ bật Public khi đã kiểm tra nội dung app.",
+      "cards": [
+        {
+          "title": "Chạy app",
+          "logo": "Node.js",
+          "text": "Xem cổng trong Terminal, ví dụ 3000.",
+          "code": "npm.cmd run dev"
+        },
+        {
+          "title": "Mở Ports",
+          "logo": "VS Code",
+          "text": "Ctrl+Shift+P → Ports: Focus on Ports View",
+          "detail": "Forward a Port → nhập cổng; đăng nhập nếu cần.",
+          "logoSrc": "data:image/png;base64,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"
+        },
+        {
+          "title": "Bật Public và gửi link",
+          "logo": "Browser",
+          "text": "Chuột phải cổng → Port Visibility → Public.",
+          "detail": "Copy Forwarded Address rồi gửi link demo."
+        },
+        {
+          "title": "PUBLIC = CÓ RỦI RO",
+          "text": "Ai có link đều vào được app.",
+          "detail": "Link có thể bị chuyển tiếp cho người lạ.",
+          "summary": [
+            "Chỉ dùng dữ liệu giả khi demo.",
+            "Không chia sẻ dữ liệu nhạy cảm.",
+            "Xong demo: dừng chuyển tiếp."
+          ],
+          "modes": [
+            {
+              "title": "Lộ dữ liệu",
+              "text": "Dữ liệu app hiển thị có thể bị xem, tải về."
+            },
+            {
+              "title": "Lạm dụng API",
+              "text": "Có thể bị lạm dụng nếu thiếu phân quyền."
+            }
+          ],
+          "points": [
+            "Mở tab Ports ở bảng phía dưới VS Code.",
+            "Chuột phải cổng đang chia sẻ, ví dụ 3000.",
+            "Chọn Stop Forwarding Port; cổng sẽ rời danh sách."
+          ]
+        }
+      ],
+      "note": "Xác minh 21/10/2026: https://code.visualstudio.com/docs/debugtest/port-forwarding . Port Forwarding có sẵn trong VS Code qua Microsoft dev tunnels, không cần extension. Chạy app ở local, Ports: Focus on Ports View, Forward a Port, đăng nhập GitHub nếu cần và nhập đúng port ứng dụng. Mặc định Private yêu cầu cùng tài khoản; đổi Port Visibility > Public để người có link truy cập không đăng nhập. Không chia sẻ dịch vụ hoặc dữ liệu nhạy cảm qua cổng Public. Đây là hướng dẫn, không bật tunnel thực tế. Giữ app, VS Code, máy tính và kết nối internet trong buổi demo; dừng chuyển tiếp khi xong. Có thể kiểm tra link bằng điện thoại dùng mạng di động hoặc cửa sổ riêng tư. Port 3000 chỉ là ví dụ, lấy port thực tế trong Terminal. Link demo không thay thế hosting lâu dài. Redesign nhấn rủi ro: nguồn VS Code xác nhận ai có link Public đều truy cập được dịch vụ, khuyên tránh dữ liệu bí mật/dịch vụ không an toàn. Hai hệ quả về dữ liệu app hiển thị và API thiếu phân quyền là suy luận theo phạm vi dịch vụ được đưa ra ngoài; không khẳng định toàn bộ máy, source code hay file .env tự bị công khai. Public bỏ đăng nhập của tunnel, không tự vô hiệu hóa đăng nhập/phân quyền riêng của app. Xác minh nhãn Stop Forwarding Port và hành vi đóng tunnel: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/remote/browser/tunnelView.ts . Nút Cách dừng chỉ mở hướng dẫn, không tác động kết nối thật.",
+      "objective": "Biết chia sẻ app local qua Ports và hiểu rủi ro khi Public bỏ lớp đăng nhập của tunnel.",
+      "verify": "Nêu được ai truy cập được link Public, hai rủi ro ở ứng dụng và cách dừng chia sẻ.",
+      "visualConcept": "Hai cột EIU trên canvas 1280×720: ba bước chia sẻ ngắn bên trái (khung kem, icon, lệnh copy), khung rủi ro lớn navy bên phải. Tiêu đề cảnh báo màu coral, icon tam giác và nhãn Public; câu Ai có link đều vào được app là điểm nhấn 28px. Hai rủi ro cụ thể và hai hành động giảm rủi ro nằm trong cùng khung. Bỏ bảng Ports minh họa và nội dung phụ. Chữ lớn, từng câu giữ dòng hoàn chỉnh; không footer, không cuộn. Không thay thứ tự slide hoặc tạo tunnel thật. Icon cảnh báo và tiêu đề PUBLIC = CÓ RỦI RO dùng đỏ #ff8178, chớp nhẹ bằng opacity 0.58–1 theo chu kỳ 2.8 giây ease-in-out. Giữ chữ/icon đứng yên, không ẩn hẳn; prefers-reduced-motion giữ tĩnh ở opacity 1. Khung cảnh báo nhấn icon tam giác 44px trong badge 64px, giữ nhịp đỏ đã có. Hai hàng rủi ro có icon database/download và shield/code 30px trong badge 48px, tiêu đề vàng 20px và mô tả 18px. Khung cuối chuyển thành ba bullet points HTML ul/li, chữ không ngắt dòng vụn. Nút Cách dừng nằm cạnh bullet cuối, mở popup ba bước dừng Ports; hỗ trợ Escape, backdrop, nút đóng, focus trap và trả focus về nút. Icon cảnh báo 50px/badge72; icon dữ liệu/API 36px trên badge kem56, viền vàng và nét đỏ tương phản rõ. Giữ nhịp đỏ nhẹ và reduced motion. Ba icon trong khung rủi ro chuyển động riêng bằng transform theo chu kỳ 3.4 giây, lệch pha 0/−1.1/−2.2 giây: icon tam giác nghiêng ±5°, nhấc 3px/phóng 6%; dữ liệu và API nghiêng ±4°, nhấc 3px/phóng 8%. Badge và chữ đứng yên; giữ nhịp đỏ hiện có, tắt toàn bộ khi reduced motion."
+    },
     "preservesBusinessTemplate": true,
     "nativeSlides": {
       "teaching": {
-        "30": "showcase",
-        "31": "quiz"
-      },
-      "learner": {
         "29": "showcase",
         "30": "quiz"
+      },
+      "learner": {
+        "28": "showcase",
+        "29": "quiz"
       }
     }
   },

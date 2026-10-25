@@ -18,6 +18,11 @@ const QuizSlide = dynamic(async () => {
 const PptxSectionDeck = dynamic(() => import("./PptxSectionDeck"), { ssr: false, loading: () => <HairlineLoading contained /> });
 const UploadedPdfDeck = dynamic(() => import("./UploadedPdfDeck"), { ssr: false, loading: () => <HairlineLoading contained /> });
 
+function QuizPrefetch() {
+  useEffect(() => { void import("@/components/QuizSlide").catch(() => {}); }, []);
+  return null;
+}
+
 type Props = {
   sectionId: string;
   uploadedContent?: boolean;
@@ -164,7 +169,8 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
           <TsxSlide isAdmin={isAdmin} frameRef={iframeRef} sectionId={sectionId} code={tsxCode} page={pageNumber} background={useTemplate ? templateImage : ""}
             templateKey={templateKey} title={sectionTitle} />
           </div>}
-          {showcase && <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} />}
+          {showcase && <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} guide={compiled?.showcaseGuide} />}
+          {showcase && sectionId === WEB_DEVELOPMENT_SECTION_ID && <QuizPrefetch />}
           {quiz && <QuizSlide key={sectionId} scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} />}
           </SlideSurface>
         );

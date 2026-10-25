@@ -38,6 +38,10 @@ module.exports = function pruneSection(source, section) {
       let replacement;
       if (ts.isJsxExpression(node) && node.expression?.kind === ts.SyntaxKind.FalseKeyword) {
         replacement = '';
+      } else if (sectionNumber === 1 && ts.isIfStatement(node) && node.expression.kind === ts.SyntaxKind.FalseKeyword) {
+        replacement = node.elseStatement?.getText(tree) || '';
+      } else if (sectionNumber === 1 && ts.isIfStatement(node) && node.expression.kind === ts.SyntaxKind.TrueKeyword) {
+        replacement = node.thenStatement.getText(tree);
       } else if (ts.isBinaryExpression(node) && /^s\.section\s*===?\s*[12]$/.test(node.getText(tree))) {
         replacement = String(Number(node.right.getText(tree)) === sectionNumber);
       } else if (ts.isConditionalExpression(node) && ['true', 'false'].includes(node.condition.getText(tree))) {

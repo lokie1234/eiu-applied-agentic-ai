@@ -1,6 +1,6 @@
 # AI-Powered Web Development
 
-Section 1 có **32 slide cho admin/teacher, 31 slide cho học viên**. Sau slide 31 “Chia sẻ bài làm với giảng viên” là quiz 10 câu ở slide 32 (slide 31 của học viên). Admin hoặc teacher của đúng section mở quiz; học viên hoàn thành sẽ được ghi điểm và gửi feedback trong cùng giao diện như Applied Agentic AI. Slide thực hành thiết kế tự do với AI sau slide 20 chỉ hiển thị cho vai trò giảng dạy. Section 2 giữ nguyên nội dung.
+Section 1 có **30 slide cho admin/teacher, 29 slide cho học viên**. Slide 28 thực hành chỉ hiển thị cho vai trò giảng dạy, cho chọn thời lượng 1–45 phút (mặc định 15 phút). Slide 29 “Chia sẻ bài làm với giảng viên” chứa popup “Hướng dẫn” với đầy đủ nội dung, icon và cách dừng chia sẻ localhost. Quiz 10 câu nằm ở slide 30 (slide 29 của học viên). Admin hoặc teacher của đúng section mở quiz; điểm và feedback được lưu theo phiên học. Section 2 giữ nguyên nội dung.
 
 Quiz dùng lại `components/QuizSlide.tsx`, bộ câu hỏi tại `lib/webDevelopmentQuiz.ts` và API `/api/sections/[id]/quiz`. Server xác thực quyền, chấm lại đáp án, lưu trạng thái mở/điểm/feedback vào `access_audit_logs` với course ID, section ID và danh tính từ phiên đăng nhập. Dữ liệu được đưa vào báo cáo Excel và reset theo phạm vi section; không dùng chung trạng thái `section1` của Applied Agentic AI và không cần migration database. Viewer nhận marker `data-eiu-quiz` rồi hiển thị quiz có xác thực bên ngoài iframe sandbox; iframe không gọi API.
 
@@ -19,6 +19,8 @@ Build cũng sinh `manifest.json` cùng revision, số slide cho từng vai trò 
 - `DESIGN.md`: quy tắc EIU kem–navy–vàng, typography và tương tác.
 - `GIT_GUIDE.md`: ghi chú hướng dẫn Git và nguồn tài liệu.
 
-Slide cuối (30 cho admin, 29 cho học viên) tái sử dụng bảng chia sẻ của khóa Applied Agentic AI. Viewer hiển thị form có xác thực, lấy danh tính từ phiên server và lưu bài với đúng course/section trong Supabase. Export hỗ trợ bộ lọc khóa học và section.
+Slide chia sẻ bài làm (29 cho admin, 28 cho học viên) tái sử dụng bảng chia sẻ của khóa Applied Agentic AI. Viewer hiển thị form có xác thực, lấy danh tính từ phiên server và lưu bài với đúng course/section trong Supabase. Export hỗ trợ bộ lọc khóa học và section.
+
+`renderer.tsx.txt` là renderer chính thức của Section 1; `renderer.section2.tsx.txt` giữ riêng renderer Section 2. Không giữ bản renderer dự phòng Section 1. Build loại bỏ các nhánh, CSS và tài nguyên không dùng trước khi ghi JS. Khi đến slide chia sẻ bài làm, viewer tải trước module quiz mà chưa mở quiz hoặc đăng ký thêm subscription. Quiz đang đóng kiểm tra dự phòng mỗi 2 giây khi tab đang hiển thị; khi mở, nhịp cập nhật trở lại 8 giây. Mỗi request vẫn xác thực quyền và phiên hiện tại.
 
 Kiểm tra render: `node scripts/audit-web-app-course.cjs`. Kiểm tra luồng nộp bài và export: `node --test tests/course-showcase-report.test.mjs tests/section-content.test.mjs`.

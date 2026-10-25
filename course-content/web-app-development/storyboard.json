@@ -1549,7 +1549,7 @@
       "message": "Áp dụng AI để tự do thiết kế một website theo ý tưởng của bạn trong VS Code.",
       "cards": [],
       "visual": "ai-free-design-practice",
-      "note": "Slide chỉ dành cho admin. Bộ đếm bắt đầu khi bấm Bắt đầu; hỗ trợ tạm dừng, tiếp tục và đặt lại 15 phút. Hết giờ: 96 icon AI/công cụ bung ra phủ kín mặt đồng hồ rồi đứng yên. Đặt lại xóa các icon.",
+      "note": "Slide chỉ dành cho admin. Bộ đếm bắt đầu khi bấm Bắt đầu; hỗ trợ tạm dừng, tiếp tục và đặt lại thời lượng đã chọn (1–45 phút). Hết giờ: 96 icon AI/công cụ bung ra phủ kín mặt đồng hồ rồi đứng yên. Đặt lại xóa các icon.",
       "objective": "Áp dụng AI để hiện thực hóa ý tưởng thiết kế website.",
       "verify": "Hoàn thành một bản thiết kế thử nghiệm trong VS Code.",
       "visualConcept": "Đồng bộ slide 20: nền kem, chữ navy, viền vàng mảnh và cạnh trái vàng 4px, góc bo 24px, không gradient/shadow nặng. Câu dẫn phía trên; ba thẻ AI bên trái và đồng hồ 128px bên phải. Bỏ AI DESIGN LAB và hàng icon công cụ bên dưới. 96 icon bung từ giữa mặt đồng hồ ra lưới chồng kín khung khi hết giờ, dừng hẳn và giữ nguyên; nút điều khiển nằm ngoài lớp icon. Đặt lại xóa icon. Chỉ transform/opacity một lượt, giải phóng animation khi xong, reduced motion fade tại chỗ. Chỉ admin thấy slide."
@@ -1557,64 +1557,6 @@
     {
       "section": 1,
       "number": 29,
-      "layoutNumber": 30,
-      "title": "Chia sẻ localhost · lưu ý rủi ro Public",
-      "visual": "git-intro-localhost-share",
-      "minutes": 5,
-      "message": "Gửi link demo qua Ports của VS Code. Chỉ bật Public khi đã kiểm tra nội dung app.",
-      "cards": [
-        {
-          "title": "Chạy app",
-          "logo": "Node.js",
-          "text": "Xem cổng trong Terminal, ví dụ 3000.",
-          "code": "npm.cmd run dev"
-        },
-        {
-          "title": "Mở Ports",
-          "logo": "VS Code",
-          "text": "Ctrl+Shift+P → Ports: Focus on Ports View",
-          "detail": "Forward a Port → nhập cổng; đăng nhập nếu cần."
-        },
-        {
-          "title": "Bật Public và gửi link",
-          "logo": "Browser",
-          "text": "Chuột phải cổng → Port Visibility → Public.",
-          "detail": "Copy Forwarded Address rồi gửi link demo."
-        },
-        {
-          "title": "PUBLIC = CÓ RỦI RO",
-          "text": "Ai có link đều vào được app.",
-          "detail": "Link có thể bị chuyển tiếp cho người lạ.",
-          "summary": [
-            "Chỉ dùng dữ liệu giả khi demo.",
-            "Không chia sẻ dữ liệu nhạy cảm.",
-            "Xong demo: dừng chuyển tiếp."
-          ],
-          "modes": [
-            {
-              "title": "Lộ dữ liệu",
-              "text": "Dữ liệu app hiển thị có thể bị xem, tải về."
-            },
-            {
-              "title": "Lạm dụng API",
-              "text": "Có thể bị lạm dụng nếu thiếu phân quyền."
-            }
-          ],
-          "points": [
-            "Mở tab Ports ở bảng phía dưới VS Code.",
-            "Chuột phải cổng đang chia sẻ, ví dụ 3000.",
-            "Chọn Stop Forwarding Port; cổng sẽ rời danh sách."
-          ]
-        }
-      ],
-      "note": "Xác minh 21/10/2026: https://code.visualstudio.com/docs/debugtest/port-forwarding . Port Forwarding có sẵn trong VS Code qua Microsoft dev tunnels, không cần extension. Chạy app ở local, Ports: Focus on Ports View, Forward a Port, đăng nhập GitHub nếu cần và nhập đúng port ứng dụng. Mặc định Private yêu cầu cùng tài khoản; đổi Port Visibility > Public để người có link truy cập không đăng nhập. Không chia sẻ dịch vụ hoặc dữ liệu nhạy cảm qua cổng Public. Đây là hướng dẫn, không bật tunnel thực tế. Giữ app, VS Code, máy tính và kết nối internet trong buổi demo; dừng chuyển tiếp khi xong. Có thể kiểm tra link bằng điện thoại dùng mạng di động hoặc cửa sổ riêng tư. Port 3000 chỉ là ví dụ, lấy port thực tế trong Terminal. Link demo không thay thế hosting lâu dài. Redesign nhấn rủi ro: nguồn VS Code xác nhận ai có link Public đều truy cập được dịch vụ, khuyên tránh dữ liệu bí mật/dịch vụ không an toàn. Hai hệ quả về dữ liệu app hiển thị và API thiếu phân quyền là suy luận theo phạm vi dịch vụ được đưa ra ngoài; không khẳng định toàn bộ máy, source code hay file .env tự bị công khai. Public bỏ đăng nhập của tunnel, không tự vô hiệu hóa đăng nhập/phân quyền riêng của app. Xác minh nhãn Stop Forwarding Port và hành vi đóng tunnel: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/remote/browser/tunnelView.ts . Nút Cách dừng chỉ mở hướng dẫn, không tác động kết nối thật.",
-      "objective": "Biết chia sẻ app local qua Ports và hiểu rủi ro khi Public bỏ lớp đăng nhập của tunnel.",
-      "verify": "Nêu được ai truy cập được link Public, hai rủi ro ở ứng dụng và cách dừng chia sẻ.",
-      "visualConcept": "Hai cột EIU trên canvas 1280×720: ba bước chia sẻ ngắn bên trái (khung kem, icon, lệnh copy), khung rủi ro lớn navy bên phải. Tiêu đề cảnh báo màu coral, icon tam giác và nhãn Public; câu Ai có link đều vào được app là điểm nhấn 28px. Hai rủi ro cụ thể và hai hành động giảm rủi ro nằm trong cùng khung. Bỏ bảng Ports minh họa và nội dung phụ. Chữ lớn, từng câu giữ dòng hoàn chỉnh; không footer, không cuộn. Không thay thứ tự slide hoặc tạo tunnel thật. Icon cảnh báo và tiêu đề PUBLIC = CÓ RỦI RO dùng đỏ #ff8178, chớp nhẹ bằng opacity 0.58–1 theo chu kỳ 2.8 giây ease-in-out. Giữ chữ/icon đứng yên, không ẩn hẳn; prefers-reduced-motion giữ tĩnh ở opacity 1. Khung cảnh báo nhấn icon tam giác 44px trong badge 64px, giữ nhịp đỏ đã có. Hai hàng rủi ro có icon database/download và shield/code 30px trong badge 48px, tiêu đề vàng 20px và mô tả 18px. Khung cuối chuyển thành ba bullet points HTML ul/li, chữ không ngắt dòng vụn. Nút Cách dừng nằm cạnh bullet cuối, mở popup ba bước dừng Ports; hỗ trợ Escape, backdrop, nút đóng, focus trap và trả focus về nút. Icon cảnh báo 50px/badge72; icon dữ liệu/API 36px trên badge kem56, viền vàng và nét đỏ tương phản rõ. Giữ nhịp đỏ nhẹ và reduced motion. Ba icon trong khung rủi ro chuyển động riêng bằng transform theo chu kỳ 3.4 giây, lệch pha 0/−1.1/−2.2 giây: icon tam giác nghiêng ±5°, nhấc 3px/phóng 6%; dữ liệu và API nghiêng ±4°, nhấc 3px/phóng 8%. Badge và chữ đứng yên; giữ nhịp đỏ hiện có, tắt toàn bộ khi reduced motion."
-    },
-    {
-      "section": 1,
-      "number": 30,
       "layoutNumber": 31,
       "title": "Chia sẻ bài làm với giảng viên",
       "visual": "git-intro-submission",
@@ -1624,11 +1566,69 @@
       "note": "Giao diện tái sử dụng ShowcaseSlide của Applied Agentic AI, gắn theo sectionId/courseId thực tế trong viewer. Form dùng danh tính phiên học từ server, lưu nguyên tử vào access_audit_logs của Supabase cùng thông tin course/section và link. Không thực thi mạng bên trong JS sandbox. Bảng được tải bởi thành phần React có xác thực; admin có thể ẩn cục bộ mà bài vẫn được giữ để export.",
       "objective": "Nộp link bài làm đúng course và section, dùng thông tin học viên đã đăng nhập.",
       "verify": "Gửi link HTTPS và thấy bài xuất hiện trên bảng; admin xuất được học viên và bài làm theo course/section.",
-      "visualConcept": "Slide 29 sau hướng dẫn localhost. Dùng nguyên logic bảng chia sẻ, form nộp HTTPS, tự lấy tên/email, tải lại, ẩn bài cho admin và giữ dữ liệu để export. Native ShowcaseSlide hiển thị trong viewer thay placeholder cùng tỷ lệ16:9; placeholder vẫn có nội dung dễ hiểu khi tải JS/offline. Phần nhập liệu Section1 tắt spellcheck và selection trong suốt."
+      "visualConcept": "Slide 29 sau hướng dẫn localhost. Dùng nguyên logic bảng chia sẻ, form nộp HTTPS, tự lấy tên/email, tải lại, ẩn bài cho admin và giữ dữ liệu để export. Native ShowcaseSlide hiển thị trong viewer thay placeholder cùng tỷ lệ16:9; placeholder vẫn có nội dung dễ hiểu khi tải JS/offline. Phần nhập liệu Section1 tắt spellcheck và selection trong suốt.",
+      "guideSlide": {
+        "section": 1,
+        "number": 29,
+        "layoutNumber": 30,
+        "title": "Chia sẻ localhost · lưu ý rủi ro Public",
+        "visual": "git-intro-localhost-share",
+        "minutes": 5,
+        "message": "Gửi link demo qua Ports của VS Code. Chỉ bật Public khi đã kiểm tra nội dung app.",
+        "cards": [
+          {
+            "title": "Chạy app",
+            "logo": "Node.js",
+            "text": "Xem cổng trong Terminal, ví dụ 3000.",
+            "code": "npm.cmd run dev"
+          },
+          {
+            "title": "Mở Ports",
+            "logo": "VS Code",
+            "text": "Ctrl+Shift+P → Ports: Focus on Ports View",
+            "detail": "Forward a Port → nhập cổng; đăng nhập nếu cần."
+          },
+          {
+            "title": "Bật Public và gửi link",
+            "logo": "Browser",
+            "text": "Chuột phải cổng → Port Visibility → Public.",
+            "detail": "Copy Forwarded Address rồi gửi link demo."
+          },
+          {
+            "title": "PUBLIC = CÓ RỦI RO",
+            "text": "Ai có link đều vào được app.",
+            "detail": "Link có thể bị chuyển tiếp cho người lạ.",
+            "summary": [
+              "Chỉ dùng dữ liệu giả khi demo.",
+              "Không chia sẻ dữ liệu nhạy cảm.",
+              "Xong demo: dừng chuyển tiếp."
+            ],
+            "modes": [
+              {
+                "title": "Lộ dữ liệu",
+                "text": "Dữ liệu app hiển thị có thể bị xem, tải về."
+              },
+              {
+                "title": "Lạm dụng API",
+                "text": "Có thể bị lạm dụng nếu thiếu phân quyền."
+              }
+            ],
+            "points": [
+              "Mở tab Ports ở bảng phía dưới VS Code.",
+              "Chuột phải cổng đang chia sẻ, ví dụ 3000.",
+              "Chọn Stop Forwarding Port; cổng sẽ rời danh sách."
+            ]
+          }
+        ],
+        "note": "Xác minh 21/10/2026: https://code.visualstudio.com/docs/debugtest/port-forwarding . Port Forwarding có sẵn trong VS Code qua Microsoft dev tunnels, không cần extension. Chạy app ở local, Ports: Focus on Ports View, Forward a Port, đăng nhập GitHub nếu cần và nhập đúng port ứng dụng. Mặc định Private yêu cầu cùng tài khoản; đổi Port Visibility > Public để người có link truy cập không đăng nhập. Không chia sẻ dịch vụ hoặc dữ liệu nhạy cảm qua cổng Public. Đây là hướng dẫn, không bật tunnel thực tế. Giữ app, VS Code, máy tính và kết nối internet trong buổi demo; dừng chuyển tiếp khi xong. Có thể kiểm tra link bằng điện thoại dùng mạng di động hoặc cửa sổ riêng tư. Port 3000 chỉ là ví dụ, lấy port thực tế trong Terminal. Link demo không thay thế hosting lâu dài. Redesign nhấn rủi ro: nguồn VS Code xác nhận ai có link Public đều truy cập được dịch vụ, khuyên tránh dữ liệu bí mật/dịch vụ không an toàn. Hai hệ quả về dữ liệu app hiển thị và API thiếu phân quyền là suy luận theo phạm vi dịch vụ được đưa ra ngoài; không khẳng định toàn bộ máy, source code hay file .env tự bị công khai. Public bỏ đăng nhập của tunnel, không tự vô hiệu hóa đăng nhập/phân quyền riêng của app. Xác minh nhãn Stop Forwarding Port và hành vi đóng tunnel: https://github.com/microsoft/vscode/blob/main/src/vs/workbench/contrib/remote/browser/tunnelView.ts . Nút Cách dừng chỉ mở hướng dẫn, không tác động kết nối thật.",
+        "objective": "Biết chia sẻ app local qua Ports và hiểu rủi ro khi Public bỏ lớp đăng nhập của tunnel.",
+        "verify": "Nêu được ai truy cập được link Public, hai rủi ro ở ứng dụng và cách dừng chia sẻ.",
+        "visualConcept": "Hai cột EIU trên canvas 1280×720: ba bước chia sẻ ngắn bên trái (khung kem, icon, lệnh copy), khung rủi ro lớn navy bên phải. Tiêu đề cảnh báo màu coral, icon tam giác và nhãn Public; câu Ai có link đều vào được app là điểm nhấn 28px. Hai rủi ro cụ thể và hai hành động giảm rủi ro nằm trong cùng khung. Bỏ bảng Ports minh họa và nội dung phụ. Chữ lớn, từng câu giữ dòng hoàn chỉnh; không footer, không cuộn. Không thay thứ tự slide hoặc tạo tunnel thật. Icon cảnh báo và tiêu đề PUBLIC = CÓ RỦI RO dùng đỏ #ff8178, chớp nhẹ bằng opacity 0.58–1 theo chu kỳ 2.8 giây ease-in-out. Giữ chữ/icon đứng yên, không ẩn hẳn; prefers-reduced-motion giữ tĩnh ở opacity 1. Khung cảnh báo nhấn icon tam giác 44px trong badge 64px, giữ nhịp đỏ đã có. Hai hàng rủi ro có icon database/download và shield/code 30px trong badge 48px, tiêu đề vàng 20px và mô tả 18px. Khung cuối chuyển thành ba bullet points HTML ul/li, chữ không ngắt dòng vụn. Nút Cách dừng nằm cạnh bullet cuối, mở popup ba bước dừng Ports; hỗ trợ Escape, backdrop, nút đóng, focus trap và trả focus về nút. Icon cảnh báo 50px/badge72; icon dữ liệu/API 36px trên badge kem56, viền vàng và nét đỏ tương phản rõ. Giữ nhịp đỏ nhẹ và reduced motion. Ba icon trong khung rủi ro chuyển động riêng bằng transform theo chu kỳ 3.4 giây, lệch pha 0/−1.1/−2.2 giây: icon tam giác nghiêng ±5°, nhấc 3px/phóng 6%; dữ liệu và API nghiêng ±4°, nhấc 3px/phóng 8%. Badge và chữ đứng yên; giữ nhịp đỏ hiện có, tắt toàn bộ khi reduced motion."
+      }
     },
     {
       "section": 1,
-      "number": 31,
+      "number": 30,
       "layoutNumber": 33,
       "title": "Quiz time!",
       "minutes": 5,

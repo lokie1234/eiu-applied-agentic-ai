@@ -42,6 +42,7 @@ async function fixture(scope, role) {
     "@/lib/slideStorage": { getSlideStorage: key => hidden.get(key), setSlideStorage: (key, value) => hidden.set(key, value), SLIDE_STORAGE_KEYS: { s1_hiddenShowcase: "s1", s2_hiddenShowcase: "s2" } },
   }, globals).default;
   let Component = Showcase, props = { scale: 1, isAdmin: presenter, sectionId: "web-section", courseTitle: "Web Development", sectionTitle: "Section 1" };
+  if (scope === "web") props.guide = JSON.parse(fs.readFileSync('course-content/web-app-development/manifest.json', 'utf8'))['47c1183e-a26e-4c5d-9937-88ec5a755a32'].showcaseGuide;
   if (scope !== "web") {
     const empty = { __esModule: true, default: () => null };
     const page = scope === "section1" ? presenter ? 40 : 39 : 38;
@@ -59,6 +60,47 @@ async function fixture(scope, role) {
   await act(async () => { await new Promise(resolve => window.setTimeout(resolve, 10)); });
   return { window, container, calls, hidden, failRead: () => { failRead = true; }, close: async () => { await act(async () => root.unmount()); await window.happyDOM.close(); } };
 }
+
+test("showcase localhost guidance works for teaching and learning without altering the board", async () => {
+  for (const role of ['teaching', 'learner']) {
+    const f = await fixture('web', role);
+    try {
+      const doc=f.window.document, trigger=f.container.querySelector('.guideTrigger');
+      assert.equal(trigger.textContent,'Hướng dẫn');
+      const requests=f.calls.length;
+      let copied='';
+      Object.defineProperty(f.window.navigator,'clipboard',{configurable:true,value:{writeText:async text=>{copied=text;}}});
+      await act(async()=>trigger.click());
+      const dialog=f.container.querySelector('[role=dialog]');
+      assert.equal(dialog.querySelectorAll('.guideSteps article').length,3);
+      assert.equal(dialog.querySelectorAll('.guideRisks section').length,2);
+      assert.match(dialog.textContent,/PUBLIC = CÓ RỦI RO/);
+      const close=dialog.querySelector('[aria-label="Đóng hướng dẫn"]');
+      assert.equal(doc.activeElement,close);
+      await act(async()=>dialog.querySelector('.guideCommand button').click());
+      assert.equal(copied,'npm.cmd run dev');
+      const stop=[...dialog.querySelectorAll('button')].find(button=>button.textContent.includes('Cách dừng'));
+      stop.focus();
+      await act(async()=>stop.dispatchEvent(new f.window.KeyboardEvent('keydown',{key:'Tab',bubbles:true,cancelable:true})));
+      assert.equal(doc.activeElement,close);
+      await act(async()=>stop.click());
+      assert.equal(dialog.querySelectorAll('.guideStop li').length,3);
+      assert.match(dialog.querySelector('.guideStop').textContent,/Stop Forwarding Port/);
+      await act(async()=>close.dispatchEvent(new f.window.KeyboardEvent('keydown',{key:'Escape',bubbles:true})));
+      assert.equal(f.container.querySelector('[role=dialog]'),null);
+      assert.equal(doc.activeElement,trigger);
+      await act(async()=>trigger.click());
+      await act(async()=>f.container.querySelector('.guideOverlay').click());
+      assert.equal(f.container.querySelector('[role=dialog]'),null);
+      await act(async()=>trigger.click());
+      await act(async()=>f.container.querySelector('[aria-label="Đóng hướng dẫn"]').click());
+      assert.equal(f.container.querySelector('[role=dialog]'),null);
+      assert.equal(f.calls.length,requests,'guidance performs no network or board writes');
+      assert.equal(f.container.querySelectorAll('.item').length,1);
+      assert.equal(Boolean(f.container.querySelector('form')),role==='learner');
+    } finally { await f.close(); }
+  }
+});
 
 test("all three sharing slides show only the board for admin/teaching and retain the full submission flow for learners", async () => {
   for (const scope of ["web", "section1", "section2"]) for (const role of ["admin", "teaching", "learner"]) {

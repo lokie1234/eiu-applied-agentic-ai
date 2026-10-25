@@ -116,8 +116,23 @@ test('practice cards open readable details without the old app tab strip',async(
   try{
    assert.ok(doc.querySelector('.gitIntroSlide'));
    const buttons=[...doc.querySelectorAll('.gitChoice')];
+   if(slide.visual==='git-intro-build'){
+    assert.equal(doc.querySelectorAll('.buildRunCard,.buildResultCard').length,3);
+    assert.deepEqual([...doc.querySelectorAll('.buildRunCard h2,.buildResultCard h2')].map(el=>el.textContent),slide.cards.map(c=>c.title));
+    assert.equal(doc.querySelector('.buildReviewCommand pre').textContent,slide.cards[0].code);
+    continue;
+   }
+   if(slide.visual==='git-intro-publish'){
+    assert.equal(doc.querySelectorAll('.publishColumn').length,3);
+    const guide=doc.querySelector('.repoGuideTrigger');
+    guide.click();assert.ok(doc.querySelector('[role=dialog]'));
+    doc.querySelector('.repoGuideClose').click();assert.equal(doc.activeElement,guide);
+    assert.ok(doc.querySelector('.editableGit[data-mode=repo]'));
+    assert.equal(doc.querySelector('.publishColumnCommand pre').textContent,slide.cards[2].code);
+    continue;
+   }
    if(slide.number>=17&&slide.number<=21){
-    assert.equal(doc.querySelectorAll('.inlineWorkflowCard,.buildReviewRow').length,3);
+    assert.equal(doc.querySelectorAll('.inlineWorkflowCard,.gitInitializeRow').length,3,slide.visual);
     assert.equal(Boolean(doc.querySelector('.inlineWorkflowCard>small')),false);
     assert.equal(Boolean(doc.querySelector('.inlineWorkflowNote')),false);
     if(slide.number===19){
@@ -132,14 +147,14 @@ test('practice cards open readable details without the old app tab strip',async(
      assert.equal(Boolean(doc.querySelector('[role=dialog]')),false);
      assert.equal(doc.activeElement,trigger);
     }else assert.equal(Boolean(doc.querySelector('[aria-haspopup=dialog]')),false);
-    const commands=[...doc.querySelectorAll('.inlineWorkflowCards pre,.buildReviewCommand pre')].map(el=>el.textContent);
+    const commands=[...doc.querySelectorAll('.inlineWorkflowCards pre,.gitInitializeCommand pre')].map(el=>el.textContent);
     const expected=slide.cards.filter(c=>c.code).map(c=>c.code);
     if(slide.number===21){
      assert.deepEqual(commands.slice(0,2),expected.slice(0,2));
      assert.match(commands[2],/^git clone -- URL_REPO /);
      assert.ok(doc.querySelector('.editableGit input'));
     }else assert.deepEqual(commands,expected);
-    assert.equal(doc.querySelectorAll('.inlineWorkflowCards .copyControl,.buildReviewCommand .copyControl').length,slide.cards.filter(c=>c.code).length);
+    assert.equal(doc.querySelectorAll('.inlineWorkflowCards .copyControl,.gitInitializeCommand .copyControl').length,slide.cards.filter(c=>c.code).length);
     if(slide.number===21){
      let copied='';doc.execCommand=()=>{copied=doc.activeElement.value;return true;};
      const copy=doc.querySelector('.inlineWorkflowCards .copyControl');
@@ -173,7 +188,8 @@ test('practice cards open readable details without the old app tab strip',async(
     continue;
    }
    if(slide.number===12){
-    assert.ok(doc.querySelector('.starterPromptPanel textarea'));
+    assert.ok(doc.querySelector('.starterPromptTrigger'));
+    assert.ok(doc.querySelector('a.starterDownloadTrigger[download]'));
     assert.ok(doc.querySelector('.starterDownloadTrigger'));
     assert.equal(Boolean(doc.querySelector('[role=dialog]')),false);
     continue;
@@ -333,8 +349,7 @@ test('setup popup covers all four tools, links, commands and configuration steps
 test('download uses existing ZIP and the copyable prompt preserves app behavior',async()=>{
  const download=render(12), edit=render(15);
  try{
-  download.document.querySelector('.starterDownloadTrigger').click();
-  const link=download.document.querySelector('[role=dialog] a[download]');
+  const link=download.document.querySelector('a.starterDownloadTrigger[download]');
   assert.equal(link.getAttribute('href'),'/downloads/eiu-advertising-starter.zip');
   assert.equal(link.getAttribute('download'),'eiu-advertising-starter.zip');
   assert.ok(fs.existsSync('public'+link.getAttribute('href')));
@@ -417,14 +432,14 @@ test('the two AI tools show advantages and styled model names without embedded l
 
 test('setup and practice lead to complete Push, Pull and Clone workflows',()=>{
  for(const command of ['code --version','node --version','git config --global user.name','npm.cmd install','npm.cmd run dev','npm.cmd test','npm.cmd run build','git init -b main','git add .','git commit -m','git remote add origin','git push -u origin main','git pull --ff-only origin main','git clone']) assert.ok(source.includes(command),command);
- assert.equal(sectionSlides.length,32);
- assert.deepEqual(sectionSlides.map(s=>s.number),Array.from({length:32},(_,i)=>i+1));
+ assert.equal(sectionSlides.length,30);
+ assert.deepEqual(sectionSlides.map(s=>s.number),Array.from({length:30},(_,i)=>i+1));
  assert.equal(sectionSlides.at(-2).visual,'git-intro-submission');
  assert.equal(sectionSlides.at(-1).visual,'git-intro-section-quiz');
- for(const visual of ['git-intro-initialize','git-intro-publish','git-intro-push-code','git-intro-pull'])assert.ok(sectionSlides.some(s=>s.visual===visual));
+ for(const visual of ['git-intro-initialize','git-intro-publish','git-intro-pull'])assert.ok(sectionSlides.some(s=>s.visual===visual));
 });
 
-test('all 32 admin slides retain embedded Inter while only loading their layout styles',async()=>{
+test('all 30 admin slides retain embedded Inter while only loading their layout styles',async()=>{
  assert.equal(fs.readFileSync('course-content/web-app-development/fonts/Inter-Variable.woff2').subarray(0,4).toString(),'wOF2');
  assert.doesNotMatch(source,/git-intro-quiz|\.skillFeatureGrid\{|\.skillOutcome\{/);
  for(const slide of sectionSlides){
@@ -479,7 +494,7 @@ test('publishing slide validates the GitHub URL, updates commands and copies a s
    input(value);assert.equal(editor.querySelector('button').disabled,true,value);
   }
   input('https://github.com/lokie1234/Effective-Vibe-Coding.git');
-  const command="git remote add origin 'https://github.com/lokie1234/Effective-Vibe-Coding.git'\ngit remote -v";
+  const command="git remote add origin https://github.com/lokie1234/Effective-Vibe-Coding.git && git remote -v";
   assert.equal(editor.querySelector('pre').textContent,command);
   let copied='';doc.execCommand=()=>{copied=doc.activeElement.value;return true;};
   const oldButton=editor.querySelector('button');oldButton.click();assert.equal(copied,command);

@@ -149,17 +149,24 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
       .on("broadcast", { event: "quiz_results_changed" }, refresh)
       .subscribe();
     const poll = () => { if (document.visibilityState === "visible") void loadQuizState(false); };
-    const fallbackTimer = window.setInterval(poll, 8_000);
     document.addEventListener("visibilitychange", poll);
 
     return () => {
       window.clearTimeout(initialTimer);
       window.clearTimeout(refreshTimer);
-      window.clearInterval(fallbackTimer);
       document.removeEventListener("visibilitychange", poll);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
   }, [loadQuizState, variant, isAdmin, sectionId]);
+
+  useEffect(() => {
+    // Closed web-course quizzes need a quick fallback when realtime is unavailable.
+    // Once open, keep the slower completion refresh and one in-flight request.
+    const fallbackTimer = window.setInterval(() => {
+      if (document.visibilityState === "visible") void loadQuizState(false);
+    }, scopedEndpoint && !quizOpen ? 2_000 : 8_000);
+    return () => window.clearInterval(fallbackTimer);
+  }, [loadQuizState, scopedEndpoint, quizOpen]);
 
   const score = answers.filter((item) => item.isCorrect).length;
   const current = questions[index];

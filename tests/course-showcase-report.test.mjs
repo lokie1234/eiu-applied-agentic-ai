@@ -94,16 +94,16 @@ test("report keeps identical section keys and learner sessions separate across c
   const options=await (await report.GET(new Request("http://localhost/api/admin/report?mode=sections"))).json();assert.equal(options.courses.length,2);assert.equal(options.courseSections.length,2);
 });
 
-test("compiled slide 30 requests the native submission board only for its own page and retains the content binding",async()=>{
+test("compiled learner slide 28 requests the native submission board only for its own page and retains the content binding",async()=>{
   const docs=load("lib/tsxDocument.ts");const source=fs.readFileSync("course-content/web-app-development/Section1.js","utf8");
-  for(const page of [29,30,31]){const w=new Window();w.document.body.innerHTML='<div id="root"></div>';const messages=[];const html=docs.createTsxDocument(source,page,"","",`s-web:${page}`);vm.runInNewContext(html.match(/<script>([\s\S]*?)<\/script>/)[1],{window:w,document:w.document,Node:w.Node,parent:{postMessage:m=>messages.push(m)},setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w)});assert.equal(w.document.querySelector('#error'),null);const interaction=messages.find(m=>m.type==='eiu-slide-interaction');assert.equal(interaction.interaction,page===30?'showcase':page===31?'quiz':null);assert.equal(interaction.requestId,`s-web:${page}`);assert.equal(messages[0].slides,31);await w.happyDOM.close();}
+  for(const page of [27,28,29]){const w=new Window();w.document.body.innerHTML='<div id="root"></div>';const messages=[];const html=docs.createTsxDocument(source,page,"","",`s-web:${page}`);vm.runInNewContext(html.match(/<script>([\s\S]*?)<\/script>/)[1],{window:w,document:w.document,Node:w.Node,parent:{postMessage:m=>messages.push(m)},setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w)});assert.equal(w.document.querySelector('#error'),null);const interaction=messages.find(m=>m.type==='eiu-slide-interaction');assert.equal(interaction.interaction,page===28?'showcase':page===29?'quiz':null);assert.equal(interaction.requestId,`s-web:${page}`);assert.equal(messages[0].slides,29);await w.happyDOM.close();}
   const binding=JSON.parse(fs.readFileSync('course-content/sources.json')).find(s=>s.sectionId==='47c1183e-a26e-4c5d-9937-88ec5a755a32');assert.equal(binding.courseId,'a857595d-def0-4543-9216-a680c6abfe26');
 });
 
 test("retired final slides and their private renderer and logo assets are removed from the course",()=>{
   const base='course-content/web-app-development/';
   const slides=JSON.parse(fs.readFileSync(base+'storyboard.json')).slides.filter(s=>s.section===1);
-  assert.equal(slides.length,32);assert.equal(slides.filter(s=>!s.adminOnly).length,31);assert.equal(slides.at(-2).visual,'git-intro-submission');assert.equal(slides.at(-1).visual,'git-intro-section-quiz');
+  assert.equal(slides.length,30);assert.equal(slides.filter(s=>!s.adminOnly).length,29);assert.equal(slides.at(-2).visual,'git-intro-submission');assert.equal(slides.at(-1).visual,'git-intro-section-quiz');
   assert.equal(fs.existsSync(base+'repo-icons'),false);
   const retired=/git-intro-(?:ai-workflow|skill-defaults|repo-showcase)|effective-vibe-coding|Repo (?:Penpot|Excalidraw|shadcn-ui|n8n)|function (?:skillDefaults|skillInstall|aiWorkflow|repoShowcase)/i;
   for(const file of ['storyboard.json','renderer.tsx.txt','Section1.js','Section2.js','assets.json'])assert.doesNotMatch(fs.readFileSync(base+file,'utf8'),retired,file);

@@ -49,7 +49,7 @@ test('web course cards immediately show role-aware counts without fetching or ev
 });
 
 test('opening a web lesson fetches content once, skips an ignored default layout and lazy-loads native interactions only on their pages',async()=>{
-  const f=await dom();const reads=[],built=[],native=[];let page=8,frameProps;
+  const f=await dom();const reads=[],built=[],native=[];let page=8,frameProps,quizPreloads=0;
   let readinessTimeout;
   const schedule=f.window.setTimeout.bind(f.window);
   f.window.setTimeout=(callback,delay,...args)=>{if(delay===15_000)readinessTimeout=callback;return schedule(callback,delay,...args);};
@@ -63,12 +63,13 @@ test('opening a web lesson fetches content once, skips an ignored default layout
     '@/components/HairlineLoading':{__esModule:true,default:()=>React.createElement('i',{'data-loading':true})},
     '@/lib/webDevelopmentQuiz':{WEB_DEVELOPMENT_SECTION_ID:ids[0]},'@/lib/compiledSectionMetadata':counter,'@/lib/sectionSlideCount':counter,
     '@/lib/tsxDocument':{createTsxDocument:(...args)=>{built.push(args);return '<html><body>Section</body></html>';}},
+    get '@/components/QuizSlide'(){quizPreloads++;return {default:nativeComponent('quiz')};},
   },{window:f.window,fetch:async url=>{reads.push(url);return {ok:true,text:async()=>'exports.default=[];',json:async()=>({templates:[{id:'custom',background:'data:image/png;base64,AA=='}]})};}}).default;
   const props={sectionId:ids[0],contentType:'tsx',slideCount:1,courseTitle:'Web',sectionTitle:'Section 1',isAdmin:true,templateKey:'eiu-business-v1'};
   const render=(extra={})=>f.root.render(React.createElement(Deck,{...props,...extra}));
   const send=async(interaction,currentPage=page,type='eiu-slide-interaction')=>act(async()=>{
     const frame=f.container.querySelector('iframe');
-    f.window.dispatchEvent(new f.window.MessageEvent('message',{source:frame.contentWindow,data:{type,interaction,slides:32,page:currentPage,requestId:`${ids[0]}:${currentPage}`}}));
+    f.window.dispatchEvent(new f.window.MessageEvent('message',{source:frame.contentWindow,data:{type,interaction,slides:30,page:currentPage,requestId:`${ids[0]}:${currentPage}`}}));
   });
   try{
     await act(async()=>{render();await new Promise(resolve=>setTimeout(resolve,10));});
@@ -82,11 +83,15 @@ test('opening a web lesson fetches content once, skips an ignored default layout
     await send(null);
     assert.equal(f.container.querySelector('[data-loading]'),null,'ready slides dismiss loading without waiting for iframe load/assets');
     await act(async()=>render());assert.equal(built.length,1);assert.equal(reads.length,1);
-    page=32;await act(async()=>render());assert.ok(f.container.querySelector('[data-native="quiz"]'));
+    page=30;await act(async()=>render());assert.ok(f.container.querySelector('[data-native="quiz"]'));
     assert.equal(f.container.querySelector('iframe'),null,'quiz opens directly without rendering the standalone fallback');
-    page=31;await act(async()=>render());assert.ok(f.container.querySelector('[data-native="showcase"]'));
+    const quizMounts=native.filter(kind=>kind==='quiz').length;
+    assert.equal(quizPreloads,0,'other slides do not preload quiz code');
+    page=29;await act(async()=>render());assert.ok(f.container.querySelector('[data-native="showcase"]'));
     assert.equal(f.container.querySelector('iframe'),null,'showcase opens directly without rendering the standalone fallback');
     assert.equal(built.length,1,'native slides do not build sandbox documents');
+    assert.equal(quizPreloads,1,'the preceding showcase preloads quiz code without mounting the quiz');
+    assert.equal(native.filter(kind=>kind==='quiz').length,quizMounts,'preloading does not mount another quiz');
     page=8;
     await act(async()=>{render({key:'custom',templateKey:'custom'});await new Promise(resolve=>setTimeout(resolve,10));});
     assert.ok(reads.includes('/api/templates?id=custom'),'custom layouts remain supported');
@@ -113,7 +118,7 @@ test('a contained lesson loader stays inside the player while route loading stil
 });
 
 test('native pages open directly for both roles while explicit uploaded replacements keep their own runtime',async()=>{
-  const f=await dom();let page=31,builds=0,frameProps;
+  const f=await dom();let page=30,builds=0,frameProps;
   const native=kind=>function NativePreview(props){return React.createElement('div',{'data-native':kind,'data-admin':String(props.isAdmin)});};
   const Deck=load('components/deck/UploadedSectionDeck.tsx',{
     'next/dynamic':{__esModule:true,default:loader=>String(loader).includes('QuizSlide')?native('quiz'):String(loader).includes('ShowcaseSlide')?native('showcase'):()=>null},
@@ -124,18 +129,18 @@ test('native pages open directly for both roles while explicit uploaded replacem
   },{window:f.window,fetch:async()=>({ok:true,text:async()=>'exports.default=[];'})}).default;
   const props={sectionId:ids[0],contentType:'tsx',slideCount:32,courseTitle:'Web',sectionTitle:'Section 1'};
   try{
-    for(const [isAdmin,pages] of [[true,[31,32]],[false,[30,31]]]){
+    for(const [isAdmin,pages] of [[true,[29,30]],[false,[28,29]]]){
       for(const [index,target] of pages.entries()){
         page=target;
         await act(async()=>f.root.render(React.createElement(Deck,{...props,isAdmin,key:`${isAdmin}:${page}`})));
         assert.equal(f.container.querySelector('[data-native]').dataset.native,index===0?'showcase':'quiz');
         assert.equal(f.container.querySelector('iframe'),null);
-        assert.equal(frameProps.totalSlides,isAdmin?32:31);
+        assert.equal(frameProps.totalSlides,isAdmin?30:29);
         assert.equal(frameProps.slideTransitions,true);
       }
     }
     assert.equal(builds,0,'opening native pages performs zero sandbox evaluations');
-    page=31;
+    page=30;
     await act(async()=>f.root.render(React.createElement(Deck,{...props,isAdmin:true,uploadedContent:true,key:'override'})));
     assert.ok(f.container.querySelector('iframe'));
     assert.equal(f.container.querySelector('[data-native]'),null,'replacement JS must not inherit project interaction mappings');
