@@ -507,7 +507,7 @@ export async function deleteFolderGroup(id: string): Promise<void> {
               .from("course_sections")
               .select("content_path")
               .eq("course_id", c.id);
-            const paths = (sectionFiles ?? []).map((item) => item.content_path).filter((path): path is string => Boolean(path) && !path?.startsWith("drive:"));
+            const paths = (sectionFiles ?? []).map((item) => item.content_path).filter((path): path is string => Boolean(path) && !path?.startsWith("drive:") && !path?.startsWith("local:"));
             if (paths.length > 0) await supabase.storage.from("course-section-content").remove(paths);
           } catch {}
           await supabase.from("course_sections").delete().eq("course_id", c.id);

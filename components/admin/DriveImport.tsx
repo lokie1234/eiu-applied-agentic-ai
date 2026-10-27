@@ -72,7 +72,7 @@ export default function DriveImport({ sectionId, title, disabled, onSaved }: { s
     try {
       await request({ action: "connect", fileId: file.id, revision: file.revision });
       onSaved?.();
-      if (!disposed.current) { setSaved(true); setMessage(`${file.name} is connected. Reopen the lesson to load it.`); setFile(null); }
+      if (!disposed.current) { setSaved(true); setMessage(`${file.name} ${file.type === "tsx" ? "was imported into the project for display and editing" : "is connected"}. Reopen the lesson to load it.`); setFile(null); }
     } catch (error) { if (!disposed.current) setMessage(error instanceof Error ? error.message : "Unable to connect this file."); }
     finally { working.current = false; if (!disposed.current) setBusy(false); }
   }

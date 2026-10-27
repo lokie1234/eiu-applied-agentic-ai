@@ -23,4 +23,8 @@ Slide chia sẻ bài làm (29 cho admin, 28 cho học viên) tái sử dụng b�
 
 `renderer.tsx.txt` là renderer chính thức của Section 1; `renderer.section2.tsx.txt` giữ riêng renderer Section 2. Không giữ bản renderer dự phòng Section 1. Build loại bỏ các nhánh, CSS và tài nguyên không dùng trước khi ghi JS. Khi đến slide chia sẻ bài làm, viewer tải trước module quiz mà chưa mở quiz hoặc đăng ký thêm subscription. Quiz đang đóng kiểm tra dự phòng mỗi 2 giây khi tab đang hiển thị; khi mở, nhịp cập nhật trở lại 8 giây. Mỗi request vẫn xác thực quyền và phiên hiện tại.
 
+Section 2 đã nhập bản thay thế mới nhất từ Drive vào storyboard và renderer local (22 slide). Slide 6 mở ba popup; mục thứ ba là “Lấy đúng URL và khóa”, dùng minh họa Connect bằng HTML/CSS. Bản Drive cũ đã được đưa vào thùng rác và section dùng lại binding local trong `sources.json`.
+
+Nhập lesson JS từ Drive hoặc PC giờ lưu nguyên byte vào `course-content/imported/<courseId>/<sectionId>/<importId>.js` trước khi cập nhật binding `local:` trong database. Đây là file để chỉnh sửa trực tiếp cho những bài nhập sau này; hiển thị, download và export đều đọc cùng bản local, không phụ thuộc Drive. Mỗi lần nhập tạo file riêng để cập nhật đồng thời không ghi đè bài đang dùng. PDF/PPTX vẫn dùng Drive; export là thao tác riêng và không chuyển lesson local trở lại Drive. Server chạy luồng nhập phải có quyền ghi vào thư mục dự án; đưa các nguồn local vào bản triển khai khi deploy.
+
 Kiểm tra render: `node scripts/audit-web-app-course.cjs`. Kiểm tra luồng nộp bài và export: `node --test tests/course-showcase-report.test.mjs tests/section-content.test.mjs`.

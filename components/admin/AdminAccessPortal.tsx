@@ -1699,7 +1699,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                       </div>
 
                       <p className={styles.sectionUploadHelp}>
-                        Upload a file from your PC or connect a Drive file. Select a Drive destination when saving files.
+                        Import lesson JS from your PC or Drive into the project for editing. Select a Drive destination for PDF/PPTX attachments or exports.
                       </p>
 
                       {/* Multi-Section Batch Action Toolbar */}

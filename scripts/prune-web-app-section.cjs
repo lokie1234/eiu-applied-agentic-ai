@@ -8,7 +8,7 @@ module.exports = function pruneSection(source, section) {
   let file = parse(source);
   const edits = [];
   const content = file.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === 'content');
-  for (const statement of content.body.statements) {
+  for (const statement of content?.body.statements ?? []) {
     if (ts.isIfStatement(statement) && !section.slides.some(slide =>
       statement.expression.getText(file).includes('workspace-') ? slide.visual.startsWith('workspace-') : slide.visual.startsWith('git-intro-'))) {
       edits.push([statement.getFullStart(), statement.end]);
@@ -22,7 +22,7 @@ module.exports = function pruneSection(source, section) {
   // These routes bypass the regular content renderer.
   if (!visuals.has('lab-divider')) {
     const slide = file.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === 'slide');
-    for (const statement of slide.body.statements) {
+    for (const statement of slide?.body.statements ?? []) {
       if (ts.isIfStatement(statement)) edits.push([statement.getFullStart(), statement.end]);
     }
   }

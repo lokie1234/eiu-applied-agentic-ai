@@ -15,6 +15,7 @@ export default function SectionFileUpload({ sectionId, title, builtin, disabled,
   const controller = useRef<AbortController | null>(null);
   const [busy, setBusy] = useState(false);
   const [file, setFile] = useState<File | null>(null);
+  const localLesson = Boolean(file && /\.js$/i.test(file.name));
   const [destinations, setDestinations] = useState<Destination[]>([]);
   const [destinationId, setDestinationId] = useState("");
   const [message, setMessage] = useState("");
@@ -41,7 +42,7 @@ export default function SectionFileUpload({ sectionId, title, builtin, disabled,
     } finally { working.current = false; if (!read.signal.aborted) setBusy(false); }
   }
   async function upload() {
-    if (working.current || !file || !destinationId) return;
+    if (working.current || !file || (!localLesson && !destinationId)) return;
     working.current = true; setBusy(true); setMessage("");
     const upload = new AbortController(); controller.current = upload;
     try {
@@ -63,7 +64,7 @@ export default function SectionFileUpload({ sectionId, title, builtin, disabled,
     <dialog ref={dialog} className={styles.dialog} aria-label={`Upload file for ${title}`} onClick={event => event.stopPropagation()} onCancel={event => { if (busy) event.preventDefault(); }}>
       <header className={styles.header}><h2>Upload from PC</h2><button type="button" aria-label="Close" disabled={busy} onClick={() => dialog.current?.close()}>×</button></header>
       <div className={styles.body}>
-        <p className={styles.description}>Choose {builtin ? "a PPTX attachment" : "a PDF, PPTX or compiled lesson JS"} up to 50 MB for {title}. The file is saved to Drive and connected to this section{builtin ? " as an attachment" : ", replacing its current lesson"}.</p>
+        <p className={styles.description}>Choose {builtin ? "a PPTX attachment" : "a PDF, PPTX or compiled lesson JS"} up to 50 MB for {title}. {builtin ? "Attachments are saved to Drive." : "Lesson JS is imported into the project for display and editing. PDF and PPTX files are saved to Drive."}</p>
         <label className={styles.field}>File from your computer<input ref={input} type="file" accept={builtin ? ".pptx" : ".pdf,.pptx,.js"} disabled={busy} onChange={event => {
           const chosen = event.target.files?.[0]; setSaved(false); setMessage(""); setFile(null);
           if (!chosen) return;
@@ -72,12 +73,12 @@ export default function SectionFileUpload({ sectionId, title, builtin, disabled,
           }
           setFile(chosen);
         }} /></label>
-        <label className={styles.field}>Save to Drive<select value={destinationId} disabled={busy} onChange={event => setDestinationId(event.target.value)}><option value="">Choose destination</option>{destinations.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>
+        {!localLesson && <label className={styles.field}>Save to Drive<select value={destinationId} disabled={busy} onChange={event => setDestinationId(event.target.value)}><option value="">Choose destination</option>{destinations.map(item => <option key={item.id} value={item.id}>{item.label}</option>)}</select></label>}
       </div>
       <footer className={styles.footer}>
         {busy && <p className={`${styles.feedback} ${styles.progress}`} role="status">Processing upload…</p>}
         {message && <p className={`${styles.feedback} ${saved ? styles.success : styles.error}`} role={saved ? "status" : "alert"}>{message}</p>}
-        <div className={styles.footerActions}><button type="button" className={styles.secondary} disabled={busy} onClick={() => dialog.current?.close()}>Close</button><button type="button" className={styles.primary} disabled={busy || !file || !destinationId} onClick={() => void upload()}>Upload file</button></div>
+        <div className={styles.footerActions}><button type="button" className={styles.secondary} disabled={busy} onClick={() => dialog.current?.close()}>Close</button><button type="button" className={styles.primary} disabled={busy || !file || (!localLesson && !destinationId)} onClick={() => void upload()}>Upload file</button></div>
       </footer>
     </dialog>
   </>;

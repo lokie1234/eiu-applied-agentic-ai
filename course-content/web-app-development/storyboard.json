@@ -1643,535 +1643,1228 @@
     {
       "section": 2,
       "number": 1,
-      "title": "Kết nối dữ liệu, tài liệu và website",
-      "minutes": 5,
-      "message": "Supabase lưu dữ liệu · Google Drive quản lý tài liệu · Vercel triển khai website.",
+      "title": "Triển khai website & Lưu dữ liệu",
+      "minutes": 3,
+      "message": "Triển khai website với Vercel và lưu dữ liệu với Supabase.",
       "cards": [
         {
-          "title": "Supabase",
-          "text": "Dữ liệu có cấu trúc và quyền truy cập."
+          "title": "Triển khai",
+          "text": "Đưa website lên mạng với Vercel.",
+          "logo": "Vercel"
         },
         {
-          "title": "Google Drive",
-          "text": "Tài liệu và file được chia sẻ đúng quyền."
-        },
-        {
-          "title": "Vercel",
-          "text": "Triển khai và cập nhật website từ mã nguồn."
+          "title": "Lưu dữ liệu",
+          "text": "Lưu dữ liệu ứng dụng trong Supabase.",
+          "logo": "Supabase"
         }
       ],
-      "visual": "cover",
-      "note": "Nhắc lại sản phẩm phần 1: project trên máy và repository trên GitHub. Phần 2 hoàn thiện truy cập, dữ liệu và tài liệu.",
-      "verify": "Nêu được ba nhiệm vụ mới và công cụ tương ứng.",
-      "objective": "Nêu được ba nhiệm vụ mới và công cụ tương ứng.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      "visual": "launch-cover",
+      "note": "",
+      "verify": "Website có URL truy cập và dữ liệu được lưu trong database.",
+      "objective": "Triển khai website với Vercel và lưu dữ liệu với Supabase.",
+      "visualConcept": "Cover đồng bộ Section 1: nền gradient navy, tiêu đề trắng–vàng Triển khai website & Lưu dữ liệu, subtitle Vercel · Supabase. Không có câu dẫn. Hai thanh Triển khai và Lưu dữ liệu bên trái được đôn lên, top 250px trong openingcopy. Hai logo Vercel/Supabase bên phải xoay đối diện 180 độ, chu kỳ 25 giây, counter-rotate giữ thẳng; reduced motion giữ hai vị trí tĩnh. Không Google Drive trên slide này. Inter, canvas 1280×720, không footer."
     },
     {
       "section": 2,
       "number": 2,
-      "title": "Chạy trên máy vẫn chưa đủ",
+      "title": "Mở lại project và chạy website",
       "minutes": 5,
-      "message": "Hosting giúp truy cập; database giúp lưu dữ liệu bền vững.",
+      "message": "",
       "cards": [
         {
-          "title": "Đồng nghiệp không mở được",
-          "text": "Bạn đang dùng localhost: cần một bản triển khai phù hợp."
+          "title": "Mở folder trong VS Code",
+          "text": "Folder đã thực hành ở Section 1",
+          "logo": "VS Code"
         },
         {
-          "title": "Dữ liệu mất khi tải lại",
-          "text": "Cần kiểm tra nơi lưu; giao diện chưa chứng minh đã ghi database."
+          "title": "Chạy trong Terminal",
+          "text": "npm run dev"
         },
         {
-          "title": "Hai vấn đề độc lập",
-          "text": "Có website công khai vẫn chưa đảm bảo dữ liệu đã được lưu."
+          "title": "Mở website",
+          "text": "http://localhost:3000"
         }
       ],
-      "visual": "missing",
-      "note": "Cho học viên chọn công cụ còn thiếu trong hai tình huống. Nếu dữ liệu chỉ trong bộ nhớ, tải lại có thể mất; database phải thực sự được kết nối và kiểm tra.",
-      "verify": "Phân biệt thiếu hosting và thiếu lưu dữ liệu.",
-      "objective": "Phân biệt thiếu hosting và thiếu lưu dữ liệu.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      "visual": "launch-local-flow",
+      "note": "Chỉ hướng dẫn mở lại folder và chạy dev server; không thêm yêu cầu test/build hoặc đối chiếu GitHub. Terminal phải ở folder chứa package.json. Nếu cổng 3000 đang được sử dụng, xem URL thực tế trong Terminal hoặc dừng dev server cũ trước khi chạy lại trên cổng 3000.",
+      "verify": "Website đã thực hành ở Section 1 mở được tại http://localhost:3000.",
+      "objective": "Mở đúng folder project trong VS Code và chạy npm run dev để truy cập http://localhost:3000.",
+      "visualConcept": "Flow ba icon ngang gọn, nền kem full frame không viền bao/bo góc/inset shadow. Tiêu đề căn giữa cả ngang và dọc trong vùng trống phía trên flow (header 300px). Ba bước thẳng hàng: mở folder VS Code → npm run dev kèm nút Sao chép ngay cạnh, dùng style vàng nổi và phản hồi Section 1 → http://localhost:3000. Không checklist hoặc khung kết quả. Inter, canvas 1280×720."
     },
     {
       "section": 2,
       "number": 3,
-      "title": "Các công cụ phối hợp như thế nào?",
+      "title": "Supabase",
       "minutes": 5,
-      "message": "Website có thể kết nối dịch vụ dữ liệu và tài liệu khi cần.",
+      "message": "",
       "cards": [
         {
-          "title": "Quản lý mã",
-          "text": "VS Code → GitHub."
+          "title": "Backend cho website.",
+          "label": "Bắt đầu từ dữ liệu.",
+          "logo": "Supabase",
+          "text": "Nền tảng PostgreSQL, sẵn các dịch vụ cho ứng dụng.",
+          "points": [
+            "Database · lưu và truy vấn dữ liệu",
+            "Auth · đăng ký, đăng nhập, phân quyền",
+            "Storage · lưu file; Realtime · cập nhật trực tiếp",
+            "Edge Functions · xử lý logic phía server"
+          ]
         },
         {
-          "title": "Đưa lên Internet",
-          "text": "GitHub → Vercel → người dùng."
+          "title": "Free",
+          "label": "$0",
+          "points": [
+            "500 MB database · 2 project hoạt động",
+            "Tạm dừng sau 1 tuần không hoạt động"
+          ]
         },
         {
-          "title": "Dịch vụ của ứng dụng",
-          "text": "Supabase cho dữ liệu; Drive cho tài liệu và file."
+          "title": "Pro",
+          "label": "Từ $25",
+          "points": [
+            "8 GB disk/project · backup hằng ngày",
+            "Phù hợp khi đưa ứng dụng vào sử dụng"
+          ]
+        },
+        {
+          "title": "Team",
+          "label": "Từ $599",
+          "points": [
+            "SSO Dashboard · quản lý quyền nhóm",
+            "Hỗ trợ ưu tiên và yêu cầu tuân thủ"
+          ]
         }
       ],
-      "visual": "architecture",
-      "note": "Mũi tên dữ liệu không có nghĩa Drive luôn trực tiếp phục vụ file công khai. Cách truy cập tùy quyền và cách tích hợp.",
-      "verify": "Chỉ đúng đường mã nguồn và đường dữ liệu.",
-      "objective": "Chỉ đúng đường mã nguồn và đường dữ liệu.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      "visual": "launch-supabase-intro",
+      "note": "Xác minh 23/10/2026: https://supabase.com/ ; https://supabase.com/pricing ; https://supabase.com/docs/guides/platform/billing-on-supabase . Free: $0, 500 MB database, 2 active projects, pause after 1 week inactivity. Pro from $25/month, Team from $599/month. Giá subscription theo organization; compute/add-ons/overage có thể phát sinh, không hứa giá trọn gói. Enterprise báo giá riêng. Không thay kế hoạch tài khoản người học.",
+      "verify": "Supabase là nơi lưu và xử lý dữ liệu của ứng dụng.",
+      "objective": "Nhận biết Supabase cung cấp database, Auth, Storage, Realtime và Edge Functions; phân biệt các gói phổ biến.",
+      "visualConcept": "Theme Supabase graphite/emerald #3ECF8E, logo chính chủ nổi nhẹ, headline lớn, bốn bullet chức năng có icon bên trái; ba card giá Free/Pro/Team bên phải. Free được khoanh oval sáng chuyển động rõ hơn, dải tín hiệu nhỏ chạy ngang; reduced motion giữ tĩnh. Full frame, Inter, 1280×720, không viền ngoài hay footer. Không hiển thị link, ngày xác minh hoặc ghi chú chi phí. Oval nhấn gói miễn phí pulse/scale nhẹ 2 giây và nét sáng chạy quanh 3 giây; reduced motion giữ vòng tĩnh."
     },
     {
       "section": 2,
       "number": 4,
-      "title": "Supabase: dịch vụ phía sau ứng dụng",
-      "minutes": 7,
-      "message": "Database lưu dữ liệu; đăng nhập và kho file là các dịch vụ riêng.",
+      "title": "Vercel",
+      "minutes": 5,
+      "message": "",
       "cards": [
         {
-          "title": "Database · cơ sở dữ liệu",
-          "text": "Lưu yêu cầu, trạng thái, người tạo và thời điểm."
+          "title": "Từ mã nguồn.",
+          "label": "Đến website online.",
+          "logo": "Vercel",
+          "text": "Nền tảng build, triển khai và phục vụ ứng dụng web.",
+          "points": [
+            "Git → deploy · cập nhật từ repository",
+            "Preview · xem thử từng phiên bản",
+            "CDN · phân phối nội dung toàn cầu",
+            "Functions · chạy logic phía server"
+          ]
         },
         {
-          "title": "Authentication · xác thực",
-          "text": "Xác định người dùng đang đăng nhập."
+          "title": "Hobby",
+          "label": "$0",
+          "points": [
+            "Cho cá nhân, phi thương mại",
+            "Deploy từ Git · có giới hạn sử dụng"
+          ]
         },
         {
-          "title": "Storage · kho file",
-          "text": "Lưu file cùng chính sách truy cập phù hợp."
+          "title": "Pro",
+          "label": "Từ $20",
+          "points": [
+            "1 seat deploy · $20 usage credit/tháng",
+            "Cộng tác nhóm, dùng cho thương mại"
+          ]
+        },
+        {
+          "title": "Enterprise",
+          "label": "Báo giá riêng",
+          "points": [
+            "Kiểm soát truy cập, bảo mật nâng cao",
+            "SLA và hỗ trợ theo thỏa thuận"
+          ]
         }
       ],
-      "visual": "cards",
-      "note": "Backend là phần xử lý và dịch vụ phía sau giao diện. Khóa này tập trung database; không cần dùng mọi dịch vụ của Supabase.",
-      "verify": "Phân biệt dòng dữ liệu, người dùng và file.",
-      "objective": "Phân biệt dòng dữ liệu, người dùng và file.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      "visual": "launch-vercel-intro",
+      "note": "Xác minh 23/10/2026: https://vercel.com/pricing ; https://vercel.com/docs/plans/pro-plan ; https://vercel.com/docs/plans/hobby ; https://vercel.com/docs/git . Pro platform fee $20/month includes 1 deploying seat and $20 usage credit. Additional deploying seats $20/month each; usage/add-ons extra. Hobby restricted to personal non-commercial use. Project của bạn trong khóa là bài demo học tập, không triển khai kinh doanh thật trên Hobby. Không nhầm gói Vercel hosting với v0.",
+      "verify": "Vercel build và phục vụ website; Supabase quản lý dữ liệu.",
+      "objective": "Nhận biết chức năng triển khai Vercel và phân biệt Hobby, Pro, Enterprise.",
+      "visualConcept": "Theme Vercel đen/trắng tối giản, lưới mảnh, logo tam giác trắng và typography lớn. Chức năng bên trái bằng bullet/icon, Hobby/Pro/Enterprise bên phải, Hobby được khoanh oval sáng chuyển động rõ hơn và logo float; reduced motion dừng hiệu ứng. Full frame, Inter, 1280×720, không viền ngoài hay footer. Không hiển thị link, ngày xác minh hoặc ghi chú chi phí. Oval nhấn gói miễn phí pulse/scale nhẹ 2 giây và nét sáng chạy quanh 3 giây; reduced motion giữ vòng tĩnh."
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-supabase-setup",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Đăng nhập Dashboard; có project của bạn và đúng URL/Publishable key.",
+      "objective": "Đăng ký Supabase, tạo organization và project, lấy URL cùng Publishable key.",
+      "visualConcept": "Expanded popup with original screenshot and numbered image markers, all three numbered parts visible together with bullet lists. No visible image caption; provenance kept in source metadata.",
       "number": 5,
-      "title": "Database: bảng dữ liệu có quy trình",
-      "minutes": 8,
-      "message": "Bảng có hàng, cột và ID; ứng dụng đọc và cập nhật theo quy tắc.",
+      "title": "Supabase · đăng ký và thiết lập",
+      "message": "",
       "cards": [
         {
-          "title": "Table · bảng",
-          "text": "requests: nhóm dữ liệu về yêu cầu."
+          "title": "Đăng ký",
+          "text": "Đăng nhập bằng GitHub đã tạo ở Section 1.",
+          "logo": "Supabase"
         },
         {
-          "title": "Row và Column · hàng và cột",
-          "text": "Một yêu cầu là một hàng; tiêu đề và trạng thái là các cột."
+          "title": "Organization",
+          "text": "Tạo nơi quản lý project và chọn gói Free.",
+          "logo": "Supabase"
         },
         {
-          "title": "ID · mã định danh",
-          "text": "Phân biệt chính xác từng yêu cầu, kể cả khi trùng tiêu đề."
+          "title": "Project của bạn",
+          "text": "Đặt tên, tạo mật khẩu database và chọn region.",
+          "logo": "Supabase"
+        },
+        {
+          "title": "Project URL & key",
+          "text": "Lấy địa chỉ API và Publishable key để kết nối ứng dụng.",
+          "logo": "Supabase"
         }
       ],
-      "visual": "database",
-      "note": "Bảng mô phỏng có thể thêm hàng và đổi trạng thái ngay trong slide; đây là ví dụ để hiểu cấu trúc. Excel vẫn phù hợp nhiều tác vụ; database hữu ích khi ứng dụng cần truy vấn và phân quyền.",
-      "verify": "Chỉ đúng hàng, cột và ID; giải thích trạng thái được cập nhật.",
-      "objective": "Chỉ đúng hàng, cột và ID; giải thích trạng thái được cập nhật.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      "regionDetails": [
+        {
+          "section": 2,
+          "number": 0,
+          "minutes": 6,
+          "visual": "launch-guide-setup-detail",
+          "title": "Supabase · đăng ký bằng GitHub",
+          "message": "",
+          "cards": [
+            {
+              "title": "Mở trang đăng ký",
+              "points": [
+                "Mở trang đăng ký Supabase.",
+                "Dùng tài khoản GitHub đã tạo ở Section 1."
+              ]
+            },
+            {
+              "title": "Tiếp tục với GitHub",
+              "points": [
+                "Chọn Continue with GitHub.",
+                "Đăng nhập GitHub đã tạo; xác nhận cấp quyền nếu được hỏi."
+              ]
+            },
+            {
+              "title": "Hoàn tất tài khoản",
+              "points": [
+                "Đã có tài khoản: chọn đăng nhập bằng GitHub.",
+                "Vào Dashboard, sẵn sàng tạo organization và project."
+              ]
+            }
+          ],
+          "note": "Hướng dẫn đăng ký tài khoản nền tảng bằng GitHub, không phải cấu hình GitHub OAuth cho website. Nếu đã có tài khoản, đăng nhập bằng GitHub. Xác minh trang chính thức ngày 23/10/2026: https://supabase.com/dashboard/sign-up ; https://vercel.com/signup ; https://vercel.com/docs/plans/hobby . Tạo project Supabase và import repository của bạn ở các bước tiếp theo.",
+          "verify": "Supabase · đăng ký bằng GitHub",
+          "objective": "Supabase · đăng ký bằng GitHub",
+          "visualConcept": "Khung minh họa native bên trái, ba nhóm hướng dẫn đầy đủ bên phải; giữ cụm từ liền nghĩa.",
+          "referenceImage": {
+            "asset": "Supabase Signup Native",
+            "width": 600,
+            "height": 558,
+            "markers": []
+          }
+        },
+        {
+          "section": 2,
+          "minutes": 6,
+          "visual": "launch-guide-6",
+          "note": "Minh họa biểu mẫu bằng HTML/CSS, cùng kiểu khung với hướng dẫn Connect; các giá trị là ví dụ.",
+          "verify": "Sẵn sàng tạo project Supabase cho ứng dụng của bạn.",
+          "objective": "Organization là nơi quản lý project và gói sử dụng của bạn.",
+          "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
+          "number": 6,
+          "title": "Supabase · tạo organization",
+          "message": "Organization là nơi quản lý project và gói sử dụng của bạn.",
+          "cards": [
+            {
+              "title": "Nhập tên organization",
+              "points": [
+                "Chọn New organization.",
+                "Name: nhập tên nhóm hoặc project của bạn."
+              ]
+            },
+            {
+              "title": "Chọn Personal và Free",
+              "points": [
+                "Type / Type of organization: chọn Personal.",
+                "Plan: chọn Free ($0/tháng)."
+              ]
+            },
+            {
+              "title": "Create organization",
+              "points": [
+                "Bấm Create organization để hoàn tất.",
+                "Đã có organization phù hợp: chọn lại để tạo project."
+              ]
+            }
+          ],
+          "referenceImage": {
+            "asset": "Supabase Organization Native",
+            "width": 640,
+            "height": 558,
+            "markers": []
+          }
+        },
+        {
+          "section": 2,
+          "minutes": 6,
+          "visual": "launch-guide-7",
+          "note": "Minh họa biểu mẫu bằng HTML/CSS, cùng kiểu khung với hướng dẫn Connect; các giá trị là ví dụ.",
+          "verify": "Có Dashboard của project bạn vừa tạo, không chỉ trang organization.",
+          "objective": "Mỗi project có database, địa chỉ API và bộ khóa riêng.",
+          "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
+          "number": 7,
+          "title": "Supabase · tạo project của bạn",
+          "message": "Mỗi project có database, địa chỉ API và bộ khóa riêng.",
+          "cards": [
+            {
+              "title": "Chọn organization & tên",
+              "points": [
+                "Organization: chọn nơi vừa tạo.",
+                "Project name: nhập tên project của bạn; có thể bỏ qua GitHub (optional)."
+              ]
+            },
+            {
+              "title": "Password & Region",
+              "points": [
+                "Generate a password: tạo mật khẩu và lưu riêng.",
+                "Region: chọn gần người dùng, ví dụ Singapore."
+              ]
+            },
+            {
+              "title": "Create new project",
+              "points": [
+                "Bật Data API khi dùng supabase-js.",
+                "Bấm Create new project và chờ khởi tạo; thiết lập RLS ở phần bảng."
+              ]
+            }
+          ],
+          "referenceImage": {
+            "asset": "Supabase Project Native",
+            "width": 640,
+            "height": 558,
+            "markers": []
+          }
+        },
+        {
+          "section": 2,
+          "minutes": 6,
+          "visual": "launch-guide-8",
+          "note": "Minh họa native theo ảnh tham chiếu: mở Connect trong project, chọn Server và sao chép SUPABASE_URL cùng SUPABASE_PUBLISHABLE_KEY. Giá trị là ví dụ.",
+          "verify": "Bài dùng SUPABASE_URL và SUPABASE_PUBLISHABLE_KEY ở phía server.",
+          "objective": "Trong project: Connect → Server → copy URL và Publishable key.",
+          "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
+          "number": 8,
+          "title": "Supabase · lấy đúng URL và khóa",
+          "message": "Trong project: Connect → Server → copy URL và Publishable key.",
+          "cards": [
+            {
+              "title": "Connect → Server",
+              "points": [
+                "Mở project Supabase, bấm Connect.",
+                "Chọn Server → Set environment variables.",
+                "Copy SUPABASE_URL: địa chỉ API của project."
+              ]
+            },
+            {
+              "title": "Copy Publishable key",
+              "points": [
+                "Copy SUPABASE_PUBLISHABLE_KEY, bắt đầu bằng sb_publishable_.",
+                "URL và key phải thuộc cùng project.",
+                "Có thể tìm lại khóa ở Settings → API Keys."
+              ]
+            },
+            {
+              "title": "Dùng đúng thông tin kết nối",
+              "points": [
+                "Không copy Database connection string hoặc Secret key; bước này chưa cần JWKS URL.",
+                "Tự dán URL và Publishable key vào .env.local ở phần sau."
+              ]
+            }
+          ],
+          "referenceImage": {
+            "asset": "Supabase Connect Native",
+            "width": 640,
+            "height": 558,
+            "markers": []
+          }
+        }
+      ]
     },
     {
       "section": 2,
       "number": 6,
-      "title": "Dữ liệu đi từ biểu mẫu đến database",
       "minutes": 8,
-      "message": "Thấy dữ liệu trên màn hình chưa đủ; phải đọc lại từ nơi lưu.",
+      "visual": "launch-guide-vercel-setup",
+      "title": "Vercel · đăng ký và thiết lập",
+      "message": "",
       "cards": [
         {
-          "title": "Tạo và đọc",
-          "text": "Gửi yêu cầu mới; truy vấn để hiển thị danh sách."
+          "title": "Đăng ký",
+          "text": "Dùng GitHub để đăng nhập và chọn gói phù hợp.",
+          "logo": "Vercel"
         },
         {
-          "title": "Sửa và xóa",
-          "text": "Cập nhật trạng thái; xóa theo quyền được cấp."
+          "title": "Import GitHub",
+          "text": "Chọn repository đã có mã nguồn của bạn.",
+          "logo": "Vercel"
         },
         {
-          "title": "CRUD · bốn thao tác",
-          "text": "Tạo, đọc, sửa, xóa; kiểm tra dữ liệu sau khi tải lại."
+          "title": "Cấu hình",
+          "text": "Kiểm tra framework, thư mục và biến môi trường.",
+          "logo": "Vercel"
+        },
+        {
+          "title": "Deploy",
+          "text": "Triển khai, mở URL và kiểm tra ứng dụng.",
+          "logo": "Vercel"
         }
       ],
-      "visual": "crud",
-      "note": "Mô phỏng đường đi để giảng viên phân biệt phản hồi giao diện với lưu thật. Khi demo trực tiếp cần reload và đọc lại từ Supabase.",
-      "verify": "Tạo một yêu cầu rồi tải lại ứng dụng thật vẫn đọc được.",
-      "objective": "Tạo một yêu cầu rồi tải lại ứng dụng thật vẫn đọc được.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      "regionDetails": [
+        {
+          "section": 2,
+          "number": 0,
+          "minutes": 6,
+          "visual": "launch-guide-setup-detail",
+          "title": "Vercel · đăng ký bằng GitHub",
+          "message": "",
+          "cards": [
+            {
+              "title": "Mở trang đăng ký",
+              "points": [
+                "Mở trang đăng ký Vercel.",
+                "Dùng tài khoản GitHub đã tạo ở Section 1."
+              ]
+            },
+            {
+              "title": "Tiếp tục với GitHub",
+              "points": [
+                "Chọn Continue with GitHub.",
+                "Dùng cùng tài khoản GitHub; hoàn tất các bước xác minh nếu có."
+              ]
+            },
+            {
+              "title": "Hoàn tất tài khoản",
+              "points": [
+                "Đã có tài khoản: chọn đăng nhập bằng GitHub.",
+                "Dùng Hobby cho bài thực hành cá nhân, phi thương mại; hoàn tất onboarding nếu được hỏi."
+              ]
+            }
+          ],
+          "note": "Nguồn chính thức, xác minh 27/10/2026: https://vercel.com/signup ; https://vercel.com/docs/plans/hobby",
+          "verify": "Vercel · đăng ký bằng GitHub",
+          "objective": "Vercel · đăng ký bằng GitHub",
+          "visualConcept": "Khung minh họa native bên trái, ba nhóm hướng dẫn đầy đủ bên phải; giữ cụm từ liền nghĩa.",
+          "referenceImage": {
+            "asset": "Vercel Signup Native",
+            "width": 600,
+            "height": 558,
+            "markers": []
+          }
+        },
+        {
+          "section": 2,
+          "number": 0,
+          "minutes": 6,
+          "visual": "launch-guide-setup-detail",
+          "title": "Vercel · import repository GitHub",
+          "message": "",
+          "cards": [
+            {
+              "title": "Tạo project mới",
+              "points": [
+                "Từ Dashboard, chọn Add New → Project.",
+                "Chọn GitHub trong Import Git Repository."
+              ]
+            },
+            {
+              "title": "Cấp quyền cho repository",
+              "points": [
+                "Kết nối hoặc cài Vercel GitHub App nếu được yêu cầu.",
+                "Chỉ cấp quyền repository cần dùng; không thấy repo thì kiểm tra quyền truy cập."
+              ]
+            },
+            {
+              "title": "Import đúng mã nguồn",
+              "points": [
+                "Chọn repository đã push ở Section 1, bấm Import.",
+                "Đối chiếu tên repo và tài khoản GitHub trước khi cấu hình."
+              ]
+            }
+          ],
+          "note": "Tài liệu chính thức Vercel, xác minh 27/10/2026: https://vercel.com/signup ; https://vercel.com/academy/vercel-foundations/vercel-account-setup ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables/managing-environment-variables ; https://vercel.com/docs/plans/hobby . Minh họa dựng bằng HTML/CSS; giá trị là ví dụ.",
+          "verify": "Vercel · import repository GitHub",
+          "objective": "Vercel · import repository GitHub",
+          "visualConcept": "Khung minh họa native bên trái, ba nhóm hướng dẫn đầy đủ bên phải; giữ cụm từ liền nghĩa.",
+          "referenceImage": {
+            "asset": "Vercel Import Native",
+            "width": 600,
+            "height": 558,
+            "markers": []
+          }
+        },
+        {
+          "section": 2,
+          "number": 0,
+          "minutes": 6,
+          "visual": "launch-guide-setup-detail",
+          "title": "Vercel · cấu hình project",
+          "message": "",
+          "cards": [
+            {
+              "title": "Kiểm tra cấu hình build",
+              "points": [
+                "Kiểm tra Project Name và Framework Preset; Vercel thường tự nhận Next.js.",
+                "Root Directory: chọn thư mục chứa package.json; giữ mặc định nếu ở gốc repo."
+              ]
+            },
+            {
+              "title": "Thêm biến môi trường",
+              "points": [
+                "Mở Environment Variables, thêm đúng tên biến code đang dùng.",
+                "Bài này dùng SUPABASE_URL và SUPABASE_PUBLISHABLE_KEY; điền giá trị cùng project Supabase."
+              ]
+            },
+            {
+              "title": "Chọn môi trường áp dụng",
+              "points": [
+                "Áp dụng cho Production; thêm Preview nếu cần chạy bản xem thử.",
+                "Không commit .env.local lên GitHub; không đưa Secret key vào biến công khai."
+              ]
+            }
+          ],
+          "note": "Tài liệu chính thức Vercel, xác minh 27/10/2026: https://vercel.com/signup ; https://vercel.com/academy/vercel-foundations/vercel-account-setup ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables/managing-environment-variables ; https://vercel.com/docs/plans/hobby . Minh họa dựng bằng HTML/CSS; giá trị là ví dụ.",
+          "verify": "Vercel · cấu hình project",
+          "objective": "Vercel · cấu hình project",
+          "visualConcept": "Khung minh họa native bên trái, ba nhóm hướng dẫn đầy đủ bên phải; giữ cụm từ liền nghĩa.",
+          "referenceImage": {
+            "asset": "Vercel Configure Native",
+            "width": 600,
+            "height": 558,
+            "markers": []
+          }
+        },
+        {
+          "section": 2,
+          "number": 0,
+          "minutes": 6,
+          "visual": "launch-guide-setup-detail",
+          "title": "Vercel · deploy và xác nhận kết quả",
+          "message": "",
+          "cards": [
+            {
+              "title": "Bấm Deploy",
+              "points": [
+                "Kiểm tra lại repo, framework và biến môi trường rồi bấm Deploy.",
+                "Theo dõi build; nếu lỗi, mở log để tìm nguyên nhân trước khi sửa."
+              ]
+            },
+            {
+              "title": "Mở website và kiểm tra",
+              "points": [
+                "Khi trạng thái Ready, mở URL được Vercel cấp.",
+                "Thử luồng chính và tải lại trang; cần lưu dữ liệu thì kiểm tra bản ghi trên Supabase."
+              ]
+            },
+            {
+              "title": "Cập nhật những lần sau",
+              "points": [
+                "Push lên nhánh đã kết nối để tạo deployment mới; nhánh production cập nhật website chính.",
+                "Đổi biến môi trường: Save rồi Redeploy; deployment cũ không tự nhận giá trị mới."
+              ]
+            }
+          ],
+          "note": "Tài liệu chính thức Vercel, xác minh 27/10/2026: https://vercel.com/signup ; https://vercel.com/academy/vercel-foundations/vercel-account-setup ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables/managing-environment-variables ; https://vercel.com/docs/plans/hobby . Minh họa dựng bằng HTML/CSS; giá trị là ví dụ.",
+          "verify": "Vercel · deploy và xác nhận kết quả",
+          "objective": "Vercel · deploy và xác nhận kết quả",
+          "visualConcept": "Khung minh họa native bên trái, ba nhóm hướng dẫn đầy đủ bên phải; giữ cụm từ liền nghĩa.",
+          "referenceImage": {
+            "asset": "Vercel Deploy Native",
+            "width": 600,
+            "height": 558,
+            "markers": []
+          }
+        }
+      ],
+      "note": "Tài liệu chính thức Vercel, xác minh 27/10/2026: https://vercel.com/signup ; https://vercel.com/academy/vercel-foundations/vercel-account-setup ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables/managing-environment-variables ; https://vercel.com/docs/plans/hobby . Minh họa dựng bằng HTML/CSS; giá trị là ví dụ.",
+      "verify": "Có deployment Ready, URL mở được và tính năng chính hoạt động.",
+      "objective": "Đăng ký, import GitHub, cấu hình và triển khai website trên Vercel.",
+      "visualConcept": "Expanded popup with original screenshot and numbered image markers, all three numbered parts visible together with bullet lists. No visible image caption; provenance kept in source metadata."
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-9",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Bảng sẵn sàng; bước tiếp theo cấu hình quyền tối thiểu.",
+      "objective": "Chọn bảng và cột theo tính năng thực tế; registrations bên dưới là ví dụ form đăng ký.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 7,
-      "title": "Kết nối đúng, phân quyền đúng",
-      "minutes": 8,
-      "message": "Khóa công khai không thay thế phân quyền; khóa có đặc quyền phải giữ bí mật.",
+      "title": "Supabase · tạo bảng cho dữ liệu của bạn",
+      "message": "Chọn bảng và cột theo tính năng thực tế; registrations bên dưới là ví dụ form đăng ký.",
       "cards": [
         {
-          "title": "Biến môi trường",
-          "text": "Cấu hình kết nối theo môi trường; không dán secret vào prompt."
+          "title": "Hiểu các cột",
+          "logo": "Supabase",
+          "points": [
+            "Xem tính năng cần lưu dữ liệu trong project của bạn; liệt kê đúng các trường.",
+            "Ví dụ form đăng ký có name, email, plan, goal; database thêm id và created_at.",
+            "Tên bảng/cột phải theo dữ liệu thật; project khác có thể dùng các trường khác."
+          ],
+          "detail": "Nhờ AI đọc code hiện có trước khi đề xuất schema; giữ UI và chức năng của bạn."
         },
         {
-          "title": "Loại khóa",
-          "text": "Publishable key dùng phía client theo thiết kế; secret/service_role chỉ ở môi trường an toàn."
+          "title": "Ví dụ SQL cho form đăng ký",
+          "points": [
+            "SQL dưới đây dành cho ví dụ registrations; chỉ áp dụng nếu đúng dữ liệu của bạn.",
+            "Supabase → SQL Editor → New query → kiểm tra bảng/cột trước khi Run; không tạo trùng bảng."
+          ],
+          "code": "create table public.registrations (\n  id uuid primary key default gen_random_uuid(),\n  name text not null, email text not null,\n  plan text not null, goal text,\n  created_at timestamptz not null default now()\n);\nalter table public.registrations enable row level security;",
+          "detail": "Project có dữ liệu khác: yêu cầu AI tạo SQL tương ứng, không dùng nguyên mẫu."
         },
         {
-          "title": "RLS · quyền theo từng hàng",
-          "text": "Quy tắc quyết định ai được đọc hoặc sửa mỗi dòng dữ liệu."
+          "title": "Kiểm tra Table Editor",
+          "points": [
+            "Table Editor → public → mở bảng bạn vừa tạo; ví dụ registrations.",
+            "Đối chiếu cột, kiểu dữ liệu và RLS với tính năng trong project của bạn.",
+            "Bảng đã có dữ liệu: kiểm tra trước khi sửa; không xóa để khớp ví dụ."
+          ],
+          "detail": "Bảng sẵn sàng; bước tiếp theo cấu hình quyền tối thiểu."
         }
-      ],
-      "visual": "permissions",
-      "note": "Dùng hai tài khoản để kiểm tra người B không thấy yêu cầu riêng của người A. RLS phải bật và có chính sách đúng; việc giấu nút trên giao diện không đủ.",
-      "verify": "Tài khoản có quyền đọc được; tài khoản khác bị từ chối.",
-      "objective": "Tài khoản có quyền đọc được; tài khoản khác bị từ chối.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-10",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Prompt cuối yêu cầu AI đề xuất quyền theo tính năng và dữ liệu của project bạn.",
+      "objective": "Xác định ai được thêm, đọc, sửa, xóa; ví dụ dưới đây chỉ nhận đăng ký công khai.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 8,
-      "title": "Nhờ AI thiết kế database",
-      "minutes": 8,
-      "message": "Mô tả dữ liệu và quyền truy cập trước khi tạo bảng.",
+      "title": "Supabase · thiết lập quyền theo tính năng",
+      "message": "Xác định ai được thêm, đọc, sửa, xóa; ví dụ dưới đây chỉ nhận đăng ký công khai.",
       "cards": [
         {
-          "title": "Nhu cầu",
-          "text": "Yêu cầu gồm tiêu đề, trạng thái, người tạo, ngày tạo."
+          "title": "Luồng của bài học",
+          "points": [
+            "Chọn tính năng cần kết nối; frontend gửi dữ liệu đến endpoint server của project.",
+            "Ví dụ form đăng ký: POST /api/registrations → validation → Supabase INSERT.",
+            "Nếu có đăng nhập hoặc dữ liệu cá nhân: thiết kế quyền theo người dùng, không mở đọc công khai."
+          ],
+          "detail": "Khóa dùng ở server vẫn chịu RLS; không tự có quyền quản trị."
         },
         {
-          "title": "AI đề xuất",
-          "text": "Tên bảng/cột, kiểu dữ liệu, ID và SQL nếu cần."
+          "title": "Quyền INSERT tối thiểu",
+          "logo": "Supabase",
+          "points": [
+            "SQL dành cho ví dụ registrations ở slide trước, không phải policy chung cho mọi app.",
+            "Chỉ chạy khi đúng bảng và nhu cầu nhận form công khai; project khác cần policy phù hợp."
+          ],
+          "code": "revoke all on public.registrations from anon;\ngrant usage on schema public to anon;\ngrant insert (name,email,plan,goal)\n  on public.registrations to anon;\ncreate policy \"lab_insert_only\"\n  on public.registrations for insert to anon\n  with check (length(trim(name)) > 0\n    and position('@' in email) > 1);",
+          "detail": "Đây là cấu hình lab; policy INSERT không tự ngăn bot hoặc spam."
         },
         {
-          "title": "Bạn kiểm tra",
-          "text": "Đủ trường, kiểu hợp lý, quyền đúng; xác nhận trước khi thực thi."
+          "title": "Xác nhận đúng hành vi",
+          "points": [
+            "Validate các trường thực tế của project; bổ sung chống lạm dụng trước khi public.",
+            "Với form chỉ có quyền INSERT: không nối .select() vì khách không được đọc bản ghi trả về.",
+            "Tính năng cần đọc/sửa dữ liệu: thiết lập xác thực và policy phù hợp; không tắt RLS để hết lỗi."
+          ],
+          "detail": "Prompt cuối yêu cầu AI đề xuất quyền theo tính năng và dữ liệu của project bạn."
         }
-      ],
-      "visual": "schema",
-      "prompt": "Bối cảnh: Ứng dụng quản lý yêu cầu cần lưu tiêu đề, trạng thái, người tạo và thời điểm tạo. Mục tiêu: thiết kế dữ liệu trên Supabase. Hãy đề xuất tên bảng, cột, kiểu dữ liệu, ID duy nhất và quan hệ cần thiết; giải thích bằng ví dụ gần với bảng Excel. Mỗi người chỉ được đọc và sửa yêu cầu của mình, trừ vai trò quản lý được cấp quyền. Không dùng khóa có đặc quyền ở trình duyệt. Nếu cần SQL, hãy tạo mã và giải thích trước để tôi xác nhận; không tự thực thi hay xóa dữ liệu. Kết quả: cấu trúc tối giản và nguyên tắc phân quyền. Hướng dẫn kiểm tra dữ liệu hợp lệ, dữ liệu thiếu và hai tài khoản khác nhau.",
-      "note": "Học viên không cần tự viết SQL. Giảng viên giải thích ý nghĩa đề xuất; tránh chạy mã chưa hiểu hoặc lệnh xóa dữ liệu.",
-      "verify": "Tên bảng rõ; ID duy nhất; trạng thái hợp lệ; có nguyên tắc RLS.",
-      "objective": "Tên bảng rõ; ID duy nhất; trạng thái hợp lệ; có nguyên tắc RLS.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-11",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Ghi nhớ repository và tên nhánh chính để cấu hình Vercel.",
+      "objective": "Repository lưu code và lịch sử thay đổi để Vercel lấy về triển khai.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 9,
-      "title": "Demo: kết nối và kiểm tra Supabase",
-      "minutes": 11,
-      "message": "Lưu thành công, đọc lại được và quyền truy cập đúng mới là kết nối hoàn chỉnh.",
+      "title": "GitHub · dùng lại repository Section 1",
+      "message": "Repository lưu code và lịch sử thay đổi để Vercel lấy về triển khai.",
       "cards": [
         {
-          "title": "Chuẩn bị",
-          "text": "Project mẫu, bảng và quyền truy cập; cấu hình môi trường phù hợp."
+          "title": "Tìm đúng repository",
+          "logo": "GitHub",
+          "points": [
+            "Mở GitHub → ảnh đại diện → Your repositories.",
+            "Chọn repository của project bạn đã làm và push ở Section 1.",
+            "Kiểm tra có package.json và các file của website hiện tại."
+          ],
+          "link": "https://github.com",
+          "linkLabel": "Mở GitHub",
+          "detail": "Repository có thể mang tên bất kỳ; chọn đúng mã nguồn của project bạn."
         },
         {
-          "title": "Thực hiện",
-          "text": "Nhờ AI nối biểu mẫu → lưu một yêu cầu → tải lại → đọc lại."
+          "title": "Đối chiếu folder local",
+          "points": [
+            "Trong VS Code, mở Terminal tại folder chứa package.json.",
+            "Chạy hai lệnh bên dưới; URL origin phải trỏ về repository vừa mở."
+          ],
+          "code": "git remote -v\ngit branch --show-current",
+          "detail": "Nếu origin sai hoặc chưa có: nhờ AI kiểm tra rồi cấu hình đúng repo; không ghi đè vội."
         },
         {
-          "title": "Xác minh",
-          "text": "Thử tài khoản khác, dữ liệu thiếu và lỗi kết nối."
+          "title": "Xác định nhánh chính",
+          "points": [
+            "Trên GitHub, xem nhánh mặc định trong bộ chọn nhánh.",
+            "Bài minh họa dùng main; nếu repo dùng tên khác, thay tên đó ở các bước sau.",
+            "Giữ Private nếu repo đã dùng Private; Vercel vẫn kết nối được khi có quyền."
+          ],
+          "detail": "Ghi nhớ repository và tên nhánh chính để cấu hình Vercel."
         }
-      ],
-      "visual": "demo",
-      "prompt": "Bối cảnh: Tôi đã có project chạy local và bảng yêu cầu trên Supabase. Mục tiêu: kết nối chức năng tạo và đọc yêu cầu. Hãy kiểm tra cấu trúc project, chỉ ra biến môi trường cần thiết bằng tên, không yêu cầu tôi dán giá trị secret. Dùng loại khóa phù hợp; khóa có đặc quyền chỉ nằm ở phía máy chủ. Giữ nguyên giao diện và dữ liệu đang có. Giải thích file cần sửa rồi thực hiện trong phạm vi nếu có quyền. Kết quả: lưu yêu cầu thành công và đọc lại sau khi tải lại trang. Hướng dẫn thử hai tài khoản để xác nhận RLS, thử lỗi kết nối và dữ liệu không hợp lệ; báo rõ kiểm tra chưa chạy.",
-      "note": "Nếu lỗi: kiểm tra tên biến, khởi động lại môi trường khi cần, cấu trúc bảng và chính sách. Không đưa secret phía client hoặc tắt RLS để né lỗi.",
-      "verify": "Yêu cầu còn sau reload; không đọc được dữ liệu ngoài quyền.",
-      "objective": "Yêu cầu còn sau reload; không đọc được dữ liệu ngoài quyền.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-12",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Không chép giá trị khóa vào thông điệp commit hoặc ảnh minh chứng.",
+      "objective": ".gitignore chỉ dẫn Git bỏ qua file; không xóa file đã từng được theo dõi.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 10,
-      "title": "Google Drive: nơi quản lý tài liệu",
-      "minutes": 5,
-      "message": "Một tài liệu là file; một yêu cầu công việc là dòng dữ liệu.",
+      "title": "GitHub · chặn file cấu hình khỏi commit",
+      "message": ".gitignore chỉ dẫn Git bỏ qua file; không xóa file đã từng được theo dõi.",
       "cards": [
         {
-          "title": "Tài liệu",
-          "text": "PDF, hình ảnh, biên bản, báo cáo và hướng dẫn."
+          "title": "Mở .gitignore",
+          "logo": "GitHub",
+          "points": [
+            "Trong VS Code Explorer, mở .gitignore ở thư mục gốc project.",
+            "Thêm các dòng mẫu nếu chưa có; dấu ! cho phép giữ file mẫu trên GitHub."
+          ],
+          "code": ".env*\n!.env.example\nnode_modules/\n.next/",
+          "detail": ".env.local chứa giá trị thật; .env.example chỉ chứa tên biến và giá trị mẫu."
         },
         {
-          "title": "Dữ liệu có cấu trúc",
-          "text": "Người tạo, trạng thái, thời điểm và mã yêu cầu."
+          "title": "Kiểm tra trước khi push",
+          "points": [
+            "Chạy git status: .env.local không được xuất hiện trong danh sách sắp commit.",
+            "Lệnh check-ignore phải cho biết rule đang bỏ qua .env.local."
+          ],
+          "code": "git status\ngit check-ignore -v .env.local\ngit ls-files .env.local",
+          "detail": "git ls-files .env.local phải không trả tên file; file có thể chưa được tạo ở bước này."
         },
         {
-          "title": "Có thể kết hợp",
-          "text": "Database lưu mã/liên kết; Drive quản lý tài liệu đính kèm."
+          "title": "Nếu file đã lên Git",
+          "points": [
+            "Nếu đã tracked: dùng git rm --cached .env.local để ngừng theo dõi, giữ file trên máy.",
+            "Commit thay đổi .gitignore và việc bỏ theo dõi file.",
+            "Nếu lộ secret hoặc mật khẩu: thay/thu hồi ở dịch vụ; xóa file khỏi commit mới chưa xóa lịch sử."
+          ],
+          "detail": "Không chép giá trị khóa vào thông điệp commit hoặc ảnh minh chứng."
         }
-      ],
-      "visual": "storage",
-      "note": "Ví dụ một yêu cầu có dòng dữ liệu và đường dẫn PDF. Drive không thay thế trực tiếp database của ứng dụng.",
-      "verify": "Phân biệt dữ liệu mô tả với file được đính kèm.",
-      "objective": "Phân biệt dữ liệu mô tả với file được đính kèm.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-13",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "GitHub đã có đúng phiên bản; .env.local vẫn chỉ ở máy bạn.",
+      "objective": "Vercel triển khai code trên GitHub; thay đổi chỉ ở máy chưa được triển khai.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 11,
-      "title": "Supabase và Google Drive",
-      "minutes": 5,
-      "message": "Chọn nơi lưu theo loại dữ liệu và cách sử dụng.",
+      "title": "GitHub · commit và push đúng code",
+      "message": "Vercel triển khai code trên GitHub; thay đổi chỉ ở máy chưa được triển khai.",
       "cards": [
         {
-          "title": "Supabase",
-          "text": "Truy vấn, cập nhật dòng dữ liệu; có Authentication và Storage riêng."
+          "title": "Xem thay đổi",
+          "logo": "VS Code",
+          "points": [
+            "Mở Source Control trong VS Code; xem từng file đã đổi.",
+            "Chỉ Stage các file code, tài liệu và file mẫu cần gửi.",
+            "Không Stage .env.local, node_modules hoặc .next."
+          ],
+          "detail": "Dùng tên commit mô tả rõ thay đổi, ví dụ Prepare Supabase setup."
         },
         {
-          "title": "Google Drive",
-          "text": "Lưu và chia sẻ tài liệu; quyền xem/sửa theo file hoặc thư mục."
+          "title": "Commit → Sync",
+          "points": [
+            "Nhập thông điệp → Commit để lưu phiên bản local.",
+            "Chọn Sync Changes / Push để gửi commit lên GitHub.",
+            "Nếu có thay đổi từ xa, đọc thông báo và giải quyết trước; không Force Push để bỏ qua lỗi."
+          ],
+          "detail": "Commit lưu phiên bản; Push mới gửi phiên bản đó lên repository từ xa."
         },
         {
-          "title": "Giới hạn dịch vụ",
-          "text": "Kiểm tra dung lượng, transfer, lượt gọi và điều kiện gói tại thời điểm dùng."
+          "title": "Kiểm tra trên GitHub",
+          "logo": "GitHub",
+          "points": [
+            "Reload trang repository; xem commit mới nhất và tên nhánh.",
+            "Mở file vừa sửa để đối chiếu nội dung đã lên đúng.",
+            "Lưu mã commit ngắn để so với deployment Vercel sau này."
+          ],
+          "detail": "GitHub đã có đúng phiên bản; .env.local vẫn chỉ ở máy bạn."
         }
-      ],
-      "visual": "storage-compare",
-      "note": "Hình đối lập giữa bảng dữ liệu và thư mục tài liệu. Không dùng số quota cố định; đối chiếu dashboard và tài liệu dịch vụ trước khi quyết định.",
-      "verify": "Chọn giải pháp theo nhu cầu, không theo tên công cụ quen thuộc.",
-      "objective": "Chọn giải pháp theo nhu cầu, không theo tên công cụ quen thuộc.",
-      "visualConcept": "Bảng dữ liệu và thư mục tài liệu đặt đối lập; bảng so sánh nhu cầu."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-14",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Hiểu vị trí và ý nghĩa trước; thực hiện đầy đủ sau khi AI tạo file ở slide cuối.",
+      "objective": "Đây là file văn bản cấu hình cho Next.js chạy trên máy, không phải thư mục.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 12,
-      "title": "Có liên kết chưa chắc mở được file",
-      "minutes": 5,
-      "message": "Liên kết là địa chỉ; quyền truy cập quyết định ai được xem.",
+      "title": ".env.local là gì · đặt ở đâu?",
+      "message": "Đây là file văn bản cấu hình cho Next.js chạy trên máy, không phải thư mục.",
       "cards": [
         {
-          "title": "Riêng tư",
-          "text": "Chỉ tài khoản được cấp quyền truy cập."
+          "title": "Đặt ở gốc project",
+          "logo": "VS Code",
+          "points": [
+            "Tạo file tên chính xác .env.local, có dấu chấm đầu tên.",
+            "Đặt ngang hàng package.json; không đặt trong app/, src/ hay public/.",
+            "Tên env.local thiếu dấu chấm sẽ không được nạp như .env.local."
+          ],
+          "code": "your-project/\n  package.json\n  .env.local\n  .env.example\n  app/",
+          "detail": "Nếu project dùng src/app, file .env.local vẫn ở gốc cạnh package.json."
         },
         {
-          "title": "Chia sẻ phù hợp",
-          "text": "Chọn người cần xem hoặc sửa; ưu tiên quyền tối thiểu."
+          "title": "Tên biến = giá trị",
+          "points": [
+            "Mỗi dòng là TEN_BIEN=gia_tri; code đọc qua process.env.TEN_BIEN.",
+            "Bài dùng SUPABASE_URL và SUPABASE_PUBLISHABLE_KEY trong code server.",
+            "NEXT_PUBLIC_ đưa giá trị vào mã trình duyệt; không dùng tiền tố này cho secret."
+          ],
+          "code": "SUPABASE_URL=https://your-project.supabase.co\nSUPABASE_PUBLISHABLE_KEY=your_publishable_key",
+          "detail": "Đây là giá trị mẫu, không dùng nguyên mẫu để kết nối."
         },
         {
-          "title": "Kiểm tra bằng tài khoản khác",
-          "text": "Thử người có quyền và người không có quyền."
+          "title": "Local khác Vercel",
+          "points": [
+            "Next.js nạp file khi khởi động; sửa xong hãy dừng và chạy lại npm run dev.",
+            "File local không tự gửi lên Vercel; trên Vercel phải khai báo cùng tên biến.",
+            "Nếu chưa có cấu trúc file, dùng prompt cuối bài để AI tạo trước khi dán giá trị."
+          ],
+          "detail": "Hiểu vị trí và ý nghĩa trước; thực hiện đầy đủ sau khi AI tạo file ở slide cuối."
         }
-      ],
-      "visual": "drive-access",
-      "note": "Không công khai dữ liệu nhạy cảm để sửa lỗi truy cập. Quyền file và tài khoản đang đăng nhập đều ảnh hưởng kết quả.",
-      "verify": "Người được cấp quyền mở được; người khác không mở được.",
-      "objective": "Người được cấp quyền mở được; người khác không mở được.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-15",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Thấy thông báo trên web chưa đủ; cần đối chiếu bản ghi trong database.",
+      "objective": "Lấy giá trị ở Supabase rồi dán trực tiếp trong VS Code, không gửi vào chat AI.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 13,
-      "title": "Ba mức kết nối Google Drive",
-      "minutes": 5,
-      "message": "Trong khóa học này, lưu và mở liên kết là mức thực hành bắt buộc.",
+      "title": ".env.local · tự dán giá trị Supabase",
+      "message": "Lấy giá trị ở Supabase rồi dán trực tiếp trong VS Code, không gửi vào chat AI.",
       "cards": [
         {
-          "title": "Mức 1 · liên kết",
-          "text": "Database lưu địa chỉ tài liệu; người dùng mở theo quyền Drive."
+          "title": "Điền Project URL",
+          "logo": "Supabase",
+          "points": [
+            "Supabase project → Connect → Copy Project URL.",
+            "VS Code → .env.local → thay giá trị bên phải dấu = của SUPABASE_URL.",
+            "Chỉ dán URL API HTTPS; không dùng chuỗi kết nối postgresql://."
+          ],
+          "detail": "URL và Publishable key phải được lấy từ cùng một project."
         },
         {
-          "title": "Mức 2 · tự động hóa",
-          "text": "Google Apps Script hoặc dịch vụ trung gian xử lý một số tác vụ."
+          "title": "Điền Publishable key",
+          "points": [
+            "Copy Publishable key ở Connect hoặc Settings → API Keys.",
+            "Dán sau SUPABASE_PUBLISHABLE_KEY=; một biến trên một dòng.",
+            "Lưu file bằng Ctrl + S. .env.example giữ placeholder, không chép khóa thật vào đó."
+          ],
+          "code": "SUPABASE_URL=https://your-project.supabase.co\nSUPABASE_PUBLISHABLE_KEY=sb_publishable_REPLACE_ME",
+          "detail": "Thay toàn bộ giá trị mẫu bằng giá trị của bạn, không thêm dấu < >."
         },
         {
-          "title": "Mức 3 · API và OAuth",
-          "text": "Ứng dụng truy cập theo phạm vi quyền, token và tài khoản được cấp."
+          "title": "Nạp lại và thử local",
+          "logo": "VS Code",
+          "points": [
+            "Sau khi có code kết nối từ prompt cuối: Terminal → Ctrl + C → npm run dev.",
+            "Mở localhost:3000; thực hiện tính năng ghi dữ liệu bằng dữ liệu thử.",
+            "Supabase → Table Editor → bảng tương ứng: tìm đúng dòng vừa ghi."
+          ],
+          "detail": "Thấy thông báo trên web chưa đủ; cần đối chiếu bản ghi trong database."
         }
-      ],
-      "visual": "levels",
-      "prompt": "Bối cảnh: Ứng dụng quản lý yêu cầu cần tham chiếu một tài liệu hướng dẫn trên Google Drive. Mục tiêu: chọn phương án đơn giản, giữ quyền truy cập phù hợp. Hãy so sánh lưu liên kết, dùng Google Apps Script và tích hợp API/OAuth; đề xuất mức cơ bản trước. Không công khai tài liệu nhạy cảm hoặc đưa token vào mã nguồn. Giữ nguyên cơ sở dữ liệu và chức năng hiện tại. Kết quả: yêu cầu có liên kết tài liệu, người được cấp quyền mở được. Hướng dẫn kiểm tra bằng tài khoản có quyền và không có quyền; nêu rõ phần nào tôi phải tự chia sẻ và xác nhận.",
-      "note": "Mức 2/3 là hướng phát triển thêm, không yêu cầu hoàn thành trong 6 giờ. Tích hợp API phức tạp hơn chia sẻ link; phải quản lý quyền và bí mật đúng.",
-      "verify": "Chọn được mức đơn giản nhất đáp ứng nhu cầu.",
-      "objective": "Chọn được mức đơn giản nhất đáp ứng nhu cầu.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-16",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Repo có app ở gốc thì để root mặc định; monorepo phải chọn đúng thư mục con.",
+      "objective": "Đăng nhập bằng GitHub và cấp quyền repository là hai thao tác riêng.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 14,
-      "title": "Bạn sẽ lưu ở đâu?",
-      "minutes": 5,
-      "message": "Không cần database nếu ứng dụng chưa có dữ liệu cần lưu.",
+      "title": "Vercel · kết nối GitHub và import repo",
+      "message": "Đăng nhập bằng GitHub và cấp quyền repository là hai thao tác riêng.",
       "cards": [
         {
-          "title": "Bốn tình huống",
-          "text": "Nhân viên, tài liệu, yêu cầu có file, website giới thiệu."
+          "title": "Add New → Project",
+          "logo": "Vercel",
+          "points": [
+            "Mở Vercel Dashboard bằng tài khoản đã tạo.",
+            "Chọn Add New… → Project → Import Git Repository.",
+            "Ở nguồn GitHub, chọn tài khoản sở hữu repository của project bạn."
+          ],
+          "link": "https://vercel.com/new",
+          "linkLabel": "Mở trang import Vercel",
+          "detail": "Không upload folder thủ công; dùng GitHub để có tự động deploy sau mỗi push."
         },
         {
-          "title": "Chọn và giải thích",
-          "text": "Supabase, Drive, cả hai hoặc chưa cần dịch vụ lưu dữ liệu."
+          "title": "Cấp quyền đúng repo",
+          "logo": "GitHub",
+          "points": [
+            "Nếu repo chưa xuất hiện, chọn Install / Configure GitHub App.",
+            "Ở GitHub, chọn Only select repositories → repo của bài học → Install / Save.",
+            "Nếu repo thuộc organization, có thể cần chủ organization phê duyệt."
+          ],
+          "detail": "Đăng nhập GitHub thành công không có nghĩa Vercel đã được đọc mọi repository."
+        },
+        {
+          "title": "Import & cấu hình build",
+          "points": [
+            "Bấm Import cạnh đúng repo; đặt Project name theo project của bạn, ví dụ your-project.",
+            "Framework Preset: Next.js. Root Directory: thư mục chứa package.json.",
+            "Giữ lệnh build theo package.json và cấu hình Next.js được nhận diện; chưa bấm Deploy trước khi thêm env."
+          ],
+          "detail": "Repo có app ở gốc thì để root mặc định; monorepo phải chọn đúng thư mục con."
         }
-      ],
-      "visual": "storage-quiz",
-      "note": "Một file PDF cũng có thể dùng Supabase Storage. Trong hoạt động này, chọn Drive cho nhu cầu cộng tác tài liệu đã nêu; giải thích điều kiện thay vì khẳng định chỉ có một công cụ lưu file.",
-      "verify": "Giải thích lựa chọn cho cả bốn tình huống.",
-      "objective": "Giải thích lựa chọn cho cả bốn tình huống.",
-      "visualConcept": "Bốn tình huống và lựa chọn lưu trữ có giải thích."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-17",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Development trên Vercel không tự cập nhật file .env.local đang có trên máy.",
+      "objective": "Cùng tên và giá trị với local; nhập trong Vercel thay vì upload .env.local.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 15,
-      "title": "Vercel: đưa ứng dụng lên Internet",
-      "minutes": 7,
-      "message": "Triển khai tạo bản website để người khác truy cập qua URL.",
+      "title": "Vercel · nhập biến môi trường",
+      "message": "Cùng tên và giá trị với local; nhập trong Vercel thay vì upload .env.local.",
       "cards": [
         {
-          "title": "Localhost",
-          "text": "Bản xem thử trên môi trường phát triển."
+          "title": "Mở Environment Variables",
+          "logo": "Vercel",
+          "points": [
+            "Ở màn hình import: mở mục Environment Variables trước khi Deploy.",
+            "Nếu project đã tạo: Settings → Environment Variables → Add.",
+            "Nhập từng cặp Name và Value; giá trị lấy trực tiếp từ Supabase."
+          ],
+          "detail": "Tên biến phân biệt hoa/thường và phải trùng tên code đang đọc."
         },
         {
-          "title": "Deployment · bản triển khai",
-          "text": "Một phiên bản ứng dụng được build và đưa lên nền tảng."
+          "title": "Thêm đủ hai biến",
+          "points": [
+            "Name: SUPABASE_URL → Value: Project URL của bạn.",
+            "Name: SUPABASE_PUBLISHABLE_KEY → Value: Publishable key của cùng project.",
+            "Không dán cả dòng TEN_BIEN=gia_tri vào ô Value; không dùng mật khẩu database."
+          ],
+          "code": "Name:  SUPABASE_URL\nValue: https://your-project.supabase.co\n\nName:  SUPABASE_PUBLISHABLE_KEY\nValue: sb_publishable_REPLACE_ME",
+          "detail": "Các giá trị trên chỉ là mẫu minh họa; thay bằng project của bạn."
         },
         {
-          "title": "Production · bản đang phục vụ",
-          "text": "Website chính thức với cấu hình và quyền phù hợp."
+          "title": "Chọn phạm vi và Save",
+          "points": [
+            "Chọn Production cho bản chính; thêm Preview nếu muốn thử nhánh riêng.",
+            "Bài lab có thể dùng cùng project với dữ liệu giả; sản phẩm thật nên tách database thử nghiệm.",
+            "Save. Thay đổi env áp dụng cho deployment mới; bản đã chạy cần Redeploy."
+          ],
+          "detail": "Development trên Vercel không tự cập nhật file .env.local đang có trên máy."
         }
-      ],
-      "visual": "local",
-      "note": "Hosting là nơi vận hành ứng dụng. Public URL không có nghĩa mọi dữ liệu bên trong phải công khai; đăng nhập và quyền vẫn cần thiết.",
-      "verify": "Phân biệt bản xem thử, bản triển khai và website chính thức.",
-      "objective": "Phân biệt bản xem thử, bản triển khai và website chính thức.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-18",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Người nhận cần mở được URL; nếu bị chặn, kiểm tra Deployment Protection.",
+      "objective": "Sau khi áp dụng prompt cuối và push code, thực hiện chuỗi triển khai này.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 16,
-      "title": "Từ GitHub đến Vercel",
-      "minutes": 8,
-      "message": "Repository đúng và cấu hình đúng giúp build tạo bản triển khai đúng.",
+      "title": "Vercel · deploy bản đầu tiên",
+      "message": "Sau khi áp dụng prompt cuối và push code, thực hiện chuỗi triển khai này.",
       "cards": [
         {
-          "title": "Nguồn mã",
-          "text": "Đúng repository, nhánh và thư mục gốc."
+          "title": "Kiểm tra trước Deploy",
+          "logo": "VS Code",
+          "points": [
+            "Đảm bảo code đã có phần kết nối Supabase và env đã nhập đủ.",
+            "Trong Terminal: chạy npm test nếu có script test, rồi npm run build.",
+            "Commit và Push file code mới, kiểm tra đúng nhánh trên GitHub."
+          ],
+          "detail": "Nếu chưa có code kết nối, hoàn thành prompt cuối rồi quay lại bước này."
         },
         {
-          "title": "Build · tạo bản chạy",
-          "text": "Đúng framework, tác vụ build và biến môi trường."
+          "title": "Deploy → xem build",
+          "logo": "Vercel",
+          "points": [
+            "Ở trang import, bấm Deploy; nếu đã import, mở Deployments để xem lần build từ push.",
+            "Mở deployment đang chạy; kiểm tra đúng commit rồi đọc Build Logs.",
+            "Đợi trạng thái Ready; nếu Error, đọc lỗi đầu tiên của app trước khi thử lại."
+          ],
+          "detail": "Build lỗi thì chưa có bản mới thành công; không coi bấm Deploy là đã xong."
         },
         {
-          "title": "Kiểm tra URL",
-          "text": "Trang mở được; dữ liệu và quyền truy cập hoạt động."
+          "title": "Visit → thử website",
+          "points": [
+            "Bấm Visit; mở URL vercel.app ở tab mới.",
+            "Thử các trang và tính năng hiện có trong project của bạn bằng dữ liệu giả.",
+            "Vào Supabase Table Editor đối chiếu dòng ghi từ URL online; kiểm tra trên mobile."
+          ],
+          "detail": "Người nhận cần mở được URL; nếu bị chặn, kiểm tra Deployment Protection."
         }
-      ],
-      "visual": "deployment",
-      "prompt": "Bối cảnh: Project quản lý yêu cầu đã chạy local và có trên GitHub. Mục tiêu: triển khai lên Vercel. Hãy kiểm tra repository, nhánh, framework, thư mục gốc và lệnh build. Liệt kê tên biến môi trường cần cấu hình, không yêu cầu cung cấp secret trong hội thoại. Giữ nguyên dữ liệu Supabase và quyền truy cập Drive. Đề xuất các bước; thao tác liên quan tài khoản hoặc xuất bản phải được tôi xác nhận. Kết quả: URL hoạt động, tạo và đọc dữ liệu đúng. Hướng dẫn thử bằng cửa sổ mới, kiểm tra kết nối, một lần cập nhật và bản triển khai mới; giải thích phần nào bạn chưa xác minh.",
-      "note": "Build không phải là lưu database. Thay đổi biến môi trường cần bản triển khai mới tương ứng; xác nhận môi trường preview hay production.",
-      "verify": "Đối chiếu commit, cấu hình và phiên bản website.",
-      "objective": "Đối chiếu commit, cấu hình và phiên bản website.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-19",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Luồng: sửa → commit → push → Vercel build → Ready → website cập nhật.",
+      "objective": "Vercel Git integration nhận sự kiện push và tự build; bài này chưa cần GitHub Actions.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 17,
-      "title": "Từ máy cá nhân đến website mới",
-      "minutes": 8,
-      "message": "Push là cập nhật mã; website chỉ cập nhật khi triển khai thành công.",
+      "title": "Automation · thiết lập nhánh Production",
+      "message": "Vercel Git integration nhận sự kiện push và tự build; bài này chưa cần GitHub Actions.",
       "cards": [
         {
-          "title": "AI và VS Code",
-          "text": "Sửa nút tạo yêu cầu, kiểm tra trên máy."
+          "title": "Kiểm tra liên kết Git",
+          "logo": "Vercel",
+          "points": [
+            "Vercel project → Settings → Git: xác nhận đang nối đúng GitHub repo.",
+            "Kiểm tra Production Branch trong cấu hình Git / Production environment.",
+            "Đặt nhánh chính là main nếu repo dùng main; nếu khác, chọn tên nhánh thực tế."
+          ],
+          "detail": "Production Branch quyết định push nào cập nhật bản website chính."
         },
         {
-          "title": "GitHub",
-          "text": "Commit và Push đúng nhánh đã kết nối Vercel."
+          "title": "Đẩy một thay đổi nhỏ",
+          "logo": "GitHub",
+          "points": [
+            "Trong VS Code, sửa một câu dễ nhận biết trên project của bạn.",
+            "Kiểm tra local → Commit → Push lên nhánh chính.",
+            "Không cần bấm Deploy thủ công sau mỗi push khi Git integration hoạt động."
+          ],
+          "detail": "Chỉ thay đổi code được commit và push mới kích hoạt build từ repository."
         },
         {
-          "title": "Vercel và website",
-          "text": "Build → kiểm tra → triển khai; xác nhận phiên bản mới."
+          "title": "Theo dõi luồng tự động",
+          "points": [
+            "Mở Vercel → Deployments: phải có deployment gắn đúng commit vừa push.",
+            "Đợi Ready rồi mở URL Production để xem câu đã sửa.",
+            "Nếu build lỗi, bản Production thành công trước đó thường vẫn phục vụ; sửa lỗi rồi push commit mới."
+          ],
+          "detail": "Luồng: sửa → commit → push → Vercel build → Ready → website cập nhật."
         }
-      ],
-      "visual": "live",
-      "note": "CI/CD là quy trình kiểm tra/tích hợp và triển khai tự động. Tự động triển khai phụ thuộc cấu hình repository/nhánh. Mô phỏng có nhánh build lỗi: website đang hoạt động giữ bản cũ.",
-      "verify": "Website thể hiện thay đổi đúng; build thất bại không được coi là cập nhật thành công.",
-      "objective": "Website thể hiện thay đổi đúng; build thất bại không được coi là cập nhật thành công.",
-      "visualConcept": "Bốn chặng AI + VS Code, GitHub, Vercel, website; trạng thái và lỗi build có thể mô phỏng."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-20",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Push nhánh thử không đồng nghĩa website Production đã được cập nhật.",
+      "objective": "Preview là bản thử theo nhánh, giúp kiểm tra trước khi cập nhật Production.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 18,
-      "title": "Nhờ AI phân tích lỗi, rồi kiểm tra lại",
-      "minutes": 7,
-      "message": "Cung cấp lỗi đã che bí mật và yêu cầu sửa đúng nguyên nhân.",
+      "title": "Automation · Preview trước, merge sau",
+      "message": "Preview là bản thử theo nhánh, giúp kiểm tra trước khi cập nhật Production.",
       "cards": [
         {
-          "title": "Phân loại",
-          "text": "Lỗi build, biến môi trường, kết nối, phân quyền hoặc tải chậm."
+          "title": "Tạo nhánh feature",
+          "logo": "GitHub",
+          "points": [
+            "VS Code → bộ chọn nhánh → Create new branch, ví dụ feature/supabase-setup.",
+            "Sửa code → Commit → Publish Branch / Push để gửi nhánh lên GitHub.",
+            "Vercel tạo Preview khi cấu hình deploy nhánh cho phép và quyền Git hợp lệ."
+          ],
+          "detail": "Preview phải có env ở phạm vi Preview; env Production không tự áp dụng sang đó."
         },
         {
-          "title": "Thông tin cần gửi",
-          "text": "Thông báo đã che secret, bước tái hiện, tên cấu hình và thay đổi gần nhất."
+          "title": "Mở Pull Request",
+          "points": [
+            "GitHub → Compare & pull request; base là main, compare là feature/supabase-setup.",
+            "Mở link Preview trong Checks / Vercel deployment.",
+            "Thử tính năng vừa sửa và UI bằng dữ liệu giả; chờ kiểm tra đạt trước khi merge."
+          ],
+          "detail": "Dùng database thử riêng khi có dữ liệu thật; Preview cùng DB vẫn ghi vào cùng dữ liệu."
         },
         {
-          "title": "Xác minh",
-          "text": "Sửa nhỏ → chạy lại → thử đúng thao tác gây lỗi."
+          "title": "Merge → Production",
+          "logo": "Vercel",
+          "points": [
+            "Trên Pull Request, xem diff rồi Merge vào nhánh chính.",
+            "Merge tạo thay đổi trên main; Vercel tự build deployment Production.",
+            "Mở URL chính và đối chiếu commit; ở máy local chuyển về main rồi Pull để đồng bộ."
+          ],
+          "detail": "Push nhánh thử không đồng nghĩa website Production đã được cập nhật."
         }
-      ],
-      "visual": "debug",
-      "prompt": "Bối cảnh: Project hoạt động local nhưng lần triển khai Vercel thất bại. Tôi cung cấp thông báo lỗi đã loại bỏ token, mật khẩu và giá trị biến môi trường. Mục tiêu: tìm nguyên nhân trước khi sửa. Hãy phân biệt lỗi build, cấu hình, kết nối dữ liệu và phân quyền; yêu cầu thông tin còn thiếu bằng tên. Giữ nguyên các tính năng và dữ liệu hiện tại; không tắt kiểm tra hay mở quyền công khai để né lỗi. Kết quả: nguyên nhân có bằng chứng, bản sửa nhỏ nhất và cách khôi phục khi cần. Hướng dẫn build lại, kiểm tra URL và thử chức năng gây lỗi; báo rõ mức độ chắc chắn.",
-      "note": "Không tắt RLS hay mở file công khai chỉ để hết lỗi. Vercel không tự giải quyết mọi vấn đề tốc độ; đo request, truy vấn và kích thước nội dung trước khi tối ưu.",
-      "verify": "Có bằng chứng nguyên nhân và kiểm tra sau khi sửa.",
-      "objective": "Có bằng chứng nguyên nhân và kiểm tra sau khi sửa.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-21",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Code cần validation và kiểm soát lạm dụng; chỉ RLS không đủ cho mọi rủi ro.",
+      "objective": "Luồng deploy code và luồng lưu dữ liệu là hai quy trình khác nhau.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 19,
-      "title": "Thực hành: đưa ứng dụng lên Internet",
-      "minutes": 45,
-      "message": "Ứng dụng cần mở được, lưu dữ liệu đúng và cập nhật được một lần.",
+      "title": "Kiểm tra flow · từ thao tác đến database",
+      "message": "Luồng deploy code và luồng lưu dữ liệu là hai quy trình khác nhau.",
       "cards": [
         {
-          "title": "Chuẩn bị",
-          "text": "Project phần 1, GitHub, Supabase, Vercel; Drive tùy chọn."
+          "title": "Thử tính năng ghi dữ liệu",
+          "points": [
+            "Mở URL Production; chọn tính năng vừa kết nối Supabase trong project của bạn.",
+            "Nhập dữ liệu thử hợp lệ → gửi/lưu; quan sát trạng thái đang xử lý.",
+            "Chỉ báo thành công khi server nhận xác nhận ghi từ Supabase."
+          ],
+          "detail": "Không fallback localStorage rồi vẫn thông báo đã lưu online."
         },
         {
-          "title": "Làm theo quy trình",
-          "text": "Kiểm tra dữ liệu → Push → cấu hình → triển khai → thử URL."
+          "title": "Đối chiếu Table Editor",
+          "logo": "Supabase",
+          "points": [
+            "Supabase → Table Editor → bảng của tính năng vừa thử → Refresh.",
+            "Tìm dòng bằng dữ liệu thử hoặc ID; đối chiếu trường và thời điểm ghi.",
+            "Một lần thao tác cần tạo đúng kết quả mong đợi; thử thêm thao tác lặp."
+          ],
+          "detail": "Chủ project xem được Table Editor không chứng minh khách có quyền đọc database."
         },
         {
-          "title": "Sản phẩm",
-          "text": "Website hoạt động, dữ liệu còn sau reload, một cập nhật được xác minh."
+          "title": "Thử lỗi và quyền",
+          "points": [
+            "Thử thiếu trường bắt buộc: server phải từ chối, không ghi dữ liệu sai.",
+            "Thử tài khoản hoặc vai trò không có quyền: không được xem/sửa dữ liệu riêng.",
+            "Thử lỗi kết nối ở môi trường thử: hiện lỗi rõ, không báo thành công giả."
+          ],
+          "detail": "Code cần validation và kiểm soát lạm dụng; chỉ RLS không đủ cho mọi rủi ro."
         }
-      ],
-      "visual": "lab",
-      "prompt": "Bối cảnh: Project quản lý yêu cầu đã chạy local và có trên GitHub. Mục tiêu: triển khai lên Vercel. Hãy kiểm tra repository, nhánh, framework, thư mục gốc và lệnh build. Liệt kê tên biến môi trường cần cấu hình, không yêu cầu cung cấp secret trong hội thoại. Giữ nguyên dữ liệu Supabase và quyền truy cập Drive. Đề xuất các bước; thao tác liên quan tài khoản hoặc xuất bản phải được tôi xác nhận. Kết quả: URL hoạt động, tạo và đọc dữ liệu đúng. Hướng dẫn thử bằng cửa sổ mới, kiểm tra kết nối, một lần cập nhật và bản triển khai mới; giải thích phần nào bạn chưa xác minh.",
-      "note": "Chia 10 phút dữ liệu, 15 phút cấu hình/triển khai, 10 phút kiểm tra URL, 10 phút cập nhật. Học viên tự đăng nhập và xác nhận quyền. Nếu lỗi dùng prompt phân tích, kiểm tra cấu hình, quyền và bản build; tránh dựng project từ đầu.",
-      "verify": "URL mở từ cửa sổ mới; tạo/đọc dữ liệu; quyền đúng; tài liệu mở theo quyền; website đổi sau lần cập nhật.",
-      "checks": [
-        "Project chạy local",
-        "Lưu và đọc dữ liệu sau reload",
-        "GitHub có commit đúng",
-        "Môi trường Vercel đã cấu hình",
-        "URL mở từ cửa sổ mới",
-        "Phân quyền đã kiểm tra",
-        "Đã thử một lần cập nhật",
-        "Nếu có Drive: đã thử quyền file"
-      ],
-      "objective": "URL mở từ cửa sổ mới; tạo/đọc dữ liệu; quyền đúng; tài liệu mở theo quyền; website đổi sau lần cập nhật.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      ]
     },
     {
       "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-22",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Không chữa lỗi bằng cách tắt RLS hoặc đưa Secret key vào frontend.",
+      "objective": "Chỉ gửi log đã che thông tin nhạy cảm cho AI; sửa đúng nguyên nhân.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
       "number": 20,
-      "title": "Ý tưởng của bạn, hệ sinh thái của bạn",
-      "minutes": 15,
-      "message": "Hiểu công cụ, giao việc rõ và kiểm soát kết quả để biến ý tưởng thành sản phẩm.",
+      "title": "Sửa lỗi · đọc log đúng nơi",
+      "message": "Chỉ gửi log đã che thông tin nhạy cảm cho AI; sửa đúng nguyên nhân.",
       "cards": [
         {
-          "title": "Chọn ý tưởng",
-          "text": "Một ứng dụng phục vụ công việc của bạn."
+          "title": "Build lỗi trên Vercel",
+          "logo": "Vercel",
+          "points": [
+            "Deployments → chọn bản lỗi → Build Logs.",
+            "Đối chiếu commit, Root Directory, script build và lỗi đầu tiên của code.",
+            "Sửa ở local → npm run build → Commit → Push; xem deployment mới."
+          ],
+          "detail": "Đừng thay framework hoặc tạo lại project chỉ vì một lỗi import/file."
         },
         {
-          "title": "Thiết kế đủ dùng",
-          "text": "Mã nguồn, dữ liệu, tài liệu và cách triển khai."
+          "title": "Local được, online lỗi",
+          "points": [
+            "Settings → Environment Variables: so đúng hai tên biến và phạm vi Production/Preview.",
+            "Kiểm tra URL và key thuộc cùng project, không dính khoảng trắng khi copy.",
+            "Nếu vừa đổi env: tạo deployment mới hoặc Redeploy rồi thử lại URL."
+          ],
+          "detail": "Không in giá trị env vào log; chỉ kiểm tra có cấu hình hay chưa."
         },
         {
-          "title": "Giao việc cho AI",
-          "text": "Nêu mục tiêu, giới hạn và tiêu chí kiểm tra."
+          "title": "Tính năng không ghi dữ liệu",
+          "logo": "Supabase",
+          "points": [
+            "Mở Runtime Logs của Vercel và phản hồi endpoint tương ứng trong Network.",
+            "Kiểm tra bảng/cột, quyền INSERT, RLS và dữ liệu đầu vào.",
+            "Nếu lỗi quyền: so policy với vai trò người dùng; chỉ gọi .select() khi được phép đọc."
+          ],
+          "detail": "Không chữa lỗi bằng cách tắt RLS hoặc đưa Secret key vào frontend."
+        }
+      ]
+    },
+    {
+      "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-23",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Nếu đã chạy SQL ở slide 7–8, AI phải kiểm tra và tránh tạo trùng bảng/policy.",
+      "objective": "Khóa nằm trong cấu hình; code đọc tên biến để kết nối dịch vụ.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
+      "number": 21,
+      "title": "Bản đồ file · AI sẽ tạo gì cho bạn?",
+      "message": "Khóa nằm trong cấu hình; code đọc tên biến để kết nối dịch vụ.",
+      "cards": [
+        {
+          "title": "File cấu hình ở gốc",
+          "logo": "VS Code",
+          "points": [
+            ".env.local: bạn tự dán hai giá trị thật; Git bỏ qua file này.",
+            ".env.example: cùng tên biến nhưng chỉ chứa placeholder; có thể commit.",
+            ".gitignore: chặn file env thật, cho phép .env.example."
+          ],
+          "detail": "Biến cấu hình Vercel được nhập trong Dashboard, không tạo một thư mục chứa khóa."
+        },
+        {
+          "title": "Mã kết nối và endpoint",
+          "points": [
+            "lib/supabase/server.js: ví dụ client đọc process.env, chỉ import ở server.",
+            "Endpoint API theo tính năng thật; /api/registrations chỉ là ví dụ form đăng ký.",
+            "AI phải chọn schema, đường dẫn và đuôi file theo cấu trúc app/src và JS/TS của bạn."
+          ],
+          "code": ".env.local\n.env.example\nlib/supabase/server.js\napp/api/registrations/route.js\nsupabase/migrations/<timestamp>_registrations.sql",
+          "detail": "Cây file minh họa cho Next.js JavaScript; áp dụng theo cấu trúc project thực tế."
+        },
+        {
+          "title": "SQL và thứ tự thực hiện",
+          "points": [
+            "File migration lưu SQL tạo bảng/quyền để đọc lại; push file này không tự chạy SQL trên Supabase.",
+            "Prompt cuối tạo code/file mẫu → tự điền env → kiểm tra SQL còn thiếu → thử local.",
+            "Tiếp theo: nhập env Vercel → push code → kiểm tra deployment và dòng dữ liệu."
+          ],
+          "detail": "Nếu đã chạy SQL ở slide 7–8, AI phải kiểm tra và tránh tạo trùng bảng/policy."
+        }
+      ]
+    },
+    {
+      "section": 2,
+      "minutes": 6,
+      "visual": "launch-guide-final",
+      "note": "Official references verified 2026-10-23: https://supabase.com/docs/guides/getting-started/quickstarts/nextjs ; https://supabase.com/docs/guides/getting-started/api-keys ; https://supabase.com/docs/guides/database/postgres/row-level-security ; https://vercel.com/docs/git/vercel-for-github ; https://vercel.com/docs/environment-variables . Next.js env placement verified in bundled documentation. Menu labels may vary with dashboard updates.",
+      "verify": "Xem SQL, thử form local → push → kiểm tra bản online theo slide 16–19.",
+      "objective": "Dán vào AI trong VS Code tại folder project của bạn; tự điền URL/key sau khi có file mẫu.",
+      "visualConcept": "Inter, cream/navy/gold, full frame 1280x720. Fixed step navigation and detail panel; code copy; keyboard focus retained; reduced motion.",
+      "number": 22,
+      "title": "Prompt cuối · tạo cấu trúc và nối Supabase",
+      "message": "Dán vào AI trong VS Code tại folder project của bạn; tự điền URL/key sau khi có file mẫu.",
+      "cards": [
+        {
+          "title": "1 · Gửi prompt",
+          "text": "Cho AI đọc project và tạo các file còn thiếu; giữ UI hiện tại."
+        },
+        {
+          "title": "2 · Tự điền cấu hình",
+          "text": "Dán URL + Publishable key vào .env.local và env của Vercel."
+        },
+        {
+          "title": "3 · Thử rồi deploy",
+          "text": "Xem SQL, thử form local → push → kiểm tra bản online theo slide 16–19."
         }
       ],
-      "visual": "planner",
-      "prompt": "Bối cảnh: Tôi muốn tạo ứng dụng [mô tả ý tưởng], cho [đối tượng], cần [dữ liệu] và [tài liệu]. Mục tiêu: chọn công cụ đủ dùng và lên kế hoạch với AI. Hãy đề xuất vai trò của VS Code, GitHub, Supabase, Google Drive và Vercel; giải thích công cụ nào chưa cần. Không mặc định phải trả phí hoặc dùng mọi công cụ. Giữ dữ liệu nhạy cảm riêng tư và không yêu cầu dán secret. Kết quả: sơ đồ quy trình, các bước triển khai và phần tôi phải xác nhận. Hướng dẫn kiểm tra chức năng, lưu dữ liệu, quyền truy cập và URL; đề xuất cách đo hiệu năng trước khi tối ưu.",
-      "note": "10 phút thiết kế phương án cá nhân, 5 phút chia sẻ. Không dùng tất cả công cụ chỉ vì đã học; chọn theo nhu cầu. Không chấm theo độ phức tạp hoặc cú pháp.",
-      "verify": "Giải thích được công cụ cần, công cụ chưa cần và cách kiểm tra sản phẩm.",
-      "objective": "Giải thích được công cụ cần, công cụ chưa cần và cách kiểm tra sản phẩm.",
-      "visualConcept": "Sơ đồ hoặc thẻ nội dung theo EIU DNA, một thông điệp chính; chi tiết trong khung ghi chú."
+      "prompt": "Đọc project của tôi, giữ UI/chức năng. Xác định tính năng cần lưu và schema theo dữ liệu thực tế; không áp mẫu cố định. Tạo file còn thiếu theo cấu trúc JS/TS, app/src hiện có: .env.local và .env.example với SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY để trống; giữ nguyên env đã có, cập nhật .gitignore. Tạo Supabase client chỉ ở server và endpoint phù hợp. Đề xuất RLS/quyền theo tính năng, xác thực nếu cần; không công khai dữ liệu riêng. Tạo migration không trùng bảng/policy, chưa tự chạy. Validate, xử lý lỗi; chỉ báo thành công khi ghi thật. Không dùng secret/service_role, không hỏi khóa trong chat. Chỉ nơi tôi tự dán URL/key và env Vercel; bổ sung chống lạm dụng. Chạy test/build có sẵn, báo phần chưa kiểm tra; hướng dẫn push để Vercel tự deploy."
     }
   ]
 }

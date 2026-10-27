@@ -5,7 +5,7 @@ import { canManageSection } from "@/lib/auth/currentUser";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { readDriveFile } from "@/lib/drive/sectionContent";
 import { prepareSectionFile } from "@/lib/sectionContent";
-import { localSectionSourcePath } from "@/lib/localSectionContent";
+import { saveLocalSectionSource } from "@/lib/localSectionContent";
 
 export const runtime = "nodejs";
 export const maxDuration = 120;
@@ -32,15 +32,17 @@ export async function POST(request: Request, context: { params: Promise<{ id: st
     const revision = createHash("sha256").update(file.bytes).digest("hex");
     if (body.action === "preview") return NextResponse.json({ file: { id: file.id, name: validated.name, bytes: validated.bytes.byteLength, type: validated.contentType, revision } }, { headers: { "Cache-Control": "no-store" } });
     if (body.revision !== revision) return NextResponse.json({ message: "The Drive file changed. Choose it again before connecting." }, { status: 409 });
-    const registered = localSectionSourcePath({ id: String(section.course_id) }, { id, content_type: "tsx" });
-    const contentPath = `drive:${registered ? "override:" : ""}${file.id}`;
+    const contentPath = validated.contentType === "tsx"
+      ? await saveLocalSectionSource(String(section.course_id), id, validated.bytes)
+      : `drive:${file.id}`;
     let update = db.from("course_sections").update({ content_type: validated.contentType, content_path: contentPath, original_content_path: null, source_filename: validated.name, slide_count: validated.slideCount, updated_at: new Date().toISOString() }).eq("id", id);
     update = section.content_path ? update.eq("content_path", section.content_path) : update.is("content_path", null);
     const saved = await update.select("id").maybeSingle();
     if (saved.error || !saved.data) return NextResponse.json({ message: "The section changed or could not be saved. Reload and try again." }, { status: 409 });
     revalidatePath("/learn");
-    return NextResponse.json({ success: true, sourceFilename: validated.name });
-  } catch {
+    return NextResponse.json({ success: true, sourceFilename: validated.name, contentSource: validated.contentType === "tsx" ? "project-js" : "uploaded" });
+  } catch (error) {
+    if (error instanceof Error && error.message.startsWith("Unable to save the lesson in the project.")) return NextResponse.json({ message: error.message }, { status: 502 });
     return NextResponse.json({ message: "Unable to read or connect this Drive file. Check the connected account, access and the 50 MB limit." }, { status: 502 });
   }
 }

@@ -80,10 +80,10 @@
   "2faaf285-a215-4874-a367-82c84ce46b2e": {
     "courseId": "a857595d-def0-4543-9216-a680c6abfe26",
     "path": "course-content/web-app-development/Section2.js",
-    "revision": "63f2d84fe930c9f313e0c2ef717a200f19d31fb05deb605d655a1d414155a69f",
-    "bytes": 591675,
-    "teachingSlides": 20,
-    "learnerSlides": 20,
+    "revision": "075485c04e097559886f6cb4417483b4c265dc88f7dd124aa5504044d1e4391d",
+    "bytes": 658443,
+    "teachingSlides": 22,
+    "learnerSlides": 22,
     "preservesBusinessTemplate": true,
     "nativeSlides": {
       "teaching": {},
