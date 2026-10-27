@@ -13,6 +13,43 @@ export default async function DriveConnectionPage({ searchParams }: { searchPara
     searchParams,
   ]);
   if (!admin) redirect("/");
+
+  if (!admin.driveEnabled) {
+    return (
+      <main className={styles.page}>
+        <header className={styles.header}>
+          <div>
+            <p className={styles.eyebrow}>EIU · LEARNING PLATFORM ADMINISTRATION</p>
+            <h1>Drive export setup</h1>
+            <p>Google Drive integration is disabled when signed in with admin passcode.</p>
+          </div>
+          <DriveWorkspaceNav />
+        </header>
+        <div className={styles.workspace}>
+          <section className={styles.card} aria-labelledby="drive-account-heading">
+            <div className={styles.cardHeading}>
+              <span className={styles.headingBadge}><Image src="/branding/apps/google-drive.svg" width={21} height={21} alt="" /></span>
+              <div>
+                <h2 id="drive-account-heading">Drive connection disabled</h2>
+                <p>Signed in with admin passcode</p>
+              </div>
+            </div>
+            <div className={styles.connection}>
+              <div className={styles.accountDetails}>
+                <strong>{admin.email}</strong>
+                <p>Google Drive functions are disabled when signing in directly with the admin passcode. Sign in with Google to enable Drive operations.</p>
+              </div>
+              <div className={styles.connectionActions}>
+                <span className={styles.status}><span aria-hidden="true" />Disabled</span>
+                <a className={styles.button} href="/api/admin/drive/connect">Connect Google Drive</a>
+              </div>
+            </div>
+          </section>
+        </div>
+      </main>
+    );
+  }
+
   let connected = false; let error = "";
   try { await authorizedDriveClient(); connected = true; }
   catch (reason) { if (!(reason instanceof Error && reason.message === "Google Drive is not connected.")) error = "Unable to verify Drive access. Reconnect your administrator Google account."; }

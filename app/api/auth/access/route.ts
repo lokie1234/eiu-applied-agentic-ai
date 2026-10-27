@@ -5,6 +5,8 @@ import { getCoursesAndSectionsData } from "@/lib/auth/courseAccessStorage";
 import { hashPasscode, resolvePasscode, resolveFreeAccess } from "@/lib/auth/passcodes";
 import { ACCESS_SESSION_COOKIE, createAccessSession, sessionCookieOptions } from "@/lib/auth/session";
 import { parseIdentityPolicy, validateIdentityInformation } from "@/lib/learningIdentity";
+import { getAdminCredential, verifyAdminPassword } from "@/lib/auth/adminPassword";
+import { FIXED_ADMIN_EMAIL } from "@/lib/auth/types";
 
 export const runtime = "nodejs";
 
@@ -17,7 +19,7 @@ export async function POST(request: Request) {
       response.cookies.set(ACCESS_SESSION_COOKIE, createAccessSession({ role: "guest", sessionId: randomUUID() }), sessionCookieOptions());
       return response;
     }
-    const passcode = typeof body.passcode === "string" ? body.passcode.trim() : "";
+    const passcode = typeof body.passcode === "string" ? body.passcode.trim() : typeof body.password === "string" ? body.password.trim() : "";
     if (!/^[A-Za-z0-9-]{4,32}$/.test(passcode)) return NextResponse.json({ success: false, message: "Please enter a valid passcode." }, { status: 400 });
     const db = getSupabaseAdmin(request.signal);
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
@@ -27,6 +29,32 @@ export async function POST(request: Request) {
       .gte("created_at", new Date(Date.now() - 15 * 60 * 1000).toISOString()), getCoursesAndSectionsData(request.signal)]);
     if (error) throw error;
     if ((count ?? 0) >= 10) return NextResponse.json({ success: false, message: "Too many attempts. Please try again in 15 minutes." }, { status: 429 });
+
+    if (verifyAdminPassword(passcode)) {
+      const credential = await getAdminCredential(request.signal);
+      try {
+        await db.from("access_audit_logs").insert({
+          actor_email: FIXED_ADMIN_EMAIL,
+          action: "ADMIN_PASSWORD_LOGIN",
+          details: { fingerprint },
+        });
+      } catch (logError) {
+        console.error("Admin login audit log error:", logError);
+      }
+      const response = NextResponse.json({ success: true, destination: "/admin/access" });
+      response.cookies.set(
+        ACCESS_SESSION_COOKIE,
+        createAccessSession({
+          role: "admin",
+          authMethod: "password",
+          email: FIXED_ADMIN_EMAIL,
+          sessionVersion: credential?.session_version ?? 0,
+        }),
+        sessionCookieOptions()
+      );
+      return response;
+    }
+
     const credentialHash = hashPasscode(passcode);
     const access = resolvePasscode(catalog, credentialHash);
     if (!access) {

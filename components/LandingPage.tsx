@@ -74,7 +74,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
     if (loading || accessRequest.current) return;
 
     const cleanPasscode = passcode.trim();
-    if (!/^[0-9]{6}$/.test(cleanPasscode)) {
+    if (!/^[A-Za-z0-9-]{4,32}$/.test(cleanPasscode)) {
       setError("Enter your 6-digit passcode.");
       return;
     }
@@ -108,7 +108,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
 
       // Xác thực thành công: dạng users hoặc đúng pass admin
       // Kính mặt robo hiện loading.... màu xanh
-      window.location.replace("/learn");
+      window.location.replace(payload.destination || "/learn");
     } catch (caught) {
       if (controller.signal.aborted) return;
       setRobotState(caught instanceof Error && caught.message === "Wrong passcode" ? "wrongPasscode" : "restricted");

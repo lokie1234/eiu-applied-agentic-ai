@@ -9,7 +9,19 @@ const require = createRequire(import.meta.url);
 function load(path, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, { exports, require: name => dependencies[name] ?? (name === "@/lib/learningIdentity" ? load("lib/learningIdentity.ts") : name === "@/lib/reportLearners" ? load("lib/reportLearners.ts") : name === "@/lib/reportScopes" ? load("lib/reportScopes.ts") : name === "@/lib/courseHierarchy" ? load("lib/courseHierarchy.ts") : require(name)), Buffer, console, Date, process, URL, Response });
+  vm.runInNewContext(code, {
+    exports,
+    require: name => dependencies[name] ?? (
+      name === "@/lib/learningIdentity" ? load("lib/learningIdentity.ts") :
+      name === "@/lib/reportLearners" ? load("lib/reportLearners.ts") :
+      name === "@/lib/reportScopes" ? load("lib/reportScopes.ts") :
+      name === "@/lib/courseHierarchy" ? load("lib/courseHierarchy.ts") :
+      name === "@/lib/auth/adminPassword" ? load("lib/auth/adminPassword.ts", { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => ({ from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }) }) } }) :
+      name === "@/lib/auth/types" ? load("lib/auth/types.ts") :
+      require(name)
+    ),
+    Buffer, console, Date, process, URL, Response
+  });
   return exports;
 }
 const response = { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200, cookies: { set(name, value) { this.value = value; } } }) } };
@@ -241,6 +253,7 @@ test("signed sessions reject old username, teacher and password admin tokens", a
     const sign = body => { const payload = Buffer.from(JSON.stringify({ ...body, expiresAt: Date.now() + 10000 })).toString("base64url"); return `${payload}.${createHmac("sha256", process.env.PASSCODE_SESSION_SECRET).update(payload).digest("base64url")}`; };
     for (const role of ["email", "teacher", "admin"]) { cookie = sign({ role }); assert.equal(await session.currentAccessSession(), null); }
     cookie = session.createAccessSession({ role: "admin", authMethod: "google" }); assert.equal((await session.currentAccessSession()).role, "admin");
+    cookie = session.createAccessSession({ role: "admin", authMethod: "password" }); assert.equal((await session.currentAccessSession()).role, "admin");
     cookie = sign({ role: "passcode", credentialHash: "a".repeat(64), sessionId: "a2135578-52ec-4e53-8b8f-f3369e606348" });
     assert.equal((await session.currentAccessSession()).role, "passcode");
     cookie += "tamper"; assert.equal(await session.currentAccessSession(), null);
@@ -387,4 +400,50 @@ test("bulk persistence failure reports partial progress instead of claiming succ
  await assert.rejects(f.codes.saveAccessPasscodes([{kind:"folder",id:"f1"},{kind:"course",id:"c1"}],["learner"],null),/Some changes were saved/);
  assert.notEqual(f.catalog.folderGroups[0].accessCodes.learner,"FL1234");
  assert.equal(f.catalog.courses[0].metadata.passcode,"CL01234");
+});
+
+test("admin access password signs in directly to admin workspace", async () => {
+  const f = fixture();
+  const db = { from: () => ({ select() { return this; }, eq() { return this; }, contains() { return this; }, gte: async () => ({ count: 0 }), insert() { return this; } }) };
+  const prev = process.env.ADMIN_ACCESS_PASSWORD;
+  process.env.ADMIN_ACCESS_PASSWORD = "110320";
+  try {
+    const auth = load("app/api/auth/access/route.ts", {
+      "next/server": response,
+      "@/lib/supabase/server": { getSupabaseAdmin: () => db },
+      "@/lib/auth/courseAccessStorage": f.storage,
+      "@/lib/auth/passcodes": f.codes,
+      "@/lib/auth/session": { ACCESS_SESSION_COOKIE: "session", createAccessSession: body => body, sessionCookieOptions: () => ({}) },
+      "@/lib/auth/adminPassword": { getAdminCredential: async () => null, verifyAdminPassword: candidate => candidate === "110320" },
+      "@/lib/auth/types": { FIXED_ADMIN_EMAIL: "son.lam@eiu.edu.vn" },
+    });
+    const result = await auth.POST(request({ passcode: "110320" }));
+    assert.equal(result.data.success, true);
+    assert.equal(result.data.destination, "/admin/access");
+    assert.equal(result.cookies.value.role, "admin");
+        assert.equal(result.cookies.value.authMethod, "password");
+
+    const access = load("lib/auth/currentUser.ts", {
+      "server-only": {},
+      "@/lib/supabase/server": {},
+      "./session": { currentAccessSession: async () => ({ role: "admin", authMethod: "password" }) },
+      "./courseAccessStorage": f.storage,
+      "./passcodes": f.codes,
+      "./types": { FIXED_ADMIN_EMAIL: "son.lam@eiu.edu.vn" }
+    });
+    const admin = await access.requireAdminAccess();
+    assert.equal(admin.driveEnabled, false);
+
+    const googleAccess = load("lib/auth/currentUser.ts", {
+      "server-only": {},
+      "@/lib/supabase/server": {},
+      "./session": { currentAccessSession: async () => ({ role: "admin", authMethod: "google" }) },
+      "./courseAccessStorage": f.storage,
+      "./passcodes": f.codes,
+      "./types": { FIXED_ADMIN_EMAIL: "son.lam@eiu.edu.vn" }
+    });
+    assert.equal((await googleAccess.requireAdminAccess()).driveEnabled, true);
+  } finally {
+    process.env.ADMIN_ACCESS_PASSWORD = prev;
+  }
 });

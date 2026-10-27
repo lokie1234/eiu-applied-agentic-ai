@@ -5,12 +5,16 @@ import { authorizedDriveClient, driveConfig } from "@/lib/drive/connection";
 import { driveDestinations, driveFolderId, verifyDriveFolder } from "@/lib/drive/destinations";
 const headers = { "Cache-Control": "no-store, private" };
 export async function GET() {
-  if (!(await requireAdminAccess())) return NextResponse.json({ message: "Admin access required." }, { status: 403 });
+  const admin = await requireAdminAccess();
+  if (!admin) return NextResponse.json({ message: "Admin access required." }, { status: 403 });
+  if (!admin.driveEnabled) return NextResponse.json({ message: "Google Drive is disabled when signed in with admin passcode." }, { status: 403, headers });
   try { return NextResponse.json({ destinations: await driveDestinations() }, { headers }); }
   catch { return NextResponse.json({ message: "Apply the Drive destinations migration before managing folders." }, { status: 503, headers }); }
 }
 export async function POST(request: Request) {
-  if (!(await requireAdminAccess())) return NextResponse.json({ message: "Admin access required." }, { status: 403 });
+  const admin = await requireAdminAccess();
+  if (!admin) return NextResponse.json({ message: "Admin access required." }, { status: 403 });
+  if (!admin.driveEnabled) return NextResponse.json({ message: "Google Drive is disabled when signed in with admin passcode." }, { status: 403 });
   if (request.headers.get("origin") !== new URL(driveConfig().redirectUri).origin) return NextResponse.json({ message: "Invalid request origin." }, { status: 403 });
   try {
     const payload = await request.json();

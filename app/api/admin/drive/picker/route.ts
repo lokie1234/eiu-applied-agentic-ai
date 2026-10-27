@@ -7,7 +7,9 @@ export const runtime = "nodejs";
 const responseHeaders = { "Cache-Control": "no-store, private" };
 
 export async function POST(request: Request) {
-  if (!(await requireAdminAccess())) return NextResponse.json({ message: "Admin access required." }, { status: 403, headers: responseHeaders });
+  const admin = await requireAdminAccess();
+  if (!admin) return NextResponse.json({ message: "Admin access required." }, { status: 403, headers: responseHeaders });
+  if (!admin.driveEnabled) return NextResponse.json({ message: "Google Drive is disabled when signed in with admin passcode." }, { status: 403, headers: responseHeaders });
   try {
     // The access token must never be issued to a cross-origin caller.
     if (request.headers.get("origin") !== new URL(driveConfig().redirectUri).origin) {

@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
-import { canManageSection } from "@/lib/auth/currentUser";
+import { canManageSection, requireAdminAccess } from "@/lib/auth/currentUser";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { readDriveFile } from "@/lib/drive/sectionContent";
 import { prepareSectionFile } from "@/lib/sectionContent";
@@ -12,7 +12,9 @@ export const maxDuration = 120;
 
 export async function POST(request: Request, context: { params: Promise<{ id: string }> }) {
   const { id } = await context.params;
-  if (!await canManageSection(id)) return NextResponse.json({ message: "Section management access required." }, { status: 403 });
+  const admin = await requireAdminAccess();
+  if (!admin || !await canManageSection(id)) return NextResponse.json({ message: "Section management access required." }, { status: 403 });
+  if (!admin.driveEnabled) return NextResponse.json({ message: "Google Drive is disabled when signed in with admin passcode." }, { status: 403 });
   if (request.headers.get("origin") !== new URL(request.url).origin) return NextResponse.json({ message: "Invalid request origin." }, { status: 403 });
   let body;
   try { body = await request.json(); } catch { return NextResponse.json({ message: "Invalid request." }, { status: 400 }); }

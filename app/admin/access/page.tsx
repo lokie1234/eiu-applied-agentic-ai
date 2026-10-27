@@ -8,5 +8,5 @@ export default async function AdminAccessPage({ searchParams }: { searchParams: 
   const admin = await requireAdminAccess();
   if (!admin) redirect("/");
   const query = await searchParams;
-  return <AdminAccessPortal adminEmail={admin.email} initialTab={query.tab === "layouts" ? "layouts" : undefined} />;
+  return <AdminAccessPortal adminEmail={admin.email} driveEnabled={admin.driveEnabled} initialTab={query.tab === "layouts" ? "layouts" : undefined} />;
 }

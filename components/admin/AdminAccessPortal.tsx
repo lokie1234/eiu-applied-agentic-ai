@@ -93,6 +93,7 @@ type Section = {
 };
 
 type Payload = {
+  driveEnabled?: boolean;
   learningIdentityPolicy?: LearningIdentityPolicy;
   globalAccessCodes?: AccessCodes;
   success: boolean;
@@ -190,8 +191,9 @@ function DraggableScrollArea({
   );
 }
 
-export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEmail: string; initialTab?: "layouts" }) {
+export default function AdminAccessPortal({ adminEmail, initialTab, driveEnabled: initialDriveEnabled }: { adminEmail: string; initialTab?: "layouts"; driveEnabled?: boolean }) {
   const isAdmin = true;
+  const [driveEnabled, setDriveEnabled] = useState(initialDriveEnabled ?? true);
   const [tab, setTab] = useState<"passcodes" | "courses" | "layouts">(initialTab ?? "courses");
   const [courses, setCourses] = useState<Course[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
@@ -358,6 +360,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
     if (payload.sections) setSections(payload.sections);
     if (payload.globalAccessCodes) setGlobalAccessCodes(payload.globalAccessCodes);
     if (payload.learningIdentityPolicy) setLearningIdentityPolicy(payload.learningIdentityPolicy);
+    if (typeof payload.driveEnabled === "boolean") setDriveEnabled(payload.driveEnabled);
     if (payload.folderGroups) setFolderGroups(payload.folderGroups);
   }, [isAdmin]);
 
@@ -979,7 +982,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
 
   return (
     <main className={styles.page}>
-      <CourseManagerHeader identity={adminEmail} onSignOut={() => void signOut()} />
+      <CourseManagerHeader identity={adminEmail} onSignOut={() => void signOut()} driveEnabled={driveEnabled} />
 
       {/* EIU Luxury Top Control Row: Segmented Tabs (Left) + Master Access Toolbar (Right) */}
       <div className={styles.topControlRow}>
@@ -1306,7 +1309,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
 
                             {/* Quick Folder Actions (Compact Icons) */}
                             {(<div className={styles.folderGroupActions} onClick={(e) => e.stopPropagation()}>
-                              {isAdmin && <DriveExport groupId={group.id} label={`Save folder ${group.name} to Drive`} onSaved={refreshData} compact disabled={Boolean(processingMessage)} />}
+                              {isAdmin && driveEnabled && <DriveExport groupId={group.id} label={`Save folder ${group.name} to Drive`} onSaved={refreshData} compact disabled={Boolean(processingMessage)} />}
                               {isAdmin && <VisibilityToggle hidden={Boolean(group.hidden)} label={`folder ${group.name}`} busy={busy.has(`hide-folder:${group.id}`)} disabled={Boolean(processingMessage) || busy.has(`hide-folder:${group.id}`)} onToggle={() => void mutate({ action: "set_folder_group_hidden", folderGroupId: group.id, hidden: !group.hidden }, `hide-folder:${group.id}`, "Folder visibility updated.")} />}
 
 
@@ -1610,7 +1613,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                         )}
 
                           <div className={styles.courseFileActions} role="group" aria-label="Course Drive files">
-                          {isAdmin && <DriveExport courseId={selectedCourse.id} label="Save course files to Drive" onSaved={refreshData} disabled={Boolean(processingMessage)} />}
+                          {isAdmin && driveEnabled && <DriveExport courseId={selectedCourse.id} label="Save course files to Drive" onSaved={refreshData} disabled={Boolean(processingMessage)} />}
                           </div>
                         </div>
 
@@ -1866,7 +1869,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab }: { adminEma
                                       onClick={event => event.stopPropagation()}
                                     ><PcActionIcon direction="download" /></a>}
                                   </div>}
-                                  {isAdmin && <div className={styles.sectionFileActions} role="group" aria-label="Drive file actions">
+                                  {isAdmin && driveEnabled && <div className={styles.sectionFileActions} role="group" aria-label="Drive file actions">
                                     <DriveImport sectionId={section.id} title={section.title} onSaved={refreshData} disabled={Boolean(processingMessage)} />
                                     <DriveExport sectionId={section.id} label={`Save ${section.title} to Drive`} allowReplace={!isDefault} onSaved={refreshData} disabled={Boolean(processingMessage)} />
                                   </div>}

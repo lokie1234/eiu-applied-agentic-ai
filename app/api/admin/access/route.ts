@@ -56,7 +56,7 @@ export async function GET(request?: Request) {
       requireCourseManager(request?.signal), getCoursesAndSectionsData(request?.signal),
     ]);
     if (!actor) return NextResponse.json({ success: false, message: "Course management access required." }, { status: 403 });
-    return NextResponse.json({ success: true, ...workspaceCatalog(data) }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ success: true, driveEnabled: actor.driveEnabled, ...workspaceCatalog(data) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     // Supabase wraps an aborted fetch in a plain error object. Check the
     // incoming signal instead of suppressing errors by their message/name.
@@ -523,7 +523,7 @@ export async function POST(request: Request) {
     const updatedData = await getCoursesAndSectionsData();
     return NextResponse.json({
       success: true,
-      ...workspaceCatalog(updatedData),
+      driveEnabled: actor.driveEnabled, ...workspaceCatalog(updatedData),
       ...(generatedCode ? { generatedCode } : {}),
       ...(createdCourseIds ? { createdCourseIds } : {}),
       ...(createdFolderGroupId ? { createdFolderGroupId } : {}),

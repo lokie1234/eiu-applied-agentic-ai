@@ -40,6 +40,7 @@ export async function currentUserAccess(signal?: AbortSignal, resolvedSession?: 
     displayName: session.role === "admin" ? "Son Lam (Admin)" : identity?.name || (sections.some(section => section.canFacilitate) ? "Facilitator" : `Learner ${session.sessionId.slice(0, 6)}`),
     avatarUrl: null, isAdmin: session.role === "admin", isActive: true,
     canFacilitate: session.role === "admin" || sections.some(section => section.canFacilitate),
+    driveEnabled: session.role === "admin" ? session.authMethod === "google" : false,
     courses: resolved.courses.filter(course => course.status === "active").map(course => ({
       id: course.id, slug: course.slug, title: course.title, description: course.metadata.summary,
       languageLabel: course.language_label, isUnlocked: true,
@@ -55,7 +56,13 @@ export async function requireAdminAccess(signal?: AbortSignal) {
   // The signed administrator session includes a live session-version check.
   // Admin-only routes do not need to fetch and parse the entire course catalog.
   const session = await currentAccessSession(signal);
-  return session?.role === "admin" ? { email: FIXED_ADMIN_EMAIL, isAdmin: true as const, isActive: true as const } : null;
+  return session?.role === "admin" ? {
+    email: FIXED_ADMIN_EMAIL,
+    isAdmin: true as const,
+    isActive: true as const,
+    authMethod: session.authMethod,
+    driveEnabled: session.authMethod === "google",
+  } : null;
 }
 
 export const requireCourseManager = requireAdminAccess;

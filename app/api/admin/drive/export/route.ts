@@ -9,7 +9,9 @@ import { getCoursesAndSectionsData } from "@/lib/auth/courseAccessStorage";
 export const runtime = "nodejs";
 export const maxDuration = 120;
 export async function POST(request: Request) {
-  if (!(await requireAdminAccess())) return NextResponse.json({ message: "Admin access required." }, { status: 403 });
+  const admin = await requireAdminAccess();
+  if (!admin) return NextResponse.json({ message: "Admin access required." }, { status: 403 });
+  if (!admin.driveEnabled) return NextResponse.json({ message: "Google Drive is disabled when signed in with admin passcode." }, { status: 403 });
   if (request.headers.get("origin") !== new URL(driveConfig().redirectUri).origin) return NextResponse.json({ message: "Invalid request origin." }, { status: 403 });
   try {
     const input = await request.json();

@@ -174,6 +174,44 @@ export default function SignInCard({ initialLanguageChosen = false, passcode, se
     {method === "google" && <div className={styles.googlePanel}>
       <div className={styles.accountNote}><span className={styles.accountMark}><GoogleLogo /></span><div><strong>{t("EIU administrator")}</strong><p>{t("Google sign-in also connects Drive.")}</p></div></div>
       <a className={styles.googleButton} href="/api/admin/drive/connect?mode=login" aria-disabled={loading || undefined} onClick={event => { if (loading) event.preventDefault(); }}><GoogleLogo /><span>{t("Continue with Google")}</span></a>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "4px 0", color: "#a0b8cc", fontSize: "12px" }}>
+        <span style={{ flex: 1, height: "1px", background: "rgba(217, 239, 255, 0.2)" }} />
+        <span>{t("or admin password", "hoặc mật khẩu admin")}</span>
+        <span style={{ flex: 1, height: "1px", background: "rgba(217, 239, 255, 0.2)" }} />
+      </div>
+      <form noValidate className={styles.form} onSubmit={onSubmit} aria-busy={loading}>
+        <label htmlFor="admin-password-input" className={styles.screenReaderOnly}>{t("Admin password", "Mật khẩu quản trị")}</label>
+        <div className={styles.passcodeField} data-error={Boolean(error) && !loading}>
+          <input
+            id="admin-password-input"
+            aria-invalid={Boolean(error)}
+            aria-describedby={error ? "sign-in-error" : undefined}
+            type={showPasscode ? "text" : "password"}
+            value={passcode}
+            disabled={loading}
+            onChange={event => { setPasscode(event.target.value.slice(0, 32)); onInputChange?.(); }}
+            onFocus={onInputFocus}
+            onBlur={onInputBlur}
+            placeholder={t("Admin password", "Mật khẩu quản trị")}
+            autoComplete="current-password"
+            aria-required="true"
+          />
+          <button
+            className={styles.passcodeToggle}
+            type="button"
+            aria-controls="admin-password-input"
+            aria-pressed={showPasscode}
+            aria-label={showPasscode ? t("Hide password", "Ẩn mật khẩu") : t("Show password", "Hiện mật khẩu")}
+            onClick={() => setShowPasscode(current => !current)}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>{showPasscode && <path d="m3 3 18 18"/>}</svg>
+          </button>
+        </div>
+        <button type="submit" className={styles.primary} disabled={loading || !passcode.trim()}>
+          {loading ? <span className={styles.spinner} /> : <span>{t("Sign in as Admin", "Đăng nhập quản trị")}</span>}
+          <span aria-hidden="true">→</span>
+        </button>
+      </form>
     </div>}
     {error && !identityFields.length && <span id="sign-in-error" className={styles.screenReaderOnly} role="alert">{error === "Wrong passcode" ? error : t(error)}</span>}
     <div className={styles.footer}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>{t("Secure access")} <span aria-hidden="true">·</span> <span className={styles.universityName}>Eastern International University</span></span></div>

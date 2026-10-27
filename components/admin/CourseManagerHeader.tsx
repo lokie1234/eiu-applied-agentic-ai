@@ -4,10 +4,11 @@ import AdminWorkspaceNav from "./AdminWorkspaceNav";
 import styles from "./AdminAccessPortal.module.css";
 
 export default function CourseManagerHeader({
-  identity, onSignOut,
+  identity, onSignOut, driveEnabled,
 }: {
   identity: string;
   onSignOut: () => void;
+  driveEnabled?: boolean;
 }) {
   return (
     <header className={styles.header}>
@@ -16,7 +17,7 @@ export default function CourseManagerHeader({
         <h1>Admin Control Center</h1>
         <p>Admin: <b>{identity}</b> · Passcode Access & Course Management</p>
       </div>
-      <AdminWorkspaceNav onSignOut={onSignOut} />
+      <AdminWorkspaceNav onSignOut={onSignOut} driveEnabled={driveEnabled} />
     </header>
   );
 }

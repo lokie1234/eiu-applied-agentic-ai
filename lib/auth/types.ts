@@ -1,5 +1,3 @@
-
-
 export type CourseSystemIcon = {
   id: string;
   name: string;
@@ -48,6 +46,7 @@ export type AppUserAccess = {
   avatarUrl: string | null;
   isAdmin: boolean;
   canFacilitate?: boolean;
+  driveEnabled?: boolean;
   isActive: boolean;
   courses: CourseAccess[];
   sections: SectionAccess[];
