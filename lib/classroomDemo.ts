@@ -1,0 +1,3 @@
+// Synthetic wheel-only identities. Never insert these into login or report tables.
+const names = ["Minh An", "Bảo Anh", "Ngọc Anh", "Hoàng Bảo", "Gia Bảo", "Thảo Chi", "Anh Đức", "Minh Đức", "Thanh Duy", "Quang Huy", "Ngọc Hân", "Minh Hằng", "Gia Hân", "Tuấn Kiệt", "Bảo Khang", "Minh Khang", "Khánh Linh", "Thùy Linh", "Ngọc Mai", "Hoàng Minh", "Nhật Minh", "Hà My", "Trà My", "Phương Nam", "Bảo Ngân", "Kim Ngân", "Yến Nhi", "Quỳnh Như", "Thiên Phúc", "Minh Phương", "Nhật Quang", "Đức Sơn", "Minh Tâm", "Phương Thảo", "Anh Thư", "Bảo Trâm", "Minh Triết", "Khánh Vy", "Tường Vy", "Hải Yến"];
+export const MIS301_DEMO_LEARNERS = names.map((username, index) => ({ id: `demo-mis301-${String(index + 1).padStart(2, "0")}`, username }));

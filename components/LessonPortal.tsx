@@ -1,4 +1,5 @@
 "use client";
+import { useCourseRealtime, realtimeReady, listenInteractive, pulsePresence, watchRealtimeReady } from "@/lib/realtime/client";
 
 import dynamic from "next/dynamic";
 import { useLearningLanguage } from "@/lib/learningLanguage";
@@ -98,12 +99,11 @@ function LearningAccent({ kind = "book" }: { kind?: "library" | "collection" | "
   return <LearningInnovationIcon kind={kind === "collection" || kind === "library" ? "folder" : kind === "page" ? "section" : "course"} className={styles.learningAccent} compact />;
 }
 
-function ActionIcon({ kind }: { kind: "access" | "learning" | "teaching" | "ai" | "report" | "reset" | "signout" }) {
+function ActionIcon({ kind }: { kind: "access" | "learning" | "teaching" | "report" | "reset" | "signout" }) {
   return <svg className={styles.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
     {kind === "access" ? <><path d="m10 3-.6 2.2-2 .9-2-.7-2 3.4 1.6 1.5v2.4l-1.6 1.5 2 3.4 2-.7 2 .9L10 21h4l.6-2.2 2-.9 2 .7 2-3.4-1.6-1.5v-2.4l1.6-1.5-2-3.4-2 .7-2-.9L14 3Z" /><circle cx="12" cy="12" r="3" /></>
       : kind === "learning" ? <><path d="M12 6C9 3.5 5 3.5 2 5v14c3-1.5 7-1.5 10 1 3-2.5 7-2.5 10-1V5c-3-1.5-7-1.5-10 1Z" fill="currentColor" fillOpacity=".14" /><path d="M12 6v14M5 8l4 1M5 12l4 1m6-4 4-1m-4 5 4-1" /></>
       : kind === "teaching" ? <><path d="M8 3h14v12H11M15 7h4m-6 4h6M15 15v5m-3 1 3-1 3 1" /><circle cx="5" cy="9" r="2.5" fill="currentColor" fillOpacity=".2" /><path d="M1 21v-4a4 4 0 0 1 4-4h2l5-5M5 17v4" /></>
-      : kind === "ai" ? <><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5Z" /><path d="M20 2v4m-2-2h4" /></>
       : kind === "report" ? <><path d="M10 3h11v18H10Z" fill="#21a366" stroke="#107c41" /><path d="M14 7h4m-4 5h4m-4 5h4" stroke="#fff" strokeWidth="1.2" /><path d="M2 6h11v12H2Z" fill="#107c41" stroke="#107c41" /><path d="m5 9 5 6m0-6-5 6" stroke="#fff" /></>
       : kind === "reset" ? <><path d="M4 10a8 8 0 1 1 1.5 7M4 4v6h6" /><path d="M12 8v5l3 2" /></>
       : <><path d="M10 4H4v16h6m4-13 5 5-5 5m-6-5h11" /></>}
@@ -296,6 +296,7 @@ function DeckShell({
   presenceCounts,
   currentSection,
   currentSectionId,
+  currentCourseId,
   currentSectionTitle,
   statusNotice,
   onChooseSection,
@@ -310,6 +311,7 @@ function DeckShell({
   presenceCounts: PresenceCounts;
   currentSection?: SectionId | null;
   currentSectionId?: string;
+  currentCourseId?: string;
   currentSectionTitle?: string;
   statusNotice?: string;
   onChooseSection?: (keyboard?: boolean) => void;
@@ -343,15 +345,8 @@ function DeckShell({
         <div className={styles.actionBarButtons}>
           {onExitPreview && <button type="button" className={styles.secondaryButton} onClick={onExitPreview}>{t("Back to admin", "Quay lại admin")}</button>}
           {isAdmin && (
-            <Link href="/admin/access">
+            <Link href={`/admin/access?courseId=${encodeURIComponent(currentCourseId ?? "")}&sectionId=${encodeURIComponent(currentSectionId ?? "")}#section-${encodeURIComponent(currentSectionId ?? "")}`}>
               <ActionIcon kind="access" />{t("Access settings")}</Link>
-          )}
-          {isAdmin && (
-            <Link
-              href="/admin/ai"
-              className={styles.aiButton}
-            >
-              <ActionIcon kind="ai" />{t("AI Knowledge")}</Link>
           )}
           {onChooseSection && (
             <button
@@ -467,6 +462,7 @@ export default function LessonPortal({
   const [terminateStatus, setTerminateStatus] =
     useState<TerminateStatus>("idle");
   const [terminateNotice, setTerminateNotice] = useState("");
+  const terminationBaseline = useRef<{ sectionId: string; token: string | null } | null>(null);
   const [reportStatus, setReportStatus] = useState<ReportStatus>("idle");
   const [reportNotice, setReportNotice] = useState("");
   const [showExportModal, setShowExportModal] = useState(false);
@@ -685,6 +681,24 @@ export default function LessonPortal({
   }, [isAdmin, showExportModal, showResetModal]);
 
   // Presence is refreshed by Supabase Realtime signals, with a slow fallback
+  const onConvexCounts = useCallback((rows: Array<{ sectionId: string; online: number; subjects: string[] }>) => {
+    const bySection = Object.fromEntries(rows.map(row => [row.sectionId, row.online]));
+    const byCourse: Record<string, number> = {}, byFolder: Record<string, number> = {};
+    const folderPeople = new Map<string, Set<string>>(), totalPeople = new Set<string>();
+    for (const course of courseFolders) {
+      const people = new Set(rows.filter(row => course.sections.some(section => section.id === row.sectionId)).flatMap(row => row.subjects));
+      byCourse[course.id] = people.size;
+      const folder = course.folderGroupId || "unassigned", merged = folderPeople.get(folder) || new Set<string>();
+      for (const person of people) { merged.add(person); totalPeople.add(person); }
+      folderPeople.set(folder, merged); byFolder[folder] = merged.size;
+    }
+    const applied = courseFolders.find(course => course.slug === "applied-agentic-ai");
+    setPresenceCounts({ section1: bySection[applied?.sections.find(section => section.sectionKey === "section1")?.id || ""] || 0,
+      section2: bySection[applied?.sections.find(section => section.sectionKey === "section2")?.id || ""] || 0,
+      total: totalPeople.size, bySection, byCourse, byFolder });
+  }, [courseFolders]);
+  const convexReady = useCourseRealtime(courseFolders.flatMap(course => course.sections.map(section => ({ id: section.id, sectionKey: section.sectionKey, courseId: course.id, courseSlug: course.slug }))), onConvexCounts);
+
   // for expired tabs that cannot send a pagehide beacon.
   useEffect(() => {
     if (!sessionIsAdmin && !sessionCanFacilitate) return;
@@ -697,7 +711,7 @@ export default function LessonPortal({
     const controller = new AbortController();
 
     async function fetchCounts(queueIfBusy = true) {
-      if (disposed || document.visibilityState !== "visible") return;
+      if (disposed || realtimeReady() || document.visibilityState !== "visible") return;
       if (inFlight) { if (queueIfBusy) refreshQueued = true; return; }
       if (lastRequestedAt && Date.now() - lastRequestedAt < 750) {
         if (!refreshTimer) refreshTimer = window.setTimeout(() => { refreshTimer=undefined;void fetchCounts(); },750-(Date.now()-lastRequestedAt));
@@ -712,7 +726,7 @@ export default function LessonPortal({
           success?: boolean;
           counts?: PresenceCounts;
         };
-        if (!disposed && payload.success && payload.counts) {
+        if (!disposed && !realtimeReady() && payload.success && payload.counts) {
           const counts = payload.counts;
           setPresenceCounts(previous => JSON.stringify(previous) === JSON.stringify(counts) ? previous : counts);
         }
@@ -729,7 +743,7 @@ export default function LessonPortal({
     }
 
     void fetchCounts();
-    const supabase = getSupabaseBrowserClient();
+    const supabase = convexReady ? null : getSupabaseBrowserClient();
     const channel = supabase
       ?.channel("eiu:presence")
       .on("broadcast", { event: "presence_changed" }, () => {
@@ -748,7 +762,7 @@ export default function LessonPortal({
       document.removeEventListener("visibilitychange", resumeCounts);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [sessionIsAdmin, sessionCanFacilitate]);
+  }, [sessionIsAdmin, sessionCanFacilitate, convexReady]);
 
   // One presence stream covers built-in lessons, JS, PDF and PPTX sections.
   // Opening is logged once; steady heartbeats only update the active row.
@@ -760,16 +774,21 @@ export default function LessonPortal({
     let disposed = false, inFlight = false, leaveSent = false, needsEntry = true, resumeQueued = false;
     const controller = new AbortController();
     function onLeave() {
+      if (realtimeReady()) { void pulsePresence(sectionId, clientId, true); return; }
       if(!leaveSent && navigator.sendBeacon)leaveSent=navigator.sendBeacon("/api/presence",JSON.stringify({action:"leave",sectionId,clientId}));
     }
     async function sendHeartbeat() {
       if (disposed || inFlight || document.visibilityState !== "visible") return;
       inFlight = true;leaveSent = false;
       try {
+        if (realtimeReady()) {
+          await pulsePresence(sectionId, clientId);
+          if (!needsEntry) return;
+        }
         const response = await fetch("/api/presence", {
           method: "POST", signal: AbortSignal.any([controller.signal,AbortSignal.timeout(15_000)]),
           headers: {"Content-Type":"application/json"},
-          body: JSON.stringify({action:needsEntry ? "enter" : "heartbeat",sectionId,clientId,entryId}),
+          body: JSON.stringify({action:needsEntry ? "enter" : "heartbeat",sectionId,clientId,entryId,realtime:realtimeReady()}),
         });
         if(response.ok) needsEntry=false;
       } catch { /* A later heartbeat retries without blocking the lesson. */ }
@@ -780,6 +799,7 @@ export default function LessonPortal({
       }
     }
     void sendHeartbeat();
+    const stopReady = watchRealtimeReady(() => void sendHeartbeat());
     const heartbeatTimer = window.setInterval(()=>void sendHeartbeat(),20_000);
     const onVisibility = () => {
       if(document.visibilityState === "visible") { if(inFlight)resumeQueued=true;else void sendHeartbeat(); }
@@ -788,6 +808,7 @@ export default function LessonPortal({
     document.addEventListener("visibilitychange",onVisibility);
     window.addEventListener("pagehide",onLeave);
     return ()=>{
+      stopReady();
       disposed=true;controller.abort();window.clearInterval(heartbeatTimer);
       document.removeEventListener("visibilitychange",onVisibility);window.removeEventListener("pagehide",onLeave);onLeave();
     };
@@ -926,9 +947,7 @@ export default function LessonPortal({
       }
 
       setTerminateStatus("success");
-      setTerminateNotice(
-        `${activeLessonSection?.title || "Section"} ended. Quiz was reset and learners are returning to the access screen.`
-      );
+      setTerminateNotice("Terminated");
       if (section) clearSlideInteractionStorage(section);
       window.sessionStorage.removeItem(`eiu-showcase-hidden:${activeSectionId}`);
       setDeckSessionKey((current) => current + 1);
@@ -946,13 +965,13 @@ export default function LessonPortal({
     if (sessionIsAdmin || !activeSectionId || !terminationEnabled) return;
 
     let disposed = false;
-    let initialToken: string | null = null;
-    let isInitialized = false;
     let inFlight = false;
     const controller = new AbortController();
 
-    async function checkTermination() {
-      if (disposed || inFlight || document.visibilityState !== "visible") return;
+    let refreshQueued = false;
+    async function checkTermination(queueIfBusy = false) {
+      if (disposed || document.visibilityState !== "visible") return;
+      if (inFlight) { if (queueIfBusy) refreshQueued = true; return; }
       inFlight = true;
       try {
         const response = await fetch(`/api/sections/${encodeURIComponent(activeSectionId!)}/control`, {
@@ -969,10 +988,9 @@ export default function LessonPortal({
 
         if (!disposed && payload.success && payload.enabled !== false) {
           const currentToken = payload.terminationToken ?? null;
-          if (!isInitialized) {
-            initialToken = currentToken;
-            isInitialized = true;
-          } else if (currentToken && currentToken !== initialToken) {
+          if (terminationBaseline.current?.sectionId !== activeSectionId) {
+            terminationBaseline.current = { sectionId: activeSectionId!, token: currentToken };
+          } else if (currentToken && currentToken !== terminationBaseline.current?.token) {
             if (section) clearSlideInteractionStorage(section);
             window.sessionStorage.removeItem(`eiu-showcase-hidden:${activeSectionId}`);
             window.location.replace("/");
@@ -982,6 +1000,7 @@ export default function LessonPortal({
         // Ignore network glitches
       } finally {
         inFlight = false;
+        if (refreshQueued && !disposed) { refreshQueued = false; void checkTermination(); }
       }
     }
 
@@ -999,7 +1018,8 @@ export default function LessonPortal({
       })
       .subscribe();
 
-    const timer = window.setInterval(() => void checkTermination(), 5_000);
+    const stopRealtime = listenInteractive(activeSectionId || section, "control", () => void checkTermination(true));
+    const timer = window.setInterval(() => { if (!realtimeReady()) void checkTermination(false); }, 5_000);
     const onVisibilityChange = () => {
       if (document.visibilityState === "visible") void checkTermination();
     };
@@ -1008,6 +1028,7 @@ export default function LessonPortal({
     return () => {
       disposed = true;
       controller.abort();
+      stopRealtime();
       window.clearInterval(timer);
       document.removeEventListener("visibilitychange", onVisibilityChange);
       if (supabase && channel) void supabase.removeChannel(channel);
@@ -1155,8 +1176,7 @@ export default function LessonPortal({
             </button>)}
           </FunctionDropdown>
           <FunctionDropdown>
-          {isAdmin && <Link href="/admin/access" className={styles.accessButton}><ActionIcon kind="access" />{t("Access settings")}</Link>}
-          {isAdmin && <Link href="/admin/ai" className={styles.aiButton}><ActionIcon kind="ai" />{t("AI Knowledge")}</Link>}
+          {isAdmin && <Link href={`/admin/access?courseId=${encodeURIComponent(selectedCourse?.id ?? "")}`} className={styles.accessButton}><ActionIcon kind="access" />{t("Access settings")}</Link>}
           {isAdmin && (
             <button
               type="button"
@@ -1623,6 +1643,7 @@ export default function LessonPortal({
         presenceCounts={presenceCounts}
         currentSection={section}
         currentSectionId={activeSectionId}
+        currentCourseId={selectedCourse.id}
         currentSectionTitle={activeLessonSection?.title}
         statusNotice={previewMode ? `${t("Preview", "Xem thử")} · ${previewMode === "learning" ? "Learning Access" : "Teaching Access"}` : isAdmin ? terminateNotice : undefined}
         onExitPreview={previewMode ? () => changeAccessPreview(null) : undefined}

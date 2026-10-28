@@ -191,13 +191,14 @@ function DraggableScrollArea({
   );
 }
 
-export default function AdminAccessPortal({ adminEmail, initialTab, driveEnabled: initialDriveEnabled }: { adminEmail: string; initialTab?: "layouts"; driveEnabled?: boolean }) {
+export default function AdminAccessPortal({ adminEmail, initialTab, initialCourseId, initialSectionId, driveEnabled: initialDriveEnabled }: { adminEmail: string; initialTab?: "layouts"; initialCourseId?: string; initialSectionId?: string; driveEnabled?: boolean }) {
   const isAdmin = true;
   const [driveEnabled, setDriveEnabled] = useState(initialDriveEnabled ?? true);
   const [tab, setTab] = useState<"passcodes" | "courses" | "layouts">(initialTab ?? "courses");
   const [courses, setCourses] = useState<Course[]>([]);
   const [sections, setSections] = useState<Section[]>([]);
-  const [courseId, setCourseId] = useState("");
+  const [courseId, setCourseId] = useState(initialCourseId ?? "");
+  const focusedInitialSection = useRef(false);
 
 
   // EIU Modal Dialog state
@@ -425,6 +426,16 @@ export default function AdminAccessPortal({ adminEmail, initialTab, driveEnabled
     [sections, effectiveCourseId]
   );
 
+
+  useEffect(() => {
+    if (!initialSectionId || focusedInitialSection.current || loading || tab !== "courses") return;
+    if (!courseSections.some(section => section.id === initialSectionId)) return;
+    const target = document.getElementById(`section-${initialSectionId}`);
+    if (!target) return;
+    focusedInitialSection.current = true;
+    target.scrollIntoView({ block: "center" });
+    target.focus({ preventScroll: true });
+  }, [initialSectionId, courseSections, loading, tab]);
 
   const canReorderSections = isAdmin || (canEditCourse && courseSections.every(section => section.canEdit));
 
@@ -1763,6 +1774,8 @@ export default function AdminAccessPortal({ adminEmail, initialTab, driveEnabled
                             return (
                               <div
                                 key={section.id}
+                                id={`section-${section.id}`}
+                                tabIndex={-1}
                                 className={`${styles.sectionItemRow} ${isChecked ? styles.sectionItemRowSelected : ""} ${sectionDropTarget === section.id ? styles.sectionDropTarget : ""} ${editingSectionId === section.id ? styles.sectionItemRowEditing : ""}`}
                                 onDragOver={(event) => {
                                   if (!canReorderSections || !draggedSection.current || processingMessage) return;
@@ -1946,7 +1959,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab, driveEnabled
                             <div><h3><label htmlFor="course-slide-template">Slide template</label></h3><p>Layout for PPTX, PDF and JS slides.</p></div>
                           </div>
                         </div>
-                        <select id="course-slide-template" aria-label="Slide template" value={selectedCourse.metadata?.templateKey ?? (Object.keys(selectedCourse.metadata?.sectionTemplates ?? {}).length ? "__legacy" : "")} disabled={!canEditCourse || Boolean(processingMessage) || busy.has(`template:${effectiveCourseId}`) || Boolean(templateError)} onChange={event => void mutate({ action: "set_course_template", courseId: effectiveCourseId, templateKey: event.target.value }, `template:${effectiveCourseId}`, "Course template updated.")}>
+                        <select id="course-slide-template" aria-label="Slide template" value={selectedCourse.metadata?.templateKey ?? (Object.keys(selectedCourse.metadata?.sectionTemplates ?? {}).length ? "__legacy" : "")} disabled={!canEditCourse || Boolean(processingMessage) || busy.has(`template:${effectiveCourseId}`) || Boolean(templateError)} onChange={event => void mutate({ action: "set_course_template", courseId: effectiveCourseId, templateKey: event.target.value }, `template:${effectiveCourseId}`, "Course template updated.", "Applying slide template...")}>
                           <option value="">Original slides (no template)</option>
                           {selectedCourse.metadata?.templateKey === undefined && Object.keys(selectedCourse.metadata?.sectionTemplates ?? {}).length > 0 && <option disabled value="__legacy">Existing section layouts</option>}
                           {selectedCourse.metadata?.templateKey && !templates.some(template => template.id === selectedCourse.metadata.templateKey) && <option value={selectedCourse.metadata.templateKey}>Deleted layout - choose another</option>}

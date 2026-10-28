@@ -13,7 +13,7 @@ function load(file, dependencies = {}, globals = {}) {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true,
   } }).outputText;
   vm.runInNewContext(code, { exports, console, URL, Date, AbortController, AbortSignal, ...globals,
-    require: name => dependencies[name] ?? (name.endsWith('.css') ? new Proxy({}, { get: (_, key) => key === '__esModule' ? false : String(key) }) : require(name)),
+    require: name => name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false } : dependencies[name] ?? (name.endsWith('.css') ? new Proxy({}, { get: (_, key) => key === '__esModule' ? false : String(key) }) : require(name)),
   });
   return exports;
 }

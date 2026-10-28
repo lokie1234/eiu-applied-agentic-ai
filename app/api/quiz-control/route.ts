@@ -1,3 +1,4 @@
+import { notifyRealtime } from "@/lib/realtime/publish";
 import { NextResponse } from "next/server";
 import { currentRole, canFacilitateSection } from "@/lib/currentRole";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -83,7 +84,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   try {
     const body = await request.json();
     const section = String(body.section ?? "");
@@ -112,4 +113,10 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+}
+
+export async function POST(...args: Parameters<typeof handlePost>) {
+  const response = await handlePost(...args);
+  if (response.ok) notifyRealtime();
+  return response;
 }

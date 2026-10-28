@@ -1,0 +1,54 @@
+function PracticeWorkspace(slide) {
+  const labels=['01 · Import','02 · Explore','03 · Scores','04 · Quality','Answer check'];
+  const sections=[...slide.parts,slide.answerCheck], panels=new Map(), badges=new Map();
+  let selected=0, returnFocus=null;
+  const title=h('h2',{id:'practice-workspace-title'},'Practice workspace');
+  const subtitle=h('p',{className:'practice-popup-subtitle'},'');
+  const body=h('div',{className:'practice-popup-body'});
+  const overview=h('div',{className:'practice-overview'});
+  const modal=h('section',{className:'practice-popup',role:'dialog','aria-modal':'true','aria-labelledby':'practice-workspace-title',hidden:true});
+  function close(){modal.hidden=true;overview.inert=false;returnFocus?.focus();}
+  function select(index) {
+    selected=index;const part=sections[index];title.textContent=part.title;subtitle.textContent=part.subtitle;
+    if(!panels.has(index)) {
+      const panel=h('div',{className:'practice-popup-panel',role:'tabpanel',id:`practice-popup-panel-${index}`,'aria-labelledby':`practice-popup-tab-${index}`});
+      if(index<slide.parts.length)panel.appendChild(Notebook(part));
+      else panel.appendChild(h('div',{className:'practice-summary'},content(part)));
+      panels.set(index,panel);body.appendChild(panel);
+    }
+    panels.forEach((panel,key)=>{panel.hidden=key!==index;});
+    tabs.forEach((tab,key)=>{tab.setAttribute('aria-selected',String(key===index));tab.tabIndex=key===index?0:-1;});
+    previous.disabled=index===0;next.disabled=index===sections.length-1;
+    if(part.practicePart)window.dispatchEvent(new CustomEvent('eiu-practice-activate',{detail:{partId:part.practicePart}}));
+  }
+  function open(index,trigger){returnFocus=trigger||document.activeElement;modal.hidden=false;overview.inert=true;select(index);closeButton.focus();}
+  const closeButton=h('button',{type:'button',className:'practice-close','aria-label':'Close practice workspace',onClick:close},'×');
+  const previous=h('button',{type:'button',onClick:()=>select(selected-1)},'← Previous');
+  const next=h('button',{type:'button',onClick:()=>select(selected+1)},'Next →');
+  const tabs=labels.map((label,index)=>h('button',{type:'button',role:'tab',id:`practice-popup-tab-${index}`,'aria-controls':`practice-popup-panel-${index}`,'aria-selected':index===0,tabIndex:index===0?0:-1,
+    onClick:()=>select(index),onKeyDown:event=>{let target=index;if(event.key==='ArrowRight')target=(index+1)%labels.length;else if(event.key==='ArrowLeft')target=(index+labels.length-1)%labels.length;else if(event.key==='Home')target=0;else if(event.key==='End')target=labels.length-1;else return;event.preventDefault();select(target);tabs[target].focus();}},label));
+  modal.append(h('header',{className:'practice-popup-header'},h('div',{className:'practice-popup-heading'},h('small',null,'HAPPINESS SURVEY · PRACTICE WORKSPACE'),title),h('div',{className:'practice-popup-controls'},previous,next,closeButton)),
+    h('nav',{className:'practice-tabs',role:'tablist','aria-label':'Practice parts'},tabs),subtitle,body);
+  modal.addEventListener('keydown',event=>{
+    if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();return;}
+    if(event.key!=='Tab')return;
+    const focusable=Array.from(modal.querySelectorAll('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),[tabindex="0"]')).filter(node=>!node.closest('[hidden]')&&node.tabIndex>=0);
+    const first=focusable[0],last=focusable[focusable.length-1];
+    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
+    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+  });
+  const cards=slide.parts.map((part,index)=>{
+    const badge=h('span',{className:'practice-part-status'},'Open workspace');badges.set(part.practicePart,badge);
+    const button=h('button',{type:'button',className:'practice-launch',onClick:()=>open(index,button)},
+      h('span',{className:'launch-top'},h('span',{className:'launch-number'},String(index+1).padStart(2,'0')),badge),h('strong',null,part.title),h('span',{className:'launch-description'},part.subtitle),h('span',{className:'launch-action'},'Open practice →'));
+    return button;
+  });
+  overview.append(h('div',{className:'practice-hub-bar'},h('p',null,'Choose a part. Your inputs stay in place when switching tabs.'),h('button',{type:'button',onClick:event=>open(4,event.currentTarget)},'Check answers')),
+    h('div',{className:'practice-hub-grid'},cards));
+  function state(partId,value,text){const badge=badges.get(partId);if(badge){badge.dataset.state=value;badge.textContent=text;}}
+  function snapshot(value){for(const part of slide.parts){const items=(value.items||[]).filter(item=>item.partId===part.practicePart);const badge=badges.get(part.practicePart);if(badge?.dataset.state==='draft')continue;if(value.teaching)state(part.practicePart,'responses',`${items.length} responses`);else if(items.length)state(part.practicePart,'saved','Answer saved');}}
+  window.addEventListener('eiu-practice-progress',event=>state(event.detail.partId,event.detail.state,event.detail.state==='saved'?'Answer saved':'Draft'));
+  window.addEventListener('eiu-practice-context',event=>snapshot(event.detail));
+  window.addEventListener('message',event=>{if(event.source===parent&&event.data?.type==='eiu-classroom-state'&&event.data.requestId===window.eiuLessonRequestId&&event.data.snapshot?.ready)snapshot(event.data.snapshot);});
+  return h('div',{className:'practice-hub'},overview,modal);
+}

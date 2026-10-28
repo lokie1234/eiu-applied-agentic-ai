@@ -16,7 +16,7 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync("lib/liveRefresh.ts", "utf
 function moduleExports(path, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;
-  vm.runInNewContext(code, { exports, console, Date, URL:globalThis.window?.URL,AbortController, AbortSignal, ResizeObserver: globalThis.window?.ResizeObserver, IntersectionObserver: globalThis.window?.IntersectionObserver, MutationObserver: globalThis.window?.MutationObserver, requestAnimationFrame: callback=>globalThis.window.requestAnimationFrame(callback), cancelAnimationFrame: id=>globalThis.window.cancelAnimationFrame(id), crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, navigator:globalThis.window?.navigator,fetch: (...args) => globalThis.fetch(...args), require: name => {
+  vm.runInNewContext(code, { exports, process: { env: {} }, console, Date, URL:globalThis.window?.URL,AbortController, AbortSignal, ResizeObserver: globalThis.window?.ResizeObserver, IntersectionObserver: globalThis.window?.IntersectionObserver, MutationObserver: globalThis.window?.MutationObserver, requestAnimationFrame: callback=>globalThis.window.requestAnimationFrame(callback), cancelAnimationFrame: id=>globalThis.window.cancelAnimationFrame(id), crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, navigator:globalThis.window?.navigator,fetch: (...args) => globalThis.fetch(...args), require: name => {
     if (name === "./LearnerInformationDialog") return { __esModule: true, default: component("components/landing/LearnerInformationDialog.tsx") };
     if (name === "./SectionEnergy") return { __esModule: true, default: () => null };
     if (name === "./CourseDiscoveryHeading") return { __esModule: true, default: props => React.createElement("span", {"data-heading-online": props.onlineCount}) };
@@ -801,7 +801,7 @@ test("admin learner badges and Folder → Course → Section export apply beyond
     assert.deepEqual([...container.querySelectorAll('.cardLiveUsers')].map(e=>e.textContent),['2 online','1 online','0 online','0 online']);
     const trigger=container.querySelector('[aria-controls="course-functions"]');
     assert.equal(trigger.getAttribute('aria-expanded'),'false');assert.equal(container.querySelector('#course-functions'),null);
-    await act(async()=>trigger.click());assert.equal(container.querySelectorAll('#course-functions a,#course-functions button').length,5);
+    await act(async()=>trigger.click());assert.equal(container.querySelectorAll('#course-functions a,#course-functions button').length,4);
     assert.equal(container.querySelectorAll('[data-access-preview]').length,2, 'access modes remain available outside the menu');
     await act(async()=>window.document.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true})));
     assert.equal(trigger.getAttribute('aria-expanded'),'false');assert.equal(window.document.activeElement,trigger);

@@ -1,3 +1,4 @@
+import { notifyRealtime } from "@/lib/realtime/publish";
 import { recordLearnerActivity } from "@/lib/learnerActivity";
 import { NextResponse } from "next/server";
 import { currentRole, canFacilitateSection } from "@/lib/currentRole";
@@ -44,7 +45,7 @@ export async function GET() {
   }
 }
 
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   try {
     const access = await currentUserAccess(request.signal);
     if ((await currentRole(access)) !== "section1") {
@@ -109,4 +110,10 @@ export async function DELETE() {
       { status: 500 },
     );
   }
+}
+
+export async function POST(...args: Parameters<typeof handlePost>) {
+  const response = await handlePost(...args);
+  if (response.ok) notifyRealtime();
+  return response;
 }

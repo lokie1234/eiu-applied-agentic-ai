@@ -6,7 +6,7 @@ import ts from "typescript";
 import ExcelJS from "exceljs";
 import { createRequire } from "node:module";
 const require=createRequire(import.meta.url);
-function load(file,deps={}){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,require:name=>deps[name]??(name.startsWith('@/lib/')?load(name.slice(2)+'.ts'):require(name)),URL,Response,Date,console,Buffer});return exports;}
+function load(file,deps={}){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,require:name=>name==="exceljs"?{default:ExcelJS}:name==="@/lib/realtime/publish"?{notifyRealtime(){}}:name==="@/lib/realtime/server"?{realtimeConfigured:()=>false}:name==="@/lib/realtime/client"?{listenInteractive:()=>()=>{},realtimeReady:()=>false,useRealtimeReady:()=>false}:deps[name]??(name.startsWith('@/lib/')?load(name.slice(2)+'.ts'):require(name)),URL,Response,Date,console,Buffer});return exports;}
 const folders=[{id:'f-ai',name:'AI Training',order:1},{id:'f-web',name:'Web Training',order:2}];
 const courses=[{id:'c-ai',slug:'applied-agentic-ai',title:'Applied AI',description:JSON.stringify({folderGroups:folders,folderGroupId:'f-ai'})},{id:'c-web',slug:'web-course',title:'Web Development',description:JSON.stringify({folderGroupId:'f-web'})}];
 const sections=[{id:'s-ai',course_id:'c-ai',section_key:'section1',title:'AI 1'},{id:'s-web',course_id:'c-web',section_key:'web-one',title:'Web 1'},{id:'s-web2',course_id:'c-web',section_key:'web-two',title:'Web 2'}];
@@ -74,10 +74,10 @@ test('folder export cascades through current catalog and excludes courses and se
   const options=await(await report.GET(new Request('http://localhost/api/admin/report?mode=sections'))).json();assert.equal(options.folders.length,2);assert.equal(options.courses.find(c=>c.value==='c-web').folderGroupId,'f-web');assert.equal(options.courseSections.filter(s=>s.courseId==='c-web').length,4);assert.equal(options.courses.filter(c=>c.folderGroupId==='f-web').length,3);
   const response=await report.GET(new Request('http://localhost/api/admin/report?folderId=f-web&courseId=c-web&sectionId=all'));assert.equal(response.status,200);
   const book=new ExcelJS.Workbook();await book.xlsx.load(Buffer.from(await response.arrayBuffer()));
-  const learner=book.worksheets.find(sheet=>sheet.name.endsWith('Hoc vien')&&sheet.getCell('A2').value==='Alice');assert.ok(learner);assert.ok(learner.getRow(2).values.includes('Web Training'));assert.ok(learner.getRow(2).values.includes('Web Development'));assert.ok(learner.getRow(2).values.includes('Web 1'));
+  assert.equal(book.worksheets.length,2);const stats=book.getWorksheet('Th\u1ed1ng k\u00ea');assert.equal(stats.getCell('A6').value,'Alice');assert.ok(stats.getRow(6).values.includes('Web 1'));assert.match(stats.getCell('A2').value,/Web Development/);
   assert.equal((await report.GET(new Request('http://localhost/api/admin/report?folderId=f-ai&courseId=c-web'))).status,400);
   assert.equal((await report.GET(new Request('http://localhost/api/admin/report?folderId=f-web&sectionId=s-ai'))).status,400);
-  assert.equal(book.worksheets.filter(sheet=>sheet.name.endsWith('Hoc vien')).length,4,'all four sections exported for selected course');
+  assert.deepEqual(new Set([6,7,8,9].map(row=>book.getWorksheet('T\u1ed5ng quan').getCell('A'+row).value)),new Set(['Web 1','Web 2','Web 3','Web 4']),'all sections remain in overview');
 });
 
 

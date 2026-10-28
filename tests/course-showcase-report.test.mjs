@@ -11,7 +11,7 @@ const require = createRequire(import.meta.url);
 function load(file, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, { exports, require: name => dependencies[name] ?? ((name.startsWith("@/lib/report") || name === "@/lib/courseHierarchy") ? load(name.replace("@/", "") + ".ts") : require(name)), URL, Response, console, Buffer });
+  vm.runInNewContext(code, { exports, require: name => name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false } : dependencies[name] ?? ((name.startsWith("@/lib/report") || name === "@/lib/courseHierarchy") ? load(name.replace("@/", "") + ".ts", dependencies) : require(name)), URL, Response, console, Buffer, Date });
   return exports;
 }
 const courses = [{ id: "c-ai", slug: "applied-agentic-ai", title: "Applied Agentic AI" }, { id: "c-web", slug: "web-development", title: "AI-Powered Web Development" }];
@@ -19,7 +19,7 @@ const sections = [{ id: "s-ai", course_id: "c-ai", section_key: "section1", titl
 const identity = { sessionId: "session-one", name: "Alice", email: "alice@example.test", information: { department: "IT" }, fields: [{ id: "department", label: "Department" }] };
 function database(tables) {
   return { from(table) { const filters = []; let inserted;
-    const q = { select() { return q; }, eq(k,v) { filters.push(row=>row[k]===v); return q; }, contains(k,v) { filters.push(row=>Object.entries(v).every(([key,value])=>row[k]?.[key]===value)); return q; },
+    const q = { select() { return q; }, in(k,values) { filters.push(row=>values.includes(row[k]));return q; }, eq(k,v) { filters.push(row=>row[k]===v); return q; }, contains(k,v) { filters.push(row=>Object.entries(v).every(([key,value])=>row[k]?.[key]===value)); return q; },
       gte(k,v) { filters.push(row=>row[k]>=v); return q; }, lte(k,v) { filters.push(row=>row[k]<=v); return q; }, order() { return q; }, limit() { return q; },
       gt(k,v) { filters.push(row=>row[k]>v); return q; },
       insert(row) { inserted={...row,id:77,created_at:"2026-10-21T06:00:00Z"};(tables[table] ||= []).push(inserted);return q; },
@@ -80,16 +80,20 @@ test("report keeps identical section keys and learner sessions separate across c
   const report=load("app/api/admin/report/route.ts",{exceljs:{default:ExcelJS},"@/lib/currentRole":{currentRole:async()=>"admin"},"@/lib/supabase/server":{getSupabaseAdmin:()=>database(tables)}});
   const all=await report.GET(new Request("http://localhost/api/admin/report"));assert.equal(all.status,200);
   const book=new ExcelJS.Workbook();await book.xlsx.load(Buffer.from(await all.arrayBuffer()));
-  const learnerSheets=book.worksheets.filter(s=>s.name.endsWith("Hoc vien"));assert.equal(learnerSheets.length,2);
-  assert.equal(learnerSheets.filter(s=>s.getCell("A2").value==="Alice").length,2);
+  assert.equal(book.worksheets.length,2);
+  const allStats=book.getWorksheet("Th\u1ed1ng k\u00ea");assert.equal(allStats.rowCount,8,"one row per learner and section");
+  const cell=(sheet,label,row=6)=>sheet.getRow(row).getCell(sheet.getRow(5).values.indexOf(label)).value;
   const web=await report.GET(new Request("http://localhost/api/admin/report?courseId=c-web&sectionId=s-web"));assert.equal(web.status,200);
+  assert.match(web.headers.get("content-disposition"),/AI-Powered-Web-Development_Section-1-Web_\d{4}-\d{2}-\d{2}\.xlsx/);
   const webBook=new ExcelJS.Workbook();await webBook.xlsx.load(Buffer.from(await web.arrayBuffer()));
-  const work=webBook.getWorksheet("S1 - Bai lam");assert.equal(work.rowCount,2);assert.equal(work.getCell("B2").value,"https://web-demo.test");assert.equal(work.getCell("D2").value,"AI-Powered Web Development");assert.equal(work.getCell("E2").value,"Section 1 · Web");
-  const learners=webBook.getWorksheet("S1 - Hoc vien");assert.equal(learners.rowCount,2);assert.equal(learners.getCell("B2").value,identity.email);
-  const quiz=webBook.getWorksheet("S1 - Quiz");assert.equal(quiz.rowCount,2);assert.equal(quiz.getCell("A2").value,"Alice");
-  assert.ok(quiz.getRow(2).values.includes(9));
-  const feedback=webBook.getWorksheet("S1 - Feedback");assert.equal(feedback.rowCount,2);assert.ok(feedback.getRow(2).values.includes("Useful Web lesson"));
-  const ai=await report.GET(new Request("http://localhost/api/admin/report?courseId=c-ai"));const aiBook=new ExcelJS.Workbook();await aiBook.xlsx.load(Buffer.from(await ai.arrayBuffer()));assert.equal(aiBook.getWorksheet("S1 - Bai lam").getCell("A2").value,"Legacy");
+  const stats=webBook.getWorksheet("Th\u1ed1ng k\u00ea");assert.equal(stats.rowCount,6);
+  assert.equal(cell(stats,"H\u1ecd t\u00ean"),"Alice");assert.equal(cell(stats,"Email"),identity.email);
+  assert.equal(cell(stats,"B\u00e0i chia s\u1ebb"),"https://web-demo.test");assert.equal(cell(stats,"\u0110i\u1ec3m quiz"),9);
+  assert.equal(cell(stats,"Feedback"),"Useful Web lesson");
+  assert.ok(!stats.getRow(5).values.includes("Section"),"single section stays in heading");
+  const ai=await report.GET(new Request("http://localhost/api/admin/report?courseId=c-ai"));const aiBook=new ExcelJS.Workbook();await aiBook.xlsx.load(Buffer.from(await ai.arrayBuffer()));
+  const aiStats=aiBook.getWorksheet("Th\u1ed1ng k\u00ea");const legacy=aiStats.getRows(6,2).find(row=>row.getCell(aiStats.getRow(5).values.indexOf("H\u1ecd t\u00ean")).value==="Legacy");
+  assert.ok(legacy);assert.equal(legacy.getCell(aiStats.getRow(5).values.indexOf("B\u00e0i chia s\u1ebb")).value,"https://script.google.com/macros/s/old/exec");
   assert.equal((await report.GET(new Request("http://localhost/api/admin/report?courseId=c-ai&sectionId=s-web"))).status,400);
   const options=await (await report.GET(new Request("http://localhost/api/admin/report?mode=sections"))).json();assert.equal(options.courses.length,2);assert.equal(options.courseSections.length,2);
 });

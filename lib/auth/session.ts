@@ -42,7 +42,7 @@ function verifyAccessSession(value: string | undefined): AccessSession | null {
   try {
     const parsed = JSON.parse(Buffer.from(payload, "base64url").toString("utf8")) as AccessSession;
     if (!Number.isFinite(parsed.expiresAt) || parsed.expiresAt <= Date.now()) return null;
-    if (parsed.role === "admin" && (parsed.authMethod === "google" || parsed.authMethod === "password" || !parsed.authMethod)) return parsed;
+    if (parsed.role === "admin" && (parsed.authMethod === "google" || parsed.authMethod === "password")) return parsed;
     if (parsed.role === "guest" && typeof parsed.sessionId === "string" && /^[a-f0-9-]{36}$/.test(parsed.sessionId)) return parsed;
     if (parsed.role === "passcode" && /^[a-f0-9]{64}$/.test(parsed.credentialHash) && typeof parsed.sessionId === "string" && /^[a-f0-9-]{36}$/.test(parsed.sessionId) && (parsed.identityLogId === undefined || (Number.isSafeInteger(parsed.identityLogId) && parsed.identityLogId > 0))) return parsed;
     return null;

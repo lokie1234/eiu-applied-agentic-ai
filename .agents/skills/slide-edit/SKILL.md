@@ -42,3 +42,6 @@ Quy trình chuẩn tối ưu hóa tốc độ và chất lượng khi chỉnh s�
    - **Nghiêm cấm**: Không mở preview, không screenshot, không browser check, không chạy `npm test`, không `eslint`, không `next build` trừ khi người dùng yêu cầu cụ thể.
    - **Phản hồi**: Trả lời bằng **1 đến 2 câu tiếng Việt ngắn gọn**, thông báo trực tiếp slide đã được cập nhật, không trình bày quy trình hay checklist dài dòng.
 
+## Assigned slide templates
+
+Before designing or editing a section with a template, follow [Template-aware slide design](../../../AGENTS.md#template-aware-slide-design). Resolve the effective template and compose content within its usable layout and reserved branding areas; adding a template overlay alone is insufficient. Adapt the old layout when needed to fit the assigned template.

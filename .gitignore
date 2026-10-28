@@ -32,3 +32,6 @@ next-env.d.ts
 .env*
 
 /.tmp/
+
+# Local report exports can contain learner information.
+/outputs/report-redesign/

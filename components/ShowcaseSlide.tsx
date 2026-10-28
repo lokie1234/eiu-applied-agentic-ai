@@ -1,4 +1,5 @@
 "use client";
+import { listenInteractive, realtimeReady, useRealtimeReady } from "@/lib/realtime/client";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -91,24 +92,27 @@ export default function ShowcaseSlide({ scale, isAdmin, section = "section1", se
     }
   }, [endpoint]);
   const loadItems = useLiveRefresh(readItems);
+  const convexReady = useRealtimeReady();
 
   useEffect(() => {
     const timer = window.setTimeout(() => void loadItems(), 0);
-    const supabase = getSupabaseBrowserClient();
+    const stopRealtime = listenInteractive(sectionId || section, "showcase", () => void loadItems());
+    const supabase = convexReady ? null : getSupabaseBrowserClient();
     const channel = supabase
       ?.channel(`eiu:showcase:${sectionId || section}`)
       .on("broadcast", { event: "showcase_changed" }, () => void loadItems())
       .subscribe();
-    const poll = () => { if (document.visibilityState === "visible") void loadItems(false); };
+    const poll = () => { if (!realtimeReady() && document.visibilityState === "visible") void loadItems(false); };
     const fallbackTimer = window.setInterval(poll, sectionId ? 10_000 : 60_000);
     document.addEventListener("visibilitychange", poll);
     return () => {
+      stopRealtime();
       window.clearTimeout(timer);
       window.clearInterval(fallbackTimer);
       document.removeEventListener("visibilitychange", poll);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [loadItems, section, sectionId]);
+  }, [loadItems, section, sectionId, convexReady]);
 
   async function shareApp(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

@@ -22,6 +22,7 @@ export type SignInCardProps = {
   onInputBlur?: () => void;
   onInputChange?: () => void;
   onMethodChange?: () => void;
+  onAdminAuthStateChange?: (state: "loading" | "error") => void;
 };
 
 function GoogleLogo() {
@@ -33,13 +34,55 @@ function GoogleLogo() {
   </svg>;
 }
 
-export default function SignInCard({ initialLanguageChosen = false, passcode, setPasscode, identityFields = [], information = {}, onInformationChange, onInformationCancel, loading, error = "", onSubmit, onInputFocus, onInputBlur, onInputChange, onMethodChange }: SignInCardProps) {
+export default function SignInCard({ initialLanguageChosen = false, passcode, setPasscode, identityFields = [], information = {}, onInformationChange, onInformationCancel, loading: accessLoading, error: accessError = "", onSubmit, onInputFocus, onInputBlur, onInputChange, onMethodChange, onAdminAuthStateChange }: SignInCardProps) {
   const { language, setLanguage, t } = useLearningLanguage();
   const [languageChosen, setLanguageChosen] = useState(initialLanguageChosen);
   const [method, setMethod] = useState<"passcode" | "google" | null>(null);
+  const [quickCode, setQuickCode] = useState("");
+  const [quickError, setQuickError] = useState("");
+  const [quickLoading, setQuickLoading] = useState(false);
+  const quickRequest = useRef<AbortController | null>(null);
+  const quickForm = useRef<HTMLFormElement>(null);
+  const autoSubmittedQuickCode = useRef<string | null>(null);
+  const loading = accessLoading || quickLoading;
+  const error = method === "google" ? quickError : accessError;
+  useEffect(() => () => quickRequest.current?.abort(), []);
+
+  async function submitAdmin(event: FormEvent) {
+    event.preventDefault();
+    if (loading || quickRequest.current || !/^[0-9]{6}$/.test(quickCode) || autoSubmittedQuickCode.current === quickCode) return;
+    autoSubmittedQuickCode.current = quickCode;
+    const controller = new AbortController();
+    quickRequest.current = controller;
+    setQuickLoading(true);
+    setQuickError("");
+    onAdminAuthStateChange?.("loading");
+    try {
+      const response = await fetch("/api/auth/admin", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: quickCode.trim() }),
+        signal: AbortSignal.any([controller.signal, AbortSignal.timeout(30_000)]),
+      });
+      const payload = await response.json();
+      if (!response.ok || !payload.success) throw new Error(payload.message || t("Unable to sign in.", "Không thể đăng nhập."));
+      window.location.replace("/admin/access");
+    } catch (caught) {
+      if (!controller.signal.aborted) {
+        setQuickError(caught instanceof Error ? caught.message : t("Unable to sign in.", "Không thể đăng nhập."));
+        setQuickLoading(false);
+        onAdminAuthStateChange?.("error");
+      }
+    } finally {
+      if (quickRequest.current === controller) quickRequest.current = null;
+    }
+  }
   const passcodeChoice = useRef<HTMLButtonElement>(null);
   const passcodeComplete = /^[0-9]{6}$/.test(passcode);
   const [showPasscode, setShowPasscode] = useState(false);
+  useEffect(() => {
+    if (method !== "google" || !/^[0-9]{6}$/.test(quickCode) || loading || autoSubmittedQuickCode.current === quickCode) return;
+    quickForm.current?.requestSubmit();
+  }, [method, quickCode, loading]);
   const passcodeForm = useRef<HTMLFormElement>(null);
   const autoSubmittedCode = useRef<string | null>(null);
   useEffect(() => {
@@ -123,6 +166,9 @@ export default function SignInCard({ initialLanguageChosen = false, passcode, se
       if (!mounted.current) return;
     }
     setShowPasscode(false);
+    autoSubmittedQuickCode.current = null;
+    setQuickCode("");
+    setQuickError("");
     if (nextLanguage) {
       setLanguage(nextLanguage);
       setLanguageChosen(true);
@@ -172,48 +218,25 @@ export default function SignInCard({ initialLanguageChosen = false, passcode, se
       </div>
     </form>}
     {method === "google" && <div className={styles.googlePanel}>
-      <div className={styles.accountNote}><span className={styles.accountMark}><GoogleLogo /></span><div><strong>{t("EIU administrator")}</strong><p>{t("Google sign-in also connects Drive.")}</p></div></div>
-      <a className={styles.googleButton} href="/api/admin/drive/connect?mode=login" aria-disabled={loading || undefined} onClick={event => { if (loading) event.preventDefault(); }}><GoogleLogo /><span>{t("Continue with Google")}</span></a>
-      <div style={{ display: "flex", alignItems: "center", gap: "10px", margin: "4px 0", color: "#a0b8cc", fontSize: "12px" }}>
-        <span style={{ flex: 1, height: "1px", background: "rgba(217, 239, 255, 0.2)" }} />
-        <span>{t("or admin password", "hoặc mật khẩu admin")}</span>
-        <span style={{ flex: 1, height: "1px", background: "rgba(217, 239, 255, 0.2)" }} />
-      </div>
-      <form noValidate className={styles.form} onSubmit={onSubmit} aria-busy={loading}>
-        <label htmlFor="admin-password-input" className={styles.screenReaderOnly}>{t("Admin password", "Mật khẩu quản trị")}</label>
-        <div className={styles.passcodeField} data-error={Boolean(error) && !loading}>
-          <input
-            id="admin-password-input"
-            aria-invalid={Boolean(error)}
-            aria-describedby={error ? "sign-in-error" : undefined}
-            type={showPasscode ? "text" : "password"}
-            value={passcode}
-            disabled={loading}
-            onChange={event => { setPasscode(event.target.value.slice(0, 32)); onInputChange?.(); }}
-            onFocus={onInputFocus}
-            onBlur={onInputBlur}
-            placeholder={t("Admin password", "Mật khẩu quản trị")}
-            autoComplete="current-password"
-            aria-required="true"
-          />
-          <button
-            className={styles.passcodeToggle}
-            type="button"
-            aria-controls="admin-password-input"
-            aria-pressed={showPasscode}
-            aria-label={showPasscode ? t("Hide password", "Ẩn mật khẩu") : t("Show password", "Hiện mật khẩu")}
-            onClick={() => setShowPasscode(current => !current)}
-          >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>{showPasscode && <path d="m3 3 18 18"/>}</svg>
-          </button>
+      <div className={styles.accountNote}>
+        <span className={styles.accountMark}><GoogleLogo /></span>
+        <div>
+          <strong>{t("EIU administrator")}</strong>
+          <p>{t("Google sign-in also connects Drive.")}</p>
+          <form ref={quickForm} id="admin-quick-access" noValidate className={`${styles.form} ${styles.quickAccessInline}`} onSubmit={submitAdmin} aria-busy={quickLoading} aria-label={t("Admin quick access", "Truy cập nhanh quản trị")}>
+            <label className={styles.screenReaderOnly} htmlFor="admin-quick-code">{t("Admin code", "Mã quản trị")}</label>
+            <div className={styles.passcodeField} data-error={Boolean(quickError)}>
+              <input id="admin-quick-code" type="password" inputMode="numeric" pattern="[0-9]{6}" minLength={6} maxLength={6} value={quickCode} onChange={event => { const next = event.target.value.replace(/[^0-9]/g, "").slice(0, 6); if (next !== quickCode) autoSubmittedQuickCode.current = null; setQuickCode(next); setQuickError(""); onInputChange?.(); }} onFocus={onInputFocus} onBlur={onInputBlur} disabled={loading} autoComplete="off" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" aria-invalid={Boolean(quickError)} aria-describedby={quickError ? "admin-quick-error" : undefined} required />
+              {quickLoading && <span className={styles.quickAccessSpinner} aria-hidden="true"><span className={styles.spinner} /></span>}
+            </div>
+            {quickLoading && <span className={styles.screenReaderOnly} role="status">{t("Signing in...", "Đang đăng nhập...")}</span>}
+            {quickError && <span id="admin-quick-error" className={quickError === "Incorrect admin code." ? styles.screenReaderOnly : styles.quickAccessError} role="alert">{t(quickError)}</span>}
+          </form>
         </div>
-        <button type="submit" className={styles.primary} disabled={loading || !passcode.trim()}>
-          {loading ? <span className={styles.spinner} /> : <span>{t("Sign in as Admin", "Đăng nhập quản trị")}</span>}
-          <span aria-hidden="true">→</span>
-        </button>
-      </form>
+      </div>
+      <a className={styles.googleButton} href="/api/admin/drive/connect?mode=login" aria-disabled={loading || undefined} onClick={event => { if (loading) event.preventDefault(); }}><GoogleLogo /><span>{t("Continue with Google")}</span></a>
     </div>}
-    {error && !identityFields.length && <span id="sign-in-error" className={styles.screenReaderOnly} role="alert">{error === "Wrong passcode" ? error : t(error)}</span>}
+    {error && method !== "google" && !identityFields.length && <span id="sign-in-error" className={styles.screenReaderOnly} role="alert">{error === "Wrong passcode" ? error : t(error)}</span>}
     <div className={styles.footer}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true"><rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg><span>{t("Secure access")} <span aria-hidden="true">·</span> <span className={styles.universityName}>Eastern International University</span></span></div>
     </>}
     </div>

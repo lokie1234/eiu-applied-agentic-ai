@@ -1,3 +1,4 @@
+import { notifyRealtime } from "@/lib/realtime/publish";
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { currentRole } from "@/lib/currentRole";
@@ -60,7 +61,7 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   try {
     if ((await currentRole()) !== "admin") {
       return NextResponse.json({ success: false, message: "Chỉ admin mới có quyền terminate." }, { status: 403 });
@@ -100,4 +101,10 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+}
+
+export async function POST(...args: Parameters<typeof handlePost>) {
+  const response = await handlePost(...args);
+  if (response.ok) notifyRealtime();
+  return response;
 }

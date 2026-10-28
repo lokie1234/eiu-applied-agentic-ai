@@ -2477,3 +2477,5 @@
 .terminationEnabled { color:#123f68; background:#e8eff6; border-color:#9bb3c9; }
 
 .sectionFileActions { display:inline-flex; align-items:center; gap:6px; flex:none; }
+
+.sectionItemRow:target { scroll-margin-block: 24px; outline: 2px solid #b39159; outline-offset: 3px; }

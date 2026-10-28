@@ -52,10 +52,9 @@ function slugify(value: string) {
 
 export async function GET(request?: Request) {
   try {
-    const [actor, data] = await Promise.all([
-      requireCourseManager(request?.signal), getCoursesAndSectionsData(request?.signal),
-    ]);
+    const actor = await requireCourseManager(request?.signal);
     if (!actor) return NextResponse.json({ success: false, message: "Course management access required." }, { status: 403 });
+    const data = await getCoursesAndSectionsData(request?.signal);
     return NextResponse.json({ success: true, driveEnabled: actor.driveEnabled, ...workspaceCatalog(data) }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     // Supabase wraps an aborted fetch in a plain error object. Check the

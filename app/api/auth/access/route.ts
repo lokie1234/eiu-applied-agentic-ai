@@ -5,8 +5,8 @@ import { getCoursesAndSectionsData } from "@/lib/auth/courseAccessStorage";
 import { hashPasscode, resolvePasscode, resolveFreeAccess } from "@/lib/auth/passcodes";
 import { ACCESS_SESSION_COOKIE, createAccessSession, sessionCookieOptions } from "@/lib/auth/session";
 import { parseIdentityPolicy, validateIdentityInformation } from "@/lib/learningIdentity";
-import { getAdminCredential, verifyAdminPassword } from "@/lib/auth/adminPassword";
-import { FIXED_ADMIN_EMAIL } from "@/lib/auth/types";
+import { MIS301_SECTION_ID } from "@/lib/mis301Practice";
+import { notifyClassroom } from "@/lib/realtime/classroom";
 
 export const runtime = "nodejs";
 
@@ -24,36 +24,7 @@ export async function POST(request: Request) {
     const db = getSupabaseAdmin(request.signal);
     const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
     const fingerprint = createHash("sha256").update(ip).digest("hex");
-    const [{ count, error }, catalog] = await Promise.all([db.from("access_audit_logs").select("id", { count: "exact", head: true })
-      .eq("action", "PASSCODE_LOGIN_FAILED").contains("details", { fingerprint })
-      .gte("created_at", new Date(Date.now() - 15 * 60 * 1000).toISOString()), getCoursesAndSectionsData(request.signal)]);
-    if (error) throw error;
-    if ((count ?? 0) >= 10) return NextResponse.json({ success: false, message: "Too many attempts. Please try again in 15 minutes." }, { status: 429 });
-
-    if (verifyAdminPassword(passcode)) {
-      const credential = await getAdminCredential(request.signal);
-      try {
-        await db.from("access_audit_logs").insert({
-          actor_email: FIXED_ADMIN_EMAIL,
-          action: "ADMIN_PASSWORD_LOGIN",
-          details: { fingerprint },
-        });
-      } catch (logError) {
-        console.error("Admin login audit log error:", logError);
-      }
-      const response = NextResponse.json({ success: true, destination: "/admin/access" });
-      response.cookies.set(
-        ACCESS_SESSION_COOKIE,
-        createAccessSession({
-          role: "admin",
-          authMethod: "password",
-          email: FIXED_ADMIN_EMAIL,
-          sessionVersion: credential?.session_version ?? 0,
-        }),
-        sessionCookieOptions()
-      );
-      return response;
-    }
+    const catalog = await getCoursesAndSectionsData(request.signal);
 
     const credentialHash = hashPasscode(passcode);
     const access = resolvePasscode(catalog, credentialHash);
@@ -63,7 +34,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Incorrect or inactive passcode. Please contact your instructor." }, { status: 401 });
     }
     const teaching = access.sections.some(section => section.canFacilitate);
-    const policy = parseIdentityPolicy(catalog.learningIdentityPolicy);
+    const configuredPolicy = parseIdentityPolicy(catalog.learningIdentityPolicy);
+    const mis301 = access.sections.some(section => section.id === MIS301_SECTION_ID);
+    const policy = mis301 ? { enabled: true, fields: [
+      { id: "name", label: "Username", type: "text" as const }, { id: "email", label: "Email", type: "email" as const },
+      ...configuredPolicy.fields.filter(field => !["name", "email"].includes(field.id)).slice(0, 4),
+    ] } : configuredPolicy;
     let information: Record<string, string> = {};
     if (!teaching && policy.enabled) {
       if (!body.information) return NextResponse.json({ success: false, requiresInformation: true, fields: policy.fields });
@@ -76,6 +52,7 @@ export async function POST(request: Request) {
     const scopes = access.sections.map(section => { const course=access.courses.find(course=>course.id===section.course_id);return { sectionId:section.id,section:section.section_key,sectionTitle:section.title,courseId:section.course_id,courseTitle:course?.title,folderGroupId:course?.folderGroupId,folderGroupName:course?.folderGroupName }; });
     const { data: identityLog, error: identityError } = await db.from("access_audit_logs").insert({ action: "PASSCODE_LOGIN", actor_email: identity.email, details: { ...identity, accessMode: teaching ? "facilitator" : "learner", scopeMode:"access", scopes, sectionKeys: [...new Set(access.sections.map(section => section.section_key))], fields: !teaching && policy.enabled ? policy.fields : [] } }).select("id").single();
     if (identityError || !identityLog) throw identityError || new Error("Unable to save the learner identity.");
+    if (mis301 && !teaching) notifyClassroom();
     const response = NextResponse.json({ success: true, destination: "/learn" });
     response.cookies.set(ACCESS_SESSION_COOKIE, createAccessSession({ role: "passcode", credentialHash, sessionId, identityLogId: Number(identityLog.id) }), sessionCookieOptions());
     return response;

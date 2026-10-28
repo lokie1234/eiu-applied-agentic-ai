@@ -8,5 +8,10 @@
     "courseId": "a857595d-def0-4543-9216-a680c6abfe26",
     "sectionId": "2faaf285-a215-4874-a367-82c84ce46b2e",
     "path": "course-content/web-app-development/Section2.js"
+  },
+  {
+    "courseId": "5e9700b6-d498-4ce7-b7b5-3cabca3fe8d5",
+    "sectionId": "71c4d32e-7d80-4ae6-9576-13a0840ccd45",
+    "path": "course-content/mis301/PandasPracticePart2.js"
   }
 ]

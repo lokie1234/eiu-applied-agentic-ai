@@ -7,6 +7,7 @@ import HairlineLoading from "@/components/HairlineLoading";
 import styles from "./UploadedSectionDeck.module.css";
 import { WEB_DEVELOPMENT_SECTION_ID } from "@/lib/webDevelopmentQuiz";
 import { getCompiledSectionMetadata } from "@/lib/compiledSectionMetadata";
+import { useLessonPracticeBridge } from "./useLessonPracticeBridge";
 const ShowcaseSlide = dynamic(async () => {
   const { default: Showcase } = await import("@/components/ShowcaseSlide");
   return function LoadedShowcase(props: ComponentProps<typeof Showcase>) { return <div className={styles.nativeContent} data-slide-content-ready="true"><Showcase {...props} /></div>; };
@@ -55,7 +56,7 @@ const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, t
   frameRef: RefObject<HTMLIFrameElement | null>;
 }) {
   const document = useMemo(() => createTsxDocument(code, page, background, templateKey, `${sectionId}:${page}`, isAdmin), [code, page, background, templateKey, sectionId, isAdmin]);
-  return <iframe ref={frameRef} className={styles.tsxFrame}
+  return <iframe ref={frameRef} className={styles.tsxFrame} data-request-id={`${sectionId}:${page}`}
     sandbox="allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox"
     title={`${title} · slide ${page}`} srcDoc={document} />;
 });
@@ -65,6 +66,7 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
   const compiledCount = compiled ? isAdmin ? compiled.teachingSlides : compiled.learnerSlides : undefined;
   const needsTemplate = Boolean(templateKey && !(templateKey === "eiu-business-v1" && compiled?.preservesBusinessTemplate));
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  useLessonPracticeBridge(sectionId, iframeRef);
   const contentUrl = `/api/sections/${encodeURIComponent(sectionId)}/content`;
   const [totalSlides, setTotalSlides] = useState(compiledCount ?? slideCount ?? 1);
   const [tsxCode, setTsxCode] = useState("");

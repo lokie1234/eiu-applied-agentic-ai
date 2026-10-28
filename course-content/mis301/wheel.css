@@ -1,0 +1,47 @@
+.mis[data-layout=picker] .heading,.mis[data-layout=picker] .lesson-footer{display:none}
+.mis[data-layout=picker] .frame{gap:0}
+.mis[data-layout=picker] .body{display:block;height:100%}
+.mis .wheel-arena{height:100%;width:100%;position:relative;overflow:visible}
+.mis .wheel-bay{position:absolute;left:0;top:50%;transform:translateY(-50%);width:42vw;height:42vw;display:grid;place-items:center;overflow:visible}
+.mis .wheel-machine{width:40.5vw;height:40.5vw;position:relative;isolation:isolate;overflow:visible;background:none;border:0;box-shadow:none}
+.mis .wheel-machine:before{display:none}
+.mis .wheel-rim,.mis .wheel-disc{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.mis .wheel-disc{will-change:transform;transform-origin:50% 50%}
+.mis .wheel-disc svg{overflow:visible}
+.mis .wheel-rim{pointer-events:none;z-index:2}
+.mis .wheel-segment .sector{transition:fill .06s linear}
+.mis .wheel-segment text{fill:#fff;font-family:Inter,Arial,sans-serif;font-weight:650;pointer-events:none}
+.mis .wheel-segment .name-plate{fill:#ffffff09;stroke:#ffffff28;stroke-width:.5}
+.mis .wheel-segment.is-lit .sector{fill:#E9CA8B}
+.mis .wheel-segment.is-lit text{fill:#041C31;font-weight:850}
+.mis .wheel-segment.is-lit .name-plate{fill:#fff9e3;stroke:#fff;filter:drop-shadow(0 0 3px #fff9dc)}
+.mis .wheel-segment.is-picked .name-plate{fill:#F4DFB0;stroke:#B39159}
+.mis .wheel-segment.is-picked text{fill:#082945}
+.mis .wheel-bulb{fill:#E9CA8B;opacity:.4}
+.mis .is-spinning .wheel-bulb{animation:wheelLights .3s ease-in-out infinite alternate}
+.mis .is-spinning .wheel-bulb:nth-child(3n){animation-delay:.1s}
+.mis .is-spinning .wheel-bulb:nth-child(3n+1){animation-delay:.2s}
+.mis .wheel-pointer{position:absolute;left:calc(50% - 1.25vw);top:.55vw;width:2.5vw;height:3vw;z-index:4;transform-origin:50% 8%;filter:drop-shadow(0 .2vw .2vw #041C3140)}
+.mis .wheel-hub{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:6.6vw;height:6.6vw;border-radius:50%;border:.35vw solid #E9CA8B;background:radial-gradient(circle at 35% 25%,#246A91,#082945);color:#F4DFB0;z-index:5;font-size:1.2vw;box-shadow:0 .3vw .9vw #041C3150;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.3vw;padding:.5vw}
+.mis .wheel-hub small{font-size:.6vw;letter-spacing:.16em;color:#e2e9ed}
+.mis .wheel-hub:hover{background:#18547F;color:#fff}
+.mis .wheel-hub:disabled{opacity:1;cursor:default}
+.mis .wheel-toolbar{position:absolute;top:1vw;right:0;width:44.8vw;display:flex;align-items:center;justify-content:space-between;gap:.7vw;z-index:10}
+.mis .wheel-toolbar strong{font-size:1.3vw;letter-spacing:-.02em}
+.mis .wheel-toolbar small{display:block;font-size:.76vw;font-weight:500;letter-spacing:0;color:#687987;margin-top:.35vw}
+.mis .wheel-actions{display:flex;gap:.45vw}
+.mis .wheel-actions button{font-size:.9vw;padding:.65vw .85vw;white-space:nowrap}
+.mis .wheel-actions .wheel-reset{background:#fff1ee;border-color:#edc7bf;color:#a83b2c}
+.mis .wheel-setting{position:absolute;right:0;top:3.8vw;width:18vw;z-index:12;padding:1.2vw;border:1px solid #dacbad;border-radius:.9vw;box-shadow:0 .7vw 2vw #08294520;background:#fffdf8;display:flex;flex-direction:column;gap:.8vw}
+.mis .wheel-setting label{font-size:1vw;font-weight:700;display:flex;align-items:center;justify-content:space-between;gap:1vw}
+.mis .wheel-setting input{width:5vw;font:700 1.25vw Inter,Arial,sans-serif;border:1px solid #cbd6df;border-radius:.5vw;padding:.6vw;color:#17324A;background:white}
+.mis .wheel-setting p{font-size:.9vw;line-height:1.5;color:#687987}
+.mis .ground-stage{position:absolute;left:44vw;right:0;top:6vw;bottom:2vw;display:grid;grid-template-columns:repeat(var(--columns,1),minmax(0,1fr));grid-template-rows:repeat(var(--rows,1),minmax(0,1fr));column-gap:.65vw;row-gap:.75vw;align-items:end;overflow:visible;pointer-events:none}
+.mis .ground-slot{position:relative;min-width:0;height:100%;display:flex;align-items:flex-end;justify-content:center}
+.mis .ground-webgl{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
+.mis .ground-name{position:absolute;left:0;top:0;width:100%;max-width:100%;margin:0;text-align:center;font-size:var(--name-size,1.8vw);font-weight:800;line-height:1.25;letter-spacing:-.025em;color:#123F68;text-wrap:balance;overflow-wrap:anywhere;animation:nameBeacon 1.4s 1.1s ease-in-out infinite;pointer-events:auto;z-index:2}
+.mis .wheel-status{position:absolute;right:0;bottom:0;width:44.8vw;min-height:1.4vw;margin:0;color:#687987;font-size:.9vw;line-height:1.5}
+.mis .wheel-status[data-error=true]{color:#b3261e}
+@keyframes wheelLights{to{opacity:1}}
+@keyframes nameBeacon{0%,100%{opacity:1}50%{opacity:.75}}
+@media(prefers-reduced-motion:reduce){.mis .wheel-arena *{animation:none!important;transition:none!important}}

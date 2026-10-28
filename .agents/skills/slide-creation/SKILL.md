@@ -17,3 +17,7 @@ description: Edit course slides in existing projects. Apply automatically to sli
 - No preview, browser, screenshot, test, lint, typecheck or application build unless explicitly requested.
 - In eiu-applied-agentic-ai, edit course-content/<course>/storyboard.json / renderer.tsx.txt; regenerate served JS once after the complete edit via `node scripts/build-web-app-course.cjs`. Keep sources.json bindings.
 - Stop immediately after synchronization. Reply in one or two Vietnamese sentences, without repeated checklists or unperformed verification claims. Prioritize speed.
+
+## Assigned slide templates
+
+Before designing or editing a section with a template, follow [Template-aware slide design](../../../AGENTS.md#template-aware-slide-design). Resolve the effective template and compose content within its usable layout and reserved branding areas; adding a template overlay alone is insufficient. Adapt the old layout when needed to fit the assigned template.

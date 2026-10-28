@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import RequestLimitNotice from "@/components/RequestLimitNotice";
 
 export const metadata: Metadata = {
   title: "EIU · Interactive Learning Space",
@@ -14,7 +15,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <link rel="preconnect" href="https://www.googleapis.com" />
         <link rel="dns-prefetch" href="https://drive.google.com" />
       </head>
-      <body>{children}</body>
+      <body><RequestLimitNotice />{children}</body>
     </html>
   );
 }

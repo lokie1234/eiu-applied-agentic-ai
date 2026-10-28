@@ -1,0 +1,107 @@
+"use client";
+import { useEffect, useState, useRef } from "react";
+import { ConvexClient } from "convex/browser";
+import { makeFunctionReference } from "convex/server";
+
+type Scope = { id: string; sectionKey: string; courseId: string; courseSlug?: string };
+let client: ConvexClient | null = null;
+let ready = false;
+let knownScopes: Scope[] = [];
+const READY_EVENT = "eiu:realtime-ready";
+const SIGNAL_EVENT = "eiu:interactive-change";
+function setReady(value: boolean) { if (ready !== value) { ready = value; window.dispatchEvent(new Event(READY_EVENT)); } }
+export function realtimeReady() { return ready; }
+export function watchRealtimeReady(callback: () => void) {
+  window.addEventListener(READY_EVENT, callback);
+  return () => window.removeEventListener(READY_EVENT, callback);
+}
+export function interactiveSectionId(section: string) {
+  return knownScopes.find(scope => scope.id === section)?.id || knownScopes.find(scope => scope.sectionKey === section && scope.courseSlug === "applied-agentic-ai")?.id || section;
+}
+export function listenInteractive(section: string | null, topic: string, callback: () => void) {
+  const listener = (event: Event) => {
+    const detail = (event as CustomEvent<{ sectionId: string; topic: string }>).detail;
+    if (detail.topic === topic && (!section || detail.sectionId === interactiveSectionId(section))) callback();
+  };
+  window.addEventListener(SIGNAL_EVENT, listener);
+  return () => window.removeEventListener(SIGNAL_EVENT, listener);
+}
+export function useRealtimeReady() {
+  const [value, setValue] = useState(false);
+  useEffect(() => { const refresh = () => setValue(ready); refresh(); window.addEventListener(READY_EVENT, refresh); return () => window.removeEventListener(READY_EVENT, refresh); }, []);
+  return value;
+}
+export function useCourseRealtime(scopes: Scope[], onCounts: (rows: Array<{ sectionId: string; online: number; subjects: string[] }>) => void) {
+  const key = JSON.stringify(scopes);
+  const onCountsRef = useRef(onCounts);
+  onCountsRef.current = onCounts;
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_REALTIME_PROVIDER !== "convex" || !process.env.NEXT_PUBLIC_CONVEX_URL) return;
+    knownScopes = JSON.parse(key);
+    const current = new ConvexClient(process.env.NEXT_PUBLIC_CONVEX_URL);
+    client = current;
+    let authenticated = false, hasSignals = false;
+    const check = () => setReady(authenticated && hasSignals && current.connectionState().isWebSocketConnected);
+    current.setAuth(async () => {
+      try {
+        const response = await fetch("/api/realtime/token", { cache: "no-store", signal: AbortSignal.timeout(12_000) });
+        if (!response.ok) return null;
+        const payload = await response.json(); return payload.enabled ? payload.token : null;
+      } catch { return null; }
+    }, value => { authenticated = value; check(); });
+    const revisions = new Map<string, number>();
+    const signals = current.onUpdate(makeFunctionReference<"query", { sectionIds: string[] }, Array<{ sectionId: string; topic: string; revision: number }>>("realtime:signals"), { sectionIds: knownScopes.map(scope => scope.id) }, rows => {
+      hasSignals = true; check();
+      for (const row of rows) {
+        const id = `${row.sectionId}:${row.topic}`;
+        if (revisions.get(id) !== row.revision) window.dispatchEvent(new CustomEvent(SIGNAL_EVENT, { detail: row }));
+        revisions.set(id, row.revision);
+      }
+    }, () => { hasSignals = false; check(); });
+    const counts = current.onUpdate(makeFunctionReference<"query", Record<string, never>, Array<{ sectionId: string; online: number; subjects: string[] }>>("realtime:online"), {}, rows => onCountsRef.current(rows), () => {});
+    const connection = current.subscribeToConnectionState(check);
+    return () => { signals(); counts(); connection(); if (client === current) client = null; setReady(false); void current.close(); };
+  }, [key]);
+  return useRealtimeReady();
+}
+export async function pulsePresence(sectionId: string, clientId: string, leave = false) {
+  if (!client || !ready) return false;
+  try {
+    const result = await client.mutation(makeFunctionReference<"mutation", { sectionId: string; clientId: string; leave: boolean }, { retryAfter?: number }>("realtime:pulse"), { sectionId, clientId, leave });
+    if (result.retryAfter) window.dispatchEvent(new CustomEvent("eiu:rate-limit", { detail: { retryAfter: result.retryAfter } }));
+    return !result.retryAfter;
+  } catch { return false; }
+}
+
+export type ClassroomView = {
+  ready: boolean; teaching: boolean; practiceSession?: string;
+  members: Array<{ id: string; username: string }>;
+  items: Array<{ id: string; name: string; partId: string; values: Record<string, string>; submittedAt: string }>;
+  draw: { names: string[]; subjects?: string[]; requestId: string; createdAt: number } | null;
+  demoDraw?: { names: string[]; subjects?: string[]; requestId: string; createdAt: number } | null;
+};
+export function watchClassroom(sectionId: string, callback: (value: ClassroomView) => void) {
+  let stop: (() => void) | undefined, owner: ConvexClient | null = null;
+  const attach = () => {
+    if (owner === client && stop && ready) return;
+    stop?.(); stop = undefined; owner = null;
+    if (!client || !ready) return;
+    owner = client;
+    stop = client.onUpdate(makeFunctionReference<"query", { sectionId: string }, ClassroomView>("classroom:view"), { sectionId }, callback, () => {});
+  };
+  const unwatch = watchRealtimeReady(attach); attach();
+  return () => { unwatch(); stop?.(); };
+}
+export async function drawClassroom(sectionId: string, count: number, excluded: string[], requestId: string, demo = false) {
+  if (!client || !ready) throw new Error("The live classroom is reconnecting. Please try again shortly.");
+  const result = await client.mutation(makeFunctionReference<"mutation", { sectionId: string; count: number; excluded: string[]; requestId: string; demo: boolean }, { names?: string[]; subjects?: string[]; createdAt?: number; requestId?: string; retryAfter?: number; message?: string }>("classroom:draw"), { sectionId, count, excluded, requestId, demo });
+  if (result.retryAfter) throw new Error(`Please try again in ${result.retryAfter} seconds.`);
+  if (result.message || !result.names) throw new Error(result.message || "Unable to draw names.");
+  return result;
+}
+export async function resetClassroomDraw(sectionId: string, demo = false) {
+  if (!client || !ready) throw new Error("The live classroom is reconnecting. Please try again shortly.");
+  const result = await client.mutation(makeFunctionReference<"mutation", { sectionId: string; demo: boolean }, { success?: boolean; retryAfter?: number }>("classroom:resetDraw"), { sectionId, demo });
+  if (result.retryAfter) throw new Error(`Please try again in ${result.retryAfter} seconds.`);
+  return result;
+}

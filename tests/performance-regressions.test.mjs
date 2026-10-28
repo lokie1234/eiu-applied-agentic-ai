@@ -15,7 +15,7 @@ function load(path, dependencies, globals = {}) {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true,
   } }).outputText;
   vm.runInNewContext(code, { exports, console, Date, AbortController, AbortSignal, ...globals,
-    require: name => name.endsWith(".css") ? new Proxy({}, { get: (_, key) => String(key) }) : dependencies[name] ?? (name === "@/lib/scopedPresence" ? load("lib/scopedPresence.ts", {}) : require(name)),
+    require: name => name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false, useCourseRealtime: () => false, watchRealtimeReady: () => () => {}, pulsePresence: async () => false } : name.endsWith(".css") ? new Proxy({}, { get: (_, key) => String(key) }) : dependencies[name] ?? (name === "@/lib/scopedPresence" ? load("lib/scopedPresence.ts", {}) : require(name)),
   });
   return exports;
 }

@@ -74,7 +74,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
     if (loading || accessRequest.current) return;
 
     const cleanPasscode = passcode.trim();
-    if (!/^[A-Za-z0-9-]{4,32}$/.test(cleanPasscode)) {
+    if (!/^[0-9]{6}$/.test(cleanPasscode)) {
       setError("Enter your 6-digit passcode.");
       return;
     }
@@ -128,11 +128,11 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
 
   const pageRef = useRef<HTMLElement>(null);
   useEffect(() => {
-    const sync = () => pageRef.current?.toggleAttribute("data-animation-paused", document.hidden || identityFields.length > 0);
+    const sync = () => pageRef.current?.toggleAttribute("data-animation-paused", document.hidden);
     document.addEventListener("visibilitychange", sync);
     sync();
     return () => document.removeEventListener("visibilitychange", sync);
-  }, [identityFields.length]);
+  }, []);
 
   // Mouse tracking via ref for zero per-frame React re-renders
   const mouseRef = useRef({ x: 0, y: 0 });
@@ -304,7 +304,6 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
             robotState={robotState}
             isCtaHovered={isCtaHovered}
             enter={isOverlayExiting || !isEntranceActive}
-            paused={identityFields.length > 0}
             onReady={handleSceneReady}
             onUnavailable={handleSceneUnavailable}
           />
@@ -348,6 +347,11 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
             loading={loading}
             error={error}
             onSubmit={submit}
+            onAdminAuthStateChange={state => {
+              if (resetRobotTimer.current) clearTimeout(resetRobotTimer.current);
+              setRobotState(state === "loading" ? "loading" : "restricted");
+              if (state === "error") resetRobotTimer.current = setTimeout(() => setRobotState("idle"), 2800);
+            }}
               onMethodChange={() => { accessFocused.current = false; syncAccessAttention(); setError(""); setPasscode(""); setIdentityFields([]); setInformation({}); }}
             onInputFocus={() => {
               accessFocused.current = true;

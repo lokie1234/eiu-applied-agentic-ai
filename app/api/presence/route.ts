@@ -1,3 +1,4 @@
+import { realtimeConfigured } from "@/lib/realtime/server";
 import { NextResponse } from "next/server";
 import { currentRole, teachingSections } from "@/lib/currentRole";
 import { currentLearnerProfile } from "@/lib/currentLearnerProfile";
@@ -63,6 +64,7 @@ export async function GET(request?: Request) {
       { headers: { "Cache-Control": "no-store, max-age=0" } },
     );
   } catch (error) {
+    if (request?.signal.aborted) return NextResponse.json({ success: false, message: "Request cancelled." }, { status: 499, headers: { "Cache-Control": "no-store" } });
     console.error("Presence GET error:", error);
     return NextResponse.json(
       { success: false, message: error instanceof Error ? error.message : "Lỗi kiểm tra số lượng truy cập." },
@@ -113,6 +115,7 @@ export async function POST(request: Request) {
           }
         };
         const savePresence = async () => {
+          if (payload.realtime === true && realtimeConfigured()) return;
           const {error} = await db.from("presence_sessions").upsert({client_id:key,section:scope.sectionKey === "section2" ? "section2" : "section1",name:identity.name.slice(0,80),email:identity.email.slice(0,100),last_seen_at:now,left_at:null},{onConflict:"client_id"});
           if(error)throw error;
         };
@@ -162,6 +165,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ success: true }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
+    if (request.signal.aborted) return NextResponse.json({ success: false, message: "Request cancelled." }, { status: 499, headers: { "Cache-Control": "no-store" } });
     console.error("Presence POST error:", error);
     return NextResponse.json(
       { success: false, message: error instanceof Error ? error.message : "Lỗi cập nhật hiện diện." },

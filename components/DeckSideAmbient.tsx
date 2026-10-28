@@ -1,20 +1,11 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { type CSSProperties } from "react";
 import styles from "./DeckSideAmbient.module.css";
 
 type Props = {
   slideWidth: number;
 };
-
-const ROBOT_SPOTS = [
-  { side: "left", top: "70%" },
-  { side: "right", top: "18%" },
-  { side: "left", top: "24%" },
-  { side: "right", top: "72%" },
-  { side: "left", top: "48%" },
-  { side: "right", top: "45%" },
-] as const;
 
 function Circuit({ mirrored = false }: { mirrored?: boolean }) {
   return (
@@ -34,8 +25,6 @@ function Circuit({ mirrored = false }: { mirrored?: boolean }) {
 }
 
 export default function DeckSideAmbient({ slideWidth }: Props) {
-  const [spotIndex, setSpotIndex] = useState(0);
-  const spot = ROBOT_SPOTS[spotIndex];
   const rootStyle = { "--slide-width": `${slideWidth}px` } as CSSProperties;
 
   return (
@@ -52,17 +41,6 @@ export default function DeckSideAmbient({ slideWidth }: Props) {
         <span className={`${styles.dataParticle} ${styles.particleD}`} />
       </div>
 
-      <button
-        type="button"
-        className={`${styles.robotButton} ${spot.side === "right" ? styles.robotRight : styles.robotLeft}`}
-        style={{ top: spot.top }}
-        onClick={() => setSpotIndex((current) => (current + 1) % ROBOT_SPOTS.length)}
-        aria-label="Click me — robot sẽ chạy sang vị trí khác"
-        data-interactive="true"
-      >
-        <span className={styles.robotLabel}>Click me</span>
-        <span className={styles.robotFace}>🤖</span>
-      </button>
     </div>
   );
 }

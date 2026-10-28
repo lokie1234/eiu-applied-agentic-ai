@@ -1,3 +1,5 @@
+import { notifyRealtime } from "@/lib/realtime/publish";
+import { notifyClassroom } from "@/lib/realtime/classroom";
 import { NextResponse } from "next/server";
 import { currentRole } from "@/lib/currentRole";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -48,7 +50,7 @@ function formatSectionLabel(section: string): string {
   return match ? `Section ${match[1]}` : section;
 }
 
-export async function POST(request: Request) {
+async function handlePost(request: Request) {
   try {
     if ((await currentRole()) !== "admin") {
       return NextResponse.json(
@@ -165,4 +167,10 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+}
+
+export async function POST(...args: Parameters<typeof handlePost>) {
+  const response = await handlePost(...args);
+  if (response.ok) { notifyRealtime(); notifyClassroom(); }
+  return response;
 }

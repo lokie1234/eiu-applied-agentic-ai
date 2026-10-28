@@ -1,4 +1,5 @@
 "use client";
+import { listenInteractive, realtimeReady, useRealtimeReady } from "@/lib/realtime/client";
 
 import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -132,6 +133,7 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
       setQuizStateStatus("error");
     }
   }, [isAdmin, variant, scopedEndpoint]);
+  const convexReady = useRealtimeReady();
   const loadQuizState = useLiveRefresh(readQuizState);
 
   useEffect(() => {
@@ -142,28 +144,30 @@ export default function QuizSlide({ scale, variant = "section1", isAdmin = false
     };
 
     const initialTimer = window.setTimeout(() => void loadQuizState(), 0);
-    const supabase = getSupabaseBrowserClient();
+    const stopRealtime = listenInteractive(sectionId || variant, "quiz", refresh);
+    const supabase = convexReady ? null : getSupabaseBrowserClient();
     const channel = supabase
       ?.channel(`eiu:quiz:${sectionId || variant}`)
       .on("broadcast", { event: "quiz_state_changed" }, refresh)
       .on("broadcast", { event: "quiz_results_changed" }, refresh)
       .subscribe();
-    const poll = () => { if (document.visibilityState === "visible") void loadQuizState(false); };
+    const poll = () => { if (!realtimeReady() && document.visibilityState === "visible") void loadQuizState(false); };
     document.addEventListener("visibilitychange", poll);
 
     return () => {
+      stopRealtime();
       window.clearTimeout(initialTimer);
       window.clearTimeout(refreshTimer);
       document.removeEventListener("visibilitychange", poll);
       if (supabase && channel) void supabase.removeChannel(channel);
     };
-  }, [loadQuizState, variant, isAdmin, sectionId]);
+  }, [loadQuizState, variant, isAdmin, sectionId, convexReady]);
 
   useEffect(() => {
     // Closed web-course quizzes need a quick fallback when realtime is unavailable.
     // Once open, keep the slower completion refresh and one in-flight request.
     const fallbackTimer = window.setInterval(() => {
-      if (document.visibilityState === "visible") void loadQuizState(false);
+      if (!realtimeReady() && document.visibilityState === "visible") void loadQuizState(false);
     }, scopedEndpoint && !quizOpen ? 2_000 : 8_000);
     return () => window.clearInterval(fallbackTimer);
   }, [loadQuizState, scopedEndpoint, quizOpen]);

@@ -1,3 +1,4 @@
+import { notifyRealtime } from "@/lib/realtime/publish";
 import { after, NextResponse } from "next/server";
 import { currentUserAccess } from "@/lib/auth/currentUser";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -94,7 +95,7 @@ export async function GET(request: Request, context: Context) {
   }
 }
 
-export async function POST(request: Request, context: Context) {
+async function handlePost(request: Request, context: Context) {
   try {
     const scope = await resolve(request, context);
     if (!scope) return denied();
@@ -133,4 +134,10 @@ export async function POST(request: Request, context: Context) {
   } catch {
     return NextResponse.json({ message: "Không thể lưu dữ liệu quiz. Vui lòng thử lại." }, { status: 500 });
   }
+}
+
+export async function POST(...args: Parameters<typeof handlePost>) {
+  const response = await handlePost(...args);
+  if (response.ok) notifyRealtime();
+  return response;
 }

@@ -11,7 +11,8 @@ function load(path, dependencies = {}) {
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
   vm.runInNewContext(code, {
     exports,
-    require: name => dependencies[name] ?? (
+    require: name => name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false } : dependencies[name] ?? (
+      name === "@/lib/reports/workbook" ? load("lib/reports/workbook.ts", { exceljs: { default: require("exceljs") } }) :
       name === "@/lib/learningIdentity" ? load("lib/learningIdentity.ts") :
       name === "@/lib/reportLearners" ? load("lib/reportLearners.ts") :
       name === "@/lib/reportScopes" ? load("lib/reportScopes.ts") :
@@ -115,22 +116,17 @@ test("submission endpoints use server identity for both the record and its activ
 test("activity report removes identifiers and email outside learner sheets and formats local times", async () => {
   const ExcelJS = require("exceljs");
   const records = { section_state: [{ section: "section2" }], feedback: [{ id: "record-one", section: "section2", name: "Alice", email: "alice@example.test", feedback: "Useful" }], access_audit_logs: [{ action: "FEEDBACK_SUBMITTED", created_at: "2026-10-09T12:08:09.536Z", details: { sessionId: "session-one", section: "section2", recordId: "record-one", name: "Alice", email: "alice@example.test", information: { department: "IT" }, fields: [{ id: "department", label: "Department" }] } }] };
-  const db = { from: table => ({ select() { return this; }, order() { return this; }, range: async () => ({ data: records[table] || [] }) }) };
+  const db = { from: table => ({ select() { return this; }, order() { return this; }, lte() { return this; }, in() { return this; }, range: async () => ({ data: records[table] || [] }) }) };
   const report = load("app/api/admin/report/route.ts", { exceljs: { default: ExcelJS }, "@/lib/currentRole": { currentRole: async () => "admin" }, "@/lib/supabase/server": { getSupabaseAdmin: () => db } });
   const response = await report.GET(new Request("http://localhost/api/admin/report?section=section2"));
   assert.equal(response.status, 200);
   const workbook = new ExcelJS.Workbook(); await workbook.xlsx.load(Buffer.from(await response.arrayBuffer()));
-  const sheet = workbook.getWorksheet("Learner activity");
-  assert.equal(sheet.getCell("A2").value, "Alice"); assert.equal(sheet.getCell("D2").value, "Department: IT");
-  assert.equal(sheet.getCell("E2").value, "09/10/2026 19:08:09");
-  assert.equal(workbook.getWorksheet("S2 - Feedback").getCell("A2").value, "Alice");
-  const learners = workbook.getWorksheet("S2 - Hoc vien");
-  assert.equal(learners.getCell("A2").value, "Alice"); assert.equal(learners.getCell("B2").value, "alice@example.test"); assert.equal(learners.getCell("C2").value, "Department: IT");
-  for (const worksheet of workbook.worksheets) {
-    const headers = worksheet.getRow(1).values.join("|");
-    assert.doesNotMatch(headers, /Session ID|Record ID|UTC/);
-    if (!worksheet.name.endsWith("Hoc vien")) assert.doesNotMatch(headers, /Email/);
-  }
+  assert.equal(workbook.worksheets.length, 2);
+  const stats = workbook.getWorksheet("Th\u1ed1ng k\u00ea");
+  const cell = label => stats.getRow(6).getCell(stats.getRow(5).values.indexOf(label)).value;
+  assert.equal(cell("H\u1ecd t\u00ean"), "Alice"); assert.equal(cell("Email"), "alice@example.test");
+  assert.equal(cell("Department"), "IT"); assert.equal(cell("Feedback"), "Useful");
+  assert.doesNotMatch(stats.getRow(5).values.join("|"), /Session ID|Record ID|UTC|Folder|Action/);
 });
 function fixture() {
   const catalog = {
@@ -245,7 +241,7 @@ test("only teaching permission in Applied Agentic AI grants access to its shared
   assert.equal((await quiz.POST(request({ section: "section1" }))).status, 403);
 });
 
-test("signed sessions reject old username, teacher and password admin tokens", async () => {
+test("signed sessions reject legacy role-only tokens and retain explicit admin authentication methods", async () => {
   const previous = process.env.PASSCODE_SESSION_SECRET; process.env.PASSCODE_SESSION_SECRET = "test-only-passcode-session-key";
   let cookie;
   try {
@@ -260,7 +256,7 @@ test("signed sessions reject old username, teacher and password admin tokens", a
   } finally { if (previous === undefined) delete process.env.PASSCODE_SESSION_SECRET; else process.env.PASSCODE_SESSION_SECRET = previous; }
 });
 
-test("passcode login rejects usernames, rate-limits failures and gives each learner a distinct identity", async () => {
+test("passcode login rejects usernames and gives each learner a distinct identity; throttling runs in proxy", async () => {
   const f = fixture(); let failures = 0; let audit;
   const db = { from: () => ({ select() { return this; }, eq() { return this; }, contains() { return this; }, gte: async () => ({ count: failures }), insert(row) { audit = row; if (row.action === "PASSCODE_LOGIN_FAILED") failures++; return this; }, single: async () => ({ data: { id: 1 } }) }) };
   const auth = load("app/api/auth/access/route.ts", { "next/server": response, "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "@/lib/auth/courseAccessStorage": f.storage, "@/lib/auth/passcodes": f.codes, "@/lib/auth/session": { ACCESS_SESSION_COOKIE: "session", createAccessSession: body => body, sessionCookieOptions: () => ({}) } });
@@ -272,7 +268,7 @@ test("passcode login rejects usernames, rate-limits failures and gives each lear
   assert.equal(first.cookies.value.passcode, undefined); assert.equal(first.cookies.value.role, "passcode");
   assert.equal((await auth.POST(request({ passcode: "BAD1234" }))).status, 401);
   assert.equal(audit.details.passcode, undefined);
-  failures = 10; assert.equal((await auth.POST(request({ passcode: "CL01234" }))).status, 429);
+  assert.equal((await auth.POST(request({ passcode: "110320" }))).status, 401);
 });
 
 
@@ -408,7 +404,7 @@ test("admin access password signs in directly to admin workspace", async () => {
   const prev = process.env.ADMIN_ACCESS_PASSWORD;
   process.env.ADMIN_ACCESS_PASSWORD = "110320";
   try {
-    const auth = load("app/api/auth/access/route.ts", {
+    const auth = load("app/api/auth/admin/route.ts", {
       "next/server": response,
       "@/lib/supabase/server": { getSupabaseAdmin: () => db },
       "@/lib/auth/courseAccessStorage": f.storage,
@@ -417,7 +413,10 @@ test("admin access password signs in directly to admin workspace", async () => {
       "@/lib/auth/adminPassword": { getAdminCredential: async () => null, verifyAdminPassword: candidate => candidate === "110320" },
       "@/lib/auth/types": { FIXED_ADMIN_EMAIL: "son.lam@eiu.edu.vn" },
     });
-    const result = await auth.POST(request({ passcode: "110320" }));
+    const adminRequest = request({ password: "110320" });
+    adminRequest.url = "https://eiu.test/api/auth/admin";
+    adminRequest.headers.set("origin", "https://eiu.test");
+    const result = await auth.POST(adminRequest);
     assert.equal(result.data.success, true);
     assert.equal(result.data.destination, "/admin/access");
     assert.equal(result.cookies.value.role, "admin");

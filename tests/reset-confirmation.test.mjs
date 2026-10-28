@@ -9,7 +9,7 @@ const require = createRequire(import.meta.url);
 function load(path, dependencies) {
   const exports = {};
   const source = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(source, { exports, require: name => dependencies[name], Date, console, crypto: globalThis.crypto, URL, Response });
+  vm.runInNewContext(source, { exports, require: name => name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false } : name === "@/lib/reports/workbook" ? load("lib/reports/workbook.ts", { exceljs: { default: require("exceljs") } }) : dependencies[name], Date, console, crypto: globalThis.crypto, URL, Response });
   return exports;
 }
 function fixture(role = "admin", failAudit = false) {
@@ -33,7 +33,7 @@ function fixture(role = "admin", failAudit = false) {
     let kind = "select", patch, start = 0, end = Infinity; const filters = [];
     const value = (row, key) => key.includes("->>") ? row[key.split("->>")[0]]?.[key.split("->>")[1]] : row[key];
     const query = {
-      select() { return this; }, order() { return this; }, range(a, b) { start = a; end = b; return this; },
+      select() { return this; }, order() { return this; }, lte() { return this; }, range(a, b) { start = a; end = b; return this; },
       delete() { kind = "delete"; writes.push({ table, action: kind }); return this; },
       update(data) { kind = "update"; patch = data; writes.push({ table, action: kind }); return this; },
       eq(key, val) { filters.push(row => value(row, key) === val); return this; },

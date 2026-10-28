@@ -10,6 +10,8 @@ export function createTsxDocument(compiledCode: string, pageNumber: number | nul
   </style></head><body><div id="root"></div><script>
   (()=>{
     const root=document.getElementById('root');
+    window.eiuLessonRequestId=${JSON.stringify(requestId)};
+    window.eiuLessonTeaching=${JSON.stringify(isAdmin)};
     const Fragment=Symbol('Fragment');
     const svgTags=new Set(['svg','path','circle','rect','line','polyline','polygon','g','text','defs','linearGradient','stop','foreignObject']);
     const append=(parent,value)=>{if(value==null||value===false||value===true)return;if(Array.isArray(value)){value.forEach(v=>append(parent,v));return;}if(value instanceof Node){parent.appendChild(value);return;}parent.appendChild(document.createTextNode(String(value)));};

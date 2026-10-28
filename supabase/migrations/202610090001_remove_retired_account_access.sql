@@ -6,6 +6,11 @@
 begin;
 set local lock_timeout = '5s';
 
+-- Absorb the obsolete transport cleanup so existing installations can still
+-- retire GAS/OTP objects without recreating the deleted account migrations.
+drop function if exists public.reserve_otp_request(text, text);
+drop table if exists public.otp_request_log;
+
 -- Teacher ownership has been replaced by Google administrator management.
 alter table if exists public.courses drop column if exists created_by;
 alter table if exists public.course_sections drop column if exists created_by;

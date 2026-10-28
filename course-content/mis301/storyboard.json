@@ -1,0 +1,203 @@
+{
+  "title": "Pandas · Exploring a DataFrame",
+  "courseId": "5e9700b6-d498-4ce7-b7b5-3cabca3fe8d5",
+  "sectionId": "71c4d32e-7d80-4ae6-9576-13a0840ccd45",
+  "templateKey": "eiu-business-v1",
+  "slides": [
+    {
+      "kind": "introduction",
+      "phase": "SECTION 1 · COURSE OVERVIEW",
+      "title": "Data Analysis Workflow",
+      "subtitle": "",
+      "topics": [
+        "Reading and Writing Data with Pandas",
+        "Exploring DataFrame basics",
+        "Data Analysis workflow"
+      ]
+    },
+    {
+      "kind": "raw",
+      "phase": "BEFORE THE DEMO",
+      "title": "Raw data has arrived. What comes first?",
+      "subtitle": "Understand the source before writing the first line of analysis."
+    },
+    {
+      "kind": "plan",
+      "phase": "BEFORE THE DEMO",
+      "title": "Turn a file into a trustworthy table",
+      "subtitle": "Source → structure → import → inspect. Then decide what needs cleaning."
+    },
+    {
+      "kind": "lab",
+      "phase": "DEMO · 01",
+      "title": "Import a CSV into a DataFrame",
+      "subtitle": "Follow the Demo notebook: import Pandas, read the file, then inspect the table.",
+      "dataset": "student_data.csv",
+      "commands": [
+        "import pandas as pd",
+        "df = pd.read_csv(\"student_data.csv\")",
+        "df.head()"
+      ],
+      "notes": [
+        "Import the library once in the current runtime.",
+        "Assign the table to df so later cells can reuse it.",
+        "Check column names and the first five records."
+      ]
+    },
+    {
+      "kind": "lab",
+      "phase": "DEMO · 02",
+      "title": "Excel: choose the right worksheet",
+      "subtitle": "A workbook can contain several tables. sheet_name=1 selects the second sheet.",
+      "dataset": "Course Offerings.xlsx",
+      "commands": [
+        "import pandas as pd",
+        "df2 = pd.read_excel(\"Course Offerings.xlsx\")\ndf2.head()",
+        "df2 = pd.read_excel(\"Course Offerings.xlsx\", sheet_name=1)\ndf2.head()"
+      ],
+      "notes": [
+        "The first worksheet is Instructors.",
+        "The second worksheet is Courses.",
+        "Python uses zero-based worksheet positions: 0, 1, …"
+      ]
+    },
+    {
+      "kind": "lab",
+      "phase": "DEMO · 03",
+      "title": "Check the size. Preview the records.",
+      "subtitle": "Confirm that the imported DataFrame looks like the source you expected.",
+      "dataset": "student_data.csv",
+      "bootstrap": true,
+      "commands": [
+        "df.shape",
+        "df.head()",
+        "df.head(3)"
+      ],
+      "notes": [
+        "shape returns (rows, columns), not a count of cells.",
+        "head() defaults to the first five records.",
+        "head(3) changes the preview without changing df."
+      ]
+    },
+    {
+      "kind": "lab",
+      "phase": "DEMO · 04",
+      "title": "Check completeness and data types",
+      "subtitle": "Missing values and unexpected types change what your analysis can tell you.",
+      "dataset": "student_data.csv",
+      "bootstrap": true,
+      "commands": [
+        "df.count()",
+        "df.info()",
+        "df.describe()"
+      ],
+      "notes": [
+        "count() counts non-null values separately for each column.",
+        "info() shows column types and non-null counts.",
+        "describe() summarizes numeric columns: count, mean, std and quartiles."
+      ]
+    },
+    {
+      "kind": "bridge",
+      "phase": "DEMO → PRACTICE",
+      "title": "Inspect first. Analyse with context.",
+      "subtitle": "The demo gives you a repeatable routine, not just a list of commands."
+    },
+    {
+      "kind": "picker",
+      "adminOnly": true,
+      "phase": "BEFORE PRACTICE ? TEACHING",
+      "title": "Class Spotlight",
+      "subtitle": "Choose the group size. Spin the spotlight. Meet your next presenters."
+    },
+    {
+      "kind": "practice-hub",
+      "phase": "PRACTICE WORKSPACE",
+      "title": "Happiness Survey ? Practice",
+      "subtitle": "Four parts, one workspace. Open a part to explore the data and send your answers.",
+      "parts": [
+        {
+          "kind": "lab",
+          "phase": "PRACTICE · 01",
+          "title": "Your dataset: Happiness Survey",
+          "subtitle": "Repeat the import routine with happiness_survey_data.csv.",
+          "dataset": "happiness_survey_data.csv",
+          "commands": [
+            "import pandas as pd",
+            "df = pd.read_csv(\"happiness_survey_data.csv\")",
+            "df.head(10)"
+          ],
+          "notes": [
+            "Read the country/year structure before interpreting scores.",
+            "Each row is a country-year observation, not a unique country.",
+            "All notebooks and datasets are available on slide 1."
+          ],
+          "practicePart": "import"
+        },
+        {
+          "kind": "lab",
+          "phase": "PRACTICE · 02",
+          "title": "Preview both ends of the DataFrame",
+          "subtitle": "The Practice notebook asks for the first 10 rows and the last 5 rows.",
+          "dataset": "happiness_survey_data.csv",
+          "bootstrap": true,
+          "commands": [
+            "df.head(10)",
+            "df.tail(5)",
+            "df.shape"
+          ],
+          "notes": [
+            "head(10): first ten rows.",
+            "tail(5): last five rows; original row indices are retained.",
+            "Question 1: how many rows and columns are present?"
+          ],
+          "practicePart": "explore"
+        },
+        {
+          "kind": "lab",
+          "phase": "PRACTICE · 03",
+          "title": "What does the Happiness Score tell us?",
+          "subtitle": "Questions 2–3: find the average and the minimum Happiness Score.",
+          "dataset": "happiness_survey_data.csv",
+          "bootstrap": true,
+          "commands": [
+            "df.describe()",
+            "df[\"happiness_score\"].mean()",
+            "df[\"happiness_score\"].min()"
+          ],
+          "notes": [
+            "Read mean and min in the happiness_score column.",
+            "The average excludes missing values.",
+            "Report the answer to two decimal places; keep full precision in calculations."
+          ],
+          "practicePart": "scores"
+        },
+        {
+          "kind": "lab",
+          "phase": "PRACTICE · 04",
+          "title": "Types and missing values matter",
+          "subtitle": "Questions 4–5: inspect country_name and count the available social_support values.",
+          "dataset": "happiness_survey_data.csv",
+          "bootstrap": true,
+          "commands": [
+            "df.info()",
+            "df.count()",
+            "df[\"social_support\"].count()"
+          ],
+          "notes": [
+            "country_name is stored as object in the supplied Pandas solution.",
+            "A non-null count is different from the number of rows.",
+            "Compare the social_support count with df.shape[0]."
+          ],
+          "practicePart": "quality"
+        }
+      ],
+      "answerCheck": {
+        "kind": "answers",
+        "phase": "REFLECT & CHECK",
+        "title": "Explain your answers, then reveal",
+        "subtitle": "Connect each answer to the command that produced the evidence."
+      }
+    }
+  ]
+}
