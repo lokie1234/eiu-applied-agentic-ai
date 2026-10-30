@@ -31,11 +31,14 @@ Convex `signals` enforces section grants; `online` exposes only the admin/teachi
 
 ## Excel contract
 
-MIS 301's four practice parts and answer check now share a single popup workspace.
-This is a display change: keep `import`, `explore`, `scores` and `quality` as
-separate server-authorized activity IDs and report columns. Preserve per-part
-drafts in mounted hidden panels, scope code-copy events by part and refresh only
-the active panel through the existing root Convex connection.
+The MIS 301 question UI now uses one complete Colab-style popup per question.
+Slide 6 owns the real wheel, teaching question setup and each assigned learner's
+congratulations/question popup. Slide 7 is teaching-only: five question cards open
+full code/answer/response popups, without standalone Import/Read/Store panels or
+Final Answer. Preserve the existing import/explore/scores/quality server activity
+IDs and allowed result fields; a question submits its complete code block in its
+existing evidence-code field. Names always come from the signed login and real
+draw, never a new identity field.
 
 MIS 301 Section 1 uses `lib/mis301Practice.ts` for the four allowed practice parts
 and report field labels. Learning passcode login for this section always requires
@@ -74,9 +77,10 @@ deduplication applies only to the game, not Excel's distinct-session rows. The
 teacher chooses 1–50 participants from the complete section roster. An authorized,
 rate-limited Convex mutation selects the group atomically without replacement;
 the iframe only animates the returned usernames and opaque subject IDs used to
-align the wheel. A single five-second spin reveals the whole group sequentially
-with ten lightweight WebGL robot variants. The 3D engine is presentation-only;
-it never chooses winners or writes learner records. A completed round is locked until the separate,
+align the wheel. Each two-second wheel cycle spins, stops and reveals one name in an adaptive, scroll-free
+Question grid, then automatically spins for the next name until the group is
+complete (name 1 for Question 1, and so on). The presentation never chooses
+winners or writes learner records; robot and WebGL effects are not used. A completed round is locked until the separate,
 authorized `classroom:resetDraw` mutation clears only draw state, never profiles,
 submissions or reporting history. Reloading the slide restores the shared round.
 Public reads enforce teaching
@@ -114,3 +118,68 @@ The deployment selected by the user is `https://pleasant-cow-963.ap-southeast-2.
 6. Rollback by setting both provider flags to `supabase` and rebuilding the frontend; durable history/reporting remain usable. Keep the change-feed triggers: they are harmless while the provider is disabled.
 
 For a separate production Convex deployment, configure matching public keys/secrets and URLs in that environment; do not point development and production at unrelated auth configurations. No additional polling, data-copy tables or secret-bearing endpoints should be added for a new section.
+
+## MIS 301 demo notebook continuity
+
+Slide 5 combines the CSV, Excel and Explore tabs in one notebook session through useMis301NotebookBridge in the parent deck. Keep imports, loaded files, named DataFrame read descriptors, execution count and each tab cell's edited code, native output, selected state and execution marker in parent memory and section-scoped sessionStorage. This preserves flow through slide navigation, deck remounts and page reloads in the same browser tab. It contains no learner identity or reportable submissions and writes to neither Supabase nor Convex.
+
+The authorized existing section control route owns the termination epoch. Validate it before restoring a stored notebook and when reopening the workspace; mismatch clears the snapshot. The existing root control feed and focus events trigger bounded verification with no new polling loop or realtime client. Successful admin termination and the existing remote-termination handlers clear notebook storage and notify the sandbox before remount/redirect. Ignore late writes from a terminated iframe. Do not offer a separate Reset runtime control for the shared demo notebook.
+
+Validate actual iframe source, section/page request ID, known files, bounded variables and cell snapshots at the parent boundary. Restore DataFrames from bundled data descriptors and output through an allowlist of native DOM nodes; never execute saved code or interpolate saved HTML. The workspace must not bootstrap df or implicitly import Pandas. CSV uses df and Excel uses df2; all six exploration methods have separate cached cells for both variables. The previous standalone slides 8 and 9 were removed. Only displayed page 5 can read/write notebook snapshots; migrate prior pages 5, 6 and 7 to its cell indexes without rerunning source or resetting the kernel. Practice/report contracts remain independent.
+
+## Wheel-assigned practice access
+
+The Practice notebook is assigned as seven unequal parts: Read CSV (three code
+cells), Quickly Explore (two code cells), then notebook Questions 1-5 (one code
+cell each). Final Answer is reference material, not an eighth assignment.
+Server-owned MIS301_QUESTION_FIELDS maps each assignment part to existing activity
+IDs, evidence-code fields and scalar answers. Do not conflate assignmentPart 1-7
+with the original questionNumber 1-5; the latter exists only on Parts 3-7.
+
+A version-2 real draw cycles Parts 1-7 by selected index and freezes seven bounded
+part configurations, including each part's original task count. Setup rejects
+missing/extra parts or changed task counts. Existing version-1 draws keep their
+original Q1-Q5 assignments, displayed as Parts 3-7, without clearing the draw or
+rewriting old submissions. New rounds use the new seven-part defaults unless a
+seven-part setup has been explicitly saved. Optional assignmentPart metadata is
+projected beside questionNumber/drawId; legacy records remain readable via the
+original questionNumber mapping and original signed subject ID.
+
+Slide 6 shows the teaching wheel/setup or an assigned learner's congratulations
+and part popup. Slide 7 is teaching-only and opens seven part/response popups.
+Every part keeps all of its editable cells stacked in one Colab surface with one
+shared finite runtime. Part 1 requires explicit import/read/store; Parts 2-7 have
+Pandas/df prepared so randomly assigned learners can work independently. These
+prepared prerequisites must not include answer code. Final Answer and classroom
+response panels are never shown to learners.
+
+The parent uses the existing root classroom subscription, scoped practice bridge
+and authorized Supabase fallback. No new polling loop, client or result store is
+introduced. The API verifies signed assignment, epoch, draw and the exact allowed
+fields for the assigned part; import is no longer a general exception. Supabase
+owns identities and durable ACTIVITY_SUBMITTED history, and Convex remains the
+live assignment/configuration/projection owner. Match responses by subject,
+assignment part and draw ID, never by display name. Real reset/termination revokes
+access; Demo draws do not grant access. Keep role-aware slide counts (5 unselected,
+6 selected, 7 teaching), reserved EIU branding and all existing report history.
+
+## Termination fences and section payload
+
+For MIS 301, Terminate commits the new Supabase epoch, attempts classroom sync
+before responding and reports classroomSynced. A failed live attempt still keeps
+durable termination successful and schedules reconciliation. Publish failure must
+never roll back or delete identity/submission history. The control GET preserves
+the last epoch even when the Terminate button is disabled. Empty same-epoch roster
+updates do not reset a draw; only authorized Reset or a new epoch does.
+
+Both client bridges reject stale in-flight responses by generation. Classroom
+snapshots are accepted only after their epoch matches server-verified context;
+Terminate clears access immediately and replaces the sandbox document. Notebook
+checkpoints carry a per-session key rotated at termination, so old iframe writes
+cannot restore previous state after a new frame loads. The practice writer also
+rechecks the durable epoch directly before inserting a submitted activity.
+
+The MIS 301 compiler minifies the standalone lesson, compresses original notebook
+downloads losslessly and ships each CSV text once. Parsing is deferred until the
+DataFrame is needed. Do not remove download fidelity, identity/assignment checks,
+Supabase fallback, template branding or role-aware counts to reduce payload size.

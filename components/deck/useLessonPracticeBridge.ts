@@ -1,69 +1,134 @@
-"use client";
-import { useEffect, type RefObject } from "react";
+﻿"use client";
+import { useEffect, useState, type RefObject } from "react";
 import { MIS301_SECTION_ID } from "@/lib/mis301Practice";
-import { listenInteractive, realtimeReady, watchClassroom, drawClassroom, resetClassroomDraw, type ClassroomView } from "@/lib/realtime/client";
+import { clearMis301Notebook } from "./useMis301NotebookBridge";
+import { listenInteractive, realtimeReady, watchClassroom, drawClassroom, resetClassroomDraw, configureClassroomQuestions, type ClassroomView } from "@/lib/realtime/client";
 
-// The opaque lesson frame never receives credentials or chooses an API URL.
+type PracticeContext = { teaching: boolean; learner?: { name: string; email: string } | null; practiceSession: string; assignment?: ClassroomView['assignment']; allowed?: boolean };
+type PracticeAccess = { sectionId: string; teaching: boolean; assignment: ClassroomView['assignment']; practiceSession: string };
+
+// One root connection and fallback for the opaque section frame. Never send credentials.
 export function useLessonPracticeBridge(sectionId: string, frame: RefObject<HTMLIFrameElement | null>) {
+  const [practiceAccess, setPracticeAccess] = useState<PracticeAccess | null>(null);
   useEffect(() => {
     if (sectionId !== MIS301_SECTION_ID) return;
     const controller = new AbortController();
-    let pending = false;
-    let snapshot: ClassroomView | null = null;
-    let context: Record<string, unknown> | null = null;
+    let generation = 0, expectedEpoch = '', changingEpoch = false;
+    let pendingToken: string | null = null, snapshot: ClassroomView | null = null, context: PracticeContext | null = null;
+    let refreshing: Promise<void> | undefined;
+    let fallback: { data: Record<string, unknown>; time: number } | null = null;
     let demoMode = true;
-    try { demoMode = localStorage.getItem("eiu:mis301:wheel-demo") !== "off"; } catch { /* Browser storage is optional. */ }
+    try { demoMode = localStorage.getItem('eiu:mis301:wheel-demo') !== 'off'; } catch { /* Storage is optional. */ }
+    const currentSnapshot = () => context && snapshot?.ready && snapshot.practiceSession === expectedEpoch ? snapshot : null;
+    const post = (value: Record<string, unknown>) => {
+      const target = frame.current;
+      target?.contentWindow?.postMessage({ ...value, requestId: target.dataset.requestId }, '*');
+    };
+    function announce() {
+      if (!context) return;
+      const live = currentSnapshot();
+      setPracticeAccess({ sectionId, teaching: context.teaching, practiceSession: expectedEpoch, assignment: live ? live.assignment || null : context.assignment || null });
+      if (live) post({ type: 'eiu-classroom-state', snapshot: { ...live, demoMode } });
+    }
+    function install(data: PracticeContext, captured: number) {
+      if (controller.signal.aborted || captured !== generation || typeof data.practiceSession !== 'string') return false;
+      const candidate = snapshot;
+      if (expectedEpoch && expectedEpoch !== data.practiceSession) {
+        changingEpoch = true;
+        clearMis301Notebook(sectionId, data.practiceSession);
+        changingEpoch = false;
+      }
+      expectedEpoch = data.practiceSession;
+      context = { teaching: data.teaching, learner: data.learner, practiceSession: data.practiceSession, assignment: data.assignment, allowed: data.allowed };
+      if (candidate?.practiceSession === expectedEpoch) snapshot = candidate;
+      announce(); return true;
+    }
+    function refreshAccess() {
+      if (refreshing) return refreshing;
+      const captured = generation, full = !realtimeReady();
+      const operation = (async () => {
+        const response = await fetch(`/api/sections/${encodeURIComponent(sectionId)}/practice${full ? '' : '?context=1'}`, { cache: 'no-store', signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]) });
+        if (!response.ok) throw Error('Unable to verify this section session.');
+        const data = await response.json();
+        if (install(data, captured) && full) fallback = { data, time: Date.now() };
+      })();
+      refreshing = operation;
+      void operation.finally(() => { if (refreshing === operation) refreshing = undefined; }).catch(() => {});
+      return operation;
+    }
+    const invalidate = () => {
+      void refreshAccess().catch(() => {}).finally(() => post({ type: 'eiu-practice-changed' }));
+    };
+    const terminate = (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      if (detail?.sectionId !== sectionId) return;
+      generation++; pendingToken = null; context = null; snapshot = null; fallback = null; refreshing = undefined;
+      expectedEpoch = typeof detail.epoch === 'string' ? detail.epoch : '';
+      setPracticeAccess({ sectionId, teaching: false, assignment: null, practiceSession: expectedEpoch || `ended:${generation}` });
+      post({ type: 'eiu-section-terminated' });
+      if (!changingEpoch) void refreshAccess().catch(() => {});
+    };
+    window.addEventListener('eiu-section-terminated', terminate);
     const classroom = watchClassroom(sectionId, value => {
       snapshot = value;
-      const target = frame.current;
-      target?.contentWindow?.postMessage({ type: "eiu-classroom-state", requestId: target.dataset.requestId, snapshot: { ...value, demoMode } }, "*");
+      if (!value.ready) {
+        if (context) setPracticeAccess({ sectionId, teaching: context.teaching, assignment: null, practiceSession: expectedEpoch });
+        return;
+      }
+      if (context && value.practiceSession === expectedEpoch) announce();
+      else if (value.ready) void refreshAccess().catch(() => {});
     });
-    const invalidate = () => {
-      const target = frame.current;
-      target?.contentWindow?.postMessage({ type: "eiu-practice-changed", requestId: target.dataset.requestId }, "*");
-    };
-    const stop = listenInteractive(sectionId, "quiz", () => { if (!snapshot?.ready || !realtimeReady()) invalidate(); });
-    window.addEventListener("focus", invalidate);
-    // One deck-level fallback; no client/connection/timer per exercise.
+    const stop = listenInteractive(sectionId, 'quiz', () => { if (!currentSnapshot() || !realtimeReady()) invalidate(); });
+    window.addEventListener('focus', invalidate);
     const timer = window.setInterval(() => { if (!realtimeReady() && !document.hidden) invalidate(); }, 15_000);
+    void refreshAccess().catch(() => {});
     const onMessage = async (event: MessageEvent) => {
-      const target = frame.current;
-      const payload = event.data;
-      if (!target || event.source !== target.contentWindow || payload?.type !== "eiu-practice-request"
-        || payload.requestId !== target.dataset.requestId || typeof payload.token !== "string" || payload.token.length > 80
-        || !["load", "submit", "draw", "resetDraw", "demoMode"].includes(payload.operation)) return;
-      const reply = (response: unknown) => {
-        if (!controller.signal.aborted && frame.current === target) target.contentWindow?.postMessage({ type: "eiu-practice-response", requestId: payload.requestId, token: payload.token, response }, "*");
+      const target = frame.current, payload = event.data;
+      if (!target || event.source !== target.contentWindow || payload?.type !== 'eiu-practice-request'
+        || payload.requestId !== target.dataset.requestId || typeof payload.token !== 'string' || payload.token.length > 80
+        || !['load', 'submit', 'draw', 'resetDraw', 'demoMode', 'configureQuestions'].includes(payload.operation)) return;
+      const captured = generation;
+      const reply = (response: Record<string, unknown>) => {
+        if (controller.signal.aborted || frame.current !== target || target.dataset.requestId !== payload.requestId) return;
+        target.contentWindow?.postMessage({ type: 'eiu-practice-response', requestId: payload.requestId, token: payload.token,
+          response: captured === generation ? response : { success: false, message: 'This section session has ended. Reopen it to continue.' } }, '*');
       };
-      if (pending) { reply({ success: false, message: "Please wait for the current request to finish." }); return; }
-      pending = true;
+      if (pendingToken) { reply({ success: false, message: 'Please wait for the current request to finish.' }); return; }
+      pendingToken = payload.token;
       try {
-        if (payload.operation === "demoMode") {
+        if (!context) await refreshAccess();
+        if (captured !== generation || !context) { reply({ success: false }); return; }
+        if (payload.operation === 'demoMode') {
           demoMode = payload.enabled === true;
-          try { localStorage.setItem("eiu:mis301:wheel-demo", demoMode ? "on" : "off"); } catch { /* Browser storage is optional. */ }
-          reply({ ...context, ...snapshot, demoMode, success: true }); return;
+          try { localStorage.setItem('eiu:mis301:wheel-demo', demoMode ? 'on' : 'off'); } catch { /* Storage is optional. */ }
+          reply({ ...context, ...currentSnapshot(), demoMode, success: true }); return;
         }
-        if (payload.operation === "resetDraw") { const result = await resetClassroomDraw(sectionId, payload.demo === true); reply({ success: true, ...result }); return; }
-        if (payload.operation === "draw") {
-          const result = await drawClassroom(sectionId, Number(payload.count), Array.isArray(payload.excluded) ? payload.excluded : [], String(payload.submissionId || ""), payload.demo === true);
-          reply({ success: true, ...result }); return;
+        if (payload.operation === 'configureQuestions') {
+          if (!Array.isArray(payload.questions) || payload.questions.length !== 7) { reply({ success: false, message: 'Invalid part setup.' }); return; }
+          reply({ ...await configureClassroomQuestions(sectionId, payload.questions), success: true }); return;
         }
-        if (payload.operation === "load" && context && snapshot?.ready && realtimeReady()) {
-          reply({ ...context, ...snapshot, demoMode, success: true }); return;
-        }
-        const response = await fetch(`/api/sections/${encodeURIComponent(sectionId)}/practice${payload.operation === "load" && snapshot?.ready && realtimeReady() ? "?context=1" : ""}`, {
-          method: payload.operation === "submit" ? "POST" : "GET", cache: "no-store",
-          headers: payload.operation === "submit" ? { "Content-Type": "application/json" } : undefined,
-          body: payload.operation === "submit" ? JSON.stringify({ partId: payload.partId, values: payload.values, submissionId: payload.submissionId, practiceSession: payload.practiceSession }) : undefined,
+        if (payload.operation === 'resetDraw') { reply({ ...await resetClassroomDraw(sectionId, payload.demo === true), success: true }); return; }
+        if (payload.operation === 'draw') { reply({ ...await drawClassroom(sectionId, Number(payload.count), Array.isArray(payload.excluded) ? payload.excluded : [], String(payload.submissionId || ''), payload.demo === true), success: true }); return; }
+        const live = currentSnapshot();
+        if (payload.operation === 'load' && live && realtimeReady()) { reply({ ...context, ...live, demoMode, success: true }); return; }
+        if (payload.operation === 'load' && fallback && Date.now() - fallback.time < 1000) { reply({ ...fallback.data, draw: live?.draw, questionSetup: live?.questionSetup, classroomStale: true, demoMode, success: true }); return; }
+        const response = await fetch(`/api/sections/${encodeURIComponent(sectionId)}/practice`, {
+          method: payload.operation === 'submit' ? 'POST' : 'GET', cache: 'no-store',
+          headers: payload.operation === 'submit' ? { 'Content-Type': 'application/json' } : undefined,
+          body: payload.operation === 'submit' ? JSON.stringify({ partId: payload.partId, values: payload.values, submissionId: payload.submissionId, practiceSession: payload.practiceSession, drawId: payload.drawId }) : undefined,
           signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15_000)]),
         });
         const data = await response.json();
-        if (payload.operation === "load" && response.ok) context = { teaching: data.teaching, learner: data.learner, practiceSession: data.practiceSession };
-        reply({ ...data, ...(payload.operation === "load" && snapshot?.ready && realtimeReady() ? snapshot : {}), demoMode, success: response.ok });
-      } catch { reply({ success: false, message: "Unable to connect. Please try again; your input is kept." }); }
-      finally { pending = false; }
+        if (captured !== generation) { reply({ success: false }); return; }
+        if (payload.operation === 'load' && response.ok) install(data, captured);
+        const latest = currentSnapshot();
+        reply({ ...data, ...(payload.operation === 'load' && latest && realtimeReady() ? latest : {}),
+          ...(payload.operation === 'load' && data.teaching && latest && !realtimeReady() ? { draw: latest.draw, questionSetup: latest.questionSetup, classroomStale: true } : {}), demoMode, success: response.ok });
+      } catch { reply({ success: false, message: 'Unable to connect. Your input is kept; please retry.' }); }
+      finally { if (pendingToken === payload.token) pendingToken = null; }
     };
-    window.addEventListener("message", onMessage);
-    return () => { controller.abort(); stop(); classroom(); clearInterval(timer); window.removeEventListener("focus", invalidate); window.removeEventListener("message", onMessage); };
+    window.addEventListener('message', onMessage);
+    return () => { controller.abort(); generation++; stop(); classroom(); clearInterval(timer); window.removeEventListener('focus', invalidate); window.removeEventListener('eiu-section-terminated', terminate); window.removeEventListener('message', onMessage); };
   }, [sectionId, frame]);
+  return practiceAccess?.sectionId === sectionId ? practiceAccess : null;
 }

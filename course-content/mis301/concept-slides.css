@@ -1,0 +1,252 @@
+.mis .concept-deck{display:flex;flex-direction:column;gap:1vw;flex:1;min-height:0}
+.mis .concept-three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.15vw;flex:1;min-height:0}
+.mis .concept-icon{width:2.5vw;height:2.5vw;flex:none;color:#18547F}
+.mis .concept-step{font-size:.88vw;font-weight:800;color:#B39159;letter-spacing:.08em}
+.mis .concept-label{display:block;font-size:.75vw;font-weight:800;letter-spacing:.1em;color:#9D7944}
+.mis .source-card{display:flex;flex-direction:column;align-items:stretch;gap:1vw;padding:1.6vw;text-align:left;border:1px solid #dce4e9;border-radius:1.2vw;background:linear-gradient(145deg,#FBFAF7,#fff);color:#17324A;transition:transform .2s,border-color .2s,box-shadow .2s}
+
+.mis .source-topline{display:flex;align-items:center;justify-content:space-between}
+.mis .source-title{font-size:1.85vw;font-weight:850;line-height:1.2;color:#082945;text-wrap:balance}
+.mis .source-points{display:flex;flex-direction:column;gap:.7vw;font-size:1.13vw;line-height:1.5;font-weight:500}
+.mis .source-points>span{position:relative;padding-left:1vw;text-wrap:pretty}
+.mis .source-points>span:before{content:'•';position:absolute;left:0;color:#B39159;font-weight:900}
+.mis .source-formats{display:flex;flex-wrap:wrap;gap:.35vw;margin-top:auto}
+.mis .source-formats>span{padding:.3vw .5vw;border:1px solid #dce4e9;border-radius:.4vw;background:#f0f5f8;font:.85vw/1.2 'MIS Inter',Inter,Arial,sans-serif;color:#18547F;white-space:nowrap}
+.mis .source-action{display:flex;justify-content:space-between;align-items:center;border-top:1px solid #e3e8eb;padding-top:.85vw;margin-top:.2vw;color:#9D7944;font-size:1vw;font-weight:800}
+.mis .concept-takeaway{display:flex;align-items:center;gap:.9vw;padding:.85vw 1.2vw;border:1px solid #e8dcc5;border-left:.3vw solid #B39159;border-radius:.8vw;background:#F7F4ED;flex:none}
+.mis .concept-takeaway .concept-icon{width:2vw;height:2vw}
+.mis .concept-takeaway p{font-size:1.23vw;line-height:1.5;text-wrap:pretty}
+.mis .concept-emphasis{display:inline-block;font-weight:850;color:#123F68;animation:conceptHighlight 3.8s ease-in-out infinite}
+.mis .concept-bullets{margin:0;padding:0 0 0 1.1vw;display:flex;flex-direction:column;gap:.5vw;font-size:1.06vw;line-height:1.45;text-wrap:pretty}
+.mis .concept-bullets li::marker{color:#B39159}
+.mis .concept-code{margin:0;padding:.8vw 1vw;border:1px solid #dce5ec;border-radius:.6vw;background:#f1f5f8;color:#123F68;font:.92vw/1.55 Consolas,monospace;white-space:pre-wrap;overflow-wrap:anywhere}
+.mis .concept-code code{font:inherit}
+.mis .concept-sample-table{border:1px solid #d2dfe7;border-radius:.6vw;background:white;padding:.25vw}
+.mis .concept-sample-table table{font-size:1vw;width:100%;table-layout:fixed}
+.mis .concept-sample-table th,.mis .concept-sample-table td{text-align:left;padding:.55vw .7vw}
+.mis .concept-sample-table th{color:#fff;background:#123F68}
+.mis .concept-sample-table tr:last-child td{border-bottom:0}
+.mis .structure-card{min-width:0;display:flex;flex-direction:column;gap:.8vw;padding:1.15vw;border:1px solid #dce4e9;border-radius:1vw;background:#FBFAF7}
+.mis .structure-heading{display:flex;align-items:center;gap:.7vw}
+.mis .structure-heading .concept-icon{width:2.1vw;height:2.1vw}
+.mis .structure-heading h2{font-size:1.55vw;line-height:1.2;color:#082945;letter-spacing:-.03em}
+.mis .structure-tag{align-self:flex-start;padding:.3vw .55vw;font-size:.8vw;font-weight:800;border-radius:2vw;background:#edf3f7;color:#18547F}
+.mis .structure-tag[data-ready=true]{color:#24664d;background:#e7f2eb}
+.mis .structure-preview{margin-top:auto;min-height:7.5vw;display:flex;flex-direction:column;justify-content:center}
+.mis .structure-preview .concept-code{font-size:.79vw;padding:.65vw;line-height:1.5}
+.mis .structure-preview .concept-sample-table table{font-size:.86vw}
+.mis .structure-preview .concept-sample-table th,.mis .structure-preview .concept-sample-table td{padding:.35vw .55vw}
+.mis .concept-prose{display:flex;flex-direction:column;gap:.5vw;padding:.7vw .9vw;border-left:.2vw solid #B39159;background:white}
+.mis .concept-prose .concept-icon{width:1.7vw;height:1.7vw}
+.mis .concept-prose p{font-size:1vw;line-height:1.45;font-style:italic}
+.mis .concept-prose>span{font-size:.78vw;line-height:1.4;color:#687987}
+.mis .concept-transform{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:1vw;font-size:1vw;line-height:1.4;color:#687987;flex:none}
+.mis .concept-transform strong{color:#082945}
+.mis .dataframe-layout{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:1.2vw;flex:1;min-height:0}
+.mis .reader-methods{display:flex;flex-direction:column;gap:.65vw;min-width:0}
+.mis .reader-import{display:flex;align-items:center;gap:.6vw;padding:.15vw .25vw .3vw;font-size:.86vw}
+.mis .reader-import .concept-icon{width:1.5vw;height:1.5vw}
+.mis .reader-import code{font-size:1vw;font-weight:800;color:#123F68}
+.mis .reader-import>span{margin-left:auto;font-size:.75vw;color:#687987}
+.mis .reader-row{display:flex;flex-direction:column;gap:.4vw;padding:.65vw .85vw;border:1px solid #dce4e9;border-radius:.8vw;background:#FBFAF7;flex:1}
+.mis .reader-heading{display:flex;align-items:center;gap:.65vw}
+.mis .reader-heading .concept-icon{width:1.6vw;height:1.6vw}
+.mis .reader-heading h2{font-size:1.25vw;line-height:1.2;color:#123F68}
+.mis .reader-row .concept-bullets{font-size:.91vw;gap:.1vw}
+.mis .reader-row .concept-code{font-size:.81vw;line-height:1.4;padding:.4vw .65vw;background:white}
+.mis .concept-modal{position:absolute;inset:0;z-index:40;padding:1.1vw;border-radius:1vw;background:#08294565;display:flex}
+.mis .concept-dialog{display:flex;flex-direction:column;gap:1.3vw;padding:1.6vw;width:100%;min-height:0;border:1px solid #d9c69f;border-radius:1vw;background:#FBFAF7;box-shadow:0 .8vw 2vw #041C3125;animation:conceptModalIn .35s cubic-bezier(.22,1,.36,1)}
+.mis .concept-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:1vw;border-bottom:1px solid #dce4e9;padding-bottom:1vw}
+.mis .concept-dialog-header h2{font-size:2.2vw;color:#082945}
+.mis .concept-close{flex:none}
+.mis .source-example-body{display:grid;grid-template-columns:1.15fr 1fr;gap:1.8vw;flex:1;min-height:0;align-items:center}
+.mis .example-source,.mis .example-result{display:flex;flex-direction:column;gap:.8vw;min-width:0}
+.mis .example-result .concept-bullets{margin-top:.6vw;font-size:1.1vw}
+.mis .concept-footnote{font-size:.8vw;color:#687987;line-height:1.4}
+@keyframes conceptHighlight{0%,65%,100%{color:#123F68;text-shadow:none}30%{color:#9D7944;text-shadow:0 0 .65vw #E9CA8B80}}
+@keyframes conceptModalIn{from{opacity:0;transform:translateY(1vw) scale(.98)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.mis .concept-emphasis,.mis .concept-dialog{animation:none}.mis .source-card{transition:none}}
+
+/* Slides 2-4: native course typography and composition within the EIU frame. */
+.mis:is([data-layout=sources],[data-layout=structure],[data-layout=dataframe],[data-layout=pandas-workspace]){font-family:'MIS Inter',Inter,Arial,sans-serif;font-synthesis:none}
+.mis:is([data-layout=sources],[data-layout=structure],[data-layout=dataframe],[data-layout=pandas-workspace]) .frame{gap:1.3vw}
+.mis:is([data-layout=sources],[data-layout=structure],[data-layout=dataframe],[data-layout=pandas-workspace]) .heading{padding-bottom:.9vw}
+.mis:is([data-layout=sources],[data-layout=structure],[data-layout=dataframe],[data-layout=pandas-workspace]) h1{font-size:3.1vw;line-height:1.15;text-wrap:balance}
+.mis .concept-deck{gap:1.15vw}
+.mis .concept-three{gap:1.3vw}
+.mis .concept-deck :is(button,strong,span,p,h2,li,th,td){font-family:'MIS Inter',Inter,Arial,sans-serif}
+.mis .concept-deck :is(pre,code){font-family:Consolas,'Cascadia Code',monospace;font-variant-ligatures:none}
+.mis .source-card{padding:1.65vw;gap:1.15vw;justify-content:center}
+.mis .source-title{font-size:2.05vw;line-height:1.2}
+.mis .source-points{font-size:1.28vw;line-height:1.55;gap:.85vw}
+.mis .source-topline .concept-icon{width:3.3vw;height:3.3vw}
+.mis .source-formats>span{font-size:.98vw;padding:.4vw .65vw}
+.mis .source-action{font-size:1.12vw;padding-top:1vw}
+.mis .concept-takeaway p{font-size:1.3vw}
+.mis .concept-bullets{font-size:1.18vw;line-height:1.5;gap:.65vw}
+.mis .structure-card{padding:1.3vw;gap:1vw}
+.mis .structure-heading{gap:.6vw;min-width:0}
+.mis .structure-heading h2{font-size:1.58vw;line-height:1.25;text-wrap:balance}
+.mis .structure-tag{font-size:.9vw}
+.mis .structure-preview{min-height:9vw}
+.mis .structure-preview .concept-code{font-size:.94vw;line-height:1.6;padding:.85vw}
+.mis .structure-preview .concept-sample-table table{font-size:1.04vw}
+.mis .structure-preview .concept-sample-table th,.mis .structure-preview .concept-sample-table td{padding:.45vw .65vw}
+.mis .concept-prose p{font-size:1.18vw;line-height:1.55}
+.mis .concept-transform{font-size:1.05vw;gap:.85vw}
+.mis .dataframe-layout{grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);gap:1.3vw}
+.mis .reader-methods{gap:.85vw}
+.mis .reader-import code{font-size:1.16vw}
+.mis .reader-row{padding:.9vw 1.05vw;gap:.55vw;justify-content:center}
+.mis .reader-heading h2{font-size:1.45vw}
+.mis .reader-row .concept-bullets{font-size:1.06vw;gap:.2vw}
+.mis .reader-row .concept-code{font-size:.94vw;line-height:1.5;padding:.6vw .75vw}
+.mis .concept-dialog{padding:1.65vw;gap:1.1vw}
+.mis .source-example-body{grid-template-columns:1.2fr 1fr;gap:1.6vw}
+.mis .example-source .concept-code{font-size:1.03vw;line-height:1.55}
+.mis .example-result .concept-bullets{font-size:1.2vw}
+.mis .concept-sample-table th{font-size:inherit;font-weight:750}
+
+/* Slide 2: compact centred source cards and direct visual examples. */
+.mis .source-overview{justify-content:center;align-items:center}
+.mis .source-overview>.concept-three{flex:none;width:80vw;max-width:100%;align-items:stretch;gap:1.25vw}
+.mis .source-overview .source-card{display:flex;flex-direction:column;align-items:center;text-align:center;padding:1.1vw 1.25vw 1.4vw;gap:.9vw}
+.mis .source-illustration{display:block;width:100%;height:7vw;flex:none}
+.mis .source-overview .source-title{font-size:1.9vw}
+.mis .source-overview .source-points{font-size:1.16vw;line-height:1.45;gap:.35vw;text-align:left;align-self:stretch}
+.mis .source-overview .source-formats{justify-content:center;margin-top:.2vw;gap:.4vw}
+.mis .source-overview .source-formats>span{font-size:.9vw;padding:.35vw .55vw}
+.mis .source-overview .source-example-body{width:72vw;max-width:100%;align-self:center;grid-template-columns:1fr 1fr;gap:3vw}
+.mis .source-overview .example-source{gap:.7vw}
+.mis .source-overview .example-source .source-illustration{height:10vw}
+.mis .source-overview .example-result{gap:1vw}
+.mis .source-overview .example-result h3{font-size:1.7vw;text-wrap:balance;color:#082945}
+.mis .source-overview .concept-sample-table table{font-size:1.25vw}
+.mis .source-overview .concept-sample-table th,.mis .source-overview .concept-sample-table td{padding:.85vw 1vw}
+
+.mis .source-overview .source-open>.source-illustration{animation:sourceIllustrationFloat 4s ease-in-out infinite;transform-origin:center}
+.mis .source-open:nth-child(2)>.source-illustration{animation-delay:-1.3s}
+.mis .source-open:nth-child(3)>.source-illustration{animation-delay:-2.6s}
+@keyframes sourceIllustrationFloat{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-.35vw) rotate(1deg)}}
+@media(prefers-reduced-motion:reduce){.mis .source-overview .source-open>.source-illustration{animation:none}}
+
+.mis .source-overview .source-formats{display:flex;flex-wrap:wrap;justify-content:center;gap:.45vw;width:100%;margin-top:.5vw}
+.mis .source-overview button.format-button{padding:.5vw .8vw;min-width:4.4vw;font-size:1vw;font-weight:800;border-radius:.5vw;background:#edf3f7;color:#123F68;border:1px solid #c6d7e3;transition:background .18s,transform .18s,border-color .18s}
+.mis .source-overview button.format-button:hover{background:#F4DFB0;border-color:#B39159;transform:translateY(-.15vw)}
+.mis .source-overview button.format-button:focus-visible{outline:.18vw solid #2D7FB4;outline-offset:.2vw}
+.mis .source-overview .source-example-body{width:76vw;grid-template-columns:1.3fr 1fr;gap:2.4vw}
+.mis .source-overview .example-source .concept-code{font-size:.99vw;line-height:1.6}
+.mis .format-difference{padding:.9vw 1vw;border-left:.25vw solid #B39159;background:#F7F4ED;display:flex;flex-direction:column;gap:.4vw}
+.mis .format-difference>strong{font-size:1.2vw;line-height:1.3;color:#123F68}
+.mis .format-difference p{font-size:1.08vw;line-height:1.55;color:#687987;text-wrap:pretty}
+.mis .format-text-preview{padding:1.5vw;border:1px solid #dce4e9;background:white;border-radius:.65vw;display:flex;flex-direction:column;gap:1vw}
+.mis .format-text-preview p{font-size:1.5vw;line-height:1.5}
+.mis .format-documents{display:flex;flex-direction:column;gap:.8vw}
+.mis .format-documents>div{display:flex;align-items:center;gap:1vw;padding:1vw;border:1px solid #dce4e9;border-radius:.65vw;background:white}
+.mis .format-documents span{display:flex;flex-direction:column;gap:.3vw}
+.mis .format-documents small{font-size:.8vw;color:#9D7944}
+.mis .format-documents strong{font-size:1.3vw;color:#123F68}
+.mis .format-workbook,.mis .format-browser{border:1px solid #c6d7e3;border-radius:.65vw;background:white;padding:.5vw}
+.mis .workbook-letters{display:grid;grid-template-columns:1fr 1fr;text-align:center;background:#e7f2eb;color:#217346;font-size:.85vw;font-weight:800;padding:.4vw}
+.mis .workbook-tab{display:inline-block;margin-top:.5vw;padding:.45vw 1vw;background:#217346;color:white;border-radius:.4vw;font-size:.9vw}
+.mis .format-address{padding:.65vw 1vw;margin-bottom:.5vw;border-radius:.4vw;background:#edf3f7;color:#687987;font-size:.9vw}
+@media(prefers-reduced-motion:reduce){.mis .source-overview button.format-button{transition:none}.mis .source-overview button.format-button:hover{transform:none}}
+
+.mis .xlsx-example-icon{display:grid;place-items:center;padding:1vw}
+.mis .xlsx-example-icon .download-icon{width:8vw;height:9vw}
+
+/* Slide 3 shares slide 2's compact, centred three-card composition. */
+.mis .structure-overview{justify-content:center;align-items:center;gap:1.25vw}
+.mis .structure-overview>.concept-takeaway{width:80vw;max-width:100%;box-sizing:border-box}
+.mis .structure-overview>.concept-three{flex:none;width:80vw;max-width:100%;gap:1.25vw;align-items:stretch}
+.mis .structure-overview .structure-card{align-items:center;padding:1.1vw 1.25vw 1.4vw;gap:.9vw;border-radius:1.2vw;background:linear-gradient(145deg,#FBFAF7,#fff)}
+.mis .structure-overview .structure-heading{flex-direction:column;justify-content:center;gap:.8vw;text-align:center;width:100%}
+.mis .structure-overview .structure-heading .concept-icon{width:3.7vw;height:3.7vw;margin:.45vw 0;animation:sourceIllustrationFloat 4s ease-in-out infinite}
+.mis .structure-overview .structure-card:nth-child(2) .concept-icon{animation-delay:-1.3s}
+.mis .structure-overview .structure-card:nth-child(3) .concept-icon{animation-delay:-2.6s}
+.mis .structure-overview .structure-heading h2{font-size:1.9vw;font-weight:850;line-height:1.2;text-align:center}
+.mis .structure-overview .structure-tag{align-self:center}
+.mis .structure-overview .concept-bullets{width:100%;box-sizing:border-box;font-size:1.16vw;line-height:1.45;gap:.35vw}
+.mis .structure-overview .structure-preview{width:100%;min-height:8vw;margin-top:.2vw}
+.mis .structure-overview .source-formats{justify-content:center;margin-top:.2vw;gap:.4vw}
+.mis .structure-overview .source-formats>span{font-size:.9vw;padding:.35vw .55vw}
+@media(prefers-reduced-motion:reduce){.mis .structure-overview .structure-heading .concept-icon{animation:none}}
+
+/* Slide 4: centred reader reference within the EIU content frame. */
+.mis .dataframe-overview{justify-content:center;align-items:center;gap:1.2vw}
+.mis .dataframe-overview>.concept-takeaway{width:80vw;max-width:100%;box-sizing:border-box}
+.mis .dataframe-overview>.reader-import{justify-content:center;gap:.65vw;padding:.3vw 0}
+.mis .dataframe-overview>.reader-methods{display:grid;grid-template-columns:minmax(0,1fr);width:80vw;max-width:100%;gap:1vw}
+.mis .dataframe-overview .reader-row{display:grid;grid-template-columns:16vw minmax(0,1fr) 33vw;align-items:center;gap:1.4vw;min-height:6.2vw;box-sizing:border-box;padding:1vw 1.3vw;border:1px solid #dce4e9;border-left:.3vw solid #B39159;border-radius:1vw;background:linear-gradient(110deg,#F7F4ED,#FBFAF7 45%,#fff)}
+.mis .dataframe-overview .reader-heading{flex-direction:row;align-items:center;justify-content:flex-start;gap:.7vw}
+.mis .dataframe-overview .reader-heading .concept-icon{width:2.2vw;height:2.2vw;animation:none}
+.mis .dataframe-overview .reader-heading h2{font-size:1.45vw;line-height:1.25;white-space:nowrap}
+.mis .dataframe-overview .reader-row .concept-bullets{font-size:1.02vw;line-height:1.5;gap:.3vw;text-wrap:pretty}
+.mis .dataframe-overview .reader-row .concept-code{min-width:0;box-sizing:border-box;margin:0;padding:.95vw .8vw;font-size:1.13vw;line-height:1.5;background:white;border-color:#dce5ec;white-space:pre;overflow-wrap:normal}
+
+
+/* Slide 5: full-width Colab workspace, bounded by the EIU content frame. */
+.mis:is([data-layout=pandas-workspace]) .frame{gap:.7vw}
+.mis:is([data-layout=pandas-workspace]) .heading{padding-bottom:.55vw}
+.mis .pandas-workspace{gap:.75vw;min-height:0}
+.mis .pandas-workspace .lab{display:flex;flex-direction:column;flex:1;min-height:0}
+.mis .pandas-workspace .notebook{flex:1;min-height:0;border:1px solid #ccd9e3;border-radius:1.1vw;box-shadow:0 .3vw 1vw #08294508}
+.mis .pandas-workspace .nbbar{padding:.7vw 1vw;background:#F7F4ED;border-bottom:1px solid #e8dcc5;border-radius:1.1vw 1.1vw 0 0}
+.mis .pandas-workspace .nbbar strong{font-size:1.1vw}
+.mis .pandas-workspace .nbbar small{font-size:.72vw;letter-spacing:.06em;color:#687987}
+.mis .pandas-workspace .nbcontent{grid-template-columns:13vw minmax(0,1fr)}
+.mis .pandas-workspace .files{padding:1.1vw .9vw;gap:1vw;background:#FBFAF7;border-radius:0 0 0 1.1vw}
+.mis .pandas-workspace .files strong{font-size:1vw;color:#123F68}
+.mis .pandas-workspace .files .fileitem{white-space:pre-line;font:.82vw/2 Consolas,monospace;overflow-wrap:anywhere;color:#18547F}
+.mis .pandas-workspace .files p{font-size:.8vw;line-height:1.55;color:#687987;text-wrap:pretty}
+.mis .pandas-workspace .workspace{padding:1vw;gap:.65vw}
+.mis .pandas-workspace .notebook-presets{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:.5vw;flex:none}
+.mis .pandas-workspace .notebook-presets button{padding:.65vw .5vw;font:.92vw/1.3 'MIS Inter',Inter,sans-serif;color:#123F68;border:1px solid #dce4e9;border-radius:.55vw;background:#FBFAF7;white-space:nowrap}
+.mis .pandas-workspace .notebook-presets button[aria-pressed=true]{background:#123F68;color:white;border-color:#123F68}
+.mis .pandas-workspace .notebook-presets button.executed{box-shadow:inset 0 -.18vw #B39159}
+.mis .pandas-workspace .cell{padding:.8vw;border-radius:.7vw;background:#f5f8fa;align-items:flex-start;gap:.8vw}
+.mis .pandas-workspace textarea{height:5.1vw;font:1.12vw/1.5 Consolas,monospace}
+.mis .pandas-workspace .run{width:2.3vw;height:2.3vw;flex:none;border-radius:50%;margin-top:.2vw}
+.mis .pandas-workspace .cell-tools{gap:.55vw;align-items:center}
+.mis .pandas-workspace .cell-tools button{font-size:.85vw;padding:.4vw .7vw;border-radius:.45vw}
+.mis .pandas-workspace .execution{font-size:.8vw;min-height:1vw}
+.mis .pandas-workspace .output{border-top:1px solid #e2e7eb;padding:.75vw .2vw .2vw;min-height:0;flex:1}
+
+.mis .pandas-workspace .files .runtime-bindings{white-space:pre-line;font-size:.78vw;line-height:1.7;border-top:1px solid #e8dcc5;padding-top:.65vw;color:#123F68;overflow-wrap:anywhere}
+
+/* Consolidated CSV / Excel / Explore workspace inside the assigned EIU frame. */
+.mis .pandas-workspace .workspace{gap:.55vw;padding:.85vw 1vw}
+.mis .pandas-workspace .workflow-nav{display:flex;align-items:center;justify-content:space-between;gap:1vw;flex:none}
+.mis .pandas-workspace .workflow-tabs{display:flex;gap:.4vw;padding:.3vw;border:1px solid #e8dcc5;border-radius:.7vw;background:#F7F4ED}
+.mis .pandas-workspace .workflow-tabs button{padding:.6vw 1.5vw;border:0;border-radius:.45vw;background:transparent;color:#687987;font-size:1.05vw;line-height:1.25;white-space:nowrap}
+.mis .pandas-workspace .workflow-tabs button[aria-selected=true]{background:#123F68;color:#fff}
+.mis .pandas-workspace .workflow-target{display:flex;align-items:center;gap:.55vw;color:#687987;font-size:.9vw;white-space:nowrap}
+.mis .pandas-workspace .workflow-target select{width:auto;min-width:10vw;height:auto;border:1px solid #d4dde3;border-radius:.5vw;background:white;padding:.55vw .7vw;color:#123F68;font:1vw/1.3 'MIS Inter',Inter,sans-serif}
+.mis .pandas-workspace .workflow-context{display:flex;flex-direction:column;gap:.25vw;flex:none;min-height:3.5vw;justify-content:center}
+.mis .pandas-workspace .workflow-description{font-size:1.04vw;line-height:1.4;color:#17324A;text-wrap:pretty}
+.mis .pandas-workspace .workflow-hint{font-size:.94vw;line-height:1.45;color:#687987;text-wrap:pretty}
+.mis .pandas-workspace .notebook-presets[data-count="3"],.mis .pandas-workspace .notebook-presets[data-count="6"]{grid-template-columns:repeat(3,minmax(0,1fr))}
+.mis .pandas-workspace .notebook-presets[data-count="4"]{grid-template-columns:repeat(4,minmax(0,1fr))}
+.mis .pandas-workspace .notebook-presets{gap:.4vw}
+.mis .pandas-workspace .notebook-presets button{padding:.45vw .5vw;font-size:.9vw;line-height:1.25}
+.mis .pandas-workspace .notebook-presets button.executed:after{content:' \2713';font-size:.9vw}
+.mis .pandas-workspace .cell{padding:.65vw .8vw}
+.mis .pandas-workspace textarea{height:4.7vw}
+.mis .pandas-workspace .output{padding-top:.55vw}
+
+/* Slide 5: compact controls reserve the main content area for results. */
+.mis[data-layout=pandas-workspace] .frame{gap:.4vw}
+.mis[data-layout=pandas-workspace] .heading{padding-bottom:.2vw}
+.mis[data-layout=pandas-workspace] h1{font-size:2.6vw;line-height:1.15}
+.mis .pandas-workspace .nbbar{padding:.4vw .8vw}
+.mis .pandas-workspace .workspace{gap:.35vw;padding:.55vw .8vw}
+.mis .pandas-workspace .workflow-tabs{padding:.2vw}
+.mis .pandas-workspace .workflow-tabs button{padding:.4vw 1.2vw}
+.mis .pandas-workspace .workflow-target select{padding:.4vw .6vw}
+.mis .pandas-workspace .notebook-presets[data-count="6"]{grid-template-columns:repeat(6,minmax(0,1fr))}
+.mis .pandas-workspace .notebook-presets button{padding:.4vw .5vw}
+.mis .pandas-workspace .cell{padding:.45vw .65vw}
+.mis .pandas-workspace textarea{height:3.8vw}
+.mis .pandas-workspace .cell-tools button{padding:.3vw .6vw}
+.mis .pandas-workspace .output{padding-top:.35vw}
+.mis .pandas-workspace .output th,.mis .pandas-workspace .output td{padding:.28vw .5vw}

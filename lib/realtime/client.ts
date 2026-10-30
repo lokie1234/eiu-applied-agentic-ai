@@ -75,10 +75,12 @@ export async function pulsePresence(sectionId: string, clientId: string, leave =
 
 export type ClassroomView = {
   ready: boolean; teaching: boolean; practiceSession?: string;
+  assignment?: { question: number; part?: number; drawId: string; createdAt: number; config?: { number: number; title?: string; prompt: string; starterCode: string; tasks?: Array<{ label: string; code: string }> } } | null;
   members: Array<{ id: string; username: string }>;
-  items: Array<{ id: string; name: string; partId: string; values: Record<string, string>; submittedAt: string }>;
-  draw: { names: string[]; subjects?: string[]; requestId: string; createdAt: number } | null;
-  demoDraw?: { names: string[]; subjects?: string[]; requestId: string; createdAt: number } | null;
+  questionSetup?: Array<{ number: number; title?: string; prompt: string; starterCode: string; tasks?: Array<{ label: string; code: string }> }>;
+  items: Array<{ id: string; subject?: string; assignmentPart?: number; questionNumber?: number; drawId?: string; name: string; partId: string; values: Record<string, string>; submittedAt: string }>;
+  draw: { names: string[]; subjects?: string[]; requestId: string; createdAt: number; assignmentVersion?: number; questions?: Array<{ number: number; title?: string; prompt: string; starterCode: string; tasks?: Array<{ label: string; code: string }> }> } | null;
+  demoDraw?: { names: string[]; subjects?: string[]; requestId: string; createdAt: number; assignmentVersion?: number } | null;
 };
 export function watchClassroom(sectionId: string, callback: (value: ClassroomView) => void) {
   let stop: (() => void) | undefined, owner: ConvexClient | null = null;
@@ -94,7 +96,7 @@ export function watchClassroom(sectionId: string, callback: (value: ClassroomVie
 }
 export async function drawClassroom(sectionId: string, count: number, excluded: string[], requestId: string, demo = false) {
   if (!client || !ready) throw new Error("The live classroom is reconnecting. Please try again shortly.");
-  const result = await client.mutation(makeFunctionReference<"mutation", { sectionId: string; count: number; excluded: string[]; requestId: string; demo: boolean }, { names?: string[]; subjects?: string[]; createdAt?: number; requestId?: string; retryAfter?: number; message?: string }>("classroom:draw"), { sectionId, count, excluded, requestId, demo });
+  const result = await client.mutation(makeFunctionReference<"mutation", { sectionId: string; count: number; excluded: string[]; requestId: string; demo: boolean }, { names?: string[]; subjects?: string[]; createdAt?: number; requestId?: string; assignmentVersion?: number; retryAfter?: number; message?: string }>("classroom:draw"), { sectionId, count, excluded, requestId, demo });
   if (result.retryAfter) throw new Error(`Please try again in ${result.retryAfter} seconds.`);
   if (result.message || !result.names) throw new Error(result.message || "Unable to draw names.");
   return result;
@@ -104,4 +106,9 @@ export async function resetClassroomDraw(sectionId: string, demo = false) {
   const result = await client.mutation(makeFunctionReference<"mutation", { sectionId: string; demo: boolean }, { success?: boolean; retryAfter?: number }>("classroom:resetDraw"), { sectionId, demo });
   if (result.retryAfter) throw new Error(`Please try again in ${result.retryAfter} seconds.`);
   return result;
+}
+
+export async function configureClassroomQuestions(sectionId: string, questions: Array<{ number: number; title?: string; prompt: string; starterCode: string; tasks?: Array<{ label: string; code: string }> }>) {
+  if (!client || !ready) throw new Error('The live classroom is reconnecting.');
+  return client.mutation(makeFunctionReference<'mutation', { sectionId: string; questions: Array<{ number: number; title?: string; prompt: string; starterCode: string; tasks?: Array<{ label: string; code: string }> }> }, { success: boolean }>('classroom:configureQuestions'), { sectionId, questions });
 }

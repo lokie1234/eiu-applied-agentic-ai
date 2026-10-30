@@ -6,7 +6,7 @@
   "slides": [
     {
       "kind": "introduction",
-      "phase": "SECTION 1 · COURSE OVERVIEW",
+      "phase": "",
       "title": "Data Analysis Workflow",
       "subtitle": "",
       "topics": [
@@ -16,188 +16,316 @@
       ]
     },
     {
-      "kind": "raw",
-      "phase": "BEFORE THE DEMO",
-      "title": "Raw data has arrived. What comes first?",
-      "subtitle": "Understand the source before writing the first line of analysis."
-    },
-    {
-      "kind": "plan",
-      "phase": "BEFORE THE DEMO",
-      "title": "Turn a file into a trustworthy table",
-      "subtitle": "Source → structure → import → inspect. Then decide what needs cleaning."
-    },
-    {
-      "kind": "lab",
-      "phase": "DEMO · 01",
-      "title": "Import a CSV into a DataFrame",
-      "subtitle": "Follow the Demo notebook: import Pandas, read the file, then inspect the table.",
-      "dataset": "student_data.csv",
-      "commands": [
-        "import pandas as pd",
-        "df = pd.read_csv(\"student_data.csv\")",
-        "df.head()"
-      ],
-      "notes": [
-        "Import the library once in the current runtime.",
-        "Assign the table to df so later cells can reuse it.",
-        "Check column names and the first five records."
+      "kind": "sources",
+      "phase": "DATA SOURCES",
+      "title": "Data comes from many sources",
+      "subtitle": "",
+      "sources": [
+        {
+          "title": "Local files",
+          "icon": "file",
+          "bullets": [
+            "Files on your computer.",
+            "Flat files or spreadsheets."
+          ],
+          "formats": [
+            {
+              "id": "csv",
+              "label": "CSV",
+              "title": "CSV: values separated by commas",
+              "inputLabel": "scores.csv",
+              "input": "student,score\nAn,85\nBinh,92\nChi,78",
+              "previewTitle": "The same records as a table",
+              "differenceTitle": "One line = one row",
+              "difference": "Commas separate fields. The first line supplies column names; CSV stores a plain-text table without sheets or cell formatting."
+            },
+            {
+              "id": "txt",
+              "label": "TXT",
+              "title": "TXT: plain text without a fixed table",
+              "inputLabel": "scores.txt",
+              "input": "An scored 85.\nBinh scored 92.\nChi scored 78.",
+              "previewTitle": "Text rather than table cells",
+              "differenceTitle": "No required row/column structure",
+              "difference": "A .txt file can contain prose or delimiter-separated records. This example uses sentences, so student and score must be extracted first."
+            },
+            {
+              "id": "xlsx",
+              "label": "XLSX",
+              "title": "XLSX: cells inside a workbook",
+              "inputLabel": "scores.xlsx",
+              "input": "",
+              "previewTitle": "Worksheet: Scores",
+              "differenceTitle": "A workbook can contain several sheets",
+              "difference": "Each value occupies an addressed cell, such as A2 or B2. XLSX can store multiple worksheets, formulas and formatting; CSV cannot."
+            }
+          ]
+        },
+        {
+          "title": "Databases",
+          "icon": "database",
+          "bullets": [
+            "Query stored data.",
+            "SQL tables or NoSQL documents."
+          ],
+          "formats": [
+            {
+              "id": "sql",
+              "label": "SQL",
+              "title": "SQL: a table in a relational database",
+              "inputLabel": "Table + query",
+              "input": "CREATE TABLE scores (\n  student TEXT,\n  score INTEGER\n);\n\nSELECT student, score\nFROM scores\nORDER BY student;",
+              "previewTitle": "Query result: scores",
+              "differenceTitle": "Defined columns; query the rows you need",
+              "difference": "The table defines field types. SQL can select, filter and join stored tables. It is a database query language, rather than a flat-file format."
+            },
+            {
+              "id": "nosql",
+              "label": "NoSQL",
+              "title": "NoSQL: a collection of documents",
+              "inputLabel": "Collection: scores",
+              "input": "{ \"_id\": \"s1\", \"student\": \"An\",\n  \"result\": { \"score\": 85 } }\n\n{ \"_id\": \"s2\", \"student\": \"Binh\",\n  \"result\": { \"score\": 92 } }\n\n{ \"_id\": \"s3\", \"student\": \"Chi\",\n  \"result\": { \"score\": 78 } }",
+              "previewTitle": "Three separate stored documents",
+              "differenceTitle": "Document example of a NoSQL database",
+              "difference": "Related values can be nested inside one document. NoSQL is a database family, not a file format; document stores are one common type."
+            }
+          ]
+        },
+        {
+          "title": "Web access",
+          "icon": "web",
+          "bullets": [
+            "Data from the web.",
+            "Website tables or API responses."
+          ],
+          "formats": [
+            {
+              "id": "html",
+              "label": "HTML",
+              "title": "HTML: a table inside a web page",
+              "inputLabel": "scores.html",
+              "input": "<table>\n  <tr><th>Student</th><th>Score</th></tr>\n  <tr><td>An</td><td>85</td></tr>\n  <tr><td>Binh</td><td>92</td></tr>\n  <tr><td>Chi</td><td>78</td></tr>\n</table>",
+              "previewTitle": "What the browser displays",
+              "differenceTitle": "Tags describe page content",
+              "difference": "The browser renders <table>, <tr> and <td> as a visible table. Web scraping extracts values from this page structure."
+            },
+            {
+              "id": "json",
+              "label": "JSON",
+              "title": "JSON: records described with keys",
+              "inputLabel": "API response: JSON",
+              "input": "[\n  {\"student\": \"An\", \"score\": 85},\n  {\"student\": \"Binh\", \"score\": 92},\n  {\"student\": \"Chi\", \"score\": 78}\n]",
+              "previewTitle": "Records interpreted as a table",
+              "differenceTitle": "Keys identify each value",
+              "difference": "Objects use key/value pairs; arrays group records. JSON is common in APIs and supports nested objects, arrays and typed values."
+            },
+            {
+              "id": "xml",
+              "label": "XML",
+              "title": "XML: records wrapped in named tags",
+              "inputLabel": "API response: XML",
+              "input": "<scores>\n  <record><student>An</student>\n    <score>85</score></record>\n  <record><student>Binh</student>\n    <score>92</score></record>\n  <record><student>Chi</student>\n    <score>78</score></record>\n</scores>",
+              "previewTitle": "Records interpreted as a table",
+              "differenceTitle": "Opening and closing tags carry structure",
+              "difference": "Each record is enclosed by named tags. XML can also use attributes; extract the student and score elements to produce rows."
+            }
+          ]
+        }
       ]
     },
     {
-      "kind": "lab",
-      "phase": "DEMO · 02",
-      "title": "Excel: choose the right worksheet",
-      "subtitle": "A workbook can contain several tables. sheet_name=1 selects the second sheet.",
-      "dataset": "Course Offerings.xlsx",
-      "commands": [
-        "import pandas as pd",
-        "df2 = pd.read_excel(\"Course Offerings.xlsx\")\ndf2.head()",
-        "df2 = pd.read_excel(\"Course Offerings.xlsx\", sheet_name=1)\ndf2.head()"
-      ],
-      "notes": [
-        "The first worksheet is Instructors.",
-        "The second worksheet is Courses.",
-        "Python uses zero-based worksheet positions: 0, 1, …"
+      "kind": "structure",
+      "phase": "DATA STRUCTURE",
+      "title": "Analysis starts with rows and columns",
+      "subtitle": "",
+      "types": [
+        {
+          "title": "Structured",
+          "icon": "table",
+          "tag": "Already tabular",
+          "bullets": [
+            "Organised as rows and columns.",
+            "Ready to inspect and analyse."
+          ],
+          "formats": [
+            "XLSX",
+            "CSV",
+            "SQL tables"
+          ],
+          "example": "table"
+        },
+        {
+          "title": "Semi-structured",
+          "icon": "code",
+          "tag": "Parse or normalise",
+          "bullets": [
+            "Uses keys, tags or nested records.",
+            "Convert records into a consistent table."
+          ],
+          "formats": [
+            "JSON",
+            "XML"
+          ],
+          "example": "json"
+        },
+        {
+          "title": "Unstructured",
+          "icon": "document",
+          "tag": "Transform first",
+          "bullets": [
+            "Prose, scanned documents or photos.",
+            "Extract fields, then arrange a table."
+          ],
+          "formats": [
+            "PDF text / scans",
+            "JPG",
+            "Free text"
+          ],
+          "example": "prose"
+        }
       ]
     },
     {
-      "kind": "lab",
-      "phase": "DEMO · 03",
-      "title": "Check the size. Preview the records.",
-      "subtitle": "Confirm that the imported DataFrame looks like the source you expected.",
+      "kind": "dataframe",
+      "phase": "PANDAS DATAFRAME",
+      "title": "Bring external data into a DataFrame",
+      "subtitle": "",
+      "readers": [
+        {
+          "function": "pd.read_csv",
+          "icon": "file",
+          "bullets": [
+            "Read a delimiter-separated text file.",
+            "Choose the separator and header row."
+          ],
+          "code": "pd.read_csv(file_path, sep, header)"
+        },
+        {
+          "function": "pd.read_excel",
+          "icon": "table",
+          "bullets": [
+            "Read a Microsoft Excel workbook.",
+            "Choose a worksheet with sheet_name."
+          ],
+          "code": "pd.read_excel(file_path, sheet_name)"
+        },
+        {
+          "function": "pd.read_json",
+          "icon": "code",
+          "bullets": [
+            "Read tabular records from a JSON file.",
+            "Nested JSON may need normalisation."
+          ],
+          "code": "pd.read_json(file_path)"
+        }
+      ]
+    },
+    {
+      "kind": "pandas-workspace",
+      "phase": "DEMO",
+      "title": "Read & Explore a DataFrame",
+      "subtitle": "",
       "dataset": "student_data.csv",
-      "bootstrap": true,
+      "autoUpload": true,
+      "autoUploadFiles": [
+        "Course Offerings.xlsx"
+      ],
+      "inlineCommands": true,
+      "sharedRuntime": true,
+      "notes": [],
       "commands": [
+        "import pandas as pd",
+        "df = pd.read_csv(\"student_data.csv\")\ndf",
+        "df = pd.read_csv(\"student_data.csv\", sep=\",\", header=0)\ndf",
+        "df = pd.read_csv(\"student_data.csv\", sep=\",\", header=None)\ndf",
+        "df2 = pd.read_excel(\"Course Offerings.xlsx\")\ndf2",
+        "df2 = pd.read_excel(\"Course Offerings.xlsx\", sheet_name=1)\ndf2",
+        "df2 = pd.read_excel(\"Course Offerings.xlsx\", sheet_name=\"Courses\")\ndf2",
         "df.shape",
         "df.head()",
-        "df.head(3)"
-      ],
-      "notes": [
-        "shape returns (rows, columns), not a count of cells.",
-        "head() defaults to the first five records.",
-        "head(3) changes the preview without changing df."
-      ]
-    },
-    {
-      "kind": "lab",
-      "phase": "DEMO · 04",
-      "title": "Check completeness and data types",
-      "subtitle": "Missing values and unexpected types change what your analysis can tell you.",
-      "dataset": "student_data.csv",
-      "bootstrap": true,
-      "commands": [
-        "df.count()",
+        "df.tail()",
         "df.info()",
-        "df.describe()"
+        "df.describe()",
+        "df.count()",
+        "df2.shape",
+        "df2.head()",
+        "df2.tail()",
+        "df2.info()",
+        "df2.describe()",
+        "df2.count()"
       ],
-      "notes": [
-        "count() counts non-null values separately for each column.",
-        "info() shows column types and non-null counts.",
-        "describe() summarizes numeric columns: count, mean, std and quartiles."
+      "commandLabels": [
+        "Import Pandas",
+        "Read CSV",
+        "sep=\",\" / header=0",
+        "header=None",
+        "First sheet (default)",
+        "sheet_name=1",
+        "sheet_name=\"Courses\"",
+        "shape",
+        "head()",
+        "tail()",
+        "info()",
+        "describe()",
+        "count()",
+        "shape",
+        "head()",
+        "tail()",
+        "info()",
+        "describe()",
+        "count()"
+      ],
+      "commandGroups": [
+        {
+          "label": "1. CSV",
+          "start": 0,
+          "count": 4,
+          "description": "Use pd.read_csv() to read flat files by specifying the file path.",
+          "hint": "sep=\",\" splits fields at commas. header=0 uses the first row as column names (default); header=None keeps it as data."
+        },
+        {
+          "label": "2. Excel",
+          "start": 4,
+          "count": 3,
+          "description": "Use pd.read_excel() to read Excel files by specifying the file path.",
+          "hint": "Use sheet_name to choose a worksheet. The default is 0: the first sheet (Instructors); 1 selects Courses."
+        },
+        {
+          "label": "3. Explore",
+          "start": 7,
+          "count": 12,
+          "description": "After reading data into Python, it's common to quickly explore the DataFrame to make sure the data was imported correctly.",
+          "hint": "Choose df for CSV or df2 for Excel. Explore the table that is currently stored in that variable.",
+          "targets": [
+            {
+              "value": "df",
+              "label": "df - CSV",
+              "start": 7,
+              "count": 6
+            },
+            {
+              "value": "df2",
+              "label": "df2 - Excel",
+              "start": 13,
+              "count": 6
+            }
+          ]
+        }
       ]
-    },
-    {
-      "kind": "bridge",
-      "phase": "DEMO → PRACTICE",
-      "title": "Inspect first. Analyse with context.",
-      "subtitle": "The demo gives you a repeatable routine, not just a list of commands."
     },
     {
       "kind": "picker",
-      "adminOnly": true,
+      "adminOnly": false,
       "phase": "BEFORE PRACTICE ? TEACHING",
       "title": "Class Spotlight",
-      "subtitle": "Choose the group size. Spin the spotlight. Meet your next presenters."
+      "subtitle": ""
     },
     {
       "kind": "practice-hub",
-      "phase": "PRACTICE WORKSPACE",
-      "title": "Happiness Survey ? Practice",
-      "subtitle": "Four parts, one workspace. Open a part to explore the data and send your answers.",
-      "parts": [
-        {
-          "kind": "lab",
-          "phase": "PRACTICE · 01",
-          "title": "Your dataset: Happiness Survey",
-          "subtitle": "Repeat the import routine with happiness_survey_data.csv.",
-          "dataset": "happiness_survey_data.csv",
-          "commands": [
-            "import pandas as pd",
-            "df = pd.read_csv(\"happiness_survey_data.csv\")",
-            "df.head(10)"
-          ],
-          "notes": [
-            "Read the country/year structure before interpreting scores.",
-            "Each row is a country-year observation, not a unique country.",
-            "All notebooks and datasets are available on slide 1."
-          ],
-          "practicePart": "import"
-        },
-        {
-          "kind": "lab",
-          "phase": "PRACTICE · 02",
-          "title": "Preview both ends of the DataFrame",
-          "subtitle": "The Practice notebook asks for the first 10 rows and the last 5 rows.",
-          "dataset": "happiness_survey_data.csv",
-          "bootstrap": true,
-          "commands": [
-            "df.head(10)",
-            "df.tail(5)",
-            "df.shape"
-          ],
-          "notes": [
-            "head(10): first ten rows.",
-            "tail(5): last five rows; original row indices are retained.",
-            "Question 1: how many rows and columns are present?"
-          ],
-          "practicePart": "explore"
-        },
-        {
-          "kind": "lab",
-          "phase": "PRACTICE · 03",
-          "title": "What does the Happiness Score tell us?",
-          "subtitle": "Questions 2–3: find the average and the minimum Happiness Score.",
-          "dataset": "happiness_survey_data.csv",
-          "bootstrap": true,
-          "commands": [
-            "df.describe()",
-            "df[\"happiness_score\"].mean()",
-            "df[\"happiness_score\"].min()"
-          ],
-          "notes": [
-            "Read mean and min in the happiness_score column.",
-            "The average excludes missing values.",
-            "Report the answer to two decimal places; keep full precision in calculations."
-          ],
-          "practicePart": "scores"
-        },
-        {
-          "kind": "lab",
-          "phase": "PRACTICE · 04",
-          "title": "Types and missing values matter",
-          "subtitle": "Questions 4–5: inspect country_name and count the available social_support values.",
-          "dataset": "happiness_survey_data.csv",
-          "bootstrap": true,
-          "commands": [
-            "df.info()",
-            "df.count()",
-            "df[\"social_support\"].count()"
-          ],
-          "notes": [
-            "country_name is stored as object in the supplied Pandas solution.",
-            "A non-null count is different from the number of rows.",
-            "Compare the social_support count with df.shape[0]."
-          ],
-          "practicePart": "quality"
-        }
-      ],
-      "answerCheck": {
-        "kind": "answers",
-        "phase": "REFLECT & CHECK",
-        "title": "Explain your answers, then reveal",
-        "subtitle": "Connect each answer to the command that produced the evidence."
-      }
+      "adminOnly": true,
+      "phase": "PRACTICE",
+      "title": "Question responses",
+      "subtitle": ""
     }
   ]
 }

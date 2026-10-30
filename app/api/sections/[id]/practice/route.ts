@@ -4,10 +4,12 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 import { readSectionTermination } from "@/lib/sectionTermination";
 import { notifyRealtime } from "@/lib/realtime/publish";
 import { notifyClassroom, notifyClassroomAnswer } from "@/lib/realtime/classroom";
-import { MIS301_COURSE_ID, MIS301_SECTION_ID, MIS301_PRACTICE, mis301Part } from "@/lib/mis301Practice";
+import { MIS301_COURSE_ID, MIS301_SECTION_ID, MIS301_PRACTICE, mis301Part, mis301Question } from "@/lib/mis301Practice";
+
+import { readPracticeAssignment } from "@/lib/mis301Assignment";
 
 type Context = { params: Promise<{ id: string }> };
-type RecordRow = { id: number; created_at: string; details: { sessionId: string; name: string; email: string; partId: string; values: Record<string, string> } };
+type RecordRow = { id: number; created_at: string; details: { sessionId: string; name: string; email: string; partId: string; assignmentPart?: number; questionNumber?: number; drawId?: string; values: Record<string, string> } };
 async function resolve(request: Request, context: Context) {
   const { id } = await context.params;
   if (id !== MIS301_SECTION_ID) return null;
@@ -16,7 +18,9 @@ async function resolve(request: Request, context: Context) {
   const course = access?.courses.find(course => course.id === section?.courseId);
   if (!access?.isActive || !section || !course || (!access.isAdmin && (section.hidden || course.hidden))) return null;
   const teaching = access.isAdmin || section.canFacilitate === true;
-  return { access, section, course, teaching, identity: access.learnerIdentity, termination: await readSectionTermination(course.id, section.id, request.signal) };
+  const termination = await readSectionTermination(course.id, section.id, request.signal);
+  const assignment = teaching ? null : await readPracticeAssignment(access, termination?.details.token || 'initial');
+  return { access, section, course, teaching, identity: access.learnerIdentity, termination, assignment };
 }
 type Scope = NonNullable<Awaited<ReturnType<typeof resolve>>>;
 function records(scope: Scope, signal: AbortSignal) {
@@ -30,7 +34,10 @@ export async function GET(request: Request, context: Context) {
     const scope = await resolve(request, context);
     if (!scope) return NextResponse.json({ message: "You do not have access to this practice." }, { status: 403 });
     if (!scope.teaching && (!scope.identity?.information.name || !scope.identity.email || scope.identity.email.endsWith("@passcode.eiu"))) return NextResponse.json({ message: "Please sign in again and enter your username and email through Learning Access." }, { status: 403 });
-    if (new URL(request.url).searchParams.get("context") === "1") return NextResponse.json({ teaching: scope.teaching,
+    if (!scope.teaching && !scope.assignment) return NextResponse.json({ teaching: false, allowed: false, assignment: null,
+      practiceSession: scope.termination?.details.token || "initial", learner: scope.identity ? { name: scope.identity.name, email: scope.identity.email } : null, items: [],
+    }, { headers: { "Cache-Control": "private, no-store" } });
+    if (new URL(request.url).searchParams.get("context") === "1") return NextResponse.json({ teaching: scope.teaching, allowed: scope.teaching || Boolean(scope.assignment), assignment: scope.assignment,
       practiceSession: scope.termination?.details.token || "initial", learner: scope.identity ? { name: scope.identity.name, email: scope.identity.email } : null, items: [],
     }, { headers: { "Cache-Control": "private, no-store" } });
     let query = records(scope, request.signal);
@@ -40,9 +47,9 @@ export async function GET(request: Request, context: Context) {
     }
     const { data, error } = await query.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(200);
     if (error) throw error;
-    return NextResponse.json({ teaching: scope.teaching, practiceSession: scope.termination?.details.token || "initial",
+    return NextResponse.json({ teaching: scope.teaching, allowed: scope.teaching || Boolean(scope.assignment), assignment: scope.assignment, practiceSession: scope.termination?.details.token || "initial",
       learner: scope.identity ? { name: scope.identity.name, email: scope.identity.email } : null,
-      items: ((data || []) as RecordRow[]).map(row => ({ id: String(row.id), submittedAt: row.created_at, name: row.details.name, email: row.details.email, partId: row.details.partId, values: row.details.values })),
+      items: ((data || []) as RecordRow[]).map(row => ({ id: String(row.id), subject: row.details.sessionId, assignmentPart: row.details.assignmentPart, questionNumber: row.details.questionNumber, drawId: row.details.drawId, submittedAt: row.created_at, name: row.details.name, email: row.details.email, partId: row.details.partId, values: row.details.values })),
     }, { headers: { "Cache-Control": "private, no-store" } });
   } catch {
     return NextResponse.json({ message: "Unable to load practice answers. Please try again." }, { status: 500 });
@@ -58,21 +65,32 @@ export async function POST(request: Request, context: Context) {
     let body; try { body = JSON.parse(raw); } catch { return NextResponse.json({ message: "Invalid answer." }, { status: 400 }); }
     const partId = mis301Part(body?.partId), submissionId = typeof body?.submissionId === "string" ? body.submissionId : "";
     if (!partId || !/^[a-f0-9-]{36}$/i.test(submissionId)) return NextResponse.json({ message: "Invalid practice part or submission." }, { status: 400 });
+    if (!scope.assignment) return NextResponse.json({ message: "This question has not been assigned to your signed-in session." }, { status: 403 });
+    const assigned = mis301Question(scope.assignment.question);
+    if (!assigned || partId !== assigned.partId) return NextResponse.json({ message: "Submit only the question assigned by the wheel." }, { status: 403 });
+    if (body.drawId !== scope.assignment.drawId) return NextResponse.json({ message: "The wheel assignment has changed. Reopen your question." }, { status: 409 });
     if (body.practiceSession !== (scope.termination?.details.token || "initial")) return NextResponse.json({ message: "This practice session has changed. Reload the slide before submitting." }, { status: 409 });
     const definition = MIS301_PRACTICE[partId], values: Record<string, string> = {};
+    const allowedFields: readonly string[] = assigned.fields;
+    if (allowedFields && Object.keys(body.values || {}).some(key => !allowedFields.includes(key))) return NextResponse.json({ message: "This answer includes fields outside your assigned question." }, { status: 403 });
     for (const field of definition.fields) {
+      if (allowedFields && !allowedFields.includes(field.id)) continue;
       const value = typeof body.values?.[field.id] === "string" ? body.values[field.id].trim() : "";
+      if (!value && allowedFields && !(assigned.required as readonly string[]).includes(field.id)) continue;
+      if (!value && !allowedFields && "optional" in field && field.optional) continue;
       if (!value || value.length > 2000) return NextResponse.json({ message: `Complete ${field.label} (up to 2,000 characters).` }, { status: 400 });
       values[field.id] = value;
     }
     const existing = await records(scope, request.signal).contains("details", { sessionId: scope.identity.sessionId, submissionId }).limit(1).maybeSingle();
     if (existing.error) throw existing.error;
     if (existing.data) { notifyClassroom(); return NextResponse.json({ success: true, submittedAt: existing.data.created_at }); }
+    const latestTermination = await readSectionTermination(scope.course.id, scope.section.id, request.signal);
+    if (body.practiceSession !== (latestTermination?.details.token || 'initial')) return NextResponse.json({ message: 'This section has ended. Reopen it before submitting.' }, { status: 409 });
     const { error, data } = await getSupabaseAdmin(request.signal).from("access_audit_logs").insert({
       action: "ACTIVITY_SUBMITTED", actor_email: scope.identity.email, course_id: scope.course.id,
       details: { ...scope.identity, courseId: scope.course.id, courseTitle: scope.course.title, sectionId: scope.section.id, sectionTitle: scope.section.title, section: scope.section.sectionKey,
         folderGroupId: scope.course.folderGroupId, folderGroupName: scope.course.folderGroupName, submissionStorage: "audit", practice: "mis301-pandas", practiceSession: body.practiceSession,
-        submissionId, partId, activityType: `mis301-${partId}`, activityLabel: definition.label, activityFields: definition.fields, values },
+        submissionId, partId, assignmentPart: scope.assignment.question, ...(scope.assignment.question >= 3 ? { questionNumber: scope.assignment.question - 2 } : {}), drawId: scope.assignment.drawId, activityType: `mis301-${partId}`, activityLabel: definition.label, activityFields: definition.fields.filter(field => !allowedFields || allowedFields.includes(field.id)), values },
     }).select("id,created_at").single();
     if (error) {
       // A retried concurrent request may hit the unique submission index.
@@ -81,7 +99,7 @@ export async function POST(request: Request, context: Context) {
     }
     notifyRealtime();
     notifyClassroomAnswer({ sectionId: scope.section.id, epoch: body.practiceSession, answer: { recordId: String(data.id), subject: scope.identity.sessionId,
-      username: scope.identity.name, partId, values, submittedAt: data.created_at } });
+      username: scope.identity.name, partId, values, submittedAt: data.created_at, assignmentPart: scope.assignment.question, ...(scope.assignment.question >= 3 ? { questionNumber: scope.assignment.question - 2 } : {}), drawId: scope.assignment.drawId } });
     return NextResponse.json({ success: true, submittedAt: data.created_at });
   } catch {
     return NextResponse.json({ message: "Unable to save your answer. Your input is kept; please try again." }, { status: 500 });

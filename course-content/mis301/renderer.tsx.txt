@@ -1,23 +1,16 @@
 // Standalone native DOM renderer: the lesson sandbox supplies h / React.
-const css = `
-.mis{width:100%;height:100%;position:relative;background-position:center;background-size:100% 100%;color:#17324A;font-family:Inter,Arial,sans-serif}.mis *{box-sizing:border-box}.mis .frame{position:absolute;left:5.6%;top:11.5%;width:88.8%;height:77.4%;display:flex;flex-direction:column;gap:1.1vw}.mis .heading{flex:none}.mis .eyebrow{font-size:.85vw;letter-spacing:.15em;font-weight:800;color:#9D7944;margin:0 0 .5vw}.mis h1{font-size:2.65vw;line-height:1.13;letter-spacing:-.035em;margin:0;text-wrap:balance}.mis .subtitle{margin:.6vw 0 0;font-size:1.16vw;line-height:1.45;color:#687987;text-wrap:pretty}.mis .body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:1vw}.mis p,.mis h2,.mis h3{margin:0;text-wrap:pretty}.mis h2{font-size:2vw;line-height:1.2}.mis h3{font-size:1.3vw;line-height:1.3}.mis p{font-size:1.16vw;line-height:1.5}.mis .grid{display:grid;gap:1.25vw;grid-template-columns:repeat(3,minmax(0,1fr))}.mis .two{grid-template-columns:1fr 1fr}.mis .card{padding:1.7vw;border:1px solid #dce4ea;border-radius:1.2vw;background:#FBFAF7;display:flex;flex-direction:column;gap:1vw;min-width:0}.mis .card .num{font-size:2.6vw;line-height:1;color:#B39159;font-weight:800}.mis .card p{color:#687987}.mis .callout{padding:1.1vw 1.4vw;border-left:.28vw solid #B39159;background:#F7F4ED;border-radius:0 .6vw .6vw 0;font-size:1.18vw;line-height:1.45}.mis code{font-family:Consolas,monospace}.mis .pill{font-size:.9vw;color:#18547F;font-weight:700}.mis .flow{display:flex;align-items:center;gap:1vw;margin-top:.2vw}.mis .flow span{flex:1;padding:1vw;text-align:center;background:#082945;color:white;border-radius:.7vw;font-size:1.2vw;font-weight:700}.mis .flow b{color:#B39159}.mis .downloads{display:flex;align-items:center;gap:.5vw;flex:none;padding-top:.7vw;border-top:1px solid #e4e9ed}.mis button{font-family:inherit;font-size:.95vw;font-weight:700;padding:.62vw .9vw;border:1px solid #d4dde3;border-radius:.5vw;background:white;color:#17324A;cursor:pointer}.mis button:hover{background:#F4DFB0;border-color:#B39159}.mis button:focus-visible,.mis textarea:focus-visible{outline:.18vw solid #2D7FB4;outline-offset:.18vw}.mis button:disabled{cursor:wait;opacity:.6}.mis .primary{background:#082945;color:white;border-color:#082945}.mis .primary:hover{background:#18547F}.mis .downloads small{margin-left:auto;color:#687987;font-size:.85vw;white-space:nowrap}.mis .page{position:absolute;left:93.711%;top:95.152%;width:2.664%;height:4.736%;display:grid;place-items:center;font-size:.9vw;font-weight:700;color:#144069}.mis .lab{display:grid;grid-template-columns:minmax(0,1fr) 18vw;gap:1.15vw;flex:1;min-height:0}.mis .notebook{display:flex;flex-direction:column;min-height:0;border:1px solid #d6dee5;border-radius:.8vw;background:#fff}.mis .nbbar{display:flex;align-items:center;gap:.65vw;padding:.65vw 1vw;border-bottom:1px solid #e2e7eb;background:#f8f9fa;border-radius:.8vw .8vw 0 0;font-size:1vw}.mis .colabmark{font-weight:900;font-size:1.6vw;color:#E5A027;letter-spacing:-.15em;padding-right:.4vw}.mis .nbbar small{margin-left:auto;color:#687987;font-size:.76vw}.mis .nbcontent{display:grid;grid-template-columns:10.5vw minmax(0,1fr);flex:1;min-height:0}.mis .files{padding:.8vw;border-right:1px solid #e2e7eb;display:flex;flex-direction:column;gap:.75vw;background:#fbfcfd;border-radius:0 0 0 .8vw}.mis .files strong{font-size:.95vw}.mis .files p{font-size:.85vw;line-height:1.45;color:#687987;overflow-wrap:anywhere}.mis .files button{font-size:.82vw;line-height:1.3}.mis .fileitem{font-size:.82vw;line-height:1.45;overflow-wrap:anywhere;color:#18547F}.mis .workspace{min-width:0;min-height:0;display:flex;flex-direction:column;padding:.8vw;gap:.65vw}.mis .cell{display:flex;gap:.55vw;border:1px solid #e3e6e8;background:#f8f9fa;border-radius:.4vw;padding:.6vw;flex:none}.mis .run{width:2.4vw;height:2.4vw;border-radius:50%;padding:0;flex:none;font-size:1vw;background:#17324A;color:white}.mis textarea{resize:none;width:100%;height:4.6vw;background:transparent;border:0;padding:.2vw;color:#17324A;font:1vw/1.5 Consolas,monospace;outline:none;tab-size:4}.mis .execution{font: .82vw Consolas,monospace;color:#687987;min-height:1vw}.mis .output{min-height:0;flex:1;overflow:auto;font-size:.92vw;line-height:1.45;padding:.2vw .3vw}.mis .output pre{font: .88vw/1.5 Consolas,monospace;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}.mis .output .error{color:#b3261e;background:#fff2f1;padding:.7vw;border-radius:.3vw}.mis table{width:100%;border-collapse:collapse;font-size:.87vw;line-height:1.35}.mis th,.mis td{padding:.4vw .5vw;text-align:right;border-bottom:1px solid #e3e7eb;vertical-align:top}.mis th{font-weight:700;background:#f5f7f8;overflow-wrap:anywhere;max-width:10vw}.mis td:first-child{text-align:left}.mis tr:nth-child(even) td{background:#f8f9fa}.mis .dfnote{font-size:.82vw;color:#687987;padding:.5vw 0}.mis .side{display:flex;flex-direction:column;gap:.65vw;min-width:0}.mis .side .tip{padding:.85vw;border:1px solid #e0e6ea;border-radius:.65vw;background:#FBFAF7}.mis .side h3{font-size:1.05vw;margin-bottom:.35vw}.mis .side p{font-size:.96vw;line-height:1.4;color:#687987}.mis .commands{display:flex;flex-direction:column;gap:.4vw}.mis .commands button{text-align:left;white-space:pre-wrap;font:.87vw/1.35 Consolas,monospace;padding:.65vw;overflow-wrap:anywhere}.mis .commands button[aria-pressed=true]{border-color:#B39159;background:#F7F4ED}.mis .support{font-size:.8vw;color:#687987;line-height:1.4}.mis .answers{font-size:1.2vw}.mis .answers th,.mis .answers td{font-size:1.15vw;padding:.85vw;text-align:left}.mis .answers th{background:#082945;color:white}.mis .reveal{align-self:flex-start}.mis .status{color:#18547F;font-size:.86vw;line-height:1.4}.mis .busy{animation:misPulse .7s ease-in-out infinite}@keyframes misPulse{50%{opacity:.35}}@media(prefers-reduced-motion:reduce){.mis .busy{animation:none}}
-`;
-
-const practiceCss = `.mis [hidden]{display:none!important}.mis .practice-lab{grid-template-columns:minmax(0,1fr) 23vw}.mis .practice-commands{display:flex;flex-wrap:wrap;gap:.35vw}.mis .practice-commands button{font:.8vw/1.3 Consolas,monospace;white-space:pre-wrap;text-align:left;padding:.4vw .55vw}.mis .practice-commands button[aria-pressed=true]{background:#F7F4ED;border-color:#B39159}
-.mis .practice-side{display:flex;flex-direction:column;gap:.55vw;min-height:0}.mis .practice-side .commands{display:grid;grid-template-columns:1fr;gap:.3vw}.mis .practice-side .commands button{font-size:.8vw;padding:.4vw .55vw}.mis .practice-panel{display:flex;flex-direction:column;gap:.45vw;min-height:0;flex:1;border:1px solid #dce4ea;border-radius:.65vw;padding:.8vw;background:#FBFAF7}.mis .practice-panel h3{font-size:1.1vw}.mis .identity{font-size:.85vw;line-height:1.4;color:#18547F;overflow-wrap:anywhere}.mis .answer-form{display:flex;flex-direction:column;gap:.45vw;min-height:0;flex:1}.mis .answer-form label{display:flex;flex-direction:column;gap:.2vw;font-size:.83vw;font-weight:700}.mis .answer-form input,.mis .answer-form textarea{width:100%;min-width:0;border:1px solid #cbd6df;border-radius:.35vw;background:white;padding:.4vw .5vw;font:.87vw/1.35 Consolas,monospace;color:#17324A}.mis .answer-form textarea{height:3.2vw;resize:none}.mis .answer-form input{height:2vw}.mis .save-status{font-size:.8vw;line-height:1.4;min-height:1.2vw;color:#18547F}.mis .save-status[data-error=true]{color:#b3261e}.mis .submission-list{min-height:0;flex:1;overflow:auto;display:flex;flex-direction:column;gap:.5vw}.mis .submission{padding:.6vw;border:1px solid #dce4ea;border-radius:.4vw;background:white;font-size:.82vw;line-height:1.4}.mis .submission pre{margin:.35vw 0 0;white-space:pre-wrap;overflow-wrap:anywhere;font:.8vw/1.4 Consolas,monospace}.mis .picker-layout{display:grid;grid-template-columns:1fr 1fr;gap:3vw;align-items:center;height:100%}.mis .picker-config{display:flex;flex-direction:column;gap:.8vw}.mis .picker-config label{font-size:1.1vw;font-weight:700;display:flex;flex-direction:column;gap:.4vw}.mis .picker-config textarea{height:12vw;border:1px solid #cbd6df;border-radius:.65vw;background:#FBFAF7;padding:1vw;font:1.1vw/1.6 Inter,Arial,sans-serif}.mis .picker-config input{font:1.2vw Inter,Arial,sans-serif;padding:.6vw;border:1px solid #cbd6df;border-radius:.4vw;width:6vw}.mis .picker-square{width:27vw;height:27vw;justify-self:center;display:flex;flex-direction:column;gap:1vw;padding:1.6vw;background:linear-gradient(135deg,#082945,#123F68);border:2px solid #B39159;border-radius:1.4vw;color:#FBFAF7;text-align:center}.mis .picker-square h2{font-size:2vw;color:#F4DFB0;text-wrap:balance;overflow-wrap:anywhere}.mis .picked-list{min-height:0;flex:1;overflow:auto;display:grid;align-content:start;gap:.55vw}.mis .picked-name{padding:.6vw;background:#ffffff12;border:1px solid #ffffff25;border-radius:.5vw;text-align:left;font-size:1.05vw;line-height:1.3;overflow-wrap:anywhere}.mis .picker-square button{background:#F4DFB0;color:#082945}.mis .picker-square .support{color:#d5e0e9}
-`;
+const css = "\n.mis{width:100%;height:100%;position:relative;background-position:center;background-size:100% 100%;color:#17324A;font-family:Inter,Arial,sans-serif}.mis *{box-sizing:border-box}.mis .frame{position:absolute;left:5.6%;top:11.5%;width:88.8%;height:77.4%;display:flex;flex-direction:column;gap:1.1vw}.mis .heading{flex:none}.mis .eyebrow{font-size:.85vw;letter-spacing:.15em;font-weight:800;color:#9D7944;margin:0 0 .5vw}.mis h1{font-size:2.65vw;line-height:1.13;letter-spacing:-.035em;margin:0;text-wrap:balance}.mis .subtitle{margin:.6vw 0 0;font-size:1.16vw;line-height:1.45;color:#687987;text-wrap:pretty}.mis .body{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:1vw}.mis p,.mis h2,.mis h3{margin:0;text-wrap:pretty}.mis h2{font-size:2vw;line-height:1.2}.mis h3{font-size:1.3vw;line-height:1.3}.mis p{font-size:1.16vw;line-height:1.5}.mis code{font-family:Consolas,monospace}.mis .downloads{display:flex;align-items:center;gap:.5vw;flex:none;padding-top:.7vw;border-top:1px solid #e4e9ed}.mis button{font-family:inherit;font-size:.95vw;font-weight:700;padding:.62vw .9vw;border:1px solid #d4dde3;border-radius:.5vw;background:white;color:#17324A;cursor:pointer}.mis button:hover{background:#F4DFB0;border-color:#B39159}.mis button:focus-visible,.mis textarea:focus-visible{outline:.18vw solid #2D7FB4;outline-offset:.18vw}.mis button:disabled{cursor:wait;opacity:.6}.mis .primary{background:#082945;color:white;border-color:#082945}.mis .primary:hover{background:#18547F}.mis .downloads small{margin-left:auto;color:#687987;font-size:.85vw;white-space:nowrap}.mis .page{position:absolute;left:93.711%;top:95.152%;width:2.664%;height:4.736%;display:grid;place-items:center;font-size:.9vw;font-weight:700;color:#144069}.mis .lab{display:grid;grid-template-columns:minmax(0,1fr) 18vw;gap:1.15vw;flex:1;min-height:0}.mis .notebook{display:flex;flex-direction:column;min-height:0;border:1px solid #d6dee5;border-radius:.8vw;background:#fff}.mis .nbbar{display:flex;align-items:center;gap:.65vw;padding:.65vw 1vw;border-bottom:1px solid #e2e7eb;background:#f8f9fa;border-radius:.8vw .8vw 0 0;font-size:1vw}.mis .colabmark{font-weight:900;font-size:1.6vw;color:#E5A027;letter-spacing:-.15em;padding-right:.4vw}.mis .nbbar small{margin-left:auto;color:#687987;font-size:.76vw}.mis .nbcontent{display:grid;grid-template-columns:10.5vw minmax(0,1fr);flex:1;min-height:0}.mis .files{padding:.8vw;border-right:1px solid #e2e7eb;display:flex;flex-direction:column;gap:.75vw;background:#fbfcfd;border-radius:0 0 0 .8vw}.mis .files strong{font-size:.95vw}.mis .files p{font-size:.85vw;line-height:1.45;color:#687987;overflow-wrap:anywhere}.mis .files button{font-size:.82vw;line-height:1.3}.mis .fileitem{font-size:.82vw;line-height:1.45;overflow-wrap:anywhere;color:#18547F}.mis .workspace{min-width:0;min-height:0;display:flex;flex-direction:column;padding:.8vw;gap:.65vw}.mis .cell{display:flex;gap:.55vw;border:1px solid #e3e6e8;background:#f8f9fa;border-radius:.4vw;padding:.6vw;flex:none}.mis .run{width:2.4vw;height:2.4vw;border-radius:50%;padding:0;flex:none;font-size:1vw;background:#17324A;color:white}.mis textarea{resize:none;width:100%;height:4.6vw;background:transparent;border:0;padding:.2vw;color:#17324A;font:1vw/1.5 Consolas,monospace;outline:none;tab-size:4}.mis .execution{font: .82vw Consolas,monospace;color:#687987;min-height:1vw}.mis .output{min-height:0;flex:1;overflow:auto;font-size:.92vw;line-height:1.45;padding:.2vw .3vw}.mis .output pre{font: .88vw/1.5 Consolas,monospace;margin:0;white-space:pre-wrap;overflow-wrap:anywhere}.mis .output .error{color:#b3261e;background:#fff2f1;padding:.7vw;border-radius:.3vw}.mis table{width:100%;border-collapse:collapse;font-size:.87vw;line-height:1.35}.mis th,.mis td{padding:.4vw .5vw;text-align:right;border-bottom:1px solid #e3e7eb;vertical-align:top}.mis th{font-weight:700;background:#f5f7f8;overflow-wrap:anywhere;max-width:10vw}.mis td:first-child{text-align:left}.mis tr:nth-child(even) td{background:#f8f9fa}.mis .dfnote{font-size:.82vw;color:#687987;padding:.5vw 0}.mis .side{display:flex;flex-direction:column;gap:.65vw;min-width:0}.mis .side .tip{padding:.85vw;border:1px solid #e0e6ea;border-radius:.65vw;background:#FBFAF7}.mis .side h3{font-size:1.05vw;margin-bottom:.35vw}.mis .side p{font-size:.96vw;line-height:1.4;color:#687987}.mis .commands{display:flex;flex-direction:column;gap:.4vw}.mis .commands button{text-align:left;white-space:pre-wrap;font:.87vw/1.35 Consolas,monospace;padding:.65vw;overflow-wrap:anywhere}.mis .commands button[aria-pressed=true]{border-color:#B39159;background:#F7F4ED}.mis .support{font-size:.8vw;color:#687987;line-height:1.4}.mis .status{color:#18547F;font-size:.86vw;line-height:1.4}.mis .busy{animation:misPulse .7s ease-in-out infinite}@keyframes misPulse{50%{opacity:.35}}@media(prefers-reduced-motion:reduce){.mis .busy{animation:none}}\n";
 const introductionCss = `
 .mis.introduction .heading{position:absolute;left:0;top:21%;width:44%}.mis.introduction h1{font-size:4.3vw;line-height:1.1;letter-spacing:-.045em}.mis.introduction .eyebrow{margin-bottom:1.3vw;font-size:.95vw}.mis.introduction .heading:after{content:'';display:block;width:6vw;height:.3vw;background:#B39159;margin-top:1.8vw;border-radius:1vw}.mis.introduction .body{margin-left:50%;justify-content:center}.mis .intro-topics{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1.1vw}.mis .intro-topics li{display:grid;grid-template-columns:2.7vw minmax(0,1fr);align-items:center;gap:1vw;padding:1.4vw;background:#FBFAF7;border:1px solid #e4e4dc;border-radius:1vw;font-size:1.5vw;line-height:1.4;text-wrap:pretty}.mis .intro-topics .topic-number{font-size:1.5vw;font-weight:800;color:#B39159}.mis.introduction .downloads{padding:1vw;border:1px solid #e4e9ed;border-radius:1vw;background:white;box-shadow:0 .7vw 2.2vw #08294512;gap:.65vw}.mis .downloads button{box-shadow:0 .25vw .6vw #0829450d;transition:transform .18s ease,box-shadow .18s ease}.mis .downloads button:hover{transform:translateY(-.18vw);box-shadow:0 .5vw 1vw #0829451a}.mis.introduction .downloads button{background:#FBFAF7;border-color:#e2e5e6;padding:.8vw 1vw}.mis.introduction .downloads button:first-child{background:#082945;color:#F4DFB0;border-color:#082945}@media(prefers-reduced-motion:reduce){.mis .downloads button{transition:none}.mis .downloads button:hover{transform:none}}
 `;
-const redesignCss = `
-.mis .frame{gap:.9vw}.mis .heading{position:relative;padding-bottom:1vw;border-bottom:1px solid #dce5eb}.mis .heading:after{content:'';position:absolute;bottom:-1px;left:0;width:6vw;height:3px;background:#B39159}.mis .eyebrow{display:inline-block;font-size:.8vw;letter-spacing:.16em;background:#F7F4ED;border:1px solid #e9dfcb;padding:.35vw .65vw;border-radius:2vw;margin-bottom:.6vw}.mis h1{font-size:2.8vw;line-height:1.16;text-wrap:balance;max-width:100%}.mis .subtitle{font-size:1.12vw;max-width:74vw;line-height:1.5;text-wrap:pretty}.mis .body{gap:1.25vw}.mis .card{background:linear-gradient(145deg,#FBFAF7,#fff);border-color:#dce4e9;border-radius:1.25vw;gap:1.1vw;padding:1.65vw;box-shadow:0 .35vw 1.1vw #08294506;animation:misArrive .42s both}.mis .card:nth-child(2){animation-delay:.07s}.mis .card:nth-child(3){animation-delay:.14s}.mis .card .num{font-size:2.7vw;color:#B39159}.mis .card h3{font-size:1.5vw;line-height:1.35;text-wrap:balance}.mis .card p{font-size:1.17vw;line-height:1.65}.mis .card .pill{font-family:Consolas,monospace;font-size:.9vw;color:#18547F;line-height:1.5;overflow-wrap:anywhere}.mis .callout{border:1px solid #e9dfcb;border-left:.3vw solid #B39159;background:#F7F4ED;border-radius:.65vw;padding:1vw 1.3vw;font-size:1.14vw;line-height:1.6;animation:misArrive .45s .15s both}.mis .flow{gap:.8vw}.mis .flow span{font-size:1.1vw;padding:1vw .8vw;box-shadow:0 .3vw .7vw #0829450a}.mis .lesson-footer{display:flex;align-items:center;gap:1vw;flex:none;color:#687987;font-size:.75vw;letter-spacing:.08em;padding-top:.65vw}.mis .deck-progress{flex:1;height:.22vw;background:#e6ebee;border-radius:1vw}.mis .deck-progress i{display:block;height:100%;background:linear-gradient(90deg,#B39159,#E9CA8B);border-radius:1vw;transition:width .3s ease}.mis .notebook{border-radius:.9vw;border-color:#ccd9e3;box-shadow:0 .4vw 1.5vw #08294508}.mis .nbbar{padding:.6vw .9vw;background:#f5f8fa}.mis .files{padding:.8vw;background:#FBFAF7}.mis .files p{font-size:.8vw;line-height:1.6}.mis .workspace{gap:.5vw}.mis .cell{border-color:#d2dfe8;background:#f5f8fa;padding:.55vw}.mis .run{background:#123F68;transition:background .18s ease,transform .18s ease}.mis .run:hover{background:#18547F;transform:scale(1.05)}.mis .cell-tools{display:flex;flex-wrap:wrap;gap:.4vw}.mis .cell-tools button{font-size:.77vw;padding:.35vw .55vw;border-radius:.4vw;color:#18547F;background:#f8fafb}.mis .commands button.executed,.mis .practice-commands button.executed{box-shadow:inset .2vw 0 #2a8870}.mis .commands button.executed:after,.mis .practice-commands button.executed:after{content:' ✓';color:#2a8870}.mis .cell-result{animation:misResult .22s ease-out}.mis .tip{background:#FBFAF7;border-color:#e1e7eb}.mis .side .tip h3{color:#9D7944}.mis .practice-panel{background:linear-gradient(160deg,#FBFAF7,#fff);border-color:#d3dee7;padding:.85vw;gap:.5vw}.mis .practice-panel h3{font-size:1.3vw;line-height:1.2;color:#082945}.mis .identity{padding:.45vw .6vw;background:#edf3f7;border-radius:.35vw;font-size:.85vw;line-height:1.5}.mis .answer-form{gap:.4vw}.mis .answer-form label{font-size:.84vw;line-height:1.4;gap:.2vw}.mis .answer-form textarea{height:3.2vw}.mis .answer-form input{height:2vw}.mis .answer-form input:focus,.mis .answer-form textarea:focus{border-color:#B39159;background:#fffefa}.mis .answer-form .primary{margin-top:auto;background:#123F68}.mis .answer-form .primary:not(:disabled){box-shadow:0 .25vw .7vw #123F6820}.mis .save-status{min-height:1.2vw;font-size:.8vw}.mis .submission strong{display:block;color:#123F68}.mis .submission small{display:block;color:#687987;font-size:.75vw}.mis .submission{animation:misResult .2s ease-out}.mis .picker-layout{grid-template-columns:minmax(0,1fr) 32vw;gap:3vw;align-items:center}.mis .picker-config{gap:.8vw;min-height:0;max-height:30vw}.mis .picker-config>strong{font-size:1.9vw;line-height:1.2}.mis .picker-config>p{font-size:1.15vw;line-height:1.6;max-width:40vw}.mis .roster-grid{display:flex;align-content:flex-start;flex-wrap:wrap;gap:.5vw;max-height:14vw;min-height:5vw;overflow:auto;padding:.2vw}.mis button.roster-name{font-size:1.03vw;padding:.55vw .85vw;border-radius:3vw;background:#edf3f7;color:#123F68;border-color:#d2dee7}.mis button.roster-name[aria-pressed=false]{background:white;color:#8a969f;border-style:dashed;text-decoration:line-through}.mis .draw-settings{display:flex;align-items:flex-end;justify-content:space-between;gap:1vw;margin-top:.5vw}.mis .draw-settings label{font-size:.95vw;gap:.35vw}.mis .draw-settings input{width:6vw;font-size:1.4vw;background:#FBFAF7;border:1px solid #cbd6df;border-radius:.5vw;padding:.5vw}.mis .picker-square.spotlight{position:relative;width:29vw;height:29vw;padding:2.2vw 2vw 1.6vw;gap:.65vw;border:1px solid #B39159;border-radius:2vw;background:radial-gradient(ellipse at 50% 15%,#225479,#082945 68%);box-shadow:0 1vw 2.4vw #0829451a}.mis .spotlight>*:not(.spotlight-ring){position:relative;z-index:1}.mis .spotlight .game-label{font-size:.8vw;letter-spacing:.25em;color:#E9CA8B;font-weight:800}.mis .spotlight h2{font-size:2.25vw;line-height:1.2;min-height:5.5vw;display:grid;place-items:center;text-wrap:balance;overflow-wrap:anywhere}.mis .spotlight .support{font-size:.86vw;line-height:1.45;min-height:2.5vw}.mis .spotlight .picked-list{gap:.4vw}.mis .spotlight .picked-name{padding:.5vw .7vw;border-radius:.5vw;font-size:1.05vw;background:#ffffff10;border:1px solid #ffffff20;animation:misResult .22s ease-out}.mis .spotlight>button{font-size:1.1vw;padding:.85vw;border-radius:.75vw;font-weight:800;background:linear-gradient(120deg,#F4DFB0,#E9CA8B);box-shadow:0 .3vw 1vw #0002}.mis .spotlight-ring{position:absolute;left:50%;top:48%;width:0;height:0;pointer-events:none}.mis .spotlight-ring i{position:absolute;width:.32vw;height:.32vw;border-radius:50%;background:#E9CA8B;box-shadow:0 0 .5vw #E9CA8B60;transform-origin:0 0;opacity:.35}.mis .spotlight.is-spinning .spotlight-ring{animation:misOrbit 2s linear infinite}.mis .spotlight.is-spinning .spotlight-ring i{opacity:.9}.mis .spotlight.winner h2{animation:misWinner .45s ease-out}.mis.introduction .heading{border:0;padding:0;top:19%}.mis.introduction .heading:after{position:static;margin-top:1.8vw;height:.3vw}.mis.introduction .body{margin-left:49%}.mis.introduction .intro-topics li{border-radius:1.1vw;border-color:#e3e5e1;box-shadow:0 .35vw 1vw #08294505;animation:misArrive .45s both}.mis.introduction .intro-topics li:nth-child(2){animation-delay:.08s}.mis.introduction .intro-topics li:nth-child(3){animation-delay:.16s}.mis.introduction .downloads{gap:.45vw;padding:.85vw;justify-content:space-between;box-shadow:0 .8vw 2vw #08294512}.mis.introduction .downloads button{font-size:.87vw;padding:.75vw .7vw;white-space:nowrap}.mis .answers th,.mis .answers td{line-height:1.4}.mis .reveal{padding:.8vw 1.4vw}@keyframes misArrive{from{opacity:0;transform:translateY(.6vw)}to{opacity:1;transform:none}}@keyframes misResult{from{opacity:.25;transform:translateY(.3vw)}to{opacity:1;transform:none}}@keyframes misOrbit{to{transform:rotate(360deg)}}@keyframes misWinner{50%{transform:scale(1.06);color:white}}@media(prefers-reduced-motion:reduce){.mis *, .mis *:before,.mis *:after{animation:none!important;transition:none!important}}
-`;
+const redesignCss = "\n.mis .frame{gap:.9vw}.mis .heading{position:relative;padding-bottom:1vw;border-bottom:1px solid #dce5eb}.mis .heading:after{content:'';position:absolute;bottom:-1px;left:0;width:6vw;height:3px;background:#B39159}.mis .eyebrow{display:inline-block;font-size:.8vw;letter-spacing:.16em;background:#F7F4ED;border:1px solid #e9dfcb;padding:.35vw .65vw;border-radius:2vw;margin-bottom:.6vw}.mis h1{font-size:2.8vw;line-height:1.16;text-wrap:balance;max-width:100%}.mis .subtitle{font-size:1.12vw;max-width:74vw;line-height:1.5;text-wrap:pretty}.mis .body{gap:1.25vw}.mis .lesson-footer{display:flex;align-items:center;gap:1vw;flex:none;color:#687987;font-size:.75vw;letter-spacing:.08em;padding-top:.65vw}.mis .deck-progress{flex:1;height:.22vw;background:#e6ebee;border-radius:1vw}.mis .deck-progress i{display:block;height:100%;background:linear-gradient(90deg,#B39159,#E9CA8B);border-radius:1vw;transition:width .3s ease}.mis .notebook{border-radius:.9vw;border-color:#ccd9e3;box-shadow:0 .4vw 1.5vw #08294508}.mis .nbbar{padding:.6vw .9vw;background:#f5f8fa}.mis .files{padding:.8vw;background:#FBFAF7}.mis .files p{font-size:.8vw;line-height:1.6}.mis .workspace{gap:.5vw}.mis .cell{border-color:#d2dfe8;background:#f5f8fa;padding:.55vw}.mis .run{background:#123F68;transition:background .18s ease,transform .18s ease}.mis .run:hover{background:#18547F;transform:scale(1.05)}.mis .cell-tools{display:flex;flex-wrap:wrap;gap:.4vw}.mis .cell-tools button{font-size:.77vw;padding:.35vw .55vw;border-radius:.4vw;color:#18547F;background:#f8fafb}.mis .commands button.executed{box-shadow:inset .2vw 0 #2a8870}.mis .commands button.executed:after{content:' ✓';color:#2a8870}.mis .cell-result{animation:misResult .22s ease-out}.mis .tip{background:#FBFAF7;border-color:#e1e7eb}.mis .side .tip h3{color:#9D7944}.mis.introduction .heading{border:0;padding:0;top:19%}.mis.introduction .heading:after{position:static;margin-top:1.8vw;height:.3vw}.mis.introduction .body{margin-left:49%}.mis.introduction .intro-topics li{border-radius:1.1vw;border-color:#e3e5e1;box-shadow:0 .35vw 1vw #08294505;animation:misArrive .45s both}.mis.introduction .intro-topics li:nth-child(2){animation-delay:.08s}.mis.introduction .intro-topics li:nth-child(3){animation-delay:.16s}.mis.introduction .downloads{gap:.45vw;padding:.85vw;justify-content:space-between;box-shadow:0 .8vw 2vw #08294512}.mis.introduction .downloads button{font-size:.87vw;padding:.75vw .7vw;white-space:nowrap}@keyframes misArrive{from{opacity:0;transform:translateY(.6vw)}to{opacity:1;transform:none}}@keyframes misResult{from{opacity:.25;transform:translateY(.3vw)}to{opacity:1;transform:none}}@keyframes misOrbit{to{transform:rotate(360deg)}}@keyframes misWinner{50%{transform:scale(1.06);color:white}}@media(prefers-reduced-motion:reduce){.mis *, .mis *:before,.mis *:after{animation:none!important;transition:none!important}}\n";
 function uuid() {
   const bytes = crypto.getRandomValues(new Uint8Array(16)); bytes[6] = (bytes[6] & 15) | 64; bytes[8] = (bytes[8] & 63) | 128;
   const value = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
   return `${value.slice(0,8)}-${value.slice(8,12)}-${value.slice(12,16)}-${value.slice(16,20)}-${value.slice(20)}`;
 }
 function practiceRequest(operation, body = {}) {
+  if (window.eiuSectionEnded) return Promise.reject(Error('This section session has ended.'));
   return new Promise((resolve, reject) => {
     const token = uuid(), requestId = window.eiuLessonRequestId;
     const cleanup = () => { clearTimeout(timer); window.removeEventListener('message', receive); };
@@ -31,82 +24,20 @@ function practiceRequest(operation, body = {}) {
     parent.postMessage({ type: 'eiu-practice-request', requestId, token, operation, ...body }, '*');
   });
 }
-function PracticePanel(slide) {
-  const definition = practiceParts[slide.practicePart];
-  const panel = h('section', { className: 'practice-panel' });
-  const visible = () => panel.isConnected && !panel.closest('[hidden]');
-  const progress = state => window.dispatchEvent(new CustomEvent('eiu-practice-progress', { detail: { partId: slide.practicePart, state } }));
-  let context = null, loading = false, saving = false, submissionId = uuid(), dirty = false, activeCode = null;
-  const identity = h('div', { className: 'identity' }, 'Loading your Learning Access information…');
-  const heading = h('h3', null, 'Your practice answer');
-  const status = h('p', { className: 'save-status', role: 'status', 'aria-live': 'polite' }, '');
-  const list = h('div', { className: 'submission-list' });
-  const inputs = {};
-  const send = h('button', { type: 'submit', className: 'primary', disabled: true }, 'Send my answer');
-  const form = h('form', { className: 'answer-form', onSubmit: async event => {
-    event.preventDefault(); if (saving || !context || context.teaching) return;
-    saving = true; send.disabled = true; status.dataset.error = 'false'; status.textContent = 'Saving your answer…';
-    try {
-      const result = await practiceRequest('submit', { partId: slide.practicePart, practiceSession: context.practiceSession, submissionId, values: Object.fromEntries(Object.entries(inputs).map(([key, input]) => [key, input.value])) });
-      submissionId = uuid(); dirty = false; status.textContent = 'Answer saved' + (result.submittedAt ? ' · ' + new Date(result.submittedAt).toLocaleTimeString() : '');
-      progress('saved');
-    } catch (error) { status.dataset.error = 'true'; status.textContent = error.message; }
-    finally { saving = false; valid(); }
-  } });
-  function valid() { send.disabled = saving || !context || context.teaching || !dirty || !Object.values(inputs).every(input => input.value.trim()); }
-  definition.fields.forEach(field => {
-    const multiline = /code|explanation/i.test(field.id);
-    const input = h(multiline ? 'textarea' : 'input', { type: multiline ? undefined : 'text', required: true, maxLength: 2000, spellcheck: false, 'aria-label': field.label,
-      onFocus: () => { if (/code/i.test(field.id)) activeCode = field.id; },
-      placeholder: 'Your answer', onInput: () => { dirty = true; progress('draft'); status.textContent = 'Unsaved changes'; status.dataset.error = 'false'; valid(); } });
-    inputs[field.id] = input; form.appendChild(h('label', null, field.label, input));
-  });
-  form.appendChild(send);
-  async function load(restore) {
-    if (loading || saving) return; loading = true;
-    try {
-      const next = await practiceRequest('load');
-      if (context && context.practiceSession !== next.practiceSession) { dirty = true; status.textContent = 'A new practice session has started. Review your answers before sending.'; }
-      context = next;
-      window.dispatchEvent(new CustomEvent('eiu-practice-context', { detail: next }));
-      if (next.teaching) {
-        heading.textContent = 'Practice responses';
-        identity.textContent = 'Teaching view · latest 200 submissions'; form.hidden = true; list.hidden = false;
-        const items = next.items.filter(item => item.partId === slide.practicePart);
-        list.replaceChildren(...(items.length ? items.map(item => h('div', { className: 'submission' }, h('strong', null, item.name), h('small', null, new Date(item.submittedAt).toLocaleString()),
-          ...definition.fields.map(field => h('pre', null, field.label + ': ' + (item.values?.[field.id] || ''))))) : [h('p', { className: 'support' }, 'No answers sent for this part yet.')]));
-      } else {
-        identity.textContent = `${next.learner.name} · ${next.learner.email}`; list.hidden = true; form.hidden = false;
-        const previous = next.items.find(item => item.partId === slide.practicePart);
-        if (restore && !dirty && previous) { Object.entries(inputs).forEach(([key, input]) => { input.value = previous.values?.[key] || ''; }); status.textContent = 'Your last submitted answer is restored.'; }
-      }
-      valid();
-    } catch (error) { identity.textContent = 'Learning Access required'; status.dataset.error = 'true'; status.textContent = error.message; }
-    finally { loading = false; }
+async function download(name) {
+  const rawCsv = datasets[name]?.[0]?.csvSource;
+  let bytes;
+  if (rawCsv !== undefined) bytes = new TextEncoder().encode(rawCsv);
+  else {
+    const asset = assets[name];
+    const encoded = typeof asset === 'string' ? asset : asset.gzip;
+    bytes = Uint8Array.from(atob(encoded), char => char.charCodeAt(0));
+    if (typeof asset !== 'string') bytes = new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).arrayBuffer());
   }
-  const refresh = h('button', { type: 'button', onClick: () => load(true) }, 'Refresh / reconnect');
-  window.addEventListener('message', event => { if (visible() && event.source === parent && event.data?.type === 'eiu-practice-changed' && event.data.requestId === window.eiuLessonRequestId && context?.teaching) void load(false); });
-  window.addEventListener('message', event => { if (visible() && event.source === parent && event.data?.type === 'eiu-classroom-state' && event.data.requestId === window.eiuLessonRequestId && event.data.snapshot?.ready && context) void load(false); });
-  window.addEventListener('eiu-practice-activate', event => { if (event.detail.partId === slide.practicePart && visible()) void load(true); });
-  window.addEventListener('eiu-use-cell', event => {
-    if (event.detail.partId !== slide.practicePart || !visible()) return;
-    const field = activeCode || Object.keys(inputs).find(key => /code/i.test(key) && !inputs[key].value) || Object.keys(inputs).find(key => /code/i.test(key));
-    if (field) { inputs[field].value = event.detail.code; dirty = true; progress('draft'); status.textContent = 'Code copied · complete the remaining answers'; valid(); }
-  });
-  void load(true);
-  panel.append(heading, identity, form, list, status, refresh);
-  return panel;
-}
-function NamePicker() { return WheelGame(); }
-function download(name) {
-  const bytes = Uint8Array.from(atob(assets[name]), char => char.charCodeAt(0));
   const type = name.endsWith('.csv') ? 'text/csv;charset=utf-8' : name.endsWith('.ipynb') ? 'application/x-ipynb+json' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
   const url = URL.createObjectURL(new Blob([bytes], { type }));
-  const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+  const anchor = document.createElement('a'); anchor.href = url; anchor.download = name; anchor.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-function card(number, title, text, tag) {
-  return h('div', { className: 'card' }, h('span', { className: 'num' }, number), h('h3', null, title), h('p', null, text), tag && h('span', { className: 'pill' }, tag));
 }
 const numeric = value => typeof value === 'number' && Number.isFinite(value);
 const format = value => value == null ? 'NaN' : typeof value === 'number' && !Number.isInteger(value) ? value.toFixed(6) : String(value);
@@ -138,42 +69,216 @@ function info(data) {
   });
   return h('pre', null, lines.join('\n'));
 }
+function ReadCsvDemo(source, separator, header) {
+  if (separator.length !== 1 || separator === '\n' || separator === '\r') throw Error('Demo supports a single-character sep such as comma or semicolon.');
+  const records = []; let row = [], value = '', quoted = false;
+  source = source.replace(/^\uFEFF/, '');
+  for (let i = 0; i < source.length; i++) {
+    const c = source[i];
+    if (c === '"' && quoted && source[i + 1] === '"') { value += '"'; i++; }
+    else if (c === '"') quoted = !quoted;
+    else if (!quoted && (c === separator || c === '\n')) {
+      row.push(value.replace(/\r$/, '')); value = '';
+      if (c === '\n') { if (row.some(v => v !== '')) records.push(row); row = []; }
+    } else value += c;
+  }
+  if (quoted) throw Error('ParserError: unterminated quoted field.');
+  if (value || row.length) { row.push(value.replace(/\r$/, '')); records.push(row); }
+  if (!records.length) throw Error('EmptyDataError: no columns to parse.');
+  if (header !== null && header >= records.length) throw Error('ValueError: header row is outside the file.');
+  const columns = header === null ? records[0].map((_, i) => String(i)) : records[header].map((v, i) => v || `Unnamed: ${i}`);
+  const rows = records.slice(header === null ? 0 : header + 1).map(record => {
+    if (record.length > columns.length) throw Error('ParserError: row has more fields than the header. Check sep and header.');
+    return columns.map((_, i) => record[i] === undefined || record[i] === '' ? null : Number.isFinite(Number(record[i])) ? Number(record[i]) : record[i]);
+  });
+  return { columns, rows };
+}
+function DefaultDataFrame(name) {
+  const data = datasets[name][0];
+  if (!data.rows) Object.assign(data, ReadCsvDemo(data.csvSource, ',', 0));
+  return data;
+}
+function LoadNotebookRuntime() {
+  return new Promise((resolve, reject) => {
+    const token = uuid(), requestId = window.eiuLessonRequestId;
+    const cleanup = () => { clearTimeout(timer); window.removeEventListener('message', receive); };
+    const receive = event => {
+      if (event.source !== parent || event.data?.type !== 'eiu-notebook-state' || event.data.requestId !== requestId || event.data.token !== token) return;
+      cleanup(); if (event.data.error) reject(Error(event.data.error)); else resolve(event.data.state);
+    };
+    const timer = setTimeout(() => { cleanup(); reject(Error('Unable to restore the notebook session. Reopen this slide to reconnect.')); }, 18000);
+    window.addEventListener('message', receive);
+    parent.postMessage({ type: 'eiu-notebook-runtime', operation: 'load', requestId, token }, '*');
+  });
+}
+const notebookKeywords = new Set('False None True and as assert async await break class continue def del elif else except finally for from global if import in is lambda nonlocal not or pass raise return try while with yield'.split(' '));
+function NotebookIdentifier(name) {
+  if (!/^[A-Za-z_]\w{0,63}$/.test(name) || notebookKeywords.has(name)) throw Error(`SyntaxError: invalid Python name '${name}'.`);
+  return name;
+}
+function NotebookView(node) {
+  if (node.nodeType === 3) return { text: node.textContent || '' };
+  if (node.nodeType !== 1) return null;
+  return { tag: node.tagName.toLowerCase(), className: String(node.className || ''), children: [...node.childNodes].map(NotebookView).filter(Boolean) };
+}
+function RestoreNotebookView(node) {
+  if ('text' in node) return document.createTextNode(node.text);
+  // Output snapshots are data, never HTML or code.
+  if (!['div', 'p', 'pre', 'table', 'thead', 'tbody', 'tr', 'th', 'td'].includes(node.tag)) return document.createTextNode('');
+  return h(node.tag, { className: node.className }, node.children.map(RestoreNotebookView));
+}
+function StackedPracticeNotebook(slide, evaluate, resetRuntime) {
+  let busy = false, disposed = false;
+  window.addEventListener('pagehide', () => { disposed = true; }, { once: true });
+  const cells = [];
+  const workspace = h('div', { className: 'stacked-workspace' });
+  slide.commands.forEach((source, index) => {
+    let generation = 0;
+    const status = h('span', { className: 'stacked-execution', role: 'status' }, 'Not run');
+    const result = h('div', { className: 'output stacked-output', 'aria-live': 'polite' });
+    const editor = h('textarea', { value: source, maxLength: 2000, spellcheck: false, 'aria-label': slide.commandLabels[index], onInput: () => slide.onCellChange?.(index, editor.value) });
+    const run = h('button', { type: 'button', className: 'run', 'aria-label': `Run ${slide.commandLabels[index]}`, onClick: () => {
+      if (busy || disposed) return; busy = true; run.disabled = true; editor.disabled = true;
+      const code = editor.value, token = generation; status.textContent = 'Running...';
+      setTimeout(() => {
+        if (!disposed && token === generation) {
+          try { result.replaceChildren(evaluate(code)); status.textContent = 'Executed'; }
+          catch (error) { result.replaceChildren(h('pre', { className: 'error' }, error.message)); status.textContent = 'Check code'; }
+        }
+        busy = false; run.disabled = false; editor.disabled = false;
+      }, 180);
+    } }, '\u25b6');
+    editor.addEventListener('keydown', event => { if (event.shiftKey && event.key === 'Enter') { event.preventDefault(); run.click(); } });
+    const card = h('section', { className: 'stacked-code-cell' }, h('header', null, h('strong', null, `${index + 1}. ${slide.commandLabels[index]}`), status, run), editor, result);
+    cells.push({ editor, restore: code => { generation++; editor.value = code; result.replaceChildren(); status.textContent = 'Saved code'; }, clear: () => { generation++; result.replaceChildren(); status.textContent = 'Not run'; } });
+    workspace.appendChild(card);
+  });
+  const root = h('div', { className: 'lab stacked-lab' }, h('div', { className: 'notebook' },
+    h('div', { className: 'nbbar' }, h('span', { className: 'colabmark' }, 'co'), h('strong', null, 'Practice_Pandas.ipynb'), h('small', null, 'COLAB-STYLE - OFFLINE SIMULATION')),
+    slide.bootstrap && h('p', { className: 'stacked-runtime-note' }, 'Pandas and df are ready for this part.'), workspace));
+  root.eiuCells = { restore: (index, code) => cells[index]?.restore(code), reset: () => { resetRuntime(); cells.forEach(cell => cell.clear()); } };
+  return root;
+}
 function Notebook(slide) {
   // This is a finite command interpreter over bundled data, never eval/Python.
-  let uploaded = Boolean(slide.bootstrap), imported = Boolean(slide.bootstrap), execution = 0, busy = false;
-  let selected = 0, frames = slide.bootstrap ? { df: datasets[slide.dataset][0] } : {};
-  const output = h('div', { className: 'output', role: 'status', 'aria-live': 'polite' }, h('p', { className: 'support' }, slide.bootstrap ? 'The file, Pandas and df are ready for this inspection exercise.' : '1. Upload the lesson file. 2. Run the cells in order.'));
-  const file = h('div', { className: 'fileitem' }, uploaded ? '✓ ' + slide.dataset : 'No file uploaded');
+  let uploaded = Boolean(slide.bootstrap || slide.autoUpload), execution = 0, busy = false;
+  let runtimeReady = !slide.sharedRuntime, notebookTerminated = false, runtimeSessionKey = '';
+  let aliases = new Set(slide.bootstrap ? ['pd'] : []);
+  let loadedFiles = new Set(uploaded ? [slide.dataset, ...(slide.autoUploadFiles || []), ...Object.keys(slide.csvFiles || {})] : []);
+  let definitions = Object.create(null);
+  let pageStates = Object.create(null), cellStates = Object.create(null);
+  const runtimePage = Number(window.eiuLessonRequestId?.split(':').pop());
+  const groupSelections = Object.create(null);
+  const groupFor = index => slide.commandGroups?.find(group => index >= group.start && index < group.start + group.count);
+  let selected = 0, frames = Object.assign(Object.create(null), slide.bootstrap ? { df: DefaultDataFrame(slide.dataset) } : {});
+  const checkpoint = () => {
+    if (slide.rememberCells && runtimeReady) captureCell();
+    slide.onCellChange?.(selected, editor.value);
+    if (!slide.sharedRuntime || !runtimeReady) return;
+    captureCell();
+    pageStates[runtimePage] = { page: runtimePage, selected, cells: Object.values(cellStates) };
+    parent.postMessage({ type: 'eiu-notebook-runtime', operation: 'save', requestId: window.eiuLessonRequestId, sessionKey: runtimeSessionKey,
+      state: { aliases: [...aliases], files: [...loadedFiles], frames: Object.values(definitions), execution, pages: Object.values(pageStates) } }, '*');
+  };
+  function bindFrame(name, data, definition) {
+    NotebookIdentifier(name);
+    if (!(name in frames) && Object.keys(frames).length >= 64) throw Error('Demo supports up to 64 DataFrame variables. Reset runtime to start again.');
+    aliases.delete(name); frames[name] = data; definitions[name] = { ...definition, name };
+  }
+  const uploadedLabel = () => [...loadedFiles].map(name => '\u2713 ' + name).join('\n');
+  const readyMessage = () => slide.sharedRuntime ? 'Continue the same notebook. Run import and read cells before using their variables.' : slide.autoUpload ? `${slide.dataset} is ready. Choose Import Pandas, then run a data cell.` : '1. Upload the lesson file. 2. Run the cells in order.';
+  const bindings = h('p', { className: 'runtime-bindings' });
+  const refreshBindings = () => { bindings.textContent = `Pandas: ${[...aliases].join(', ') || 'not imported'}\nDataFrames: ${Object.keys(frames).join(', ') || 'none'}`; file.textContent = uploadedLabel() || 'No file uploaded'; };
+  const output = h('div', { className: 'output', role: 'status', 'aria-live': 'polite' }, h('p', { className: 'support' }, slide.bootstrap ? 'The file, Pandas and df are ready for this inspection exercise.' : readyMessage()));
+  const file = h('div', { className: 'fileitem' }, uploaded ? uploadedLabel() : 'No file uploaded');
   const status = h('div', { className: 'execution' }, 'Not executed');
-  const editor = h('textarea', { value: slide.commands[0], spellcheck: false, 'aria-label': 'Python demo cell' });
+  const editor = h('textarea', { value: slide.commands[0], spellcheck: false, maxLength: slide.practiceExercise ? 2000 : 12000, 'aria-label': slide.practiceExercise ? 'Python practice cell' : 'Python demo cell' });
   const replace = content => output.replaceChildren(h('div', { className: 'cell-result' }, content));
+  function captureCell() {
+    if ((!slide.sharedRuntime && !slide.rememberCells) || !runtimeReady) return;
+    cellStates[selected] = { index: selected, code: editor.value, status: status.textContent || '', executed: buttons[selected].classList.contains('executed'),
+      output: [...output.childNodes].map(NotebookView).filter(Boolean) };
+  }
+  function showCell(index) {
+    const saved = cellStates[index];
+    editor.value = saved?.code ?? slide.commands[index];
+    status.textContent = saved?.status || 'Not executed';
+    if (saved) output.replaceChildren(...saved.output.map(RestoreNotebookView));
+    else replace(h('p', { className: 'support' }, 'Run this cell to see its result.'));
+  }
+
   function evaluate(source) {
-    const lines = source.split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('#'));
+    const lines = source.replace(/[A-Za-z_]\w*\.read_(?:csv|excel)\([^)]*\)/g, call => call.replace(/\n\s*/g, ' ')).split('\n').map(line => line.trim()).filter(line => line && !line.startsWith('#'));
     if (!lines.length) return h('pre', null, '');
     // A single cell is atomic only in presentation; prior successful statements remain in runtime state.
     let result = h('pre', null, '');
     for (const line of lines) {
-      if (line === 'import pandas as pd') { imported = true; result = h('p', { className: 'status' }, 'Pandas imported. This cell has no display output.'); continue; }
-      const read = line.match(/^(?:(df2?)\s*=\s*)?pd\.read_(csv|excel)\(\s*['"]([^'"]+)['"]\s*(?:,\s*sheet_name\s*=\s*(\d+|['"][^'"]+['"]))?\s*\)$/);
+      const importMatch = line.match(/^import pandas(?: as ([A-Za-z_]\w*))?$/);
+      if (importMatch) {
+        const alias = NotebookIdentifier(importMatch[1] || 'pandas');
+        if (!aliases.has(alias) && aliases.size >= 32) throw Error('Demo supports up to 32 Pandas aliases.');
+        delete frames[alias]; delete definitions[alias]; aliases.add(alias);
+        result = h('p', { className: 'status' }, `Pandas imported as ${alias}.`); continue;
+      }
+      const match = line.match(/^(?:(?<target>[A-Za-z_]\w*)\s*=\s*)?(?<alias>[A-Za-z_]\w*)\.read_(?<format>csv|excel)\(\s*['"](?<file>[^'"]+)['"](?<args>.*)\)$/);
+      const read = match && [match[0], match.groups.target, match.groups.format, match.groups.file, match.groups.args];
       if (read) {
-        if (!imported) throw Error("NameError: name 'pd' is not defined. Run import pandas as pd first.");
+        const alias = match.groups.alias;
+        if (!aliases.has(alias)) throw Error(alias in frames ? `AttributeError: '${alias}' is a DataFrame, not the Pandas module.` : `NameError: name '${alias}' is not defined. Import pandas as ${alias} first.`);
         const name = read[3].replace(/^\/content\//, '');
-        if (!uploaded || name !== slide.dataset) throw Error(`FileNotFoundError: ${name}. Upload the file for this part first.`);
+        if (!loadedFiles.has(name)) throw Error(`FileNotFoundError: ${name}. Load the lesson file first.`);
         if ((read[2] === 'csv') !== name.endsWith('.csv')) throw Error('Use read_csv for CSV and read_excel for the Excel workbook.');
-        const worksheets = datasets[name], target = read[4];
-        const data = target && /['"]/.test(target) ? worksheets.find(sheet => sheet.name === target.slice(1, -1)) : worksheets[Number(target || 0)];
-        if (!data) throw Error('ValueError: worksheet not found. Use sheet_name=0 or sheet_name=1.');
-        if (read[1]) { frames[read[1]] = data; result = h('p', { className: 'status' }, `${read[1]} created. Assignment has no display output; run ${read[1]}.head() to inspect it.`); }
+        const options = {}; const remainder = read[4].replace(/,\s*(sep|header|sheet_name)\s*=\s*("[^"]*"|'[^']*'|None|\d+)/g, (_, key, value) => {
+          if (Object.prototype.hasOwnProperty.call(options, key)) throw Error(`SyntaxError: repeated keyword argument ${key}.`);
+          options[key] = value; return '';
+        });
+        if (remainder.trim()) throw Error('Demo supports named sep, header and sheet_name arguments. Use the example cells.');
+        let data, definition = { file: name, format: read[2] };
+        if (read[2] === 'csv') {
+          if ('sheet_name' in options) throw Error('TypeError: read_csv does not accept sheet_name.');
+          const sep = options.sep === undefined ? ',' : /^['"]/.test(options.sep) ? options.sep.slice(1, -1) : '';
+          const header = options.header === 'None' ? null : options.header === undefined ? 0 : /^\d+$/.test(options.header) ? Number(options.header) : NaN;
+          if (Number.isNaN(header)) throw Error('ValueError: header must be a non-negative integer or None.');
+          definition = { ...definition, sep, header };
+          const raw = (slide.csvFiles || {})[name] ?? datasets[name]?.[0]?.csvSource;
+          data = raw === undefined ? datasets[name][0] : ReadCsvDemo(raw, sep, header);
+        } else {
+          if ('sep' in options || 'header' in options) throw Error('This Excel demo supports sheet_name only.');
+          const worksheets = datasets[name], target = options.sheet_name;
+          data = target && /['"]/.test(target) ? worksheets.find(sheet => sheet.name === target.slice(1, -1)) : worksheets[Number(target || 0)];
+          if (!data) throw Error('ValueError: worksheet not found. Use sheet_name=0 or sheet_name=1.');
+          definition.sheet = target && /['"]/.test(target) ? target.slice(1, -1) : Number(target || 0);
+        }
+        if (read[1]) { bindFrame(read[1], data, definition); result = h('p', { className: 'status' }, `${read[1]} created. Assignment has no display output; run ${read[1]} to display it.`); }
         else result = preview(data, 0, data.rows.length, true);
         continue;
       }
-      const query = line.match(/^(df2?)(?:\.(shape|head|tail|count|describe|info)(?:\((\d*)\))?(?:\[(0|1)\])?|\[['"]([^'"]+)['"]\]\.(mean|min|count)\(\))?$/);
-      if (!query) throw Error('Demo supports the command chips, df / df2, head(n), tail(n), shape, count(), describe(), info(), and column mean()/min()/count(). Run other Python in the downloaded notebook.');
+      const assignment = line.match(/^([A-Za-z_]\w*)\s*=\s*([A-Za-z_]\w*)$/);
+      if (assignment) {
+        const name = NotebookIdentifier(assignment[1]), source = assignment[2];
+        if (source in frames) bindFrame(name, frames[source], definitions[source] || {});
+        else if (aliases.has(source)) { if (!aliases.has(name) && aliases.size >= 32) throw Error('Demo supports up to 32 Pandas aliases.'); delete frames[name]; delete definitions[name]; aliases.add(name); }
+        else throw Error(`NameError: name '${source}' is not defined.`);
+        result = h('p', { className: 'status' }, `${name} assigned.`); continue;
+      }
+      const query = line.match(/^([A-Za-z_]\w*)(?:\.(shape|head|tail|count|describe|info)(?:\((\d*)\))?(?:\[(0|1)\])?|\[['"]([^'"]+)['"]\]\.(mean|min|count|dtype)(?:\(\))?)?$/);
+      if (!query) throw Error('Demo supports Pandas import/read, DataFrame variables, head(n), tail(n), shape, count(), describe(), info(), and column mean()/min()/count(). Run other Python in the downloaded notebook.');
+      if (aliases.has(query[1])) {
+        if (query[2] || query[5]) throw Error(`AttributeError: '${query[1]}' is the Pandas module, not a DataFrame.`);
+        result = h('pre', null, "<module 'pandas'>"); continue;
+      }
       const data = frames[query[1]]; if (!data) throw Error(`NameError: name '${query[1]}' is not defined. Run the import and read cell first.`);
       const method = query[2];
+      if (method === 'shape' && /\.shape\(/.test(line)) throw Error("TypeError: 'tuple' object is not callable. Use .shape without parentheses.");
+      if (method && method !== 'shape' && !line.includes('(')) throw Error(`Use .${method}() to call this method.`);
       if (query[5]) {
         const index = data.columns.indexOf(query[5]); if (index < 0) throw Error(`KeyError: '${query[5]}'`);
         const values = data.rows.map(row => row[index]).filter(value => value !== null);
+        if (query[6] === 'dtype') {
+          if (/\.dtype\(/.test(line)) throw Error('TypeError: dtype is a property. Use .dtype without parentheses.');
+          result = h('pre', null, values.every(numeric) ? values.length === data.rows.length && values.every(Number.isInteger) ? 'int64' : 'float64' : 'object'); continue;
+        }
+        if (!line.endsWith('()')) throw Error(`Use .${query[6]}() to call this method.`);
         if (query[6] !== 'count' && !values.every(numeric)) throw Error('TypeError: this column is not numeric.');
         result = h('pre', null, query[6] === 'count' ? String(values.length) : query[6] === 'min' ? format(values.reduce((a, b) => Math.min(a, b), Infinity)) : format(values.reduce((a, b) => a + b, 0) / values.length));
       } else if (!method) result = preview(data, 0, data.rows.length, true);
@@ -185,70 +290,190 @@ function Notebook(slide) {
     }
     return result;
   }
-  const run = h('button', { className: 'run', type: 'button', 'aria-label': 'Run cell', onClick: () => {
-    if (busy) return; busy = true; run.disabled = true; editor.disabled = true;
+  if (slide.stackedCells) return StackedPracticeNotebook(slide, evaluate, () => {
+    aliases = new Set(slide.bootstrap ? ['pd'] : []);
+    frames = Object.assign(Object.create(null), slide.bootstrap ? { df: DefaultDataFrame(slide.dataset) } : {});
+    definitions = Object.create(null);
+  });
+  const run = h('button', { className: 'run', type: 'button', disabled: !runtimeReady, 'aria-label': 'Run cell', onClick: () => {
+    if (busy || !runtimeReady) return; busy = true; run.disabled = true; editor.disabled = true;
     run.classList.add('busy'); status.textContent = 'Running…';
     setTimeout(() => {
-      try { replace(evaluate(editor.value)); status.textContent = `[${++execution}] Executed · offline demo`; if (editor.value.trim() === slide.commands[selected].trim()) buttons[selected].classList.add('executed'); }
+      if (notebookTerminated) { busy = false; run.classList.remove('busy'); return; }
+      try { replace(evaluate(editor.value)); status.textContent = `[${++execution}] Executed · offline demo`; buttons[selected].classList.add('executed'); }
       catch (error) { replace(h('pre', { className: 'error' }, error.message)); status.textContent = `[${++execution}] Check the cell`; }
-      busy = false; run.disabled = false; editor.disabled = false; run.classList.remove('busy');
+      checkpoint(); refreshBindings();
+      busy = false; run.disabled = false; editor.disabled = false; run.classList.remove('busy'); updateGroupUI();
     }, 240);
   } }, '▶');
   editor.addEventListener('keydown', event => { if (event.shiftKey && event.key === 'Enter') { event.preventDefault(); run.click(); } });
-  function selectCell(index) { if (busy) return; selected = index; editor.value = slide.commands[index]; buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(index === i))); editor.focus(); }
-  const buttons = slide.commands.map((command, i) => h('button', { type: 'button', 'aria-pressed': i === selected, onClick: () => selectCell(i) }, command));
+  function selectCell(index) {
+    if (busy || (slide.sharedRuntime && !runtimeReady)) return;
+    captureCell();
+    const previousGroup = groupFor(selected);
+    if (previousGroup) groupSelections[previousGroup.start] = selected;
+    selected = index;
+    if (slide.sharedRuntime || slide.rememberCells) showCell(index); else editor.value = slide.commands[index];
+    buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(index === i)));
+    updateGroupUI(); checkpoint(); slide.onCellSelected?.(index); editor.focus();
+  }
+  editor.addEventListener('input', () => checkpoint());
+  const buttons = slide.commands.map((command, i) => h('button', { type: 'button', 'aria-pressed': i === selected, onClick: () => selectCell(i), title: command }, slide.commandLabels?.[i] || command));
+  const presets = h('div', { className: 'notebook-presets', 'aria-label': slide.practiceExercise ? 'Notebook exercise cells' : 'Notebook example cells' }, buttons);
+  const groupDescription = h('p', { className: 'workflow-description' });
+  const groupHint = h('p', { className: 'workflow-hint' });
+  const groupButtons = (slide.commandGroups || []).map((group, index) => h('button', {
+    type: 'button', role: 'tab', id: `notebook-tab-${index}`, 'aria-controls': 'notebook-command-panel',
+    onClick: () => selectCell(groupSelections[group.start] ?? group.start)
+  }, group.label));
+  const targetSelect = h('select', { 'aria-label': 'DataFrame to explore', onChange: () => {
+    if (busy || !runtimeReady) { updateGroupUI(); return; }
+    const group = groupFor(selected), target = group?.targets?.find(target => target.value === targetSelect.value);
+    const current = group?.targets?.find(target => selected >= target.start && selected < target.start + target.count);
+    if (target && current) selectCell(target.start + selected - current.start);
+  } }, ['df', 'df2'].map(name => h('option', { value: name }, name === 'df' ? 'df - CSV' : 'df2 - Excel')));
+  const targetControl = h('label', { className: 'workflow-target' }, h('span', null, 'DataFrame'), targetSelect);
+  const groupNav = h('div', { className: 'workflow-nav' }, h('div', { className: 'workflow-tabs', role: 'tablist', 'aria-label': 'Pandas workflow', onKeyDown: event => {
+    const current = groupButtons.indexOf(document.activeElement);
+    if (current < 0 || !['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+    event.preventDefault();
+    const next = event.key === 'Home' ? 0 : event.key === 'End' ? groupButtons.length - 1 : (current + (event.key === 'ArrowRight' ? 1 : -1) + groupButtons.length) % groupButtons.length;
+    groupButtons[next].click(); groupButtons[next].focus();
+  } }, groupButtons), targetControl);
+  function updateGroupUI() {
+    if (!slide.commandGroups) return;
+    const group = groupFor(selected) || slide.commandGroups[0];
+    const target = group.targets?.find(target => selected >= target.start && selected < target.start + target.count);
+    const visible = target || group;
+    groupButtons.forEach((button, index) => {
+      const active = slide.commandGroups[index] === group;
+      button.setAttribute('aria-selected', String(active)); button.tabIndex = active ? 0 : -1;
+    });
+    groupDescription.textContent = group.description; groupHint.textContent = group.hint;
+    targetControl.hidden = !group.targets; targetSelect.disabled = busy || !runtimeReady;
+    if (target) targetSelect.value = target.value;
+    buttons.forEach((button, index) => { button.hidden = index < visible.start || index >= visible.start + visible.count; });
+    presets.setAttribute('data-count', String(visible.count));
+    presets.setAttribute('role', 'tabpanel'); presets.id = 'notebook-command-panel';
+    presets.setAttribute('aria-labelledby', `notebook-tab-${slide.commandGroups.indexOf(group)}`);
+  }
   const toolbar = h('div', { className: 'cell-tools' },
     h('button', { type: 'button', onClick: () => selectCell((selected + 1) % slide.commands.length) }, 'Next cell →'),
-    slide.practicePart && h('button', { type: 'button', onClick: () => window.dispatchEvent(new CustomEvent('eiu-use-cell', { detail: { partId: slide.practicePart, code: editor.value } })) }, 'Use code in answer'),
-    h('button', { type: 'button', onClick: () => { if (busy) return; uploaded = imported = Boolean(slide.bootstrap); execution = 0; frames = slide.bootstrap ? { df: datasets[slide.dataset][0] } : {}; buttons.forEach(button => button.classList.remove('executed')); selectCell(0); file.textContent = uploaded ? '✓ ' + slide.dataset : 'No file uploaded'; status.textContent = 'Runtime reset'; replace(h('p', { className: 'support' }, 'Ready for a fresh run.')); } }, 'Reset runtime'));
-  return h('div', { className: slide.practicePart ? 'lab practice-lab' : 'lab' }, h('div', { className: 'notebook' },
+);
+
+
+  const notebook = h('div', { className: 'lab' }, h('div', { className: 'notebook' },
     h('div', { className: 'nbbar' }, h('span', { className: 'colabmark' }, 'co'), h('strong', null, slide.phase.startsWith('DEMO') ? 'Demo_Pandas.ipynb' : 'Practice_Pandas.ipynb'), h('small', null, 'COLAB-STYLE · OFFLINE SIMULATION')),
     h('div', { className: 'nbcontent' }, h('aside', { className: 'files' }, h('strong', null, 'Files / content'),
-      h('button', { type: 'button', onClick: () => { uploaded = true; file.textContent = '✓ ' + slide.dataset; } }, '↑ Upload lesson file'), file,
-      h('p', null, 'Upload loads the bundled file for this part. State resets when leaving the slide.')),
-      h('div', { className: 'workspace' }, slide.practicePart && h('div', { className: 'practice-commands' }, buttons), h('div', { className: 'cell' }, run, editor), toolbar, status, output))),
-    h('aside', { className: slide.practicePart ? 'practice-side' : 'side' }, !slide.practicePart && h('div', { className: 'tip' }, h('h3', null, 'Choose a cell → Run'), h('div', { className: 'commands' }, buttons)),
-      ...(slide.practicePart ? [PracticePanel(slide)] : slide.notes.map((note, i) => h('div', { className: 'tip' }, h('h3', null, String(i + 1).padStart(2, '0')), h('p', null, note)))),
-      !slide.practicePart && h('p', { className: 'support' }, 'Shift + Enter runs the cell. Supported commands use the supplied data; this is not a live Python runtime.')));
+      !slide.autoUpload && h('button', { type: 'button', onClick: () => { uploaded = true; loadedFiles.add(slide.dataset); Object.keys(slide.csvFiles || {}).forEach(name => loadedFiles.add(name)); refreshBindings(); checkpoint(); } }, 'Upload lesson file'), file,
+      slide.kind !== 'pandas-workspace' && h('p', null, slide.sharedRuntime ? 'Notebook session active' : 'Lesson files'), slide.sharedRuntime && bindings),
+      h('div', { className: 'workspace' }, slide.commandGroups && groupNav, slide.commandGroups && slide.kind !== 'pandas-workspace' && h('div', { className: 'workflow-context' }, groupDescription, groupHint), slide.inlineCommands && presets, h('div', { className: 'cell' }, run, editor), toolbar, status, output))),
+);
+
+  notebook.eiuCells = { select: selectCell, restore: (index, code) => { cellStates[index] = { index, code, status: 'Saved code restored - run to see output.', executed: false, output: [] }; if (selected === index) showCell(index); } };
+  refreshBindings(); updateGroupUI();
+  if (slide.sharedRuntime) {
+    window.addEventListener('message', event => {
+      if (event.source !== parent || event.data?.type !== 'eiu-notebook-terminated' || event.data.requestId !== window.eiuLessonRequestId) return;
+      notebookTerminated = true; runtimeReady = false;
+      notebook.querySelectorAll('button,textarea,select').forEach(control => { control.disabled = true; });
+      status.textContent = 'Section terminated';
+      replace(h('p', { className: 'support' }, 'This notebook session has ended. Reopen the section to start a new session.'));
+    });
+    status.textContent = 'Restoring notebook session...';
+    LoadNotebookRuntime().then(state => {
+      if (notebookTerminated) return;
+      runtimeSessionKey = state.sessionKey;
+      aliases = new Set(state.aliases); loadedFiles = new Set(state.files);
+      if (slide.autoUpload) { loadedFiles.add(slide.dataset); (slide.autoUploadFiles || []).forEach(name => loadedFiles.add(name)); }
+      execution = state.execution; frames = Object.create(null); definitions = Object.create(null);
+      state.frames.forEach(definition => {
+        const data = definition.format === 'csv'
+          ? ReadCsvDemo(datasets[definition.file][0].csvSource, definition.sep, definition.header)
+          : typeof definition.sheet === 'string' ? datasets[definition.file].find(sheet => sheet.name === definition.sheet) : datasets[definition.file][definition.sheet];
+        if (!data) throw Error('Unable to restore the saved worksheet. Reopen this section to retry.');
+        bindFrame(definition.name, data, definition);
+      });
+      pageStates = Object.create(null);
+      (state.pages || []).forEach(page => { pageStates[page.page] = page; });
+      const savedPage = pageStates[runtimePage];
+      cellStates = Object.create(null);
+      savedPage?.cells.forEach(cell => { if (cell.index < slide.commands.length) cellStates[cell.index] = cell; });
+      selected = savedPage && savedPage.selected < slide.commands.length ? savedPage.selected : 0;
+      buttons.forEach((button, index) => {
+        button.setAttribute('aria-pressed', String(index === selected));
+        button.classList.toggle('executed', Boolean(cellStates[index]?.executed));
+      });
+      if (savedPage) showCell(selected);
+      else { status.textContent = execution ? `[${execution}] Notebook session restored` : 'Ready'; replace(h('p', { className: 'support' }, readyMessage())); }
+      uploaded = loadedFiles.size > 0; runtimeReady = true; run.disabled = false;
+      refreshBindings(); updateGroupUI(); checkpoint();
+    }).catch(error => { replace(h('pre', { className: 'error' }, error.message)); status.textContent = 'Session unavailable'; });
+  }
+  return notebook;
 }
 function content(slide) {
-  if (slide.kind === 'practice-hub') return PracticeWorkspace(slide);
-  if (slide.kind === 'introduction') return h('ol', { className: 'intro-topics' }, slide.topics.map((topic, i) => h('li', null, h('span', { className: 'topic-number', 'aria-hidden': 'true' }, String(i + 1).padStart(2, '0')), h('span', null, topic))));
-  if (slide.kind === 'picker') return NamePicker();
-  if (slide.kind === 'lab') return Notebook(slide);
-  if (slide.kind === 'raw') return [
-    h('div', { className: 'grid' }, card('01', 'Where did it come from?', 'Identify the owner, collection process and purpose. Keep the original file unchanged.', 'SOURCE & PURPOSE'), card('02', 'What does one row mean?', 'A student, a course or a country-year? Check headers, units and the observation level.', 'ROWS & COLUMNS'), card('03', 'Which reader fits the file?', 'CSV → read_csv(). Excel → read_excel(). Check the workbook’s sheets before choosing one.', 'FORMAT & IMPORT')),
-    h('div', { className: 'callout' }, 'Before calculating: ask what question this dataset can answer and whether each field means what you think it means.')];
-  if (slide.kind === 'plan') return [
-    h('div', { className: 'flow' }, h('span', null, 'Preserve raw file'), h('b', null, '→'), h('span', null, 'Choose reader'), h('b', null, '→'), h('span', null, 'Create DataFrame'), h('b', null, '→'), h('span', null, 'Inspect & validate')),
-    h('div', { className: 'grid two' }, card('CSV', 'student_data.csv', 'A structured table: 200 students, five numeric columns. Import it, then check the first records.', 'pd.read_csv("student_data.csv")'), card('XLSX', 'Course Offerings.xlsx', 'Two worksheets: Instructors and Courses. The same workbook can answer different questions.', 'pd.read_excel(..., sheet_name=1)')),
-    h('div', { className: 'callout' }, 'If a source is unstructured, transform it into rows and columns before using the DataFrame workflow. After import, inspect shape, head, count, describe and info.')];
-  if (slide.kind === 'bridge') return [
-    h('div', { className: 'grid' }, card('01', 'Load the right table', 'Match the file format and worksheet to the question. Store the result in a named DataFrame.', 'read_csv · read_excel'), card('02', 'Check the evidence', 'Confirm dimensions, preview rows and inspect missing values and data types before interpreting statistics.', 'shape · head · count · info'), card('03', 'Explain, then calculate', 'Now use the Happiness Survey to answer five questions, showing the command behind each answer.', 'describe · mean · min')),
-    h('div', { className: 'callout' }, 'DataFrame = a table with labelled columns and a row index. Each column has a dtype; missing values can affect both counts and inferred types.')];
-  const data = datasets['happiness_survey_data.csv'][0], scoreIndex = data.columns.indexOf('happiness_score');
-  const scores = data.rows.map(row => row[scoreIndex]).filter(numeric), supportIndex = data.columns.indexOf('social_support');
-  const answerRows = [
-    ['1', 'Rows and columns', `(${data.rows.length}, ${data.columns.length})`, 'df.shape'],
-    ['2', 'Average Happiness Score', (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2), 'df.describe() → mean'],
-    ['3', 'Minimum Happiness Score', scores.reduce((a, b) => Math.min(a, b), Infinity).toFixed(2), 'df.describe() → min'],
-    ['4', 'country_name data type', 'object', 'df.info()'],
-    ['5', 'Available social_support values', String(data.rows.filter(row => row[supportIndex] !== null).length), 'df.count()']
-  ];
-  const answers = h('div', { hidden: true, className: 'answers' }, h('table', null, h('thead', null, h('tr', null, ['Q', 'Question', 'Answer', 'Evidence'].map(name => h('th', null, name)))), h('tbody', null, answerRows.map(row => h('tr', null, row.map(value => h('td', null, value)))))));
-  const reveal = h('button', { type: 'button', className: 'primary reveal', 'aria-expanded': false, onClick: () => { answers.hidden = !answers.hidden; reveal.textContent = answers.hidden ? 'Reveal answer summary' : 'Hide answers'; reveal.setAttribute('aria-expanded', String(!answers.hidden)); } }, 'Reveal answer summary');
-  return [h('div', { className: 'callout' }, 'Explain why the social_support count is smaller than the row count. Which command tells you whether values are missing?'), reveal, answers];
+  if (slide.kind === 'sources') return SourceOverview(slide);
+  if (slide.kind === 'structure') return StructureOverview(slide);
+  if (slide.kind === 'dataframe') return DataFrameOverview(slide);
+  if (slide.kind === 'pandas-workspace') return PandasWorkspace(slide);
+  if (slide.kind === 'practice-hub') return PracticeWorkspace();
+  if (slide.kind === 'introduction') return h('ol', { className: 'intro-topics' }, slide.topics.map((topic, i) => h('li', null, h('span', { className: 'topic-number', 'aria-hidden': 'true' }, String(i + 1).padStart(2, '0')), h('span', null, topic.split(/(Pandas)/g).map(part => part === 'Pandas' ? h('span', { className: 'pandas-word' }, part) : part)))));
+  if (slide.kind === 'picker') return window.eiuLessonTeaching ? WheelGame() : AssignedWheelQuestion();
+  throw Error('Unsupported MIS 301 slide kind: ' + slide.kind);
+}
+const downloadDockCss = `
+.mis.introduction .frame{gap:1.3vw}
+.mis.introduction .heading{position:relative;left:auto;top:auto;width:100%;padding:1.2vw 0 .8vw;border:0;text-align:center;flex:none;perspective:100vw}
+.mis.introduction .heading:after,.mis.introduction .eyebrow{display:none}
+.mis.introduction h1{font-size:5.8vw;line-height:1.15;letter-spacing:-.05em;max-width:100%;text-align:center;color:#082945;white-space:nowrap;text-wrap:nowrap;transform-style:preserve-3d;transform-origin:center;text-shadow:0 .04vw 0 #18547F,0 .08vw 0 #123F68,0 .12vw 0 #123F68,0 .16vw 0 #041C31,0 .35vw .6vw #08294525;animation:misTitle3D 5s ease-in-out infinite}
+.mis.introduction .body{margin-left:0;justify-content:center;align-items:center;min-height:0}
+.mis.introduction .intro-topics{width:100%;max-width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1.25vw;align-items:stretch}
+.mis.introduction .intro-topics li{min-width:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:2vw 1.6vw;gap:1.3vw;min-height:13vw;font-size:1.65vw;line-height:1.45;border-radius:1.1vw;text-wrap:balance}
+.mis.introduction .intro-topics li>span:last-child{width:100%;max-width:24vw;text-align:center;text-wrap:balance}
+.mis.introduction .intro-topics .topic-number{display:grid;place-items:center;width:4.7vw;height:4.7vw;flex:none;border-radius:50%;font-size:2.55vw;font-weight:900;color:#9D7944;background:#F7F0E1;border:1px solid #e9dfcb;animation:misNumberGlow 3.6s ease-in-out infinite}
+.mis.introduction .intro-topics li:nth-child(2) .topic-number{animation-delay:1.2s}
+.mis.introduction .intro-topics li:nth-child(3) .topic-number{animation-delay:2.4s}
+.mis.introduction .pandas-word{display:inline-block;white-space:nowrap;color:#18547F;font-weight:850;transform-origin:50% 80%;animation:misPandas 3.2s cubic-bezier(.22,1,.36,1) infinite}
+@keyframes misPandas{0%,15%,100%{transform:translateY(0) rotate(0);color:#18547F;text-shadow:none}36%{transform:translateY(-.28vw) rotate(-3deg);color:#9D7944;text-shadow:0 0 .8vw #E9CA8B80}52%{transform:translateY(0) rotate(2deg);color:#123F68}68%{transform:translateY(-.12vw) rotate(0);color:#18547F}}
+@media(prefers-reduced-motion:reduce){.mis.introduction .pandas-word{animation:none}}
+@keyframes misTitle3D{0%,100%{transform:translateY(0) rotateX(7deg) rotateY(-2deg)}50%{transform:translateY(-.45vw) rotateX(-4deg) rotateY(2deg)}}
+@keyframes misNumberGlow{0%,38%,100%{color:#9D7944;background:#F7F0E1;box-shadow:0 0 0 transparent;transform:scale(1)}15%{color:#082945;background:#F4DFB0;box-shadow:0 0 0 .3vw #E9CA8B30,0 0 1.5vw #E9CA8B90;transform:scale(1.1)}}
+@media(prefers-reduced-motion:reduce){.mis.introduction h1,.mis.introduction .intro-topics .topic-number{animation:none}}
+.mis.introduction .downloads{display:grid;grid-template-columns:1fr 2.5fr;gap:1.1vw;padding:0;border:0;background:none;box-shadow:none;align-items:stretch}
+.mis.introduction .download-group{min-width:0;padding:.9vw 1vw;background:#FBFAF7;border:1px solid #e1e5e6;border-radius:1vw;display:flex;flex-direction:column;gap:.65vw}
+.mis.introduction .download-group h3{font-size:.72vw;font-weight:800;letter-spacing:.16em;color:#9D7944;line-height:1.2}
+.mis.introduction .download-items{display:flex;gap:.55vw;flex:1;align-items:stretch}
+.mis.introduction .downloads .download-items button{flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:.5vw;padding:.7vw .65vw;background:white;color:#17324A;border:1px solid #dce4e9;font-size:.89vw;line-height:1.3;white-space:normal;text-wrap:pretty;border-radius:.6vw}
+.mis.introduction .downloads .notebook-downloads button{background:#082945;color:#F4DFB0;border-color:#082945;font-size:1.12vw;font-weight:800}
+.mis.introduction .downloads .download-items button:hover{background:#F4DFB0;color:#082945;border-color:#B39159}
+.mis .download-icon{width:1.8vw;height:2vw;flex:none;display:block}
+.mis .colab-icon{width:2.1vw;height:1.7vw}
+.mis .download-items button span{min-width:0;overflow-wrap:anywhere}
+`;
+function DownloadIcon(kind) {
+  const svg = wheelSvg;
+  if (kind === 'colab') return svg('svg', { viewBox: '0 0 32 24', className: 'download-icon colab-icon', 'aria-hidden': 'true' },
+    svg('path', { d: 'M13 5 A8 8 0 1 0 13 19 L10 15 A3.5 3.5 0 1 1 10 9 Z', fill: '#E9A023' }),
+    svg('path', { d: 'M19 5 A8 8 0 1 1 19 19 L22 15 A3.5 3.5 0 1 0 22 9 Z', fill: '#F9BB32' }));
+  return svg('svg', { viewBox: '0 0 32 36', className: 'download-icon data-icon', 'aria-hidden': 'true' },
+    svg('path', { d: 'M6 1 H21 L30 10 V34 H6 Z', fill: kind === 'xlsx' ? '#E8F3ED' : '#EDF3F8', stroke: kind === 'xlsx' ? '#217346' : '#18547F', 'stroke-width': 1.5 }),
+    svg('path', { d: 'M21 1 V10 H30', fill: 'none', stroke: kind === 'xlsx' ? '#217346' : '#18547F', 'stroke-width': 1.5 }),
+    svg('rect', { x: 0, y: 15, width: 30, height: 13, rx: 3, fill: kind === 'xlsx' ? '#217346' : '#18547F' }),
+    svg('text', { x: 15, y: 24, 'text-anchor': 'middle', fill: '#fff', 'font-size': 8, 'font-weight': 800, 'font-family': 'Inter,Arial,sans-serif' }, kind.toUpperCase()));
 }
 function Slide(slide, index, total) {
-  const files = ['Demo_Pandas (Part 2).ipynb', 'Practice_Pandas (Part 2).ipynb', 'Solution_Pandas (Part 2).ipynb', 'student_data.csv', 'Course Offerings.xlsx', 'happiness_survey_data.csv'];
-  const label = name => name.startsWith('Demo_') ? '↓ Demo notebook' : name.startsWith('Practice_') ? '↓ Practice notebook' : name.startsWith('Solution_') ? '↓ Solution notebook' : '↓ ' + name;
-  return h('article', { className: slide.kind === 'introduction' ? 'mis introduction' : 'mis', 'data-layout': slide.kind, 'data-eiu-template': 'eiu-business-v1', style: { backgroundImage: `url("${template}")` } }, h('style', null, css + practiceCss + introductionCss + redesignCss + wheelCss + practicePopupCss + courseFontCss),
-    h('div', { className: 'frame' }, h('header', { className: 'heading' }, h('p', { className: 'eyebrow' }, 'MIS 301 · ' + slide.phase), h('h1', null, slide.title), slide.subtitle && h('p', { className: 'subtitle' }, slide.subtitle)),
-      h('main', { className: 'body' }, content(slide)), slide.kind === 'introduction' ? h('footer', { className: 'downloads' }, files.map(name => h('button', { type: 'button', onClick: () => download(name) }, label(name)))) : h('footer', { className: 'lesson-footer' }, h('span', null, 'PREPARE → DEMO → PRACTICE'), h('div', { className: 'deck-progress', 'aria-label': `Slide ${index + 1} of ${total}` }, h('i', { style: { width: `${(index + 1) / total * 100}%` } })), h('span', null, `${index + 1} / ${total}`))),
-    h('span', { className: 'page' }, String(index + 1)));
+  const conceptSlide = ['sources', 'structure', 'dataframe', 'pandas-workspace'].includes(slide.kind);
+  const notebooks = ['Demo_Pandas (Part 2).ipynb', 'Practice_Pandas (Part 2).ipynb'];
+  const dataFiles = ['student_data.csv', 'Course Offerings.xlsx', 'happiness_survey_data.csv'];
+  const downloadButton = (name, notebook = false) => h('button', { type: 'button', onClick: () => download(name), title: name }, DownloadIcon(notebook ? 'colab' : name.endsWith('.xlsx') ? 'xlsx' : 'csv'), h('span', null, notebook ? name.startsWith('Demo_') ? 'Demo' : 'Practice' : name));
+  return h('article', { className: slide.kind === 'introduction' ? 'mis introduction' : 'mis', 'data-layout': slide.kind, 'data-eiu-template': 'eiu-business-v1', style: { backgroundImage: `url("${template}")` } }, h('style', null, css + introductionCss + redesignCss + downloadDockCss + conceptCss + wheelCss + practicePopupCss + courseFontCss),
+    h('div', { className: 'frame' }, h('header', { className: 'heading' }, !conceptSlide && slide.kind !== 'introduction' && h('p', { className: 'eyebrow' }, 'MIS 301 · ' + slide.phase), h('h1', null, slide.title), slide.subtitle && h('p', { className: 'subtitle' }, slide.subtitle)),
+      h('main', { className: 'body' }, content(slide)), slide.kind === 'introduction' ? h('footer', { className: 'downloads' }, h('section', { className: 'download-group notebook-downloads', 'aria-label': 'Notebooks' }, h('h3', null, 'NOTEBOOKS'), h('div', { className: 'download-items' }, notebooks.map(name => downloadButton(name, true)))), h('section', { className: 'download-group data-downloads', 'aria-label': 'Data files' }, h('h3', null, 'DATA'), h('div', { className: 'download-items' }, dataFiles.map(name => downloadButton(name))))) : !conceptSlide && h('footer', { className: 'lesson-footer' }, h('span', null, 'PREPARE → DEMO → PRACTICE'), h('div', { className: 'deck-progress', 'aria-label': `Slide ${index + 1} of ${total}` }, h('i', { style: { width: `${(index + 1) / total * 100}%` } })), h('span', null, `${index + 1} / ${total}`))),
+    !conceptSlide && h('span', { className: 'page' }, String(index + 1)));
 }
 function render(slide) {
-  const visible = course.slides.filter(item => window.eiuLessonTeaching || !item.adminOnly);
+  const visible = course.slides.filter(item => (window.eiuLessonTeaching || !item.adminOnly) && (window.eiuLessonTeaching || window.eiuPracticeAllowed !== false || item.kind !== 'picker'));
   return Slide(slide, visible.indexOf(slide), visible.length);
 }
-exports.default = course.slides.map(s => Object.assign(() => render(s), { adminOnly: s.adminOnly === true }));
+exports.default = course.slides.map(s => Object.assign(() => render(s), { adminOnly: s.adminOnly === true, drawRestricted: s.kind === 'picker' }));

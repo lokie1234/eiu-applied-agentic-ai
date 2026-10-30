@@ -10,6 +10,7 @@ import { type FormEvent, type PointerEvent, type ReactNode, useCallback, useEffe
 import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
 import { rememberDeckSelection } from "@/lib/deckLocation";
+import { clearMis301Notebook } from "@/components/deck/useMis301NotebookBridge";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
 import styles from "./LessonPortal.module.css";
@@ -941,13 +942,14 @@ export default function LessonPortal({
         body: JSON.stringify({ action: "terminate" }),
       });
 
-      const payload = (await response.json()) as { message?: string };
+      const payload = (await response.json()) as { message?: string; token?: string; classroomSynced?: boolean };
       if (!response.ok) {
         throw new Error(payload.message || "Failed to terminate section.");
       }
 
+      clearMis301Notebook(activeSectionId, payload.token);
       setTerminateStatus("success");
-      setTerminateNotice("Terminated");
+      setTerminateNotice(payload.classroomSynced === false ? "Terminated - live classroom reconnecting" : "Terminated");
       if (section) clearSlideInteractionStorage(section);
       window.sessionStorage.removeItem(`eiu-showcase-hidden:${activeSectionId}`);
       setDeckSessionKey((current) => current + 1);
@@ -991,6 +993,7 @@ export default function LessonPortal({
           if (terminationBaseline.current?.sectionId !== activeSectionId) {
             terminationBaseline.current = { sectionId: activeSectionId!, token: currentToken };
           } else if (currentToken && currentToken !== terminationBaseline.current?.token) {
+            clearMis301Notebook(activeSectionId!, currentToken);
             if (section) clearSlideInteractionStorage(section);
             window.sessionStorage.removeItem(`eiu-showcase-hidden:${activeSectionId}`);
             window.location.replace("/");
@@ -1011,6 +1014,7 @@ export default function LessonPortal({
       .on("broadcast", { event: "section_terminated" }, (payload) => {
         const targetSection = (payload.payload as { section?: string })?.section;
         if (targetSection === section || targetSection === activeSectionId) {
+          clearMis301Notebook(activeSectionId!);
           if (section) clearSlideInteractionStorage(section);
           window.sessionStorage.removeItem(`eiu-showcase-hidden:${activeSectionId}`);
           window.location.replace("/");

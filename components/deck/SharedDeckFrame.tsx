@@ -14,6 +14,7 @@ type Props = {
   sectionTitle: string;
   totalSlides: number;
   navigationReady?: boolean;
+  requestedPage?: { page: number; key: string };
   renderSlide: (pageNumber: number, renderWidth: number) => ReactNode;
   // Keep resource owners (such as a PDF Document) outside the keyed animation.
   renderSlideContainer?: (children: ReactNode) => ReactNode;
@@ -30,6 +31,7 @@ export default function SharedDeckFrame({
   sectionTitle,
   totalSlides,
   navigationReady = true,
+  requestedPage,
   renderSlide,
   renderSlideContainer,
   frameClassName = "slide-frame",
@@ -150,10 +152,14 @@ export default function SharedDeckFrame({
     if (!navigationReady || positionRestored.current) return;
     const frame = window.requestAnimationFrame(() => {
       positionRestored.current = true;
-      goToPage(restoredSlide(totalRef.current), false);
+      goToPage(requestedPage?.page ?? restoredSlide(totalRef.current), false);
     });
     return () => window.cancelAnimationFrame(frame);
-  }, [goToPage, navigationReady]);
+  }, [goToPage, navigationReady, requestedPage?.key, requestedPage?.page]);
+
+  useEffect(() => {
+    if (requestedPage && navigationReady && positionRestored.current) goToPage(requestedPage.page, false);
+  }, [requestedPage?.key, requestedPage?.page, goToPage, navigationReady]);
 
   useEffect(() => {
     function handleKeyboard(event: KeyboardEvent) {

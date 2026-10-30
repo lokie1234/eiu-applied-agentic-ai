@@ -5,9 +5,11 @@ import dynamic from "next/dynamic";
 import SharedDeckFrame from "@/components/deck/SharedDeckFrame";
 import HairlineLoading from "@/components/HairlineLoading";
 import styles from "./UploadedSectionDeck.module.css";
+import { MIS301_SECTION_ID } from "@/lib/mis301Practice";
 import { WEB_DEVELOPMENT_SECTION_ID } from "@/lib/webDevelopmentQuiz";
 import { getCompiledSectionMetadata } from "@/lib/compiledSectionMetadata";
 import { useLessonPracticeBridge } from "./useLessonPracticeBridge";
+import { useMis301NotebookBridge } from "./useMis301NotebookBridge";
 const ShowcaseSlide = dynamic(async () => {
   const { default: Showcase } = await import("@/components/ShowcaseSlide");
   return function LoadedShowcase(props: ComponentProps<typeof Showcase>) { return <div className={styles.nativeContent} data-slide-content-ready="true"><Showcase {...props} /></div>; };
@@ -50,12 +52,12 @@ function SlideSurface({ ready, native, onError, children }: { ready: boolean; na
 }
 
 // Keep the large source document stable during presence updates and zooming.
-const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, title, frameRef, sectionId, isAdmin }: {
+const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, title, frameRef, sectionId, isAdmin, practiceAllowed, practiceAssignmentKey }: {
   code: string; page: number; background: string; templateKey?: string; title: string;
-  sectionId: string; isAdmin: boolean;
+  sectionId: string; isAdmin: boolean; practiceAllowed: boolean; practiceAssignmentKey: string;
   frameRef: RefObject<HTMLIFrameElement | null>;
 }) {
-  const document = useMemo(() => createTsxDocument(code, page, background, templateKey, `${sectionId}:${page}`, isAdmin), [code, page, background, templateKey, sectionId, isAdmin]);
+  const document = useMemo(() => createTsxDocument(code, page, background, templateKey, `${sectionId}:${page}`, isAdmin, practiceAllowed, practiceAssignmentKey), [code, page, background, templateKey, sectionId, isAdmin, practiceAllowed, practiceAssignmentKey]);
   return <iframe ref={frameRef} className={styles.tsxFrame} data-request-id={`${sectionId}:${page}`}
     sandbox="allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox"
     title={`${title} · slide ${page}`} srcDoc={document} />;
@@ -66,7 +68,10 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
   const compiledCount = compiled ? isAdmin ? compiled.teachingSlides : compiled.learnerSlides : undefined;
   const needsTemplate = Boolean(templateKey && !(templateKey === "eiu-business-v1" && compiled?.preservesBusinessTemplate));
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  useLessonPracticeBridge(sectionId, iframeRef);
+  const practiceAccess = useLessonPracticeBridge(sectionId, iframeRef);
+  const practiceAllowed = sectionId !== MIS301_SECTION_ID || isAdmin || Boolean(practiceAccess?.assignment);
+  const practiceAssignmentKey = `${practiceAccess?.practiceSession || ""}:${practiceAccess?.assignment?.drawId || ""}`;
+  useMis301NotebookBridge(sectionId, iframeRef);
   const contentUrl = `/api/sections/${encodeURIComponent(sectionId)}/content`;
   const [totalSlides, setTotalSlides] = useState(compiledCount ?? slideCount ?? 1);
   const [tsxCode, setTsxCode] = useState("");
@@ -153,7 +158,8 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
     <SharedDeckFrame
       courseTitle={courseTitle}
       sectionTitle={sectionTitle}
-      totalSlides={totalSlides}
+      totalSlides={sectionId === MIS301_SECTION_ID && !isAdmin ? practiceAllowed ? 6 : 5 : totalSlides}
+      requestedPage={sectionId === MIS301_SECTION_ID && !isAdmin && practiceAccess?.assignment ? { page: 6, key: practiceAccess.assignment.drawId } : undefined}
       navigationReady={slideCountReady}
       frameClassName={styles.frame}
       transitionClassName={styles.slide}
@@ -169,7 +175,7 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
           <SlideSurface key={`${sectionId}:${pageNumber}`} ready={ready} native={showcase || quiz} onError={setError}>
           {!native && <div className={showcase || quiz ? styles.inactiveSource : styles.sourceLayer} aria-hidden={showcase || quiz || undefined}>
           <TsxSlide isAdmin={isAdmin} frameRef={iframeRef} sectionId={sectionId} code={tsxCode} page={pageNumber} background={useTemplate ? templateImage : ""}
-            templateKey={templateKey} title={sectionTitle} />
+            practiceAllowed={practiceAllowed} practiceAssignmentKey={practiceAssignmentKey} templateKey={templateKey} title={sectionTitle} />
           </div>}
           {showcase && <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} guide={compiled?.showcaseGuide} />}
           {showcase && sectionId === WEB_DEVELOPMENT_SECTION_ID && <QuizPrefetch />}

@@ -32,7 +32,7 @@ test("compiled web section counts match the exact downloadable JS without downlo
     assert.equal(createHash('sha256').update(source).digest('hex'),metadata.revision);
     for (const admin of [false,true]) {
       const messages=[];
-      vm.runInNewContext(documents.createTsxDocument(source,null,'','','count',admin).match(/<script>([\s\S]*?)<\/script>/)[1],{document:window.document,Node:window.Node,parent:{postMessage:message=>messages.push(message)}});
+      vm.runInNewContext(documents.createTsxDocument(source,null,'','','count',admin).match(/<script>([\s\S]*?)<\/script>/)[1],{window,Event:window.Event,document:window.document,Node:window.Node,parent:{postMessage:message=>messages.push(message)}});
       assert.equal(await counter.readSectionSlideCount(id,'tsx',new AbortController().signal,admin),messages[0].slides);
     }
   }
@@ -55,7 +55,7 @@ test("TSX count mode counts runtime exports without rendering slides or reading 
   const compiled = 'exports.default = () => Array.from({length:7}, () => () => {throw new Error("Slide must not render");});';
   const html = documents.createTsxDocument(compiled, null, "", "", "request");
   const code = html.match(/<script>([\s\S]*?)<\/script>/)[1];
-  vm.runInNewContext(code, { document: window.document, Node: window.Node, parent: { postMessage: message => messages.push(message) } });
+  vm.runInNewContext(code, { window, Event:window.Event, document: window.document, Node: window.Node, parent: { postMessage: message => messages.push(message) } });
   assert.equal(messages.length, 1);
   assert.equal(messages[0].type, "eiu-tsx-ready");
   assert.equal(messages[0].slides, 7);

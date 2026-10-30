@@ -1,3 +1,7 @@
 # Self-contained lesson files are downloadable byte-preserving artifacts.
 course-content/**/*.js -text
 lib/drive/builtin-decks/*.js -text
+
+# Preserve the original classroom downloads across Windows/Linux checkouts.
+course-content/mis301/*.ipynb -text
+course-content/mis301/*.csv -text

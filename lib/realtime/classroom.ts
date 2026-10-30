@@ -32,23 +32,24 @@ export async function classroomSnapshot(signal?: AbortSignal) {
   }
   return { sectionId: MIS301_SECTION_ID, version, epoch, members,
     answers: (answers.data || []).filter(row => mis301Part(row.details.partId)).map(row => ({ recordId: String(row.id), subject: String(row.details.sessionId),
-      username: String(row.details.name || "Learner"), partId: String(row.details.partId), values: row.details.values as Record<string, string>, submittedAt: row.created_at })),
+      username: String(row.details.name || "Learner"), partId: String(row.details.partId), values: row.details.values as Record<string, string>, submittedAt: row.created_at, ...(Number.isInteger(row.details.assignmentPart) ? { assignmentPart: Number(row.details.assignmentPart) } : {}), ...(Number.isInteger(row.details.questionNumber) ? { questionNumber: Number(row.details.questionNumber) } : {}), ...(typeof row.details.drawId === "string" ? { drawId: row.details.drawId } : {}) })),
   };
 }
 export async function publishClassroom() {
-  if (!realtimeConfigured()) return;
+  if (!realtimeConfigured()) return false;
   const payload = await classroomSnapshot();
   const response = await fetch(`${process.env.CONVEX_SITE_URL!.replace(/\/$/, "")}/classroom`, {
     method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.REALTIME_BRIDGE_SECRET}` },
     body: JSON.stringify(payload), signal: AbortSignal.timeout(8000),
   });
   if (!response.ok) throw new Error("Classroom synchronization pending.");
+  return true;
 }
 export function notifyClassroom() {
   if (!realtimeConfigured()) return;
   after(async () => { try { await publishClassroom(); } catch { console.error("Classroom projection pending reconciliation; report data remains saved."); } });
 }
-export function notifyClassroomAnswer(payload: { sectionId: string; epoch: string; answer: { recordId: string; subject: string; username: string; partId: string; values: Record<string, string>; submittedAt: string } }) {
+export function notifyClassroomAnswer(payload: { sectionId: string; epoch: string; answer: { recordId: string; subject: string; username: string; partId: string; values: Record<string, string>; submittedAt: string; assignmentPart?: number; questionNumber?: number; drawId?: string } }) {
   if (!realtimeConfigured()) return;
   after(async () => {
     try {

@@ -19,8 +19,8 @@ const PPTX_MIME = "application/vnd.openxmlformats-officedocument.presentationml.
 function handlers(options = {}) {
   const state = {
     admin: true,
-    section: { id: "section-id", course_id: "course-id", section_key: "custom", status: "active", content_path: null },
-    access: { isActive: true, isAdmin: false, sections: [{ id: "section-id", courseId: "course-id" }], courses: [{ id: "course-id", isUnlocked: true }] },
+    section: { id: "00000000-0000-4000-8000-000000000001", course_id: "00000000-0000-4000-8000-000000000002", section_key: "custom", status: "active", content_path: null },
+    access: { isActive: true, isAdmin: false, sections: [{ id: "00000000-0000-4000-8000-000000000001", courseId: "00000000-0000-4000-8000-000000000002" }], courses: [{ id: "00000000-0000-4000-8000-000000000002", isUnlocked: true }] },
     stored: new Map(), removed: [], afterTasks: [], supabaseUploads:0, driveUploads:0, ...options,
   };
   const storage = {
@@ -75,7 +75,22 @@ function handlers(options = {}) {
       if (name === "next/cache") return { revalidatePath() {} };
       if (name === "server-only") return {};
       if (name === "@/course-content/sources.json") return JSON.parse(fs.readFileSync("course-content/sources.json", "utf8"));
-      if (name === "@/lib/localSectionContent") return load("lib/localSectionContent.ts");
+      if (name === "@/lib/localSectionContent") {
+        const local=load("lib/localSectionContent.ts");
+        return {...local,
+          async saveLocalSectionSource(courseId,sectionId,bytes) {
+            const binding=`local:course-content/imported/${courseId}/${sectionId}/${crypto.randomUUID()}.js`;
+            local.localSectionSourcePath({id:courseId},{id:sectionId,content_type:'tsx',content_path:binding});
+            state.stored.set(binding,Buffer.from(bytes));state.localWrites=(state.localWrites||0)+1;return binding;
+          },
+          async readLocalSectionSource(course,section) {
+            if(section.content_path?.startsWith('local:')) {
+              local.localSectionSourcePath(course,section);return state.stored.get(section.content_path) || null;
+            }
+            return local.readLocalSectionSource(course,section);
+          },
+        };
+      }
       if (name === "./sectionLimits") return load("lib/sectionLimits.ts");
       if (name === "@/lib/sectionContent") return load("lib/sectionContent.ts");
       if (name === "@/lib/drive/sectionContent") return {
@@ -120,8 +135,8 @@ function handlers(options = {}) {
 test("admin downloads the built-in JS snapshot without Drive, including sections with PPTX attachments", async () => {
   for (const sectionKey of ["section1", "section2"]) {
     const api = handlers({ access: { isActive: true, isAdmin: true,
-      sections: [{ id: "section-id", courseId: "course-id", sectionKey }],
-      courses: [{ id: "course-id", slug: "applied-agentic-ai" }],
+      sections: [{ id: "00000000-0000-4000-8000-000000000001", courseId: "00000000-0000-4000-8000-000000000002", sectionKey }],
+      courses: [{ id: "00000000-0000-4000-8000-000000000002", slug: "applied-agentic-ai" }],
     } });
     const response = await api.download("?download=1&builtin=1");
     assert.equal(response.status, 200);
@@ -231,7 +246,7 @@ test("upload requires administrator access", async () => {
 });
 
 test("built-in sections accept PPTX attachments and still reject PDF/TSX replacements", async () => {
-  const api = handlers({ courseSlug: "applied-agentic-ai", section: { id: "section-id", course_id: "course-id", section_key: "section1" } });
+  const api = handlers({ courseSlug: "applied-agentic-ai", section: { id: "00000000-0000-4000-8000-000000000001", course_id: "00000000-0000-4000-8000-000000000002", section_key: "section1" } });
   assert.equal((await api.upload(Buffer.from("%PDF-1.4"), "slides.pdf")).status, 400);
   assert.equal((await api.upload("export default [];", "slides.tsx")).status, 400);
   assert.equal(api.state.stored.size, 0);
@@ -246,15 +261,15 @@ test("PPTX downloads require an active session and explicit access to the reques
   await api.upload(await presentation(), "slides.pptx");
   for (const [access, expected] of [
     [null, 401],
-    [{ isActive: true, isAdmin: false, sections: [{ id: "sibling", courseId: "course-id" }], courses: [{ id: "course-id", isUnlocked: true }] }, 403],
+    [{ isActive: true, isAdmin: false, sections: [{ id: "sibling", courseId: "00000000-0000-4000-8000-000000000002" }], courses: [{ id: "00000000-0000-4000-8000-000000000002", isUnlocked: true }] }, 403],
     [{ isActive: false }, 401],
-    [{ isActive: true, isAdmin: false, sections: [], courses: [{ id: "course-id", isUnlocked: false }] }, 403],
+    [{ isActive: true, isAdmin: false, sections: [], courses: [{ id: "00000000-0000-4000-8000-000000000002", isUnlocked: false }] }, 403],
     [{ isActive: true, isAdmin: false, sections: [], courses: [] }, 403],
   ]) {
     api.state.access = access;
     assert.equal((await api.download()).status, expected);
   }
-  api.state.access = { isActive: true, isAdmin: true, courses: [{ id: "course-id", isUnlocked: false }] };
+  api.state.access = { isActive: true, isAdmin: true, courses: [{ id: "00000000-0000-4000-8000-000000000002", isUnlocked: false }] };
   assert.equal((await api.download()).status, 200);
 });
 
@@ -275,7 +290,7 @@ test("Drive replacement preserves the previous Drive file after saving section m
 test("migration removes legacy storage only after the Drive reference is saved", async () => {
   const api = handlers();
   const bytes = await presentation();
-  const legacyPath="course-id/section-id/original.pptx";
+  const legacyPath=`${api.state.section.course_id}/${api.state.section.id}/original.pptx`;
   api.state.section={...api.state.section,content_path:legacyPath,content_type:"pptx",source_filename:"original.pptx"};
   api.state.stored.set(legacyPath,bytes);
   const response = await api.upload(bytes, "replacement.pptx");
@@ -325,13 +340,13 @@ test("JS uploads and downloads directly without compilation, inline", async () =
   assert.match(await downloaded.text(), /h\("div", null, "Interactive slide"\)/);
 });
 
-test("JS keeps exact runtime bytes on Drive and needs no TSX intermediate", async () => {
+test("JS imports preserve exact runtime bytes locally without Drive or a TSX intermediate", async () => {
   const original = "// Keep original source\nexports.default = [h('div', null, 'Original')];";
   const api = handlers();
   assert.equal((await api.upload(original, "original.js")).status, 200);
   assert.equal(api.state.stored.get(api.state.section.content_path).toString(), original);
   assert.equal(api.state.section.original_content_path, null);
-  assert.equal(api.state.supabaseUploads,0);
+  assert.equal(api.state.supabaseUploads,0);assert.equal(api.state.driveUploads,0);assert.equal(api.state.localWrites,1);
   assert.equal(await (await api.download("?download=1")).text(),original);
   const previousOriginal = api.state.section.content_path;
   api.state.updateError = { message: "metadata failure" };
@@ -418,14 +433,14 @@ test("same TSX filename in another course retains its uploaded source", async ()
   assert.equal(await response.text(), uploaded);
 });
 
-test("upload reports when registered project TSX remains the displayed source", async () => {
+test("upload connects imported JS as the displayed and downloadable project source", async () => {
  const api = handlers({ courseTitle: "AI-Powered Web App Development & Deployment" });
  api.state.access.courses[0] = { id: "a857595d-def0-4543-9216-a680c6abfe26", title: "Renamed course" };
  api.state.access.sections[0] = { id: "47c1183e-a26e-4c5d-9937-88ec5a755a32", courseId: "a857595d-def0-4543-9216-a680c6abfe26" };
  api.state.section = { ...api.state.section, id: "47c1183e-a26e-4c5d-9937-88ec5a755a32", course_id: "a857595d-def0-4543-9216-a680c6abfe26" };
  const response = await api.upload("exports.default = [h('div', null, 'Uploaded copy')];", "Section1.js");
- assert.equal(response.status, 200); const result = await response.json(); assert.equal(result.contentSource, "project-js"); assert.match(result.message, /Slides continue/);
- const slide = await api.download(); assert.equal(slide.headers.get("x-eiu-content-source"), "project-js"); assert.doesNotMatch(await slide.text(), /Uploaded copy/);
+ assert.equal(response.status, 200); const result = await response.json(); assert.equal(result.contentSource, "project-js"); assert.match(result.message, /imported into the project/);
+ const slide = await api.download(); assert.equal(slide.headers.get("x-eiu-content-source"), "project-js"); assert.equal(await slide.text(), "exports.default = [h('div', null, 'Uploaded copy')];");
 });
 
 
@@ -438,8 +453,8 @@ test("PC upload replaces registered project JS and displays the uploaded bytes",
  const source = "exports.default = [h('div', null, 'PC replacement')];";
  const response = await api.upload(source, "replacement.js", { replaceLesson: "1" });
  assert.equal(response.status, 200);
- assert.equal((await response.json()).contentSource, "uploaded");
- assert.match(api.state.section.content_path, /^drive:override:/);
+ assert.equal((await response.json()).contentSource, "project-js");
+ assert.match(api.state.section.content_path, /^local:course-content\/imported\//);
  const displayed = await api.download();
  assert.equal(displayed.status, 200);
  assert.equal(await displayed.text(), source);

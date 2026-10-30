@@ -1,40 +1,116 @@
-.mis .practice-hub{flex:1;min-height:0;display:flex;flex-direction:column;gap:1vw}
-.mis .practice-overview{display:flex;flex-direction:column;gap:1vw;flex:1;min-height:0}
-.mis .practice-hub-bar{display:flex;justify-content:space-between;align-items:center;gap:1vw}
-.mis .practice-hub-bar p{font-size:1.05vw;color:#687987}
-.mis .practice-hub-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:1vw;flex:1;min-height:0}
-.mis button.practice-launch{padding:1.3vw 1.5vw;display:flex;flex-direction:column;align-items:flex-start;gap:.65vw;text-align:left;white-space:normal;border:1px solid #d9e2e8;background:linear-gradient(135deg,#FBFAF7,#fff);border-radius:1.15vw;box-shadow:0 .3vw 1vw #08294505;transition:border-color .18s,transform .18s}
-.mis button.practice-launch:hover{transform:translateY(-.15vw);border-color:#B39159}
-.mis .practice-launch .launch-top{display:flex;align-items:center;justify-content:space-between;width:100%;gap:1vw}
-.mis .practice-launch .launch-number{font-size:1.6vw;color:#B39159;font-weight:850}
-.mis .practice-launch strong{font-size:1.45vw;line-height:1.25;text-wrap:balance}
-.mis .practice-launch .launch-description{font-size:1.03vw;line-height:1.5;color:#687987;font-weight:400;text-wrap:pretty}
-.mis .practice-launch .launch-action{margin-top:auto;font-size:.9vw;color:#18547F}
-.mis .practice-part-status{font-size:.77vw;line-height:1.3;color:#687987;background:#edf3f7;padding:.3vw .6vw;border-radius:2vw;font-weight:650}
-.mis .practice-part-status[data-state=saved]{background:#e6f2e9;color:#276849}
-.mis .practice-part-status[data-state=draft]{background:#fff1d2;color:#9D7944}
-.mis .practice-popup{position:absolute;inset:0;z-index:30;display:flex;flex-direction:column;gap:.65vw;padding:1.05vw;background:#FBFAF7;border:1px solid #d2dde6;border-radius:1.1vw;box-shadow:0 .75vw 2vw #08294520;animation:practicePopupIn .2s ease-out}
-.mis .practice-popup-header{display:flex;align-items:center;justify-content:space-between;gap:1vw;flex:none}
-.mis .practice-popup-heading{min-width:0;flex:1}
-.mis .practice-popup-heading small{font-size:.72vw;letter-spacing:.12em;font-weight:750;color:#9D7944}
-.mis .practice-popup-heading h2{font-size:1.75vw;line-height:1.2;margin:.3vw 0 0;text-wrap:balance}
-.mis .practice-popup-controls{display:flex;align-items:center;gap:.4vw;flex:none}
-.mis .practice-popup-controls button{padding:.55vw .8vw;font-size:.85vw}
-.mis .practice-popup-controls .practice-close{width:2.4vw;height:2.4vw;padding:0;display:grid;place-items:center;border:0;border-radius:.55vw;color:white;background:#b8463c;font-size:1.7vw;line-height:1}
-.mis .practice-popup-controls .practice-close:hover{background:#a3352c}
-.mis .practice-tabs{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:.35vw;flex:none}
-.mis .practice-tabs button{font-size:.93vw;padding:.65vw .6vw;white-space:nowrap;border-radius:.5vw;background:#fff}
-.mis .practice-tabs button[aria-selected=true]{background:#123F68;border-color:#123F68;color:#fff}
-.mis .practice-popup-subtitle{font-size:1vw;line-height:1.45;color:#687987;flex:none}
-.mis .practice-popup-body{display:flex;flex:1;min-height:0;min-width:0}
-.mis .practice-popup-panel{display:flex;flex:1;min-height:0;min-width:0;width:100%}
-.mis .practice-popup .practice-lab{width:100%;grid-template-columns:minmax(0,1fr) 27vw;gap:.85vw}
-.mis .practice-popup .workspace> .cell textarea{height:5.4vw;font-size:1.05vw}
-.mis .practice-popup .answer-form textarea{height:4.1vw;font-size:.97vw}
-.mis .practice-popup .answer-form input{font-size:.97vw;height:2.25vw}
-.mis .practice-popup .answer-form label{font-size:.9vw}
-.mis .practice-popup .practice-panel{padding:.9vw;gap:.6vw}
-.mis .practice-popup .practice-panel h3{font-size:1.35vw}
-.mis .practice-popup .practice-summary{width:100%;display:flex;flex-direction:column;justify-content:center;gap:1vw;min-height:0}
-@keyframes practicePopupIn{from{opacity:0;transform:translateY(.35vw)}to{opacity:1;transform:none}}
-@media(prefers-reduced-motion:reduce){.mis .practice-popup,.mis button.practice-launch{animation:none;transition:none}}
+/* Questions live entirely inside the EIU usable frame. */
+.mis .question-monitor,.mis .assigned-question-page{display:flex;flex-direction:column;flex:1;min-height:0;min-width:0;gap:10px}
+.mis .question-monitor-grid{display:grid;grid-template-rows:repeat(5,minmax(0,1fr));gap:.6vw;flex:1;min-height:0}
+.mis .question-monitor-card{display:grid;grid-template-columns:10vw minmax(0,1fr) 21vw 10vw;align-items:center;gap:1vw;padding:.8vw 1vw;text-align:left;border:1px solid #dce4e9;border-radius:.9vw;background:#FBFAF7;min-width:0;min-height:0}
+.mis .question-card-top{display:flex;flex-direction:column;gap:.4vw;align-items:flex-start;min-width:0}
+.mis .question-card-top strong{font-size:clamp(13px,1.3vw,21px);color:#123F68;line-height:1.2}
+.mis .question-response-count{font-size:clamp(10px,.78vw,13px);color:#9D7944}
+.mis .question-monitor-card>p{font-size:clamp(12px,1.03vw,17px);line-height:1.45;text-wrap:pretty}
+.mis .question-assigned-names{font-size:clamp(11px,.9vw,15px);color:#18547F;line-height:1.45;font-weight:500;max-height:4vw;overflow:auto;overflow-wrap:anywhere}
+.mis .question-card-action{font-size:clamp(10px,.8vw,13px);line-height:1.4;color:#9D7944;text-wrap:balance}
+.mis .question-eyebrow{font-size:clamp(10px,.72vw,12px);font-weight:800;color:#9D7944;letter-spacing:.08em}
+.mis .question-save-status{font-size:clamp(11px,.85vw,14px);line-height:1.5;color:#687987;text-wrap:pretty}
+.mis .question-save-status[data-error=true]{color:#b3261e}
+.mis .question-dialog{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;gap:.85vw;padding:1vw;background:#FBFAF7;border:1px solid #d2dde6;border-radius:1.1vw;box-shadow:0 .7vw 2vw #08294520;min-width:0;min-height:0;animation:questionEnter .2s ease-out}
+.mis .question-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex:none;min-width:0}
+.mis .question-dialog-header>div{min-width:0}
+.mis .question-dialog-header h2{font-size:clamp(17px,1.8vw,30px);line-height:1.25;text-wrap:balance;margin:.25vw 0 0}
+.mis .question-close{height:32px;width:32px;padding:0;display:grid;place-items:center;font-size:25px;background:#123F68;color:#fff;border:0;border-radius:8px;flex:none}
+.mis .question-dialog-body{display:flex;flex-direction:column;flex:1;min-width:0;min-height:0;gap:10px}
+.mis .question-popup-grid{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(250px,1fr);gap:1vw;flex:1;min-width:0;min-height:0}
+.mis .question-colab{display:flex;min-width:0;min-height:0}
+.mis .question-colab .lab{display:flex;flex-direction:column;width:100%;min-width:0;min-height:0}
+.mis .question-colab .notebook{flex:1;min-width:0;min-height:0;border-radius:10px}
+.mis .question-colab .nbbar{font-size:clamp(11px,.95vw,16px);padding:8px 10px;background:#F7F4ED;border-radius:10px 10px 0 0;flex-wrap:wrap}
+.mis .question-colab .colabmark{font-size:21px}
+.mis .question-colab .nbbar small{font-size:clamp(8px,.62vw,11px)}
+.mis .question-colab .nbcontent{grid-template-columns:minmax(0,1fr)}
+.mis .question-colab .files,.mis .question-colab .notebook-presets,.mis .question-colab .workflow-context{display:none}
+.mis .question-colab .workspace{padding:9px;gap:8px}
+.mis .question-colab .cell{gap:8px;padding:9px;border-radius:8px;align-items:flex-start}
+.mis .question-colab textarea{font:clamp(12px,1vw,16px)/1.5 Consolas,monospace;height:clamp(160px,15vw,300px);min-width:0;resize:vertical}
+.mis .question-colab .run{width:32px;height:32px;font-size:13px;flex:none}
+.mis .question-colab .cell-tools button{font-size:clamp(11px,.78vw,13px);padding:6px 9px}
+.mis .question-colab .execution{font-size:clamp(10px,.75vw,12px);min-height:14px}
+.mis .question-colab .output{min-height:0;flex:1;padding:7px 2px;overflow:auto;border-top:1px solid #dce4e9}
+.mis .question-colab .output table{font-size:clamp(10px,.8vw,14px)}
+.mis .question-colab .output th,.mis .question-colab .output td{padding:4px 5px;max-width:none}
+.mis .question-colab .output pre{font:clamp(11px,.88vw,14px)/1.5 Consolas,monospace;white-space:pre-wrap}
+.mis .question-colab .output .support,.mis .question-colab .output .status,.mis .question-colab .output .dfnote{font-size:clamp(11px,.8vw,13px);line-height:1.45}
+.mis .question-answer-panel{display:flex;flex-direction:column;gap:12px;padding:clamp(10px,1vw,16px);border:1px solid #e4dccb;border-radius:10px;background:#fff;overflow:auto;min-width:0;min-height:0}
+.mis .question-person{font-size:clamp(15px,1.4vw,23px);line-height:1.3;color:#123F68;overflow-wrap:anywhere}
+.mis .question-prompt{font-size:clamp(13px,1.1vw,18px);line-height:1.5;text-wrap:pretty}
+.mis .question-answer-form{display:flex;flex-direction:column;gap:10px}
+.mis .question-answer-form label{display:flex;flex-direction:column;gap:5px;font-size:clamp(11px,.9vw,15px);line-height:1.4;color:#687987}
+.mis .question-answer-form input{width:100%;height:auto;min-height:38px;padding:8px 10px;border:1px solid #cbd6df;border-radius:7px;background:#fff;font:clamp(13px,1vw,17px)/1.3 'MIS Inter',Inter,sans-serif;color:#17324A}
+.mis .question-answer-form input[readonly]{background:#F7F4ED}
+.mis .question-answer-form input:focus-visible{outline:2px solid #2D7FB4;outline-offset:2px}
+.mis .question-send{font-size:clamp(12px,1vw,17px);min-height:40px}
+.mis .question-people{display:flex;flex-direction:column;gap:5px;max-height:12vw;overflow:auto;flex:none}
+.mis .question-people:empty{display:none}
+.mis .question-people button{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;padding:7px 8px;font-size:12px}
+.mis .question-people button strong{overflow-wrap:anywhere;min-width:0}
+.mis .question-people button span{font-size:10px;color:#687987;flex:none}
+.mis .question-people button[aria-pressed=true]{border-color:#B39159;background:#F7F4ED}
+.mis .question-answer-panel>button{font-size:12px;padding:8px}
+.mis .assigned-question-page{height:100%;justify-content:center;align-items:center}
+.mis .assigned-question-card{display:flex;flex-direction:column;align-items:center;gap:1.1vw;padding:2.5vw;max-width:65vw;border:1px solid #e4dccb;border-radius:18px;background:#FBFAF7;text-align:center}
+.mis .assigned-question-card h2{font-size:clamp(20px,2.4vw,40px)}
+.mis .assigned-question-card p{font-size:clamp(14px,1.3vw,21px);line-height:1.5;text-wrap:balance}
+.mis .question-celebration{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:20px;text-align:center}
+.mis .celebration-star{font-size:clamp(50px,7vw,110px);color:#B39159;animation:questionStar .55s ease-out}
+.mis .question-celebration p{font-size:clamp(17px,2vw,32px);text-wrap:balance}
+.mis .question-celebration button{font-size:clamp(14px,1.2vw,20px);padding:12px 22px}
+.mis .question-setup-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;flex:1;overflow:auto;padding-right:3px;min-height:0}
+.mis .question-setup-grid>section{display:flex;flex-direction:column;gap:9px;padding:12px;border:1px solid #e4dccb;border-radius:10px;background:#fff;min-width:0}
+.mis .question-setup-grid h3{font-size:16px;color:#123F68}
+.mis .question-setup-grid label{display:flex;flex-direction:column;gap:6px;font-size:12px;line-height:1.4;color:#687987}
+.mis .question-setup-grid textarea{height:75px;width:100%;padding:8px;border:1px solid #cbd6df;border-radius:7px;background:white;font:13px/1.5 'MIS Inter',Inter,sans-serif;resize:vertical;outline:revert}
+.mis .question-setup-grid label:last-child textarea{height:160px;font-family:Consolas,monospace}
+.mis .question-setup-hint{font-size:clamp(11px,.9vw,15px);line-height:1.45;color:#687987;flex:none}
+.mis .question-setup-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;flex:none}
+.mis .question-setup-footer button{font-size:13px;min-height:38px}
+@keyframes questionEnter{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@keyframes questionStar{from{transform:scale(.6) rotate(-20deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+@media(max-width:950px),(max-height:520px){
+  .mis .question-monitor{overflow:auto}
+  .mis .question-monitor-grid{flex:none;grid-template-rows:none;grid-auto-rows:auto}
+  .mis .question-monitor-card{grid-template-columns:90px minmax(0,1fr);padding:12px;gap:8px}
+  .mis .question-assigned-names{max-height:70px}
+  .mis .question-dialog-body{overflow:auto}
+  .mis .question-popup-grid{display:flex;flex-direction:column;flex:none}
+  .mis .question-colab{min-height:380px}
+  .mis .question-answer-panel{overflow:visible;flex:none}
+  .mis .question-people{max-height:140px}
+  .mis .question-setup-grid{grid-template-columns:minmax(0,1fr)}
+  .mis .question-colab .run,.mis .question-close{width:40px;height:40px}
+  .mis .question-answer-form input,.mis .question-people button,.mis .question-send{min-height:42px}
+  .mis .assigned-question-card{max-width:100%;padding:20px;gap:14px}
+}
+@media(prefers-reduced-motion:reduce){.mis .question-dialog,.mis .celebration-star{animation:none}}
+
+/* Seven notebook parts, with unequal task counts kept together in one popup. */
+.mis .question-monitor-grid{grid-template-rows:repeat(7,minmax(0,1fr));gap:.45vw}
+.mis .question-monitor-card{padding:.45vw .8vw}
+.mis .question-card-top{gap:.2vw}
+.mis .question-card-top strong{font-size:clamp(12px,1.1vw,18px);line-height:1.2}
+.mis .question-assigned-names{max-height:2.6vw;min-height:0}
+.mis .stacked-lab .notebook{display:flex;flex-direction:column;min-height:0}
+.mis .stacked-workspace{flex:1;min-height:0;overflow:auto;display:flex;flex-direction:column;gap:10px;padding:10px}
+.mis .stacked-code-cell{flex:none;display:flex;flex-direction:column;gap:7px;min-width:0;padding:10px;border:1px solid #dce4e9;border-radius:9px;background:#f7f9fb}
+.mis .stacked-code-cell>header{display:flex;align-items:center;gap:8px;min-width:0}
+.mis .stacked-code-cell>header strong{font-size:clamp(12px,.95vw,16px);line-height:1.4;color:#123F68;flex:1;min-width:0;text-wrap:pretty}
+.mis .stacked-execution{font:11px/1.3 Consolas,monospace;color:#687987;flex:none}
+.mis .question-colab .stacked-code-cell textarea{height:clamp(85px,8vw,145px);padding:6px 8px;background:white;border:1px solid #dce4e9;border-radius:7px;width:100%;resize:vertical}
+.mis .question-colab .stacked-output{flex:none;max-height:18vw;overflow:auto;background:white;padding:5px 8px;border-radius:7px}
+.mis .question-colab .stacked-output:empty{display:none}
+.mis .stacked-runtime-note{font-size:clamp(11px,.82vw,14px);line-height:1.4;color:#687987;padding:6px 10px;border-bottom:1px solid #e1e7ec}
+.mis .question-setup-grid label:not(:first-of-type) textarea{height:140px;font-family:Consolas,monospace}
+@media(max-width:950px),(max-height:520px){
+ .mis .question-monitor-grid{grid-template-rows:none;grid-auto-rows:auto}
+ .mis .question-monitor-card{padding:12px;min-height:85px}
+ .mis .question-card-top strong{font-size:13px}
+ .mis .question-assigned-names{max-height:65px}
+ .mis .question-colab .stacked-output{max-height:220px}
+ .mis .stacked-execution{font-size:10px}
+}

@@ -1,5 +1,6 @@
 import { notifyRealtime } from "@/lib/realtime/publish";
-import { notifyClassroom } from "@/lib/realtime/classroom";
+import { notifyClassroom, publishClassroom } from "@/lib/realtime/classroom";
+import { MIS301_SECTION_ID } from "@/lib/mis301Practice";
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { currentUserAccess } from "@/lib/auth/currentUser";
@@ -21,7 +22,7 @@ export async function GET(request: Request, context: Context) {
     const scope = await resolve(request, context);
     if (!scope) return NextResponse.json({ message: "Access denied." }, { status: 403 });
     let token = "initial";
-    if (scope.section.terminationEnabled) {
+    if (scope.section.terminationEnabled || scope.section.id === MIS301_SECTION_ID) {
       if (scope.legacy) {
         const { data, error } = await getSupabaseAdmin(request.signal).from("section_state").select("termination_token").eq("section", scope.section.sectionKey).maybeSingle();
         if (error) throw error;
@@ -49,7 +50,13 @@ async function handlePost(request: Request, context: Context) {
         details: { courseId: scope.course.id, sectionId: scope.section.id, section: scope.section.sectionKey, token } });
       if (error) throw error;
     }
-    return NextResponse.json({ success: true, token, sessionStartedAt });
+    let classroomSynced: boolean | undefined;
+    if (scope.section.id === MIS301_SECTION_ID) {
+      try { classroomSynced = (await publishClassroom()) !== false; }
+      catch { classroomSynced = false; }
+      if (!classroomSynced) notifyClassroom();
+    }
+    return NextResponse.json({ success: true, token, sessionStartedAt, classroomSynced });
   } catch {
     return NextResponse.json({ message: "Unable to terminate this section. Please try again." }, { status: 500 });
   }
@@ -57,6 +64,6 @@ async function handlePost(request: Request, context: Context) {
 
 export async function POST(...args: Parameters<typeof handlePost>) {
   const response = await handlePost(...args);
-  if (response.ok) { notifyRealtime(); notifyClassroom(); }
+  if (response.ok) notifyRealtime();
   return response;
 }

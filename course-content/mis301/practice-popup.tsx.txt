@@ -1,54 +1,231 @@
-function PracticeWorkspace(slide) {
-  const labels=['01 · Import','02 · Explore','03 · Scores','04 · Quality','Answer check'];
-  const sections=[...slide.parts,slide.answerCheck], panels=new Map(), badges=new Map();
-  let selected=0, returnFocus=null;
-  const title=h('h2',{id:'practice-workspace-title'},'Practice workspace');
-  const subtitle=h('p',{className:'practice-popup-subtitle'},'');
-  const body=h('div',{className:'practice-popup-body'});
-  const overview=h('div',{className:'practice-overview'});
-  const modal=h('section',{className:'practice-popup',role:'dialog','aria-modal':'true','aria-labelledby':'practice-workspace-title',hidden:true});
-  function close(){modal.hidden=true;overview.inert=false;returnFocus?.focus();}
-  function select(index) {
-    selected=index;const part=sections[index];title.textContent=part.title;subtitle.textContent=part.subtitle;
-    if(!panels.has(index)) {
-      const panel=h('div',{className:'practice-popup-panel',role:'tabpanel',id:`practice-popup-panel-${index}`,'aria-labelledby':`practice-popup-tab-${index}`});
-      if(index<slide.parts.length)panel.appendChild(Notebook(part));
-      else panel.appendChild(h('div',{className:'practice-summary'},content(part)));
-      panels.set(index,panel);body.appendChild(panel);
-    }
-    panels.forEach((panel,key)=>{panel.hidden=key!==index;});
-    tabs.forEach((tab,key)=>{tab.setAttribute('aria-selected',String(key===index));tab.tabIndex=key===index?0:-1;});
-    previous.disabled=index===0;next.disabled=index===sections.length-1;
-    if(part.practicePart)window.dispatchEvent(new CustomEvent('eiu-practice-activate',{detail:{partId:part.practicePart}}));
+function AssignedPartNumber(index, draw) { return draw?.assignmentVersion === 2 ? index % 7 + 1 : index % 5 + 3; }
+function PartBank(config) {
+  if (config?.length === 7) return config;
+  return questionDefaults.map(base => {
+    const old = config?.find(part => part.number === base.number - 2);
+    return old ? { ...base, prompt: old.prompt, tasks: [{ label: base.tasks[0].label, code: old.starterCode }], starterCode: old.starterCode } : base;
+  });
+}
+function QuestionSpec(number, config) {
+  const base = questionDefaults.find(part => part.number === number), meta = assignmentParts[number];
+  const merged = { ...base, ...(config || {}) };
+  return { ...merged, partId: meta.partId, fields: meta.answerFields, codeFields: meta.codeFields, tasks: merged.tasks || base.tasks };
+}
+function PracticeDialog(titleText) {
+  let returnFocus = null;
+  const title = h('h2', null, titleText);
+  const closeButton = h('button', { type: 'button', className: 'question-close', 'aria-label': 'Close question', onClick: () => close() }, '\u00d7');
+  const body = h('div', { className: 'question-dialog-body' });
+  const dialog = h('section', { className: 'question-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': titleText, hidden: true },
+    h('header', { className: 'question-dialog-header' }, h('div', null, h('span', { className: 'question-eyebrow' }, 'PANDAS \u00b7 HAPPINESS SURVEY'), title), closeButton), body);
+  function close() { dialog.hidden = true; returnFocus?.focus(); }
+  function open() { returnFocus = document.activeElement; dialog.hidden = false; closeButton.focus(); }
+  dialog.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.preventDefault(); close(); return; }
+    if (event.key !== 'Tab') return;
+    const nodes = [...dialog.querySelectorAll('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),[tabindex="0"]')].filter(node => !node.closest('[hidden]'));
+    const first = nodes[0], last = nodes[nodes.length - 1];
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+  });
+  return { dialog, body, title, open, close };
+}
+function QuestionNotebookPopup(spec, initialContext, teaching) {
+  const popup = PracticeDialog(`Part ${spec.number} - ${spec.title}`);
+  let context = initialContext, notebook, dirty = false, saving = false, submissionId = uuid(), pendingFingerprint = null, selectedSubject = null, follow = true, savedAt = null, lastRecord = null;
+  const codes = spec.tasks.map(task => task.code);
+  const inputs = {};
+  const name = h('strong', { className: 'question-person' }, teaching ? 'Selected learners' : context.learner.name);
+  const prompt = h('p', { className: 'question-prompt' }, spec.prompt);
+  const status = h('p', { className: 'question-save-status', role: 'status', 'aria-live': 'polite' }, teaching ? 'Waiting for responses from the selected learners.' : 'Complete the code and your answer, then submit.');
+  const people = h('div', { className: 'question-people' });
+  const send = h('button', { type: 'submit', className: 'primary question-send', disabled: true }, 'Submit my answer');
+  const followButton = h('button', { type: 'button', 'aria-pressed': true, onClick: () => { follow = true; followButton.setAttribute('aria-pressed', 'true'); sync(context); } }, 'Follow live answer');
+  const form = h('form', { className: 'question-answer-form', onSubmit: async event => {
+    event.preventDefault(); validate(); if (send.disabled) return;
+    saving = true; send.disabled = true; status.dataset.error = 'false'; status.textContent = 'Saving your answer...';
+    const values = Object.fromEntries(Object.entries(inputs).map(([id, input]) => [id, input.value])); spec.codeFields.forEach((field, index) => { values[field] = codes[index]; });
+    const fingerprint = JSON.stringify(values);
+    if (pendingFingerprint && pendingFingerprint !== fingerprint) submissionId = uuid(); pendingFingerprint = fingerprint;
+    try {
+      const result = await practiceRequest('submit', { partId: spec.partId, values, submissionId, practiceSession: context.practiceSession, drawId: context.assignment.drawId });
+      submissionId = uuid(); pendingFingerprint = null; savedAt = result.submittedAt || savedAt;
+      dirty = spec.codeFields.some((field, index) => codes[index] !== values[field]) || Object.entries(inputs).some(([id, input]) => input.value !== values[id]);
+      status.textContent = dirty ? 'Saved. Your newer edits still need to be submitted.' : 'Saved with your selected login name.';
+      if (result.submittedAt) status.textContent += ' ' + new Date(result.submittedAt).toLocaleTimeString();
+    } catch (error) { status.dataset.error = 'true'; status.textContent = error.message; }
+    finally { saving = false; validate(); }
+  } });
+  spec.fields.forEach(field => {
+    const input = h('input', { type: 'text', required: !teaching, readOnly: teaching, inputMode: field.numeric ? 'decimal' : 'text', maxLength: 120, placeholder: teaching ? 'Not submitted yet' : 'Your answer', 'aria-label': field.label,
+      onInput: () => { dirty = true; status.textContent = 'Unsaved answer'; validate(); } });
+    inputs[field.id] = input; form.appendChild(h('label', null, field.label, input));
+  });
+  if (!teaching) form.appendChild(send);
+  function validate() {
+    const hasAnswer = codes.every(code => code.split('\n').some(line => line.trim() && !line.trim().startsWith('#') && !/^df\s*=\s*$/.test(line.trim()) && line.trim() !== 'df'));
+    send.disabled = teaching || saving || !dirty || !hasAnswer || !Object.values(inputs).every(input => input.value.trim());
   }
-  function open(index,trigger){returnFocus=trigger||document.activeElement;modal.hidden=false;overview.inert=true;select(index);closeButton.focus();}
-  const closeButton=h('button',{type:'button',className:'practice-close','aria-label':'Close practice workspace',onClick:close},'×');
-  const previous=h('button',{type:'button',onClick:()=>select(selected-1)},'← Previous');
-  const next=h('button',{type:'button',onClick:()=>select(selected+1)},'Next →');
-  const tabs=labels.map((label,index)=>h('button',{type:'button',role:'tab',id:`practice-popup-tab-${index}`,'aria-controls':`practice-popup-panel-${index}`,'aria-selected':index===0,tabIndex:index===0?0:-1,
-    onClick:()=>select(index),onKeyDown:event=>{let target=index;if(event.key==='ArrowRight')target=(index+1)%labels.length;else if(event.key==='ArrowLeft')target=(index+labels.length-1)%labels.length;else if(event.key==='Home')target=0;else if(event.key==='End')target=labels.length-1;else return;event.preventDefault();select(target);tabs[target].focus();}},label));
-  modal.append(h('header',{className:'practice-popup-header'},h('div',{className:'practice-popup-heading'},h('small',null,'HAPPINESS SURVEY · PRACTICE WORKSPACE'),title),h('div',{className:'practice-popup-controls'},previous,next,closeButton)),
-    h('nav',{className:'practice-tabs',role:'tablist','aria-label':'Practice parts'},tabs),subtitle,body);
-  modal.addEventListener('keydown',event=>{
-    if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();return;}
-    if(event.key!=='Tab')return;
-    const focusable=Array.from(modal.querySelectorAll('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),[tabindex="0"]')).filter(node=>!node.closest('[hidden]')&&node.tabIndex>=0);
-    const first=focusable[0],last=focusable[focusable.length-1];
-    if(event.shiftKey&&document.activeElement===first){event.preventDefault();last?.focus();}
-    else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}
+  notebook = Notebook({ phase: 'PRACTICE', dataset: 'happiness_survey_data.csv', autoUpload: true, bootstrap: teaching || spec.number !== 1, stackedCells: true, practiceExercise: true, rememberCells: true, inlineCommands: true,
+    commands: codes, commandLabels: spec.tasks.map(task => task.label), notes: [], onCellChange: (index, next) => {
+      if (codes[index] === next) return; codes[index] = next; dirty = true;
+      if (teaching) { follow = false; followButton.setAttribute('aria-pressed', 'false'); }
+      else status.textContent = 'Unsaved code'; validate();
+    } });
+  const colab = h('div', { className: 'question-colab' }, notebook);
+  const panel = h('aside', { className: 'question-answer-panel' }, name, teaching && people, prompt, form, status, teaching && followButton);
+  popup.body.append(h('div', { className: 'question-popup-grid' }, colab, panel));
+  function matching(item) {
+    if (item.partId !== spec.partId) return false;
+    if ((item.assignmentPart ?? (item.questionNumber ? item.questionNumber + 2 : null)) !== spec.number) return false;
+    const drawId = teaching ? context.draw?.requestId : context.assignment?.drawId;
+    if (!drawId || item.drawId !== drawId) return false;
+    return spec.fields.every(field => item.values?.[field.id]) && spec.codeFields.every(field => item.values?.[field]);
+  }
+  function setAnswer(item) {
+    Object.entries(inputs).forEach(([id, input]) => { input.value = item?.values?.[id] || ''; });
+    if (teaching && lastRecord !== item?.id) notebook.eiuCells.reset();
+    lastRecord = item?.id;
+    spec.codeFields.forEach((field, index) => {
+      const nextCode = item?.values?.[field] || spec.tasks[index].code;
+      if (nextCode !== codes[index]) { codes[index] = nextCode; notebook.eiuCells.restore(index, nextCode); }
+    });
+  }
+  function sync(next) {
+    if (teaching && initialContext.draw?.requestId !== next.draw?.requestId) { popup.close(); return; }
+    context = next;
+    if (!teaching && (!next.assignment || next.assignment.drawId !== initialContext.assignment.drawId)) { popup.close(); status.textContent = 'This draw has ended.'; send.disabled = true; return; }
+    if (teaching) {
+      const draw = next.draw, selected = (draw?.subjects || []).map((subject, index) => ({ subject, name: draw.names[index], question: AssignedPartNumber(index, draw) })).filter(person => person.question === spec.number);
+      if (!selected.some(person => person.subject === selectedSubject)) selectedSubject = selected[0]?.subject || null;
+      people.replaceChildren(...selected.map(person => {
+        const answer = (next.items || []).find(item => item.subject === person.subject && matching(item));
+        return h('button', { type: 'button', 'aria-pressed': selectedSubject === person.subject, onClick: () => { selectedSubject = person.subject; follow = true; followButton.setAttribute('aria-pressed', 'true'); sync(context); } },
+          h('strong', null, person.name), h('span', null, answer ? 'Submitted' : 'Waiting'));
+      }));
+      const person = selected.find(person => person.subject === selectedSubject);
+      name.textContent = person?.name || 'No learner selected for this part';
+      const answer = (next.items || []).find(item => item.subject === selectedSubject && matching(item));
+      if (follow) { setAnswer(answer); status.textContent = answer ? 'Live answer - ' + new Date(answer.submittedAt).toLocaleString() : 'Waiting for the selected learner to submit.'; }
+    } else if (!dirty && !saving) {
+      const answer = (next.items || []).find(matching);
+      if (answer && (!savedAt || answer.submittedAt >= savedAt)) { setAnswer(answer); savedAt = answer.submittedAt; status.textContent = 'Your submitted answer is restored.'; }
+    }
+    validate();
+  }
+  sync(initialContext);
+  return { ...popup, sync };
+}
+function AssignedWheelQuestion() {
+  const root = h('div', { className: 'assigned-question-page' });
+  const status = h('p', { className: 'question-save-status', role: 'status' }, 'Checking your assigned part...');
+  const retry = h('button', { type: 'button', onClick: () => load() }, 'Reconnect'); root.append(status, retry);
+  let popup = null, context = null, timer = null, active = true;
+  async function load() {
+    retry.disabled = true;
+    try {
+      const next = await practiceRequest('load'); context = next;
+      if (next.teaching || !next.assignment) { status.textContent = 'There is no part assigned to this session.'; return; }
+      const spec = QuestionSpec(next.assignment.part ?? next.assignment.question, next.assignment.config);
+      popup = QuestionNotebookPopup(spec, next, false); root.appendChild(popup.dialog);
+      const reopen = h('button', { type: 'button', className: 'primary', onClick: popup.open }, `Open Part ${spec.number}`);
+      const waiting = h('div', { className: 'assigned-question-card' }, h('span', { className: 'question-eyebrow' }, 'CLASS SPOTLIGHT'), h('h2', null, `Part ${spec.number} - ${spec.title}`), h('p', null, spec.prompt), reopen);
+      root.replaceChildren(waiting, popup.dialog);
+      function congratulate() {
+        if (!active) return;
+        const celebration = PracticeDialog(`Congratulations, ${next.learner.name}!`);
+        const begin = () => { clearTimeout(timer); celebration.close(); popup.open(); };
+        celebration.body.append(h('div', { className: 'question-celebration' }, h('span', { className: 'celebration-star', 'aria-hidden': 'true' }, '\u2605'), h('p', null, `You were selected for Part ${spec.number}: ${spec.title}.`), h('button', { type: 'button', className: 'primary', onClick: begin }, 'Start my question')));
+        root.appendChild(celebration.dialog); celebration.open(); timer = setTimeout(begin, 1800);
+      }
+      timer = setTimeout(congratulate, Math.max(0, next.assignment.createdAt + 5000 - Date.now()));
+    } catch (error) { status.textContent = error.message; }
+    finally { retry.disabled = false; }
+  }
+  window.addEventListener('message', event => {
+    if (event.source !== parent || event.data?.requestId !== window.eiuLessonRequestId) return;
+    if (event.data.type === 'eiu-classroom-state' && event.data.snapshot?.ready && context) { context = { ...context, ...event.data.snapshot }; popup?.sync(context); if (!context.assignment) { clearTimeout(timer); active = false; root.replaceChildren(h('p', null, 'The draw has been reset.')); } }
+    if (event.data.type === 'eiu-practice-changed' && context) practiceRequest('load').then(next => { context = next; popup?.sync(next); }).catch(() => {});
   });
-  const cards=slide.parts.map((part,index)=>{
-    const badge=h('span',{className:'practice-part-status'},'Open workspace');badges.set(part.practicePart,badge);
-    const button=h('button',{type:'button',className:'practice-launch',onClick:()=>open(index,button)},
-      h('span',{className:'launch-top'},h('span',{className:'launch-number'},String(index+1).padStart(2,'0')),badge),h('strong',null,part.title),h('span',{className:'launch-description'},part.subtitle),h('span',{className:'launch-action'},'Open practice →'));
-    return button;
+  window.addEventListener('pagehide', () => { active = false; clearTimeout(timer); }, { once: true });
+  void load(); return root;
+}
+function PracticeWorkspace() {
+  const root = h('div', { className: 'question-monitor' });
+  const status = h('p', { className: 'question-save-status', role: 'status' }, 'Connecting to selected learners...');
+  const grid = h('div', { className: 'question-monitor-grid' });
+  const popups = new Map(), buttons = new Map(); let context = null;
+  for (const question of questionDefaults) {
+    const title = h('strong', null, `Part ${question.number} - ${question.tasks.length} ${question.tasks.length === 1 ? 'task' : 'tasks'}`), prompt = h('p', null, question.prompt), names = h('span', { className: 'question-assigned-names' }, 'No learners assigned'), count = h('span', { className: 'question-response-count' }, '0 responses');
+    const button = h('button', { type: 'button', className: 'question-monitor-card', onClick: () => {
+      if (!context?.teaching) return;
+      const config = PartBank(context.draw?.questions || context.questionSetup).find(item => item.number === question.number);
+      const key = `${context.draw?.requestId || 'setup'}:${question.number}`;
+      if (!popups.has(key)) { const popup = QuestionNotebookPopup(QuestionSpec(question.number, config), context, true); popups.set(key, popup); root.appendChild(popup.dialog); }
+      popups.get(key).sync(context); popups.get(key).open();
+    } }, h('span', { className: 'question-card-top' }, title, count), prompt, names, h('span', { className: 'question-card-action' }, 'Open Colab & responses'));
+    buttons.set(question.number, { prompt, names, count }); grid.appendChild(button);
+  }
+  function apply(next) {
+    if (context && context.draw?.requestId !== next.draw?.requestId) { popups.forEach(popup => { popup.close(); popup.dialog.remove(); }); popups.clear(); }
+    context = next;
+    if (!next.teaching) { root.replaceChildren(h('p', null, 'Teaching access required.')); return; }
+    status.textContent = next.classroomStale ? 'Reconnecting - showing the last confirmed draw and saved responses.' : 'Responses are linked to the names selected in the real draw.';
+    for (const [number, elements] of buttons) {
+      const selected = (next.draw?.subjects || []).map((subject,index) => ({ subject, name: next.draw.names[index], question: AssignedPartNumber(index, next.draw) })).filter(person => person.question === number);
+      const responded = selected.filter(person => (next.items || []).some(item => item.subject === person.subject && item.partId === assignmentParts[number].partId && QuestionSpec(number).codeFields.every(field => item.values?.[field]) && (item.assignmentPart ?? (item.questionNumber ? item.questionNumber + 2 : null)) === number && item.drawId === next.draw.requestId));
+      elements.names.textContent = selected.length ? selected.map(person => person.name).join(' \u00b7 ') : 'No learners assigned';
+      elements.count.textContent = `${responded.length} / ${selected.length} submitted`;
+      elements.prompt.textContent = PartBank(next.draw?.questions || next.questionSetup).find(question => question.number === number)?.prompt || QuestionSpec(number).prompt;
+    }
+    popups.forEach(popup => popup.sync(next));
+  }
+  async function load() { try { apply(await practiceRequest('load')); } catch (error) { status.textContent = error.message; } }
+  window.addEventListener('message', event => {
+    if (event.source !== parent || event.data?.requestId !== window.eiuLessonRequestId) return;
+    if (event.data.type === 'eiu-classroom-state' && event.data.snapshot?.ready) apply({ ...(context || {}), ...event.data.snapshot });
+    if (event.data.type === 'eiu-practice-changed') void load();
   });
-  overview.append(h('div',{className:'practice-hub-bar'},h('p',null,'Choose a part. Your inputs stay in place when switching tabs.'),h('button',{type:'button',onClick:event=>open(4,event.currentTarget)},'Check answers')),
-    h('div',{className:'practice-hub-grid'},cards));
-  function state(partId,value,text){const badge=badges.get(partId);if(badge){badge.dataset.state=value;badge.textContent=text;}}
-  function snapshot(value){for(const part of slide.parts){const items=(value.items||[]).filter(item=>item.partId===part.practicePart);const badge=badges.get(part.practicePart);if(badge?.dataset.state==='draft')continue;if(value.teaching)state(part.practicePart,'responses',`${items.length} responses`);else if(items.length)state(part.practicePart,'saved','Answer saved');}}
-  window.addEventListener('eiu-practice-progress',event=>state(event.detail.partId,event.detail.state,event.detail.state==='saved'?'Answer saved':'Draft'));
-  window.addEventListener('eiu-practice-context',event=>snapshot(event.detail));
-  window.addEventListener('message',event=>{if(event.source===parent&&event.data?.type==='eiu-classroom-state'&&event.data.requestId===window.eiuLessonRequestId&&event.data.snapshot?.ready)snapshot(event.data.snapshot);});
-  return h('div',{className:'practice-hub'},overview,modal);
+  root.append(status, grid); void load(); return root;
+}
+function QuestionSetup() {
+  const popup = PracticeDialog('Seven-part assignment setup');
+  const status = h('p', { className: 'question-save-status', role: 'status' }, '');
+  const inputs = new Map(); let context = null, saving = false;
+  const cards = h('div', { className: 'question-setup-grid' });
+  for (const part of questionDefaults) {
+    const prompt = h('textarea', { maxLength: 2000, value: part.prompt, 'aria-label': `Part ${part.number} instructions` });
+    const codes = part.tasks.map(task => h('textarea', { maxLength: 2000, value: task.code, spellcheck: false, 'aria-label': task.label }));
+    inputs.set(part.number, { prompt, codes });
+    cards.appendChild(h('section', null, h('h3', null, `Part ${part.number} - ${part.title}`), h('label', null, 'Part instructions', prompt),
+      ...codes.map((code,index) => h('label', null, `${index + 1}. ${part.tasks[index].label}`, code))));
+  }
+  const save = h('button', { type: 'button', className: 'primary', onClick: async () => {
+    if (saving || context?.draw) return; saving = true; save.disabled = true; status.textContent = 'Saving the seven parts...';
+    try {
+      const questions = [...inputs].map(([number, input]) => {
+        const part = questionDefaults.find(part => part.number === number);
+        const tasks = part.tasks.map((task,index) => ({ label: task.label, code: input.codes[index].value }));
+        return { number, title: part.title, prompt: input.prompt.value, starterCode: tasks.map(task => task.code).join('\n\n'), tasks };
+      });
+      await practiceRequest('configureQuestions', { questions }); status.textContent = 'Saved. The next real draw will assign Parts 1-7.';
+    } catch (error) { status.textContent = error.message; }
+    finally { saving = false; save.disabled = Boolean(context?.draw); }
+  } }, 'Save seven parts');
+  popup.body.append(h('p', { className: 'question-setup-hint' }, 'Seven parts from the Practice notebook: 3 tasks, 2 tasks, then Questions 1-5. Every part opens as one Colab popup.'), cards, h('div', { className: 'question-setup-footer' }, status, save));
+  const button = h('button', { type: 'button', onClick: async () => {
+    popup.open();
+    try {
+      context = await practiceRequest('load');
+      if (!context.teaching) { popup.close(); return; }
+      for (const part of PartBank(context.questionSetup)) {
+        const input = inputs.get(part.number); input.prompt.value = part.prompt;
+        part.tasks.forEach((task,index) => { if (input.codes[index]) input.codes[index].value = task.code; });
+      }
+      save.disabled = Boolean(context.draw);
+      inputs.forEach(input => { input.prompt.readOnly = Boolean(context.draw); input.codes.forEach(code => { code.readOnly = Boolean(context.draw); }); });
+      status.textContent = context.draw ? 'Reset the real draw before changing its parts.' : 'Ready to assign Parts 1-7.';
+    } catch (error) { status.textContent = error.message; save.disabled = true; }
+  } }, '7-part setup');
+  return { button, dialog: popup.dialog };
 }

@@ -1,0 +1,134 @@
+// Local, illustrative teaching examples. No network requests or learner records.
+function ConceptIcon(kind) {
+  const paths = {
+    file: ['M5 5h9l3 3h10v19H5z', 'M10 13h12M10 18h12M10 23h8'],
+    database: ['M6 8c0-6 20-6 20 0s-20 6-20 0z', 'M6 8v16c0 6 20 6 20 0V8M6 16c0 6 20 6 20 0'],
+    web: ['M16 29a13 13 0 1 0 0-26 13 13 0 0 0 0 26z', 'M3 16h26M16 3c-8 7-8 19 0 26M16 3c8 7 8 19 0 26'],
+    table: ['M4 5h24v22H4z', 'M4 12h24M4 20h24M12 5v22M20 5v22'],
+    code: ['M11 8l-7 8 7 8M21 8l7 8-7 8M18 5l-4 22'],
+    document: ['M7 3h12l7 7v19H7z', 'M19 3v8h7M11 16h11M11 21h8'],
+    frame: ['M4 5h24v22H4z', 'M4 12h24M11 5v22M19 12v15']
+  };
+  return wheelSvg('svg', { viewBox: '0 0 32 32', className: 'concept-icon', fill: 'none', stroke: 'currentColor', 'stroke-width': 1.8, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' },
+    ...(paths[kind] || paths.file).map(d => wheelSvg('path', { d })));
+}
+function ConceptBullets(items) {
+  return h('ul', { className: 'concept-bullets' }, items.map(item => h('li', null, item)));
+}
+function ConceptCode(code) { return h('pre', { className: 'concept-code' }, h('code', null, code)); }
+function ConceptSampleTable() {
+  return h('div', { className: 'concept-sample-table' },
+    h('table', null, h('thead', null, h('tr', null, h('th', { scope: 'col' }, 'Student'), h('th', { scope: 'col' }, 'Score'))),
+      h('tbody', null, [['An', 85], ['Binh', 92], ['Chi', 78]].map(row => h('tr', null, row.map(value => h('td', null, value)))))));
+}
+function SourceIllustration(kind) {
+  const s = wheelSvg;
+  const rect = (x, y, width, height, fill, extra = {}) => s('rect', { x, y, width, height, rx: 5, fill, ...extra });
+  const line = d => s('path', { d, fill: 'none', stroke: '#B39159', 'stroke-width': 2.5, 'stroke-linecap': 'round' });
+  let scene;
+  if (kind === 'file') scene = [
+    rect(35, 19, 123, 79, '#e4edf3', { transform: 'rotate(-8 90 58)' }),
+    s('path', { d: 'M33 44V29q0-6 6-6h35l12 13h91v62H33z', fill: '#E9CA8B', stroke: '#B39159', 'stroke-width': 2 }),
+    rect(85, 12, 78, 88, '#fff', { stroke: '#18547F', 'stroke-width': 2 }),
+    rect(95, 25, 58, 12, '#123F68'),
+    ...[48, 62, 76, 90].map(y => s('path', { d: `M95 ${y}h58`, stroke: '#c9d8e3', 'stroke-width': 2 })),
+    s('path', { d: 'M115 41v49M135 41v49', stroke: '#c9d8e3', 'stroke-width': 2 }),
+    s('path', { d: 'M26 60h66l-7 40H34z', fill: '#F4DFB0', stroke: '#B39159', 'stroke-width': 2 })
+  ];
+  else if (kind === 'database') scene = [
+    s('path', { d: 'M34 30v54c0 20 74 20 74 0V30', fill: '#123F68', stroke: '#082945', 'stroke-width': 2 }),
+    s('ellipse', { cx: 71, cy: 30, rx: 37, ry: 13, fill: '#356b91', stroke: '#082945', 'stroke-width': 2 }),
+    ...[48, 66, 84].map(y => s('path', { d: `M34 ${y}c0 19 74 19 74 0`, fill: 'none', stroke: '#7fa4be', 'stroke-width': 2 })),
+    line('M110 58h30m-7-6 7 6-7 6'), rect(148, 27, 64, 66, '#fff', { stroke: '#B39159', 'stroke-width': 2 }),
+    rect(155, 35, 50, 11, '#E9CA8B'),
+    ...[57, 70, 83].map(y => s('path', { d: `M155 ${y}h50`, stroke: '#c9d8e3', 'stroke-width': 2 })),
+    s('path', { d: 'M179 49v34', stroke: '#c9d8e3', 'stroke-width': 2 })
+  ];
+  else scene = [
+    rect(27, 17, 186, 87, '#fff', { stroke: '#18547F', 'stroke-width': 2 }),
+    rect(28, 18, 184, 19, '#123F68'),
+    ...[39, 48, 57].map(cx => s('circle', { cx, cy: 27, r: 2, fill: '#E9CA8B' })),
+    rect(76, 23, 120, 7, '#356b91'), rect(39, 49, 54, 42, '#edf3f7'),
+    s('circle', { cx: 66, cy: 70, r: 15, fill: 'none', stroke: '#18547F', 'stroke-width': 1.6 }),
+    s('path', { d: 'M51 70h30M66 55c-10 8-10 22 0 30M66 55c10 8 10 22 0 30', fill: 'none', stroke: '#18547F', 'stroke-width': 1.4 }),
+    ...[53, 66, 79].map(y => rect(107, y, y === 66 ? 67 : 90, 5, y === 66 ? '#B39159' : '#c9d8e3'))
+  ];
+  return s('svg', { viewBox: '0 0 240 120', className: 'source-illustration', 'aria-hidden': 'true' },
+    s('ellipse', { cx: 120, cy: 61, rx: 111, ry: 53, fill: '#F0F4F7' }), ...scene);
+}
+function SourceOverview(slide) {
+  const root = h('div', { className: 'concept-deck source-overview' });
+  const headingId = 'source-example-' + uuid();
+  let opener = null, inertNodes = [];
+  const title = h('h2', { id: headingId });
+  const body = h('div', { className: 'source-example-body' });
+  const close = () => {
+    modal.hidden = true;
+    inertNodes.forEach(node => { node.inert = false; }); inertNodes = [];
+    opener?.focus();
+  };
+  const closeButton = h('button', { type: 'button', className: 'concept-close', 'aria-label': 'Close example', onClick: close }, 'Close', h('span', { 'aria-hidden': 'true' }, ' ×'));
+  const modal = h('section', { className: 'concept-modal', role: 'dialog', 'aria-modal': 'true', 'aria-labelledby': headingId, hidden: true },
+    h('div', { className: 'concept-dialog' }, h('header', { className: 'concept-dialog-header' }, title, closeButton), body));
+  modal.addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.preventDefault(); event.stopPropagation(); close(); }
+    if (event.key === 'Tab') { event.preventDefault(); closeButton.focus(); }
+  });
+  const open = (source, format, button) => {
+    opener = button; title.textContent = format.title;
+    const preview = format.id === 'txt'
+      ? h('div', { className: 'format-text-preview' }, h('p', null, 'An scored ', h('strong', null, '85'), '.'), h('p', null, 'Binh scored ', h('strong', null, '92'), '.'), h('p', null, 'Chi scored ', h('strong', null, '78'), '.'))
+      : format.id === 'nosql'
+      ? h('div', { className: 'format-documents' }, ['An · 85', 'Binh · 92', 'Chi · 78'].map((record, index) => h('div', null, ConceptIcon('document'), h('span', null, h('small', null, `Document ${index + 1}`), h('strong', null, record)))))
+      : format.id === 'xlsx'
+      ? h('div', { className: 'format-workbook' }, h('div', { className: 'workbook-letters' }, h('span', null, 'A'), h('span', null, 'B')), ConceptSampleTable(), h('span', { className: 'workbook-tab' }, 'Scores'))
+      : h('div', { className: format.id === 'html' ? 'format-browser' : 'format-table' }, format.id === 'html' && h('div', { className: 'format-address' }, 'scores.html'), ConceptSampleTable());
+    body.replaceChildren(
+      h('div', { className: 'example-source' }, h('span', { className: 'concept-label' }, format.inputLabel), format.id === 'xlsx' ? h('div', { className: 'xlsx-example-icon' }, DownloadIcon('xlsx')) : ConceptCode(format.input),
+        h('div', { className: 'format-difference' }, h('strong', null, format.differenceTitle), h('p', null, format.difference))),
+      h('div', { className: 'example-result' }, h('h3', null, format.previewTitle), preview));
+    const frame = root.closest('.frame');
+    inertNodes = [cards, ...Array.from(frame?.children || []).filter(node => node !== root.closest('main'))];
+    inertNodes.forEach(node => { node.inert = true; });
+    modal.hidden = false; closeButton.focus();
+  };
+  const cards = h('div', { className: 'concept-three' }, slide.sources.map(source => {
+    const card = h('section', { className: 'source-open source-card', 'aria-label': source.title },
+      SourceIllustration(source.icon),
+      h('h2', { className: 'source-title' }, source.title),
+      h('span', { className: 'source-points', role: 'list' }, source.bullets.map(text => h('span', { role: 'listitem' }, text))),
+      h('div', { className: 'source-formats' }, source.formats.map(format => {
+        let button;
+        button = h('button', { type: 'button', className: 'format-button', 'aria-haspopup': 'dialog', 'aria-label': `Open ${format.label} example`, onClick: () => open(source, format, button) }, format.label);
+        return button;
+      })));
+    return card;
+  }));
+  root.append(cards, modal); return root;
+}
+function StructureOverview(slide) {
+  const examples = {
+    table: () => ConceptSampleTable(),
+    json: () => ConceptCode('[\n  {"student": "An", "score": 85},\n  {"student": "Binh", "score": 92}\n]'),
+    prose: () => h('div', { className: 'concept-prose' }, ConceptIcon('document'), h('p', null, '“An scored 85. Binh scored 92 in the next test…”'))
+  };
+  return h('div', { className: 'concept-deck structure-overview' },
+    h('div', { className: 'concept-takeaway' }, ConceptIcon('table'), h('p', null, 'For analysis, data needs ', h('strong', { className: 'concept-emphasis' }, 'rows and columns'), '.')),
+    h('div', { className: 'concept-three' }, slide.types.map((type, index) => h('section', { className: 'structure-card' },
+      h('div', { className: 'structure-heading' }, ConceptIcon(type.icon), h('h2', null, type.title)),
+      h('span', { className: 'structure-tag', 'data-ready': index === 0 ? 'true' : 'false' }, type.tag),
+      ConceptBullets(type.bullets), h('div', { className: 'structure-preview' }, examples[type.example]()),
+      h('div', { className: 'source-formats' }, type.formats.map(format => h('span', null, format)))))));
+}
+function DataFrameOverview(slide) {
+  return h('div', { className: 'concept-deck dataframe-overview' },
+    h('div', { className: 'concept-takeaway' }, ConceptIcon('frame'), h('p', null, 'To analyse data in Python, load it into a ', h('strong', { className: 'concept-emphasis' }, 'Pandas DataFrame'), '.')),
+    h('div', { className: 'reader-import' }, ConceptIcon('code'), h('code', null, 'import pandas as pd')),
+    h('div', { className: 'reader-methods' }, slide.readers.map(reader => h('section', { className: 'reader-row' },
+      h('div', { className: 'reader-heading' }, ConceptIcon(reader.icon), h('h2', null, h('code', null, reader.function))),
+      ConceptBullets(reader.bullets), ConceptCode(reader.code)))));
+}
+
+function PandasWorkspace(slide) {
+  return h('div', { className: 'concept-deck pandas-workspace' }, Notebook(slide));
+}
