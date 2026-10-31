@@ -118,7 +118,7 @@ export async function POST(request: Request) {
         hiddenSectionIds: body.hidden ? [...new Set([...(current.hiddenSectionIds || []), section.id])] : (current.hiddenSectionIds || []).filter(id => id !== section.id),
       }));
     } else if (action === "bulk_access_passcodes") {
-      if (!Array.isArray(body.targets) || !body.targets.length || body.targets.length > 200 || body.targets.some((target: { kind?: unknown; id?: unknown } | null) => !target || !["folder", "course"].includes(String(target.kind)) || typeof target.id !== "string") || !Array.isArray(body.modes) || !body.modes.length || body.modes.some((mode: unknown) => !["learner", "facilitator"].includes(String(mode))) || !["generate", "clear"].includes(body.operation)) {
+      if (!Array.isArray(body.targets) || !body.targets.length || body.targets.length > 200 || body.targets.some((target: { kind?: unknown; id?: unknown } | null) => !target || !["folder", "course", "section"].includes(String(target.kind)) || typeof target.id !== "string") || !Array.isArray(body.modes) || !body.modes.length || body.modes.some((mode: unknown) => !["learner", "facilitator"].includes(String(mode))) || !["generate", "clear"].includes(body.operation)) {
         return NextResponse.json({ success: false, message: "Invalid bulk passcode request." }, { status: 400 });
       }
       try {
@@ -128,7 +128,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: false, message: error instanceof Error ? error.message : "Unable to update passcodes.", ...workspaceCatalog(await getCoursesAndSectionsData()) }, { status: 409 });
       }
     } else if (action === "set_access_passcode") {
-      if (!["global", "folder", "course"].includes(body.kind) || !["learner", "facilitator"].includes(body.mode) || typeof body.id !== "string" || (body.generate !== true && typeof body.code !== "string")) {
+      if (!["global", "folder", "course", "section"].includes(body.kind) || !["learner", "facilitator"].includes(body.mode) || typeof body.id !== "string" || (body.generate !== true && typeof body.code !== "string")) {
         return NextResponse.json({ success: false, message: "Invalid passcode scope or access type." }, { status: 400 });
       }
       try {

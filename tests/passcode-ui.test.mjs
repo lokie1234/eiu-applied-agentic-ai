@@ -502,7 +502,7 @@ test("admin can choose Number, save its limits, and cannot save reversed bounds"
 test("admin passcode manager exposes two independent permission types for each target", () => {
   const Manager = component("components/admin/PasscodeManager.tsx");
   const html = renderToStaticMarkup(React.createElement(Manager, { courses: [{ id: "c", title: "Course", metadata: { passcode: "1234" } }], folders: [{ id: "f", name: "Folder", accessCodes: { learner: "L1234", facilitator: "T1234" } }], sections: [{ id: "s", course_id: "c", title: "Section" }], onSave() {} }));
-  assert.match(html, /value="folder:f"/); assert.match(html, /value="course:c"/); assert.doesNotMatch(html, /value="section:s"/);
+  assert.match(html, /value="folder:f"/); assert.match(html, /value="course:c"/); assert.match(html, /value="section:s"/);
   assert.match(html, /aria-label="learner passcode"[^>]*value="L1234"/);
   assert.match(html, /aria-label="facilitator passcode"[^>]*value="T1234"/);
   assert.match(html, /No admin or content-management access/);
@@ -720,7 +720,7 @@ test("catalog refresh preserves an open visible section and withdraws it when hi
 });
 
 
-test("global Generate and course Generate save to their own scopes", async () => {
+test("global, course and section Generate save to their own scopes", async () => {
   const window = new Window({ url: "http://localhost/admin/access" });
   for (const name of ["window", "document", "HTMLElement", "navigator"])
     Object.defineProperty(globalThis, name, { configurable: true, value: name === "window" ? window : window[name] });
@@ -738,6 +738,9 @@ test("global Generate and course Generate save to their own scopes", async () =>
     const generate = Array.from(container.querySelectorAll("button")).filter(button => button.textContent === "Generate");
     await act(async () => generate[3].click());
     assert.equal(calls[1].kind, "course"); assert.equal(calls[1].id, "c"); assert.equal(calls[1].mode, "facilitator");
+    await act(async () => container.querySelector('button[value="section:s"]').click());
+    await act(async () => Array.from(container.querySelectorAll('button')).filter(button=>button.textContent==='Generate')[2].click());
+    assert.equal(calls[2].kind,'section');assert.equal(calls[2].id,'s');assert.equal(calls[2].mode,'learner');
   } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
 });
 

@@ -19,6 +19,7 @@ function load(path, dependencies = {}) {
       name === "@/lib/courseHierarchy" ? load("lib/courseHierarchy.ts") :
       name === "@/lib/auth/adminPassword" ? load("lib/auth/adminPassword.ts", { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => ({ from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }) }) } }) :
       name === "@/lib/auth/types" ? load("lib/auth/types.ts") :
+      name === "@/lib/mis301Practice" ? load("lib/mis301Practice.ts") :
       require(name)
     ),
     Buffer, console, Date, process, URL, Response
@@ -143,16 +144,14 @@ function fixture() {
   return { catalog, codes, storage, resolve: code => codes.resolvePasscode(catalog, codes.hashPasscode(code)) };
 }
 
-test("folder and course codes grant their access type to all descendant sections", () => {
+test("folder, course and section codes grant only their own scope and access type", () => {
   const f = fixture();
-  for (const [code, ids, teaching] of [["FL1234", "s1,s2,s3", false], ["FT1234", "s1,s2,s3", true], ["CL01234", "s1,s2", false], ["CT01234", "s1,s2", true]]) {
+  for (const [code, ids, teaching] of [["FL1234", "s1,s2,s3", false], ["FT1234", "s1,s2,s3", true], ["CL01234", "s1,s2", false], ["CT01234", "s1,s2", true], ["SL1234", "s1", false], ["ST1234", "s1", true]]) {
     const result = f.resolve(code);
     assert.equal(result.sections.map(s => s.id).join(","), ids);
     assert.ok(result.sections.every(s => s.canFacilitate === teaching));
   }
   assert.equal(f.resolve("incorrect"), null);
-  assert.equal(f.resolve("SL1234"), null);
-  assert.equal(f.resolve("ST1234"), null);
 });
 
 test("hidden, draft and archived content is excluded even with a valid parent code", () => {
@@ -160,6 +159,41 @@ test("hidden, draft and archived content is excluded even with a valid parent co
   assert.equal(f.resolve("FT1234").sections.map(s => s.id).join(","), "s1");
   f.catalog.folderGroups[0].hidden = true;
   assert.equal(f.resolve("FT1234"), null);
+});
+
+test("a scoped code never inherits unrelated free courses; only a global code spans them", () => {
+ const f=fixture();f.catalog.courses[2].metadata.passcode='';
+ f.catalog.globalAccessCodes={learner:'GLOBAL1234',facilitator:'GLOBALTEACH1234'};
+ for(const [code,ids] of [['CL01234','s1,s2'],['CT01234','s1,s2'],['FL1234','s1,s2,s3'],['SL1234','s1'],['ST1234','s1']]){
+ const access=f.resolve(code);assert.equal(access.sections.map(section=>section.id).join(','),ids);
+ assert.equal(access.courses.some(course=>course.id==='c3'),false);
+ }
+ for(const code of ['GLOBAL1234','GLOBALTEACH1234'])assert.equal(f.resolve(code).sections.map(section=>section.id).join(','),'s1,s2,s3,s4');
+ assert.equal(f.codes.resolveFreeAccess(f.catalog).sections.map(section=>section.id).join(','),'s4');
+});
+
+test("ambiguous same-role codes across scopes fail closed instead of merging grants", () => {
+ const f=fixture();f.catalog.courses[1].metadata.passcode='CL01234';assert.equal(f.resolve('CL01234'),null);
+ f.catalog.courses[1].metadata.passcode='different1234';f.catalog.globalAccessCodes={learner:'SL1234'};assert.equal(f.resolve('SL1234'),null);
+ f.catalog.globalAccessCodes={};f.catalog.courses[1].metadata.sectionAccessCodes={s1:{learner:'SPOOF1234'}};assert.equal(f.resolve('SPOOF1234'),null);
+});
+
+test("section changes update only the selected code and unhide only that section and its parents",async()=>{
+ const f=fixture();f.catalog.folderGroups[0].hidden=true;f.catalog.courses[0].metadata.hidden=true;f.catalog.courses[0].metadata.hiddenSectionIds=['s1','s2'];
+ await assert.rejects(f.codes.saveAccessPasscode({kind:'section',id:'s1'},'learner','SECTIONNEW1234'),/Hidden content/);
+ await f.codes.saveAccessPasscode({kind:'section',id:'s1'},'learner','SECTIONNEW1234',true);
+ assert.equal(f.catalog.folderGroups[0].hidden,false);assert.equal(f.catalog.courses[0].metadata.hidden,false);
+ assert.deepEqual(f.catalog.courses[0].metadata.hiddenSectionIds,['s2']);
+ assert.equal(f.catalog.courses[0].metadata.sectionAccessCodes.s1.facilitator,'ST1234');
+ assert.equal(f.resolve('SL1234'),null);assert.equal(f.resolve('SECTIONNEW1234').sections.map(section=>section.id).join(','),'s1');
+ await assert.rejects(f.codes.saveAccessPasscode({kind:'course',id:'c2'},'learner','SECTIONNEW1234'),/already used/);
+ await f.codes.saveAccessPasscode({kind:'section',id:'s1'},'learner','');assert.equal(f.resolve('SECTIONNEW1234'),null);
+});
+
+test("access resolution stays pure and resolves thousands of sections without reading the catalog again",()=>{
+ const f=fixture();f.storage.getCoursesAndSectionsData=()=>{throw Error('Unexpected catalog fetch');};
+ for(let i=0;i<1000;i++){f.catalog.courses.push({id:`free-${i}`,status:'active',folderGroupId:'f2',metadata:{passcode:''}});f.catalog.sections.push({id:`free-section-${i}`,status:'active',course_id:`free-${i}`});}
+ for(let i=0;i<10;i++)assert.equal(f.resolve('SL1234').sections.length,1);
 });
 
 test("changing or clearing a code revokes it, preserves the other code and rejects cross-scope duplicates", async () => {
@@ -294,7 +328,7 @@ test("free access inherits parent Learning locks and never grants Teaching", () 
   assert.equal(free.sections.map(s => s.id).join(","), "s4");
   assert.ok(free.sections.every(s => !s.canFacilitate));
   const teaching = f.resolve("CT01234");
-  assert.equal(teaching.sections.find(s => s.id === "s4").canFacilitate, false);
+  assert.equal(teaching.sections.some(s => s.id === "s4"), false);
   assert.equal(f.resolve("BADCODE"), null);
   f.catalog.courses[0].metadata.passcode = "";
   f.catalog.courses[0].metadata.sectionAccessCodes = {};
@@ -369,15 +403,15 @@ test("course generation unhides its parent and sections but leaves sibling cours
   assert.equal(f.catalog.sections[1].status,"draft");
 });
 
-test("bulk validation rejects section scopes and invalid scopes before any write", async () => {
+test("bulk validation rejects invalid section and course scopes before any write", async () => {
   const f=fixture();
-  await assert.rejects(f.codes.saveAccessPasscodes([{kind:"folder",id:"f1"},{kind:"section",id:"s1"}],["learner"],null,true),/Section passcodes/);
+  await assert.rejects(f.codes.saveAccessPasscodes([{kind:"folder",id:"f1"},{kind:"section",id:"missing"}],["learner"],null,true),/no longer exists/);
   await assert.rejects(f.codes.saveAccessPasscodes([{kind:"folder",id:"f1"},{kind:"course",id:"missing"}],["learner"],"",true),/no longer exists/);
   assert.equal(f.catalog.folderGroups[0].accessCodes.learner,"FL1234");
 });
 
 
-test("bulk API is admin-only, rejects section codes and requires consent before hidden writes", async () => {
+test("bulk API is admin-only, rejects invalid scopes and requires consent before hidden writes", async () => {
  const f=fixture();let actor={isAdmin:true};
  const admin=load("app/api/admin/access/route.ts",{"next/server":response,"next/cache":{revalidatePath(){}},"@/lib/auth/currentUser":{requireCourseManager:async()=>actor},"@/lib/auth/types":{},"@/lib/supabase/server":{getSupabaseAdmin:()=>({})},"@/lib/auth/courseAccessStorage":f.storage,"@/lib/auth/passcodes":f.codes});
  const body={action:"bulk_access_passcodes",operation:"generate",targets:[{kind:"folder",id:"f1"},{kind:"course",id:"c1"}],modes:["learner","facilitator"]};
@@ -387,8 +421,20 @@ test("bulk API is admin-only, rejects section codes and requires consent before 
  assert.equal(f.catalog.courses[0].metadata.passcode,"CL01234");
  assert.equal((await admin.POST(request({...body,unhide:true}))).status,200);
  assert.equal(f.catalog.folderGroups[0].hidden,false);
- assert.equal((await admin.POST(request({action:"set_access_passcode",kind:"section",id:"s1",mode:"learner",generate:true}))).status,400);
+ assert.equal((await admin.POST(request({action:"set_access_passcode",kind:"section",id:"s1",mode:"learner",generate:true}))).status,200);
  actor=null;assert.equal((await admin.POST(request({...body,unhide:true}))).status,403);
+});
+
+test("bulk section generation groups writes by course and returns isolated section credentials",async()=>{
+ const f=fixture();let writes=0;const update=f.storage.updateCourseMetadata;
+ f.storage.updateCourseMetadata=async(...args)=>{writes++;return update(...args);};
+ const admin=load('app/api/admin/access/route.ts',{'next/server':response,'next/cache':{revalidatePath(){}},'@/lib/auth/currentUser':{requireCourseManager:async()=>({isAdmin:true})},'@/lib/auth/types':{},'@/lib/supabase/server':{getSupabaseAdmin:()=>({})},'@/lib/auth/courseAccessStorage':f.storage,'@/lib/auth/passcodes':f.codes});
+ const result=await admin.POST(request({action:'bulk_access_passcodes',operation:'generate',targets:[{kind:'section',id:'s1'},{kind:'section',id:'s2'}],modes:['learner']}));
+ assert.equal(result.status,200);assert.equal(writes,1);
+ const bank=f.catalog.courses[0].metadata.sectionAccessCodes;
+ assert.notEqual(bank.s1.learner,bank.s2.learner);
+ for(const id of ['s1','s2'])assert.equal(f.resolve(bank[id].learner).sections.map(section=>section.id).join(','),id);
+ assert.equal(f.resolve('CL01234').sections.length,2);
 });
 
 test("bulk persistence failure reports partial progress instead of claiming success", async () => {

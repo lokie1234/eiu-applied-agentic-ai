@@ -75,8 +75,8 @@ test("hidden courses and folders are excluded from both passcode roles while adm
     folderGroups: [{ id: "visible" }, { id: "hidden", hidden: true }],
     courses: [
       { id: "shown", status: "active", folderGroupId: "visible", metadata: { passcode: "learn1234", facilitatorPasscode: "teach1234", summary: "Shown", templateKey: "custom" } },
-      { id: "hidden-course", status: "active", folderGroupId: "visible", metadata: { passcode: "learn1234", facilitatorPasscode: "teach1234", hidden: true } },
-      { id: "hidden-folder", status: "active", folderGroupId: "hidden", metadata: { passcode: "learn1234", facilitatorPasscode: "teach1234" } },
+      { id: "hidden-course", status: "active", folderGroupId: "visible", metadata: { passcode: "hiddenlearn1234", facilitatorPasscode: "hiddenteach1234", hidden: true } },
+      { id: "hidden-folder", status: "active", folderGroupId: "hidden", metadata: { passcode: "folderlearn1234", facilitatorPasscode: "folderteach1234" } },
     ],
     sections: ["shown", "hidden-course", "hidden-folder"].map(id => ({ id: id + "-section", course_id: id, status: "active", section_key: "lecture", position: 1 })),
   };

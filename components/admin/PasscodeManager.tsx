@@ -1,14 +1,16 @@
 "use client";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { AccessCodes, AccessMode } from "@/lib/auth/passcodes";
 import EiuConfirmDialog, { type EiuDialogState } from "./EiuConfirmDialog";
 import styles from "./PasscodeManager.module.css";
 import LearnerInformationSettings from "./LearnerInformationSettings";
 import type { LearningIdentityPolicy } from "@/lib/learningIdentity";
 
-type Course = { folderGroupId?: string; id: string; title: string; metadata: { hidden?: boolean; hiddenSectionIds?: string[]; passcode?: string; facilitatorPasscode?: string } };
+type Course = { folderGroupId?: string; id: string; title: string; metadata: { hidden?: boolean; hiddenSectionIds?: string[]; passcode?: string; facilitatorPasscode?: string; sectionAccessCodes?: Record<string, AccessCodes> } };
+type Section = { id: string; course_id: string; title: string; hidden?: boolean };
+const EMPTY_SECTIONS: Section[] = [];
 type Folder = { hidden?: boolean; id: string; name: string; accessCodes?: AccessCodes };
-type Target = { kind: "global" | "folder" | "course"; id: string; label: string; codes: AccessCodes; parentLocked?: boolean; path?: string; hidden?: boolean };
+type Target = { kind: "global" | "folder" | "course" | "section"; id: string; label: string; codes: AccessCodes; parentLocked?: boolean; path?: string; hidden?: boolean };
 type Save = (body: Record<string, unknown>) => Promise<boolean>;
 
 function CodeEditor({ target, mode, onSave, disabled = false }: { target: Target; mode: AccessMode; onSave: Save; disabled?: boolean }) {
@@ -39,14 +41,34 @@ function CodeEditor({ target, mode, onSave, disabled = false }: { target: Target
   </article>;
 }
 
-export default function PasscodeManager({ courses, folders, globalCodes = {}, identityPolicy, onSave }: { courses: Course[]; folders: Folder[]; globalCodes?: AccessCodes; identityPolicy?: LearningIdentityPolicy; onSave: Save }) {
-  const targets: Target[] = folders.flatMap(folder => [
-    { kind: "folder" as const, id: folder.id, label: folder.name, codes: folder.accessCodes || {}, path: "Folder", hidden: Boolean(folder.hidden || courses.some(course => course.folderGroupId === folder.id && (course.metadata.hidden || course.metadata.hiddenSectionIds?.length))) },
-    ...courses.filter(course => course.folderGroupId === folder.id || (!course.folderGroupId && folder === folders[0])).map(course => ({
-      kind: "course" as const, id: course.id, label: course.title, path: folder.name, parentLocked: Boolean(folder.accessCodes?.learner), codes: { learner: course.metadata.passcode, facilitator: course.metadata.facilitatorPasscode }, hidden: Boolean(folder.hidden || course.metadata.hidden || course.metadata.hiddenSectionIds?.length),
-    })),
-  ]);
-  for (const course of courses.filter(course => !targets.some(target => target.kind === "course" && target.id === course.id))) targets.push({ kind: "course", id: course.id, label: course.title, path: "Course", codes: { learner: course.metadata.passcode, facilitator: course.metadata.facilitatorPasscode }, hidden: Boolean(course.metadata.hidden || course.metadata.hiddenSectionIds?.length) });
+export default function PasscodeManager({ courses, folders, sections = EMPTY_SECTIONS, globalCodes = {}, identityPolicy, onSave }: { courses: Course[]; folders: Folder[]; sections?: Section[]; globalCodes?: AccessCodes; identityPolicy?: LearningIdentityPolicy; onSave: Save }) {
+  const targets = useMemo(() => {
+    const result: Target[] = [], processed = new Set<string>();
+    const sectionsByCourse = new Map<string, Section[]>();
+    for (const section of sections) {
+      const group = sectionsByCourse.get(section.course_id) || [];
+      group.push(section); sectionsByCourse.set(section.course_id, group);
+    }
+    const coursesByFolder = new Map<string, Course[]>();
+    for (const course of courses) {
+      const id = course.folderGroupId || folders[0]?.id || "";
+      const group = coursesByFolder.get(id) || [];
+      group.push(course); coursesByFolder.set(id, group);
+    }
+    const appendCourse = (course: Course, folder?: Folder) => {
+      processed.add(course.id);
+      result.push({ kind: "course", id: course.id, label: course.title, path: folder?.name || "Course", parentLocked: Boolean(folder?.accessCodes?.learner), codes: { learner: course.metadata.passcode, facilitator: course.metadata.facilitatorPasscode }, hidden: Boolean(folder?.hidden || course.metadata.hidden || course.metadata.hiddenSectionIds?.length) });
+      const hiddenSections = new Set(course.metadata.hiddenSectionIds || []);
+      for (const section of sectionsByCourse.get(course.id) || []) result.push({ kind: "section", id: section.id, label: section.title, path: [folder?.name, course.title].filter(Boolean).join(" / "), parentLocked: Boolean(folder?.accessCodes?.learner || course.metadata.passcode), codes: course.metadata.sectionAccessCodes?.[section.id] || {}, hidden: Boolean(folder?.hidden || course.metadata.hidden || section.hidden || hiddenSections.has(section.id)) });
+    };
+    for (const folder of folders) {
+      const children = coursesByFolder.get(folder.id) || [];
+      result.push({ kind: "folder", id: folder.id, label: folder.name, codes: folder.accessCodes || {}, path: "Folder", hidden: Boolean(folder.hidden || children.some(course => course.metadata.hidden || course.metadata.hiddenSectionIds?.length)) });
+      children.forEach(course => appendCourse(course, folder));
+    }
+    courses.filter(course => !processed.has(course.id)).forEach(course => appendCourse(course));
+    return result;
+  }, [courses, folders, sections]);
   const [selection, setSelection] = useState("");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string[]>([]);
@@ -66,7 +88,7 @@ export default function PasscodeManager({ courses, folders, globalCodes = {}, id
       isOpen: true, variant: hidden.length ? "warning" : body.operation === "clear" ? "danger" : "gold",
       title: hidden.length ? "Unhide content and generate passcodes?" : body.operation === "clear" ? "Clear selected passcodes?" : "Generate selected passcodes?",
       message: hidden.length ? `${hidden.length} selected scope(s) contain hidden content or belong to a hidden folder. Continuing will unhide the affected folders, courses, and sections, then create the passcodes.` : body.operation === "clear" ? `Clear ${bulkMode === "both" ? "Learning and Teaching" : bulkMode === "learner" ? "Learning" : "Teaching"} codes for ${items.length} selected scope(s)? Existing sessions using these codes will expire. Clearing Learning codes may make content free; parent codes still apply.` : `Create unique ${bulkMode === "both" ? "Learning and Teaching" : bulkMode === "learner" ? "Learning" : "Teaching"} codes for ${items.length} selected scope(s)?`,
-      detail: hidden.length ? "For a folder, its courses and sections become visible. For a course, its parent folder and sections become visible. Draft content stays unpublished. Existing codes will be replaced and their sessions will expire." : "Only selected scopes and access types change. Existing codes will be replaced; parent and global codes remain available.",
+      detail: hidden.length ? "For a folder, its courses and sections become visible. For a course, its parent folder and sections become visible. For a section, only that section and its parents become visible. Draft content stays unpublished. Existing codes will be replaced and their sessions will expire." : "Only selected scopes and access types change. Existing codes will be replaced; parent and global codes remain available.",
       confirmLabel: hidden.length ? "Unhide & generate" : body.operation === "clear" ? "Clear passcodes" : "Generate passcodes",
       onCancel: () => resolve(false),
       onConfirm: async () => { resolve(await onSave({ ...body, unhide: hidden.length > 0 })); },

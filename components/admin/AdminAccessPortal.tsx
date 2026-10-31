@@ -1073,7 +1073,7 @@ export default function AdminAccessPortal({ adminEmail, initialTab, initialCours
       <div className={`${styles.scrollArea} ${tab === "courses" ? styles.scrollAreaCourses : tab === "layouts" ? styles.scrollAreaLayouts : ""}`}>
         {tab === "layouts" ? templateError ? <div className={styles.error} role="alert">{templateError}</div> : templateLoading ? <div className={styles.loading}>Loading layouts...</div> : <TemplateLibrary key="admin" isAdmin={isAdmin} initialTemplates={templates} onTemplatesChange={setTemplates} /> : loading ? (
           <div className={styles.loading}>Loading your workspace…</div>
-        ) : tab === "passcodes" ? <PasscodeManager globalCodes={globalAccessCodes} identityPolicy={learningIdentityPolicy} courses={courses} folders={folderGroups} onSave={body => {
+        ) : tab === "passcodes" ? <PasscodeManager sections={sections} globalCodes={globalAccessCodes} identityPolicy={learningIdentityPolicy} courses={courses} folders={folderGroups} onSave={body => {
           if (body.action === "set_learning_identity_policy") return mutate(body, "learner-information", "Learner information settings saved.", "Loading… Saving learner information settings...");
           const bulk = body.action === "bulk_access_passcodes";
           const generating = body.generate === true || body.operation === "generate";
