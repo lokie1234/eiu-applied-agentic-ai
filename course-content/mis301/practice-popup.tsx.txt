@@ -1,4 +1,4 @@
-function AssignedPartNumber(index, draw) { return draw?.assignmentVersion === 2 ? index % 7 + 1 : index % 5 + 3; }
+function AssignedPartNumber(index, draw) { return draw?.parts?.[index] ?? ((draw?.assignmentVersion || 1) >= 2 ? index % 7 + 1 : index % 5 + 3); }
 function PartBank(config) {
   if (config?.length === 7) return config;
   return questionDefaults.map(base => {
@@ -35,14 +35,23 @@ function QuestionNotebookPopup(spec, initialContext, teaching) {
   let context = initialContext, notebook, dirty = false, saving = false, submissionId = uuid(), pendingFingerprint = null, selectedSubject = null, follow = true, savedAt = null, lastRecord = null;
   const codes = spec.tasks.map(task => task.code);
   const inputs = {};
-  const name = h('strong', { className: 'question-person' }, teaching ? 'Selected learners' : context.learner.name);
+  const name = h('strong', { className: 'question-person' }, teaching ? 'Selected learners' : context.assignment?.username || context.learner.name);
   const prompt = h('p', { className: 'question-prompt' }, spec.prompt);
   const status = h('p', { className: 'question-save-status', role: 'status', 'aria-live': 'polite' }, teaching ? 'Waiting for responses from the selected learners.' : 'Complete the code and your answer, then submit.');
   const people = h('div', { className: 'question-people' });
-  const send = h('button', { type: 'submit', className: 'primary question-send', disabled: true }, 'Submit my answer');
+  const send = h('button', { type: 'button', className: 'primary question-send', disabled: true, onClick: submitAnswer }, 'Submit my answer');
   const followButton = h('button', { type: 'button', 'aria-pressed': true, onClick: () => { follow = true; followButton.setAttribute('aria-pressed', 'true'); sync(context); } }, 'Follow live answer');
-  const form = h('form', { className: 'question-answer-form', onSubmit: async event => {
+  async function submitAnswer(event) {
     event.preventDefault(); validate(); if (send.disabled) return;
+    const missingCode = spec.tasks.findIndex((task, index) => !codes[index].split('\n').some(line => line.trim() && !line.trim().startsWith('#') && !/^df\s*=\s*$/.test(line.trim())));
+    const missingField = spec.fields.find(field => !inputs[field.id].value.trim());
+    if (missingCode >= 0 || missingField) {
+      status.dataset.error = 'true';
+      status.textContent = missingCode >= 0 ? `Enter your code for cell ${missingCode + 1}: ${spec.tasks[missingCode].label}.` : `Complete ${missingField.label}, then submit.`;
+      if (missingCode >= 0) notebook.querySelectorAll('.stacked-code-cell textarea')[missingCode]?.focus();
+      else inputs[missingField.id].focus();
+      return;
+    }
     saving = true; send.disabled = true; status.dataset.error = 'false'; status.textContent = 'Saving your answer...';
     const values = Object.fromEntries(Object.entries(inputs).map(([id, input]) => [id, input.value])); spec.codeFields.forEach((field, index) => { values[field] = codes[index]; });
     const fingerprint = JSON.stringify(values);
@@ -55,6 +64,9 @@ function QuestionNotebookPopup(spec, initialContext, teaching) {
       if (result.submittedAt) status.textContent += ' ' + new Date(result.submittedAt).toLocaleTimeString();
     } catch (error) { status.dataset.error = 'true'; status.textContent = error.message; }
     finally { saving = false; validate(); }
+  }
+  const form = h('div', { className: 'question-answer-form', role: 'group', 'aria-label': 'Assignment answer', onKeyDown: event => {
+    if (event.key === 'Enter' && event.target.tagName === 'INPUT') void submitAnswer(event);
   } });
   spec.fields.forEach(field => {
     const input = h('input', { type: 'text', required: !teaching, readOnly: teaching, inputMode: field.numeric ? 'decimal' : 'text', maxLength: 120, placeholder: teaching ? 'Not submitted yet' : 'Your answer', 'aria-label': field.label,
@@ -63,8 +75,7 @@ function QuestionNotebookPopup(spec, initialContext, teaching) {
   });
   if (!teaching) form.appendChild(send);
   function validate() {
-    const hasAnswer = codes.every(code => code.split('\n').some(line => line.trim() && !line.trim().startsWith('#') && !/^df\s*=\s*$/.test(line.trim()) && line.trim() !== 'df'));
-    send.disabled = teaching || saving || !dirty || !hasAnswer || !Object.values(inputs).every(input => input.value.trim());
+    send.disabled = teaching || saving || window.eiuSectionEnded || !context.assignment || context.assignment.drawId !== initialContext.assignment?.drawId;
   }
   notebook = Notebook({ phase: 'PRACTICE', dataset: 'happiness_survey_data.csv', autoUpload: true, bootstrap: teaching || spec.number !== 1, stackedCells: true, practiceExercise: true, rememberCells: true, inlineCommands: true,
     commands: codes, commandLabels: spec.tasks.map(task => task.label), notes: [], onCellChange: (index, next) => {
@@ -94,7 +105,7 @@ function QuestionNotebookPopup(spec, initialContext, teaching) {
   function sync(next) {
     if (teaching && initialContext.draw?.requestId !== next.draw?.requestId) { popup.close(); return; }
     context = next;
-    if (!teaching && (!next.assignment || next.assignment.drawId !== initialContext.assignment.drawId)) { popup.close(); status.textContent = 'This draw has ended.'; send.disabled = true; return; }
+    if (!teaching && (!next.assignment || next.assignment.drawId !== initialContext.assignment.drawId || (next.assignment.part ?? next.assignment.question) !== spec.number || next.assignment.subject !== initialContext.assignment.subject)) { popup.close(); status.textContent = 'This draw has ended.'; send.disabled = true; return; }
     if (teaching) {
       const draw = next.draw, selected = (draw?.subjects || []).map((subject, index) => ({ subject, name: draw.names[index], question: AssignedPartNumber(index, draw) })).filter(person => person.question === spec.number);
       if (!selected.some(person => person.subject === selectedSubject)) selectedSubject = selected[0]?.subject || null;
@@ -126,6 +137,7 @@ function AssignedWheelQuestion() {
     try {
       const next = await practiceRequest('load'); context = next;
       if (next.teaching || !next.assignment) { status.textContent = 'There is no part assigned to this session.'; return; }
+      if (next.learner?.subject && next.assignment.subject !== next.learner.subject) throw Error('Your sign-in is reconnecting. Please reopen your assigned part.');
       const spec = QuestionSpec(next.assignment.part ?? next.assignment.question, next.assignment.config);
       popup = QuestionNotebookPopup(spec, next, false); root.appendChild(popup.dialog);
       const reopen = h('button', { type: 'button', className: 'primary', onClick: popup.open }, `Open Part ${spec.number}`);
@@ -201,7 +213,7 @@ function QuestionSetup() {
       ...codes.map((code,index) => h('label', null, `${index + 1}. ${part.tasks[index].label}`, code))));
   }
   const save = h('button', { type: 'button', className: 'primary', onClick: async () => {
-    if (saving || context?.draw) return; saving = true; save.disabled = true; status.textContent = 'Saving the seven parts...';
+    if (saving) return; saving = true; save.disabled = true; status.textContent = 'Saving the seven parts...';
     try {
       const questions = [...inputs].map(([number, input]) => {
         const part = questionDefaults.find(part => part.number === number);
@@ -210,7 +222,7 @@ function QuestionSetup() {
       });
       await practiceRequest('configureQuestions', { questions }); status.textContent = 'Saved. The next real draw will assign Parts 1-7.';
     } catch (error) { status.textContent = error.message; }
-    finally { saving = false; save.disabled = Boolean(context?.draw); }
+    finally { saving = false; save.disabled = false; }
   } }, 'Save seven parts');
   popup.body.append(h('p', { className: 'question-setup-hint' }, 'Seven parts from the Practice notebook: 3 tasks, 2 tasks, then Questions 1-5. Every part opens as one Colab popup.'), cards, h('div', { className: 'question-setup-footer' }, status, save));
   const button = h('button', { type: 'button', onClick: async () => {
@@ -222,9 +234,8 @@ function QuestionSetup() {
         const input = inputs.get(part.number); input.prompt.value = part.prompt;
         part.tasks.forEach((task,index) => { if (input.codes[index]) input.codes[index].value = task.code; });
       }
-      save.disabled = Boolean(context.draw);
-      inputs.forEach(input => { input.prompt.readOnly = Boolean(context.draw); input.codes.forEach(code => { code.readOnly = Boolean(context.draw); }); });
-      status.textContent = context.draw ? 'Reset the real draw before changing its parts.' : 'Ready to assign Parts 1-7.';
+      save.disabled = saving;
+      status.textContent = context.draw ? 'Changes apply to the next real draw. Current assignments stay unchanged.' : 'Ready to assign Parts 1-7.';
     } catch (error) { status.textContent = error.message; save.disabled = true; }
   } }, '7-part setup');
   return { button, dialog: popup.dialog };

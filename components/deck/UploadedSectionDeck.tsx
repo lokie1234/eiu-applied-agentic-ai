@@ -70,7 +70,7 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const practiceAccess = useLessonPracticeBridge(sectionId, iframeRef);
   const practiceAllowed = sectionId !== MIS301_SECTION_ID || isAdmin || Boolean(practiceAccess?.assignment);
-  const practiceAssignmentKey = `${practiceAccess?.practiceSession || ""}:${practiceAccess?.assignment?.drawId || ""}`;
+  const practiceAssignmentKey = `${practiceAccess?.practiceSession || ""}:${practiceAccess?.assignment?.drawId || ""}:${practiceAccess?.assignment?.subject || ""}:${practiceAccess?.assignment?.part || ""}`;
   useMis301NotebookBridge(sectionId, iframeRef);
   const contentUrl = `/api/sections/${encodeURIComponent(sectionId)}/content`;
   const [totalSlides, setTotalSlides] = useState(compiledCount ?? slideCount ?? 1);

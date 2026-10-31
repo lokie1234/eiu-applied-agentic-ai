@@ -58,7 +58,7 @@ server.
 `convex/classroom.ts` owns live membership and draw state plus a bounded read model
 of the latest 200 durable practice records. Practice saves push just the committed
 record through `/classroom/answer`, avoiding a reread of the whole class per answer.
-Login, termination and reset publish a server-authorized snapshot through `/classroom`; the existing
+Section entry, termination and reset publish a server-authorized snapshot through `/classroom`; the existing
 reconciliation action repairs missed snapshots via `/api/realtime/sync`. Set
 `EIU_APP_ORIGIN` to the deployed app origin once the updated web routes are live
 (configured here as `https://eiu-interactive-space.vercel.app`). Updating Convex
@@ -72,7 +72,8 @@ Retain the Supabase fallback and never acknowledge a submission before its durab
 write succeeds. Reset/termination rebuilds the projection and clears obsolete draws.
 
 Class Spotlight is visible only to Admin/Teaching. Its roster contains the latest
-signed learner session per email from the past 24 hours, after termination; this
+signed learner session per email that actually opened this section within the past
+24 hours, after termination; this
 deduplication applies only to the game, not Excel's distinct-session rows. The
 teacher chooses 1–50 participants from the complete section roster. An authorized,
 rate-limited Convex mutation selects the group atomically without replacement;
@@ -87,12 +88,8 @@ Public reads enforce teaching
 scope for rosters/draws and signed-subject scope for learner answers. Direct Convex
 calls cannot bypass those checks. Do not add an independent Convex client to slides.
 
-The wheel has a labelled 40-learner simulation using `lib/classroomDemo.ts`.
-Synthetic names are static configuration, not learner accounts. Teaching-only
-draw/reset mutations accept the explicit demo flag and use `classroom.demoDraw`,
-separate from the real `classroom.draw`. Real membership, identities and report
-records are untouched; demo identities never enter Supabase or answer projections.
-The parent remembers Demo/real mode in browser-local storage and exposes Exit demo.
+The wheel uses only real signed learner sessions. Demo controls, synthetic rosters
+and demo draws are disabled. Existing real draws and durable results are preserved.
 
 `app/api/admin/report/route.ts` assembles the authorized, dated snapshot; `lib/reports/workbook.ts` owns presentation and filenames. Preserve hierarchy validation, legacy history, quiz restore and reset behavior.
 
@@ -136,13 +133,17 @@ Server-owned MIS301_QUESTION_FIELDS maps each assignment part to existing activi
 IDs, evidence-code fields and scalar answers. Do not conflate assignmentPart 1-7
 with the original questionNumber 1-5; the latter exists only on Parts 3-7.
 
-A version-2 real draw cycles Parts 1-7 by selected index and freezes seven bounded
+New version-3 real draws automatically select at most seven unique signed subjects
+and store an explicit parts array aligned with subjects and usernames. No part is
+assigned twice in a new round. The draw freezes seven bounded
 part configurations, including each part's original task count. Setup rejects
 missing/extra parts or changed task counts. Existing version-1 draws keep their
 original Q1-Q5 assignments, displayed as Parts 3-7, without clearing the draw or
 rewriting old submissions. New rounds use the new seven-part defaults unless a
-seven-part setup has been explicitly saved. Optional assignmentPart metadata is
-projected beside questionNumber/drawId; legacy records remain readable via the
+seven-part setup has been explicitly saved.
+Setup can be saved during an active round for the next draw; the active draw's
+frozen questions and assignments remain unchanged until an explicit reset.
+Optional assignmentPart metadata is projected beside questionNumber/drawId; legacy records remain readable via the
 original questionNumber mapping and original signed subject ID.
 
 Slide 6 shows the teaching wheel/setup or an assigned learner's congratulations
@@ -160,7 +161,7 @@ fields for the assigned part; import is no longer a general exception. Supabase
 owns identities and durable ACTIVITY_SUBMITTED history, and Convex remains the
 live assignment/configuration/projection owner. Match responses by subject,
 assignment part and draw ID, never by display name. Real reset/termination revokes
-access; Demo draws do not grant access. Keep role-aware slide counts (5 unselected,
+access; synthetic draws cannot grant access. Keep role-aware slide counts (5 unselected,
 6 selected, 7 teaching), reserved EIU branding and all existing report history.
 
 ## Termination fences and section payload
@@ -183,3 +184,18 @@ The MIS 301 compiler minifies the standalone lesson, compresses original noteboo
 downloads losslessly and ships each CSV text once. Parsing is deferred until the
 DataFrame is needed. Do not remove download fidelity, identity/assignment checks,
 Supabase fallback, template branding or role-aware counts to reduce payload size.
+
+## Named assignment binding and login updates
+
+The wheel displays server-verified Learning Access usernames; it never selects or
+assigns by IP. Signed session subjects remain the authorization key so equal names
+cannot impersonate each other. Every learner assignment includes its subject and
+username, and classroom snapshots identify the viewing subject. The practice bridge
+rejects snapshots from another login and refreshes authentication once for the
+verified session. The iframe is remounted when the assigned subject or part changes.
+After Supabase commits SECTION_OPENED for the actual MIS 301 section, the server
+attempts classroom publication immediately with a two-second budget; failure
+schedules the existing background synchronization. Login alone does not add a
+learner to the wheel. The answer button calls the scoped practice bridge directly;
+it must not rely on native form submission, which the lesson sandbox blocks.
+Version-1/2 draws retain their frozen mappings/history.

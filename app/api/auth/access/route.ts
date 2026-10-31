@@ -6,7 +6,6 @@ import { hashPasscode, resolvePasscode, resolveFreeAccess } from "@/lib/auth/pas
 import { ACCESS_SESSION_COOKIE, createAccessSession, sessionCookieOptions } from "@/lib/auth/session";
 import { parseIdentityPolicy, validateIdentityInformation } from "@/lib/learningIdentity";
 import { MIS301_SECTION_ID } from "@/lib/mis301Practice";
-import { notifyClassroom } from "@/lib/realtime/classroom";
 
 export const runtime = "nodejs";
 
@@ -52,7 +51,6 @@ export async function POST(request: Request) {
     const scopes = access.sections.map(section => { const course=access.courses.find(course=>course.id===section.course_id);return { sectionId:section.id,section:section.section_key,sectionTitle:section.title,courseId:section.course_id,courseTitle:course?.title,folderGroupId:course?.folderGroupId,folderGroupName:course?.folderGroupName }; });
     const { data: identityLog, error: identityError } = await db.from("access_audit_logs").insert({ action: "PASSCODE_LOGIN", actor_email: identity.email, details: { ...identity, accessMode: teaching ? "facilitator" : "learner", scopeMode:"access", scopes, sectionKeys: [...new Set(access.sections.map(section => section.section_key))], fields: !teaching && policy.enabled ? policy.fields : [] } }).select("id").single();
     if (identityError || !identityLog) throw identityError || new Error("Unable to save the learner identity.");
-    if (mis301 && !teaching) notifyClassroom();
     const response = NextResponse.json({ success: true, destination: "/learn" });
     response.cookies.set(ACCESS_SESSION_COOKIE, createAccessSession({ role: "passcode", credentialHash, sessionId, identityLogId: Number(identityLog.id) }), sessionCookieOptions());
     return response;

@@ -27,6 +27,6 @@ export default async function LearningPage({ searchParams }: { searchParams: Pro
   const initialSection = requestedCourse
     ? query.view !== "file" && requestedCourse.slug === APPLIED_AGENTIC_AI_SLUG && isLearningSection(requestedSection?.sectionKey) && allowedSections.includes(requestedSection.sectionKey) ? requestedSection.sectionKey : null
     : null;
-  return <LessonPortal canFacilitate={access.canFacilitate} isAdmin={access.isAdmin} courseFolders={courseFolders}
+  return <LessonPortal key={access.authUserId} authSubject={access.authUserId} canFacilitate={access.canFacilitate} isAdmin={access.isAdmin} courseFolders={courseFolders}
     initialCourseId={requestedCourse?.id} initialSectionId={requestedSection?.id} initialSection={initialSection} initialProfile={{ name: access.displayName, email: access.email, section: initialSection ?? allowedSections[0] ?? "section1" }} />;
 }

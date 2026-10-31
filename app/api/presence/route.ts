@@ -1,3 +1,5 @@
+import { syncClassroomEntry } from "@/lib/realtime/classroom";
+import { MIS301_SECTION_ID } from "@/lib/mis301Practice";
 import { realtimeConfigured } from "@/lib/realtime/server";
 import { NextResponse } from "next/server";
 import { currentRole, teachingSections } from "@/lib/currentRole";
@@ -121,6 +123,7 @@ export async function POST(request: Request) {
         };
         // Live presence must not wait for the durable entry-history lookup.
         await Promise.all([savePresence(), saveEntry()]);
+        if (action === "enter" && scope.id === MIS301_SECTION_ID) await syncClassroomEntry();
       }
       return NextResponse.json({success:true},{headers:{"Cache-Control":"no-store"}});
     }

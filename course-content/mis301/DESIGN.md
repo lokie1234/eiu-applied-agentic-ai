@@ -31,14 +31,14 @@ the scoped Supabase read fallback when the live classroom is unavailable.
 
 The wheel minigame is inserted before the first Practice slide (teaching slide 6) and has
 `adminOnly: true` (the runtime includes it for Admin/Teaching). Choose the whole
-configured group without replacement in one backend call. Class Spotlight uses real
+configured group of at most seven learners without replacement in one backend call. Each learner receives a different part. Class Spotlight uses real
 Learning Access username/email identities: only usernames reach the game. The
 Convex mutation chooses a group atomically and enforces
 teaching scope plus rate limits. Never choose winners in the iframe or accept a
 manually supplied roster. Render all current members on one native SVG wheel with
 lit name plates, rim bulbs and pointer ticks that slow with the wheel. Reserve the
 whole usable slide frame for the wheel and an open ground scene; retain the EIU
-template's branding. Only group-size settings, the central Draw button and Reset are needed.
+template's branding. Use the central Draw button and Reset, with no group-size input. The server automatically selects one real learner per available assignment part, up to seven or the number of eligible learners.
 The server chooses the whole group once. Each two-second cycle spins for 1.75
 seconds, stops at that learner, reveals their Question row, then starts the next
 spin after a 0.25-second hold. Keep cycling until the selected group is complete.
@@ -48,8 +48,8 @@ bulbs without wheel shadows.
 Names form an adaptive grid read top-to-bottom within each column: name 1 maps to Question 1, and so on. Each
 row sweeps strongly from right to left with a short settling motion. No welcome
 copy, instructional captions or normal status text is shown; keep errors visible
-and the explicitly labelled Demo mode controls. Automatically set one to five columns, row count, spacing and type size for
-up to 50 names without scrolling. Keep full names in accessible labels and titles,
+and use only real signed-in learners; do not include Demo controls. Automatically set one to five columns, row count, spacing and type size for
+up to seven newly selected names without scrolling; preserve display of older larger draws. Keep full names in accessible labels and titles,
 showing full learner-entered usernames in the result cards without truncation. Respect reduced
 motion while keeping timing and resume the shared timeline from creation time.
 Do not bundle or render robots, WebGL or character animations for this slide.

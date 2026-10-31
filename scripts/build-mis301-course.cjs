@@ -33,11 +33,10 @@ function compile(source, fileName) {
   });
   const template = 'data:image/png;base64,' + fs.readFileSync('public/templates/eiu-business-v1/background.png').toString('base64');
   const courseFontCss = `@font-face{font-family:'MIS Inter';src:url(data:font/woff2;base64,${fs.readFileSync('course-content/web-app-development/fonts/Inter-Variable.woff2').toString('base64')}) format('woff2');font-weight:100 900;font-display:swap}.mis,.mis button,.mis input,.mis .question-name,.mis .wheel-setting input{font-family:'MIS Inter',Inter,Arial,sans-serif}`;
-  const practiceExports = {}, demoExports = {};
+  const practiceExports = {};
   new Function('exports', compile(fs.readFileSync('lib/mis301Practice.ts', 'utf8'), 'mis301Practice.ts'))(practiceExports);
-  new Function('exports', compile(fs.readFileSync('lib/classroomDemo.ts', 'utf8'), 'classroomDemo.ts'))(demoExports);
   const constants = { course: storyboard, assignmentParts: practiceExports.MIS301_QUESTION_FIELDS, questionDefaults: practiceExports.MIS301_QUESTION_DEFAULTS,
-    demoLearners: demoExports.MIS301_DEMO_LEARNERS, assets, datasets, template, courseFontCss,
+    assets, datasets, template, courseFontCss,
     conceptCss: fs.readFileSync(path.join(root, 'concept-slides.css'), 'utf8').replace(/\r\n/g, '\n'), wheelCss: fs.readFileSync(path.join(root, 'wheel.css'), 'utf8').replace(/\r\n/g, '\n'), practicePopupCss: fs.readFileSync(path.join(root, 'practice-popup.css'), 'utf8').replace(/\r\n/g, '\n') };
   const header = Object.entries(constants).map(([name,value]) => `const ${name} = ${JSON.stringify(value)};`).join('\n');
   const source = header + '\n' + ['wheel.tsx.txt', 'practice-popup.tsx.txt', 'concept-slides.tsx.txt', 'renderer.tsx.txt'].map(name => fs.readFileSync(path.join(root, name), 'utf8')).join('\n');

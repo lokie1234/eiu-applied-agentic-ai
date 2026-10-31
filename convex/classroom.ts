@@ -2,7 +2,6 @@ import { queryGeneric, mutationGeneric, internalMutationGeneric, type DataModelF
 import { ConvexError, v } from "convex/values";
 import schema from "./schema";
 import { MIS301_QUESTION_DEFAULTS, mis301QuestionBank } from "../lib/mis301Practice";
-import { MIS301_DEMO_LEARNERS } from "../lib/classroomDemo";
 type Model = DataModelFromSchemaDefinition<typeof schema>;
 const query = queryGeneric as QueryBuilder<Model, "public">;
 const mutation = mutationGeneric as MutationBuilder<Model, "public">;
@@ -20,24 +19,25 @@ export const view = query({ args: { sectionId: v.string() }, handler: async (ctx
   const room = await ctx.db.query("classroom").withIndex("room", q => q.eq("sectionId", sectionId)).unique();
   if (!room) return { ready: false, teaching: user.teaching, members: [], items: [], draw: null, assignment: null };
   const selectedIndex = room.draw?.subjects?.indexOf(user.subject) ?? -1;
-  const assignmentPart = room.draw?.assignmentVersion === 2 ? selectedIndex % 7 + 1 : selectedIndex % 5 + 3;
-  const assignment = !user.teaching && selectedIndex >= 0 && room.draw ? { question: assignmentPart, part: assignmentPart, drawId: room.draw.requestId, createdAt: room.draw.createdAt, config: mis301QuestionBank(room.draw.questions, true).find(question => question.number === assignmentPart) } : null;
+  const assignmentPart = room.draw?.parts?.[selectedIndex] ?? ((room.draw?.assignmentVersion || 1) >= 2 ? selectedIndex % 7 + 1 : selectedIndex % 5 + 3);
+  const assignment = !user.teaching && selectedIndex >= 0 && room.draw ? { subject: user.subject, username: room.draw.names[selectedIndex], question: assignmentPart, part: assignmentPart, drawId: room.draw.requestId, createdAt: room.draw.createdAt, config: mis301QuestionBank(room.draw.questions, true).find(question => question.number === assignmentPart) } : null;
   const answers = await ctx.db.query("practiceAnswers").withIndex("room", q => q.eq("sectionId", sectionId)).take(200);
-  return { ready: true, teaching: user.teaching, practiceSession: room.epoch, assignment, questionSetup: user.teaching ? mis301QuestionBank(room.questionSetup) : [],
+  return { ready: true, viewerSubject: user.subject, teaching: user.teaching, practiceSession: room.epoch, assignment, questionSetup: user.teaching ? mis301QuestionBank(room.questionSetup) : [],
     members: user.teaching ? room.members.map(member => ({ id: member.subject, username: member.username })).sort((a, b) => a.username.localeCompare(b.username)) : [],
-    draw: user.teaching && room.draw ? { names: room.draw.names, subjects: room.draw.subjects || [], requestId: room.draw.requestId, createdAt: room.draw.createdAt, assignmentVersion: room.draw.assignmentVersion || 1, questions: mis301QuestionBank(room.draw.questions, true) } : null,
-    demoDraw: user.teaching && room.demoDraw ? { names: room.demoDraw.names, subjects: room.demoDraw.subjects || [], requestId: room.demoDraw.requestId, createdAt: room.demoDraw.createdAt, assignmentVersion: room.demoDraw.assignmentVersion || 1 } : null,
+    draw: user.teaching && room.draw ? { names: room.draw.names, subjects: room.draw.subjects || [], requestId: room.draw.requestId, createdAt: room.draw.createdAt, assignmentVersion: room.draw.assignmentVersion || 1, parts: room.draw.parts, questions: mis301QuestionBank(room.draw.questions, true) } : null,
     items: answers.filter(answer => user.teaching || answer.subject === user.subject).sort((a, b) => b.submittedAt.localeCompare(a.submittedAt) || b.recordId.localeCompare(a.recordId)).map(answer => ({ id: answer.recordId, subject: answer.subject, assignmentPart: answer.assignmentPart, questionNumber: answer.questionNumber, drawId: answer.drawId, name: answer.username, partId: answer.partId, values: answer.values, submittedAt: answer.submittedAt })),
   };
 } });
-export const draw = mutation({ args: { sectionId: v.string(), count: v.number(), requestId: v.string(), excluded: v.array(v.string()), demo: v.optional(v.boolean()) }, handler: async (ctx, args) => {
+export const draw = mutation({ args: { sectionId: v.string(), count: v.optional(v.number()), requestId: v.string(), excluded: v.array(v.string()), demo: v.optional(v.boolean()) }, handler: async (ctx, args) => {
   const user = await authorized(ctx, args.sectionId);
   if (!user.teaching) throw new ConvexError("Teaching access required.");
-  if (!Number.isInteger(args.count) || args.count < 1 || args.count > 50 || !/^[a-f0-9-]{36}$/i.test(args.requestId) || args.excluded.length > 200) throw new ConvexError("Invalid draw settings.");
+  if (args.demo) throw new ConvexError("Demo mode has been removed. Reload to use the real classroom.");
+  if (args.count !== undefined && (!Number.isInteger(args.count) || args.count < 1 || args.count > MIS301_QUESTION_DEFAULTS.length)) throw new ConvexError("Choose at most seven learners so each receives a different assignment part.");
+  if (!/^[a-f0-9-]{36}$/i.test(args.requestId) || args.excluded.length > 200) throw new ConvexError("Invalid draw settings.");
   const room = await ctx.db.query("classroom").withIndex("room", q => q.eq("sectionId", args.sectionId)).unique();
   if (!room) throw new ConvexError("Classroom is not ready. Please reconnect.");
-  const previousDraw = args.demo ? room.demoDraw : room.draw;
-  if (previousDraw?.requestId === args.requestId) return { names: previousDraw.names, subjects: previousDraw.subjects || [], createdAt: previousDraw.createdAt, assignmentVersion: previousDraw.assignmentVersion || 1, requestId: args.requestId };
+  const previousDraw = room.draw;
+  if (previousDraw?.requestId === args.requestId) return { names: previousDraw.names, subjects: previousDraw.subjects || [], createdAt: previousDraw.createdAt, assignmentVersion: previousDraw.assignmentVersion || 1, parts: previousDraw.parts, requestId: args.requestId };
   if (previousDraw) return { message: "Reset the wheel before starting a new draw." };
   const key = `draw:${user.subject}`, now = Date.now();
   const limit = await ctx.db.query("limits").withIndex("person", q => q.eq("subject", key)).unique();
@@ -47,19 +47,24 @@ export const draw = mutation({ args: { sectionId: v.string(), count: v.number(),
   if (limit) await ctx.db.patch(limit._id, { count, start: count === 1 ? now : limit.start, blockedUntil });
   else await ctx.db.insert("limits", { subject: key, count, start: now, blockedUntil });
   if (blockedUntil) return { retryAfter: 120 };
-  const pool = (args.demo ? MIS301_DEMO_LEARNERS.map(member => ({ subject: member.id, username: member.username })) : room.members).filter(member => !args.excluded.includes(member.subject));
-  if (args.count > pool.length) return { message: `Choose between 1 and ${pool.length} available learners.` };
+  const unique = new Map(room.members.map(member => [member.subject, member]));
+  const pool = [...unique.values()].filter(member => !args.excluded.includes(member.subject));
+  const questions = mis301QuestionBank(room.questionSetup);
+  const selectedCount = Math.min(questions.length, pool.length);
+  if (!selectedCount) return { message: "Waiting for learners to sign in to this section." };
   const names: string[] = [], subjects: string[] = [];
-  for (let i = 0; i < args.count; i++) { const selected = pool.splice(Math.floor(Math.random() * pool.length), 1)[0]; names.push(selected.username); subjects.push(selected.subject); }
-  const selected = { requestId: args.requestId, names, subjects, createdAt: now, assignmentVersion: 2, questions: mis301QuestionBank(room.questionSetup) };
-  await ctx.db.patch(room._id, args.demo ? { demoDraw: selected } : { draw: selected });
-  return { names, subjects, createdAt: now, assignmentVersion: 2, requestId: args.requestId };
+  for (let i = 0; i < selectedCount; i++) { const selected = pool.splice(Math.floor(Math.random() * pool.length), 1)[0]; names.push(selected.username); subjects.push(selected.subject); }
+  const parts = questions.slice(0, selectedCount).map(question => question.number);
+  const selected = { requestId: args.requestId, names, subjects, parts, createdAt: now, assignmentVersion: 3, questions };
+  await ctx.db.patch(room._id, { draw: selected });
+  return { names, subjects, parts, createdAt: now, assignmentVersion: 3, requestId: args.requestId };
 } });
 export const resetDraw = mutation({ args: { sectionId: v.string(), demo: v.optional(v.boolean()) }, handler: async (ctx, { sectionId, demo }) => {
   const user = await authorized(ctx, sectionId);
   if (!user.teaching) throw new ConvexError("Teaching access required.");
+  if (demo) throw new ConvexError("Demo mode has been removed. Reload to use the real classroom.");
   const room = await ctx.db.query("classroom").withIndex("room", q => q.eq("sectionId", sectionId)).unique();
-  if (!room || !(demo ? room.demoDraw : room.draw)) return { success: true };
+  if (!room || !room.draw) return { success: true };
   const key = `wheel-reset:${user.subject}`, now = Date.now();
   const limit = await ctx.db.query("limits").withIndex("person", q => q.eq("subject", key)).unique();
   if (limit && limit.blockedUntil > now) return { retryAfter: Math.ceil((limit.blockedUntil - now) / 1000) };
@@ -68,7 +73,7 @@ export const resetDraw = mutation({ args: { sectionId: v.string(), demo: v.optio
   if (limit) await ctx.db.patch(limit._id, { count, start: count === 1 ? now : limit.start, blockedUntil });
   else await ctx.db.insert("limits", { subject: key, count, start: now, blockedUntil });
   if (blockedUntil) return { retryAfter: 120 };
-  await ctx.db.patch(room._id, demo ? { demoDraw: undefined } : { draw: undefined });
+  await ctx.db.patch(room._id, { draw: undefined });
   return { success: true };
 } });
 export const configureQuestions = mutation({ args: { sectionId: v.string(), questions: v.array(v.object({ number: v.number(), title: v.optional(v.string()), prompt: v.string(), starterCode: v.string(), tasks: v.optional(v.array(v.object({ label: v.string(), code: v.string() }))) })) }, handler: async (ctx, args) => {
@@ -83,7 +88,8 @@ export const configureQuestions = mutation({ args: { sectionId: v.string(), ques
   else await ctx.db.insert('limits', { subject: key, start: now, count: 1, blockedUntil: 0 });
   const room = await ctx.db.query('classroom').withIndex('room', q => q.eq('sectionId', args.sectionId)).unique();
   if (!room) throw new ConvexError('The classroom is reconnecting.');
-  if (room.draw) throw new ConvexError('Reset the real draw before changing its questions.');
+  // Setup is for the next round. An existing draw keeps its frozen questions
+  // and assignments until an explicit reset, including legacy draws.
   await ctx.db.patch(room._id, { questionSetup: args.questions.slice().sort((a,b) => a.number-b.number).map(question => ({ ...question, prompt: question.prompt.trim() })) });
   return { success: true };
 } });

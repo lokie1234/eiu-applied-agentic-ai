@@ -8,35 +8,27 @@ function wheelSvg(tag, props = {}, ...children) {
 function WheelGame() {
   const questionSetup = QuestionSetup();
   const s = wheelSvg, reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let demoMode = true, connected = false, members = [...demoLearners], frozen = [], segments = [], rotation = 0, running = false, pending = false, resetting = false, locked = false;
+  let connected = false, members = [], frozen = [], segments = [], rotation = 0, running = false, pending = false, resetting = false, locked = false;
   let requestId = uuid(), drawState = null, latest = null, epoch = null, generation = 0, raf = 0, lit = -1, finishMotion = null, lastTick = 0, tickAnimation = null, previousFrame = 0;
   const disc = h('div', { className: 'wheel-disc' });
   const machine = h('div', { className: 'wheel-machine' });
   const pointer = s('svg', { viewBox: '0 0 30 40', className: 'wheel-pointer', 'aria-hidden': 'true' }, s('path', { d: 'M2 3 Q15 -2 28 3 L15 38 Z', fill: '#F4DFB0', stroke: '#9D7944', 'stroke-width': 2 }));
   const stage = h('div', { className: 'question-stage', role: 'list', tabIndex: 0, 'aria-label': 'Part assignments', 'aria-live': 'polite' });
-  let questionSlots = [], numberingVersion = 2;
+  let questionSlots = [], numberingVersion = 2, assignedParts = [];
   const status = h('p', { className: 'wheel-status', role: 'status' }, 'Connecting to the live class…');
-  const rosterCount = h('small', null, 'DEMO · 40 learners');
-  const modeToggle = h('button', { type: 'button', disabled: true, onClick: async () => {
-    if (running || pending || resetting) return;
-    try { const response = await practiceRequest('demoMode', { enabled: !demoMode }); update(response); }
-    catch (error) { status.dataset.error = 'true'; status.textContent = error.message; }
-  } }, 'Exit demo');
-  const count = h('input', { type: 'number', value: 1, min: 1, max: 50, 'aria-label': 'Number of learners to draw', onInput: () => { settings.textContent = `Group · ${count.value || '1'} ▾`; } });
-  const settingPanel = h('div', { className: 'wheel-setting', hidden: true }, h('label', null, 'People to draw', count), h('button', { type: 'button', onClick: () => { settingPanel.hidden = true; settings.setAttribute('aria-expanded', 'false'); } }, 'Done'));
-  const settings = h('button', { type: 'button', 'aria-expanded': 'false', onClick: () => { settingPanel.hidden = !settingPanel.hidden; settings.setAttribute('aria-expanded', String(!settingPanel.hidden)); if (!settingPanel.hidden) count.focus(); } }, 'Group · 1 ▾');
+  const rosterCount = h('small', null, '0 signed-in learners');
   function welcome() {
     questionSlots = [];
     stage.replaceChildren();
   }
-  function prepareQuestions(total, version = 2) {
-    numberingVersion = version;
+  function prepareQuestions(total, version = 2, parts = []) {
+    numberingVersion = version; assignedParts = parts;
     const columns = total <= 6 ? 1 : total <= 16 ? 2 : total <= 30 ? 3 : total <= 40 ? 4 : 5;
     const rows = Math.ceil(total / columns);
     stage.style.setProperty('--columns', columns); stage.style.setProperty('--rows', rows);
     stage.dataset.columns = String(columns);
     stage.style.setProperty('--name-size', `${columns === 1 ? 2.6 : columns === 2 ? 2 : columns === 3 ? 1.6 : 1.3}vw`);
-    questionSlots = Array.from({ length: total }, (_, index) => h('div', { className: 'question-slot', role: 'listitem', hidden: true, style: { gridRow: String(index % rows + 1), gridColumn: String(Math.floor(index / rows) + 1) } }, h('span', { className: 'question-number' }, `Part ${numberingVersion === 2 ? index % 7 + 1 : index % 5 + 3}`), h('strong', { className: 'question-name' }, '?')));
+    questionSlots = Array.from({ length: total }, (_, index) => h('div', { className: 'question-slot', role: 'listitem', hidden: true, style: { gridRow: String(index % rows + 1), gridColumn: String(Math.floor(index / rows) + 1) } }, h('span', { className: 'question-number' }, `Part ${assignedParts[index] ?? (numberingVersion >= 2 ? index % 7 + 1 : index % 5 + 3)}`), h('strong', { className: 'question-name' }, '?')));
     stage.replaceChildren(...questionSlots); stage.scrollTop = 0;
   }
   function fitQuestion(slot) {
@@ -57,8 +49,8 @@ function WheelGame() {
   function showName(name, index, restored = false) {
     const slot = questionSlots[index]; if (!slot || slot.classList.contains('is-revealed')) return;
     slot.querySelector('.question-name').textContent = name;
-    slot.setAttribute('aria-label', `Part ${numberingVersion === 2 ? index % 7 + 1 : index % 5 + 3}: ${name}`);
-    slot.title = `Part ${numberingVersion === 2 ? index % 7 + 1 : index % 5 + 3}: ${name}`;
+    slot.setAttribute('aria-label', `Part ${assignedParts[index] ?? (numberingVersion >= 2 ? index % 7 + 1 : index % 5 + 3)}: ${name}`);
+    slot.title = `Part ${assignedParts[index] ?? (numberingVersion >= 2 ? index % 7 + 1 : index % 5 + 3)}: ${name}`;
     slot.hidden = false;
     fitQuestion(slot);
     slot.classList.add('is-revealed');
@@ -66,7 +58,7 @@ function WheelGame() {
     stage.querySelector('.is-current')?.classList.remove('is-current');
     slot.classList.add('is-current');
   }
-  function controls() { draw.disabled = !connected || running || pending || resetting || locked || members.length === 0; settings.disabled = running || pending || resetting || locked; reset.disabled = running || pending || resetting || !locked; modeToggle.disabled = !connected || running || pending || resetting; count.disabled = running || locked; drawLabel.textContent = running ? 'Spinning' : locked ? 'Done' : 'Draw'; }
+  function controls() { draw.disabled = !connected || running || pending || resetting || locked || members.length === 0; reset.disabled = running || pending || resetting || !locked; drawLabel.textContent = running ? 'Spinning' : locked ? 'Done' : 'Draw'; }
   function rotate(value) {
     const now = performance.now(), speed = Math.abs(value-rotation)/Math.max(1, now-previousFrame)*1000; previousFrame = now;
     rotation = value; disc.style.transform = `rotate(${value}deg)`;
@@ -109,8 +101,8 @@ function WheelGame() {
   function memberIndex(pool, state, index) { const idMatch = state.subjects?.[index] ? pool.findIndex(member => member.id === state.subjects[index]) : -1; return idMatch >= 0 ? idMatch : pool.findIndex(member => member.username === state.names[index]); }
   function markPicked(state, index) { const at = memberIndex(running ? frozen : members, state, index); if (at >= 0) segments[at]?.classList.add('is-picked'); return at; }
   function saved(state) {
-    drawState = state; locked = true; count.value = state.names.length; settings.textContent = `Group · ${state.names.length} ▾`;
-    prepareQuestions(state.names.length, state.assignmentVersion || 1); state.names.forEach((name, index) => { showName(name, index, true); markPicked(state, index); });
+    drawState = state; locked = true;
+    prepareQuestions(state.names.length, state.assignmentVersion || 1, state.parts); state.names.forEach((name, index) => { showName(name, index, true); markPicked(state, index); });
     const last = memberIndex(members, state, state.names.length - 1); if (last >= 0) rotate(-(last + .5) * 360 / members.length);
     status.dataset.error = 'false'; status.textContent = `${state.names.length} selected · Reset to start a new draw.`; controls();
   }
@@ -118,7 +110,7 @@ function WheelGame() {
   async function play(state, startTime) {
     const token = ++generation; cancelAnimationFrame(raf); finishMotion?.(); finishMotion = null;
     drawState = state; locked = true; running = true; frozen = [...members];
-    renderWheel(); prepareQuestions(state.names.length, state.assignmentVersion || 1); controls();
+    renderWheel(); prepareQuestions(state.names.length, state.assignmentVersion || 1, state.parts); controls();
     const total = state.names.length, targets = [rotation];
     for (let index = 0; index < total; index++) {
       const winner = memberIndex(frozen, state, index);
@@ -161,14 +153,10 @@ function WheelGame() {
   function update(snapshot) {
     if (!snapshot?.ready || !snapshot.teaching) return;
     connected = true;
-    const nextMode = typeof snapshot.demoMode === 'boolean' ? snapshot.demoMode : demoMode;
-    const nextMembers = nextMode ? demoLearners : snapshot.members;
-    if (nextMode !== demoMode) { demoMode = nextMode; members = nextMembers; clear(); }
-    snapshot = { ...snapshot, members: nextMembers, draw: demoMode ? snapshot.demoDraw || null : snapshot.draw };
     latest = snapshot;
     if ((epoch && epoch !== snapshot.practiceSession) || (drawState && !snapshot.draw)) { members = snapshot.members; clear(); }
     epoch = snapshot.practiceSession;
-    members = snapshot.members; rosterCount.textContent = demoMode ? 'DEMO · 40 learners · no report records' : `${members.length} signed-in learners`; modeToggle.textContent = demoMode ? 'Exit demo' : 'Demo · 40'; count.max = Math.max(1, Math.min(50, members.length));
+    members = snapshot.members; rosterCount.textContent = `${members.length} signed-in learners`;
     if (!running) renderWheel();
     if (!pending && !running && snapshot.draw && snapshot.draw.requestId !== drawState?.requestId) {
       const age = Math.max(0, Date.now() - snapshot.draw.createdAt);
@@ -179,20 +167,19 @@ function WheelGame() {
     controls();
   }
   const drawLabel = h('span', null, 'Draw');
-  const draw = h('button', { type: 'button', className: 'wheel-hub', disabled: true, 'aria-label': 'Draw the selected number of learners', onClick: async () => {
+  const draw = h('button', { type: 'button', className: 'wheel-hub', disabled: true, 'aria-label': 'Assign one learner to each available part', onClick: async () => {
     if (running || locked || pending) return;
-    const requested = Number(count.value);
-    if (!Number.isInteger(requested) || requested < 1 || requested > Math.min(50, members.length)) { status.dataset.error = 'true'; status.textContent = `Choose a group size from 1 to ${Math.min(50, members.length)}.`; return; }
-    settingPanel.hidden = true; settings.setAttribute('aria-expanded', 'false'); status.dataset.error = 'false';
+    if (!connected || !members.length) return;
+    status.dataset.error = 'false';
     const start = performance.now(), activeRequest = requestId; pending = running = true; frozen = [...members]; controls(); machine.classList.add('is-spinning'); status.textContent = 'Spinning · 5.0 s';
     const coastStart=rotation;
     const coast = now => { if (!pending) return; if (!reduced) rotate(coastStart + 360*(now-start)/1000); raf = requestAnimationFrame(coast); }; raf = requestAnimationFrame(coast);
-    try { const response = await practiceRequest('draw', { count: requested, excluded: [], submissionId: activeRequest, demo: demoMode }); if (requestId !== activeRequest) return; pending = false; cancelAnimationFrame(raf); await play(response, performance.now() - Math.max(0, Date.now() - response.createdAt)); }
+    try { const response = await practiceRequest('draw', { excluded: [], submissionId: activeRequest }); if (requestId !== activeRequest) return; pending = false; cancelAnimationFrame(raf); await play(response, performance.now() - Math.max(0, Date.now() - response.createdAt)); }
     catch (error) { if (requestId !== activeRequest) return; pending = running = false; cancelAnimationFrame(raf); machine.classList.remove('is-spinning'); if (latest?.draw?.requestId === requestId) saved(latest.draw); else { status.dataset.error = 'true'; status.textContent = error.message; } controls(); }
   } }, h('small', null, 'EIU · MIS 301'), drawLabel);
   const reset = h('button', { type: 'button', className: 'wheel-reset', disabled: true, onClick: async () => {
     if (running || pending || resetting) return; resetting = true; controls();
-    try { await practiceRequest('resetDraw', { demo: demoMode }); clear(); }
+    try { await practiceRequest('resetDraw'); clear(); }
     catch (error) { status.dataset.error = 'true'; status.textContent = error.message; }
     finally { resetting = false; controls(); }
   } }, '↺ Reset');
@@ -204,5 +191,5 @@ function WheelGame() {
   window.addEventListener('pagehide', () => { generation++; cancelAnimationFrame(raf); tickAnimation?.cancel(); finishMotion?.(); }, { once: true });
   window.addEventListener('message', event => { if (event.source === parent && event.data?.type === 'eiu-classroom-state' && event.data.requestId === window.eiuLessonRequestId) update(event.data.snapshot); });
   void practiceRequest('load').then(response => { update(response); if (!response.ready) status.textContent = 'The live classroom is reconnecting. Learner names will appear here automatically.'; }).catch(error => { status.dataset.error = 'true'; status.textContent = error.message; });
-  return h('div', { className: 'wheel-arena' }, h('div', { className: 'wheel-bay' }, machine), h('div', { className: 'wheel-toolbar' }, h('div', { className: 'wheel-actions' }, settings, reset, modeToggle, questionSetup.button), rosterCount, settingPanel), stage, status, questionSetup.dialog);
+  return h('div', { className: 'wheel-arena' }, h('div', { className: 'wheel-bay' }, machine), h('div', { className: 'wheel-toolbar' }, h('div', { className: 'wheel-actions' }, reset, questionSetup.button), rosterCount), stage, status, questionSetup.dialog);
 }

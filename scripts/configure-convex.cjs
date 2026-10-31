@@ -13,11 +13,14 @@ const dir = path.join(process.cwd(), ".tmp"); fs.mkdirSync(dir, { recursive: tru
 const file = path.join(dir, "convex-bootstrap.env");
 fs.writeFileSync(file, Object.entries(values).map(([name, value]) => `${name}=${JSON.stringify(value)}`).join("\n"), { mode: 0o600 });
 try {
-  const result = spawnSync(process.execPath, [path.join(process.cwd(), "node_modules/convex/bin/main.js"), "env", "set", "--from-file", file], { env: process.env, encoding: "utf8" });
+  // Existing deployments must be updated too; the CLI otherwise refuses a
+  // changed verification key or bridge credential when importing an env file.
+  const result = spawnSync(process.execPath, [path.join(process.cwd(), "node_modules/convex/bin/main.js"), "env", "set", "--force", "--from-file", file], { env: process.env, encoding: "utf8" });
   if (result.status !== 0) {
     let message = (result.stderr || "Convex configuration failed.");
     for (const secret of [process.env.CONVEX_DEPLOY_KEY, ...Object.values(values)]) message = message.replaceAll(secret, "[redacted]");
     throw new Error(message);
   }
   console.log("Convex authentication verification key and bridge credential configured. Secret values were not printed.");
+  console.log("The web server must use the same signing key and bridge credential. For a new deployment, also run npx convex deploy to install auth.config.ts and functions.");
 } finally { fs.unlinkSync(file); }

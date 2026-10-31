@@ -11,19 +11,19 @@ export async function classroomSnapshot(signal?: AbortSignal) {
   const epoch = termination?.details.token || "initial";
   const since = new Date(Math.max(version - 86400_000, termination ? Date.parse(termination.created_at) : 0)).toISOString();
   const cutoff = new Date(version).toISOString();
-  const [logins, answers] = await Promise.all([
-    db.from("access_audit_logs").select("id,details,created_at").eq("action", "PASSCODE_LOGIN")
-      .contains("details", { accessMode: "learner", scopes: [{ sectionId: MIS301_SECTION_ID }] }).gte("created_at", since).lte("created_at", cutoff)
+  const [entries, answers] = await Promise.all([
+    db.from("access_audit_logs").select("id,details,created_at").eq("action", "SECTION_OPENED")
+      .contains("details", { sectionId: MIS301_SECTION_ID }).gte("created_at", since).lte("created_at", cutoff)
       .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(200),
     db.from("access_audit_logs").select("id,details,created_at").eq("action", "ACTIVITY_SUBMITTED")
       .contains("details", { sectionId: MIS301_SECTION_ID, practice: "mis301-pandas", practiceSession: epoch }).lte("created_at", cutoff)
       .order("created_at", { ascending: false }).order("id", { ascending: false }).limit(200),
   ]);
-  if (logins.error) throw logins.error;
+  if (entries.error) throw entries.error;
   if (answers.error) throw answers.error;
   const emails = new Set<string>();
   const members: Array<{ subject: string; username: string }> = [];
-  for (const row of logins.data || []) {
+  for (const row of entries.data || []) {
     const identity = row.details;
     const username = String(identity.information?.name || identity.information?.username || "").trim();
     const email = String(identity.email || "").trim().toLowerCase();
@@ -35,15 +35,20 @@ export async function classroomSnapshot(signal?: AbortSignal) {
       username: String(row.details.name || "Learner"), partId: String(row.details.partId), values: row.details.values as Record<string, string>, submittedAt: row.created_at, ...(Number.isInteger(row.details.assignmentPart) ? { assignmentPart: Number(row.details.assignmentPart) } : {}), ...(Number.isInteger(row.details.questionNumber) ? { questionNumber: Number(row.details.questionNumber) } : {}), ...(typeof row.details.drawId === "string" ? { drawId: row.details.drawId } : {}) })),
   };
 }
-export async function publishClassroom() {
+export async function publishClassroom(signal?: AbortSignal) {
   if (!realtimeConfigured()) return false;
-  const payload = await classroomSnapshot();
+  const payload = await classroomSnapshot(signal);
   const response = await fetch(`${process.env.CONVEX_SITE_URL!.replace(/\/$/, "")}/classroom`, {
     method: "POST", headers: { "Content-Type": "application/json", Authorization: `Bearer ${process.env.REALTIME_BRIDGE_SECRET}` },
-    body: JSON.stringify(payload), signal: AbortSignal.timeout(8000),
+    body: JSON.stringify(payload), signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(8000)]) : AbortSignal.timeout(8000),
   });
   if (!response.ok) throw new Error("Classroom synchronization pending.");
   return true;
+}
+// Persist section entry first, then publish eligible classroom names.
+export async function syncClassroomEntry() {
+  try { await publishClassroom(AbortSignal.timeout(2000)); }
+  catch { notifyClassroom(); }
 }
 export function notifyClassroom() {
   if (!realtimeConfigured()) return;

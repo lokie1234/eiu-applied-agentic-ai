@@ -401,6 +401,7 @@ export default function LessonPortal({
   courseFolders: sessionCourseFolders,
   initialSection,
   initialProfile,
+  authSubject = "",
   initialCourseId,
   initialSectionId,
 }: {
@@ -409,6 +410,7 @@ export default function LessonPortal({
   courseFolders: CourseFolder[];
   initialSection: SectionId | null;
   initialProfile: LearnerProfile | null;
+  authSubject?: string;
   initialCourseId?: string;
   initialSectionId?: string;
 }) {
@@ -698,7 +700,7 @@ export default function LessonPortal({
       section2: bySection[applied?.sections.find(section => section.sectionKey === "section2")?.id || ""] || 0,
       total: totalPeople.size, bySection, byCourse, byFolder });
   }, [courseFolders]);
-  const convexReady = useCourseRealtime(courseFolders.flatMap(course => course.sections.map(section => ({ id: section.id, sectionKey: section.sectionKey, courseId: course.id, courseSlug: course.slug }))), onConvexCounts);
+  const convexReady = useCourseRealtime(courseFolders.flatMap(course => course.sections.map(section => ({ id: section.id, sectionKey: section.sectionKey, courseId: course.id, courseSlug: course.slug }))), onConvexCounts, authSubject);
 
   // for expired tabs that cannot send a pagehide beacon.
   useEffect(() => {

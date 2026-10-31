@@ -12,6 +12,7 @@
 .mis .question-save-status{font-size:clamp(11px,.85vw,14px);line-height:1.5;color:#687987;text-wrap:pretty}
 .mis .question-save-status[data-error=true]{color:#b3261e}
 .mis .question-dialog{position:absolute;inset:0;z-index:60;display:flex;flex-direction:column;gap:.85vw;padding:1vw;background:#FBFAF7;border:1px solid #d2dde6;border-radius:1.1vw;box-shadow:0 .7vw 2vw #08294520;min-width:0;min-height:0;animation:questionEnter .2s ease-out}
+.mis .question-dialog[hidden]{display:none}
 .mis .question-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex:none;min-width:0}
 .mis .question-dialog-header>div{min-width:0}
 .mis .question-dialog-header h2{font-size:clamp(17px,1.8vw,30px);line-height:1.25;text-wrap:balance;margin:.25vw 0 0}

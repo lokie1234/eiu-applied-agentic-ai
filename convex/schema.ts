@@ -11,7 +11,7 @@ const schema = defineSchema({
   classroom: defineTable({ sectionId: v.string(), version: v.number(), epoch: v.string(),
     questionSetup: v.optional(v.array(question)),
     members: v.array(v.object({ subject: v.string(), username: v.string() })),
-    draw: v.optional(v.object({ requestId: v.string(), names: v.array(v.string()), subjects: v.optional(v.array(v.string())), createdAt: v.number(), assignmentVersion: v.optional(v.number()), questions: v.optional(v.array(question)) })),
+    draw: v.optional(v.object({ requestId: v.string(), names: v.array(v.string()), parts: v.optional(v.array(v.number())), subjects: v.optional(v.array(v.string())), createdAt: v.number(), assignmentVersion: v.optional(v.number()), questions: v.optional(v.array(question)) })),
     demoDraw: v.optional(v.object({ requestId: v.string(), names: v.array(v.string()), subjects: v.optional(v.array(v.string())), createdAt: v.number(), assignmentVersion: v.optional(v.number()), questions: v.optional(v.array(question)) })),
   }).index("room", ["sectionId"]),
   practiceAnswers: defineTable({ sectionId: v.string(), recordId: v.string(), subject: v.string(), username: v.string(),

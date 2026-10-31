@@ -33,10 +33,10 @@ export function classroomFixture(role = 'admin', subject = 'admin') {
   let identity={subject,role,sections:JSON.stringify([sectionId]),teaching:JSON.stringify(role==='admin'?[sectionId]:[])};
   const ctx={db,auth:{getUserIdentity:async()=>identity}};
   const validators=new Proxy({}, {get:()=>()=>({})});
-  const module=loadTS('convex/classroom.ts',{
+  const classroomModule=loadTS('convex/classroom.ts',{
     'convex/server':{queryGeneric:spec=>spec.handler,mutationGeneric:spec=>spec.handler,internalMutationGeneric:spec=>spec.handler},
     'convex/values':{v:validators,ConvexError:Error},'./schema':{default:{}},'../lib/mis301Practice':practice,
     '../lib/classroomDemo':loadTS('lib/classroomDemo.ts')
   });
-  return {tables,db,ctx,module,setIdentity:next=>{identity=next;},async room(overrides={}){const rowId=await db.insert('classroom',{sectionId,version:100,epoch:'old',members:[{subject:'learner',username:'An'}],...overrides});return tables.classroom.find(row=>row._id===rowId);}};
+  return {tables,db,ctx,module:classroomModule,setIdentity:next=>{identity=next;},async room(overrides={}){const rowId=await db.insert('classroom',{sectionId,version:100,epoch:'old',members:[{subject:'learner',username:'An'}],...overrides});return tables.classroom.find(row=>row._id===rowId);}};
 }

@@ -35,10 +35,10 @@ export async function GET(request: Request, context: Context) {
     if (!scope) return NextResponse.json({ message: "You do not have access to this practice." }, { status: 403 });
     if (!scope.teaching && (!scope.identity?.information.name || !scope.identity.email || scope.identity.email.endsWith("@passcode.eiu"))) return NextResponse.json({ message: "Please sign in again and enter your username and email through Learning Access." }, { status: 403 });
     if (!scope.teaching && !scope.assignment) return NextResponse.json({ teaching: false, allowed: false, assignment: null,
-      practiceSession: scope.termination?.details.token || "initial", learner: scope.identity ? { name: scope.identity.name, email: scope.identity.email } : null, items: [],
+      practiceSession: scope.termination?.details.token || "initial", learner: scope.identity ? { subject: scope.identity.sessionId, name: scope.identity.name, email: scope.identity.email } : null, items: [],
     }, { headers: { "Cache-Control": "private, no-store" } });
     if (new URL(request.url).searchParams.get("context") === "1") return NextResponse.json({ teaching: scope.teaching, allowed: scope.teaching || Boolean(scope.assignment), assignment: scope.assignment,
-      practiceSession: scope.termination?.details.token || "initial", learner: scope.identity ? { name: scope.identity.name, email: scope.identity.email } : null, items: [],
+      practiceSession: scope.termination?.details.token || "initial", learner: scope.identity ? { subject: scope.identity.sessionId, name: scope.identity.name, email: scope.identity.email } : null, items: [],
     }, { headers: { "Cache-Control": "private, no-store" } });
     let query = records(scope, request.signal);
     if (!scope.teaching) {
@@ -48,7 +48,7 @@ export async function GET(request: Request, context: Context) {
     const { data, error } = await query.order("created_at", { ascending: false }).order("id", { ascending: false }).limit(200);
     if (error) throw error;
     return NextResponse.json({ teaching: scope.teaching, allowed: scope.teaching || Boolean(scope.assignment), assignment: scope.assignment, practiceSession: scope.termination?.details.token || "initial",
-      learner: scope.identity ? { name: scope.identity.name, email: scope.identity.email } : null,
+      learner: scope.identity ? { subject: scope.identity.sessionId, name: scope.identity.name, email: scope.identity.email } : null,
       items: ((data || []) as RecordRow[]).map(row => ({ id: String(row.id), subject: row.details.sessionId, assignmentPart: row.details.assignmentPart, questionNumber: row.details.questionNumber, drawId: row.details.drawId, submittedAt: row.created_at, name: row.details.name, email: row.details.email, partId: row.details.partId, values: row.details.values })),
     }, { headers: { "Cache-Control": "private, no-store" } });
   } catch {
