@@ -79,9 +79,12 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
   const [slideCountReady, setSlideCountReady] = useState(compiledCount !== undefined);
   const [showcasePage, setShowcasePage] = useState<number | null>(null);
   const [quizPage, setQuizPage] = useState<number | null>(null);
-  const [templateImage, setTemplateImage] = useState("");
+  const [loadedTemplate, setLoadedTemplate] = useState<{ key: string; image: string; error: string }>({ key: "", image: "", error: "" });
+  const templateMatches = needsTemplate && loadedTemplate.key === templateKey;
+  const templateImage = templateMatches ? loadedTemplate.image : "";
   const useTemplate = Boolean(templateImage);
-  const [templateLoading, setTemplateLoading] = useState(needsTemplate);
+  const templateLoading = needsTemplate && !templateMatches;
+  const templateError = templateMatches ? loadedTemplate.error : "";
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -94,14 +97,14 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
       const template = templates.find((item: { id: string; background: string }) => item.id === templateKey);
       if (!template) return ""; // Deleted layouts fall back to original slides.
       if (template.background.startsWith("data:")) return template.background;
-      const imageResponse = await fetch(template.background, { signal });
+      const imageResponse = await fetch(template.background, { signal, cache: "no-store" });
       if (!imageResponse.ok) throw new Error("Unable to load layout background.");
       const blob = await imageResponse.blob();
       return new Promise<string>((resolve, reject) => {
         const reader = new FileReader(); reader.onload = () => resolve(String(reader.result)); reader.onerror = reject; reader.readAsDataURL(blob);
       });
-    }).then(data => { if (!controller.signal.aborted) { setTemplateImage(data); setTemplateLoading(false); } })
-      .catch(reason => { if (!controller.signal.aborted) { setError(reason.message); setTemplateLoading(false); } });
+    }).then(data => { if (!controller.signal.aborted) { setLoadedTemplate({ key: templateKey!, image: data, error: "" }); } })
+      .catch(reason => { if (!controller.signal.aborted) { setLoadedTemplate({ key: templateKey!, image: "", error: reason.message }); } });
     return () => controller.abort();
   }, [templateKey, needsTemplate]);
 
@@ -146,7 +149,7 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
   }, [contentType, sectionId]);
 
   if (templateLoading) return <HairlineLoading contained label="Loading slide layout" />;
-  if (error) return <div className={styles.message} role="alert">{error}</div>;
+  if (error || templateError) return <div className={styles.message} role="alert">{error || templateError}</div>;
   if (contentType === "pptx") {
     return <PptxSectionDeck templateImage={templateImage} useTemplate={useTemplate} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} />;
   }

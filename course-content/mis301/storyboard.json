@@ -279,23 +279,17 @@
         {
           "label": "1. CSV",
           "start": 0,
-          "count": 4,
-          "description": "Use pd.read_csv() to read flat files by specifying the file path.",
-          "hint": "sep=\",\" splits fields at commas. header=0 uses the first row as column names (default); header=None keeps it as data."
+          "count": 4
         },
         {
           "label": "2. Excel",
           "start": 4,
-          "count": 3,
-          "description": "Use pd.read_excel() to read Excel files by specifying the file path.",
-          "hint": "Use sheet_name to choose a worksheet. The default is 0: the first sheet (Instructors); 1 selects Courses."
+          "count": 3
         },
         {
           "label": "3. Explore",
           "start": 7,
           "count": 12,
-          "description": "After reading data into Python, it's common to quickly explore the DataFrame to make sure the data was imported correctly.",
-          "hint": "Choose df for CSV or df2 for Excel. Explore the table that is currently stored in that variable.",
           "targets": [
             {
               "value": "df",

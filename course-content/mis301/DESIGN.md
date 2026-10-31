@@ -15,8 +15,9 @@ slides have been removed.
 Follow the supplied notebook commands, but correct the Solution notebook's
 head()/tail(3) examples to head(10)/tail(5) where the Practice asks for 10/5 rows.
 
-The Colab-style workspace is an explicitly labelled, offline simulation, not a
-Python runtime or a Google connection. Its supported commands calculate outputs
+The Colab-style workspace is an offline simulation, not a Python runtime or a
+Google connection. Omit explanatory UI captions and notebook readiness hints for
+all access roles; retain task content, runtime output and operational feedback. Its supported commands calculate outputs
 from the bundled source datasets. Import/file/DataFrame dependencies and errors
 must stay consistent. Do not eval learner input or contact an external service.
 Notebook execution is local to the slide. Practice answer forms use the authenticated
@@ -222,3 +223,9 @@ CSV and workbook download bytes. Terminate rotates the local notebook session ke
 invalidates bridge generations and attempts the new classroom epoch sync before
 returning success; failed live delivery queues reconciliation without erasing
 Supabase history. Disabling the Terminate control must not rewind its last epoch.
+
+Do not render the PREPARE / DEMO / PRACTICE footer strip, its progress bar or
+in-slide fraction on any section page. Preserve the template branding and the
+slide 1 download dock. Notebook workspace notes, readiness captions, runtime
+bindings/debug summaries and setup explanatory paragraphs are omitted for Admin,
+Teaching and Student. Keep validation, errors, execution markers and save feedback.

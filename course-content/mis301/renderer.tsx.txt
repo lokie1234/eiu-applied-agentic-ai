@@ -123,6 +123,7 @@ function NotebookView(node) {
 }
 function RestoreNotebookView(node) {
   if ('text' in node) return document.createTextNode(node.text);
+  if (String(node.className || '').split(/\s+/).includes('support')) return document.createTextNode('');
   // Output snapshots are data, never HTML or code.
   if (!['div', 'p', 'pre', 'table', 'thead', 'tbody', 'tr', 'th', 'td'].includes(node.tag)) return document.createTextNode('');
   return h(node.tag, { className: node.className }, node.children.map(RestoreNotebookView));
@@ -154,8 +155,8 @@ function StackedPracticeNotebook(slide, evaluate, resetRuntime) {
     workspace.appendChild(card);
   });
   const root = h('div', { className: 'lab stacked-lab' }, h('div', { className: 'notebook' },
-    h('div', { className: 'nbbar' }, h('span', { className: 'colabmark' }, 'co'), h('strong', null, 'Practice_Pandas.ipynb'), h('small', null, 'COLAB-STYLE - OFFLINE SIMULATION')),
-    slide.bootstrap && h('p', { className: 'stacked-runtime-note' }, 'Pandas and df are ready for this part.'), workspace));
+    h('div', { className: 'nbbar' }, h('span', { className: 'colabmark' }, 'co'), h('strong', null, 'Practice_Pandas.ipynb')),
+    workspace));
   root.eiuCells = { restore: (index, code) => cells[index]?.restore(code), reset: () => { resetRuntime(); cells.forEach(cell => cell.clear()); } };
   return root;
 }
@@ -186,10 +187,8 @@ function Notebook(slide) {
     aliases.delete(name); frames[name] = data; definitions[name] = { ...definition, name };
   }
   const uploadedLabel = () => [...loadedFiles].map(name => '\u2713 ' + name).join('\n');
-  const readyMessage = () => slide.sharedRuntime ? 'Continue the same notebook. Run import and read cells before using their variables.' : slide.autoUpload ? `${slide.dataset} is ready. Choose Import Pandas, then run a data cell.` : '1. Upload the lesson file. 2. Run the cells in order.';
-  const bindings = h('p', { className: 'runtime-bindings' });
-  const refreshBindings = () => { bindings.textContent = `Pandas: ${[...aliases].join(', ') || 'not imported'}\nDataFrames: ${Object.keys(frames).join(', ') || 'none'}`; file.textContent = uploadedLabel() || 'No file uploaded'; };
-  const output = h('div', { className: 'output', role: 'status', 'aria-live': 'polite' }, h('p', { className: 'support' }, slide.bootstrap ? 'The file, Pandas and df are ready for this inspection exercise.' : readyMessage()));
+  const refreshBindings = () => { file.textContent = uploadedLabel() || 'No file uploaded'; };
+  const output = h('div', { className: 'output', role: 'status', 'aria-live': 'polite' });
   const file = h('div', { className: 'fileitem' }, uploaded ? uploadedLabel() : 'No file uploaded');
   const status = h('div', { className: 'execution' }, 'Not executed');
   const editor = h('textarea', { value: slide.commands[0], spellcheck: false, maxLength: slide.practiceExercise ? 2000 : 12000, 'aria-label': slide.practiceExercise ? 'Python practice cell' : 'Python demo cell' });
@@ -202,9 +201,9 @@ function Notebook(slide) {
   function showCell(index) {
     const saved = cellStates[index];
     editor.value = saved?.code ?? slide.commands[index];
-    status.textContent = saved?.status || 'Not executed';
+    status.textContent = (saved?.status || 'Not executed').replace(/\s*\u00b7 offline demo/g, '');
     if (saved) output.replaceChildren(...saved.output.map(RestoreNotebookView));
-    else replace(h('p', { className: 'support' }, 'Run this cell to see its result.'));
+    else output.replaceChildren();
   }
 
   function evaluate(source) {
@@ -300,7 +299,7 @@ function Notebook(slide) {
     run.classList.add('busy'); status.textContent = 'Running…';
     setTimeout(() => {
       if (notebookTerminated) { busy = false; run.classList.remove('busy'); return; }
-      try { replace(evaluate(editor.value)); status.textContent = `[${++execution}] Executed · offline demo`; buttons[selected].classList.add('executed'); }
+      try { replace(evaluate(editor.value)); status.textContent = `[${++execution}] Executed`; buttons[selected].classList.add('executed'); }
       catch (error) { replace(h('pre', { className: 'error' }, error.message)); status.textContent = `[${++execution}] Check the cell`; }
       checkpoint(); refreshBindings();
       busy = false; run.disabled = false; editor.disabled = false; run.classList.remove('busy'); updateGroupUI();
@@ -320,8 +319,6 @@ function Notebook(slide) {
   editor.addEventListener('input', () => checkpoint());
   const buttons = slide.commands.map((command, i) => h('button', { type: 'button', 'aria-pressed': i === selected, onClick: () => selectCell(i), title: command }, slide.commandLabels?.[i] || command));
   const presets = h('div', { className: 'notebook-presets', 'aria-label': slide.practiceExercise ? 'Notebook exercise cells' : 'Notebook example cells' }, buttons);
-  const groupDescription = h('p', { className: 'workflow-description' });
-  const groupHint = h('p', { className: 'workflow-hint' });
   const groupButtons = (slide.commandGroups || []).map((group, index) => h('button', {
     type: 'button', role: 'tab', id: `notebook-tab-${index}`, 'aria-controls': 'notebook-command-panel',
     onClick: () => selectCell(groupSelections[group.start] ?? group.start)
@@ -349,7 +346,6 @@ function Notebook(slide) {
       const active = slide.commandGroups[index] === group;
       button.setAttribute('aria-selected', String(active)); button.tabIndex = active ? 0 : -1;
     });
-    groupDescription.textContent = group.description; groupHint.textContent = group.hint;
     targetControl.hidden = !group.targets; targetSelect.disabled = busy || !runtimeReady;
     if (target) targetSelect.value = target.value;
     buttons.forEach((button, index) => { button.hidden = index < visible.start || index >= visible.start + visible.count; });
@@ -363,11 +359,11 @@ function Notebook(slide) {
 
 
   const notebook = h('div', { className: 'lab' }, h('div', { className: 'notebook' },
-    h('div', { className: 'nbbar' }, h('span', { className: 'colabmark' }, 'co'), h('strong', null, slide.phase.startsWith('DEMO') ? 'Demo_Pandas.ipynb' : 'Practice_Pandas.ipynb'), h('small', null, 'COLAB-STYLE · OFFLINE SIMULATION')),
+    h('div', { className: 'nbbar' }, h('span', { className: 'colabmark' }, 'co'), h('strong', null, slide.phase.startsWith('DEMO') ? 'Demo_Pandas.ipynb' : 'Practice_Pandas.ipynb')),
     h('div', { className: 'nbcontent' }, h('aside', { className: 'files' }, h('strong', null, 'Files / content'),
       !slide.autoUpload && h('button', { type: 'button', onClick: () => { uploaded = true; loadedFiles.add(slide.dataset); Object.keys(slide.csvFiles || {}).forEach(name => loadedFiles.add(name)); refreshBindings(); checkpoint(); } }, 'Upload lesson file'), file,
-      slide.kind !== 'pandas-workspace' && h('p', null, slide.sharedRuntime ? 'Notebook session active' : 'Lesson files'), slide.sharedRuntime && bindings),
-      h('div', { className: 'workspace' }, slide.commandGroups && groupNav, slide.commandGroups && slide.kind !== 'pandas-workspace' && h('div', { className: 'workflow-context' }, groupDescription, groupHint), slide.inlineCommands && presets, h('div', { className: 'cell' }, run, editor), toolbar, status, output))),
+      ),
+      h('div', { className: 'workspace' }, slide.commandGroups && groupNav, slide.inlineCommands && presets, h('div', { className: 'cell' }, run, editor), toolbar, status, output))),
 );
 
   notebook.eiuCells = { select: selectCell, restore: (index, code) => { cellStates[index] = { index, code, status: 'Saved code restored - run to see output.', executed: false, output: [] }; if (selected === index) showCell(index); } };
@@ -405,7 +401,7 @@ function Notebook(slide) {
         button.classList.toggle('executed', Boolean(cellStates[index]?.executed));
       });
       if (savedPage) showCell(selected);
-      else { status.textContent = execution ? `[${execution}] Notebook session restored` : 'Ready'; replace(h('p', { className: 'support' }, readyMessage())); }
+      else { status.textContent = execution ? `[${execution}] Notebook session restored` : 'Ready'; output.replaceChildren(); }
       uploaded = loadedFiles.size > 0; runtimeReady = true; run.disabled = false;
       refreshBindings(); updateGroupUI(); checkpoint();
     }).catch(error => { replace(h('pre', { className: 'error' }, error.message)); status.textContent = 'Session unavailable'; });
@@ -468,8 +464,8 @@ function Slide(slide, index, total) {
   const dataFiles = ['student_data.csv', 'Course Offerings.xlsx', 'happiness_survey_data.csv'];
   const downloadButton = (name, notebook = false) => h('button', { type: 'button', onClick: () => download(name), title: name }, DownloadIcon(notebook ? 'colab' : name.endsWith('.xlsx') ? 'xlsx' : 'csv'), h('span', null, notebook ? name.startsWith('Demo_') ? 'Demo' : 'Practice' : name));
   return h('article', { className: slide.kind === 'introduction' ? 'mis introduction' : 'mis', 'data-layout': slide.kind, 'data-eiu-template': 'eiu-business-v1', style: { backgroundImage: `url("${template}")` } }, h('style', null, css + introductionCss + redesignCss + downloadDockCss + conceptCss + wheelCss + practicePopupCss + courseFontCss),
-    h('div', { className: 'frame' }, h('header', { className: 'heading' }, !conceptSlide && slide.kind !== 'introduction' && h('p', { className: 'eyebrow' }, 'MIS 301 · ' + slide.phase), h('h1', null, slide.title), slide.subtitle && h('p', { className: 'subtitle' }, slide.subtitle)),
-      h('main', { className: 'body' }, content(slide)), slide.kind === 'introduction' ? h('footer', { className: 'downloads' }, h('section', { className: 'download-group notebook-downloads', 'aria-label': 'Notebooks' }, h('h3', null, 'NOTEBOOKS'), h('div', { className: 'download-items' }, notebooks.map(name => downloadButton(name, true)))), h('section', { className: 'download-group data-downloads', 'aria-label': 'Data files' }, h('h3', null, 'DATA'), h('div', { className: 'download-items' }, dataFiles.map(name => downloadButton(name))))) : !conceptSlide && h('footer', { className: 'lesson-footer' }, h('span', null, 'PREPARE → DEMO → PRACTICE'), h('div', { className: 'deck-progress', 'aria-label': `Slide ${index + 1} of ${total}` }, h('i', { style: { width: `${(index + 1) / total * 100}%` } })), h('span', null, `${index + 1} / ${total}`))),
+    h('div', { className: 'frame' }, h('header', { className: 'heading' }, h('h1', null, slide.title), slide.subtitle && h('p', { className: 'subtitle' }, slide.subtitle)),
+      h('main', { className: 'body' }, content(slide)), slide.kind === 'introduction' ? h('footer', { className: 'downloads' }, h('section', { className: 'download-group notebook-downloads', 'aria-label': 'Notebooks' }, h('h3', null, 'NOTEBOOKS'), h('div', { className: 'download-items' }, notebooks.map(name => downloadButton(name, true)))), h('section', { className: 'download-group data-downloads', 'aria-label': 'Data files' }, h('h3', null, 'DATA'), h('div', { className: 'download-items' }, dataFiles.map(name => downloadButton(name))))) : null),
     !conceptSlide && h('span', { className: 'page' }, String(index + 1)));
 }
 function render(slide) {

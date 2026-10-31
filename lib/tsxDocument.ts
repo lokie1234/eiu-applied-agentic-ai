@@ -1,3 +1,38 @@
+// Serialized into the sandbox document; keep this function self-contained.
+export function applySlideTemplate(root: HTMLElement, page: number | null, background: string, templateKey: string) {
+  const previousContent = root.querySelector<HTMLElement>(":scope > [data-eiu-template-content]");
+  if (previousContent) {
+    while (previousContent.firstChild) root.appendChild(previousContent.firstChild);
+    previousContent.remove();
+  }
+  root.querySelector(":scope > [data-eiu-template-page]")?.remove();
+  root.style.background = "";
+  root.style.position = "";
+  const nativeFrame = root.querySelector<HTMLElement>("[data-eiu-template]");
+  if (nativeFrame) {
+    if (!nativeFrame.hasAttribute("data-eiu-original-background")) {
+      nativeFrame.dataset.eiuOriginalBackground = nativeFrame.style.backgroundImage;
+      nativeFrame.dataset.eiuOriginalTemplate = nativeFrame.dataset.eiuTemplate || "";
+    }
+    nativeFrame.style.backgroundImage = background ? `url(${JSON.stringify(background)})` : nativeFrame.dataset.eiuOriginalBackground!;
+    nativeFrame.dataset.eiuTemplate = background ? templateKey : nativeFrame.dataset.eiuOriginalTemplate!;
+    return;
+  }
+  if (!background || (templateKey === "eiu-business-v1" && root.querySelector('[data-preserve-original="true"]'))) return;
+  const content = root.ownerDocument.createElement("div");
+  content.dataset.eiuTemplateContent = templateKey;
+  content.style.cssText = "position:absolute;left:5.6%;top:11.5%;width:88.8%;height:77.4%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;color:#144069";
+  while (root.firstChild) content.appendChild(root.firstChild);
+  root.style.background = `white url(${JSON.stringify(background)}) center / 100% 100% no-repeat`;
+  root.style.position = "relative";
+  root.appendChild(content);
+  const number = root.ownerDocument.createElement("span");
+  number.dataset.eiuTemplatePage = "true";
+  number.textContent = String(page);
+  number.style.cssText = "position:absolute;left:93.711%;top:95.152%;width:2.664%;height:4.736%;display:grid;place-items:center;font:600 .9vw Arial;color:#144069";
+  root.appendChild(number);
+}
+
 export function createTsxDocument(compiledCode: string, pageNumber: number | null, templateImage = "", templateKey = "", requestId = "", isAdmin = false, practiceAllowed = true, practiceAssignmentKey = "") {
   const encodedCode = JSON.stringify(compiledCode).replace(/</g, "\\u003c");
   // Compiled TSX runs via Function inside an opaque-origin sandbox. Network
@@ -21,7 +56,7 @@ export function createTsxDocument(compiledCode: string, pageNumber: number | nul
     const React={createElement:h,Fragment};
     window.eiuSectionEnded=false;
     window.addEventListener('message',event=>{if(event.source!==parent||event.data?.type!=='eiu-section-terminated'||event.data.requestId!==window.eiuLessonRequestId)return;window.eiuSectionEnded=true;window.dispatchEvent(new Event('pagehide'));root.replaceChildren();const notice=document.createElement('p');notice.style.cssText='padding:24px;font:16px/1.5 Arial;color:#17324A';notice.textContent='This section session has ended. Reopen it to continue.';root.appendChild(notice);});
-    try{const module={exports:{}};const exports=module.exports;new Function('module','exports','h','Fragment','React',${encodedCode})(module,exports,h,Fragment,React);let candidate=module.exports.default??module.exports.slides??module.exports;if(typeof candidate==='function')candidate=candidate();const slides=(Array.isArray(candidate)?candidate:[candidate]).filter(slide=>(${JSON.stringify(isAdmin)}||!slide?.adminOnly)&&(${JSON.stringify(isAdmin)}||${JSON.stringify(practiceAllowed)}||!slide?.drawRestricted));parent.postMessage({type:'eiu-tsx-ready',slides:slides.length,requestId:${JSON.stringify(requestId)}},'*');if(${JSON.stringify(pageNumber === null)})return;const active=slides[${Math.max(0, (pageNumber ?? 1) - 1)}];const rendered=typeof active==='function'?active():active;append(root,rendered??h('div',{id:'error'},'Slide is empty.'));parent.postMessage({type:'eiu-slide-interaction',interaction:root.querySelector('[data-eiu-showcase]')?'showcase':root.querySelector('[data-eiu-quiz]')?'quiz':null,page:${JSON.stringify(pageNumber)},requestId:${JSON.stringify(requestId)}},'*');const template=${JSON.stringify(templateImage)};if(template&&!(${JSON.stringify(templateKey === "eiu-business-v1")}&&root.querySelector('[data-eiu-template="eiu-business-v1"],[data-preserve-original="true"]'))){const content=document.createElement('div');content.style.cssText='position:absolute;left:5.6%;top:11.5%;width:88.8%;height:77.4%;overflow:hidden;font-family:Arial,Helvetica,sans-serif;color:#144069';while(root.firstChild)content.appendChild(root.firstChild);root.style.background='white url('+JSON.stringify(template)+') center / 100% 100% no-repeat';root.style.position='relative';root.appendChild(content);const number=document.createElement('span');number.textContent=${JSON.stringify(String(pageNumber))};number.style.cssText='position:absolute;left:93.711%;top:95.152%;width:2.664%;height:4.736%;display:grid;place-items:center;font:600 .9vw Arial;color:#144069';root.appendChild(number);}}catch(error){parent.postMessage({type:'eiu-tsx-error',requestId:${JSON.stringify(requestId)}},'*');root.innerHTML='<div id="error"></div>';document.getElementById('error').textContent=error&&error.stack?error.stack:String(error);}
+    try{const module={exports:{}};const exports=module.exports;new Function('module','exports','h','Fragment','React',${encodedCode})(module,exports,h,Fragment,React);let candidate=module.exports.default??module.exports.slides??module.exports;if(typeof candidate==='function')candidate=candidate();const slides=(Array.isArray(candidate)?candidate:[candidate]).filter(slide=>(${JSON.stringify(isAdmin)}||!slide?.adminOnly)&&(${JSON.stringify(isAdmin)}||${JSON.stringify(practiceAllowed)}||!slide?.drawRestricted));parent.postMessage({type:'eiu-tsx-ready',slides:slides.length,requestId:${JSON.stringify(requestId)}},'*');if(${JSON.stringify(pageNumber === null)})return;const active=slides[${Math.max(0, (pageNumber ?? 1) - 1)}];const rendered=typeof active==='function'?active():active;append(root,rendered??h('div',{id:'error'},'Slide is empty.'));parent.postMessage({type:'eiu-slide-interaction',interaction:root.querySelector('[data-eiu-showcase]')?'showcase':root.querySelector('[data-eiu-quiz]')?'quiz':null,page:${JSON.stringify(pageNumber)},requestId:${JSON.stringify(requestId)}},'*');const applyTemplate=${applySlideTemplate.toString()};applyTemplate(root,${JSON.stringify(pageNumber)},${JSON.stringify(templateImage)},${JSON.stringify(templateKey)});}catch(error){parent.postMessage({type:'eiu-tsx-error',requestId:${JSON.stringify(requestId)}},'*');root.innerHTML='<div id="error"></div>';document.getElementById('error').textContent=error&&error.stack?error.stack:String(error);}
   })();
   <\/script></body></html>`;
 }

@@ -17,7 +17,7 @@ function PracticeDialog(titleText) {
   const closeButton = h('button', { type: 'button', className: 'question-close', 'aria-label': 'Close question', onClick: () => close() }, '\u00d7');
   const body = h('div', { className: 'question-dialog-body' });
   const dialog = h('section', { className: 'question-dialog', role: 'dialog', 'aria-modal': 'true', 'aria-label': titleText, hidden: true },
-    h('header', { className: 'question-dialog-header' }, h('div', null, h('span', { className: 'question-eyebrow' }, 'PANDAS \u00b7 HAPPINESS SURVEY'), title), closeButton), body);
+    h('header', { className: 'question-dialog-header' }, h('div', null, title), closeButton), body);
   function close() { dialog.hidden = true; returnFocus?.focus(); }
   function open() { returnFocus = document.activeElement; dialog.hidden = false; closeButton.focus(); }
   dialog.addEventListener('keydown', event => {
@@ -37,7 +37,7 @@ function QuestionNotebookPopup(spec, initialContext, teaching) {
   const inputs = {};
   const name = h('strong', { className: 'question-person' }, teaching ? 'Selected learners' : context.assignment?.username || context.learner.name);
   const prompt = h('p', { className: 'question-prompt' }, spec.prompt);
-  const status = h('p', { className: 'question-save-status', role: 'status', 'aria-live': 'polite' }, teaching ? 'Waiting for responses from the selected learners.' : 'Complete the code and your answer, then submit.');
+  const status = h('p', { className: 'question-save-status', role: 'status', 'aria-live': 'polite' }, '');
   const people = h('div', { className: 'question-people' });
   const send = h('button', { type: 'button', className: 'primary question-send', disabled: true, onClick: submitAnswer }, 'Submit my answer');
   const followButton = h('button', { type: 'button', 'aria-pressed': true, onClick: () => { follow = true; followButton.setAttribute('aria-pressed', 'true'); sync(context); } }, 'Follow live answer');
@@ -141,7 +141,7 @@ function AssignedWheelQuestion() {
       const spec = QuestionSpec(next.assignment.part ?? next.assignment.question, next.assignment.config);
       popup = QuestionNotebookPopup(spec, next, false); root.appendChild(popup.dialog);
       const reopen = h('button', { type: 'button', className: 'primary', onClick: popup.open }, `Open Part ${spec.number}`);
-      const waiting = h('div', { className: 'assigned-question-card' }, h('span', { className: 'question-eyebrow' }, 'CLASS SPOTLIGHT'), h('h2', null, `Part ${spec.number} - ${spec.title}`), h('p', null, spec.prompt), reopen);
+      const waiting = h('div', { className: 'assigned-question-card' }, h('h2', null, `Part ${spec.number} - ${spec.title}`), h('p', null, spec.prompt), reopen);
       root.replaceChildren(waiting, popup.dialog);
       function congratulate() {
         if (!active) return;
@@ -182,7 +182,7 @@ function PracticeWorkspace() {
     if (context && context.draw?.requestId !== next.draw?.requestId) { popups.forEach(popup => { popup.close(); popup.dialog.remove(); }); popups.clear(); }
     context = next;
     if (!next.teaching) { root.replaceChildren(h('p', null, 'Teaching access required.')); return; }
-    status.textContent = next.classroomStale ? 'Reconnecting - showing the last confirmed draw and saved responses.' : 'Responses are linked to the names selected in the real draw.';
+    status.textContent = next.classroomStale ? 'Reconnecting...' : '';
     for (const [number, elements] of buttons) {
       const selected = (next.draw?.subjects || []).map((subject,index) => ({ subject, name: next.draw.names[index], question: AssignedPartNumber(index, next.draw) })).filter(person => person.question === number);
       const responded = selected.filter(person => (next.items || []).some(item => item.subject === person.subject && item.partId === assignmentParts[number].partId && QuestionSpec(number).codeFields.every(field => item.values?.[field]) && (item.assignmentPart ?? (item.questionNumber ? item.questionNumber + 2 : null)) === number && item.drawId === next.draw.requestId));
@@ -220,11 +220,11 @@ function QuestionSetup() {
         const tasks = part.tasks.map((task,index) => ({ label: task.label, code: input.codes[index].value }));
         return { number, title: part.title, prompt: input.prompt.value, starterCode: tasks.map(task => task.code).join('\n\n'), tasks };
       });
-      await practiceRequest('configureQuestions', { questions }); status.textContent = 'Saved. The next real draw will assign Parts 1-7.';
+      await practiceRequest('configureQuestions', { questions }); status.textContent = 'Saved.';
     } catch (error) { status.textContent = error.message; }
     finally { saving = false; save.disabled = false; }
   } }, 'Save seven parts');
-  popup.body.append(h('p', { className: 'question-setup-hint' }, 'Seven parts from the Practice notebook: 3 tasks, 2 tasks, then Questions 1-5. Every part opens as one Colab popup.'), cards, h('div', { className: 'question-setup-footer' }, status, save));
+  popup.body.append(cards, h('div', { className: 'question-setup-footer' }, status, save));
   const button = h('button', { type: 'button', onClick: async () => {
     popup.open();
     try {
@@ -235,7 +235,7 @@ function QuestionSetup() {
         part.tasks.forEach((task,index) => { if (input.codes[index]) input.codes[index].value = task.code; });
       }
       save.disabled = saving;
-      status.textContent = context.draw ? 'Changes apply to the next real draw. Current assignments stay unchanged.' : 'Ready to assign Parts 1-7.';
+      status.textContent = '';
     } catch (error) { status.textContent = error.message; save.disabled = true; }
   } }, '7-part setup');
   return { button, dialog: popup.dialog };

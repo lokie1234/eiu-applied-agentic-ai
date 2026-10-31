@@ -15,7 +15,7 @@ function lesson(page,teaching=false,allowed=true,part=3) {
  const parent={postMessage(message){
   messages.push(message);
   if(message.type==='eiu-practice-request')queueMicrotask(()=>window.dispatchEvent(new window.MessageEvent('message',{source:parent,data:{type:'eiu-practice-response',requestId:message.requestId,token:message.token,response:context}})));
-  if(message.type==='eiu-notebook-runtime'&&message.operation==='load')queueMicrotask(()=>window.dispatchEvent(new window.MessageEvent('message',{source:parent,data:{type:'eiu-notebook-state',requestId:message.requestId,token:message.token,state:{aliases:[],files:[],frames:[],execution:0,pages:[],sessionKey:'test'}}})));
+  if(message.type==='eiu-notebook-runtime'&&message.operation==='load')queueMicrotask(()=>window.dispatchEvent(new window.MessageEvent('message',{source:parent,data:{type:'eiu-notebook-state',requestId:message.requestId,token:message.token,state:{aliases:[],files:[],frames:[],execution:0,pages:context.notebookPages||[],sessionKey:'test'}}})));
  }};
  const Timeout=(callback,delay=0)=>{const token=++id;timers.set(token,true);if(delay<=2000)queueMicrotask(()=>{if(timers.get(token)){timers.delete(token);callback();}});return token;};
  const script=documents.createTsxDocument(compiled,page,'','',`${sectionId}:${page}`,teaching,allowed,context.assignment?.drawId||'').match(/<script>([\s\S]*?)<\/script>/)[1];
@@ -52,6 +52,19 @@ test('Role-aware lesson counts remain 5 unselected / 6 selected / 7 teaching aft
  for(const [teaching,allowed,count]of[[false,false,5],[false,true,6],[true,true,7]]){const f=lesson(null,teaching,allowed);assert.equal(f.messages.find(item=>item.type==='eiu-tsx-ready').slides,count);await f.close();}
 });
 
+test('MIS 301 omits footer strips and explanatory UI captions for teaching and learner views',async()=>{
+ for(const [teaching,allowed,total]of [[true,true,7],[false,true,6],[false,false,5]]){
+ for(let page=1;page<=total;page++){
+ const f=lesson(page,teaching,allowed);try{await f.ready();const doc=f.window.document;
+ assert.equal(doc.querySelector('#error'),null,`page ${page}`);
+ assert.equal(doc.querySelector('.lesson-footer,.deck-progress,.stacked-runtime-note,.question-setup-hint,.workflow-context,.runtime-bindings,.eyebrow,.question-eyebrow'),null);
+ assert.doesNotMatch(doc.querySelector('main').textContent,/Continue the same notebook|Pandas and df are ready|COLAB-STYLE|OFFLINE SIMULATION|Run this cell to see its result|Responses are linked to/);
+ if(page===1)assert.equal(doc.querySelectorAll('.download-items button').length,5);
+ if(teaching&&page===7)assert.equal(doc.querySelectorAll('.question-monitor-card').length,7);
+ }finally{await f.close();}}
+ }
+});
+
 test('Wheel and admin use the persisted part map, including when a draw is restored',async()=>{
  for(const page of [6,7]){
  const f=lesson(page,true);try{await f.ready();
@@ -61,6 +74,16 @@ test('Wheel and admin use the persisted part map, including when a draw is resto
  if(page===6){assert.deepEqual([...doc.querySelectorAll('.question-number')].map(node=>node.textContent),['Part 6','Part 4']);assert.equal(doc.querySelector('.wheel-hub').disabled,true);}
  else{const cards=doc.querySelectorAll('.question-monitor-card');assert.equal(cards[5].querySelector('.question-assigned-names').textContent,'An');assert.equal(cards[3].querySelector('.question-assigned-names').textContent,'Binh');}
  }finally{await f.close();}}
+});
+
+test('Restoring an older notebook keeps edited code but drops legacy explanatory captions',async()=>{
+ const f=lesson(5,true);try{
+ f.context.notebookPages=[{page:5,selected:0,cells:[{index:0,code:'import pandas as restored',status:'[1] Executed \u00b7 offline demo',executed:true,output:[{tag:'div',className:'cell-result',children:[{tag:'p',className:'support',children:[{text:'Continue the same notebook. Run import and read cells before using their variables.'}]}]}]}]}];
+ await f.ready();const doc=f.window.document;
+ assert.equal(doc.querySelector('.workspace textarea').value,'import pandas as restored');
+ assert.doesNotMatch(doc.querySelector('main').textContent,/Continue the same notebook|offline demo/);
+ assert.match(doc.querySelector('.execution').textContent,/Executed/);
+ }finally{await f.close();}
 });
 
 test('Every assigned part can submit, with clear validation instead of an unclickable button',async()=>{
