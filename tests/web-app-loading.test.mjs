@@ -6,12 +6,14 @@ import ts from 'typescript';
 import React, { act } from 'react';
 import { createRequire } from 'node:module';
 import { Window } from 'happy-dom';
+import {practice} from './helpers/mis301-fixture.mjs';
 const require = createRequire(import.meta.url);
 function load(file, dependencies = {}, globals = {}) {
+  const defaults={'@/lib/mis301Practice':practice,'./useLessonPracticeBridge':{useLessonPracticeBridge:()=>null},'./useMis301NotebookBridge':{useMis301NotebookBridge(){}}};
   const exports = {};
   const source = fs.readFileSync(file,'utf8').replace(/^\s*pdfjs.GlobalWorkerOptions.workerSrc =.*$/m,'');
   const code = ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText;
-  vm.runInNewContext(code,{exports,console,AbortController,AbortSignal,...globals,require:name=>dependencies[name]??(name.endsWith('.css')?new Proxy({},{get:(_,key)=>key==='__esModule'?false:String(key)}):require(name))});
+  vm.runInNewContext(code,{exports,console,AbortController,AbortSignal,...globals,require:name=>dependencies[name]??defaults[name]??(name.endsWith('.css')?new Proxy({},{get:(_,key)=>key==='__esModule'?false:String(key)}):require(name))});
   return exports;
 }
 const metadata = load('lib/compiledSectionMetadata.ts');
@@ -28,6 +30,39 @@ async function dom() {
   const root=createRoot(container);
   return {window,container,root,close:async()=>{await act(async()=>root.unmount());await window.happyDOM.close();}};
 }
+
+test('MIS 301 counters use generated metadata without fetching the lesson or template',async()=>{
+ const id=practice.MIS301_SECTION_ID,info=metadata.getCompiledSectionMetadata(id),bytes=fs.readFileSync(info.path);
+ assert.equal(info.bytes,bytes.length);assert.equal(info.preservesBusinessTemplate,true);
+ assert.equal(info.revision,(await import('node:crypto')).createHash('sha256').update(bytes).digest('hex'));
+ const abort=new AbortController();
+ assert.equal(await counter.readSectionSlideCount(id,'tsx',abort.signal,true),7);
+ assert.equal(await counter.readSectionSlideCount(id,'tsx',abort.signal,false),6);
+});
+
+test('MIS 301 keeps early slide documents stable across practice access updates',async()=>{
+ const f=await dom(),reads=[],built=[];let page=5,access=null;
+ const Deck=load('components/deck/UploadedSectionDeck.tsx',{
+  'next/dynamic':{__esModule:true,default:()=>()=>null},
+  '@/components/deck/SharedDeckFrame':{__esModule:true,default:props=>props.renderSlide(page,960)},
+  '@/components/HairlineLoading':{__esModule:true,default:()=>React.createElement('i')},
+  '@/lib/webDevelopmentQuiz':{WEB_DEVELOPMENT_SECTION_ID:ids[0]},'@/lib/compiledSectionMetadata':metadata,
+  './useLessonPracticeBridge':{useLessonPracticeBridge:()=>access},
+  '@/lib/tsxDocument':{createTsxDocument:(...args)=>{built.push(args);return '<html><body>Section</body></html>';}},
+ },{window:f.window,fetch:async url=>{reads.push(url);return {ok:true,text:async()=>'exports.default=[];'};}}).default;
+ const props={sectionId:practice.MIS301_SECTION_ID,contentType:'tsx',courseTitle:'301',sectionTitle:'Pandas',templateKey:'eiu-business-v1'};
+ try{
+  await act(async()=>f.root.render(React.createElement(Deck,props)));
+  assert.equal(built.length,1);assert.deepEqual(reads,[`/api/sections/${props.sectionId}/content`]);
+  access={practiceSession:'initial',assignment:null};await act(async()=>f.root.render(React.createElement(Deck,props)));
+  access={practiceSession:'initial',assignment:{drawId:'draw',subject:'learner',part:2}};await act(async()=>f.root.render(React.createElement(Deck,props)));
+  assert.equal(built.length,1,'context verification and assignments do not reload the notebook');
+  page=6;await act(async()=>f.root.render(React.createElement(Deck,props)));
+  assert.equal(built.at(-1)[6],true);assert.match(built.at(-1)[7],/draw:learner:2/);
+  access={practiceSession:'initial',assignment:null};await act(async()=>f.root.render(React.createElement(Deck,props)));
+  assert.equal(built.at(-1)[6],false,'assignment revocation still replaces the restricted practice document');
+ }finally{await f.close();}
+});
 
 test('web course cards immediately show role-aware counts without fetching or evaluating either section',async()=>{
   const f=await dom();let reads=0;

@@ -316,9 +316,18 @@ function Notebook(slide) {
     buttons.forEach((button, i) => button.setAttribute('aria-pressed', String(index === i)));
     updateGroupUI(); checkpoint(); slide.onCellSelected?.(index); editor.focus();
   }
-  editor.addEventListener('input', () => checkpoint());
+  editor.addEventListener('input', () => {
+    if (!slide.sharedRuntime) { checkpoint(); return; }
+    if (!runtimeReady || notebookTerminated) return;
+    // Editing code does not change the potentially large native output tree.
+    if (cellStates[selected]) cellStates[selected].code = editor.value;
+    parent.postMessage({ type: 'eiu-notebook-runtime', operation: 'edit', requestId: window.eiuLessonRequestId,
+      sessionKey: runtimeSessionKey, index: selected, code: editor.value }, '*');
+  });
   const buttons = slide.commands.map((command, i) => h('button', { type: 'button', 'aria-pressed': i === selected, onClick: () => selectCell(i), title: command }, slide.commandLabels?.[i] || command));
   const presets = h('div', { className: 'notebook-presets', 'aria-label': slide.practiceExercise ? 'Notebook exercise cells' : 'Notebook example cells' }, buttons);
+  const explanations = h('ul', { className: 'explore-explanations', 'aria-label': 'DataFrame method guide', hidden: true });
+  let explainedMethod;
   const groupButtons = (slide.commandGroups || []).map((group, index) => h('button', {
     type: 'button', role: 'tab', id: `notebook-tab-${index}`, 'aria-controls': 'notebook-command-panel',
     onClick: () => selectCell(groupSelections[group.start] ?? group.start)
@@ -342,6 +351,12 @@ function Notebook(slide) {
     const group = groupFor(selected) || slide.commandGroups[0];
     const target = group.targets?.find(target => selected >= target.start && selected < target.start + target.count);
     const visible = target || group;
+    const explanation = group.explanations?.find(item => item.method === slide.commandLabels?.[selected]);
+    explanations.hidden = !explanation;
+    if (explainedMethod !== explanation) {
+      explainedMethod = explanation;
+      explanations.replaceChildren(...(explanation ? [h('li', null, h('code', null, explanation.method), ' — ', explanation.text)] : []));
+    }
     groupButtons.forEach((button, index) => {
       const active = slide.commandGroups[index] === group;
       button.setAttribute('aria-selected', String(active)); button.tabIndex = active ? 0 : -1;
@@ -363,7 +378,7 @@ function Notebook(slide) {
     h('div', { className: 'nbcontent' }, h('aside', { className: 'files' }, h('strong', null, 'Files / content'),
       !slide.autoUpload && h('button', { type: 'button', onClick: () => { uploaded = true; loadedFiles.add(slide.dataset); Object.keys(slide.csvFiles || {}).forEach(name => loadedFiles.add(name)); refreshBindings(); checkpoint(); } }, 'Upload lesson file'), file,
       ),
-      h('div', { className: 'workspace' }, slide.commandGroups && groupNav, slide.inlineCommands && presets, h('div', { className: 'cell' }, run, editor), toolbar, status, output))),
+      h('div', { className: 'workspace' }, slide.commandGroups && groupNav, slide.inlineCommands && presets, explanations, h('div', { className: 'cell' }, run, editor), toolbar, status, output))),
 );
 
   notebook.eiuCells = { select: selectCell, restore: (index, code) => { cellStates[index] = { index, code, status: 'Saved code restored - run to see output.', executed: false, output: [] }; if (selected === index) showCell(index); } };
@@ -459,14 +474,13 @@ function DownloadIcon(kind) {
     svg('text', { x: 15, y: 24, 'text-anchor': 'middle', fill: '#fff', 'font-size': 8, 'font-weight': 800, 'font-family': 'Inter,Arial,sans-serif' }, kind.toUpperCase()));
 }
 function Slide(slide, index, total) {
-  const conceptSlide = ['sources', 'structure', 'dataframe', 'pandas-workspace'].includes(slide.kind);
   const notebooks = ['Demo_Pandas (Part 2).ipynb', 'Practice_Pandas (Part 2).ipynb'];
   const dataFiles = ['student_data.csv', 'Course Offerings.xlsx', 'happiness_survey_data.csv'];
   const downloadButton = (name, notebook = false) => h('button', { type: 'button', onClick: () => download(name), title: name }, DownloadIcon(notebook ? 'colab' : name.endsWith('.xlsx') ? 'xlsx' : 'csv'), h('span', null, notebook ? name.startsWith('Demo_') ? 'Demo' : 'Practice' : name));
   return h('article', { className: slide.kind === 'introduction' ? 'mis introduction' : 'mis', 'data-layout': slide.kind, 'data-eiu-template': 'eiu-business-v1', style: { backgroundImage: `url("${template}")` } }, h('style', null, css + introductionCss + redesignCss + downloadDockCss + conceptCss + wheelCss + practicePopupCss + courseFontCss),
     h('div', { className: 'frame' }, h('header', { className: 'heading' }, h('h1', null, slide.title), slide.subtitle && h('p', { className: 'subtitle' }, slide.subtitle)),
       h('main', { className: 'body' }, content(slide)), slide.kind === 'introduction' ? h('footer', { className: 'downloads' }, h('section', { className: 'download-group notebook-downloads', 'aria-label': 'Notebooks' }, h('h3', null, 'NOTEBOOKS'), h('div', { className: 'download-items' }, notebooks.map(name => downloadButton(name, true)))), h('section', { className: 'download-group data-downloads', 'aria-label': 'Data files' }, h('h3', null, 'DATA'), h('div', { className: 'download-items' }, dataFiles.map(name => downloadButton(name))))) : null),
-    !conceptSlide && h('span', { className: 'page' }, String(index + 1)));
+    h('span', { className: 'page' }, String(index + 1)));
 }
 function render(slide) {
   const visible = course.slides.filter(item => (window.eiuLessonTeaching || !item.adminOnly) && (window.eiuLessonTeaching || window.eiuPracticeAllowed !== false || item.kind !== 'picker'));

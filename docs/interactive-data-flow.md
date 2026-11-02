@@ -118,11 +118,32 @@ For a separate production Convex deployment, configure matching public keys/secr
 
 ## MIS 301 demo notebook continuity
 
-Slide 5 combines the CSV, Excel and Explore tabs in one notebook session through useMis301NotebookBridge in the parent deck. Keep imports, loaded files, named DataFrame read descriptors, execution count and each tab cell's edited code, native output, selected state and execution marker in parent memory and section-scoped sessionStorage. This preserves flow through slide navigation, deck remounts and page reloads in the same browser tab. It contains no learner identity or reportable submissions and writes to neither Supabase nor Convex.
+Slide 5 combines CSV, Excel and Explore in one local demo session through
+`useMis301NotebookBridge`. Keep imports, loaded files, DataFrame descriptors,
+execution count, edited cells and native output in the mounted section's memory.
+Slide navigation preserves them; leaving the section, refreshing the page or
+termination discards them. Do not persist demo snapshots to sessionStorage,
+Supabase or Convex, and discard older sessionStorage snapshots on entry/exit.
 
-The authorized existing section control route owns the termination epoch. Validate it before restoring a stored notebook and when reopening the workspace; mismatch clears the snapshot. The existing root control feed and focus events trigger bounded verification with no new polling loop or realtime client. Successful admin termination and the existing remote-termination handlers clear notebook storage and notify the sandbox before remount/redirect. Ignore late writes from a terminated iframe. Do not offer a separate Reset runtime control for the shared demo notebook.
+The notebook has no independent control fetch, focus verifier or server restore
+gate. Content requests still authorize section access; the existing practice/root
+control flow owns authenticated assignment, remote termination and revocation.
+Local demo state is not reportable data and must not block on server verification.
+Termination rotates the demo session key and ignores writes from old frames.
 
-Validate actual iframe source, section/page request ID, known files, bounded variables and cell snapshots at the parent boundary. Restore DataFrames from bundled data descriptors and output through an allowlist of native DOM nodes; never execute saved code or interpolate saved HTML. The workspace must not bootstrap df or implicitly import Pandas. CSV uses df and Excel uses df2; all six exploration methods have separate cached cells for both variables. The previous standalone slides 8 and 9 were removed. Only displayed page 5 can read/write notebook snapshots; migrate prior pages 5, 6 and 7 to its cell indexes without rerunning source or resetting the kernel. Practice/report contracts remain independent.
+Validate actual iframe source, current section/page request ID, session key,
+known files and bounded snapshots at the parent boundary. Only page 5 may read
+or write the demo. Typing sends a bounded code edit; full snapshots are sent on
+execution and cell selection, without an extra structuredClone or storage write.
+Restore DataFrames from bundled descriptors and native output through the node
+allowlist; never execute saved code or interpolate saved HTML. CSV uses df;
+Excel uses df2, and all six exploration methods keep separate cells for both.
+Practice submissions, Supabase report history and Convex draws remain independent.
+
+Generated MIS 301 metadata supplies role-aware counts and its embedded-template
+marker without a content or template fetch. Practice assignment/session keys only
+replace the restricted pages' iframe documents; context/assignment changes must
+not reload introduction, concept slides or the demo notebook.
 
 ## Wheel-assigned practice access
 

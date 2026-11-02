@@ -178,7 +178,8 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
           <SlideSurface key={`${sectionId}:${pageNumber}`} ready={ready} native={showcase || quiz} onError={setError}>
           {!native && <div className={showcase || quiz ? styles.inactiveSource : styles.sourceLayer} aria-hidden={showcase || quiz || undefined}>
           <TsxSlide isAdmin={isAdmin} frameRef={iframeRef} sectionId={sectionId} code={tsxCode} page={pageNumber} background={useTemplate ? templateImage : ""}
-            practiceAllowed={practiceAllowed} practiceAssignmentKey={practiceAssignmentKey} templateKey={templateKey} title={sectionTitle} />
+            practiceAllowed={compiled && sectionId === MIS301_SECTION_ID && pageNumber < 6 ? false : practiceAllowed}
+            practiceAssignmentKey={compiled && sectionId === MIS301_SECTION_ID && pageNumber < 6 ? "" : practiceAssignmentKey} templateKey={templateKey} title={sectionTitle} />
           </div>}
           {showcase && <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} guide={compiled?.showcaseGuide} />}
           {showcase && sectionId === WEB_DEVELOPMENT_SECTION_ID && <QuizPrefetch />}

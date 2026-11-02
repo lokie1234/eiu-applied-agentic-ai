@@ -251,3 +251,7 @@
 .mis .pandas-workspace .cell-tools button{padding:.3vw .6vw}
 .mis .pandas-workspace .output{padding-top:.35vw}
 .mis .pandas-workspace .output th,.mis .pandas-workspace .output td{padding:.28vw .5vw}
+.mis .pandas-workspace .explore-explanations{flex:none;display:block;margin:0;padding:.6vw .8vw .6vw 1.8vw;border:1px solid #e8dcc5;border-radius:.5vw;background:#FBFAF7;color:#17324A;font-size:.94vw;line-height:1.4;list-style:disc}
+.mis .pandas-workspace .explore-explanations[hidden]{display:none}
+.mis .pandas-workspace .explore-explanations li{display:list-item;padding-left:.1vw;text-wrap:pretty}
+.mis .pandas-workspace .explore-explanations code{font-weight:700;color:#123F68}

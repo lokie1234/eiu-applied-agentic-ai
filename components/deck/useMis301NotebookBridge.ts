@@ -2,7 +2,6 @@
 
 import { useLayoutEffect, type RefObject } from "react";
 import { MIS301_SECTION_ID } from "@/lib/mis301Practice";
-import { listenInteractive } from "@/lib/realtime/client";
 
 const files = new Set(["student_data.csv", "Course Offerings.xlsx"]);
 const identifier = (value: unknown): value is string => typeof value === "string" && /^[A-Za-z_]\w{0,63}$/.test(value);
@@ -12,7 +11,7 @@ type ViewNode = { text: string } | { tag: string; className: string; children: V
 type Cell = { index: number; code: string; status: string; executed: boolean; output: ViewNode[] };
 type Page = { page: number; selected: number; cells: Cell[] };
 type Snapshot = { aliases: string[]; files: string[]; frames: Frame[]; execution: number; pages: Page[] };
-const pages = new Set([5, 6, 7, 8]);
+const pages = new Set([5]);
 const viewTags = new Set(['div', 'p', 'pre', 'table', 'thead', 'tbody', 'tr', 'th', 'td']);
 const storageKey = (sectionId: string) => `eiu:mis301:notebook:v2:${sectionId}`;
 const emptyState = (): Snapshot => ({ aliases: [], files: [], frames: [], execution: 0, pages: [] });
@@ -57,107 +56,60 @@ function validSnapshot(value: unknown): value is Snapshot {
         && (frame.sheet === 0 || frame.sheet === 1 || frame.sheet === "Instructors" || frame.sheet === "Courses")));
 }
 
-// Migrate the previous CSV/Excel/Explore pages without rerunning cells or clearing variables.
-function mergeNotebookPages(state: Snapshot): Snapshot {
-  const offsets = new Map([[5, 0], [6, 4], [7, 7]]);
-  const cells: Cell[] = [];
-  let selected = 0;
-  for (const page of state.pages) {
-    const offset = offsets.get(page.page);
-    if (offset === undefined) continue;
-    for (const cell of page.cells) if (cell.index < (page.page === 5 ? 4 : page.page === 6 ? 3 : 6)) cells.push({ ...cell, index: offset + cell.index });
-    if (page.page === 5) selected = page.selected;
-  }
-  return { ...state, pages: cells.length ? [{ page: 5, selected, cells }] : [] };
-}
-
-// Keep the notebook in this browser session until the server-owned termination epoch changes.
-// Only bounded descriptors and native output nodes cross the opaque iframe boundary.
+// The demo contains local bundled data only. Its lifetime is this mounted section;
+// practice authorization and remote termination remain owned by the root bridge.
 export function useMis301NotebookBridge(sectionId: string, frame: RefObject<HTMLIFrameElement | null>) {
   useLayoutEffect(() => {
     if (sectionId !== MIS301_SECTION_ID) return;
-    const controller = new AbortController();
-    let state = emptyState(), epoch = '', generation = 0, initialized = false, sessionKey = '';
-    let initializing: Promise<void> | undefined, checking: Promise<void> | undefined;
-    const persist = () => {
-      try { sessionStorage.setItem(storageKey(sectionId), JSON.stringify({ epoch, layout: 'pandas-workspace-v1', state })); } catch { /* Retain in-memory state when browser storage is unavailable. */ }
+    let state = emptyState(), sessionKey = crypto.randomUUID();
+    // Discard snapshots created by older releases. Never restore or persist them.
+    const discardStorage = () => {
+      try { sessionStorage.removeItem(storageKey(sectionId)); } catch { /* Storage is optional. */ }
     };
-    function initialize(): Promise<void> {
-      if (initialized) return Promise.resolve();
-      if (initializing) return initializing;
-      const captured = generation;
-      const operation = (async () => {
-        const response = await fetch(`/api/sections/${encodeURIComponent(sectionId)}/control`, { cache: 'no-store', signal: controller.signal });
-        if (!response.ok) throw Error('Unable to verify the notebook session.');
-        const control = await response.json();
-        if (controller.signal.aborted || captured !== generation) throw Error('The section session has changed.');
-        if (!control.success || typeof control.terminationToken !== 'string') throw Error('Unable to verify the section session.');
-        epoch = control.terminationToken; state = emptyState();
-        try {
-          const raw = sessionStorage.getItem(storageKey(sectionId));
-          const saved = raw && raw.length <= 500000 ? JSON.parse(raw) : null;
-          if (saved?.epoch === epoch && validSnapshot(saved.state)) state = saved.layout === 'pandas-workspace-v1' ? saved.state : mergeNotebookPages(saved.state);
-        } catch { /* Invalid snapshots cannot restore a previous section session. */ }
-        sessionKey = crypto.randomUUID(); initialized = true; persist();
-      })();
-      initializing = operation;
-      void operation.finally(() => { if (initializing === operation) initializing = undefined; }).catch(() => {});
-      return operation;
-    }
-    const checkEpoch = (): Promise<void> => {
-      if (!initialized) return initialize();
-      if (checking) return checking;
-      const captured = generation;
-      const operation = (async () => {
-        const response = await fetch(`/api/sections/${encodeURIComponent(sectionId)}/control`, { cache: 'no-store', signal: controller.signal });
-        if (!response.ok) throw Error('Unable to verify the notebook session.');
-        const control = await response.json();
-        if (controller.signal.aborted || captured !== generation) return;
-        if (!control.success || typeof control.terminationToken !== 'string') throw Error('Unable to verify the notebook session.');
-        if (control.terminationToken !== epoch) clearMis301Notebook(sectionId, control.terminationToken);
-      })();
-      checking = operation;
-      void operation.finally(() => { if (checking === operation) checking = undefined; }).catch(() => {});
-      return operation;
-    };
-    const receive = async (event: MessageEvent) => {
-      const target = frame.current;
-      const message = event.data;
+    discardStorage();
+    const receive = (event: MessageEvent) => {
+      const target = frame.current, message = event.data;
       if (!target || event.source !== target.contentWindow || message?.type !== 'eiu-notebook-runtime'
-        || message.requestId !== target.dataset.requestId
-        || message.requestId !== `${sectionId}:5`) return;
-      if (message.operation === 'save' && initialized && message.sessionKey === sessionKey && validSnapshot(message.state) && message.state.pages.every((page: Page) => page.page === 5)) {
-        state = structuredClone(message.state); persist(); return;
+        || message.requestId !== target.dataset.requestId || message.requestId !== `${sectionId}:5`) return;
+      if (message.operation === 'edit' && message.sessionKey === sessionKey
+        && Number.isInteger(message.index) && message.index >= 0 && message.index < 32
+        && typeof message.code === 'string' && message.code.length <= 12000) {
+        const cell = state.pages.find(page => page.page === 5)?.cells.find(cell => cell.index === message.index);
+        if (cell) cell.code = message.code;
+        return;
+      }
+      if (message.operation === 'save' && message.sessionKey === sessionKey && validSnapshot(message.state)) {
+        // postMessage already cloned the payload across the sandbox boundary.
+        state = message.state; return;
       }
       if (message.operation !== 'load' || typeof message.token !== 'string' || message.token.length > 80) return;
-      const captured = generation;
-      let error: string | undefined;
-      try {
-        const restored = initialized;
-        await initialize();
-        if (restored) await checkEpoch();
-      } catch (cause) { error = cause instanceof Error ? cause.message : 'Unable to restore notebook.'; }
-      if (controller.signal.aborted || captured !== generation || target !== frame.current || message.requestId !== target.dataset.requestId) return;
-      target.contentWindow?.postMessage({ type: 'eiu-notebook-state', requestId: message.requestId, token: message.token, state: { ...state, sessionKey }, error }, '*');
+      target.contentWindow?.postMessage({ type: 'eiu-notebook-state', requestId: message.requestId,
+        token: message.token, state: { ...state, sessionKey } }, '*');
     };
+    const reset = () => { state = emptyState(); sessionKey = crypto.randomUUID(); discardStorage(); };
     const terminate = (event: Event) => {
       if ((event as CustomEvent).detail?.sectionId !== sectionId) return;
-      generation++; initialized = false; sessionKey = ''; state = emptyState(); initializing = undefined; checking = undefined;
-      epoch = typeof (event as CustomEvent).detail.epoch === 'string' ? (event as CustomEvent).detail.epoch : '';
-      try { sessionStorage.removeItem(storageKey(sectionId)); } catch { /* Storage is optional. */ }
+      reset();
       const target = frame.current;
       target?.contentWindow?.postMessage({ type: 'eiu-notebook-terminated', requestId: target.dataset.requestId }, '*');
     };
     window.addEventListener('message', receive);
     window.addEventListener('eiu-section-terminated', terminate);
-    void initialize().catch(() => {});
-    const verify = () => { void checkEpoch().catch(() => { /* Retain state during temporary connection failures. */ }); };
-    const stop = listenInteractive(sectionId, 'control', verify);
-    window.addEventListener('focus', verify);
+    // Also clear a page kept in the browser's back/forward cache.
+    window.addEventListener('pagehide', reset);
+    const resume = (event: PageTransitionEvent) => {
+      const target = frame.current;
+      if (event.persisted && target?.dataset.requestId === `${sectionId}:5`) {
+        reset();
+        // The browser may preserve the old iframe DOM together with this page.
+        target.srcdoc = target.srcdoc;
+      }
+    };
+    window.addEventListener('pageshow', resume);
     return () => {
-      controller.abort(); generation++;
-      stop();
-      window.removeEventListener('focus', verify);
+      reset();
+      window.removeEventListener('pagehide', reset);
+      window.removeEventListener('pageshow', resume);
       window.removeEventListener('message', receive);
       window.removeEventListener('eiu-section-terminated', terminate);
     };

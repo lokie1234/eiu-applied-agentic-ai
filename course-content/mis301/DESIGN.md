@@ -139,8 +139,8 @@ examples, the pd alias and an illustrative table. Nested JSON can require
 normalisation. concept-slides.tsx.txt / concept-slides.css own these layouts;
 storyboard.json owns their text. Keep the served section and role-aware counts.
 
-Slides 2-4 omit the course eyebrow, slide count, progress footer and native page
-number. Preserve the template frame and branding. Remove decorative slogans and
+Slides 2-4 omit the course eyebrow, slide count and progress footer.
+All slides show their visible page number inside the template circle. Preserve the template frame and branding. Remove decorative slogans and
 implementation notes, retain core teaching points. Use embedded MIS Inter for
 all natural-language text and monospace only for code, with balanced readable
 type, wider method cards and consistent spacing inside the usable region.
@@ -183,25 +183,33 @@ area remain in place; change only the visible cell choices and short hints.
 Preload student_data.csv and Course Offerings.xlsx without importing Pandas
 or creating a DataFrame automatically. Do not add sample CSV files.
 
-CSV has import, default read, sep="," / header=0 and header=None examples;
-assign and display df. Excel has default worksheet, sheet_name=1 and
-sheet_name="Courses" examples; assign and display df2. Import Pandas once in
+CSV has import and default read examples; assign and display df. Excel has
+default worksheet and sheet_name="Courses" examples; assign and display df2. Import Pandas once in
 the CSV tab. Explore offers shape, head(), tail(), info(), describe() and
 count(), with an explicit df/df2 selector and separate saved cells for each.
 All names and import dependencies follow the shared finite interpreter.
 
 Use navy active tabs, cream navigation, restrained gold accents, a slim file
-sidebar and balanced command grids: four CSV choices, three Excel choices,
+sidebar and balanced command grids: two CSV choices, two Excel choices,
 six Explore choices in two rows. Keep the full composition inside the EIU
 usable frame, preserving logos, footer and page-circle branding.
 
 Keep code, native output, execution markers, active cell, aliases and DataFrame
-read descriptors until section termination. Restore snapshots across navigation,
-reopening and page reloads in the same browser session. Do not offer a separate
-runtime reset. Migrate snapshots from the former slides 5-7 into this workspace
-without rerunning cells or clearing variables. Source binding stays unchanged.
+read descriptors in parent memory while the section stays mounted. Preserve
+state across slide navigation; reset it on section exit, page reload and
+termination. Do not restore or write browser storage, and do not gate the local
+demo on a server notebook-verification request. Retain iframe source/request/key
+validation and the independent authenticated practice/termination flows. Send
+code-only updates while typing, keeping full output snapshots for run/selection.
+Source binding stays unchanged.
 
 Slide 5 omits descriptive workflow paragraphs and the static session note. Keep compact controls near the top, six Explore commands in one row, and a larger result area with normal readable table type. Preserve all run/state functionality and the assigned EIU frame.
+
+The Explore tab shows only the selected method's compact bullet guide: shape (rows,
+columns), info() (index range, columns, non-null counts and dtypes), describe()
+(default numeric summary) and count() (non-null values per column). Explain the
+methods generally, without interpreting the current data. Hide the guide for
+head()/tail(), CSV and Excel; keep native output scrollable within the EIU usable frame.
 
 Wheel assignment access: slide 6 is available to selected learners only; slide 7
 is teaching-only. Version-2 rounds cycle Parts 1-7; legacy rounds retain their original five-question assignments as Parts 3-7. Reset

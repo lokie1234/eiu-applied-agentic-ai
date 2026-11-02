@@ -25,6 +25,52 @@ function lesson(page,teaching=false,allowed=true,part=3) {
 }
 function code(cell,source,window){const input=cell.querySelector('textarea');input.value=source;input.dispatchEvent(new window.Event('input',{bubbles:true}));cell.querySelector('.run').click();}
 
+test('Typing in the demo sends only bounded code edits, without copying output snapshots',async()=>{
+ const f=lesson(5,true);try{
+ await f.ready();const doc=f.window.document,editor=doc.querySelector('textarea');
+ code(doc.querySelector('.workspace'),'import pandas as pd',f.window);await f.ready();
+ const saves=f.messages.filter(message=>message.type==='eiu-notebook-runtime'&&message.operation==='save').length;
+ const before=f.messages.length;
+ for(let i=0;i<20;i++){editor.value=`import pandas as pd # ${i}`;editor.dispatchEvent(new f.window.Event('input'));}
+ const edits=f.messages.slice(before).filter(message=>message.type==='eiu-notebook-runtime'&&message.operation==='edit');
+ assert.equal(edits.length,20);assert.equal(edits.at(-1).code,editor.value);
+ assert.ok(edits.every(message=>!('state' in message)&&!('output' in message)));
+ assert.equal(f.messages.filter(message=>message.type==='eiu-notebook-runtime'&&message.operation==='save').length,saves);
+ assert.equal(doc.querySelector('.execution').textContent,'[1] Executed');
+ }finally{await f.close();}
+});
+
+test('Slide 5 keeps CSV examples concise and maps Excel and Explore tabs to their cells',async()=>{
+ const f=lesson(5,true);try{
+ await f.ready();const doc=f.window.document;
+ const labels=()=>[...doc.querySelectorAll('.notebook-presets button')].filter(button=>!button.hidden).map(button=>button.textContent);
+ assert.deepEqual(labels(),['Import Pandas','Read CSV']);
+ assert.equal(doc.querySelector('.explore-explanations').hidden,true);
+ assert.doesNotMatch(doc.querySelector('.notebook-presets').textContent,/header=|sep=/);
+ const tabs=doc.querySelectorAll('.workflow-tabs button');
+ tabs[1].click();assert.deepEqual(labels(),['First sheet (default)','sheet_name="Courses"']);
+ assert.equal(doc.querySelector('.explore-explanations').hidden,true);
+ assert.match(doc.querySelector('textarea').value,/df2 = pd.read_excel/);
+ tabs[2].click();assert.deepEqual(labels(),['shape','head()','tail()','info()','describe()','count()']);
+ const guide=doc.querySelector('.explore-explanations');assert.equal(guide.hidden,false);
+ assert.equal(guide.querySelectorAll('li').length,1);
+ assert.match(guide.textContent,/\(rows, columns\)/);
+ const choose=method=>[...doc.querySelectorAll('.notebook-presets button')].find(button=>!button.hidden&&button.textContent===method).click();
+ for(const [method,copy]of [['info()',/non-null counts and data types/],['describe()',/Numeric columns by default/],['count()',/missing values are excluded/]]){
+ choose(method);assert.equal(guide.hidden,false);assert.equal(guide.querySelectorAll('li').length,1);
+ assert.equal(guide.querySelector('code').textContent,method);assert.match(guide.textContent,copy);
+ }
+ for(const method of ['head()','tail()']){choose(method);assert.equal(guide.hidden,true);assert.equal(guide.children.length,0);}
+ choose('shape');
+ assert.equal(doc.querySelector('textarea').value,'df.shape');
+ const target=doc.querySelector('select');target.value='df2';target.dispatchEvent(new f.window.Event('change'));
+ assert.equal(doc.querySelector('textarea').value,'df2.shape');
+ assert.equal(guide.querySelector('code').textContent,'shape');
+ choose('info()');assert.equal(guide.querySelector('code').textContent,'info()');
+ tabs[0].click();assert.equal(guide.hidden,true);
+ }finally{await f.close();}
+});
+
 test('Slide 6 uses real learners only and automatically matches questions and closes setup with CSS hiding intact',async()=>{
  const f=lesson(6,true);try {
  await f.ready();const doc=f.window.document;
@@ -57,6 +103,9 @@ test('MIS 301 omits footer strips and explanatory UI captions for teaching and l
  for(let page=1;page<=total;page++){
  const f=lesson(page,teaching,allowed);try{await f.ready();const doc=f.window.document;
  assert.equal(doc.querySelector('#error'),null,`page ${page}`);
+ assert.equal(doc.querySelectorAll('.mis > .page').length,1,`page ${page} has one template page number`);
+ assert.equal(doc.querySelector('.mis > .page').textContent,String(page),`page ${page} follows the visible role-aware order`);
+ assert.notEqual(f.window.getComputedStyle(doc.querySelector('.mis > .page')).display,'none');
  assert.equal(doc.querySelector('.lesson-footer,.deck-progress,.stacked-runtime-note,.question-setup-hint,.workflow-context,.runtime-bindings,.eyebrow,.question-eyebrow'),null);
  assert.doesNotMatch(doc.querySelector('main').textContent,/Continue the same notebook|Pandas and df are ready|COLAB-STYLE|OFFLINE SIMULATION|Run this cell to see its result|Responses are linked to/);
  if(page===1)assert.equal(doc.querySelectorAll('.download-items button').length,5);

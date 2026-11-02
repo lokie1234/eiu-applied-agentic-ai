@@ -1,4 +1,5 @@
 import manifest from "../course-content/web-app-development/manifest.json";
+import mis301Manifest from "../course-content/mis301/manifest.json";
 import sources from "../course-content/sources.json";
 export type ShowcaseGuide = { title: string; message: string; cards: { title: string; text: string; logo?: string; logoSrc?: string; detail?: string; code?: string; summary?: string[]; modes?: { title: string; text: string }[]; points?: string[] }[] };
 
@@ -7,7 +8,7 @@ type CompiledMetadata = { courseId: string; path: string; revision: string; byte
   showcaseGuide?: ShowcaseGuide;
 };
 export function getCompiledSectionMetadata(sectionId: string): CompiledMetadata | undefined {
-  const entry = (manifest as Record<string, CompiledMetadata>)[sectionId];
+  const entry = (manifest as Record<string, CompiledMetadata>)[sectionId] ?? (mis301Manifest as Record<string, CompiledMetadata>)[sectionId];
   return entry && sources.some(source => source.sectionId === sectionId && source.courseId === entry.courseId && source.path === entry.path) ? entry : undefined;
 }
 

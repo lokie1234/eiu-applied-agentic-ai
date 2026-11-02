@@ -236,10 +236,7 @@
       "commands": [
         "import pandas as pd",
         "df = pd.read_csv(\"student_data.csv\")\ndf",
-        "df = pd.read_csv(\"student_data.csv\", sep=\",\", header=0)\ndf",
-        "df = pd.read_csv(\"student_data.csv\", sep=\",\", header=None)\ndf",
         "df2 = pd.read_excel(\"Course Offerings.xlsx\")\ndf2",
-        "df2 = pd.read_excel(\"Course Offerings.xlsx\", sheet_name=1)\ndf2",
         "df2 = pd.read_excel(\"Course Offerings.xlsx\", sheet_name=\"Courses\")\ndf2",
         "df.shape",
         "df.head()",
@@ -257,10 +254,7 @@
       "commandLabels": [
         "Import Pandas",
         "Read CSV",
-        "sep=\",\" / header=0",
-        "header=None",
         "First sheet (default)",
-        "sheet_name=1",
         "sheet_name=\"Courses\"",
         "shape",
         "head()",
@@ -279,28 +273,34 @@
         {
           "label": "1. CSV",
           "start": 0,
-          "count": 4
+          "count": 2
         },
         {
           "label": "2. Excel",
-          "start": 4,
-          "count": 3
+          "start": 2,
+          "count": 2
         },
         {
           "label": "3. Explore",
-          "start": 7,
+          "start": 4,
           "count": 12,
+          "explanations": [
+            { "method": "shape", "text": "DataFrame size as (rows, columns), in that order." },
+            { "method": "info()", "text": "Row index range, column names, non-null counts and data types." },
+            { "method": "describe()", "text": "Numeric columns by default: count, mean, std, min, quartiles (25%, 50%, 75%) and max." },
+            { "method": "count()", "text": "Number of non-null values in each column; missing values are excluded." }
+          ],
           "targets": [
             {
               "value": "df",
               "label": "df - CSV",
-              "start": 7,
+              "start": 4,
               "count": 6
             },
             {
               "value": "df2",
               "label": "df2 - Excel",
-              "start": 13,
+              "start": 10,
               "count": 6
             }
           ]

@@ -1,6 +1,7 @@
 ﻿// Generate only the self-contained MIS 301 lesson.
 const fs = require('node:fs');
 const path = require('node:path');
+const { createHash } = require('node:crypto');
 const { gzipSync } = require('node:zlib');
 const ts = require('typescript');
 const { minify } = require('next/dist/compiled/terser');
@@ -43,6 +44,14 @@ function compile(source, fileName) {
   const result = await minify(compile(source, 'MIS301.tsx'), { ecma: 2020, compress: { passes: 2 }, mangle: true, format: { comments: false } });
   if (!result.code) throw Error('The lesson compiler produced no code.');
   fs.writeFileSync(path.join(root, 'PandasPracticePart2.js'), result.code + '\n');
+  const content = result.code + '\n';
+  const binding = JSON.parse(fs.readFileSync('course-content/sources.json', 'utf8')).find(item => item.path === 'course-content/mis301/PandasPracticePart2.js');
+  if (!binding || binding.courseId !== storyboard.courseId || binding.sectionId !== storyboard.sectionId) throw Error('Missing verified MIS 301 source binding.');
+  fs.writeFileSync(path.join(root, 'manifest.json'), JSON.stringify({ [binding.sectionId]: {
+    courseId: binding.courseId, path: binding.path, revision: createHash('sha256').update(content).digest('hex'),
+    bytes: Buffer.byteLength(content), teachingSlides: storyboard.slides.length,
+    learnerSlides: storyboard.slides.filter(slide => !slide.adminOnly).length, preservesBusinessTemplate: true,
+  } }, null, 2) + '\n');
   const attachment = JSON.parse(fs.readFileSync(path.join(root, 'attachment.json'), 'utf8'));
   attachment.section.slide_count = storyboard.slides.length;
   attachment.section.learner_slide_count = storyboard.slides.filter(slide => !slide.adminOnly).length;
