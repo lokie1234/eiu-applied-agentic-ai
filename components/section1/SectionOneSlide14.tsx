@@ -7,6 +7,14 @@ type Props = {
   scale?: number;
 };
 
+function ModelLock() {
+  return <svg className={styles.lock} viewBox="0 0 20 20" fill="none" aria-label="Bị khóa" role="img">
+    <rect x="4.5" y="8" width="11" height="9" rx="2" />
+    <path d="M7 8V5a3 3 0 0 1 6 0v3" />
+    <circle cx="10" cy="12.5" r=".8" fill="currentColor" stroke="none" />
+  </svg>;
+}
+
 export default function SectionOneSlide14({ scale = 1 }: Props) {
   return (
     <section className={styles.slide} style={{ transform: `scale(${scale})` }}>
@@ -64,26 +72,33 @@ export default function SectionOneSlide14({ scale = 1 }: Props) {
             </div>
 
             <div className={styles.modelCard}>
-              <div className={styles.modelHeader}>
-                <Image src="/branding/apps/google-gemini.svg" alt="Gemini" width={25} height={25} />
-                <div><small>SELECT MODEL</small><h3>Gemini Model</h3></div>
-                <span>⌄</span>
+              <div className={styles.promptBar}>
+                <span className={styles.addIcon} aria-hidden="true">＋</span>
+                <span className={styles.promptPlaceholder}>Ask Gemini</span>
+                <span className={styles.modelPicker}>Gemini Auto <span aria-hidden="true">⌃</span></span>
+                <svg className={styles.microphone} viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <rect x="7.5" y="2" width="5" height="10" rx="2.5" />
+                  <path d="M5 8v2a5 5 0 0 0 10 0V8M10 15v3" />
+                </svg>
               </div>
 
-              <div className={styles.item}>
-                <span className={styles.modelGlyph}>⚡</span>
-                <div><b>3.5 Flash-Lite</b><small>Fastest answers</small></div>
-              </div>
-
-              <div className={`${styles.item} ${styles.active}`}>
-                <span className={styles.modelGlyph}>✦</span>
-                <div><b>3.6 Flash ✓</b><small>All-around help</small></div>
-                <label>Recommended</label>
-              </div>
-
-              <div className={styles.item}>
-                <span className={styles.modelGlyph}>◆</span>
-                <div><b>3.1 Pro</b><small>Advanced reasoning</small></div>
+              <div className={styles.modelMenu}>
+                <div role="listbox" aria-label="Model Gemini (minh họa)">
+                  <div className={`${styles.item} ${styles.active}`} role="option" aria-selected="true" aria-label="Auto · Gemini 3 models · Đang chọn">
+                    <span className={styles.check} aria-hidden="true">✓</span>
+                    <div><b>Auto</b><small>Gemini 3 models</small></div>
+                    <span className={styles.selectedLabel}>Đang chọn</span>
+                  </div>
+                  <div className={styles.item} role="option" aria-selected="false" aria-disabled="true">
+                    <ModelLock />
+                    <div><b>3.1 Pro</b><small>Advanced reasoning</small></div>
+                  </div>
+                  <div className={styles.item} role="option" aria-selected="false" aria-disabled="true">
+                    <ModelLock />
+                    <div><b>4 Argon</b><small>Complex tasks</small></div>
+                  </div>
+                </div>
+                <div className={styles.thinkingLevel}><span>Thinking level</span><span aria-hidden="true">›</span></div>
               </div>
             </div>
           </article>

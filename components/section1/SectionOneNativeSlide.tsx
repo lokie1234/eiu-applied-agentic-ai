@@ -6,6 +6,8 @@ import { SLIDE_STORAGE_KEYS, getSlideStorage, setSlideStorage } from "@/lib/slid
 import styles from "./SectionOneNativeSlide.module.css";
 import SectionOneSlide11 from "./SectionOneSlide11";
 import SectionOneReality from "./SectionOneReality";
+import SalesDashboardEmergency from "./SalesDashboardEmergency";
+import { LEAVE_MANAGEMENT_FILES } from "./leaveManagementEmergencyData";
 
 type Props = {
   page: number;
@@ -143,7 +145,7 @@ function Ambient() {
   );
 }
 
-function Shell({ title, eyebrow, children, className = "" }: { title?: ReactNode; eyebrow?: string; children: ReactNode; className?: string }) {
+function Shell({ title, eyebrow, children, className = "", overlay }: { title?: ReactNode; eyebrow?: string; children: ReactNode; className?: string; overlay?: ReactNode }) {
   return (
     <section className={`${styles.root} ${className}`}>
       <Ambient />
@@ -154,6 +156,7 @@ function Shell({ title, eyebrow, children, className = "" }: { title?: ReactNode
         </header>
       )}
       <div className={styles.content}>{children}</div>
+      {overlay}
     </section>
   );
 }
@@ -837,7 +840,8 @@ function NativeSlides({ page, isFinalState = false, courseTitle = "Applied Agent
         );
       case 27:
         return (
-          <Shell title="Sao chép mã nguồn" eyebrow="COPY · PASTE · SAVE" className={`${styles.softMotionSlide} ${styles.tieredFlowSlide}`}>
+          <Shell title="Sao chép mã nguồn" eyebrow="COPY · PASTE · SAVE" className={`${styles.softMotionSlide} ${styles.tieredFlowSlide}`}
+            overlay={<SalesDashboardEmergency files={LEAVE_MANAGEMENT_FILES} />}>
             <TieredFlow items={["Gemini", "Copy", "Apps Script", "Paste", "Save"]} />
           </Shell>
         );

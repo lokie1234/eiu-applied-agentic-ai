@@ -1,0 +1,23 @@
+/* Reuse slide 28 Emergency styling; keep this trigger in slide 41's top row. */
+.trigger {
+  top: 8px;
+  right: 36px;
+  bottom: auto;
+}
+.hint {
+  margin: -10px 0 18px;
+  color: #536a7a;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.status {
+  min-height: 18px;
+  margin-top: 12px;
+  color: #315873;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 18px;
+}
+@media print {
+  .trigger { display: none; }
+}

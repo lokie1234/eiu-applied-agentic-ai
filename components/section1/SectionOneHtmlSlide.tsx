@@ -13,6 +13,8 @@ import {
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { getSlideStorage, setSlideStorage, SLIDE_STORAGE_KEYS } from "@/lib/slideStorage";
 import styles from "./SectionOneHtmlSlide.module.css";
+import SalesDashboardEmergency from "./SalesDashboardEmergency";
+import { DESIGN_DNA_FILES } from "./designDnaEmergencyData";
 import { useLiveRefresh, cancelledRefresh } from "@/lib/liveRefresh";
 
 export type SectionOneHtmlKind =
@@ -398,6 +400,7 @@ function DeploymentSlide() {
   return (
     <section className={`${styles.root} ${styles.dnaExperienceSlide}`}>
       <Ambient strong />
+      <SalesDashboardEmergency files={DESIGN_DNA_FILES} />
       <header className={styles.dnaExperienceHeading}>
         <span>TRẢI NGHIỆM LẦN 2 · DESIGN DNA</span>
         <h1>Thực hiện lại — lần này có Design DNA</h1>
@@ -601,6 +604,7 @@ function RealtimeDashboardSlide() {
   return (
     <section className={`${styles.root} ${styles.realtimeDashboardSlide}`}>
       <Ambient strong />
+      <SalesDashboardEmergency />
       <header className={styles.dashboardHeader}>
         <div className={styles.dashboardKicker}>
           <span>DEMO MỞ RỘNG</span>
