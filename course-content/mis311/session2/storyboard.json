@@ -1,0 +1,804 @@
+{
+  "session": 2,
+  "title": "Week 7 · Session 2",
+  "sourceFilename": "MIS 311_Week 7.pptx",
+  "sourceSha256": "32473e8d706e07f55837d23d5658b244a506781eae3b44730e6e9bd84e2f4ae5",
+  "sourceSlideRange": [
+    23,
+    55
+  ],
+  "sourceSlideCount": 55,
+  "pageCount": 33,
+  "assignedTemplate": "86101dcf-70f4-49c3-a6a9-983c77708ad2",
+  "templateResolution": "User selected the existing EIU without reference template. Source frame, logos, background and page numbers removed; all lesson content retained.",
+  "pages": [
+    {
+      "number": 1,
+      "sourceSlide": 23,
+      "file": "page-01.svg",
+      "text": "Business Process Analysis \nand Problem Solving\nMIS 311 – Introduction to Business Analytics\n",
+      "sourceText": "Business Process Analysis \nand Problem Solving\nMIS 311 – Introduction to Business Analytics\n",
+      "sourceTextRuns": [
+        "Business Process Analysis and ",
+        "Problem Solving",
+        "MIS 311 – Introduction to Business Analytics"
+      ],
+      "contentBounds": [
+        20.0,
+        56.0,
+        952.0,
+        516.0
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 7,
+      "illustrations": 0
+    },
+    {
+      "number": 2,
+      "sourceSlide": 24,
+      "file": "page-02.svg",
+      "text": "1.\nDemonstrate the ability to convey ideas clearly and adapt communication style to \ndifferent audiences for improved understanding and engagement.\n2.\nApply structured techniques to identify and address underlying causes of problems, \nensuring effective and sustainable solutions.\n3.\nAnalyze and document workflows to identify inefficiencies and suggest \nimprovements for enhanced process performance.\nLearning Outcomes \n",
+      "sourceText": "1.\nDemonstrate the ability to convey ideas clearly and adapt communication style to \ndifferent audiences for improved understanding and engagement.\n2.\nApply structured techniques to identify and address underlying causes of problems, \nensuring effective and sustainable solutions.\n3.\nAnalyze and document workflows to identify inefficiencies and suggest \nimprovements for enhanced process performance.\nLearning Outcomes \n24\n",
+      "sourceTextRuns": [
+        "Demonstrate the ability to convey ideas clearly and adapt communication style to different audiences for improved understanding and engagement.",
+        "Apply structured techniques to identify and address underlying causes of problems, ensuring effective and sustainable solutions.",
+        "Analyze and document workflows to identify inefficiencies and suggest improvements for enhanced process performance.",
+        "Learning Outcomes "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 10,
+      "illustrations": 0
+    },
+    {
+      "number": 3,
+      "sourceSlide": 25,
+      "file": "page-03.svg",
+      "text": "Root Cause Analysis \n",
+      "sourceText": "Root Cause Analysis \n",
+      "sourceTextRuns": [
+        "Root Cause Analysis "
+      ],
+      "contentBounds": [
+        20.0,
+        56.0,
+        952.0,
+        516.0
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 1,
+      "illustrations": 0
+    },
+    {
+      "number": 4,
+      "sourceSlide": 26,
+      "file": "page-04.svg",
+      "text": "",
+      "sourceText": "26\n",
+      "sourceTextRuns": [],
+      "contentBounds": [
+        -4.0,
+        38.87298583984375,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 0,
+      "illustrations": 1
+    },
+    {
+      "number": 5,
+      "sourceSlide": 27,
+      "file": "page-05.svg",
+      "text": "General process for performing root cause analysis\n1.\nDefine the problem. \n2.\nGather data/evidence. \n3.\nIdentify issues that contributed to the problem. \n4.\nFind root causes. Identify which causes to remove or change to prevent repeated \nproblem.\n5.\nDevelop solution recommendations that effectively prevent repeating the problem.  \n6.\nImplement the recommendations / changes.\n7.\nObserve the recommended solutions/changes to ensure effectiveness of \neliminating the problem.\n",
+      "sourceText": "General process for performing root cause analysis\n1.\nDefine the problem. \n2.\nGather data/evidence. \n3.\nIdentify issues that contributed to the problem. \n4.\nFind root causes. Identify which causes to remove or change to prevent repeated \nproblem.\n5.\nDevelop solution recommendations that effectively prevent repeating the problem.  \n6.\nImplement the recommendations / changes.\n7.\nObserve the recommended solutions/changes to ensure effectiveness of \neliminating the problem.\n27\n",
+      "sourceTextRuns": [
+        "General process for performing root cause analysis",
+        "Define the problem. ",
+        "Gather data/evidence. ",
+        "Identify issues that contributed to the problem. ",
+        "Find root causes. Identify which causes to remove or change to prevent repeated problem.",
+        "Develop solution recommendations that effectively prevent repeating the problem.  ",
+        "Implement the recommendations / changes.",
+        "Observe the recommended solutions/changes to ensure effectiveness of eliminating the problem."
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 17,
+      "illustrations": 0
+    },
+    {
+      "number": 6,
+      "sourceSlide": 28,
+      "file": "page-06.svg",
+      "text": "",
+      "sourceText": "28\n",
+      "sourceTextRuns": [],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 0,
+      "illustrations": 1
+    },
+    {
+      "number": 7,
+      "sourceSlide": 29,
+      "file": "page-07.svg",
+      "text": "",
+      "sourceText": "",
+      "sourceTextRuns": [],
+      "contentBounds": [
+        -4.0,
+        -4.00018310546875,
+        964.0016479492188,
+        543.9998168945312
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 0,
+      "illustrations": 1
+    },
+    {
+      "number": 8,
+      "sourceSlide": 30,
+      "file": "page-08.svg",
+      "text": "Mutually Exclusive - each element should be independent, non-\noverlapping or have similarities. \nCollectively Exhaustive - Include all possible causes \nMECE technique for Root Cause Analysis \n",
+      "sourceText": "Mutually Exclusive - each element should be independent, non-\noverlapping or have similarities. \nCollectively Exhaustive - Include all possible causes \nMECE technique for Root Cause Analysis \n30\n",
+      "sourceTextRuns": [
+        "Mutually Exclusive",
+        " ",
+        "- each element should be independent, non-overlapping or have similarities. ",
+        "Collectively ",
+        "Exhaustive ",
+        "- Include all possible causes ",
+        "MECE technique for Root Cause Analysis "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 13,
+      "illustrations": 1
+    },
+    {
+      "number": 9,
+      "sourceSlide": 31,
+      "file": "page-09.svg",
+      "text": "Tools for RCA\n• 5 whys\n• Pareto Chart\n• Fishbone or Ishikawa \nDiagram\n• Chart and/or Graphs \n",
+      "sourceText": "Tools for RCA\n31\n• 5 whys\n• Pareto Chart\n• Fishbone or Ishikawa \nDiagram\n• Chart and/or Graphs \n",
+      "sourceTextRuns": [
+        "Tools for RCA",
+        "5 whys",
+        "Pareto Chart",
+        "Fishbone or Ishikawa Diagram",
+        "Chart and/or Graphs "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 10,
+      "illustrations": 1
+    },
+    {
+      "number": 10,
+      "sourceSlide": 32,
+      "file": "page-10.svg",
+      "text": "Problem\nMethod\nMachine\nMaterials\nEnvironment\nManagement System\nMan\nIshikawa or Fishbone Diagram\n(Cause and Effect)\n",
+      "sourceText": "Problem\nMethod\nMachine\nMaterials\nEnvironment\nManagement System\nMan\nIshikawa or Fishbone Diagram\n(Cause and Effect)\n32\n",
+      "sourceTextRuns": [
+        "Ishikawa or Fishbone Diagram",
+        "(Cause and Effect)"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 9,
+      "illustrations": 0
+    },
+    {
+      "number": 11,
+      "sourceSlide": 33,
+      "file": "page-11.svg",
+      "text": "Problem\nMethod\nMachine\nMaterials\nEnvironment\nManagement System\nMan\nCause A\nCause B\nCause C\nCause D\nCause E\nCause F\nBrainstorm of possible cause\n",
+      "sourceText": "Problem\nMethod\nMachine\nMaterials\nEnvironment\nManagement System\nMan\nCause A\nCause B\nCause C\nCause D\nCause E\nCause F\nBrainstorm of possible cause\n33\n",
+      "sourceTextRuns": [
+        "Brainstorm of possible cause"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 14,
+      "illustrations": 0
+    },
+    {
+      "number": 12,
+      "sourceSlide": 34,
+      "file": "page-12.svg",
+      "text": "5 Whys\n",
+      "sourceText": "5 Whys\n34\n",
+      "sourceTextRuns": [
+        "5 Whys"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 1,
+      "illustrations": 2
+    },
+    {
+      "number": 13,
+      "sourceSlide": 35,
+      "file": "page-13.svg",
+      "text": "Pareto Chart\n• The tackle is the one that has the \nhighest score. \n• This one will give you the biggest \nbenefit if you solve it.\n",
+      "sourceText": "Pareto Chart\n35\n• The tackle is the one that has the \nhighest score. \n• This one will give you the biggest \nbenefit if you solve it.\n",
+      "sourceTextRuns": [
+        "Pareto Chart",
+        "The tackle is the one that has the highest score. ",
+        "This one will give you the biggest benefit if you solve it."
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 7,
+      "illustrations": 2
+    },
+    {
+      "number": 14,
+      "sourceSlide": 36,
+      "file": "page-14.svg",
+      "text": "7 Best Practices to remember\n1.\nYour root cause analysis is only as good as the info you collect.\n2.\nYour knowledge (or lack of it) can get in the way of a good root cause analysis.\n3.\nYou have to understand what happened before you can understand why it happened.\n4.\nInterviews are not about asking questions.\n5.\nYou can’t solve all human performance problems with discipline, training, and \nprocedures.\n6.\nOften people can’t see effective corrective actions even if they can find the root cause.\n7.\nAll investigations do not need to be equal (but some steps can’t be skipped.\n",
+      "sourceText": "7 Best Practices to remember\n36\n1.\nYour root cause analysis is only as good as the info you collect.\n2.\nYour knowledge (or lack of it) can get in the way of a good root cause analysis.\n3.\nYou have to understand what happened before you can understand why it happened.\n4.\nInterviews are not about asking questions.\n5.\nYou can’t solve all human performance problems with discipline, training, and \nprocedures.\n6.\nOften people can’t see effective corrective actions even if they can find the root cause.\n7.\nAll investigations do not need to be equal (but some steps can’t be skipped.\n",
+      "sourceTextRuns": [
+        "7 Best Practices to remember",
+        "Your root cause analysis is only as good as the info you collect.",
+        "Your knowledge (or lack of it) can get in the way of a good root cause analysis.",
+        "You have to understand what happened before you can understand why it happened.",
+        "Interviews are not about asking questions.",
+        "You can’t solve all human performance problems with discipline, training, and procedures.",
+        "Often people can’t see effective corrective actions even if they can find the root cause.",
+        "All investigations do not need to be equal (but some steps can’t be skipped."
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 16,
+      "illustrations": 0
+    },
+    {
+      "number": 15,
+      "sourceSlide": 37,
+      "file": "page-15.svg",
+      "text": "Objective: \nUse Fishbone analysis to identify the root causes of a high defect rate in a \nproduct manufactured by a company and suggest improvements.\nScenario\nA company manufactures consumer electronics, and recently, there’s been an \nincrease in defective products, leading to higher return rates and dissatisfied \ncustomers. Management has asked you to investigate the reasons for the high \ndefect rate and propose corrective actions.\nExercise: Analyzing High Product Defect Rates\n",
+      "sourceText": "Objective: \nUse Fishbone analysis to identify the root causes of a high defect rate in a \nproduct manufactured by a company and suggest improvements.\nScenario\nA company manufactures consumer electronics, and recently, there’s been an \nincrease in defective products, leading to higher return rates and dissatisfied \ncustomers. Management has asked you to investigate the reasons for the high \ndefect rate and propose corrective actions.\nExercise: Analyzing High Product Defect Rates\n37\n",
+      "sourceTextRuns": [
+        "Objective: ",
+        "Use Fishbone analysis to identify the root causes of a high defect rate in a product manufactured by a company and suggest improvements.",
+        "Scenario",
+        "A company manufactures consumer electronics, and recently, there’s been an increase in defective products, leading to higher return rates and dissatisfied customers. Management has asked you to investigate the reasons for the high defect rate and propose corrective actions.",
+        "Exercise: Analyzing High Product Defect Rates"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 9,
+      "illustrations": 0
+    },
+    {
+      "number": 16,
+      "sourceSlide": 38,
+      "file": "page-16.svg",
+      "text": "Exercise: Analyzing High Product Defect Rates\n",
+      "sourceText": "Exercise: Analyzing High Product Defect Rates\n38\n",
+      "sourceTextRuns": [
+        "Exercise: Analyzing High Product Defect Rates"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 1,
+      "illustrations": 1
+    },
+    {
+      "number": 17,
+      "sourceSlide": 39,
+      "file": "page-17.svg",
+      "text": "Value Stream Mapping\n",
+      "sourceText": "Value Stream Mapping\n39\n",
+      "sourceTextRuns": [
+        "Value Stream Mapping"
+      ],
+      "contentBounds": [
+        20.0,
+        56.0,
+        952.0,
+        516.0
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 1,
+      "illustrations": 0
+    },
+    {
+      "number": 18,
+      "sourceSlide": 40,
+      "file": "page-18.svg",
+      "text": "Value Stream Mapping\n▪Value Stream Mapping is a great tool that Industrial \nEngineers use in order to see the process from a “birds \neye view”. \n▪This means that they can see everything going on and \ncan identify areas of improvement where they can help!  \n",
+      "sourceText": "Value Stream Mapping\n▪Value Stream Mapping is a great tool that Industrial \nEngineers use in order to see the process from a “birds \neye view”. \n▪This means that they can see everything going on and \ncan identify areas of improvement where they can help!  \n",
+      "sourceTextRuns": [
+        "Value Stream Mapping",
+        "Value Stream Mapping is a great tool that Industrial Engineers use in order to see the process from a ",
+        "“birds eye view”",
+        ". ",
+        " ",
+        "This means that they can ",
+        "see everything going on ",
+        "and can identify areas of improvement where they can help!  "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 12,
+      "illustrations": 1
+    },
+    {
+      "number": 19,
+      "sourceSlide": 41,
+      "file": "page-19.svg",
+      "text": "Parts of a Value Stream Map\n1.\nNumbering the steps: 1,2,3,4,5\n1.\nIt is always good to put a number starting at 1 for the first step all the way to the last step.\n2.\nName for each step:  Start, End\n1.\nSo we know what happens at each step in the process.\n3.\nPut arrows to show the path:  \n1.\nThis helps us see where we need to go.\n4.\nStar areas for Problems:  \n1.\nEngineers put stars where we can see problems or danger ahead.  The stars will stand out on \nthe map and tell us where we can improve!\n5.\nCreate a list of Solutions for the Stars:  \n1.\nEngineers see the stars and then think of ways to go around them and come up with solutions \nto help them reach their goal, the buried treasure!\n",
+      "sourceText": "Parts of a Value Stream Map\n1.\nNumbering the steps: 1,2,3,4,5\n1.\nIt is always good to put a number starting at 1 for the first step all the way to the last step.\n2.\nName for each step:  Start, End\n1.\nSo we know what happens at each step in the process.\n3.\nPut arrows to show the path:  \n1.\nThis helps us see where we need to go.\n4.\nStar areas for Problems:  \n1.\nEngineers put stars where we can see problems or danger ahead.  The stars will stand out on \nthe map and tell us where we can improve!\n5.\nCreate a list of Solutions for the Stars:  \n1.\nEngineers see the stars and then think of ways to go around them and come up with solutions \nto help them reach their goal, the buried treasure!\n",
+      "sourceTextRuns": [
+        "Parts of a Value Stream Map",
+        "Numbering the steps: ",
+        "1,2,3,4,5",
+        "It is always good to put a number starting at 1 for the first step all the way to the last step.",
+        "Name for each step:  ",
+        "Start, End",
+        "So we know what happens at each step in the process.",
+        "Put arrows to show the path:  ",
+        "This helps us see where we need to go.",
+        "Star areas for Problems:  ",
+        "Engineers put stars where we can see problems or danger ahead.  The stars will stand out on the map and tell us where we can improve!",
+        "Create a list of Solutions for the Stars:  ",
+        "Engineers see the stars and then think of ways to go around them and come up with solutions to help them reach their goal, the buried treasure!"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 25,
+      "illustrations": 0
+    },
+    {
+      "number": 20,
+      "sourceSlide": 42,
+      "file": "page-20.svg",
+      "text": "Symbols – Value Stream Map\n▪There are many \ndifferent types of \nsymbols and shaped \nused to distinguish \ndifferent parts of a \nVSM. Here are a few of \nthe most widely used \nsymbols.\n",
+      "sourceText": "Symbols – Value Stream Map\n▪There are many \ndifferent types of \nsymbols and shaped \nused to distinguish \ndifferent parts of a \nVSM. Here are a few of \nthe most widely used \nsymbols.\n",
+      "sourceTextRuns": [
+        "Symbols – Value Stream Map",
+        "There are many different types of symbols and shaped used to distinguish different parts of a VSM. Here are a few of the most widely used symbols."
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.3765869140625
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 13,
+      "illustrations": 1
+    },
+    {
+      "number": 21,
+      "sourceSlide": 43,
+      "file": "page-21.svg",
+      "text": "Example - Value Stream Map \n",
+      "sourceText": "Example - Value Stream Map \n",
+      "sourceTextRuns": [
+        "Example - Value Stream Map "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 4,
+      "illustrations": 1
+    },
+    {
+      "number": 22,
+      "sourceSlide": 44,
+      "file": "page-22.svg",
+      "text": "Importance of a VSM\n• We can see the process from a “birds eye view”\n• Can easily identify areas to improve.\n• Can easily see where bottlenecks in the process are occurring.\n• Can use the tool to help make improvements to the process.\n",
+      "sourceText": "Importance of a VSM\n• We can see the process from a “birds eye view”\n• Can easily identify areas to improve.\n• Can easily see where bottlenecks in the process are occurring.\n• Can use the tool to help make improvements to the process.\n",
+      "sourceTextRuns": [
+        "Importance of a VSM",
+        "We can see the process from a ",
+        "“",
+        "birds eye view",
+        "”",
+        "Can easily identify areas to ",
+        "improve",
+        ".",
+        "Can easily see where ",
+        "bottlenecks",
+        " in the process are occurring.",
+        "Can use the tool to help make improvements to the process."
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 17,
+      "illustrations": 0
+    },
+    {
+      "number": 23,
+      "sourceSlide": 45,
+      "file": "page-23.svg",
+      "text": "Think of a process you go through in your life and create a \nValue Stream Map of it\n• What steps in the process seem to take the longest? \n• Can you find any waste in the process by looking at the Value Stream \nMap? Remember, waste is any activity that a customer would not be willing \nto pay for (Transportation, Inventory, Motion, Waiting, Over processing, \nOverproduction, Defects). \n• What ideas do you have to make this process better? \nActivity\nGetting to school?\nGoing for grocery at supermarket?\n",
+      "sourceText": "Think of a process you go through in your life and create a \nValue Stream Map of it\n• What steps in the process seem to take the longest? \n• Can you find any waste in the process by looking at the Value Stream \nMap? Remember, waste is any activity that a customer would not be willing \nto pay for (Transportation, Inventory, Motion, Waiting, Over processing, \nOverproduction, Defects). \n• What ideas do you have to make this process better? \nActivity\n45\nGetting to school?\nGoing for grocery at supermarket?\n",
+      "sourceTextRuns": [
+        "Think of a process you go through in your life and ",
+        "create a Value Stream Map",
+        " ",
+        "of it",
+        " ",
+        "What steps in the process seem to take the longest? ",
+        " Can you find any waste in the process by looking at the Value Stream Map? Remember, waste is any activity that a customer would not be willing to pay for (Transportation, Inventory, Motion, Waiting, Over processing, Overproduction, Defects). ",
+        " What ideas do you have to make this process better? ",
+        "Activity",
+        "Getting to school?",
+        "Going for grocery at supermarket?"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 20,
+      "illustrations": 2
+    },
+    {
+      "number": 24,
+      "sourceSlide": 46,
+      "file": "page-24.svg",
+      "text": "Conflict Resolution\n",
+      "sourceText": "Conflict Resolution\n46\n",
+      "sourceTextRuns": [
+        "Conflict Resolution"
+      ],
+      "contentBounds": [
+        20.0,
+        56.0,
+        952.0,
+        516.0
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 1,
+      "illustrations": 0
+    },
+    {
+      "number": 25,
+      "sourceSlide": 47,
+      "file": "page-25.svg",
+      "text": "",
+      "sourceText": "47\n",
+      "sourceTextRuns": [],
+      "contentBounds": [
+        -4.0,
+        44.509979248046875,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 0,
+      "illustrations": 1
+    },
+    {
+      "number": 26,
+      "sourceSlide": 48,
+      "file": "page-26.svg",
+      "text": "1.\nUnderstand the Problem:\nAsk yourself, \"What’s the fight about? Is it urgent? Do we all need to agree?\"\n2.\nChoose the Right Tool:\n• Emergency? Use Competing.\n• Need teamwork? Use Collaborating.\n• Short on time? Use Compromising.\n• Small issue? Use Avoiding.\n• Want to keep a good relationship? Use Accommodating.\n3.\nAct and Adjust:\nUse the tool and see what happens. If it doesn’t work, try another one!\nHow to Use TKI in 3 Steps\n",
+      "sourceText": "1.\nUnderstand the Problem:\nAsk yourself, \"What’s the fight about? Is it urgent? Do we all need to agree?\"\n2.\nChoose the Right Tool:\n• Emergency? Use Competing.\n• Need teamwork? Use Collaborating.\n• Short on time? Use Compromising.\n• Small issue? Use Avoiding.\n• Want to keep a good relationship? Use Accommodating.\n3.\nAct and Adjust:\nUse the tool and see what happens. If it doesn’t work, try another one!\nHow to Use TKI in 3 Steps\n48\n",
+      "sourceTextRuns": [
+        "Understand the Problem",
+        ":",
+        "Ask yourself, \"What’s the fight about? Is it urgent? Do we all need to agree?\"",
+        "Choose the Right Tool",
+        ":",
+        "Emergency? Use ",
+        "Competing",
+        ".",
+        "Need teamwork? Use ",
+        "Collaborating",
+        ".",
+        "Short on time? Use ",
+        "Compromising",
+        ".",
+        "Small issue? Use ",
+        "Avoiding",
+        ".",
+        "Want to keep a good relationship? Use ",
+        "Accommodating",
+        ".",
+        "Act and Adjust",
+        ":",
+        "Use the tool and see what happens. If it doesn’t work, try another one!",
+        "How to Use ",
+        "TKI",
+        " in 3 Steps"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 35,
+      "illustrations": 0
+    },
+    {
+      "number": 27,
+      "sourceSlide": 49,
+      "file": "page-27.svg",
+      "text": "•\nProblem: Two coworkers disagree about which software to use.\n• If the deadline is tomorrow: Use Compromising (\"Let’s pick \none and adjust later\").\n• If you need both ideas to succeed: Use Collaborating (\"Let’s \ncombine the best features of both\").\n• If it’s not urgent: Use Avoiding (\"Let’s talk about it next week\").\n•\nIt’s all about picking the best way to handle each situation!\nExample\n",
+      "sourceText": "•\nProblem: Two coworkers disagree about which software to use.\n• If the deadline is tomorrow: Use Compromising (\"Let’s pick \none and adjust later\").\n• If you need both ideas to succeed: Use Collaborating (\"Let’s \ncombine the best features of both\").\n• If it’s not urgent: Use Avoiding (\"Let’s talk about it next week\").\n•\nIt’s all about picking the best way to handle each situation!\nExample\n49\n",
+      "sourceTextRuns": [
+        "Problem",
+        ": Two coworkers disagree about which software to use.",
+        "If the deadline is tomorrow: Use ",
+        "Compromising",
+        " (\"Let’s pick one and adjust later\").",
+        "If you need both ideas to succeed: Use ",
+        "Collaborating",
+        " (\"Let’s combine the best features of both\").",
+        "If it’s not urgent: Use ",
+        "Avoiding",
+        " (\"Let’s talk about it next week\").",
+        "It’s all about picking the best way to handle each situation!",
+        "Example"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 23,
+      "illustrations": 0
+    },
+    {
+      "number": 28,
+      "sourceSlide": 50,
+      "file": "page-28.svg",
+      "text": "Scenario”\n\"Two team members are fighting about which software to \nuse for a data analysis project. One prefers a tool they \nknow well, while the other wants to try a new, advanced tool \nthat might take longer to learn.\"\nDiscussion Questions:\n•\nWhich style would you choose?\n•\nWhat’s the risk of using this style?\nActivity\n",
+      "sourceText": "Scenario”\n\"Two team members are fighting about which software to \nuse for a data analysis project. One prefers a tool they \nknow well, while the other wants to try a new, advanced tool \nthat might take longer to learn.\"\nDiscussion Questions:\n•\nWhich style would you choose?\n•\nWhat’s the risk of using this style?\nActivity\n50\n",
+      "sourceTextRuns": [
+        "Scenario”",
+        "\"Two team members are fighting about which software to use for a data analysis project. One prefers a tool they know well, while the other wants to try a new, advanced tool that might take longer to learn.\"",
+        "Discussion Questions",
+        ":",
+        "Which style would you choose?",
+        "What’s the risk of using this style?",
+        "Activity"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 12,
+      "illustrations": 2
+    },
+    {
+      "number": 29,
+      "sourceSlide": 51,
+      "file": "page-29.svg",
+      "text": "Reflection Questions for Students:\n•\nWhich style do you naturally gravitate toward?\n•\nWhen is it appropriate to switch styles?\n•\nHow can you ensure the style you choose \nbenefits the team or project?\nActivity\n",
+      "sourceText": "Reflection Questions for Students:\n•\nWhich style do you naturally gravitate toward?\n•\nWhen is it appropriate to switch styles?\n•\nHow can you ensure the style you choose \nbenefits the team or project?\nActivity\n51\n",
+      "sourceTextRuns": [
+        "Reflection Questions for Students:",
+        "Which style do you naturally gravitate toward?",
+        "When is it appropriate to switch styles?",
+        "How can you ensure the style you choose benefits the team or project?",
+        "Activity"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 9,
+      "illustrations": 2
+    },
+    {
+      "number": 30,
+      "sourceSlide": 52,
+      "file": "page-30.svg",
+      "text": "Tips in conflict management\n1.\nConflict is normal, there is tension in all relationships.\n2.\nRemember that you're on the same team, not opposing factions.\n3.\nNever assume malice, just ignorance/misunderstanding.\n4.\nRefuse to escalate. Start a calm baseline and never escalate from there, even if the \nother party escalates their emotions drastically. \n",
+      "sourceText": "Tips in conflict management\n52\n1.\nConflict is normal, there is tension in all relationships.\n2.\nRemember that you're on the same team, not opposing factions.\n3.\nNever assume malice, just ignorance/misunderstanding.\n4.\nRefuse to escalate. Start a calm baseline and never escalate from there, even if the \nother party escalates their emotions drastically. \n",
+      "sourceTextRuns": [
+        "Tips in conflict management",
+        "Conflict is normal, there is tension in all relationships.",
+        "Remember that you're on the same team, not opposing factions.",
+        "Never assume malice, just ignorance/misunderstanding.",
+        "Refuse to escalate. Start a calm baseline and never escalate from there, even if the other party escalates their emotions drastically. "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 10,
+      "illustrations": 0
+    },
+    {
+      "number": 31,
+      "sourceSlide": 53,
+      "file": "page-31.svg",
+      "text": "Psychology of persuasion\n",
+      "sourceText": "Psychology of persuasion\n53\n",
+      "sourceTextRuns": [
+        "Psychology of persuasion"
+      ],
+      "contentBounds": [
+        20.0,
+        56.0,
+        952.0,
+        516.0
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 1,
+      "illustrations": 0
+    },
+    {
+      "number": 32,
+      "sourceSlide": 54,
+      "file": "page-32.svg",
+      "text": "Robert Cialdini’s \nSix Principles of \nInfluence\n",
+      "sourceText": "54\nRobert Cialdini’s \nSix Principles of \nInfluence\n",
+      "sourceTextRuns": [
+        "Robert Cialdini’s ",
+        "Six Principles of Influence"
+      ],
+      "contentBounds": [
+        -4.0,
+        38.7449951171875,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 3,
+      "illustrations": 1
+    },
+    {
+      "number": 33,
+      "sourceSlide": 55,
+      "file": "page-33.svg",
+      "text": "Case Study: Transforming Business Reporting Through Data Automation\nBackground:\nThe current reporting process at company XYZ is time-consuming and error-prone, \ninvolving several employees copying data from spreadsheets. You as a new business \nanalyst, want to introduce an automated data dashboard system using Power BI to \nstreamline reporting and provide real-time insights. However, the proposal faced \nresistance:\n•\nEmployees feared the system might replace their roles.\n•\nManagers were skeptical about the reliability of automation.\n•\nStakeholders were disengaged, doubting whether the change was worth the effort.\nUse the 6 principles of persuasion to navigate the issues\nActivity\n",
+      "sourceText": "Case Study: Transforming Business Reporting Through Data Automation\nBackground:\nThe current reporting process at company XYZ is time-consuming and error-prone, \ninvolving several employees copying data from spreadsheets. You as a new business \nanalyst, want to introduce an automated data dashboard system using Power BI to \nstreamline reporting and provide real-time insights. However, the proposal faced \nresistance:\n•\nEmployees feared the system might replace their roles.\n•\nManagers were skeptical about the reliability of automation.\n•\nStakeholders were disengaged, doubting whether the change was worth the effort.\nUse the 6 principles of persuasion to navigate the issues\nActivity\n55\n",
+      "sourceTextRuns": [
+        "Case Study: Transforming Business Reporting Through Data Automation",
+        "Background:",
+        "The current reporting process at company XYZ is time-consuming and error-prone, involving several employees copying data from spreadsheets. You as a new business analyst, want to introduce an automated data dashboard system using Power BI to streamline reporting and provide real-time insights. However, the proposal faced resistance:",
+        "Employees feared the system might replace their roles.",
+        "Managers were skeptical about the reliability of automation.",
+        "Stakeholders were disengaged, doubting whether the change was worth the effort.",
+        "Use the 6 principles of persuasion to navigate the issues",
+        "Activity"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 21,
+      "illustrations": 2
+    }
+  ]
+}

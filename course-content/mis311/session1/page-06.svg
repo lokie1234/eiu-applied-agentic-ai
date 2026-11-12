@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M385.35 161.79H940.16006V466.76H385.35Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_18">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_19">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_20">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_21">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.064" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-432.38" x="46.68 68.06669 80.53958 100.130687 117.83001 135.6576 153.35694 171.18453 179.87387 206.58319 226.0781 245.66919 263.40058 272.31437 281.22816 290.04576 309.63685 329.22795">Process Modelling </tspan></text>
+</g>
+<g clip-path="url(#clip_15)">
+</g>
+<g clip-path="url(#clip_16)">
+<g transform="matrix(.69699749,0,0,.6978718,385.35,73.24002)">
+<image id="image_17" width="796" height="437" xlink:href="asset:7a50c9e4cedce100f9b2e4fe03cfc41a2673eab06437d2290aa4bfe1d847e34e.jpg" />
+</g>
+</g>
+<g clip-path="url(#clip_18)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-328.39" x="36.168 54.81732 64.128 79.67376 93.73764 109.2834 123.347278 137.32727 145.10016 168.39084 183.9366 199.48236 215.112 221.31912 227.52625 233.81725 249.363 264.99266 273.01719 286.9972 296.39176 311.9375 327.56718 335.34007 350.8858 364.97767 372.66667 388.2124 395.9853 410.07716 416.28428 430.3202 445.86598 461.49565 467.70277">Process modelling creates a visual </tspan></text>
+</g>
+<g clip-path="url(#clip_19)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.984" font-family="Arial, Helvetica, sans-serif"><tspan y="-277.99" x="36.168 45.52797 61.128374 76.728778 86.088748 101.68915 115.72245 131.32286 146.92327 154.74411 170.34452 178.16536 184.41912 200.01952 215.61992 223.44077 239.04117 246.77806 254.5989 270.1993 285.7997 305.93354 313.83836 329.43876 343.47206 351.2929 357.54667 371.57997 377.8337 385.65458 391.90834 407.50874 421.54203 429.27894">representation of how activities, </tspan></text>
+</g>
+<g clip-path="url(#clip_20)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-227.57" x="36.168 51.71376 67.3434 81.323398 87.58644 101.56644 107.82948 123.375247 139.00489 152.98488 160.81368 168.50267 174.7098 190.31148 198.08435 213.63011 223.05265 246.34333 261.8891 269.662 275.953 291.49879 307.12846 314.90135 322.81404 338.3598 353.98948 369.53523 377.3081 391.39997 399.17286 414.71864 428.8105 444.35627 459.98594 475.53169 481.7947 497.34046 512.9701 522.28079 536.3446">decisions, information, and stakeholders </tspan></text>
+</g>
+<g clip-path="url(#clip_21)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-177.17" x="36.168 42.37512 57.9768 65.74968 81.29544 90.71796 106.26372 120.32759 128.10047 135.87335 155.9766 162.18372 169.9566 185.58625 191.79337 207.39505 215.27979 230.82555 238.59842 254.25603 269.8018 283.8657 290.0728 305.6745 321.22029 335.28419 349.2642 357.03709 372.58283 381.8935 397.52317 411.50318 427.13285 441.11286 455.17677">interact within a business process.</tspan></text>
+</g>
+</g>
+</svg>

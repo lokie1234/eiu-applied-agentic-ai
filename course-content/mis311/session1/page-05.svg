@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M85.957 27.94H838.327V425.62H85.957Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<text fill="#44546a" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-445.08" x="36.936 60.068887 79.645328 104.57245 113.25529 122.16241 141.73885 152.40818 171.98462 184.44818 212.93175 230.61783 241.28716 250.19428 269.77073 289.34718 297.9339 317.51036 326.41749 345.99394 370.92106 378.3223 401.45518 419.2694 431.73298 451.30943 469.12367 486.80973 495.55668 518.6896 536.50387 556.08029 573.7984 586.26199 596.9313 625.41488 643.2291 662.80557 673.47488 691.16098 710.73739">How Information Flow Across Departments? </tspan></text>
+</g>
+<g clip-path="url(#clip_15)">
+</g>
+<g clip-path="url(#clip_16)">
+<g transform="matrix(.76772448,0,0,.76772198,85.957,114.380008)">
+<image id="image_17" width="980" height="518" xlink:href="asset:70a4cdd799dbeda4bdf2eb82efe873d4d49c240e835dc4c2f659e91d3f0009d2.png" />
+</g>
+</g>
+</g>
+</svg>

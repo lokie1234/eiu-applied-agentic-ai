@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M37.687 23.55H922.307V477.75H37.687Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<g transform="matrix(.8198517,0,0,.81985566,37.687,62.25)">
+<image id="image_15" width="1079" height="554" xlink:href="asset:e874e9eaacc4c363fcf4db486c20d5d99319cd19fd986d741f5d455b7d7fdeaf.jpg" />
+</g>
+</g>
+<g clip-path="url(#clip_16)">
+</g>
+</g>
+</svg>

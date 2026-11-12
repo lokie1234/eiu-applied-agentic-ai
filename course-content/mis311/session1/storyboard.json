@@ -1,0 +1,558 @@
+{
+  "session": 1,
+  "title": "Week 7 · Session 1",
+  "sourceFilename": "MIS 311_Week 7.pptx",
+  "sourceSha256": "32473e8d706e07f55837d23d5658b244a506781eae3b44730e6e9bd84e2f4ae5",
+  "sourceSlideRange": [
+    1,
+    22
+  ],
+  "sourceSlideCount": 55,
+  "pageCount": 22,
+  "assignedTemplate": "86101dcf-70f4-49c3-a6a9-983c77708ad2",
+  "templateResolution": "User selected the existing EIU without reference template. Source frame, logos, background and page numbers removed; all lesson content retained.",
+  "pages": [
+    {
+      "number": 1,
+      "sourceSlide": 1,
+      "file": "page-01.svg",
+      "text": "Business Process Analysis \nand Problem Solving\nMIS 311 – Introduction to Business Analytics\n",
+      "sourceText": "Business Process Analysis \nand Problem Solving\nMIS 311 – Introduction to Business Analytics\n",
+      "sourceTextRuns": [
+        "Business Process Analysis and Problem Solving",
+        "MIS 311 – Introduction to Business Analytics"
+      ],
+      "contentBounds": [
+        20.0,
+        56.0,
+        952.0,
+        516.0
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 5,
+      "illustrations": 0
+    },
+    {
+      "number": 2,
+      "sourceSlide": 2,
+      "file": "page-02.svg",
+      "text": "1.\nDemonstrate the ability to convey ideas clearly and adapt communication style to \ndifferent audiences for improved understanding and engagement.\n2.\nApply structured techniques to identify and address underlying causes of problems, \nensuring effective and sustainable solutions.\n3.\nAnalyse and document workflows to identify inefficiencies and suggest \nimprovements for enhanced process performance.\nLearning Outcomes \n",
+      "sourceText": "1.\nDemonstrate the ability to convey ideas clearly and adapt communication style to \ndifferent audiences for improved understanding and engagement.\n2.\nApply structured techniques to identify and address underlying causes of problems, \nensuring effective and sustainable solutions.\n3.\nAnalyse and document workflows to identify inefficiencies and suggest \nimprovements for enhanced process performance.\nLearning Outcomes \n2\n",
+      "sourceTextRuns": [
+        "Demonstrate the ability to convey ideas clearly and adapt communication style to different audiences for improved understanding and engagement.",
+        "Apply structured techniques to identify and address underlying causes of problems, ensuring effective and sustainable solutions.",
+        "Analyse",
+        " and document workflows to identify inefficiencies and suggest improvements for enhanced process performance.",
+        "Learning Outcomes "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 11,
+      "illustrations": 0
+    },
+    {
+      "number": 3,
+      "sourceSlide": 3,
+      "file": "page-03.svg",
+      "text": "Business Analysts Connect People, Processes, and Data\n",
+      "sourceText": "Business Analysts Connect People, Processes, and Data\n3\n",
+      "sourceTextRuns": [
+        "Business Analysts Connect People, Processes, and Data"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 1,
+      "illustrations": 2
+    },
+    {
+      "number": 4,
+      "sourceSlide": 4,
+      "file": "page-04.svg",
+      "text": "Company Organisation  \nCompany has different departments: marketing, human resources, \naccounting, etc. \n",
+      "sourceText": "Company Organisation  \n4\nCompany has different departments: marketing, human resources, \naccounting, etc. \n",
+      "sourceTextRuns": [
+        "Company Organisation  ",
+        "Company has different departments: marketing, human resources, accounting, etc. "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 3,
+      "illustrations": 1
+    },
+    {
+      "number": 5,
+      "sourceSlide": 5,
+      "file": "page-05.svg",
+      "text": "How Information Flow Across Departments? \n",
+      "sourceText": "How Information Flow Across Departments? \n5\n",
+      "sourceTextRuns": [
+        "How Information Flow Across Departments? "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 1,
+      "illustrations": 1
+    },
+    {
+      "number": 6,
+      "sourceSlide": 6,
+      "file": "page-06.svg",
+      "text": "Process Modelling \nProcess modelling creates a visual \nrepresentation of how activities, \ndecisions, information, and stakeholders \ninteract within a business process.\n",
+      "sourceText": "Process Modelling \n6\nProcess modelling creates a visual \nrepresentation of how activities, \ndecisions, information, and stakeholders \ninteract within a business process.\n",
+      "sourceTextRuns": [
+        "Process Modelling ",
+        "Process modelling creates a visual representation of how activities, decisions, information, and stakeholders interact within a business process."
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 5,
+      "illustrations": 1
+    },
+    {
+      "number": 7,
+      "sourceSlide": 7,
+      "file": "page-07.svg",
+      "text": "Process Modelling contains critical insights of a particular process \nincluding: \n•\nEvent and activities occur within a workflow\n•\nStakeholders involved in the process \n•\nDecision points and different paths workflows can take \n•\nTimelines of the overall process and each step in the process\nWhat is Process Modelling? \n",
+      "sourceText": "Process Modelling contains critical insights of a particular process \nincluding: \n•\nEvent and activities occur within a workflow\n•\nStakeholders involved in the process \n•\nDecision points and different paths workflows can take \n•\nTimelines of the overall process and each step in the process\nWhat is Process Modelling? \n7\n",
+      "sourceTextRuns": [
+        "Process Modelling contains critical insights of a particular process including: ",
+        "Event and activities occur within a workflow",
+        "Stakeholders involved in the process ",
+        "Decision points and different paths workflows can take ",
+        "Timelines of the overall process and each step in the process",
+        "What is Process Modelling? "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 11,
+      "illustrations": 0
+    },
+    {
+      "number": 8,
+      "sourceSlide": 8,
+      "file": "page-08.svg",
+      "text": "•\nBusiness Process Modelling Notation (BPMN)\n•\nUnified Modelling Language (UML)\n•\nFlowcharts\n•\nGantt Charts \nCommon Business Process Modelling Techniques\n",
+      "sourceText": "•\nBusiness Process Modelling Notation (BPMN)\n•\nUnified Modelling Language (UML)\n•\nFlowcharts\n•\nGantt Charts \nCommon Business Process Modelling Techniques\n8\n",
+      "sourceTextRuns": [
+        "Business Process Modelling Notation (BPMN)",
+        "Unified Modelling Language (UML)",
+        "Flowcharts",
+        "Gantt Charts ",
+        "Common Business Process Modelling Techniques"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 9,
+      "illustrations": 0
+    },
+    {
+      "number": 9,
+      "sourceSlide": 9,
+      "file": "page-09.svg",
+      "text": "Unified Modelling Language\nCommon Business Process Modelling Techniques\nBusiness Process Modelling Notation  \n",
+      "sourceText": "Unified Modelling Language\nCommon Business Process Modelling Techniques\n9\nBusiness Process Modelling Notation  \n",
+      "sourceTextRuns": [
+        "Unified Modelling Language",
+        "Common Business Process Modelling Techniques",
+        "Business Process Modelling Notation  "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 3,
+      "illustrations": 2
+    },
+    {
+      "number": 10,
+      "sourceSlide": 10,
+      "file": "page-10.svg",
+      "text": "•\nBusiness Process Modelling Notation (BPMN)\n•\nUnified Modelling Language (UML)\n•\nFlowcharts\n•\nGantt Charts \nCommon Business Process Modelling Techniques\n",
+      "sourceText": "•\nBusiness Process Modelling Notation (BPMN)\n•\nUnified Modelling Language (UML)\n•\nFlowcharts\n•\nGantt Charts \nCommon Business Process Modelling Techniques\n10\n",
+      "sourceTextRuns": [
+        "Business Process Modelling Notation (BPMN)",
+        "Unified Modelling Language (UML)",
+        "Flowcharts",
+        "Gantt Charts ",
+        "Common Business Process Modelling Techniques"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 9,
+      "illustrations": 0
+    },
+    {
+      "number": 11,
+      "sourceSlide": 11,
+      "file": "page-11.svg",
+      "text": "BPMN Basic Notations\nSequence flow \nActivity\nGateway \nStart Event \nIntermediate \nEvent \nEnd Event\n",
+      "sourceText": "BPMN Basic Notations\n11\nSequence flow \nActivity\nGateway \nStart Event \nIntermediate \nEvent \nEnd Event\n",
+      "sourceTextRuns": [
+        "BPMN Basic Notations",
+        "Sequence flow ",
+        "Activity",
+        "Gateway ",
+        "Start Event ",
+        "Intermediate Event ",
+        "End Event"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 8,
+      "illustrations": 0
+    },
+    {
+      "number": 12,
+      "sourceSlide": 12,
+      "file": "page-12.svg",
+      "text": "BPMN Basic Notations\nSequence flow Shows the order of activities to be performed \nActivity \nTasks or activity performed by a person or system \nGateway \nDecision point that can adjust the path based in \nconditions or events\nEvent \nA trigger that starts, modifies or completes a \nprocess \n",
+      "sourceText": "BPMN Basic Notations\n12\nSequence flow Shows the order of activities to be performed \nActivity \nTasks or activity performed by a person or system \nGateway \nDecision point that can adjust the path based in \nconditions or events\nEvent \nA trigger that starts, modifies or completes a \nprocess \n",
+      "sourceTextRuns": [
+        "BPMN Basic Notations",
+        "Sequence flow ",
+        "Shows the order of activities to be performed ",
+        "Activity ",
+        "Tasks or activity performed by a person or system ",
+        "Gateway ",
+        "Decision point that can adjust the path based in conditions or events",
+        "Event ",
+        "A trigger that starts, modifies or completes a process "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 11,
+      "illustrations": 0
+    },
+    {
+      "number": 13,
+      "sourceSlide": 13,
+      "file": "page-13.svg",
+      "text": "BPMN Basic Notations\nPools\nRepresents a major participant or organisation \ninvolved in the process.\n→ Example: Customer / Company / Supplier…\nLane\nDivides a pool into departments, roles, or systems \nresponsible for different activities.\n→ Example: Sales / Finance / Warehouse / HR…\n",
+      "sourceText": "BPMN Basic Notations\n13\nPools\nRepresents a major participant or organisation \ninvolved in the process.\n→ Example: Customer / Company / Supplier…\nLane\nDivides a pool into departments, roles, or systems \nresponsible for different activities.\n→ Example: Sales / Finance / Warehouse / HR…\n",
+      "sourceTextRuns": [
+        "BPMN Basic Notations",
+        "Pools",
+        "Represents a major participant or organisation involved in the process.",
+        " Example: Customer / Company / Supplier…",
+        "Lane",
+        "Divides a pool into departments, roles, or systems responsible for different activities.",
+        " Example: Sales / Finance / Warehouse / HR…"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 13,
+      "illustrations": 0
+    },
+    {
+      "number": 14,
+      "sourceSlide": 14,
+      "file": "page-14.svg",
+      "text": "Business Process Modelling Example\nVisualise a bank processes a customer’s credit request and sends a contract offer.\n•\n“Start Event” : Credit Request from Customer\n•\n“End Event” : Offer sent from Sales\n",
+      "sourceText": "Business Process Modelling Example\n14\nVisualise a bank processes a customer’s credit request and sends a contract offer.\n•\n“Start Event” : Credit Request from Customer\n•\n“End Event” : Offer sent from Sales\n",
+      "sourceTextRuns": [
+        "Business Process Modelling Example",
+        "Visualise ",
+        "a bank processes a customer’s credit request and sends a contract offer.",
+        "“Start Event” : ",
+        "Credit Request from Customer",
+        "“End Event” : ",
+        "Offer sent from Sales"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 9,
+      "illustrations": 1
+    },
+    {
+      "number": 15,
+      "sourceSlide": 15,
+      "file": "page-15.svg",
+      "text": "•\nScenario: A small, family-owned restaurant is looking to improve \ntheir operations and increase customer satisfaction.\n•\nProcess to model: Customer order and serving process\nBusiness Process Modelling Example 2\n",
+      "sourceText": "•\nScenario: A small, family-owned restaurant is looking to improve \ntheir operations and increase customer satisfaction.\n•\nProcess to model: Customer order and serving process\nBusiness Process Modelling Example 2\n15\n",
+      "sourceTextRuns": [
+        "Scenario: ",
+        "A small, family-owned restaurant is looking to improve their operations and increase customer satisfaction.",
+        "Process to model: ",
+        "Customer order and serving process",
+        "Business Process Modelling Example 2"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 10,
+      "illustrations": 0
+    },
+    {
+      "number": 16,
+      "sourceSlide": 16,
+      "file": "page-16.svg",
+      "text": "Questions for Analysis: \n•\nAny steps in the process that frequently cause delays? \n•\nAny tasks that are repeated unnecessarily? \n•\nCould technology be used to automate or streamline any steps in \nthe process?\n•\nHow can the process be improved to enhance the customer \nexperience?\n•\nWho are the key participants?\nBusiness Process Modelling Example 2\n",
+      "sourceText": "Questions for Analysis: \n•\nAny steps in the process that frequently cause delays? \n•\nAny tasks that are repeated unnecessarily? \n•\nCould technology be used to automate or streamline any steps in \nthe process?\n•\nHow can the process be improved to enhance the customer \nexperience?\n•\nWho are the key participants?\nBusiness Process Modelling Example 2\n16\n",
+      "sourceTextRuns": [
+        "Questions for Analysis: ",
+        "Any steps in the process that frequently cause delays? ",
+        "Any tasks that are repeated unnecessarily? ",
+        "Could technology be used to automate or streamline any steps in the process?",
+        "How can the process be improved to enhance the customer experience?",
+        "Who are the key participants?",
+        "Business Process Modelling Example 2"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 14,
+      "illustrations": 0
+    },
+    {
+      "number": 17,
+      "sourceSlide": 17,
+      "file": "page-17.svg",
+      "text": "•\nCustomer Arrived\n•\nSeating \n•\nPresent Menu \n•\nCustomer Places Order \n•\nOrder is Prepared \n•\nOrder Ready for Serving \n•\nFood is Served \n•\nPayment \n•\nCustomer Departure\nBusiness Process Modelling Example 2\n",
+      "sourceText": "•\nCustomer Arrived\n•\nSeating \n•\nPresent Menu \n•\nCustomer Places Order \n•\nOrder is Prepared \n•\nOrder Ready for Serving \n•\nFood is Served \n•\nPayment \n•\nCustomer Departure\nBusiness Process Modelling Example 2\n17\n",
+      "sourceTextRuns": [
+        "Customer Arrived",
+        "Seating ",
+        "Present Menu ",
+        "Customer Places Order ",
+        "Order is Prepared ",
+        "Order Ready for Serving ",
+        "Food is Served ",
+        "Payment ",
+        "Customer Departure",
+        "Business Process Modelling Example 2"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 19,
+      "illustrations": 0
+    },
+    {
+      "number": 18,
+      "sourceSlide": 18,
+      "file": "page-18.svg",
+      "text": "Business Process Modelling Example 2\nBPMN created using \nLucid Chart\nhttps://www.lucidchart.com/\n",
+      "sourceText": "Business Process Modelling Example 2\n18\nBPMN created using \nLucid Chart\nhttps://www.lucidchart.com/\n",
+      "sourceTextRuns": [
+        "Business Process Modelling Example 2",
+        "BPMN created using Lucid Chart",
+        "https://www.lucidchart.com/",
+        " "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 4,
+      "illustrations": 0
+    },
+    {
+      "number": 19,
+      "sourceSlide": 19,
+      "file": "page-19.svg",
+      "text": "•\nAim for BPMN Diagrams that fit one page\n•\nEasy to read, minimising flow crossing \n•\nShould follow left-to-right ordering\n•\nAlways indicate “Start” and “End” events\n•\nAll “Activities” should be named \nBPMN Modelling Best Practices \n",
+      "sourceText": "•\nAim for BPMN Diagrams that fit one page\n•\nEasy to read, minimising flow crossing \n•\nShould follow left-to-right ordering\n•\nAlways indicate “Start” and “End” events\n•\nAll “Activities” should be named \nBPMN Modelling Best Practices \n19\n",
+      "sourceTextRuns": [
+        "Aim for BPMN Diagrams that fit one page",
+        "Easy to read, minimising flow crossing ",
+        "Should follow left-to-right ordering",
+        "Always indicate “Start” and “End” events",
+        "All “Activities” should be named ",
+        "BPMN Modelling Best Practices "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 15,
+      "illustrations": 0
+    },
+    {
+      "number": 20,
+      "sourceSlide": 20,
+      "file": "page-20.svg",
+      "text": "Working in group, select one of the provided cases below or choose \nyour own process. \n1. Identify all key steps, decision points and stakeholders involved \nin the selected process.\n2. Create a BPMN diagram using LucidChart or Draw.io\n3. Analyse the process and identify potential bottlenecks/ \ninefficiencies areas. \n4. Present your work to class. \nIn-class Activity \n",
+      "sourceText": "Working in group, select one of the provided cases below or choose \nyour own process. \n1. Identify all key steps, decision points and stakeholders involved \nin the selected process.\n2. Create a BPMN diagram using LucidChart or Draw.io\n3. Analyse the process and identify potential bottlenecks/ \ninefficiencies areas. \n4. Present your work to class. \nIn-class Activity \n20\n",
+      "sourceTextRuns": [
+        "Working in group, select one of the provided cases below or choose your own process. ",
+        "Identify all key steps, decision points and stakeholders involved in the selected process.",
+        "Create a BPMN diagram",
+        " u",
+        "sing",
+        " LucidChart or Draw.io",
+        "Analyse the process and identify potential bottlenecks/ inefficiencies areas. ",
+        "Present your work to class. ",
+        "In-class Activity "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 18,
+      "illustrations": 0
+    },
+    {
+      "number": 21,
+      "sourceSlide": 21,
+      "file": "page-21.svg",
+      "text": "Scenario 1: Healthcare Patient Admission \nA hospital is experiencing delays in patient admissions, leading to \nlonger wait times and decreased patient satisfaction.\nProcess to model: Patient admission process \n______________________________________________________\nScenario 2: E-commerce Order Fulfillment \nAn online retailer is experiencing a high volume of customer \ncomplaints regarding late deliveries and incorrect orders.\nProcess to model: Customer order to payment process\n",
+      "sourceText": "Scenario 1: Healthcare Patient Admission \nA hospital is experiencing delays in patient admissions, leading to \nlonger wait times and decreased patient satisfaction.\nProcess to model: Patient admission process \n______________________________________________________\nScenario 2: E-commerce Order Fulfillment \nAn online retailer is experiencing a high volume of customer \ncomplaints regarding late deliveries and incorrect orders.\nProcess to model: Customer order to payment process\n21\n",
+      "sourceTextRuns": [
+        "Scenario 1: Healthcare Patient Admission ",
+        "A hospital is experiencing delays in patient admissions, leading to longer wait times and decreased patient satisfaction.",
+        "Process to model:",
+        " Patient admission process ",
+        "______________________________________________________",
+        "Scenario 2: E-commerce Order Fulfillment ",
+        "An online retailer is experiencing a high volume of customer complaints regarding late deliveries and incorrect orders.",
+        "Process to model: ",
+        "Customer order to payment process"
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 14,
+      "illustrations": 0
+    },
+    {
+      "number": 22,
+      "sourceSlide": 22,
+      "file": "page-22.svg",
+      "text": "Scenario 3: Campus Recruitment\nEIU is looking to improve its campus recruitment process to attract \ntop talent \nProcess to model: Recruitment process \n______________________________________________________\nScenario 4: GrabFood Order Fulfillment \nGrabFood wants to improve its order fulfillment process to reduce \ndelivery times and increase customer satisfaction.\nProcess to model: Order fulfillment process \n",
+      "sourceText": "Scenario 3: Campus Recruitment\nEIU is looking to improve its campus recruitment process to attract \ntop talent \nProcess to model: Recruitment process \n______________________________________________________\nScenario 4: GrabFood Order Fulfillment \nGrabFood wants to improve its order fulfillment process to reduce \ndelivery times and increase customer satisfaction.\nProcess to model: Order fulfillment process \n22\n",
+      "sourceTextRuns": [
+        "Scenario 3: Campus Recruitment",
+        "EIU is looking to improve its campus recruitment process to attract top talent ",
+        "Process to model:",
+        " Recruitment process ",
+        "______________________________________________________",
+        "Scenario 4: ",
+        "GrabFood",
+        " Order Fulfillment ",
+        "GrabFood",
+        " wants to improve its order fulfillment process to reduce delivery times and increase customer satisfaction.",
+        "Process to model: ",
+        "Order fulfillment process "
+      ],
+      "contentBounds": [
+        -4.0,
+        56.0,
+        952.0,
+        534.0350952148438
+      ],
+      "width": 960.0,
+      "height": 540.0,
+      "textSpans": 17,
+      "illustrations": 0
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M-.000001907 .00018311H960V540.0002H-.000001907Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_17">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_18">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_19">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_20">
+<path transform="matrix(1,0,0,-1,0,540)" d="M112.5 18.132H847.5V395.382H112.5Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<path transform="matrix(1,0,0,-1,0,540)" stroke-width="1" stroke-linecap="butt" stroke-miterlimit="10" stroke-linejoin="miter" fill="none" stroke="#000000" d="M21.424 499.6H232.03" />
+</g>
+<g clip-path="url(#clip_15)">
+<path transform="matrix(1,0,0,-1,0,540)" stroke-width="1" stroke-linecap="butt" stroke-miterlimit="10" stroke-linejoin="miter" fill="none" stroke="#000000" d="M265.88 499.6H934.02" />
+</g>
+<g clip-path="url(#clip_16)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="37.344" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-429.12" x="28.632 53.54045 74.30372 95.066989 128.26581 151.083 161.3526 182.11588">Example </tspan></text>
+</g>
+<g clip-path="url(#clip_17)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="37.344" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-429.12" x="192.58">-</tspan></text>
+</g>
+<g clip-path="url(#clip_18)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="37.344" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-429.12" x="205.06"> </tspan></text>
+</g>
+<g clip-path="url(#clip_19)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="37.344" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-429.12" x="215.26 238.07718 258.84046 269.22209 292.03926 312.80253 323.18415 348.0926 360.52815 375.05497 395.81825 416.5815 449.78034 459.97526 491.0828 511.84608 534.66329">Value Stream Map </tspan></text>
+</g>
+<g clip-path="url(#clip_20)">
+<g transform="matrix(.74999997,0,0,.74999997,112.5,144.61798)">
+<image id="image_21" width="980" height="503" xlink:href="asset:d84000b305152c9942294550af654d103d4416cad8533574c6991b9594557fc8.png" />
+</g>
+</g>
+</g>
+</svg>

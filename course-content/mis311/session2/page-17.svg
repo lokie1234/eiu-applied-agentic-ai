@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="932.0" height="460.0" viewBox="20.0 56.0 932.0 460.0">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 .00036621H960V540.00039H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_4">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_5">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_6">
+<path transform="matrix(1,0,0,-1,0,540)" d="M256.51 424.02H501.92V495.46699H256.51Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_7">
+<g transform="matrix(.36036713,0,0,.36084343,256.51,44.533014)">
+</g>
+</mask>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M539 410.25H650.86V522.11H539Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+<g transform="matrix(.3608387,0,0,.3608387,539,17.89)">
+</g>
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+<g transform="matrix(.36009003,0,0,.36024017,0,-.00024414063)">
+</g>
+</g>
+<g clip-path="url(#clip_4)">
+</g>
+<g clip-path="url(#clip_5)">
+</g>
+<g clip-path="url(#clip_6)">
+<g mask="url(#mask_7)">
+<g transform="matrix(.36036713,0,0,.36084343,256.51,44.533014)">
+</g>
+</g>
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+<g transform="matrix(.3608387,0,0,.3608387,539,17.89)">
+</g>
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="50.064" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-273.98" x="213.31 243.8991 271.73469 285.65248 316.24159 344.07716 357.6445 391.0372 407.70854 427.1834 455.01899 482.85456 527.36148 541.02896 582.73226 610.5678 641.1569 671.74606 685.6638 716.2529">Value Stream Mapping</tspan></text>
+</g>
+<g clip-path="url(#clip_15)">
+</g>
+</g>
+</svg>

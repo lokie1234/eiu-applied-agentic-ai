@@ -1,0 +1,73 @@
+function renderOrganizationChart(content, chart) {
+  content.dataset.mis311OrgChart = 'true';
+  const style = document.createElement('style');
+  style.textContent = `
+    [data-mis311-org-chart]{font-family:Arial,sans-serif;color:#17324a;display:flex;flex-direction:column}
+    .mis311-org-title{margin:0 0 24px;color:#144069;font-size:clamp(30px,4vw,46px);line-height:1.2;font-weight:700;text-align:center}
+    .mis311-org-intro{margin:0 0 14px;font-size:clamp(15px,1.85vw,20px);line-height:1.4;text-wrap:pretty}
+    .mis311-org-tree{position:relative;flex:1;min-height:0;padding-top:2px}
+    .mis311-org-card{position:relative;width:100%;min-height:52px;display:flex;align-items:center;justify-content:center;padding:9px 12px;border:1px solid #d4e0e8;border-radius:11px;color:white;font:600 clamp(14px,1.9vw,20px)/1.2 Arial,sans-serif;text-align:center;text-wrap:balance;box-shadow:0 4px 10px #14406912}
+    button.mis311-org-card{cursor:pointer;transition:filter .2s,box-shadow .2s}
+    button.mis311-org-card:hover{filter:brightness(1.08);box-shadow:0 5px 15px #14406926}
+    button.mis311-org-card:focus-visible{outline:3px solid #b99a62;outline-offset:3px}
+    .mis311-org-root{width:190px;margin:auto;background:#326d9c;border-color:#326d9c;font-size:clamp(16px,2.15vw,23px)}
+    .mis311-org-root[aria-expanded=true]::after{content:'';position:absolute;top:100%;left:50%;width:2px;height:13px;background:#9bb477}
+    .mis311-org-branches{position:relative;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-top:26px}
+    .mis311-org-branches::before{content:'';position:absolute;top:-14px;left:calc(12.5% - 6px);right:calc(12.5% - 6px);height:2px;background:#9bb477;transform-origin:center;animation:mis311-org-line .3s ease both}
+    .mis311-org-branch{position:relative;min-width:0}
+    .mis311-org-branch::before{content:'';position:absolute;top:-14px;left:50%;height:14px;width:2px;background:#9bb477}
+    .mis311-org-branch>.mis311-org-card{background:#88a749;border-color:#88a749}
+    .mis311-org-children{position:relative;margin-top:19px}
+    .mis311-org-children::before{content:'';position:absolute;left:50%;top:-19px;width:2px;height:19px;background:#a6b2be}
+    .mis311-org-children>.mis311-org-card{background:#79618f;border-color:#79618f}
+    .mis311-org-children .mis311-org-children>.mis311-org-card{background:#3997aa;border-color:#3997aa}
+    .mis311-org-branches:not([hidden])>.mis311-org-branch,.mis311-org-children:not([hidden])>.mis311-org-card{animation:mis311-org-reveal .38s cubic-bezier(.2,.8,.2,1) both}
+    .mis311-org-branch:nth-child(2){animation-delay:.06s}.mis311-org-branch:nth-child(3){animation-delay:.12s}.mis311-org-branch:nth-child(4){animation-delay:.18s}
+    [data-mis311-org-chart] [hidden]{display:none!important}
+    @keyframes mis311-org-reveal{from{opacity:0;transform:translateY(-9px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes mis311-org-line{from{transform:scaleX(.1);opacity:0}to{transform:scaleX(1);opacity:1}}
+    @media(prefers-reduced-motion:reduce){[data-mis311-org-chart] *,[data-mis311-org-chart] *::before{animation:none!important;transition:none!important}}
+  `;
+  const title = document.createElement('h1');
+  title.className = 'mis311-org-title';
+  title.textContent = chart.title;
+  const tree = document.createElement('div');
+  tree.className = 'mis311-org-tree';
+  let nextId = 0;
+  function node(item, depth) {
+    const hasChildren = Boolean(item.children?.length);
+    const card = document.createElement(hasChildren ? 'button' : 'div');
+    card.className = 'mis311-org-card' + (depth === 0 ? ' mis311-org-root' : '');
+    card.textContent = item.label;
+    card.dataset.orgNode = item.label;
+    if (!hasChildren) return [card];
+    card.type = 'button';
+    card.setAttribute('aria-expanded', 'false');
+    const children = document.createElement('div');
+    children.className = depth === 0 ? 'mis311-org-branches' : 'mis311-org-children';
+    children.id = `mis311-org-children-${++nextId}`;
+    children.hidden = true;
+    card.setAttribute('aria-controls', children.id);
+    for (const child of item.children) {
+      if (depth === 0) {
+        const branch = document.createElement('div');
+        branch.className = 'mis311-org-branch';
+        branch.append(...node(child, depth + 1));
+        children.appendChild(branch);
+      } else children.append(...node(child, depth + 1));
+    }
+    card.addEventListener('click', () => {
+      const expanded = card.getAttribute('aria-expanded') !== 'true';
+      card.setAttribute('aria-expanded', String(expanded));
+      children.hidden = !expanded;
+      if (!expanded) {
+        for (const button of children.querySelectorAll('button[aria-expanded]')) button.setAttribute('aria-expanded', 'false');
+        for (const group of children.querySelectorAll('.mis311-org-children')) group.hidden = true;
+      }
+    });
+    return [card, children];
+  }
+  tree.append(...node(chart.root, 0));
+  content.replaceChildren(style, title, tree);
+  content.parentElement.setAttribute('role', 'group');
+}

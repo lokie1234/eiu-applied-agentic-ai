@@ -1,0 +1,120 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_17">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_18">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_19">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_20">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_21">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_22">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_23">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_24">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_25">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="21.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-362.28" x="54.792 67.03196">1.</tspan></text>
+</g>
+<g clip-path="url(#clip_15)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="21.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-362.28" x="90.816 106.67112 118.88088 137.17357 149.38333 161.5931 172.63898 178.74385 186.05654 198.2663 204.41509 216.62485 222.99324 229.09812 241.30788 253.56156 259.66645 271.8762 284.12986 289.00498 293.94599 298.8211 304.926 315.906 322.0109 328.11579 340.32554 346.47434 357.45436 369.72999 381.93974 392.91975 405.1295 416.1095 422.39009 427.2652 439.51887 451.7286 463.93836 475.0062 481.00129 491.9813 496.94425 509.154 521.3638 528.7204 533.5955 544.5755 550.68038 562.89016 575.0999 587.37557 593.5902 605.8 618.00979 630.2854 642.4952 648.60006 654.7049 665.7727 677.9825 696.27517 714.50198 726.71176 738.9215 743.88449 754.86447 767.1401 773.24496 778.12008 790.3957 802.60549 808.9739 819.95388 826.10269 837.08267 841.95779 854.16757 860.2724 866.37728 878.631">Demonstrate the ability to convey ideas clearly and adapt communication style to </tspan></text>
+</g>
+<g clip-path="url(#clip_16)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="21.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-322.68" x="90.816 103.025768 107.94481 113.69833 119.803218 132.01297 139.32566 151.6013 163.81107 169.91594 176.02082 188.29647 200.50623 212.71599 217.67896 229.88872 242.09848 253.16632 265.37608 276.42198 282.52687 288.63175 300.8415 308.1981 314.30299 319.1781 337.4708 349.68055 356.99324 369.2469 380.2269 392.43666 404.6464 411.10264 423.31239 435.52214 447.79777 460.0075 467.3202 478.3661 484.47099 496.68074 508.9344 521.14419 526.06326 538.273 550.4828 556.6316 568.8414 581.05117 593.3268 599.54147 611.7512 623.961 636.23666 648.4464 660.6562 672.9318 691.2245 703.43429 715.64407 721.7489">different audiences for improved understanding and engagement.</tspan></text>
+</g>
+<g clip-path="url(#clip_17)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="21.984" font-family="Arial, Helvetica, sans-serif"><tspan y="-261.12" x="54.792 67.032009">2.</tspan></text>
+</g>
+<g clip-path="url(#clip_18)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="21.984" font-family="Arial, Helvetica, sans-serif"><tspan y="-261.12" x="90.816 105.47933 117.70244 129.92554 134.80599 145.79799 151.90955 162.90155 169.0131 176.33379 188.55689 199.63683 205.74839 217.97148 225.29216 237.51526 249.73836 256.0258 262.13734 274.36045 285.39643 297.61955 309.84266 314.7671 326.9902 339.21333 351.43644 362.4944 368.60594 374.71748 386.94059 393.05213 397.99855 410.22166 422.44477 434.66789 440.77943 445.72584 451.83738 462.82939 468.94093 481.16404 493.38716 505.61027 511.7218 523.9449 536.16799 548.39108 555.71176 567.97879 578.97079 590.02877 596.25027 608.4733 620.6964 632.9195 645.1865 652.5072 657.38766 668.37966 673.2601 685.48318 697.70626 703.8178 714.8758 727.0989 739.32199 750.37997 762.603 773.59506 779.75057 791.97366 798.0852 804.1968 816.41989 823.74057 836.00759 848.23068 853.1111 865.3781 883.6248 894.6168 900.7284">Apply structured techniques to identify and address underlying causes of problems, </tspan></text>
+</g>
+<g clip-path="url(#clip_19)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="21.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-221.5" x="90.816 103.025768 115.23553 126.30337 138.51313 145.8258 150.76682 162.97658 175.18634 181.33513 193.54489 199.34233 205.4472 217.65697 228.72481 234.82968 239.7048 250.6848 262.89457 268.99946 281.2531 293.46287 305.6726 311.9532 322.9332 335.20884 346.18885 352.33766 364.5474 369.46644 381.67619 393.88594 406.16157 411.03669 423.29035 429.28544 440.26545 452.54109 457.4162 469.66987 475.77476 480.64988 492.9255 505.13526 516.1811">ensuring effective and sustainable solutions.</tspan></text>
+</g>
+<g clip-path="url(#clip_20)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="21.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-159.94" x="54.792 67.03196">3.</tspan></text>
+</g>
+<g clip-path="url(#clip_21)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="21.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-159.94" x="90.816 105.463329 117.67309 129.88285 134.82386 145.80385 156.78385">Analyse</tspan></text>
+</g>
+<g clip-path="url(#clip_22)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="21.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-159.94" x="175.18 187.38976 199.59952 211.87517 217.98004 230.1898 242.44348 253.42348 265.69914 283.99183 296.20158 308.41133 314.5162 320.8846 336.73976 348.9495 356.26219 367.30809 373.41297 378.2881 390.56373 406.41886 417.39888 423.50376 429.65257 441.8623 447.9672 452.9082 465.11796 477.3277 489.60334 495.70823 500.58335 506.73216 517.71218 523.817 528.69216 540.9019 553.1117 558.9311 565.03598 569.9111 580.9789 585.854 598.1077 610.3175 621.36337 626.23849 638.4922 649.47219 655.40139 667.61117 679.8209 692.09658 698.2014 709.22537 721.4351 733.6449 745.92056 758.1303 769.17617 775.281">and document workflows to identify inefficiencies and suggest </tspan></text>
+</g>
+<g clip-path="url(#clip_23)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="21.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-120.31" x="90.816 95.691127 113.9838 126.193569 133.50624 145.716 156.696 168.90576 187.19844 199.4082 211.61797 217.72284 228.79068 235.24692 241.35179 253.56156 260.87425 267.15483 279.36457 291.5743 303.84996 316.0597 328.26945 339.33729 351.54704 363.75679 369.90559 382.11534 389.428 401.68168 412.66169 424.93733 435.91734 446.98518 453.09007 465.2998 477.55348 484.86616 490.97105 503.1808 510.49348 528.78616 540.9959 553.24966 564.2296 576.50527">improvements for enhanced process performance.</tspan></text>
+</g>
+<g clip-path="url(#clip_24)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-431.33" x="54.792 74.36844 92.18268 109.99692 122.46048 142.03693 150.94405 170.5205 190.09694 198.68366 223.61078 243.18723 253.85655 271.6708 291.24726 319.7308 337.54505 355.35929">Learning Outcomes </tspan></text>
+</g>
+<g clip-path="url(#clip_25)">
+</g>
+</g>
+</svg>

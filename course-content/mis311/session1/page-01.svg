@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="932.0" height="460.0" viewBox="20.0 56.0 932.0 460.0">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 .00036621H960V540.00039H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_4">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_5">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_6">
+<path transform="matrix(1,0,0,-1,0,540)" d="M256.51 424.02H501.92V495.46699H256.51Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_7">
+<g transform="matrix(.36036713,0,0,.36084343,256.51,44.533014)">
+</g>
+</mask>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M539 410.25H650.86V522.11H539Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+<g transform="matrix(.3608387,0,0,.3608387,539,17.89)">
+</g>
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_17">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_18">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+<g transform="matrix(.36009003,0,0,.36024017,0,-.00024414063)">
+</g>
+</g>
+<g clip-path="url(#clip_4)">
+</g>
+<g clip-path="url(#clip_5)">
+</g>
+<g clip-path="url(#clip_6)">
+<g mask="url(#mask_7)">
+<g transform="matrix(.36036713,0,0,.36084343,256.51,44.533014)">
+</g>
+</g>
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+<g transform="matrix(.3608387,0,0,.3608387,539,17.89)">
+</g>
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<text fill="#ff0000" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="50.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-263.98" x="155.95 192.07889 222.65332 250.47556 264.3867 294.96113 322.78337 350.6056 378.42784 391.8886 425.2653 444.73085 475.30528 503.1275 530.94979 558.77206 586.5943 598.30368 634.43258 665.007 692.8293 706.7404 734.5627 762.38497 776.2961 804.11837">Business Process Analysis </tspan></text>
+</g>
+<g clip-path="url(#clip_15)">
+<text fill="#ff0000" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="50.064" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-203.98" x="231.31 259.14558 289.73469 320.3238 333.99128 367.38398 386.85887 417.44798 448.03709 461.95487 489.79048 534.29739 548.21517 581.60787 612.19699 626.11477 653.9503 667.8681 698.4572">and Problem Solving</tspan></text>
+</g>
+<g clip-path="url(#clip_16)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.064" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-153.46" x="140.59 167.29932 176.11692 197.5036 206.41739 224.11673 240.08461 257.9122">MIS 311 </tspan></text>
+</g>
+<g clip-path="url(#clip_17)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.064" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-153.46" x="266.74">–</tspan></text>
+</g>
+<g clip-path="url(#clip_18)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.064" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-153.46" x="293.38 302.2938 321.8849 332.5622 345.0351 364.6262 384.08903 403.6801 421.4115 432.0888 441.0026 460.4013 479.9924 488.48936 499.16667 518.75778 527.4792 550.6294 570.2205 588.0481 596.8337 616.4248 634.1562 651.98379 669.6831 677.122 700.2722 719.86337 737.6909 746.4765 764.3041 774.9814 783.799 801.6266">Introduction to Business Analytics</tspan></text>
+</g>
+</g>
+</svg>

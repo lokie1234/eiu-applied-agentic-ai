@@ -1,0 +1,49 @@
+{
+  "course": {
+    "id": "86cae0a3-9ada-4e31-b4d4-c83f50cafaf6",
+    "title": "Business Process Analysis and Problem Solving"
+  },
+  "sections": [
+    {
+      "id": "b7bd6b13-c654-412b-badb-12853350e148",
+      "course_id": "86cae0a3-9ada-4e31-b4d4-c83f50cafaf6",
+      "section_key": "mis311-week7-session1",
+      "title": "Week 7 - Session 1",
+      "position": 1,
+      "status": "active",
+      "content_type": "tsx",
+      "content_path": null,
+      "source_filename": "Week7Session1.js",
+      "slide_count": 20
+    },
+    {
+      "id": "2cbb9354-a267-4103-9d14-99662d0e6bb1",
+      "course_id": "86cae0a3-9ada-4e31-b4d4-c83f50cafaf6",
+      "section_key": "mis311-week7-session2",
+      "title": "Week 7 - Session 2",
+      "position": 2,
+      "status": "active",
+      "content_type": "tsx",
+      "content_path": null,
+      "source_filename": "Week7Session2.js",
+      "slide_count": 33
+    }
+  ],
+  "template": {
+    "id": "86101dcf-70f4-49c3-a6a9-983c77708ad2",
+    "name": "EIU without reference",
+    "source": "existing system library; no template bytes embedded in JS"
+  },
+  "source": {
+    "filename": "MIS 311_Week 7.pptx",
+    "slideCount": 55,
+    "section1": [
+      1,
+      22
+    ],
+    "section2": [
+      23,
+      55
+    ]
+  }
+}

@@ -12,6 +12,10 @@ const nextConfig: NextConfig = {
     "/api/handout": ["./public/downloads/eiu-applied-agentic-ai-section-*-handout.pdf"],
     "/api/admin/drive/export": ["./lib/drive/builtin-decks/*.js", "./course-content/**/*.js"],
   },
+  // Conversion previews and private source renders must never ship with lessons.
+  outputFileTracingExcludes: {
+    "/**": ["./tmp/**/*"],
+  },
   experimental: {
     // Proxy buffers request bodies before route handlers read FormData.
     // Leave room for multipart headers around the 50 MB section-upload limit.

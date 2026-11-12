@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M84.351 43.781H506.00099V411.871H84.351Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_18">
+<path transform="matrix(1,0,0,-1,0,540)" d="M506 34.039H891.26V411.869H506Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_20">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_21">
+<path transform="matrix(1,0,0,-1,0,540)" d="M-.000061035 .00012207H959.99996V540.0001H-.000061035Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="29.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-432.22" x="54.792 75.75888 93.5604 109.70664 117.77976 135.52321 151.75656 167.9028 184.13616 190.72824 211.69513 229.49665 245.64289 253.716 269.4557 285.60194 295.35939 311.5056 319.57875 340.54563 358.3762 376.11964 393.86308 410.12547 426.2717 436.02915 443.6957 463.0654 479.21165 496.95509 514.78567 522.85879 539.005 547.0781 554.86087 574.2305 585.5271 603.27059 619.4168 635.65017 651.7964 668.0297 684.17599 700.3222 708.3953 716.03286 732.1791 749.98068 767.7241 775.6811 796.64797 812.8813 822.55166">Business Analysts Connect People, Processes, and Data</tspan></text>
+</g>
+<g clip-path="url(#clip_15)">
+</g>
+<g clip-path="url(#clip_16)">
+<g transform="matrix(.68672636,0,0,.68673506,84.351,128.129)">
+<image id="image_17" width="614" height="536" xlink:href="asset:7da24cd83c88078cbe1db1496b252eed27478c36652f9ccd1269fb3e4bf8dada.png" />
+</g>
+</g>
+<g clip-path="url(#clip_18)">
+<g transform="matrix(.61938908,0,0,.6193934,506,128.13202)">
+<image id="image_19" width="622" height="610" xlink:href="asset:b6a06ea83453a72eff212445218606e76e45c9cdf68542d2d7ef93a7e32ebdc5.png" />
+</g>
+</g>
+<g clip-path="url(#clip_20)">
+<path transform="matrix(1,0,0,-1,0,540)" stroke-width="4" stroke-linecap="butt" stroke-miterlimit="10" stroke-linejoin="miter" fill="none" stroke="#c00000" d="M106.48 131.27C106.48 134.66 109.23 137.41 112.62 137.41H445.13C448.52 137.41 451.27 134.66 451.27 131.27V106.7C451.27 103.31 448.52 100.56 445.13 100.56H112.62C109.23 100.56 106.48 103.31 106.48 106.7Z" />
+</g>
+<g clip-path="url(#clip_21)">
+<path transform="matrix(1,0,0,-1,0,540)" stroke-width="4" stroke-linecap="butt" stroke-miterlimit="10" stroke-linejoin="miter" fill="none" stroke="#c00000" d="M530.86 111.9C530.86 115.81 534.03 118.98 537.95 118.98H868.56C872.48 118.98 875.65 115.81 875.65 111.9V83.55C875.65 79.636 872.48 76.464 868.56 76.464H537.95C534.03 76.464 530.86 79.636 530.86 83.55Z" />
+</g>
+</g>
+</svg>

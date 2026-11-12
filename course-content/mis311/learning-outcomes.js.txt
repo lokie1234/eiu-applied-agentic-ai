@@ -1,0 +1,98 @@
+function attachLearningOutcomes(root, popup) {
+  const coverSvg = root.querySelector('svg');
+  const processBackground = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  processBackground.dataset.mis311ProcessBackground = 'true';
+  processBackground.setAttribute('aria-hidden', 'true');
+  processBackground.setAttribute('pointer-events', 'none');
+  processBackground.setAttribute('fill', 'none');
+  processBackground.setAttribute('stroke', '#144069');
+  processBackground.setAttribute('stroke-width', '2.3');
+  processBackground.setAttribute('stroke-linecap', 'round');
+  processBackground.setAttribute('stroke-linejoin', 'round');
+  processBackground.setAttribute('opacity', '.12');
+  processBackground.innerHTML = `
+    <g transform="translate(64 80)"><rect x="0" y="0" width="48" height="30" rx="8"/><path d="M24 30v20h45m-8-6 8 6-8 6"/><rect x="69" y="36" width="43" height="29" rx="8"/><circle cx="101" cy="-4" r="12"/><path d="M78-4H60m8-5-8 5 8 5"/></g>
+    <g transform="translate(793 91)"><path d="m37 0 27 25-27 25L10 25Z"/><path d="M10 25H-8v47h34m-8-6 8 6-8 6M64 25h25v47H63m8-6-8 6 8 6"/><rect x="26" y="59" width="37" height="27" rx="7"/></g>
+    <g transform="translate(68 425)"><circle cx="17" cy="17" r="16"/><path d="m11 17 5 5 9-11M33 17h28m-8-6 8 6-8 6"/><rect x="61" y="1" width="48" height="32" rx="8"/><path d="M85 33v19H17V33" stroke-dasharray="4 6"/></g>
+    <g transform="translate(797 431)"><rect x="0" y="0" width="39" height="48" rx="7"/><path d="M10 13h19M10 23h19M10 33h12M39 24h25m-8-6 8 6-8 6"/><circle cx="83" cy="24" r="18"/><path d="m75 24 6 6 10-12"/></g>
+    <path d="M192 83h144m288 0h104M69 190v58m820-34v60" stroke-dasharray="3 12" opacity=".65"/>
+    <path d="M202 493h115m326 0h112" stroke="#b99a62" stroke-width="3" stroke-dasharray="3 10"/>
+  `;
+  coverSvg.prepend(processBackground);
+  for (const text of root.querySelectorAll('svg text[fill="#ff0000"]')) {
+    text.setAttribute('transform', `${text.getAttribute('transform') || ''} translate(0 ${popup.coverTitleOffsetY || 0})`);
+  }
+  // Keep all three original subtitle runs on their shared SVG baseline.
+  for (const text of root.querySelectorAll('svg text[fill="#144069"]')) {
+    const baseline = Number(text.querySelector('tspan').getAttribute('y').split(' ')[0]);
+    const scale = popup.coverSubtitleScale || 1;
+    text.setAttribute('transform', `${text.getAttribute('transform') || ''} translate(0 ${popup.coverSubtitleOffsetY || 0}) translate(480 ${baseline}) scale(${scale}) translate(-480 ${-baseline})`);
+    text.dataset.mis311CoverSubtitle = 'true';
+  }
+  const style = document.createElement('style');
+  style.textContent = `
+    .mis311-outcomes-trigger{position:absolute;left:50%;top:77%;transform:translateX(-50%);isolation:isolate;border:1px solid #d7bb7d;border-radius:999px;padding:14px 29px;background:linear-gradient(135deg,#144069,#236894);color:white;font:600 clamp(15px,1.9vw,20px) Arial,sans-serif;cursor:pointer;box-shadow:0 10px 24px #14406935,0 0 18px #d6b56c55;transition:background .2s;animation:mis311-float 3.8s ease-in-out infinite,mis311-glow 3s ease-in-out infinite}
+    .mis311-outcomes-trigger::before{content:'';position:absolute;inset:-7px;z-index:-1;border:1px solid #c5a36388;border-radius:inherit;box-shadow:0 0 20px #93c5e044;animation:mis311-halo 3s ease-in-out infinite;pointer-events:none}
+    .mis311-outcomes-trigger:hover{background:linear-gradient(135deg,#1c527f,#2b7aab)}
+    .mis311-outcomes-trigger:hover,.mis311-outcomes-trigger:focus-visible{animation-play-state:paused}
+    .mis311-outcomes-trigger:hover::before,.mis311-outcomes-trigger:focus-visible::before{animation-play-state:paused}
+    .mis311-outcomes-trigger:focus-visible,.mis311-outcomes-close:focus-visible{outline:3px solid #b99a62;outline-offset:4px}
+    .mis311-outcomes-dialog{position:fixed;inset:auto;left:7%;top:13.5%;width:86%;max-width:none;max-height:75%;margin:0;border:2px solid transparent;border-radius:20px;padding:clamp(20px,2.6vw,28px);overflow:auto;background:linear-gradient(#fff,#fff) padding-box,linear-gradient(115deg,#144069,#c2a26c,#e3ecf2,#144069) border-box;background-size:100% 100%,280% 280%;color:#17324a;box-shadow:0 18px 60px #102f4c35;font-family:Arial,sans-serif}
+    .mis311-outcomes-dialog[open]{animation:mis311-panel-in .36s cubic-bezier(.2,.8,.2,1) both,mis311-frame 8s ease-in-out infinite}
+    .mis311-outcomes-dialog::backdrop{background:#102c4633}
+    .mis311-outcomes-heading{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:16px}
+    .mis311-outcomes-heading h2{margin:0;color:#144069;font-size:clamp(22px,2.9vw,30px);line-height:1.2}
+    .mis311-outcomes-close{border:1px solid #d9e1e8;border-radius:9px;background:#f3f6f8;color:#144069;padding:8px 12px;font:600 15px Arial,sans-serif;cursor:pointer}
+    .mis311-outcomes-dialog ol{margin:0;padding:0;display:grid;gap:10px;list-style:none;counter-reset:mis311-outcomes}
+    .mis311-outcomes-dialog li{position:relative;counter-increment:mis311-outcomes;padding:14px 18px 14px 64px;border:1px solid #dce5ec;border-left:3px solid #b79b68;border-radius:12px;background:linear-gradient(110deg,#f3f7fa,#fff);font-size:clamp(16px,1.95vw,20px);line-height:1.45;white-space:normal;word-break:normal;overflow-wrap:normal;hyphens:none;text-wrap:pretty;transition:border-color .2s,box-shadow .2s}
+    .mis311-outcomes-dialog li::before{content:counter(mis311-outcomes,decimal-leading-zero);position:absolute;left:14px;top:14px;width:32px;height:32px;display:grid;place-items:center;border-radius:9px;background:#144069;color:#fff;font-size:14px;font-weight:700}
+    .mis311-outcomes-dialog li:hover{border-color:#b79b68;box-shadow:0 3px 12px #14406912}
+    .mis311-outcomes-dialog[open] li{animation:mis311-card-in .42s cubic-bezier(.2,.8,.2,1) both}
+    .mis311-outcomes-dialog[open] li:nth-child(1){animation-delay:.08s}.mis311-outcomes-dialog[open] li:nth-child(2){animation-delay:.18s}.mis311-outcomes-dialog[open] li:nth-child(3){animation-delay:.28s}
+    @keyframes mis311-panel-in{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+    @keyframes mis311-card-in{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:translateX(0)}}
+    @keyframes mis311-frame{0%,100%{background-position:0 0,0% 50%}50%{background-position:0 0,100% 50%}}
+    @keyframes mis311-float{0%,100%{transform:translate(-50%,0)}50%{transform:translate(-50%,-7px)}}
+    @keyframes mis311-glow{0%,100%{box-shadow:0 10px 24px #14406935,0 0 18px #d6b56c55}50%{box-shadow:0 16px 32px #14406940,0 0 32px #d6b56c88,0 0 48px #70b3df33}}
+    @keyframes mis311-halo{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:1;transform:scale(1.035)}}
+    @media(prefers-reduced-motion:reduce){.mis311-outcomes-dialog[open],.mis311-outcomes-dialog[open] li,.mis311-outcomes-trigger,.mis311-outcomes-trigger::before{animation:none}.mis311-outcomes-trigger,.mis311-outcomes-dialog li{transition:none}}
+  `;
+  const trigger = document.createElement('button');
+  trigger.type = 'button';
+  trigger.className = 'mis311-outcomes-trigger';
+  trigger.textContent = popup.title;
+  trigger.setAttribute('aria-haspopup', 'dialog');
+  trigger.setAttribute('aria-controls', 'mis311-learning-outcomes');
+  const dialog = document.createElement('dialog');
+  dialog.id = 'mis311-learning-outcomes';
+  dialog.className = 'mis311-outcomes-dialog';
+  dialog.setAttribute('aria-labelledby', 'mis311-outcomes-title');
+  const heading = document.createElement('div');
+  heading.className = 'mis311-outcomes-heading';
+  const title = document.createElement('h2');
+  title.id = 'mis311-outcomes-title';
+  title.textContent = popup.title;
+  const close = document.createElement('button');
+  close.type = 'button';
+  close.className = 'mis311-outcomes-close';
+  close.textContent = 'Close';
+  close.setAttribute('aria-label', 'Close Learning Outcomes');
+  heading.append(title, close);
+  const list = document.createElement('ol');
+  for (const item of popup.items) {
+    const li = document.createElement('li');
+    li.textContent = item.replace(/\s+/g, ' ').trim();
+    list.appendChild(li);
+  }
+  dialog.append(heading, list);
+  trigger.addEventListener('click', () => dialog.showModal());
+  close.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('click', event => {
+    if (event.target !== dialog) return;
+    const box = dialog.getBoundingClientRect();
+    if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dialog.close();
+  });
+  // The cover is interactive, so expose its native controls to assistive tools.
+  root.setAttribute('role', 'group');
+  root.append(style, trigger, dialog);
+}

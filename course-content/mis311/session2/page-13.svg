@@ -1,0 +1,111 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M47.593 40.003H531.623V411.873H47.593Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_17">
+<g transform="matrix(.36014138,0,0,.36033914,47.593,128.12702)">
+<image id="image_18" width="1344" height="1032" xlink:href="asset:7e9f6ddcd669a972bcfacbc4d6074c2d637855294ad207ef68410447dfc396c7.png" />
+</g>
+</mask>
+<clipPath id="clip_20">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_21">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_22">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_23">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_24">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_25">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-431.33" x="54.792 76.16268 93.97692 106.44048 124.25472 134.92404 154.50049 163.2474 186.3803 205.95674 223.77098 236.23455">Pareto Chart</tspan></text>
+</g>
+<g clip-path="url(#clip_15)">
+</g>
+<g clip-path="url(#clip_16)">
+<g mask="url(#mask_17)">
+<g transform="matrix(.36014138,0,0,.36033914,47.593,128.12702)">
+<image id="image_19" width="1344" height="1032" xlink:href="asset:82938900a0d08300909e92f0adc66ec186e66ac60801dddd561ad7b036031e91.png" />
+</g>
+</g>
+</g>
+<g clip-path="url(#clip_20)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24" font-family="Arial, Helvetica, sans-serif"><tspan y="-303.72" x="546.29">•</tspan></text>
+</g>
+<g clip-path="url(#clip_21)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24" font-family="Arial, Helvetica, sans-serif"><tspan y="-303.72" x="564.31 578.974 592.318 605.58999 612.26199 619.006 632.35 644.35 656.35 661.678 674.92599 681.59799 686.92599 698.92599 705.59799 712.342 725.686 739.02999 745.582 758.92599 772.26998 785.54196 792.3579 799.0299 812.3739 825.7179 832.3899 839.0619 852.4059 865.7499 877.7499 884.4219 891.0939 904.43789 917.78189">The tackle is the one that has the </tspan></text>
+</g>
+<g clip-path="url(#clip_22)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24" font-family="Arial, Helvetica, sans-serif"><tspan y="-277.8" x="564.31 577.654 582.91 596.25399 609.59799 622.86996 634.86996 641.54196 648.40597 660.40597 672.40597 685.74996 693.74197 707.08596 713.75796">highest score. </tspan></text>
+</g>
+<g clip-path="url(#clip_23)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24" font-family="Arial, Helvetica, sans-serif"><tspan y="-241.92" x="546.29">•</tspan></text>
+</g>
+<g clip-path="url(#clip_24)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24" font-family="Arial, Helvetica, sans-serif"><tspan y="-241.92" x="564.31 578.974 592.318 597.55 609.55 616.222 629.566 642.91 656.25399 663.04598 680.37399 685.60598 690.93399 696.16598 703.1019 716.4459 721.7019 733.7019 747.0459 753.8379 765.8379 779.1819 792.5259 799.1979 805.8699 819.21389 832.55789 839.22988 852.57388 857.90188 871.24588 884.5178 897.8618 909.8618 916.5338">This one will give you the biggest </tspan></text>
+</g>
+<g clip-path="url(#clip_25)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24" font-family="Arial, Helvetica, sans-serif"><tspan y="-215.98" x="564.31 577.654 590.998 604.26998 617.61398 624.28598 629.61398 636.28598 643.0059 648.3339 655.0059 661.6059 673.6059 686.9499 700.2939 707.0619 719.0619 732.4059 737.7339 749.7339 762.9819 769.79788 775.12588 781.79788">benefit if you solve it.</tspan></text>
+</g>
+</g>
+</svg>

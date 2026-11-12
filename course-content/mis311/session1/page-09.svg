@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_17">
+<path transform="matrix(1,0,0,-1,0,540)" d="M23.453 69.253H437.213V358.15299H23.453Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_19">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_20">
+<path transform="matrix(1,0,0,-1,0,540)" d="M475.47 69.253H947.57998V358.15299H475.47Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-368.16" x="30.648 50.83512 66.38088 72.64393 80.41681 86.62393 102.25357 117.79933 125.739978 149.03066 164.57642 180.20606 195.75182 202.01486 208.22199 214.42911 230.05875 245.6045 253.54514 269.09089 284.72056 300.2663 315.89598 331.4417 347.07139 362.61714">Unified Modelling Language</tspan></text>
+</g>
+<g clip-path="url(#clip_15)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-431.33" x="54.792 77.92488 97.50132 125.98488 154.46845 174.04489 193.62134 202.4003 225.53319 245.10964 262.9239 271.83103 291.40748 309.2217 327.03596 344.8502 353.40489 374.77558 387.23915 406.81559 424.62983 442.44407 460.2583 478.07255 486.88356 513.5729 533.1493 552.7257 570.54 579.4471 588.3542 597.1331 616.70956 636.28598 644.9367 662.1101 679.9244 697.73867 717.31509 736.8915 745.7986 765.375 784.9514 802.7657">Common Business Process Modelling Techniques</tspan></text>
+</g>
+<g clip-path="url(#clip_16)">
+</g>
+<g clip-path="url(#clip_17)">
+<g transform="matrix(.37275679,.000000027493695,0,.3727742,23.453,181.84799)">
+<image id="image_18" width="1110" height="775" xlink:href="asset:7c5af37cf732664f84c612a0a89212f9235cba7383632cfbaf7d5d4a4e08b79e.png" />
+</g>
+</g>
+<g clip-path="url(#clip_19)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.984" font-family="Arial, Helvetica, sans-serif"><tspan y="-372.43" x="457.73 476.39533 491.95445 505.94645 512.1589 527.7739 543.333 557.381 571.373 579.1525 597.70596 607.0246 622.5837 636.6876 652.2467 666.2947 680.2867 688.0662 711.3769 726.936 742.579 758.13809 764.3505 770.61898 776.8314 792.3905 808.0335 816.0369 836.2414 851.8005 859.58 875.1391 882.91867 889.215 904.7741 920.3332 928.19668">Business Process Modelling Notation  </tspan></text>
+</g>
+<g clip-path="url(#clip_20)">
+<g transform="matrix(.8808022,0,0,.8807926,475.47,181.84702)">
+<image id="image_21" width="536" height="328" xlink:href="asset:4b77222cf9155a3312852f60fd3de2b7d1110f6636383b26c56810320c456b77.png" />
+</g>
+</g>
+</g>
+</svg>

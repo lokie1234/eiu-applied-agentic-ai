@@ -1,0 +1,141 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M-.000001907 .00018311H960V540.0002H-.000001907Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_17">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_18">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_19">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_20">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_21">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_22">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_23">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_24">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_25">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_26">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_27">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_28">
+<path transform="matrix(1,0,0,-1,0,540)" d="M620.22 11.283H878.61V192.153H620.22Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<path transform="matrix(1,0,0,-1,0,540)" stroke-width="1" stroke-linecap="butt" stroke-miterlimit="10" stroke-linejoin="miter" fill="none" stroke="#000000" d="M21.424 499.6H232.03" />
+</g>
+<g clip-path="url(#clip_15)">
+<path transform="matrix(1,0,0,-1,0,540)" stroke-width="1" stroke-linecap="butt" stroke-miterlimit="10" stroke-linejoin="miter" fill="none" stroke="#000000" d="M265.88 499.6H934.02" />
+</g>
+<g clip-path="url(#clip_16)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="37.344" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-429.12" x="28.632 51.44919 72.212459 82.594089 105.41127 126.17454 136.40679 161.31523 173.75078 188.27759 209.04087 229.80414 263.00297 273.38459 304.49214 325.2554 348.07258 370.77775 381.15937 403.97657">Value Stream Mapping</tspan></text>
+</g>
+<g clip-path="url(#clip_17)">
+<text fill="#e46102" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif"><tspan y="-371.78" x="28.632">▪</tspan></text>
+</g>
+<g clip-path="url(#clip_18)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-371.78" x="52.632 72.17641 89.99065 98.897769 118.37808 136.19232 145.09944 166.47013 177.13945 189.60301 207.2891 225.10334 253.49079 262.39793 289.08726 306.77333 326.34977 345.9262 354.83335 374.4098 393.98625 402.54093 411.44807 429.2623 437.94517 455.7594 464.66654 484.14686 496.6104 514.4247 532.23898 542.90829 551.59109 562.2604 581.8368 601.4132 610.3203 619.03518 629.70449 649.2809 667.09518 677.76449 686.3512 695.2583 714.8347 734.41116 753.98757 771.67367 782.34298 794.8065 803.7136 821.5279 830.435">Value Stream Mapping is a great tool that Industrial </tspan></text>
+</g>
+<g clip-path="url(#clip_19)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-337.22" x="52.632 74.002689 93.579128 113.15556 122.06268 141.63913 159.32521 177.13945 189.60301 207.41725 215.97193 235.54837 253.36261 271.04869 279.9558 288.86296 308.4394 317.12226 336.6987 349.16227 368.7387 386.55296 399.0165 407.7314 418.40074 437.97718 446.72413 464.53837 482.25648 500.0707 508.97785 519.64718 539.2236 556.90969 565.65658 585.233 597.69656 617.27297 635.0872 652.7733 670.5876 688.3057 697.0526 707.7219 720.1855 739.7619 768.2455 776.9603 794.7746">Engineers use in order to see the process from a </tspan></text>
+</g>
+<g clip-path="url(#clip_20)">
+<text fill="#ef6f2a" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-337.22" x="803.69 819.71 839.28646 848.19357 860.6571 880.2335 898.0478">“birds </tspan></text>
+</g>
+<g clip-path="url(#clip_21)">
+<text fill="#ef6f2a" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.064" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-302.66" x="52.632 70.45959 88.15891 105.986499 114.8041 132.63169 141.44928 159.27687 184.22266">eye view”</tspan></text>
+</g>
+<g clip-path="url(#clip_22)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.064" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-302.66" x="200.26 209.13999">. </tspan></text>
+</g>
+<g clip-path="url(#clip_23)">
+<text fill="#e46102" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif"><tspan y="-258" x="28.632">▪</tspan></text>
+</g>
+<g clip-path="url(#clip_24)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-258" x="52.632 72.20844 91.78488 100.692 118.37808 127.125 155.60857 173.32669 191.14093 210.71738 228.40346 237.31058 247.9799 267.55635 285.37059 296.0399 304.59458 315.2639 334.84034 352.65458 370.34065 379.0876 396.90184 414.61994 434.19639">This means that they can </tspan></text>
+</g>
+<g clip-path="url(#clip_25)">
+<text fill="#e56618" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-258" x="443.04 460.85426 478.57237 496.3866 505.29374 522.9798 540.79409 558.5122 570.97579 588.79006 599.45938 619.03579 627.9429 647.5193 666.9996 675.6503 695.22677 714.80319 723.71029 743.2867 762.8631 771.4178 790.9942 810.5706">see everything going on </tspan></text>
+</g>
+<g clip-path="url(#clip_26)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-258" x="819.29 837.10427 856.68069 876.2571">and </tspan></text>
+</g>
+<g clip-path="url(#clip_27)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-223.44" x="52.632 70.44624 88.16436 107.7408 116.48772 125.39484 144.97129 162.6894 182.26586 192.93518 201.8423 212.51163 230.32587 238.88054 256.6948 269.15837 286.9726 304.62666 322.4409 331.34803 350.82835 361.49766 370.2766 379.18376 407.6673 427.24375 439.7073 459.28376 476.96983 494.78407 523.1715 540.9858 560.5622 571.2315 579.94638 604.8735 624.4499 642.26419 654.7277 672.542 681.2248 691.8941 711.4705 729.2848 746.9709 755.62167 773.4359 791.15408 810.73049 819.6376 839.214 856.9001 865.8072 885.3836 896.0529 904.6717">can identify areas of improvement where they can help!  </tspan></text>
+</g>
+<g clip-path="url(#clip_28)">
+<g transform="matrix(.57420006,0,0,.5741905,620.22,347.847)">
+<image id="image_29" width="450" height="315" xlink:href="asset:1f9885b348f1ed8c82fcaf53bdf83cc0adf7ad40b0893dfaf7f6073d131d1332.jpg" />
+</g>
+</g>
+</g>
+</svg>

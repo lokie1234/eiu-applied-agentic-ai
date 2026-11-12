@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_17">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_18">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_19">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_20">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_21">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_22">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_23">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-376.8" x="54.792 73.464008 88.128009 94.848 108.192 121.536 129.528 136.2 149.544 162.888 170.88">Objective: </tspan></text>
+</g>
+<g clip-path="url(#clip_15)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24" font-family="Arial, Helvetica, sans-serif"><tspan y="-321.6" x="54.792 72.12 84.12 97.464008 104.136 118.8 124.032009 136.03202 149.376 162.72 176.064 189.312 202.656 209.688 223.03202 236.376 249.648 254.976 266.976 278.976 284.208 296.208 303.144 309.816 323.16 329.832 335.064 348.408 361.75199 375.024 381.69599 387.024 393.69599 405.69599 412.43998 419.11198 432.45597 445.79997 452.47196 460.53596 473.87995 487.22395 493.89595 500.49595 512.496 525.83999 539.18399 551.18399 564.52798 576.52798 583.19998 596.54397 603.21597 609.88796 623.1359 629.8079 643.1519 648.4799 661.8239 675.1679 681.9119 695.2559 708.5999 715.2719 728.6159 740.6159 747.2879 753.9599 761.9519 775.2959 781.9679 795.3119 801.9839 807.1919 820.5359 827.3279 840.6719">Use Fishbone analysis to identify the root causes of a high defect rate in a </tspan></text>
+</g>
+<g clip-path="url(#clip_16)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24.024" font-family="Arial, Helvetica, sans-serif"><tspan y="-278.4" x="54.792 68.149349 76.14934 89.50668 102.86403 116.10126 128.11325 134.79193 141.47061 161.55467 174.91202 188.1973 201.55464 208.2333 221.59066 233.60265 240.28131 253.63866 261.63865 274.99598 288.28126 294.95994 308.31727 320.32926 327.00794 340.3653 346.9719 358.9839 372.34126 392.35325 405.71058 418.97184 432.32917 444.34117 451.11595 464.47328 477.75856 491.1159 497.8907 509.90269 523.26 536.5213 549.87869 563.16397 575.17599 581.8546 588.53329 593.8666 613.87857 627.2359 635.2359 648.59329 660.6053 673.96267 693.9746 707.332 720.59329 727.2719 739.28396">product manufactured by a company and suggest improvements.</tspan></text>
+</g>
+<g clip-path="url(#clip_17)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-223.18" x="54.792 70.8 84.07201 97.41601 112.08001 125.35201 134.68802 141.36002">Scenario</tspan></text>
+</g>
+<g clip-path="url(#clip_18)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24.024" font-family="Arial, Helvetica, sans-serif"><tspan y="-167.98" x="54.792 69.422618 76.02921 88.041217 101.39856 121.41055 134.7679 148.02915 161.38649 173.39849 180.17325 200.18524 213.54259 226.89994 240.18521 246.86389 260.22126 272.23326 278.91194 292.2693 300.2693 313.62666 325.63865 332.31733 344.3293 357.68666 371.044 383.056 396.31724 416.32923 429.68659 437.68659 444.36528 457.7226 463.0559 476.41328 488.42527 495.10395 503.10395 516.4613 529.81869 535.03189 547.0439 559.0559 565.73458 572.5574 585.91476 599.2 612.5574 619.3321 627.3321 640.68948 652.7015 666.05886 679.3441 686.02279 691.3561 701.5423 708.22097 714.8996 721.57827 734.9356 748.29299 756.29299 769.6503 774.38308 786.3951 793.19387 806.5512 819.8365 833.19387 846.4791 853.30197 866.6593 879.9446">A company manufactures consumer electronics, and recently, there’s been an </tspan></text>
+</g>
+<g clip-path="url(#clip_19)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24" font-family="Arial, Helvetica, sans-serif"><tspan y="-124.75" x="54.792 60.12 73.392009 85.392009 93.384 106.728008 120.07201 132.072 145.41602 152.20801 157.53601 170.808 177.624 190.96799 204.31198 210.98398 224.32798 236.32798 242.99997 248.32798 260.32798 273.67198 280.34397 293.68797 301.67997 315.02397 328.36796 341.71195 353.71195 360.38395 372.38395 379.05595 385.72795 391.05595 404.30393 417.64793 430.9919 436.2239 449.5679 462.9119 469.9199 476.5919 489.93589 496.60789 509.87989 515.2079 528.47988 541.82388 555.16787 563.15988 570.0958 578.0878 591.4318 598.1038 611.4478 619.51187 632.85586 639.4318 647.4238 660.7678 667.4398 680.7838 692.7838 699.4558 712.7998 726.1438 739.3918 746.20779 759.55178 764.80776 776.80776 788.80776 802.15176 808.8237 814.15176 826.15176 832.8237 838.15176 851.4957 864.7677">increase in defective products, leading to higher return rates and dissatisfied </tspan></text>
+</g>
+<g clip-path="url(#clip_20)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24" font-family="Arial, Helvetica, sans-serif"><tspan y="-81.552" x="54.792 66.792 80.136 92.136 98.808 112.152 132.144 145.488 153.52802 165.52802 172.20001 178.72801 198.72002 212.06403 225.40802 238.75202 252.09601 265.44 285.432 298.776 312.12 318.792 325.58399 338.92799 352.27198 364.27198 370.94398 384.28797 396.28797 408.28797 421.63197 434.97596 441.71995 453.71995 467.06394 480.40794 487.07994 493.75193 507.09593 513.76797 518.99996 532.34396 544.34396 557.6879 569.6879 576.3599 581.6879 595.0319 608.2799 614.9519 628.2959 635.2559 641.9279 655.2719 668.6159 675.2879 683.2799 696.6239 709.9679 721.9679 735.2159 748.5599 760.5599 767.35189 774.02389 787.36788 795.40786 801.8878 808.5598 821.9038 835.2478 841.9198 855.1678 860.4958 873.76779 887.11178">customers. Management has asked you to investigate the reasons for the high </tspan></text>
+</g>
+<g clip-path="url(#clip_21)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="24.024" font-family="Arial, Helvetica, sans-serif"><tspan y="-38.352" x="54.792 68.149349 81.434619 88.11329 101.470638 113.482639 120.16131 126.83998 134.83997 148.19731 154.87598 168.23332 174.79187 188.14922 201.4345 214.79184 221.56662 234.92397 242.92395 256.2813 269.63868 282.87593 294.8879 308.24525 315.02003 327.032 340.38935 348.38935 356.38935 369.7467 381.7587 388.43739 393.7707 405.78269 419.06794 425.7466 439.10395 451.11595 457.79463 463.12794 476.4853 489.74656 501.75856">defect rate and propose corrective actions.</tspan></text>
+</g>
+<g clip-path="url(#clip_22)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-432.29" x="54.792 76.16268 93.97692 111.79116 124.25472 142.06897 150.97609 168.66217 186.47641 197.14574 204.67514 227.80803 247.38448 265.19874 274.10588 291.9201 307.9401 316.84724 336.42369 356.00013 364.65095 387.7838 396.69096 416.2674 435.84385 444.5267 465.8974 478.36097 497.9374 517.51388 537.0903 554.90457 565.57388 574.3528 597.48568 615.2999 625.96926 643.7835 661.5978 672.2671 680.88589 704.01876 721.833 732.5023 750.3166">Exercise: Analyzing High Product Defect Rates</tspan></text>
+</g>
+<g clip-path="url(#clip_23)">
+</g>
+</g>
+</svg>

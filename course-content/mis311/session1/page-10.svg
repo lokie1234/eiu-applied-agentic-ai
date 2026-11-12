@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_17">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_18">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_19">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_20">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_21">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_22">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_23">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_24">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00024414H960V540.00027H0Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-368.16" x="54.792">•</tspan></text>
+</g>
+<g clip-path="url(#clip_15)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-368.16" x="90.816 109.465328 125.011089 138.99109 145.25414 160.7999 176.42954 190.40953 204.4734 212.1624 230.81172 240.1224 255.66817 269.73207 285.27784 299.34175 313.32176 321.15055 344.44123 359.987 375.58869 391.13447 397.3975 403.6046 409.81175 425.44139 440.98713 449.0396 469.22676 484.77253 492.5454 508.17509 515.94796 522.155 537.78469 553.33047 561.10336 570.5258 589.1751 607.7126 631.0033 651.1904">Business Process Modelling Notation (BPMN)</tspan></text>
+</g>
+<g clip-path="url(#clip_16)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-315.96" x="54.792">•</tspan></text>
+</g>
+<g clip-path="url(#clip_17)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-315.96" x="90.816 111.00312 126.54888 132.756 140.5848 146.79192 162.3936 177.93936 185.88 209.17069 224.71645 240.31813 255.86389 262.12693 268.33406 274.54118 290.1708 305.71656 313.6572 329.20295 344.8326 360.37837 376.00804 391.55378 407.18345 422.7292 438.35887 446.3834 455.69407 475.8812 499.17189 514.71768">Unified Modelling Language (UML)</tspan></text>
+</g>
+<g clip-path="url(#clip_18)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.984" font-family="Arial, Helvetica, sans-serif"><tspan y="-263.64" x="54.792">•</tspan></text>
+</g>
+<g clip-path="url(#clip_19)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.984" font-family="Arial, Helvetica, sans-serif"><tspan y="-263.64" x="90.816 107.91422 114.12667 129.68578 149.89023 163.88224 179.44135 195.05643 204.37509 212.15465">Flowcharts</tspan></text>
+</g>
+<g clip-path="url(#clip_20)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-211.42" x="54.792">•</tspan></text>
+</g>
+<g clip-path="url(#clip_21)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-211.42" x="90.816 112.56888 128.11464 143.6604 151.51717 159.29004 167.06293 187.16617 202.71193 218.34157 227.65225 235.42514 249.51699">Gantt Charts </tspan></text>
+</g>
+<g clip-path="url(#clip_22)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-431.33" x="54.792 77.92488 97.50132 125.98488 154.46845 174.04489 193.62134 202.4003 225.53319 245.10964 262.9239 271.83103 291.40748 309.2217 327.03596 344.8502 353.40489 374.77558 387.23915 406.81559 424.62983 442.44407 460.2583 478.07255 486.88356 513.5729 533.1493 552.7257 570.54 579.4471 588.3542 597.1331 616.70956 636.28598 644.9367 662.1101 679.9244 697.73867 717.31509 736.8915 745.7986 765.375 784.9514 802.7657">Common Business Process Modelling Techniques</tspan></text>
+</g>
+<g clip-path="url(#clip_23)">
+</g>
+<g clip-path="url(#clip_24)">
+<path transform="matrix(1,0,0,-1,0,540)" stroke-width="3.25" stroke-linecap="butt" stroke-miterlimit="10" stroke-linejoin="miter" fill="none" stroke="#c00000" d="M40.615 400.76C40.615 406.9 45.588 411.87 51.722 411.87H668.28C674.41 411.87 679.38 406.9 679.38 400.76V356.34C679.38 350.2 674.41 345.23 668.28 345.23H51.722C45.588 345.23 40.615 350.2 40.615 356.34Z" />
+</g>
+</g>
+</svg>

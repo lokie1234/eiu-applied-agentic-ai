@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="956.0" height="478.035" viewBox="-4.0 56.0 956.0 478.035">
+<defs>
+<clipPath id="clip_1">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00018311H960V540.0002H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(1,0,0,-1,0,540)" d="M17.504 508.94H250.994V533.107H17.504Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_4">
+</mask>
+<clipPath id="clip_7">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(1,0,0,-1,0,540)" d="M0 .00012207H960V540.0001H0Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(1,0,0,-1,0,540)" d="M881.62 497.33H929.457V539.99899H881.62Z" clip-rule="evenodd" />
+</clipPath>
+<mask id="mask_11">
+</mask>
+<clipPath id="clip_14">
+<path transform="matrix(1,0,0,-1,0,540)" d="M130.59 18.813H829.41006V374.33299H130.59Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_17">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_18">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+<clipPath id="clip_19">
+<path transform="matrix(1,0,0,-1,0,540)" d="M.000014305 0H960V540H.000014305Z" clip-rule="evenodd" />
+</clipPath>
+</defs>
+<g>
+<g clip-path="url(#clip_1)">
+</g>
+<g clip-path="url(#clip_2)">
+</g>
+<g clip-path="url(#clip_3)">
+<g mask="url(#mask_4)">
+</g>
+</g>
+<g clip-path="url(#clip_7)">
+</g>
+<g clip-path="url(#clip_8)">
+</g>
+<g clip-path="url(#clip_9)">
+</g>
+<g clip-path="url(#clip_10)">
+<g mask="url(#mask_11)">
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<g transform="matrix(.87352499,0,0,.87351348,130.59,165.66703)">
+<image id="image_15" width="800" height="407" xlink:href="asset:37a12ea322a796df0c8429c0699045931104627f3c3af11479afc25d45fc250f.jpg" />
+</g>
+</g>
+<g clip-path="url(#clip_16)">
+<text fill="#144069" xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="32.04" font-family="Arial, Helvetica, sans-serif" font-weight="bold"><tspan y="-445.08" x="36.936 60.068887 79.645328 108.12889 127.70533 145.42346 164.99991 182.81415 191.497 216.42412 228.88768 248.46413 266.27839 285.85484 294.76197 312.44804 330.26228 340.93159 349.8387 369.41517 388.76734 397.28999">Company Organisation  </tspan></text>
+</g>
+<g clip-path="url(#clip_17)">
+</g>
+<g clip-path="url(#clip_18)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-398.11" x="36.936 57.123125 72.668888 95.959568 111.505329 127.134967 142.68073 156.7446 164.76912 180.31488 195.94452 209.92452 217.69739 233.24315 239.45027 246.83171 254.60459 270.15034 279.57286 295.1186 310.74827 318.52116 326.29405 341.83979 357.38557 372.98725 388.53303 397.92759 405.70048 428.99116 444.53694 460.1666 467.93949 481.9754 489.7483 497.66099 520.95169 536.49746 545.864 559.844 575.47366 583.2465 589.4536 605.08328 620.629 628.4019 636.25869 651.80447 667.4341 690.7248 706.27059 721.87228 729.75698 739.0676 754.69729 768.67727 784.3069 799.85269 809.2472 823.2272 838.8568 852.8368 860.6656">Company has different departments: marketing, human resources, </tspan></text>
+</g>
+<g clip-path="url(#clip_19)">
+<text xml:space="preserve" transform="matrix(1 0 -0 1 0 540)" font-size="27.96" font-family="Arial, Helvetica, sans-serif"><tspan y="-367.87" x="36.936 52.481763 66.54564 80.525638 96.15527 111.701038 127.33067 135.10355 141.31067 156.9403 172.48607 180.25894 188.03183 203.57759 211.35047 225.4423 233.21518">accounting, etc. </tspan></text>
+</g>
+</g>
+</svg>

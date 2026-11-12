@@ -1,0 +1,29 @@
+{
+  "hiddenSourceSlides": [3],
+  "organizationChart": {
+    "sourceSlide": 4,
+    "title": "Company Organisation",
+    "root": {
+      "label": "Managing Director",
+      "children": [
+        { "label": "Marketing Director", "children": [{ "label": "Marketing Managers", "children": [{ "label": "Sales Teams" }] }] },
+        { "label": "Finance Director", "children": [{ "label": "Finance Supervisors", "children": [{ "label": "Accounts Assistants" }] }] },
+        { "label": "Operations Director", "children": [{ "label": "Production Team Leaders", "children": [{ "label": "Production Team Members" }] }] },
+        { "label": "HRM Director", "children": [{ "label": "Personnel Manager" }] }
+      ]
+    }
+  },
+  "learningOutcomesPopup": {
+    "sourceSlide": 2,
+    "triggerSlide": 1,
+    "title": "Learning Outcomes",
+    "coverTitleOffsetY": -72,
+    "coverSubtitleScale": 1.12,
+    "coverSubtitleOffsetY": -14,
+    "items": [
+      "Demonstrate the ability to convey ideas clearly and adapt communication style to different audiences for improved understanding and engagement.",
+      "Apply structured techniques to identify and address underlying causes of problems, ensuring effective and sustainable solutions.",
+      "Analyse and document workflows to identify inefficiencies and suggest improvements for enhanced process performance."
+    ]
+  }
+}
