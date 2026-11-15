@@ -1,6 +1,6 @@
 import { requireAdminAccess } from '@/lib/auth/currentUser';
 import { getSupabaseAdmin } from '@/lib/supabase/server';
-import { liveBackup } from '@/lib/livePresentationBackup';
+import { readLiveState,saveLiveState } from '@/lib/livePresentationState';
 import { gunzipSync } from 'node:zlib';
 
 export const runtime='nodejs';
@@ -18,11 +18,10 @@ async function authorize(sectionId:string,signal:AbortSignal,adminChecked=false,
 }
 export async function GET(request:Request){
   try{
-    const sectionId=new URL(request.url).searchParams.get('sectionId')||'';
-    if(!await authorize(sectionId,request.signal))return Response.json({message:'Administrator section access required.'},{status:403,headers});
-    const room=await liveBackup(sectionId,'view',{},request.signal);
     const query=new URL(request.url).searchParams;
-    if(room&&query.get('epoch')===room.epoch&&Number(query.get('since'))===room.revision)return Response.json({room:{...room,document:undefined}},{headers});
+    const sectionId=query.get('sectionId')||'',status=query.get('status')==='1';
+    if(!await authorize(sectionId,request.signal,false,!status))return Response.json({message:'Administrator section access required.'},{status:403,headers});
+    const room=await readLiveState(sectionId,{epoch:query.get('epoch')||'',since:Number(query.get('since')??-1),after:Number(query.get('after')??-1),status},request.signal);
     return Response.json({room}, {headers});
   }catch{return Response.json({message:'Supabase Live backup is unavailable.'},{status:503,headers});}
 }
@@ -36,7 +35,7 @@ export async function POST(request:Request){
     const decoded=request.headers.get('content-encoding')==='gzip'?gunzipSync(bytes,{maxOutputLength:1_100_000}):bytes;
     const body=JSON.parse(decoded.toString('utf8'));
     if(!await authorize(body.sectionId,request.signal,true,body.action!=='stop'))return Response.json({message:'Live is disabled or section access is unavailable.'},{status:403,headers});
-    if(!['start','update','stop'].includes(body.action)||![body.deviceId,body.epoch].every(value=>typeof value==='string'&&/^[a-zA-Z0-9-]{16,100}$/.test(value)))return Response.json({message:'Invalid Live command.'},{status:400,headers});
-    const room=await liveBackup(body.sectionId,body.action,body,request.signal);return Response.json({revision:room?.revision||0,sequence:room?.sequence||0},{headers});
+    if(!['start','update','heartbeat','stop'].includes(body.action)||![body.deviceId,body.epoch].every(value=>typeof value==='string'&&/^[a-zA-Z0-9-]{16,100}$/.test(value)))return Response.json({message:'Invalid Live command.'},{status:400,headers});
+    const room=await saveLiveState(body.sectionId,body.action,body,request.signal);return Response.json({revision:room?.revision||0,sequence:room?.sequence||0,room},{headers});
   }catch(error){return Response.json({message:error instanceof Error?error.message:'Unable to update Live.'},{status:409,headers});}
 }

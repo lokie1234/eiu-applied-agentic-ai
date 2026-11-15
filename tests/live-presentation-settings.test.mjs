@@ -32,7 +32,7 @@ test('Live feature flags survive course metadata serialization and ignore malfor
 
 test('Supabase transport blocks disabled Live but still lets an admin release the previous lease',async()=>{
  let writes=0;const row={status:'active',content_type:'tsx',courses:{description:JSON.stringify({sectionLive:{[sectionId]:false}})}};
- const route=loadTS('app/api/admin/live/route.ts',{'@/lib/auth/currentUser':{requireAdminAccess:async()=>({})},'@/lib/supabase/server':{getSupabaseAdmin:()=>({from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:row})})})})})},'@/lib/livePresentationBackup':{liveBackup:async()=>{writes++;return null;}}});
+ const route=loadTS('app/api/admin/live/route.ts',{'@/lib/auth/currentUser':{requireAdminAccess:async()=>({})},'@/lib/supabase/server':{getSupabaseAdmin:()=>({from:()=>({select:()=>({eq:()=>({maybeSingle:async()=>({data:row})})})})})},'@/lib/livePresentationState':{saveLiveState:async()=>{writes++;return null;}}});
  assert.equal((await route.GET(new Request(`http://localhost/api/admin/live?sectionId=${sectionId}`))).status,403);
  const command=action=>route.POST(new Request('http://localhost/api/admin/live',{method:'POST',headers:{origin:'http://localhost'},body:JSON.stringify({sectionId,action,deviceId:'controller-aaaaaaaa',epoch:'epoch-aaaaaaaaaaaaa'})}));
  assert.equal((await command('start')).status,403);assert.equal(writes,0);

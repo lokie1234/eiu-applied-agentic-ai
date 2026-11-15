@@ -1,5 +1,5 @@
 "use client";
-import { signalLivePeer, watchLivePeers } from './realtime/client';
+import { signalLivePeer, watchLivePeers } from './livePresentationRealtime';
 import { applyLivePatch, type LiveDocument } from './livePresentationProtocol';
 import { diffLiveDocument } from './livePresentationDom';
 
@@ -10,7 +10,7 @@ async function gathered(peer:RTCPeerConnection){
 // Host candidates keep same-network traffic direct without sending data to a STUN/TURN service.
 // Other networks transparently continue through the authenticated server transports.
 export function createLivePeerController(sectionId:string,deviceId:string,epoch:string){
-  const connections=new Map<string,{peer:RTCPeerConnection;channel?:RTCDataChannel;previous:LiveDocument|null}>();let latest:LiveDocument|null=null,closed=false,message=0;
+  const connections=new Map<string,{peer:RTCPeerConnection;offer:string;channel?:RTCDataChannel;previous:LiveDocument|null}>();let latest:LiveDocument|null=null,closed=false,message=0;
   const send=(entry:{channel?:RTCDataChannel;previous:LiveDocument|null})=>{
     const channel=entry.channel;if(!latest||channel?.readyState!=='open'||channel.bufferedAmount>256000)return;
     const patch=diffLiveDocument(entry.previous,latest);if(!patch.nodes.length&&!patch.removed.length&&entry.previous?.width===latest.width&&entry.previous?.height===latest.height)return;
@@ -21,8 +21,8 @@ export function createLivePeerController(sectionId:string,deviceId:string,epoch:
   const stop=typeof RTCPeerConnection==='undefined'?()=>{}:watchLivePeers(sectionId,room=>{
     if(!room||room.epoch!==epoch||room.owner!==deviceId)return;
     for(const [id,entry]of connections)if(!room.peers.some(peer=>peer.id===id)){entry.peer.close();connections.delete(id);}
-    for(const offer of room.peers){if(connections.has(offer.id))continue;
-      const peer=new RTCPeerConnection({iceServers:[]}),entry:{peer:RTCPeerConnection;channel?:RTCDataChannel;previous:LiveDocument|null}={peer,previous:null};connections.set(offer.id,entry);
+    for(const offer of room.peers){const old=connections.get(offer.id);if(old?.offer===offer.offer)continue;if(old){old.peer.close();connections.delete(offer.id);}
+      const peer=new RTCPeerConnection({iceServers:[]}),entry:{peer:RTCPeerConnection;offer:string;channel?:RTCDataChannel;previous:LiveDocument|null}={peer,offer:offer.offer,previous:null};connections.set(offer.id,entry);
       peer.ondatachannel=event=>{entry.channel=event.channel;event.channel.onopen=()=>send(entry);};
       void(async()=>{try{await peer.setRemoteDescription({type:'offer',sdp:offer.offer});await peer.setLocalDescription(await peer.createAnswer());await gathered(peer);if(!closed)await signalLivePeer({sectionId,deviceId,epoch,peerId:offer.id,kind:'answer',sdp:peer.localDescription!.sdp});}catch{peer.close();connections.delete(offer.id);}})();
     }
@@ -39,7 +39,9 @@ export function createLivePeerFollower(sectionId:string,deviceId:string,onDocume
     if(epoch!==room.epoch){peer?.close();peer=null;epoch=room.epoch;document='';buffers.clear();}
     if(!peer){
       peer=new RTCPeerConnection({iceServers:[]});const current=peer,channel=peer.createDataChannel('presentation',{ordered:true});
-      channel.onopen=()=>{connected=true;onConnection(true);};channel.onclose=()=>{connected=false;onConnection(false);};channel.onerror=()=>{connected=false;onConnection(false);};
+      const disconnected=()=>{if(peer!==current)return;peer=null;connected=false;buffers.clear();document='';current.close();onConnection(false);};
+      channel.onopen=()=>{connected=true;onConnection(true);};channel.onclose=disconnected;channel.onerror=disconnected;
+      current.onconnectionstatechange=()=>{if(current.connectionState==='failed')disconnected();};
       channel.onmessage=event=>{try{
         const packet=JSON.parse(event.data);if(!Number.isInteger(packet.id)||!Number.isInteger(packet.part)||!Number.isInteger(packet.total)||packet.total<1||packet.total>100||packet.part<0||packet.part>=packet.total||typeof packet.data!=='string'||packet.data.length>12000)throw Error('Invalid packet');
         let buffer=buffers.get(packet.id);if(!buffer){if(buffers.size>2)buffers.clear();buffer={parts:[],total:packet.total,bytes:0};buffers.set(packet.id,buffer);}if(buffer.parts[packet.part]!==undefined)return;buffer.parts[packet.part]=packet.data;buffer.bytes+=packet.data.length;if(buffer.bytes>900000)throw Error('Oversized packet');

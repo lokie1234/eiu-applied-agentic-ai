@@ -17,7 +17,7 @@ test('Live controls never occupy a deck row; presenter slide remains the only vi
   window.localStorage.setItem(language.LEARNING_LANGUAGE_KEY,'vi');
   const live=loadTS('components/LivePresentation.tsx',{
     '@/lib/learningLanguage':language,
-    '@/lib/realtime/client':{realtimeReady:()=>true,watchRealtimeReady:()=>()=>{},watchLivePresentation:()=>()=>{}},
+    '@/lib/livePresentationRealtime':{liveRealtimeReady:()=>true,watchLiveRealtimeReady:()=>()=>{},watchLivePresentation:()=>()=>{},watchLiveDocument:()=>()=>{},endLiveBroadcast:()=>{}},
     '@/lib/livePresentationTransport':{resumeLiveSession:async()=>{},readLiveBackup:async()=>null,liveCommand:async()=>{}},
     '@/lib/livePresentationProtocol':{},'@/lib/livePresentationDom':{renderLiveDocument:()=>{}},
     '@/lib/livePresentationPeer':{createLivePeerController:()=>({close(){}}),createLivePeerFollower:()=>({close(){}})},

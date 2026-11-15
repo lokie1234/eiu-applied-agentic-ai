@@ -14,6 +14,12 @@ The Supabase `learning_realtime_signals` table is a compact change feed, one row
 
 Do not drop the existing Supabase activity/submission tables: legacy built-in lessons, reset, quiz restore, reports and session authorization still use them. A table retirement requires migrating **all** its readers/writers, backfilling and reconciling history, and preserving a backup first. Removing duplicated columns from Excel does not authorize deleting learners' source data. Current cleanup concerns workbook tables and the new realtime projection, not destructive deletion of history.
 
+Admin presentation Live is the exception to Convex signaling: its visual deltas,
+WebRTC signaling, lease and bounded recovery checkpoint now use Supabase only.
+See [Live presentation](live-presentation.md). It is a visual mirror, not a
+reportable learner result. Presence, result notifications and MIS 301 classroom
+ownership in this guide remain unchanged.
+
 ## Authentication
 
 `GET /api/realtime/token` verifies the existing HttpOnly app session, resolves current Supabase section grants, checks the change-feed setup, then signs an RS256 token valid for 120 seconds. Audience is `eiu-interactive`. Private key and passcodes never reach Convex or the browser. Convex receives only a public JWKS and verifies both issuer and audience. Tokens include opaque session subject, permitted section IDs, teaching scopes and role; no profile fields. Expiry bounds access-revocation delay to at most two minutes. Hidden sections/courses are excluded for learners.

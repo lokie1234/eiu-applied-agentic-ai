@@ -32,38 +32,15 @@ test('click deltas omit unchanged large styles while retaining attribute, animat
  assert.equal(dom.diffLiveDocument(next,structuredClone(next)).nodes.length,0);
 });
 function convex(){const rows={livePresentations:[],liveSnapshots:[]};let role='admin',allowed=['section'],liveAllowed,n=0;const db={query:table=>{const filters=[];return {withIndex(_,fn){fn({eq(key,value){filters.push([key,value]);return this;}});return this;},async unique(){return rows[table].find(row=>filters.every(([k,v])=>row[k]===v))||null;}};},async insert(table,data){const _id=String(++n);rows[table].push({...data,_id});return _id;},async patch(id,data){for(const table of Object.values(rows)){const row=table.find(row=>row._id===id);if(row)Object.assign(row,data);}},async replace(id,data){for(const table of Object.values(rows)){const i=table.findIndex(row=>row._id===id);if(i>=0)table[i]={...data,_id:id};}},async delete(id){for(const table of Object.values(rows)){const i=table.findIndex(row=>row._id===id);if(i>=0)table.splice(i,1);}}};const functions=loadTS('convex/livePresentation.ts',{'./_generated/server':{query:v=>v,mutation:v=>v},'../lib/livePresentationProtocol':protocol});return {functions,ctx:{db,auth:{getUserIdentity:async()=>({role,sections:JSON.stringify(allowed),...(liveAllowed===undefined?{}:{liveSections:JSON.stringify(liveAllowed)})})}},role:value=>role=value,scopes:value=>allowed=value,liveScopes:value=>liveAllowed=value,rows};}
-test('Convex enforces admin scope, one controller, stale-epoch rejection, monotonic sequence and rate limits',async()=>{
- const f=convex(),args={sectionId:'section',deviceId:'controller-aaaaaaaa',epoch:'epoch-aaaaaaaaaaaaa'};f.role('learner');await assert.rejects(()=>f.functions.start.handler(f.ctx,args));f.role('admin');f.scopes([]);await assert.rejects(()=>f.functions.view.handler(f.ctx,{sectionId:'section'}));f.scopes(['section']);await f.functions.start.handler(f.ctx,args);await assert.rejects(()=>f.functions.start.handler(f.ctx,{...args,deviceId:'controller-bbbbbbbb'}));const {window,capture}=doc(),patch=JSON.stringify(dom.diffLiveDocument(null,capture()));await f.functions.update.handler(f.ctx,{...args,sequence:1,patch});const snap=await f.functions.snapshot.handler(f.ctx,{sectionId:'section'});assert.equal(snap.revision,1);assert.ok(snap.document.includes('Lesson'));await f.functions.update.handler(f.ctx,{...args,sequence:1,patch});assert.equal(f.rows.livePresentations[0].revision,1);await assert.rejects(()=>f.functions.update.handler(f.ctx,{...args,epoch:'old-epoch-aaaaaaaaa',sequence:2,patch}));for(let i=2;i<25;i++)await f.functions.update.handler(f.ctx,{...args,sequence:i,patch:''});await assert.rejects(()=>f.functions.update.handler(f.ctx,{...args,sequence:26,patch:''}));await f.functions.stop.handler(f.ctx,args);assert.equal((await f.functions.view.handler(f.ctx,{sectionId:'section'})).active,false);assert.equal(f.rows.liveSnapshots.length,0);window.happyDOM.abort();
+test('retired Convex Live endpoints preserve authorization without any database I/O',async()=>{
+ const f=convex(),args={sectionId:'section',deviceId:'controller-aaaaaaaa',epoch:'epoch-aaaaaaaaaaaaa'};
+ f.ctx.db=new Proxy({}, {get(){throw Error('Retired Live must not touch Convex storage');}});
+ f.role('learner');await assert.rejects(()=>f.functions.view.handler(f.ctx,args));f.role('admin');f.scopes([]);await assert.rejects(()=>f.functions.snapshot.handler(f.ctx,args));f.scopes(['section']);
+ for(const name of ['view','snapshot','peers'])assert.equal(await f.functions[name].handler(f.ctx,args),null);
+ for(const name of ['start','update','signal'])await assert.rejects(()=>f.functions[name].handler(f.ctx,args),/moved to Supabase/);
+ f.liveScopes([]);await assert.rejects(()=>f.functions.view.handler(f.ctx,args));assert.equal((await f.functions.stop.handler(f.ctx,args)).success,true);
 });
+
 test('private Supabase backup has atomic acquisition and rejects a second controller and stale writes',async()=>{
  const files=new Map();const storage={createBucket:async()=>({}),getBucket:async()=>({data:{public:false}}),from:()=>({download:async path=>files.has(path)?{data:new Blob([files.get(path)])}:{error:{message:'not found',status:404}},upload:async(path,bytes,options)=>{if(!options.upsert&&files.has(path))return {error:{message:'already exists'}};files.set(path,bytes.toString());return {};},remove:async paths=>{paths.forEach(path=>files.delete(path));return {};}})};const server=loadTS('lib/livePresentationBackup.ts',{'./supabase/server':{getSupabaseAdmin:()=>({storage})},'./livePresentationProtocol':protocol});const args={deviceId:'controller-aaaaaaaa',epoch:'epoch-aaaaaaaaaaaaa'};await server.liveBackup('section','start',args);await assert.rejects(()=>server.liveBackup('section','start',{...args,deviceId:'controller-bbbbbbbb'}));const {window,capture}=doc();await new Promise(resolve=>setTimeout(resolve,65));await server.liveBackup('section','update',{...args,sequence:1,document:JSON.stringify(capture())});assert.ok((await server.liveBackup('section','view',{})).document.includes('Lesson'));await assert.rejects(()=>server.liveBackup('section','stop',{...args,epoch:'old-epoch-aaaaaaaaa'}));await server.liveBackup('section','stop',args);assert.equal(await server.liveBackup('section','view',{}),null);await assert.rejects(()=>server.liveBackup('section','update',{...args,sequence:2,document:JSON.stringify(capture())}));await server.liveBackup('section','start',args);assert.equal((await server.liveBackup('section','view',{})).active,true);window.happyDOM.abort();
-});
-
-test('peer signaling requires section admin access and only the controller can answer',async()=>{
- const f=convex(),args={sectionId:'section',deviceId:'controller-aaaaaaaa',epoch:'epoch-aaaaaaaaaaaaa'};
- await f.functions.start.handler(f.ctx,args);
- const offer={...args,deviceId:'follower-aaaaaaaaaa',peerId:'peer-aaaaaaaaaaaaa',kind:'offer',sdp:'offer'};
- f.role('learner');await assert.rejects(()=>f.functions.signal.handler(f.ctx,offer));f.role('admin');
- await f.functions.signal.handler(f.ctx,offer);
- await assert.rejects(()=>f.functions.signal.handler(f.ctx,{...offer,kind:'answer',sdp:'answer'}));
- await f.functions.signal.handler(f.ctx,{...offer,deviceId:args.deviceId,kind:'answer',sdp:'answer'});
- assert.equal((await f.functions.peers.handler(f.ctx,{sectionId:'section'})).peers[0].answer,'answer');
- const resumed=await f.functions.start.handler(f.ctx,args);assert.equal(resumed.sequence,0);
- assert.equal((await f.functions.peers.handler(f.ctx,{sectionId:'section'})).peers.length,1);
- await assert.rejects(()=>f.functions.signal.handler(f.ctx,{...offer,epoch:'other-aaaaaaaaaaaa'}));
-});
-
-
-test('Convex denies sections disabled in current Live grants while retaining stop access',async()=>{
- const f=convex(),args={sectionId:'section',deviceId:'controller-aaaaaaaa',epoch:'epoch-aaaaaaaaaaaaa'};
- f.liveScopes(['section']);await f.functions.start.handler(f.ctx,args);f.liveScopes([]);
- await assert.rejects(()=>f.functions.view.handler(f.ctx,{sectionId:'section'}));
- await assert.rejects(()=>f.functions.update.handler(f.ctx,{...args,sequence:1,patch:''}));
- await f.functions.stop.handler(f.ctx,args);assert.equal(f.rows.livePresentations[0].active,false);
-});
-
-test('restarting Live cannot reset the public mutation rate window',async()=>{
- const f=convex(),args={sectionId:'section',deviceId:'controller-aaaaaaaa',epoch:'epoch-aaaaaaaaaaaaa'};
- for(let i=0;i<25;i++)await f.functions.start.handler(f.ctx,{...args,epoch:`epoch-aaaaaaaaaaa-${i}`});
- await assert.rejects(()=>f.functions.start.handler(f.ctx,{...args,epoch:'epoch-aaaaaaaaaaa-26'}));
 });

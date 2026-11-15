@@ -18,30 +18,60 @@ The role menu and Live status follow the existing English/Vietnamese interface
 language switch. In Admin Access, each JavaScript section has a **Live** checkbox.
 Existing sections retain Live until an administrator explicitly disables it.
 The setting is stored in Supabase course metadata, hides the entry button, and
-is enforced by the Supabase transport and scoped Convex tokens. Token refresh
-bounds Convex access revocation to the existing two-minute token lifetime. Stop
-remains available for releasing a previously active session after disabling Live.
+is enforced by the administrator-authorized Live API. Stop remains available for
+releasing a previously active session after disabling Live.
 
 ## Transport and state
 
-The existing root Convex client authorizes and signals a host-candidate-only WebRTC
-data channel. On a compatible local network, visual changes travel directly between
-the two browsers. No external STUN/TURN service receives lesson state. Networks
-that prevent a direct connection continue through the server transports.
+Live uses Supabase only; the root Convex presence, scoped result notifications and
+MIS 301 classroom/wheel continue unchanged. Supabase private Broadcast carries
+visual deltas and WebRTC signaling. Compatible local networks also establish a
+host-candidate-only WebRTC data channel, with no external STUN/TURN service.
+The direct channel and Broadcast do not write each click to a database.
 
-Convex publishes bounded DOM patches and keeps one current snapshot per section.
-Supabase Storage keeps a bounded checkpoint and an exclusive owner
-lease in the private `admin-live-presentations` bucket. The server creates this
-private bucket when needed. Neither public Storage URLs nor client service keys
-are used. Both transports check administrator access and section scope themselves.
+The server checks the existing HttpOnly Admin session, origin and actual section
+settings before issuing a rotating, unpredictable channel topic. This topic is a
+short-lived bearer capability: never log it or expose it to learners. Private
+Realtime RLS admits only the current active topic; browser clients cannot list
+room rows or execute lease/checkpoint RPCs. Grants rotate every two minutes and
+expire at the bucket end plus 30 seconds. This uses the existing app session secret,
+without changing Supabase Auth signing keys or creating another user identity.
 
-The controller captures native HTML/SVG after changes, with a 40 ms coalescing
-window. It sends patches instead of full screenshots or video. Supabase checkpoints
-are coalesced over 450 ms; the follower uses one bounded, session-level fallback
-read loop, slowing down when the direct connection is healthy. Convex failures
-switch writes to Supabase; recovery sends a complete reset before later patches.
-Supabase failure leaves the existing direct/Convex stream operating. Sequence and
-epoch checks prevent delayed packets from restoring an older screen.
+One `live_presentation_rooms` row per actual section holds an atomic owner/epoch
+lease, monotonic request/document sequences and the latest bounded checkpoint.
+Only the server service role can read/write this table. The browser coalesces
+Broadcast updates for 100 ms and omits unchanged CSS/font nodes. Large initial
+frames are chunked into 60,000-character messages below the 256 KB Free-plan
+Broadcast payload limit, including UTF-8 and JSON envelope overhead. Missing delta
+baselines trigger a full resync; stale epochs, sequences and checkpoints cannot
+roll back the current Broadcast frame.
+
+Changed snapshots are coalesced over ten seconds, with the existing ten-second
+heartbeat also flushing pending changes. Unchanged captures skip writes; heartbeat requests carry no
+document and do not increment the visual revision. One shared session-level
+metadata loop runs every six seconds with a healthy channel, or 1.5 seconds while
+reconnecting. Metadata reads exclude the large document column; followers that
+already received that document sequence do not download the checkpoint again.
+A reload or missed Broadcast state can fetch the latest checkpoint. Checkpoint
+failure keeps the active direct/Broadcast stream and retries the newest state.
+
+The old private Storage lease is imported once when necessary and released on
+stop. It is not the ongoing checkpoint transport. Deprecated Convex Live endpoints
+check authorization but perform no database reads or writes, preventing stale
+clients from continuing the previous large-snapshot I/O pattern. Reload both
+Admin windows after deployment to use the new client. Other Convex features are
+not retired. Apply `202611160001_live_presentation_realtime.sql` with the
+management token in ignored `.env.local` using
+`node --env-file=.env.local scripts/apply-live-supabase-migration.cjs`.
+The token is a migration credential, never a browser/runtime configuration value.
+
+The former Convex update path read and rewrote the reconstructed document on every
+small patch. Real compiled lessons contain about 480?520 KB of embedded CSS/fonts.
+Therefore a small JS download or a small patch did not imply small database I/O.
+This pattern explains substantial Live I/O; attributing the entire project quota
+would require provider usage logs. Supabase Broadcast still has message/egress
+quotas, and checkpoints still consume bandwidth; this change does not make Live
+unlimited or reverse usage already charged.
 
 The follower renders visual state without running the lesson's scripts or replaying
 clicks, submissions, draws, or other side effects. It preserves modal dialogs,
@@ -55,11 +85,11 @@ are redacted. Its viewport scales to the controller's layout.
   outside the lesson iframe are not mirrored.
 - Reloading preserves the chosen role in that browser tab. The follower loads the
   current snapshot; a controller resumes the same owner/epoch and sequence.
-- A new controller requires the Supabase lease. Existing streams can survive a
-  Storage outage, but new login and server authorization still depend on Supabase.
+- A new controller requires the Supabase lease. An existing direct stream can survive a
+  Realtime outage, but new login and server authorization still depend on Supabase.
   This is transport redundancy, not an independent identity service.
-- A network interruption keeps the last screen visible. Server fallback is slower
-  than the direct channel; latency depends on network, hosting and service health.
+- A network interruption keeps the last screen visible. Checkpoint recovery is slower
+  than the direct/Broadcast channels; latency depends on network, hosting and service health.
 - An uncleanly closed controller can leave its lease. Another administrator's
   follower can use **Kết thúc Live** to release it before restarting.
 - Stop clears the active snapshot and releases the lease. These are presentation
@@ -70,7 +100,8 @@ are redacted. Its viewport scales to the controller's layout.
 
 The `tests/live-presentation*.test.mjs` suites cover visual reconstruction, actual
 compiled SVG assets, graph/payload validation, administrator and origin checks,
-exclusive ownership, sequence checks, rate limits and transport failover/recovery.
+exclusive ownership, sequence checks, metadata-only reads, checkpoint recovery,
+Broadcast chunking/deltas/resync and the absence of Convex Live database I/O.
 Browser verification uses two independently authenticated local Chrome contexts;
 it does not rely on shared cookies or on replaying learner operations.
 The layout regression test keeps the presenter deck as the only viewport child;
@@ -81,3 +112,12 @@ Unchanged font/style text is compared directly and omitted from click deltas,
 avoiding repeated large JSON allocations during presentation.
 Capture clamps fractional overscroll and invalid animation timestamps before
 protocol validation. Leaving a course clears its Live selection.
+
+Local verification of this migration used real Supabase private channels and RPCs
+(ownership conflicts, stale sequence/epoch fencing, heartbeat revision stability,
+anonymous table/RPC denial and invalid-topic denial). Two isolated Admin browser
+contexts rendered the real large-CSS Web Development lesson with both Convex and
+WebRTC blocked; a test DOM mutation arrived through Supabase in 172?192 ms in those
+local runs, not a production latency guarantee. Smartphone touch verification also
+covered 320/390/430 px portrait and 844/667 px landscape while retaining desktop
+layout dimensions.
