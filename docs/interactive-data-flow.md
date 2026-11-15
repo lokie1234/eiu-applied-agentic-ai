@@ -254,3 +254,14 @@ schedules the existing background synchronization. Login alone does not add a
 learner to the wheel. The answer button calls the scoped practice bridge directly;
 it must not rely on native form submission, which the lesson sandbox blocks.
 Version-1/2 draws retain their frozen mappings/history.
+
+## Administrator presentation mirroring
+
+Admin Live mirrors passive lesson visuals, not learner actions or reportable
+results. It reuses the root Convex client for scoped signaling and ephemeral DOM
+patches. A direct local-network data channel provides the shortest path when
+available; private Supabase Storage holds the owner lease and latest recovery
+checkpoint. One bounded fallback loop belongs to the Live follower, never to each
+slide. Existing result submissions and durable revision notifications remain
+unchanged. See [Admin Live presentation](live-presentation.md) for operation,
+security boundaries and recovery behavior.

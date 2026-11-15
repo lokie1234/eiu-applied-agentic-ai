@@ -122,7 +122,7 @@ test('Back to course clears both comparison and tree progress without terminatin
     const source = fs.readFileSync('components/LessonPortal.tsx','utf8');
     const body = source.match(/onChooseSection=\{\(\) => \{([\s\S]+?)\n        \}\}/)[1];
     let returned = false;
-    vm.runInNewContext(`(()=>{${body}})()`, { activeSectionId: f.sectionId, MIS311_MODELLING_SECTION_ID:'b7bd6b13-c654-412b-badb-12853350e148', resetMis311Presentation(){throw Error('Section 2 must not reset Section 1');}, resetLessonRevealState: f.store.resetLessonRevealState,
+    vm.runInNewContext(`(()=>{${body}})()`, { setLiveSelection(){}, activeSectionId: f.sectionId, MIS311_MODELLING_SECTION_ID:'b7bd6b13-c654-412b-badb-12853350e148', resetMis311Presentation(){throw Error('Section 2 must not reset Section 1');}, resetLessonRevealState: f.store.resetLessonRevealState,
       cancelSectionOpening() {}, launchingSection: null, iconTilt: {onPointerLeave(){}}, selectedCourse:{id:'course',slug:'course'}, rememberDeckSelection(){}, setAdminSection(){}, setActiveUploadedSection(){returned=true;} });
     assert.equal(returned,true);
     const fresh = f.store.getRevealSession(f.sectionId);

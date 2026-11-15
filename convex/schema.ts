@@ -3,6 +3,8 @@ import { v } from "convex/values";
 
 const question = v.object({ number: v.number(), title: v.optional(v.string()), prompt: v.string(), starterCode: v.string(), tasks: v.optional(v.array(v.object({ label: v.string(), code: v.string() }))) });
 const schema = defineSchema({
+  livePresentations: defineTable({ sectionId: v.string(), owner: v.string(), epoch: v.string(), active: v.boolean(), revision: v.number(), sequence: v.number(), updatedAt: v.number(), patch: v.string(), rateStart: v.number(), rateCount: v.number(), peers:v.optional(v.array(v.object({id:v.string(),offer:v.string(),answer:v.optional(v.string()),updatedAt:v.number()}))) }).index('room', ['sectionId']),
+  liveSnapshots: defineTable({ sectionId: v.string(), document: v.string() }).index('room', ['sectionId']),
   signals: defineTable({ sectionId: v.string(), topic: v.string(), revision: v.number() }).index("scope", ["sectionId", "topic"]),
   presence: defineTable({ sectionId: v.string(), subject: v.string(), clientId: v.string(), expiresAt: v.number(), expiryJob: v.optional(v.id("_scheduled_functions")) })
     .index("room", ["sectionId"]).index("person", ["subject", "sectionId", "clientId"]),

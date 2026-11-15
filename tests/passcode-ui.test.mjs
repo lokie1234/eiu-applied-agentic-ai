@@ -526,7 +526,7 @@ test("admin can preview learning and teaching decks and return without restartin
   };
   const Portal = component("components/LessonPortal.tsx", {
     "next/navigation": { useRouter: () => router },
-    "next/dynamic": { __esModule: true, default: () => props => props.sectionId ? React.createElement("div", { "data-preview-deck": String(props.isAdmin) }) : null },
+    "next/dynamic": { __esModule: true, default: loader => String(loader).includes("LivePresentation") ? () => null : props => props.sectionId ? React.createElement("div", { "data-preview-deck": String(props.isAdmin) }) : null },
     "next/image": { __esModule: true, default: () => null },
     "next/link": { __esModule: true, default: props => React.createElement("a", { href: props.href }, props.children) },
     "@/lib/auth/types": { APPLIED_AGENTIC_AI_SLUG: "applied-agentic-ai" },
@@ -602,7 +602,8 @@ test("facilitator decks enable quiz controls without exposing admin navigation o
   assert.match(renderUploaded(false), /data-teaching="true"/);
   web.sections[0].canFacilitate = false;
   assert.match(renderUploaded(false), /data-teaching="false"/);
-  assert.match(renderUploaded(true), /data-teaching="true"/);
+  assert.match(renderUploaded(true), /aria-label="Loading section"/, "admin restores the Live role before mounting an uploaded lesson");
+  assert.doesNotMatch(renderUploaded(true), /data-teaching="false"/);
   assert.doesNotMatch(renderUploaded(true), /class="terminateBtn"/);
   web.sections[0].terminationEnabled = true;
   assert.match(renderUploaded(true), /class="terminateBtn"/);

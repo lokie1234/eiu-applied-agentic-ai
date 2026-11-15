@@ -13,6 +13,7 @@ import { useMis301NotebookBridge } from "./useMis301NotebookBridge";
 import { useLessonRevealBridge } from "./useLessonRevealBridge";
 import { useMis311PresentationBridge } from "./useMis311PresentationBridge";
 import { readMis311Presentation } from "@/lib/mis311Presentation";
+import { captureLiveDocument } from '@/lib/livePresentationDom';
 const ShowcaseSlide = dynamic(async () => {
   const { default: Showcase } = await import("@/components/ShowcaseSlide");
   return function LoadedShowcase(props: ComponentProps<typeof Showcase>) { return <div className={styles.nativeContent} data-slide-content-ready="true"><Showcase {...props} /></div>; };
@@ -60,7 +61,7 @@ const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, t
   sectionId: string; isAdmin: boolean; practiceAllowed: boolean; practiceAssignmentKey: string;
   frameRef: RefObject<HTMLIFrameElement | null>;
 }) {
-  const document = useMemo(() => createTsxDocument(code, page, background, templateKey, `${sectionId}:${page}`, isAdmin, practiceAllowed, practiceAssignmentKey, readMis311Presentation(sectionId)), [code, page, background, templateKey, sectionId, isAdmin, practiceAllowed, practiceAssignmentKey]);
+  const document = useMemo(() => createTsxDocument(code, page, background, templateKey, `${sectionId}:${page}`, isAdmin, practiceAllowed, practiceAssignmentKey, readMis311Presentation(sectionId), isAdmin ? captureLiveDocument.toString() : ''), [code, page, background, templateKey, sectionId, isAdmin, practiceAllowed, practiceAssignmentKey]);
   return <iframe ref={frameRef} className={styles.tsxFrame} data-request-id={`${sectionId}:${page}`}
     sandbox="allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox"
     title={`${title} · slide ${page}`} srcDoc={document} />;

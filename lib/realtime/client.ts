@@ -114,3 +114,40 @@ export async function configureClassroomQuestions(sectionId: string, questions: 
   if (!client || !ready) throw new Error('The live classroom is reconnecting.');
   return client.mutation(makeFunctionReference<'mutation', { sectionId: string; questions: Array<{ number: number; title?: string; prompt: string; starterCode: string; tasks?: Array<{ label: string; code: string }> }> }, { success: boolean }>('classroom:configureQuestions'), { sectionId, questions });
 }
+export type LiveRoom = { active: boolean; owner: string; epoch: string; revision: number; sequence:number; patch: string; updatedAt: number } | null;
+export async function readLiveRoom(sectionId:string){
+  if(!client||!ready)throw new Error('Live is reconnecting.');
+  let timer:ReturnType<typeof setTimeout>;
+  try{return await Promise.race([client.query(makeFunctionReference<'query',{sectionId:string},LiveRoom>('livePresentation:view'),{sectionId}),new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(new Error('Live room timed out.')),3000);})]);}finally{clearTimeout(timer!);}
+}
+export function watchLivePresentation(sectionId: string, callback: (room: LiveRoom) => void, onError: (error: Error) => void) {
+  let owner: ConvexClient | null = null, stop: (() => void) | undefined;
+  const attach = () => {
+    if (owner === client && stop && ready) return;
+    stop?.();stop = undefined;owner = null;
+    if (!client || !ready) return;
+    owner = client;
+    stop = owner.onUpdate(makeFunctionReference<'query', { sectionId: string }, LiveRoom>('livePresentation:view'), { sectionId }, callback, onError);
+  };
+  const unwatch = watchRealtimeReady(attach);attach();
+  return () => { unwatch();stop?.(); };
+}
+export async function livePresentationCommand(action: 'start' | 'update' | 'stop', args: { sectionId: string; deviceId: string; epoch: string; sequence?: number; patch?: string }) {
+  if (!client || !ready) throw new Error('Live is reconnecting. Please try again.');
+  if (action === 'update') return client.mutation(makeFunctionReference<'mutation'>('livePresentation:update'), {sectionId:args.sectionId,deviceId:args.deviceId,epoch:args.epoch,sequence:args.sequence,patch:args.patch});
+  return client.mutation(makeFunctionReference<'mutation'>(`livePresentation:${action}`), { sectionId: args.sectionId, deviceId: args.deviceId, epoch: args.epoch });
+}
+export async function readLivePresentation(sectionId: string) {
+  if (!client || !ready) throw new Error('Live is reconnecting.');
+  let timer:ReturnType<typeof setTimeout>;
+  try{return await Promise.race([client.query(makeFunctionReference<'query', {sectionId:string}, {epoch:string;revision:number;sequence:number;updatedAt:number;document:string}|null>('livePresentation:snapshot'), {sectionId}),new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(new Error('Live snapshot timed out.')),3000);})]);}finally{clearTimeout(timer!);}
+}
+export type LivePeerRoom={owner:string;epoch:string;peers:Array<{id:string;offer:string;answer?:string;updatedAt:number}>}|null;
+export function watchLivePeers(sectionId:string,callback:(room:LivePeerRoom)=>void){
+ let stop:(()=>void)|undefined,owner:ConvexClient|null=null;
+ const attach=()=>{if(owner===client&&stop&&ready)return;stop?.();stop=undefined;owner=null;if(!client||!ready)return;owner=client;stop=owner.onUpdate(makeFunctionReference<'query',{sectionId:string},LivePeerRoom>('livePresentation:peers'),{sectionId},callback,()=>{});};
+ const off=watchRealtimeReady(attach);attach();return()=>{off();stop?.();};
+}
+export async function signalLivePeer(args:{sectionId:string;epoch:string;peerId:string;deviceId:string;kind:'offer'|'answer'|'leave';sdp?:string}){
+ if(!client||!ready)throw new Error('Live signaling reconnecting');return client.mutation(makeFunctionReference<'mutation'>('livePresentation:signal'),args);
+}

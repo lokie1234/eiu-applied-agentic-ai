@@ -21,6 +21,10 @@ import CourseDiscoveryHeading from "./CourseDiscoveryHeading";
 import HairlineLoading from "./HairlineLoading";
 import CourseToolRow from "./CourseToolRow";
 import SectionEnergy from "./SectionEnergy";
+import type { LiveSelection } from './LivePresentation';
+const LiveSectionControl = dynamic(() => import('./LivePresentation').then(module => module.LiveSectionControl), { ssr: false });
+const LiveController = dynamic(() => import('./LivePresentation').then(module => module.LiveController), { ssr: false });
+const LiveFollower = dynamic(() => import('./LivePresentation').then(module => module.LiveFollower), { ssr: false });
 import { useSectionOpening } from "./useSectionOpening";
 import { useSectionSlideCounts } from "./useSectionSlideCounts";
 import { buildSectionOneDeckItems, sectionTwoDeckItems } from "@/lib/builtinDeckItems";
@@ -490,9 +494,22 @@ export default function LessonPortal({
   const learnerProfile = initialProfile;
   const hasLearnerProfile = Boolean(learnerProfile);
   const [deckSessionKey, setDeckSessionKey] = useState(0);
+  const [liveSelection, setLiveSelection] = useState<LiveSelection | null>(null);
+  const [liveHydrated,setLiveHydrated] = useState(false);
+  useEffect(()=>{
+    let active=true;
+    void Promise.resolve().then(()=>{
+      if(!active)return;
+      if(isAdmin){try{const saved=JSON.parse(window.sessionStorage.getItem('eiu-admin-live-selection')||'null');if(saved?.sectionId===initialSectionId&&['control','follow'].includes(saved?.mode)&&typeof saved.epoch==='string'&&typeof saved.deviceId==='string')setLiveSelection(saved);}catch{/* No persisted Live selection. */}}
+      setLiveHydrated(true);
+    });
+    return()=>{active=false;};
+  },[isAdmin,initialSectionId]);
+  useEffect(()=>{if(!liveHydrated)return;try{if(liveSelection)window.sessionStorage.setItem('eiu-admin-live-selection',JSON.stringify(liveSelection));else window.sessionStorage.removeItem('eiu-admin-live-selection');}catch{/* Live still works when browser storage is disabled. */}},[liveSelection,liveHydrated]);
 
   function changeAccessPreview(mode: "learning" | "teaching" | null) {
     if (!sessionIsAdmin || mode === previewMode) return;
+    setLiveSelection(null);
     cancelSectionOpening();
     iconTilt.onPointerLeave();
     setLaunchingSection(null);
@@ -1129,6 +1146,12 @@ export default function LessonPortal({
                     <LearningInnovationIcon kind="section" className={styles.sectionClickArtwork} active={openingSection === courseSection.sectionKey} />
                   </button>}
                 </article>
+                {isAdmin && courseSection.contentType === 'tsx' && <LiveSectionControl sectionId={courseSection.id} onSelect={selection => {
+                  setLiveSelection(selection);
+                  iconTilt.onPointerLeave();
+                  rememberDeckSelection(course.id, courseSection.id, true, { course: course.slug, section: courseSection.sectionKey });
+                  setAdminSection(null);setActiveUploadedSection(courseSection);
+                }}/ >}
                 {coreSection && courseSection.contentType === "pptx" && (
                   <button type="button" className={styles.sectionFilePreview} disabled={Boolean(openingSection)} onClick={() => { rememberDeckSelection(course.id, courseSection.id, true, { course: course.slug, section: courseSection.sectionKey }); setAdminSection(null); setActiveUploadedSection(courseSection); }}>{t("View file")}</button>
                 )}
@@ -1659,6 +1682,7 @@ export default function LessonPortal({
         statusNotice={previewMode ? `${t("Preview", "Xem thử")} · ${previewMode === "learning" ? "Learning Access" : "Teaching Access"}` : isAdmin ? terminateNotice : undefined}
         onExitPreview={previewMode ? () => changeAccessPreview(null) : undefined}
         onChooseSection={() => {
+          setLiveSelection(null);
           if (activeSectionId) resetLessonRevealState(activeSectionId);
           if (activeSectionId === MIS311_MODELLING_SECTION_ID) resetMis311Presentation();
           cancelSectionOpening();
@@ -1684,7 +1708,8 @@ export default function LessonPortal({
         onSignOut={signOut}
         courseTitle={selectedCourse.title}
       >
-        {launchingSection ? sectionOpenError ? (
+        {isAdmin && liveSelection?.mode === 'control' && <LiveController selection={liveSelection} onStop={()=>setLiveSelection(null)}/>}
+        {!liveHydrated && isAdmin && initialSectionId ? <HairlineLoading contained/> : isAdmin && liveSelection?.mode === 'follow' ? <LiveFollower selection={liveSelection} title={activeLessonSection?.title || ''} onStop={()=>{setLiveSelection(null);setActiveUploadedSection(null);rememberDeckSelection(selectedCourse.id,null,false,{course:selectedCourse.slug});}}/> : launchingSection ? sectionOpenError ? (
           <div role="alert" className={styles.sectionOpenError}>
             <p>{t(sectionOpenError)}</p>
             <button type="button" onClick={() => {

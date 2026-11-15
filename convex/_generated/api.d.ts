@@ -11,6 +11,7 @@
 import type * as classroom from "../classroom.js";
 import type * as crons from "../crons.js";
 import type * as http from "../http.js";
+import type * as livePresentation from "../livePresentation.js";
 import type * as realtime from "../realtime.js";
 
 import type {
@@ -23,6 +24,7 @@ declare const fullApi: ApiFromModules<{
   classroom: typeof classroom;
   crons: typeof crons;
   http: typeof http;
+  livePresentation: typeof livePresentation;
   realtime: typeof realtime;
 }>;
 

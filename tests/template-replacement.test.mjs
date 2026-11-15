@@ -45,7 +45,7 @@ test('Switching templates clears the old image immediately and ignores a late pr
  globalThis.IS_REACT_ACT_ENVIRONMENT=true;
  const {createRoot}=await import('react-dom/client');const container=window.document.createElement('div');window.document.body.append(container);const root=createRoot(container);
  const requests=new Map(),built=[];
- const Deck=loadTS('components/deck/UploadedSectionDeck.tsx',{
+ const Deck=loadTS('components/deck/UploadedSectionDeck.tsx',{'@/lib/livePresentationDom':{captureLiveDocument(){}},
  'next/dynamic':{__esModule:true,default:()=>()=>null},'./UploadedSectionDeck.module.css':{},
  '@/components/deck/SharedDeckFrame':{__esModule:true,default:props=>props.renderSlide(1,960)},
  '@/components/HairlineLoading':{__esModule:true,default:()=>React.createElement('span',null,'Loading')},

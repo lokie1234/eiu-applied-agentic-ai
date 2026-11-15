@@ -46,6 +46,7 @@ export function requestPolicy(path: string, method: string, headers: Headers) {
     return { group: "navigation", limit: 5, networkLimit: 500 };
   }
   if (path.startsWith("/api/auth/")) return { group: "login", limit: 5, networkLimit: 500 };
+  if (path === '/api/admin/live') return { group: 'admin-live', limit: 600, networkLimit: 3000 };
   if (path === "/api/presence" && method === "POST") return { group: "heartbeat", limit: 12, networkLimit: 1500 };
   if (method === "GET" || method === "HEAD") return { group: "reads", limit: 240, networkLimit: 6000 };
   // One bounded group also covers unknown URLs; arbitrary pathnames must not
