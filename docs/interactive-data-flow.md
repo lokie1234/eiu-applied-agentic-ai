@@ -145,7 +145,7 @@ and demo draws are disabled. Existing real draws and durable results are preserv
 
 ## Configuration and rollout
 
-The deployment selected by the user is `https://pleasant-cow-963.ap-southeast-2.convex.cloud` (currently a development deployment). It is not automatically a production deployment.
+The deployment selected by the user is `https://ceaseless-firefly-24.ap-southeast-2.convex.cloud`, with HTTP actions at `https://ceaseless-firefly-24.ap-southeast-2.convex.site` (a development deployment in the new account). It is not automatically a production deployment. Keep the deployment key server-only in local/Vercel environment configuration, never in this repository. Existing signing and bridge material is shared with the web app; moving accounts does not require rotating those keys.
 
 1. Apply `202610280002_realtime_signals.sql` after the existing schema. It adds only a compact projection and triggers; history remains intact. The existing rate-limit migration is also required by Proxy.
 2. `node scripts/setup-realtime.cjs` preserves/creates local server signing material and URL settings. `node scripts/configure-convex.cjs` uploads only the public verification key and shared bridge credential. `npx convex deploy` deploys Convex functions with the configured deploy key. Never log/commit any credential.

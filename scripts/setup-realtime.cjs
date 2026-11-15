@@ -7,8 +7,8 @@ require("@next/env").loadEnvConfig(process.cwd());
 const envPath = path.join(process.cwd(), ".env.local");
 let source = fs.readFileSync(envPath, "utf8");
 const values = {
-  NEXT_PUBLIC_CONVEX_URL: "https://pleasant-cow-963.ap-southeast-2.convex.cloud",
-  CONVEX_SITE_URL: "https://pleasant-cow-963.ap-southeast-2.convex.site",
+  NEXT_PUBLIC_CONVEX_URL: "https://ceaseless-firefly-24.ap-southeast-2.convex.cloud",
+  CONVEX_SITE_URL: "https://ceaseless-firefly-24.ap-southeast-2.convex.site",
   REALTIME_PROVIDER: "supabase",
   NEXT_PUBLIC_REALTIME_PROVIDER: "supabase",
   REALTIME_BRIDGE_SECRET: crypto.randomBytes(32).toString("hex"),
