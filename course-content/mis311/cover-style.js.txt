@@ -1,0 +1,32 @@
+function styleMis311Cover(root, options) {
+  const coverSvg = root.querySelector('svg');
+  const processBackground = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  processBackground.dataset.mis311ProcessBackground = 'true';
+  processBackground.setAttribute('aria-hidden', 'true');
+  processBackground.setAttribute('pointer-events', 'none');
+  processBackground.setAttribute('fill', 'none');
+  processBackground.setAttribute('stroke', '#144069');
+  processBackground.setAttribute('stroke-width', '2.3');
+  processBackground.setAttribute('stroke-linecap', 'round');
+  processBackground.setAttribute('stroke-linejoin', 'round');
+  processBackground.setAttribute('opacity', '.12');
+  processBackground.innerHTML = `
+    <g transform="translate(64 80)"><rect x="0" y="0" width="48" height="30" rx="8"/><path d="M24 30v20h45m-8-6 8 6-8 6"/><rect x="69" y="36" width="43" height="29" rx="8"/><circle cx="101" cy="-4" r="12"/><path d="M78-4H60m8-5-8 5 8 5"/></g>
+    <g transform="translate(793 91)"><path d="m37 0 27 25-27 25L10 25Z"/><path d="M10 25H-8v47h34m-8-6 8 6-8 6M64 25h25v47H63m8-6-8 6 8 6"/><rect x="26" y="59" width="37" height="27" rx="7"/></g>
+    <g transform="translate(68 425)"><circle cx="17" cy="17" r="16"/><path d="m11 17 5 5 9-11M33 17h28m-8-6 8 6-8 6"/><rect x="61" y="1" width="48" height="32" rx="8"/><path d="M85 33v19H17V33" stroke-dasharray="4 6"/></g>
+    <g transform="translate(797 431)"><rect x="0" y="0" width="39" height="48" rx="7"/><path d="M10 13h19M10 23h19M10 33h12M39 24h25m-8-6 8 6-8 6"/><circle cx="83" cy="24" r="18"/><path d="m75 24 6 6 10-12"/></g>
+    <path d="M192 83h144m288 0h104M69 190v58m820-34v60" stroke-dasharray="3 12" opacity=".65"/>
+    <path d="M202 493h115m326 0h112" stroke="#b99a62" stroke-width="3" stroke-dasharray="3 10"/>
+  `;
+  coverSvg.prepend(processBackground);
+  for (const text of root.querySelectorAll('svg text[fill="#ff0000"]')) {
+    text.setAttribute('transform', `${text.getAttribute('transform') || ''} translate(0 ${options.coverTitleOffsetY || 0})`);
+  }
+  // Keep all three original subtitle runs on their shared SVG baseline.
+  for (const text of root.querySelectorAll('svg text[fill="#144069"]')) {
+    const baseline = Number(text.querySelector('tspan').getAttribute('y').split(' ')[0]);
+    const scale = options.coverSubtitleScale || 1;
+    text.setAttribute('transform', `${text.getAttribute('transform') || ''} translate(0 ${options.coverSubtitleOffsetY || 0}) translate(480 ${baseline}) scale(${scale}) translate(-480 ${-baseline})`);
+    text.dataset.mis311CoverSubtitle = 'true';
+  }
+}

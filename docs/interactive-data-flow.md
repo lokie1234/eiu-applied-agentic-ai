@@ -29,6 +29,40 @@ Convex `signals` enforces section grants; `online` exposes only the admin/teachi
 5. Reportable new actions must register an explicit durable payload and participate in reset and report aggregation. Reuse server-resolved identity; never trust a submitted name, role, score, course or section. Add a change-feed mapping/topic if needed.
 6. Keep ephemeral presence separate from participation history: section entry is logged once in Supabase, later heartbeats use Convex. Do not export heartbeat rows as learner attendance.
 
+MIS 311 Section 1 uses `mis311Presentation.ts` for browser-local presentation
+progress only. The opaque sandbox receives a sanitized initial snapshot, and
+`useMis311PresentationBridge` accepts saves only from its current iframe, actual
+section ID and exact active request. Stable resource keys distinguish the model
+nested in slide 2 from the techniques, restaurant example and current slide 6 swimlane (stable resource key 7). The allowlist
+limits state to booleans and bounded indices; model revelation and restaurant
+stages, including the swimlane built flag, are monotonic. This state survives slide navigation, frame recreation and refresh within the
+current course visit. Back to course explicitly resets it, and bridge cleanup
+resets it for every other section exit. Reset closes the current iframe and
+rejects late saves, preventing stale progress from being restored. Successful learner/teaching and admin login call the scoped
+`resetMis311Presentation` before redirecting, so a new login starts with hidden
+reveals and the original workflow stage list. Failed or incomplete logins retain
+progress. Explicit sign-out clears it through the existing localStorage clear;
+termination closes the frame, clears this presentation progress and rejects
+subsequent saves. Identical snapshots skip redundant storage writes. No learner identity, report data, database storage or polling is added.
+
+MIS 311 Section 2's comparison reveal progress is local presentation state, not a
+submission. `useLessonRevealBridge` owns its scoped parent-session storage; the
+opaque iframe uses validated messages for the active section and slide. It stores
+only the selected question, six comparison reveal flags, the tree reveal stage (0-2), process step (0-8), the defect-exercise introduction stage (0-5), and six group flags,
+without learner identity. The
+bridge checks the existing section control token once on entry, restores progress
+across slide navigation, and rejects stale saves after termination. Back to course
+calls `resetLessonRevealState` to clear this local presentation progress without
+terminating the section or deleting any learner results. All existing
+termination paths call `clearLessonRevealState`; the server remains authoritative
+for the termination token. After the RCA hub merge, the only allowed slide scope is 2
+(comparison, process, nested tree and defect exercise). Former scopes 3 and 5
+are rejected. The hub reuses each renderer once and refreshes all cached
+stateful views from the parent before reuse, and temporarily disables reveals while that refresh is pending. This
+prevents a cached view from saving a stale selected question. Nested dialogs
+close one layer per Escape, and termination closes every layer. No new polling
+or result storage is introduced.
+
 ## Excel contract
 
 The MIS 301 question UI now uses one complete Colab-style popup per question.

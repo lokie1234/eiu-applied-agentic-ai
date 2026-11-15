@@ -1,0 +1,128 @@
+function renderRootCauseComparison(content, comparison) {
+  content.dataset.mis311Comparison = 'true';
+  content.style.overflow = 'auto';
+  const host = document.defaultView;
+  const requestId = host?.eiuLessonRequestId;
+  let ready = !requestId;
+  let epoch = '';
+  let state = { selected: 0, symptom: [false, false, false], rootCause: [false, false, false] };
+  const style = document.createElement('style');
+  style.textContent = `
+    [data-mis311-comparison]{display:flex;flex-direction:column;gap:clamp(12px,1.4vw,20px);font-family:Arial,sans-serif;color:#17324a;scrollbar-width:thin}
+    .mis311-rca-title{margin:0;color:#144069;font-size:clamp(24px,3.2vw,44px);line-height:1.15;text-align:center}
+    .mis311-rca-questions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+    .mis311-rca-question{display:flex;align-items:center;gap:12px;text-align:left;min-width:0;min-height:68px;padding:14px;border:1px solid #d4e0e8;border-radius:14px;background:#f3f7fa;color:#144069;font:600 clamp(15px,1.5vw,21px)/1.3 Arial,sans-serif;cursor:pointer}
+    .mis311-rca-question[aria-pressed=true]{border-color:#144069;box-shadow:inset 0 -3px #b39159;background:#eaf1f6}
+    .mis311-rca-question-number{flex-shrink:0;display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:#144069;color:white;font-size:15px}
+    .mis311-rca-pair{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(20px,2.2vw,32px);padding:10px 8px 12px}
+    .mis311-rca-panel{min-width:0;display:flex;flex-direction:column;border:1px solid #d4bb85;border-radius:20px;background:linear-gradient(145deg,#fffdf8,#f8f4e9);overflow:hidden;cursor:pointer;box-shadow:0 0 0 2px #e9ca8b33,0 0 22px #b3915940,0 10px 24px #1440690c;transition:box-shadow .25s,border-color .25s}
+    .mis311-rca-panel:last-child{background:linear-gradient(145deg,#f8fdfd,#edf7f8);border-color:#78bcc9;box-shadow:0 0 0 2px #83cad433,0 0 22px #3997aa40,0 10px 24px #1440690c}
+    .mis311-rca-panel:hover,.mis311-rca-panel:focus-within{box-shadow:0 0 0 2px #e9ca8b66,0 0 30px #b3915960}
+    .mis311-rca-panel:last-child:hover,.mis311-rca-panel:last-child:focus-within{box-shadow:0 0 0 2px #83cad466,0 0 30px #3997aa60}
+    .mis311-rca-reveal{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:18px 22px;border:0;background:linear-gradient(120deg,#144069,#326d9c);color:#fff;text-align:left;font:700 clamp(18px,1.9vw,26px)/1.2 Arial,sans-serif;cursor:pointer}
+    .mis311-rca-panel:last-child .mis311-rca-reveal{background:linear-gradient(120deg,#236879,#3997aa)}
+    .mis311-rca-body{flex:1;display:flex;align-items:center;padding:clamp(22px,2.4vw,36px)}
+    .mis311-rca-answer{margin:0;font-size:clamp(20px,2.2vw,32px);line-height:1.45;text-wrap:pretty;overflow-wrap:break-word;animation:mis311-rca-reveal .25s ease both}
+    .mis311-rca-question:focus-visible,.mis311-rca-reveal:focus-visible{outline:3px solid #b39159;outline-offset:-3px}
+    [data-mis311-comparison] [hidden]{display:none!important}
+    @media(max-width:750px),(max-height:440px){
+      [data-mis311-comparison]{display:block;overscroll-behavior:contain}
+      .mis311-rca-title{font-size:24px;margin-bottom:16px}
+      .mis311-rca-questions{grid-template-columns:1fr;gap:8px;margin-bottom:12px}
+      .mis311-rca-question{min-height:58px;padding:10px 12px;font-size:16px}
+      .mis311-rca-pair{grid-template-columns:1fr;gap:22px;padding:12px 8px 18px}
+      .mis311-rca-reveal{min-height:52px;padding:14px 16px;font-size:19px}
+      .mis311-rca-body{min-height:110px;padding:20px}.mis311-rca-answer{font-size:18px;line-height:1.5}
+    }
+    @keyframes mis311-rca-reveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    @media(prefers-reduced-motion:reduce){[data-mis311-comparison] *{animation:none!important;transition:none!important}}
+  `;
+  const header = document.createElement('header');
+  const title = document.createElement('h1');
+  title.className = 'mis311-rca-title';
+  title.textContent = comparison.title;
+  header.appendChild(title);
+  const questions = document.createElement('nav');
+  questions.className = 'mis311-rca-questions';
+  questions.setAttribute('aria-label', 'Discussion questions');
+  const pair = document.createElement('div');
+  pair.className = 'mis311-rca-pair';
+  const questionButtons = comparison.rows.map((item, index) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'mis311-rca-question';
+    const number = document.createElement('span');
+    number.className = 'mis311-rca-question-number';
+    number.textContent = String(index + 1);
+    const label = document.createElement('span');
+    label.textContent = item.label;
+    button.append(number, label);
+    button.addEventListener('click', () => { if (!ready) return; state.selected = index; update(); save(); });
+    questions.appendChild(button);
+    return { button };
+  });
+  const panels = ['symptom', 'rootCause'].map((kind, index) => {
+    const panel = document.createElement('section');
+    panel.className = 'mis311-rca-panel';
+    const reveal = document.createElement('button');
+    reveal.type = 'button';
+    reveal.className = 'mis311-rca-reveal';
+    reveal.dataset.revealKind = kind;
+    const label = document.createElement('span');
+    label.textContent = index === 0 ? 'Symptom Approach' : 'Root Cause';
+    reveal.appendChild(label);
+    const body = document.createElement('div');
+    body.className = 'mis311-rca-body';
+    body.setAttribute('aria-live', 'polite');
+    const answer = document.createElement('p');
+    answer.className = 'mis311-rca-answer';
+    answer.id = `mis311-rca-${kind}`;
+    reveal.setAttribute('aria-controls', answer.id);
+    reveal.addEventListener('click', () => {
+      if (!ready || state[kind][state.selected]) return;
+      state[kind][state.selected] = true;
+      update(); save();
+    });
+    panel.addEventListener('click', event => { if (!reveal.contains(event.target)) reveal.click(); });
+    body.appendChild(answer);
+    panel.append(reveal, body);
+    pair.appendChild(panel);
+    return { kind, reveal, answer };
+  });
+  function update() {
+    questionButtons.forEach(({ button }, index) => {
+      button.disabled = !ready;
+      button.setAttribute('aria-pressed', String(index === state.selected));
+    });
+    panels.forEach(({ kind, reveal, answer }) => {
+      const shown = state[kind][state.selected];
+      reveal.disabled = !ready;
+      reveal.setAttribute('aria-expanded', String(shown));
+      reveal.setAttribute('aria-disabled', String(shown));
+      answer.textContent = comparison.rows[state.selected][kind];
+      answer.hidden = !shown;
+    });
+  }
+  function save() {
+    if (requestId && epoch && !host.eiuSectionEnded) host.parent.postMessage({ type: 'eiu-reveal-save', requestId, epoch, state }, '*');
+  }
+  if (requestId) {
+    const receive = event => {
+      const message = event.data;
+      if (event.source !== host.parent || message?.type !== 'eiu-reveal-state' || message.requestId !== requestId || host.eiuSectionEnded) return;
+      const value = message.state;
+      if (!value || !Number.isInteger(value.selected) || value.selected < 0 || value.selected >= 3
+        || ![value.symptom, value.rootCause].every(items => Array.isArray(items) && items.length === 3 && items.every(item => typeof item === 'boolean'))
+        || typeof message.epoch !== 'string') return;
+      state = value; epoch = message.epoch; ready = true; update();
+    };
+    const refresh=()=>{ready=false;update();};
+    host.addEventListener('eiu-reveal-refresh',refresh);
+    host.addEventListener('message', receive);
+    host.addEventListener('pagehide', () => {host.removeEventListener('message', receive);host.removeEventListener('eiu-reveal-refresh',refresh);}, { once: true });
+    host.parent.postMessage({ type: 'eiu-reveal-load', requestId }, '*');
+  }
+  update();
+  content.replaceChildren(style, header, questions, pair);
+  content.parentElement.setAttribute('role', 'group');
+}

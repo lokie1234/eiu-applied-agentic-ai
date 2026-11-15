@@ -6,6 +6,7 @@ import { useGlassInteraction } from "./useGlassInteraction";
 import styles from "./SignInCard.module.css";
 import type { IdentityField } from "@/lib/learningIdentity";
 import LearnerInformationDialog from "./LearnerInformationDialog";
+import { resetMis311Presentation } from "@/lib/mis311Presentation";
 
 export type SignInCardProps = {
   initialLanguageChosen?: boolean;
@@ -65,6 +66,7 @@ export default function SignInCard({ initialLanguageChosen = false, passcode, se
       });
       const payload = await response.json();
       if (!response.ok || !payload.success) throw new Error(payload.message || t("Unable to sign in.", "Không thể đăng nhập."));
+      resetMis311Presentation();
       window.location.replace("/admin/access");
     } catch (caught) {
       if (!controller.signal.aborted) {

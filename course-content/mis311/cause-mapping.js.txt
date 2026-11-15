@@ -1,0 +1,88 @@
+function renderCauseMapping(content, mapping) {
+  content.dataset.mis311Mapping = 'true';
+  content.style.overflow = 'auto';
+  const style = document.createElement('style');
+  style.textContent = `
+    [data-mis311-mapping]{display:flex;flex-direction:column;gap:16px;font-family:Arial,sans-serif;color:#17324a;scrollbar-width:thin}
+    .mis311-map-title{margin:0;color:#144069;font-size:clamp(26px,2.8vw,40px);line-height:1.2;text-align:center}
+    .mis311-map-layout{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1.1fr;gap:24px}
+    .mis311-map-section{min-width:0;padding:18px 22px;border:1px solid #d4e0e8;border-top:4px solid #144069;border-radius:18px;background:linear-gradient(125deg,#f3f7fa,#fff)}
+    .mis311-map-section:last-child{border-color:#b9d5dc;border-top-color:#3997aa;background:linear-gradient(125deg,#f0f7f9,#fff)}
+    .mis311-map-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+    .mis311-map-heading h2{margin:0;color:#144069;font-size:clamp(24px,2.15vw,30px);line-height:1.2}
+    .mis311-map-definition{margin:0 0 16px;font-size:clamp(16px,1.4vw,20px);line-height:1.4;text-wrap:pretty}
+    .mis311-map-help{flex-shrink:0;width:34px;height:34px;display:grid;place-items:center;border:1px solid #b39159;border-radius:50%;background:#fffaf0;color:#144069;font:700 21px/1 Arial,sans-serif;cursor:pointer;box-shadow:0 2px 8px #b3915920;transition:background .2s,box-shadow .2s}
+    .mis311-map-help:hover{background:#f4dfb0;box-shadow:0 0 12px #b3915944}
+    .mis311-map-help:focus-visible,.mis311-map-close:focus-visible{outline:3px solid #b39159;outline-offset:3px}
+    .mis311-map-phases{display:grid;gap:18px;list-style:none;margin:0;padding:0}
+    .mis311-map-phase{position:relative;display:grid;grid-template-columns:110px minmax(0,1fr);align-items:center;gap:14px;padding:13px 16px;border:1px solid #d4e0e8;border-radius:12px;background:#ffffffbb;min-width:0}
+    .mis311-map-phase:not(:last-child)::after{content:'\u2193';position:absolute;left:50%;top:100%;height:18px;line-height:18px;color:#9d7944;font-size:20px}
+    .mis311-map-phase h3{margin:0;font-size:clamp(19px,1.75vw,25px);color:#144069;line-height:1.2}
+    .mis311-map-detail{margin:0;font-size:clamp(16px,1.35vw,19px);line-height:1.4;text-wrap:pretty}
+    .mis311-map-groups{display:grid;gap:14px}
+    .mis311-map-group{min-width:0;padding:14px 16px;background:#ffffffcc;border:1px solid #d6e5e9;border-radius:12px}
+    .mis311-map-group-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:9px}
+    .mis311-map-group h3{margin:0;color:#144069;font-size:clamp(18px,1.65vw,23px);line-height:1.25}
+    .mis311-map-tag{display:block;margin-top:3px;color:#315e32;font-size:clamp(13px,1.05vw,15px);font-weight:700}
+    .mis311-map-group ul{margin:0;padding-left:1.1em;display:grid;gap:5px;font-size:clamp(15px,1.3vw,18px);line-height:1.4;text-wrap:pretty}
+    .mis311-map-group li::marker,.mis311-map-example-list li::marker{color:#b39159}
+    .mis311-map-dialog{position:fixed;inset:auto;left:7%;top:13%;width:86%;max-width:none;max-height:75%;margin:0;padding:26px;border:1px solid #b39159;border-radius:20px;background:#fffdf8;color:#17324a;box-shadow:0 18px 60px #102f4c44;overflow:auto;font-family:Arial,sans-serif}
+    .mis311-map-dialog::backdrop{background:#102c4644}
+    .mis311-map-dialog-heading{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:18px}
+    .mis311-map-dialog h2{margin:0;font-size:clamp(22px,2.3vw,32px);line-height:1.25;color:#144069}
+    .mis311-map-close{flex-shrink:0;width:40px;height:40px;border:1px solid #d4e0e8;border-radius:10px;background:#f3f7fa;color:#144069;font:24px Arial,sans-serif;cursor:pointer}
+    .mis311-map-context{font-size:clamp(17px,1.75vw,24px);line-height:1.4;margin:0 0 20px}
+    .mis311-map-example-chain{display:flex;align-items:stretch;gap:28px;list-style:none;padding:0;margin:0 0 22px}
+    .mis311-map-example-chain li{position:relative;flex:1;min-width:0;padding:16px;border:1px solid #b9d5dc;border-radius:12px;background:#f0f7f9;font-size:clamp(17px,1.7vw,24px);line-height:1.3;font-weight:700;color:#144069;text-align:center}
+    .mis311-map-example-chain li:not(:last-child)::after{content:'\u2190';position:absolute;left:100%;top:50%;width:28px;transform:translateY(-50%);color:#9d7944}
+    .mis311-map-example-chain[data-kind=mece] li:not(:last-child)::after{content:'|'}
+    .mis311-map-example-list{margin:0;padding-left:1.2em;display:grid;gap:12px;font-size:clamp(17px,1.7vw,23px);line-height:1.45;text-wrap:pretty}
+    @media(max-width:1000px),(max-height:620px){
+      [data-mis311-mapping]{display:block;overscroll-behavior:contain}
+      .mis311-map-title{font-size:26px;margin-bottom:16px}.mis311-map-layout{grid-template-columns:1fr;gap:18px}
+      .mis311-map-section{padding:18px}.mis311-map-heading h2{font-size:25px}
+      .mis311-map-definition,.mis311-map-detail,.mis311-map-group ul{font-size:16px}
+      .mis311-map-help{width:40px;height:40px}.mis311-map-phase{grid-template-columns:95px 1fr;padding:14px 12px}
+      .mis311-map-dialog{left:6%;top:12%;width:88%;max-height:77%;padding:20px}
+      .mis311-map-example-chain{flex-direction:column;gap:24px}.mis311-map-example-chain li:not(:last-child)::after{content:'\u2191';left:50%;top:100%;height:24px;width:auto;transform:translateX(-50%)}
+      .mis311-map-example-chain[data-kind=mece] li:not(:last-child)::after{content:'|'}
+    }
+    @media(prefers-reduced-motion:reduce){.mis311-map-help{transition:none}}
+  `;
+  const title = document.createElement('h1'); title.className = 'mis311-map-title'; title.textContent = mapping.title;
+  const layout = document.createElement('div'); layout.className = 'mis311-map-layout';
+  const dialog = document.createElement('dialog'); dialog.className = 'mis311-map-dialog'; dialog.id = 'mis311-mapping-example'; dialog.setAttribute('aria-labelledby','mis311-mapping-example-title');
+  const dialogHeading = document.createElement('div'); dialogHeading.className = 'mis311-map-dialog-heading';
+  const exampleTitle = document.createElement('h2'); exampleTitle.id = 'mis311-mapping-example-title';
+  const close = document.createElement('button'); close.type = 'button'; close.className = 'mis311-map-close'; close.textContent = '\u00d7'; close.setAttribute('aria-label','Close example');
+  const exampleBody = document.createElement('div');
+  dialogHeading.append(exampleTitle,close); dialog.append(dialogHeading,exampleBody);
+  let lastTrigger;
+  close.addEventListener('click',()=>dialog.close());
+  dialog.addEventListener('close',()=>lastTrigger?.focus());
+  dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();});
+  function help(kind,label) {
+    const button=document.createElement('button'); button.type='button'; button.className='mis311-map-help'; button.textContent='?'; button.dataset.exampleKind=kind;
+    button.setAttribute('aria-label',`Example: ${label}`); button.setAttribute('aria-haspopup','dialog'); button.setAttribute('aria-controls',dialog.id);
+    button.addEventListener('click',()=>{
+      const example=mapping.examples[kind]; lastTrigger=button; exampleTitle.textContent=example.title; exampleBody.replaceChildren();
+      const context=document.createElement('p');context.className='mis311-map-context';context.textContent=example.context;exampleBody.appendChild(context);
+      if(example.chain){const chain=document.createElement('ol');chain.className='mis311-map-example-chain';chain.dataset.kind=kind;example.chain.forEach(text=>{const node=document.createElement('li');node.textContent=text;chain.appendChild(node);});exampleBody.appendChild(chain);}
+      const bullets=document.createElement('ul');bullets.className='mis311-map-example-list';example.bullets.forEach(text=>{const node=document.createElement('li');node.textContent=text;bullets.appendChild(node);});exampleBody.appendChild(bullets);
+      dialog.showModal();
+    });
+    return button;
+  }
+  const cause=document.createElement('section');cause.className='mis311-map-section';
+  const causeHeading=document.createElement('div');causeHeading.className='mis311-map-heading';
+  const causeTitle=document.createElement('h2');causeTitle.textContent='Cause Mapping';causeHeading.append(causeTitle,help('causeMapping','Cause Mapping'));
+  const definition=document.createElement('p');definition.className='mis311-map-definition';definition.textContent=mapping.definition;
+  const phases=document.createElement('ol');phases.className='mis311-map-phases';mapping.phases.forEach(item=>{const phase=document.createElement('li');phase.className='mis311-map-phase';const heading=document.createElement('h3');heading.textContent=item.title;const detail=document.createElement('p');detail.className='mis311-map-detail';detail.textContent=item.detail;phase.append(heading,detail);phases.appendChild(phase);});
+  cause.append(causeHeading,definition,phases);
+  const mece=document.createElement('section');mece.className='mis311-map-section';mece.dataset.mece='true';
+  const meceHeading=document.createElement('div');meceHeading.className='mis311-map-heading';const meceTitle=document.createElement('h2');meceTitle.textContent=mapping.meceTitle;meceHeading.append(meceTitle,help('mece','MECE'));
+  const meceDefinition=document.createElement('p');meceDefinition.className='mis311-map-definition';meceDefinition.textContent=mapping.meceDefinition;
+  const groups=document.createElement('div');groups.className='mis311-map-groups';mapping.meceGroups.forEach((item,index)=>{const group=document.createElement('section');group.className='mis311-map-group';const heading=document.createElement('div');heading.className='mis311-map-group-heading';const text=document.createElement('div');const label=document.createElement('h3');label.textContent=item.title;const tag=document.createElement('span');tag.className='mis311-map-tag';tag.textContent=item.tag;text.append(label,tag);heading.append(text,help(index===0?'mutuallyExclusive':'collectivelyExhaustive',item.title));const bullets=document.createElement('ul');item.bullets.forEach(value=>{const node=document.createElement('li');node.textContent=value;bullets.appendChild(node);});group.append(heading,bullets);groups.appendChild(group);});
+  mece.append(meceHeading,meceDefinition,groups);layout.append(cause,mece);
+  content.replaceChildren(style,title,layout,dialog);content.parentElement.setAttribute('role','group');
+}

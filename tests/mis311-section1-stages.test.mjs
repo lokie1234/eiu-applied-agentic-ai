@@ -1,0 +1,31 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import { Window } from 'happy-dom';
+import { loadTS } from './helpers/mis301-fixture.mjs';
+const file='course-content/imported/86cae0a3-9ada-4e31-b4d4-c83f50cafaf6/b7bd6b13-c654-412b-badb-12853350e148/1066dca1-c75c-477b-bd53-5dec37fc7d5a.js';
+function fixture(){const window=new Window();const store=loadTS('lib/mis311Presentation.ts',{}, {window});const id=store.MIS311_MODELLING_SECTION_ID;let active=2;const parent={postMessage(m){store.saveMis311PresentationState(id,active,m.page,m.state);}};const lessonModule={exports:{}};vm.runInNewContext(fs.readFileSync(file,'utf8'),{module:lessonModule,document:window.document,window,parent});const open=page=>{active=page;window.document.body.replaceChildren();window.eiuPresentationState={states:store.readMis311Presentation(id)};const root=lessonModule.exports.slides[page-1]();window.document.body.append(root);return root;};return {window,store,id,open};}
+function process(root){root.querySelector('.mis311-org-toggle').click();root.querySelector('.mis311-org-scenario').click();root.querySelector('.mis311-org-question-trigger').click();root.querySelector('.mis311-org-question-answer').click();root.querySelector('.mis311-process-resource-trigger').click();return root.querySelector('[data-mis311-process-model]');}
+test('loaded process survives navigation and reopening; explicit sign-out storage clearing resets it',()=>{
+ const {window,open,store,id}=fixture();let root=open(2),model=process(root);model.querySelector('.mis311-process-title').click();model.querySelector('.mis311-process-help').click();assert.equal(store.readMis311Presentation(id)[3].revealed,true);
+ open(3);root=open(2);root.querySelector('.mis311-org-question-trigger').click();root.querySelector('.mis311-org-question-answer').click();root.querySelector('.mis311-process-resource-trigger').click();model=root.querySelector('[data-mis311-process-model]');assert.equal(model.dataset.started,'true');assert.equal(model.dataset.restored,'true');assert.equal(model.querySelector('.mis311-process-definition').hidden,false);
+ window.localStorage.clear();root=open(2);model=process(root);assert.equal(model.dataset.started,undefined);assert.equal(model.querySelector('.mis311-process-diagram').hidden,true);window.happyDOM.abort();
+});
+test('restaurant has exactly one centered card per reveal then all three, and restores full without replay',()=>{
+ const {window,open,store,id}=fixture();let root=open(5);const title=root.querySelector('.restaurant-title button');assert.equal(root.querySelector('[data-mis311-restaurant]').dataset.restaurantStage,'0');
+ for(let stage=1;stage<=4;stage++){title.click();assert.equal(root.querySelector('[data-mis311-restaurant]').dataset.restaurantStage,String(stage));assert.equal(root.querySelectorAll('.restaurant-card').length,stage===4?3:1);}
+ assert.equal(root.querySelectorAll('.restaurant-card li').length,5);assert.equal(store.readMis311Presentation(id)[6].stage,4);open(4);root=open(5);assert.equal(root.querySelector('[data-mis311-restaurant]').dataset.restaurantStage,'4');assert.equal(root.querySelector('[data-mis311-restaurant]').dataset.restored,'true');assert.equal(root.querySelectorAll('.restaurant-card').length,3);window.localStorage.clear();root=open(5);assert.equal(root.querySelector('[data-mis311-restaurant]').dataset.restaurantStage,'0');window.happyDOM.abort();
+});
+test('technique footer is removed, BPMN retains all interactive views, bank questions remain complete',()=>{
+ const {window,open}=fixture();let root=open(3);assert.equal(root.querySelector('.mt-cue'),null);assert.equal(root.textContent.includes('Recognise it:'),false);assert.ok(root.querySelector('#mis311-technique-bpmn'));root.querySelectorAll('.mt-view')[1].click();assert.equal(root.querySelectorAll('.mt-notation-item').length,6);
+ root=open(4);root.querySelector('.bp-help').click();assert.ok(root.querySelector('.bp-dialog').open);assert.equal(root.querySelectorAll('.bp-question-tabs button').length,2);root.querySelector('.bp-actions button').click();assert.equal(root.querySelector('.bp-answer').hidden,false);assert.ok(root.querySelector('.bp-answer li'));root.querySelectorAll('.bp-question-tabs button')[1].click();assert.equal(root.querySelector('.bp-answer').hidden,true);window.happyDOM.abort();
+});
+test('parent bridge rejects unrelated frames, old pages, malformed state and post-termination writes',()=>{
+ const window=new Window(),store=loadTS('lib/mis311Presentation.ts',{}, {window}),id=store.MIS311_MODELLING_SECTION_ID;let setup;const frame={current:{dataset:{requestId:id+':2'},contentWindow:{postMessage(){}}}};
+ const hook=loadTS('components/deck/useMis311PresentationBridge.ts',{'react':{useEffect(fn){setup=fn;}},'@/lib/mis311Presentation':store},{window});hook.useMis311PresentationBridge(id,frame);const cleanup=setup();const send=(source,data)=>window.dispatchEvent(new window.MessageEvent('message',{source,data:{type:'eiu-presentation-state',requestId:id+':2',page:3,state:{revealed:true},...data}}));
+ send({},{});assert.equal(Object.keys(store.readMis311Presentation(id)).length,0);send(frame.current.contentWindow,{requestId:id+':3'});assert.equal(Object.keys(store.readMis311Presentation(id)).length,0);send(frame.current.contentWindow,{page:6});assert.equal(Object.keys(store.readMis311Presentation(id)).length,0);send(frame.current.contentWindow,{});assert.equal(store.readMis311Presentation(id)[3].revealed,true);
+ send(frame.current.contentWindow,{state:{revealed:false,definitionOpen:'yes',secret:'ignored'}});assert.equal(store.readMis311Presentation(id)[3].revealed,true);assert.equal(store.readMis311Presentation(id)[3].definitionOpen,false);assert.equal(store.readMis311Presentation(id)[3].secret,undefined);
+ frame.current.dataset.requestId=id+':6';send(frame.current.contentWindow,{requestId:id+':6',page:7,state:{built:true}});assert.equal(store.readMis311Presentation(id)[7].built,true);
+ window.dispatchEvent(new window.CustomEvent('eiu-section-terminated',{detail:{sectionId:id}}));send(frame.current.contentWindow,{state:{definitionOpen:true}});assert.equal(Object.keys(store.readMis311Presentation(id)).length,0);cleanup();window.happyDOM.abort();
+});

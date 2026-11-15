@@ -1,0 +1,21 @@
+﻿import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import {Window} from 'happy-dom';
+const file='course-content/imported/86cae0a3-9ada-4e31-b4d4-c83f50cafaf6/b7bd6b13-c654-412b-badb-12853350e148/1066dca1-c75c-477b-bd53-5dec37fc7d5a.js';
+function fixture(page){const window=new Window(),lessonModule={exports:{}};vm.runInNewContext(fs.readFileSync(file,'utf8'),{module:lessonModule,document:window.document,window,parent:window});const root=lessonModule.exports.slides[page===7?5:page===11?7:page-1]();window.document.body.append(root);return {window,root,slides:lessonModule.exports.slides};}
+test('Best Practices becomes available after model animations finish, preserves all five points and returns focus',async()=>{
+ const {window,root}=fixture(7);const trigger=root.querySelector('.rs-best-trigger');assert.equal(trigger.hidden,true);let finish;window.SVGElement.prototype.getAnimations=()=>[{finished:new Promise(resolve=>{finish=resolve;}),cancel(){}}];root.querySelector('.rs-build').click();assert.equal(trigger.hidden,true);finish();await new Promise(resolve=>setImmediate(resolve));assert.equal(trigger.hidden,false);trigger.click();const dialog=root.querySelector('.rs-best-dialog');assert.equal(dialog.open,true);assert.deepEqual([...dialog.querySelectorAll('li')].map(n=>n.textContent),['Aim for BPMN Diagrams that fit one page','Easy to read, minimising flow crossing','Should follow left-to-right ordering','Always indicate “Start” and “End” events','All “Activities” should be named']);root.querySelector('.rs-best-close').click();assert.equal(dialog.open,false);assert.equal(window.document.activeElement,trigger);trigger.click();window.dispatchEvent(new window.Event('pagehide'));assert.equal(dialog.open,false);window.happyDOM.abort();
+});
+test('bank questions use the original non-modal companion panel and retain both answers',()=>{
+ const {window,root}=fixture(4);const dialog=root.querySelector('.bp-dialog');dialog.showModal=()=>assert.fail('must not cover the process with a modal');root.querySelector('.bp-help').click();assert.equal(dialog.open,true);root.querySelector('.bp-actions button').click();assert.ok(root.querySelector('.bp-answer').textContent.includes('customer credit request received'));root.querySelectorAll('.bp-question-tabs button')[1].click();root.querySelector('.bp-actions button').click();assert.ok(root.querySelector('.bp-answer li'));assert.equal(root.querySelectorAll('.bp-diagram svg').length,1);root.querySelector('.bp-actions button:last-child').click();assert.equal(dialog.open,false);window.happyDOM.abort();
+});
+test('former slides 11 and 12 share one native page with all four complete scenarios',()=>{
+ const {window,root,slides}=fixture(11);assert.equal(slides.length,8);assert.equal(root.querySelectorAll('.scenario-card').length,4);assert.deepEqual([...root.querySelectorAll('.scenario-card h2')].map(n=>n.textContent),['Scenario 1: Healthcare Patient Admission','Scenario 2: E-commerce Order Fulfillment','Scenario 3: Campus Recruitment','Scenario 4: GrabFood Order Fulfillment']);assert.deepEqual([...root.querySelectorAll('.scenario-model')].map(n=>n.textContent),['Process to model: Patient admission process','Process to model: Customer order to payment process','Process to model: Recruitment process','Process to model: Order fulfillment process']);assert.ok(root.textContent.includes('longer wait times and decreased patient satisfaction'));assert.ok(root.textContent.includes('late deliveries and incorrect orders'));assert.ok(root.textContent.includes('attract top talent'));assert.ok(root.textContent.includes('reduce delivery times and increase customer satisfaction'));window.happyDOM.abort();
+});
+
+
+test('leaving during chart construction cancels work and never reveals Best Practices later',async()=>{
+ const {window,root}=fixture(7);let finish,cancels=0;window.SVGElement.prototype.getAnimations=()=>[{finished:new Promise(resolve=>{finish=resolve;}),cancel(){cancels++;}}];root.querySelector('.rs-build').click();const resolve=finish;window.dispatchEvent(new window.Event('pagehide'));resolve();await new Promise(resolve=>setImmediate(resolve));assert.ok(cancels>0);assert.equal(root.querySelector('.rs-best-trigger').hidden,true);window.happyDOM.abort();
+});

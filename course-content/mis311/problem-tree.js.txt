@@ -1,0 +1,140 @@
+function renderProblemTree(content) {
+  content.dataset.mis311Tree = 'true';
+  content.style.overflow = 'auto';
+  const host = document.defaultView;
+  const requestId = host?.eiuLessonRequestId;
+  let ready = !requestId;
+  let epoch = '';
+  let state = { selected: 0, symptom: [false, false, false], rootCause: [false, false, false], treeStage: 0, treeRevealed: false };
+  const style = document.createElement('style');
+  style.textContent = `
+    [data-mis311-tree]{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);grid-template-rows:minmax(0,1fr);align-items:stretch;gap:clamp(18px,2vw,30px);font-family:Arial,sans-serif;color:#17324a}
+    .mis311-tree-svg{min-width:0;min-height:0;width:100%;height:100%;display:block;overflow:visible}
+    .mis311-tree-phase{visibility:hidden;opacity:0}
+    .mis311-tree-phase.is-visible{visibility:visible;animation:mis311-tree-appear .7s ease var(--delay) both}
+    .mis311-tree-phase.is-restored{animation:none;opacity:1;visibility:visible}
+    .mis311-tree-line{fill:none;stroke:#84602f;stroke-linecap:round;stroke-linejoin:round}
+    .mis311-tree-label{font-size:23px;font-weight:700;fill:#315e32}
+    .mis311-tree-trigger{cursor:pointer;outline:none}
+    .mis311-tree-trigger rect{fill:#fffaf0;stroke:#b39159;stroke-width:2;filter:drop-shadow(0 3px 7px #9d794433)}
+    .mis311-tree-trigger:hover rect,.mis311-tree-trigger:focus-visible rect{stroke:#144069;stroke-width:4}
+    .mis311-tree-trigger text{fill:#144069;font-size:34px;font-weight:700;pointer-events:none}
+    .mis311-tree-notes{display:grid;grid-template-rows:repeat(2,minmax(0,1fr));gap:24px;padding:18px 8px 18px 0;min-width:0;min-height:0}
+    .mis311-tree-note{display:flex;align-items:center;border:1px solid #b8d4bd;border-left:4px solid #679852;border-radius:18px;background:linear-gradient(135deg,#f4f9f0,#fff);padding:clamp(20px,2.2vw,30px);min-width:0}
+    .mis311-tree-note:last-child{border-color:#d8c5a3;border-left-color:#9d7944;background:linear-gradient(135deg,#fbf6eb,#fff)}
+    .mis311-tree-note p{margin:0;font-size:clamp(20px,2.1vw,30px);line-height:1.5;word-break:normal;overflow-wrap:normal;text-wrap:pretty}
+    .mis311-tree-note strong{white-space:nowrap;font-weight:700;color:#315e32}.mis311-tree-note:last-child strong{color:#84602f}
+    [data-tree-phase=leaves].is-visible circle,
+    .mis311-tree-label.is-visible text{animation:mis311-tree-glow 2.8s ease-in-out calc(var(--delay) + .7s) infinite}
+    [data-tree-phase=roots].is-visible>path,
+    [data-tree-phase=roots].is-visible>g{--glow-color:#d8a947aa;animation:mis311-tree-glow 2.8s ease-in-out calc(var(--delay) + .7s) infinite}
+    [data-tree-phase=cause-labels]{--glow-color:#d8a947aa;fill:#84602f}
+    .mis311-tree-note.is-visible strong{--text-glow:#79b64799;animation:mis311-tree-text-glow 2.8s ease-in-out calc(var(--delay) + .7s) infinite}
+    .mis311-tree-note:last-child.is-visible strong{--text-glow:#d8a947bb}
+    @media(max-width:700px){
+      [data-mis311-tree]{display:block}
+      .mis311-tree-svg{height:auto!important;aspect-ratio:460 / 562}
+      .mis311-tree-notes{gap:16px;padding:16px 4px;grid-template-rows:auto auto}
+      .mis311-tree-note{padding:22px}.mis311-tree-note p{font-size:20px;line-height:1.5}
+    }
+    @keyframes mis311-tree-appear{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes mis311-tree-glow{
+      0%,100%{opacity:.78;filter:drop-shadow(0 0 1px transparent)}
+      50%{opacity:1;filter:drop-shadow(0 0 6px var(--glow-color,#79b647aa)) brightness(1.12)}
+    }
+    @keyframes mis311-tree-text-glow{
+      0%,100%{text-shadow:0 0 1px transparent}
+      50%{text-shadow:0 0 8px var(--text-glow),0 0 16px var(--text-glow)}
+    }
+    @media(prefers-reduced-motion:reduce){
+      .mis311-tree-phase.is-visible{animation:none;opacity:1;visibility:visible}
+      [data-mis311-tree] .is-visible *{animation:none!important;filter:none;text-shadow:none}
+    }
+  `;
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'width:100%;height:100%';
+  wrapper.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" class="mis311-tree-svg" viewBox="110 22 460 562" role="group" aria-label="Problem tree: symptoms above the surface and root causes below">
+    <g class="mis311-tree-phase" style="--delay:0s" data-tree-phase="trunk" aria-hidden="true">
+      <path d="M291 317C315 285 316 252 313 215L341 207C334 251 340 291 363 317L354 367C329 369 303 367 282 361Z" fill="#84602f"/>
+      <path d="M120 332H516" stroke="#b9b299" stroke-width="2"/>
+    </g>
+    <g class="mis311-tree-phase mis311-tree-line" style="--delay:.25s" data-tree-phase="branches" stroke-width="13" aria-hidden="true">
+      <path d="M327 270C300 216 235 219 195 156M321 238C280 199 272 148 257 112M330 217C348 178 389 155 411 99M327 246C382 239 424 204 453 159M324 213C314 164 325 120 335 76"/>
+      <g stroke-width="6"><path d="M270 217L211 205M290 194L280 146M351 185L388 183M393 235L450 222M313 159L291 116M362 166L370 110M236 196L213 151M424 204L437 170"/></g>
+    </g>
+    <g class="mis311-tree-phase" style="--delay:.55s" data-tree-phase="leaves" aria-hidden="true"></g>
+    <g class="mis311-tree-phase mis311-tree-line" style="--delay:0s" data-tree-phase="roots" aria-hidden="true">
+      <path d="M323 353C319 403 285 413 236 435M329 353C337 405 383 415 430 434M324 373L320 502M313 391C283 437 276 455 259 489M338 394C361 439 369 469 380 491" stroke-width="12"/>
+      <g stroke-width="5"><path d="M268 421C232 424 202 421 172 443M288 414C259 443 212 444 191 463M304 412C300 451 312 473 302 513M321 455C337 475 340 490 338 529M351 425C389 445 433 444 467 464M373 416C422 416 457 426 490 443M285 450L231 481M366 456L415 492M319 482L282 523"/></g>
+      <g stroke-width="2"><path d="M214 431L181 421M229 443L199 485M272 461L252 517M304 489L306 538M337 496L354 541M382 456L405 515M427 443L471 483M458 436L499 462M290 516L268 543"/></g>
+    </g>
+    <g class="mis311-tree-phase mis311-tree-label" style="--delay:.8s" data-tree-phase="symptom-labels">
+      <text x="116" y="135">Symptom</text><text x="266" y="51">Symptom</text><text x="424" y="130">Symptom</text><text x="461" y="224">Symptom</text>
+    </g>
+    <g class="mis311-tree-phase mis311-tree-label" style="--delay:.4s" data-tree-phase="cause-labels">
+      <text x="165" y="497">Cause</text><text x="250" y="568">Cause</text><text x="375" y="552">Cause</text><text x="470" y="509">Cause</text>
+    </g>
+    <g class="mis311-tree-trigger" role="button" tabindex="0" aria-label="Problem" aria-expanded="false" data-tree-trigger="true"><rect x="214" y="299" width="235" height="63" rx="15"/><text x="331.5" y="341" text-anchor="middle">Problem</text></g>
+  </svg>`;
+  const svg = wrapper.firstElementChild;
+  svg.querySelectorAll('.mis311-tree-phase').forEach(group => group.setAttribute('aria-hidden', 'true'));
+  const canopy = svg.querySelector('[data-tree-phase=leaves]');
+  const clusters = [[203,167],[241,123],[290,90],[338,72],[385,106],[429,150],[457,199],[402,214],[350,174],[290,163],[249,205],[301,244]];
+  clusters.forEach(([x,y], index) => {
+    for (let leaf = 0; leaf < 5; leaf++) {
+      const circle = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      circle.setAttribute('cx', String(x + [0,-19,18,-9,15][leaf]));
+      circle.setAttribute('cy', String(y + [0,-12,10,20,-22][leaf]));
+      circle.setAttribute('r', String([15,9,11,8,7][leaf]));
+      circle.setAttribute('fill', ['#7eaf3f','#9cc655','#c0cf53','#4e9d45'][(index + leaf) % 4]);
+      circle.setAttribute('opacity', '.94');
+      canopy.appendChild(circle);
+    }
+  });
+  const notes = document.createElement('div');
+  notes.className = 'mis311-tree-notes';
+  notes.innerHTML = `<section class="mis311-tree-note mis311-tree-phase" data-tree-phase="symptom-explanation" style="--delay:1.3s" aria-hidden="true"><p>Above the surface you can see the <strong>symptoms</strong> of the problem.</p></section><section class="mis311-tree-note mis311-tree-phase" data-tree-phase="cause-explanation" style="--delay:.9s" aria-hidden="true"><p>Dig deeper and you find the <strong>root cause</strong> of the problems.</p></section>`;
+  const trigger = svg.querySelector('[data-tree-trigger]');
+  const phases = [...svg.querySelectorAll('[data-tree-phase]'), ...notes.querySelectorAll('[data-tree-phase]')];
+  const stage = () => state.treeStage ?? (state.treeRevealed ? 2 : 0);
+  function show(restored) {
+    const step = stage();
+    content.dataset.step = String(step);
+    if (step > 0) content.dataset.open = 'true';
+    if (restored && step > 0) content.dataset.restored = 'true';
+    trigger.setAttribute('aria-expanded', String(step > 0));
+    trigger.setAttribute('aria-disabled', String(!ready || step === 2));
+    phases.forEach(phase => {
+      const cause = ['roots','cause-labels','cause-explanation'].includes(phase.dataset.treePhase);
+      if (step >= (cause ? 2 : 1)) {
+        phase.classList.add('is-visible');
+        if (restored) phase.classList.add('is-restored');
+        phase.removeAttribute('aria-hidden');
+      }
+    });
+  }
+  function reveal() {
+    if (!ready || stage() === 2 || host?.eiuSectionEnded) return;
+    state.treeStage = stage() + 1;
+    state.treeRevealed = state.treeStage === 2;
+    show(false);
+    if (requestId && epoch) host.parent.postMessage({ type:'eiu-reveal-save', requestId, epoch, state }, '*');
+  }
+  trigger.addEventListener('click', reveal);
+  trigger.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); reveal(); } });
+  if (requestId) {
+    const receive = event => {
+      const value = event.data;
+      if (event.source !== host.parent || value?.type !== 'eiu-reveal-state' || value.requestId !== requestId || host.eiuSectionEnded) return;
+      if (!value.state || typeof value.epoch !== 'string' || ![value.state.symptom,value.state.rootCause].every(items=>Array.isArray(items)&&items.length===3&&items.every(item=>typeof item==='boolean'))) return;
+      state = value.state; epoch = value.epoch; ready = true; show(true);
+    };
+    const refresh=()=>{ready=false;show(true);};
+    host.addEventListener('eiu-reveal-refresh',refresh);
+    host.addEventListener('message', receive);
+    host.addEventListener('pagehide', () => {host.removeEventListener('message', receive);host.removeEventListener('eiu-reveal-refresh',refresh);}, {once:true});
+    host.parent.postMessage({type:'eiu-reveal-load',requestId},'*');
+  }
+  content.replaceChildren(style, svg, notes);
+  content.parentElement.setAttribute('role','group');
+}

@@ -1,3 +1,4 @@
+import {loadTS} from './helpers/mis301-fixture.mjs';
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -33,6 +34,7 @@ function landing(f, fetch, frameGlobals = {}) {
   let props, entrance, scene;
   const empty = { __esModule: true, default: () => null };
   const Component = load("components/LandingPage.tsx", {
+    "@/lib/mis311Presentation": loadTS("lib/mis311Presentation.ts", {}, {window:f.window}),
     "@/lib/learningLanguage": { useLearningLanguage: () => ({ setLanguage: language => f.window.localStorage.setItem("eiu.learning-interface-language", language) }) },
     "next/image": empty, "next/dynamic": { __esModule: true, default: () => current => { if (current.mouseRef) scene = current; return null; } },
     "motion/react": { useReducedMotion: () => frameGlobals.reducedMotion ?? true, motion: { nav: ({ children, className }) => React.createElement("nav", { className }, children) } },
@@ -304,4 +306,16 @@ test("fallback flight stops offscreen or in a hidden tab, resumes once, and canc
     await act(async () => f.root.unmount());
     assert.equal(frames.size, 0);
   } finally { await f.close(); }
+});
+
+
+test('successful login clears modelling progress while failed login preserves it',async()=>{
+ const f=await fixture(),store=loadTS('lib/mis311Presentation.ts',{}, {window:f.window}),id=store.MIS311_MODELLING_SECTION_ID;let success=false;
+ const view=landing(f,async()=>({ok:success,status:success?200:401,json:async()=>({success,destination:'/learn'})}));
+ try{
+  store.saveMis311PresentationState(id,6,7,{built:true});f.window.localStorage.setItem('unrelated-preference','keep');
+  await act(async()=>f.root.render(React.createElement(view.Component)));await act(async()=>view.props().setPasscode('123456'));
+  await act(async()=>view.props().onSubmit({preventDefault(){}}));assert.equal(store.readMis311Presentation(id)[7].built,true);
+  success=true;await act(async()=>view.props().onSubmit({preventDefault(){}}));assert.equal(Object.keys(store.readMis311Presentation(id)).length,0);assert.equal(f.window.localStorage.getItem('unrelated-preference'),'keep');
+ }finally{await f.close();}
 });

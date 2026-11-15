@@ -11,6 +11,8 @@ import { APPLIED_AGENTIC_AI_SLUG } from "@/lib/auth/types";
 import type { LearnerProfile } from "@/lib/learnerProfileTypes";
 import { rememberDeckSelection } from "@/lib/deckLocation";
 import { clearMis301Notebook } from "@/components/deck/useMis301NotebookBridge";
+import { clearLessonRevealState, resetLessonRevealState } from "@/lib/lessonRevealState";
+import { MIS311_MODELLING_SECTION_ID, resetMis311Presentation } from "@/lib/mis311Presentation";
 import { getSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { clearSlideInteractionStorage } from "@/lib/slideStorage";
 import styles from "./LessonPortal.module.css";
@@ -950,6 +952,7 @@ export default function LessonPortal({
       }
 
       clearMis301Notebook(activeSectionId, payload.token);
+      clearLessonRevealState(activeSectionId);
       setTerminateStatus("success");
       setTerminateNotice(payload.classroomSynced === false ? "Terminated - live classroom reconnecting" : "Terminated");
       if (section) clearSlideInteractionStorage(section);
@@ -996,6 +999,7 @@ export default function LessonPortal({
             terminationBaseline.current = { sectionId: activeSectionId!, token: currentToken };
           } else if (currentToken && currentToken !== terminationBaseline.current?.token) {
             clearMis301Notebook(activeSectionId!, currentToken);
+            clearLessonRevealState(activeSectionId!);
             if (section) clearSlideInteractionStorage(section);
             window.sessionStorage.removeItem(`eiu-showcase-hidden:${activeSectionId}`);
             window.location.replace("/");
@@ -1017,6 +1021,7 @@ export default function LessonPortal({
         const targetSection = (payload.payload as { section?: string })?.section;
         if (targetSection === section || targetSection === activeSectionId) {
           clearMis301Notebook(activeSectionId!);
+          clearLessonRevealState(activeSectionId!);
           if (section) clearSlideInteractionStorage(section);
           window.sessionStorage.removeItem(`eiu-showcase-hidden:${activeSectionId}`);
           window.location.replace("/");
@@ -1654,6 +1659,8 @@ export default function LessonPortal({
         statusNotice={previewMode ? `${t("Preview", "Xem thử")} · ${previewMode === "learning" ? "Learning Access" : "Teaching Access"}` : isAdmin ? terminateNotice : undefined}
         onExitPreview={previewMode ? () => changeAccessPreview(null) : undefined}
         onChooseSection={() => {
+          if (activeSectionId) resetLessonRevealState(activeSectionId);
+          if (activeSectionId === MIS311_MODELLING_SECTION_ID) resetMis311Presentation();
           cancelSectionOpening();
           if (launchingSection) {
             setLaunchingSection(null);

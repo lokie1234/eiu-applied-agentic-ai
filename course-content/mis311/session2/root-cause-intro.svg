@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" data-mis311-topic-intro="true" role="img" aria-label="Root Cause Analysis">
+  <defs>
+    <radialGradient id="rca-topic-halo"><stop stop-color="#e7f0f4" stop-opacity=".6"/><stop offset="1" stop-color="#e7f0f4" stop-opacity="0"/></radialGradient>
+  </defs>
+  <g aria-hidden="true">
+    <ellipse cx="600" cy="300" rx="440" ry="200" fill="url(#rca-topic-halo)"/>
+    <g fill="none" stroke="#144069" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity=".16">
+      <circle cx="150" cy="111" r="28"/>
+      <path d="M150 139v44m-74 34v-34h148v34M150 183v34"/>
+      <rect x="52" y="217" width="48" height="33" rx="9"/>
+      <rect x="126" y="217" width="48" height="33" rx="9"/>
+      <rect x="200" y="217" width="48" height="33" rx="9"/>
+      <path d="m139 110 8 8 16-19"/>
+      <circle cx="1030" cy="430" r="54"/>
+      <circle cx="1030" cy="430" r="39"/>
+      <path d="m1068 468 52 52m-114-73 17-19 15 8 17-30"/>
+      <path d="M98 424h66v42h71m-8-6 8 6-8 6M1070 108h-74v43h-64m8-6-8 6 8 6" stroke-dasharray="4 9"/>
+    </g>
+    <g fill="none" stroke="#9d7944" stroke-width="2.5" stroke-linecap="round" opacity=".24">
+      <path d="M305 490c55-7 89-24 113-61m-50 33-26 32m42-41 19 42m-1-54 44 26M880 89c-48 6-76 25-100 57m43-29 24-29m-39 38-13-38m-3 52-42-16"/>
+      <path d="M290 82h120m380 434h120" stroke-dasharray="3 10"/>
+    </g>
+    <g fill="#3997aa" opacity=".2"><circle cx="305" cy="490" r="6"/><circle cx="880" cy="89" r="6"/><circle cx="1070" cy="108" r="6"/><circle cx="98" cy="424" r="6"/></g>
+    <path d="M490 352h220" stroke="#b39159" stroke-width="3" opacity=".65"/>
+    <circle cx="477" cy="352" r="4" fill="#b39159" opacity=".65"/><circle cx="723" cy="352" r="4" fill="#b39159" opacity=".65"/>
+  </g>
+  <text x="600" y="300" dominant-baseline="middle" text-anchor="middle" fill="#144069" font-family="Arial,Helvetica,sans-serif" font-size="72" font-weight="700">Root Cause Analysis</text>
+</svg>

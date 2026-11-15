@@ -1,0 +1,151 @@
+function renderToolsHub(content, hub) {
+  content.dataset.mis311Tools = 'true'; content.style.overflow = 'auto';
+  const style=document.createElement('style');
+  style.textContent=`
+    [data-mis311-tools]{display:flex;flex-direction:column;gap:18px;font-family:Arial,sans-serif;color:#17324a;scrollbar-width:thin}
+    .mis311-tools-title{margin:0;color:#144069;font-size:clamp(27px,2.9vw,41px);line-height:1.2;text-align:center}
+    .mis311-tools-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:18px;padding:4px}
+    .mis311-tool-card{display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:12px;min-width:0;min-height:0;padding:clamp(18px,2.1vw,28px);border:1px solid #c7dbe4;border-top:4px solid #326d9c;border-radius:18px;background:linear-gradient(130deg,#f0f6fa,#fff);color:#17324a;text-align:left;font-family:Arial,sans-serif;cursor:pointer;box-shadow:0 4px 12px #1440690a;transition:box-shadow .2s,border-color .2s}
+    .mis311-tool-card:nth-child(even){border-top-color:#3997aa;background:linear-gradient(130deg,#f0f8f8,#fff)}
+    .mis311-tool-card:hover{border-color:#b39159;box-shadow:0 0 18px #b3915933}
+    .mis311-tool-card strong{max-width:20ch;font-size:clamp(20px,2.1vw,30px);line-height:1.25;text-wrap:balance;color:#144069}
+    .mis311-tool-card span{max-width:32ch;font-size:clamp(15px,1.45vw,20px);line-height:1.4;text-wrap:pretty}
+    [data-mis311-tools] button:focus-visible{outline:3px solid #b39159;outline-offset:2px}
+    .mis311-tools-dialog{position:fixed;inset:auto;left:6%;top:11.8%;width:88%;height:77%;max-width:none;max-height:77%;margin:0;padding:20px;border:1px solid #b39159;border-radius:18px;background:#fff;color:#17324a;box-shadow:0 18px 60px #102f4c44;overflow:hidden;font-family:Arial,sans-serif}
+    .mis311-tools-dialog[open]{display:grid;grid-template-rows:auto minmax(0,1fr) auto;gap:12px}
+    .mis311-tools-dialog::backdrop{background:#102c4644}
+    .mis311-tools-dialog-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-bottom:10px;border-bottom:1px solid #dce5ec;min-width:0}
+    .mis311-tools-dialog h2{margin:0;color:#144069;font-size:clamp(22px,2.15vw,31px);line-height:1.2;text-wrap:balance}
+    .mis311-tools-close{flex-shrink:0;width:40px;height:40px;border:1px solid #d4e0e8;border-radius:10px;background:#f3f7fa;color:#144069;font:25px Arial,sans-serif;cursor:pointer}
+    .mis311-tools-body{min-height:0;min-width:0;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+    .mis311-tools-dialog:not([data-tool=fiveWhys])[open]{grid-template-rows:auto minmax(0,1fr)}
+    .mis311-tools-footer:empty{display:none}
+    .mis311-tools-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .mis311-tools-action,.mis311-tools-tab{min-height:36px;border:1px solid #bfd2df;border-radius:9px;padding:7px 13px;background:#f3f7fa;color:#144069;font:600 14px Arial,sans-serif;cursor:pointer}
+    .mis311-tools-tab[aria-pressed=true]{background:#144069;color:white;border-color:#144069}
+    .mis311-why-grid{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:14px;list-style:none;padding:0;margin:0}
+    .mis311-why-card{min-width:0;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:10px;border:1px solid #d7c39a;border-left:4px solid #b39159;border-radius:12px;padding:16px;background:linear-gradient(125deg,#fbf6e9,#fff)}
+    .mis311-why-card:first-child{border-color:#bdd5e4;border-left-color:#144069;background:#f0f6fa}
+    .mis311-why-card h3{margin:0;color:#9d7944;font-size:clamp(15px,1.3vw,18px);line-height:1.2}.mis311-why-card:first-child h3{color:#144069}
+    .mis311-why-card p{margin:0;color:#17324a;font-size:clamp(17px,1.6vw,23px);line-height:1.4;text-wrap:pretty}
+    .mis311-why-nav{display:none;align-items:center;gap:8px;font-size:14px;color:#687987}
+    .mis311-why-nav button:disabled{opacity:.4;cursor:default}
+    .mis311-pareto-layout{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:24px;align-items:center}
+    .mis311-tools-figure{min-width:0;min-height:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    .mis311-pareto-notes{margin:0;padding-left:1.2em;display:grid;gap:22px;font-size:clamp(18px,1.8vw,26px);line-height:1.4;text-wrap:pretty}.mis311-pareto-notes li::marker{color:#b39159}
+    .mis311-fishbone-view{flex:1;min-height:0;display:flex;flex-direction:column;gap:8px}
+    .mis311-fishbone-caption{margin:0;color:#236879;font-size:18px;line-height:1.2;text-align:center}
+    .mis311-fishbone-native{flex:1;min-height:0;display:block;width:100%;height:100%}
+    .mis311-fishbone-mobile{display:none}
+    .mis311-tools-tabs{display:flex;gap:10px;flex-wrap:wrap}
+    .mis311-tool-original{flex:1;min-width:0;min-height:0;width:100%;height:100%;display:flex;align-items:center;justify-content:center;border:1px solid #dce5ec;border-radius:12px;padding:6px;background:#fff;overflow:hidden}
+    .mis311-tool-original svg{display:block;width:100%;height:100%;min-width:0;min-height:0}
+    .mis311-rca-chart-view{flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
+    .mis311-rca-chart-header{display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .mis311-rca-chart-header h3{margin:0;color:#144069;font-size:clamp(19px,1.8vw,26px);line-height:1.2}
+    .mis311-rca-chart-badge{flex-shrink:0;border-radius:999px;background:#f7f1e6;color:#866131;padding:5px 10px;font-size:13px;white-space:nowrap}
+    .mis311-rca-chart-layout{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:22px;align-items:center}
+    .mis311-rca-chart-svg{min-width:0;min-height:0;display:block;width:100%;height:100%;font-family:Arial,sans-serif}
+    .mis311-rca-chart-notes{display:grid;gap:18px;font-size:clamp(17px,1.6vw,23px);line-height:1.4;text-wrap:pretty}
+    .mis311-rca-chart-notes p{margin:0}.mis311-rca-chart-notes p:last-child{border-left:3px solid #b39159;padding-left:14px;color:#526b7b;font-size:clamp(16px,1.35vw,19px)}
+    @media(max-width:700px),(max-height:520px){
+      [data-mis311-tools]{gap:14px}.mis311-tools-title{font-size:26px}
+      .mis311-tools-grid{gap:12px;padding:3px}.mis311-tool-card{padding:16px;gap:10px;border-radius:14px}
+      .mis311-tool-card strong{font-size:19px;line-height:1.3}.mis311-tool-card span{font-size:14px;line-height:1.4}
+      .mis311-tools-dialog{left:4%;top:10%;width:92%;height:80%;max-height:80%;padding:14px;gap:10px!important}
+      .mis311-tools-dialog h2{font-size:22px}.mis311-tools-dialog-header{padding-bottom:8px;gap:12px}
+      .mis311-tools-close{width:36px;height:36px}.mis311-tools-action,.mis311-tools-tab{min-height:34px;padding:6px 9px;font-size:13px}
+      .mis311-why-grid{display:flex}.mis311-why-card{display:none;padding:20px;flex:1}.mis311-why-card[data-current=true]{display:flex}.mis311-why-card p{font-size:21px;line-height:1.45}.mis311-why-card h3{font-size:17px}
+      .mis311-why-nav{display:flex}.mis311-tools-footer{gap:8px}
+      .mis311-fishbone-native{display:none}.mis311-fishbone-mobile{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr;grid-template-rows:repeat(3,minmax(0,1fr));gap:10px}.mis311-fishbone-mobile section{min-width:0;padding:10px;border:1px solid #bfd2df;border-radius:10px;background:#f0f6fa;display:flex;flex-direction:column;justify-content:center;gap:8px}.mis311-fishbone-mobile h4{margin:0;color:#144069;font-size:17px;line-height:1.2}.mis311-fishbone-mobile p{margin:0;color:#9d7944;font-size:17px;line-height:1.2}
+      .mis311-rca-chart-header{align-items:flex-start}.mis311-rca-chart-header h3{font-size:19px}.mis311-rca-chart-badge{font-size:11px;padding:4px 7px}.mis311-rca-chart-layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;gap:10px}.mis311-rca-chart-notes{gap:9px;font-size:16px;line-height:1.35}.mis311-rca-chart-notes p:last-child{font-size:14px}
+      .mis311-pareto-layout{grid-template-columns:1fr;grid-template-rows:minmax(0,1fr) auto;gap:12px}.mis311-pareto-notes{gap:8px;font-size:16px;line-height:1.35}
+    }
+    @media(max-height:520px){.mis311-rca-chart-layout{grid-template-columns:1.5fr 1fr;grid-template-rows:1fr;gap:14px}.mis311-rca-chart-header h3{font-size:18px}.mis311-rca-chart-notes{font-size:15px}.mis311-rca-chart-notes p:last-child{font-size:13px}.mis311-fishbone-mobile{grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:1fr 1fr;gap:8px}.mis311-fishbone-mobile section{padding:8px;gap:4px}.mis311-fishbone-mobile h4,.mis311-fishbone-mobile p{font-size:16px}.mis311-why-card{padding:14px}.mis311-why-card p{font-size:18px;line-height:1.35}.mis311-pareto-layout{grid-template-columns:1.2fr 1fr;grid-template-rows:1fr}.mis311-pareto-notes{font-size:16px}.mis311-tool-card{padding:12px}.mis311-tool-card strong{font-size:18px}.mis311-tool-card span{font-size:14px}}
+    @media(prefers-reduced-motion:reduce){.mis311-tool-card{transition:none}}
+  `;
+  function element(tag,className,text){const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;}
+  function action(label,callback,className='mis311-tools-action'){const button=element('button',className,label);button.type='button';button.addEventListener('click',callback);return button;}
+  function makeDialog(id,label){const dialog=element('dialog','mis311-tools-dialog');dialog.id=id;dialog.setAttribute('aria-labelledby',id+'-title');const header=element('div','mis311-tools-dialog-header');const title=element('h2','');title.id=id+'-title';const close=action('\u00d7',()=>dialog.close(),'mis311-tools-close');close.setAttribute('aria-label',label);header.append(title,close);const body=element('div','mis311-tools-body');const footer=element('div','mis311-tools-footer');dialog.append(header,body,footer);dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();});return {dialog,title,body,footer};}
+  function originalPage(sourceSlide,prefix){const original=hub.pages.find(page=>page.sourceSlide===sourceSlide);if(!original)throw Error('Missing original tool page');const page=element('section','mis311-tool-original');page.dataset.originalSourceSlide=String(sourceSlide);page.innerHTML=original.svg.replace(/asset:([a-f0-9]+\.(?:png|jpg))/g,(_,name)=>{if(!assets[name])throw Error('Missing original tool illustration');return assets[name];}).replace(/\bid="([^"]+)"/g,(_,id)=>`id="${prefix}${id}"`).replace(/url\(#([^)]+)\)/g,(_,id)=>`url(#${prefix}${id})`).replace(/((?:xlink:)?href)="#([^"]+)"/g,(_,attr,id)=>`${attr}="#${prefix}${id}"`);page.querySelector('svg').setAttribute('preserveAspectRatio','xMidYMid meet');return page;}
+  let figureSerial=0;
+  function paretoFigure(label){const frame=originalPage(35,`mis311-pareto-${++figureSerial}-`);frame.classList.add('mis311-tools-figure');const svg=frame.querySelector('svg');svg.setAttribute('viewBox','47.593 128.12702 484.03 371.87');svg.setAttribute('width','484.03');svg.setAttribute('height','371.87');svg.style.overflow='hidden';svg.setAttribute('aria-label',label);const ns='http://www.w3.org/2000/svg';const clip=document.createElementNS(ns,'clipPath');clip.id=`mis311-pareto-crop-${figureSerial}`;const rect=document.createElementNS(ns,'rect');[['x','47.593'],['y','128.12702'],['width','484.03'],['height','371.87']].forEach(([k,v])=>rect.setAttribute(k,v));clip.appendChild(rect);const defs=svg.querySelector('defs');defs.appendChild(clip);const cropped=document.createElementNS(ns,'g');cropped.setAttribute('clip-path',`url(#${clip.id})`);[...svg.children].filter(child=>child!==defs).forEach(child=>cropped.appendChild(child));svg.appendChild(cropped);return frame;}
+  function fishbone(sourceSlide){
+    const brainstorm=sourceSlide===33;const view=element('section','mis311-fishbone-view');view.dataset.originalSourceSlide=String(sourceSlide);
+    view.appendChild(element('h3','mis311-fishbone-caption',brainstorm?'Brainstorm of possible cause':'Ishikawa or Fishbone Diagram (Cause and Effect)'));
+    const ns='http://www.w3.org/2000/svg';const node=(tag,attrs,text)=>{const n=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,String(v)));if(text)n.textContent=text;return n;};
+    const svg=node('svg',{viewBox:'0 0 1040 350',class:'mis311-fishbone-native',role:'img','aria-label':brainstorm?'Brainstorm of possible cause':'Ishikawa or Fishbone Diagram (Cause and Effect)'});
+    svg.appendChild(node('path',{d:'M25 175H870m-10-7 10 7-10 7',fill:'none',stroke:'#144069','stroke-width':3}));svg.appendChild(node('rect',{x:880,y:151,width:110,height:48,rx:10,fill:'#144069'}));svg.appendChild(node('text',{x:935,y:182,'text-anchor':'middle',fill:'white','font-size':22,'font-family':'Arial'},'Problem'));
+    const groups=[['Man','Cause A'],['Method','Cause D'],['Materials','Cause E'],['Management System','Cause F'],['Machine','Cause C'],['Environment','Cause B']];
+    const mobile=element('div','mis311-fishbone-mobile');
+    groups.forEach(([label,cause],index)=>{const top=index<3,col=index%3,x=top?35+col*280:175+col*280,y=top?25:277,center=x+110;
+      svg.appendChild(node('path',{d:top?`M${center} ${y+44}L${center+85} 175`:`M${center-85} 175L${center} ${y}`,fill:'none',stroke:'#88a8bd','stroke-width':2.5}));svg.appendChild(node('rect',{x,y,width:220,height:44,rx:10,fill:'#edf5f8',stroke:'#9ebdcd','stroke-width':1.5}));svg.appendChild(node('text',{x:center,y:y+29,'text-anchor':'middle',fill:'#144069','font-size':label.length>15?20:23,'font-family':'Arial','font-weight':700},label));
+      if(brainstorm){const cy=top?111:239;const labelX=top?center-16:center+18;const joinX=top?center+((cy-7-(y+44))/(175-(y+44)))*85:center-85+((cy-7-175)/(y-175))*85;svg.appendChild(node('path',{d:top?`M${center-10} ${cy-7}H${joinX}`:`M${joinX} ${cy-7}H${center+12}`,fill:'none',stroke:'#b39159','stroke-width':2}));svg.appendChild(node('rect',{x:top?center-112:center+12,y:cy-24,width:102,height:32,rx:6,fill:'#fffaf0',stroke:'#eadfc9','data-cause-label-box':cause}));svg.appendChild(node('text',{x:labelX,y:cy,'text-anchor':top?'end':'start',fill:'#9d7944','font-size':21,'font-family':'Arial','data-cause-label':cause},cause));}
+      const section=element('section');section.appendChild(element('h4','',label));if(brainstorm)section.appendChild(element('p','',cause));mobile.appendChild(section);
+    });view.append(svg,mobile);return view;
+  }
+  function chartGallery(){
+    const gallery=element('div','mis311-tools-body');gallery.style.flex='1';gallery.dataset.rcaCharts='true';
+    const tabs=element('div','mis311-tools-tabs');const view=element('section','mis311-rca-chart-view');const buttons=[];
+    function chartSvg(example){
+      const ns='http://www.w3.org/2000/svg';const node=(tag,attrs,text)=>{const n=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([k,v])=>n.setAttribute(k,String(v)));if(text!==undefined)n.textContent=text;return n;};
+      const svg=node('svg',{viewBox:'0 0 600 380',class:'mis311-rca-chart-svg',role:'img','aria-label':`${example.heading}. Illustrative data.`, 'data-chart-type':example.key});svg.appendChild(node('title',{},`${example.heading} - illustrative product defect data`));
+      const left=80,right=575,top=35,bottom=300,width=right-left,height=bottom-top,max=example.key==='histogram'?30:example.key==='scatter'?8:10;
+      const y=value=>bottom-value/max*height;
+      [0,max/2,max].forEach(value=>{svg.appendChild(node('line',{x1:left,y1:y(value),x2:right,y2:y(value),stroke:'#dae4ec','stroke-width':1}));svg.appendChild(node('text',{x:left-14,y:y(value)+8,'text-anchor':'end',fill:'#526b7b','font-size':22},String(value)));});
+      svg.appendChild(node('path',{d:`M${left} ${top}V${bottom}H${right}`,stroke:'#59788d','stroke-width':2,fill:'none'}));
+      svg.appendChild(node('text',{x:26,y:170,transform:'rotate(-90 26 170)','text-anchor':'middle',fill:'#17324a','font-size':25},example.yLabel));
+      svg.appendChild(node('text',{x:(left+right)/2,y:368,'text-anchor':'middle',fill:'#17324a','font-size':25},example.xLabel));
+      const tick=(x,label)=>svg.appendChild(node('text',{x,y:332,'text-anchor':'middle',fill:'#526b7b','font-size':23},label));
+      if(example.key==='run'){
+        const x=index=>left+index/(example.data.length-1)*width;
+        const actionX=(x(3)+x(4))/2;svg.appendChild(node('line',{x1:actionX,y1:top,x2:actionX,y2:bottom,stroke:'#b39159','stroke-width':2,'stroke-dasharray':'5 6'}));svg.appendChild(node('text',{x:actionX+8,y:24,fill:'#9d7944','font-size':21},'Action'));
+        svg.appendChild(node('polyline',{points:example.data.map((value,index)=>`${x(index)},${y(value)}`).join(' '),fill:'none',stroke:'#2d7fb4','stroke-width':4}));
+        example.data.forEach((value,index)=>{svg.appendChild(node('circle',{cx:x(index),cy:y(value),r:6,fill:'#144069','data-chart-mark':'point'}));tick(x(index),`D${index+1}`);});
+      }else if(example.key==='histogram'){
+        const binWidth=width/example.data.length;
+        example.data.forEach((value,index)=>{svg.appendChild(node('rect',{x:left+index*binWidth,y:y(value),width:binWidth,height:bottom-y(value),fill:'#3997aa',stroke:'#fff','stroke-width':1,'data-chart-mark':'bar'}));tick(left+(index+.5)*binWidth,example.bins[index].toFixed(1));});
+      }else{
+        const x=value=>left+(value-20)/14*width;
+        [20,24,28,32,34].forEach(value=>tick(x(value),String(value)));
+        example.data.forEach(([temperature,rate])=>svg.appendChild(node('circle',{cx:x(temperature),cy:y(rate),r:7,fill:'#2d7fb4',opacity:.9,'data-chart-mark':'point'})));
+      }
+      return svg;
+    }
+    function select(example){
+      view.replaceChildren();view.dataset.activeChart=example.key;
+      const heading=element('div','mis311-rca-chart-header');heading.append(element('h3','',example.heading),element('span','mis311-rca-chart-badge','Illustrative data'));
+      const layout=element('div','mis311-rca-chart-layout');const notes=element('div','mis311-rca-chart-notes');notes.append(element('p','',example.description),element('p','',example.interpretation));layout.append(chartSvg(example),notes);view.append(heading,layout);
+      buttons.forEach(({button,key})=>button.setAttribute('aria-pressed',String(key===example.key)));
+    }
+    hub.chartExamples.forEach(example=>{const button=action(example.title,()=>select(example),'mis311-tools-tab');button.dataset.chartKey=example.key;buttons.push({button,key:example.key});tabs.appendChild(button);});
+    select(hub.chartExamples[0]);gallery.append(tabs,view);return gallery;
+  }
+  const primary=makeDialog('mis311-tool-details','Close tool');
+  let lastTrigger;
+  primary.dialog.addEventListener('close',()=>lastTrigger?.focus());
+  const title=element('h1','mis311-tools-title',hub.title);const grid=element('div','mis311-tools-grid');
+  hub.cards.forEach(card=>{
+    const button=action('',()=>openTool(card,button),'mis311-tool-card');button.dataset.toolKey=card.key;button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls',primary.dialog.id);button.append(element('strong','',card.shortTitle||card.title),element('span','',card.description));grid.appendChild(button);
+  });
+  function openTool(card,trigger){
+    lastTrigger=trigger;primary.dialog.dataset.tool=card.key;primary.title.textContent=card.title;primary.body.replaceChildren();primary.footer.replaceChildren();
+    if(card.key==='fiveWhys'){
+      const steps=element('ol','mis311-why-grid');const cards=hub.fiveWhysSteps.map((step,index)=>{const node=element('li','mis311-why-card');node.dataset.whyIndex=String(index);node.append(element('h3','',step.label),element('p','',step.text));steps.appendChild(node);return node;});
+      let selected=0;const nav=element('div','mis311-why-nav');const counter=element('span');
+      const update=()=>{cards.forEach((node,index)=>node.dataset.current=String(index===selected));previous.disabled=selected===0;next.disabled=selected===cards.length-1;counter.textContent=hub.fiveWhysSteps[selected].label;};
+      const previous=action('\u2190',()=>{selected=Math.max(0,selected-1);update();});previous.setAttribute('aria-label','Previous why');
+      const next=action('\u2192',()=>{selected=Math.min(cards.length-1,selected+1);update();});next.setAttribute('aria-label','Next why');nav.append(previous,counter,next);update();
+      primary.body.appendChild(steps);primary.footer.appendChild(nav);
+    }else if(card.key==='pareto'){
+      const layout=element('div','mis311-pareto-layout');layout.appendChild(paretoFigure('Cause of Injuries On Site - Pareto Chart'));const notes=element('ul','mis311-pareto-notes');hub.paretoNotes.forEach(text=>notes.appendChild(element('li','',text)));layout.appendChild(notes);primary.body.appendChild(layout);
+    }else if(card.key==='fishbone'){
+      const tabs=element('div','mis311-tools-tabs');const view=element('div','mis311-tools-body');view.style.flex='1';const buttons=[];const select=sourceSlide=>{view.replaceChildren(fishbone(sourceSlide));buttons.forEach(({button,id})=>button.setAttribute('aria-pressed',String(sourceSlide===id)));};
+      card.sourceSlides.forEach((sourceSlide,index)=>{const tab=action(index===0?'Structure':'Brainstorm',()=>select(sourceSlide),'mis311-tools-tab');tab.dataset.fishboneSource=String(sourceSlide);buttons.push({button:tab,id:sourceSlide});tabs.appendChild(tab);});select(card.sourceSlides[0]);primary.body.append(tabs,view);
+    }else{
+      primary.body.appendChild(chartGallery());
+    }
+    primary.dialog.showModal();
+  }
+  content.replaceChildren(style,title,grid,primary.dialog);content.parentElement.setAttribute('role','group');
+}

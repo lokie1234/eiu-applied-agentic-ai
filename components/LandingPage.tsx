@@ -9,6 +9,7 @@ import AnimatedHeroCopy from "./landing/AnimatedHeroCopy";
 import EntranceBootOverlay from "./landing/EntranceBootOverlay";
 import type { IdentityField } from "@/lib/learningIdentity";
 import { useLearningLanguage, type LearningLanguage } from "@/lib/learningLanguage";
+import { resetMis311Presentation } from "@/lib/mis311Presentation";
 
 import { type RobotInteractionState } from "./landing/GuardianRobot3D";
 
@@ -108,6 +109,7 @@ export default function LandingPage({ googleResult }: { googleResult?: string } 
 
       // Xác thực thành công: dạng users hoặc đúng pass admin
       // Kính mặt robo hiện loading.... màu xanh
+      resetMis311Presentation();
       window.location.replace(payload.destination || "/learn");
     } catch (caught) {
       if (controller.signal.aborted) return;

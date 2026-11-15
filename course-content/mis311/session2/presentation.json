@@ -1,0 +1,1117 @@
+{
+  "hiddenSourceSlides": [
+    24,
+    26,
+    30,
+    32,
+    33,
+    34,
+    35,
+    38,
+    42,
+    43,
+    40,
+    48,
+    49,
+    54,
+    55,
+    25,
+    27,
+    29,
+    31,
+    41,
+    44,
+    47,
+    28,
+    37
+  ],
+  "coverStyle": {
+    "sourceSlide": 23,
+    "coverTitleOffsetY": -72,
+    "coverSubtitleScale": 1.12,
+    "coverSubtitleOffsetY": -14
+  },
+  "rootCauseComparison": {
+    "sourceSlide": 25,
+    "mergedSourceSlides": [
+      25,
+      26
+    ],
+    "title": "Symptom Approach vs. Root Cause",
+    "subtitle": "Symptom Approach vs. Root Cause",
+    "rows": [
+      {
+        "label": "Where do errors come from?",
+        "symptom": "Errors are often a result of worker carelessness.",
+        "rootCause": "Errors are the result of defects in the system. People are only part of the process."
+      },
+      {
+        "label": "How should we respond?",
+        "symptom": "We need to train and motivate workers to be more careful.",
+        "rootCause": "We need to find out why this is happening, and implement mistake-proofs so it won't happen again."
+      },
+      {
+        "label": "Is it worth fixing?",
+        "symptom": "We don't have the time or resources to really get to the bottom of this problem.",
+        "rootCause": "This is critical. We need to fix it for good, or it will come back and burn us."
+      }
+    ]
+  },
+  "rootCauseProcess": {
+    "sourceSlide": 27,
+    "title": "General process for performing root cause analysis (RCA)",
+    "steps": [
+      {
+        "title": "Define the problem",
+        "bullets": [
+          "Define the problem."
+        ]
+      },
+      {
+        "title": "Gather evidence",
+        "bullets": [
+          "Gather data/evidence."
+        ]
+      },
+      {
+        "title": "Identify contributing issues",
+        "bullets": [
+          "Identify issues that contributed to the problem."
+        ]
+      },
+      {
+        "title": "Find root causes",
+        "bullets": [
+          "Find root causes.",
+          "Identify which causes to remove or change to prevent repeated problem."
+        ]
+      },
+      {
+        "title": "Recommend solutions",
+        "bullets": [
+          "Develop solution recommendations that effectively prevent repeating the problem."
+        ]
+      },
+      {
+        "title": "Implement changes",
+        "bullets": [
+          "Implement the recommendations / changes."
+        ]
+      },
+      {
+        "title": "Check effectiveness",
+        "bullets": [
+          "Observe the recommended solutions/changes to ensure effectiveness of eliminating the problem."
+        ]
+      }
+    ]
+  },
+  "displaySourceOrder": [
+    23,
+    36,
+    39,
+    45,
+    46,
+    50,
+    51,
+    52,
+    53
+  ],
+  "problemTree": {
+    "sourceSlide": 28
+  },
+  "additionalSlides": [
+    {
+      "id": "root-cause-intro",
+      "afterSourceSlide": 23,
+      "file": "root-cause-intro.svg"
+    }
+  ],
+  "causeMapping": {
+    "sourceSlide": 29,
+    "mergedSourceSlides": [
+      29,
+      30
+    ],
+    "title": "Cause Mapping & MECE",
+    "phases": [
+      {
+        "title": "Define",
+        "detail": "Define the problem and gather evidence."
+      },
+      {
+        "title": "Analyze",
+        "detail": "Map contributing issues and investigate root causes."
+      },
+      {
+        "title": "Prevent",
+        "detail": "Recommend, implement and check lasting solutions."
+      }
+    ],
+    "meceTitle": "MECE",
+    "meceGroups": [
+      {
+        "title": "Mutually Exclusive",
+        "tag": "No overlap",
+        "bullets": [
+          "Each cause belongs to one group under the chosen classification rule.",
+          "Groups must not overlap or double-count the same cause."
+        ]
+      },
+      {
+        "title": "Collectively Exhaustive",
+        "tag": "No gaps",
+        "bullets": [
+          "Together, the groups cover the full scope of the problem.",
+          "Include every relevant category and check for missing cases."
+        ]
+      }
+    ],
+    "definition": "A visual map that links a problem to its causes through cause-and-effect relationships.",
+    "meceDefinition": "Mutually Exclusive + Collectively Exhaustive: organise causes into distinct groups that together cover the full problem scope.",
+    "examples": {
+      "causeMapping": {
+        "title": "Cause Mapping: Late dispatch",
+        "context": "Problem: orders leave the warehouse late.",
+        "chain": [
+          "Late dispatch",
+          "Packing waits",
+          "Labels unavailable"
+        ],
+        "bullets": [
+          "Possible causes: printer offline, or label requests sent late.",
+          "Check: print logs show late requests; the printer was available.",
+          "Act: generate labels at order confirmation, then check dispatch times."
+        ]
+      },
+      "mece": {
+        "title": "MECE: Classify delivery delays",
+        "context": "Classify each late order by where its first delay begins.",
+        "chain": [
+          "Before packing",
+          "During packing",
+          "After packing"
+        ],
+        "bullets": [
+          "No overlap: assign each order to its first delayed stage only.",
+          "No gaps: these three stages cover the complete fulfilment timeline.",
+          "Then investigate and verify the causes within each group."
+        ]
+      },
+      "mutuallyExclusive": {
+        "title": "Mutually Exclusive: No double-counting",
+        "context": "One order is delayed both before packing and during packing.",
+        "bullets": [
+          "Rule: classify by the first stage where a delay begins.",
+          "Assign this order to Before packing only.",
+          "Do not count the same order again under During packing."
+        ]
+      },
+      "collectivelyExhaustive": {
+        "title": "Collectively Exhaustive: No missing group",
+        "context": "The groups Before packing and During packing omit carrier delays.",
+        "bullets": [
+          "Add After packing to include dispatch and delivery delays.",
+          "Before / During / After packing now cover all first-delay positions.",
+          "Check new cases against the groups to detect any missing category."
+        ]
+      }
+    }
+  },
+  "toolsHub": {
+    "sourceSlide": 31,
+    "title": "Tools for RCA",
+    "cards": [
+      {
+        "key": "fiveWhys",
+        "title": "5 Whys",
+        "description": "Trace successive why questions.",
+        "sourceSlides": [
+          34
+        ]
+      },
+      {
+        "key": "pareto",
+        "title": "Pareto Chart",
+        "description": "Prioritise the largest contributors.",
+        "sourceSlides": [
+          35
+        ]
+      },
+      {
+        "key": "fishbone",
+        "title": "Fishbone or Ishikawa Diagram",
+        "description": "Map and brainstorm possible causes.",
+        "sourceSlides": [
+          32,
+          33
+        ],
+        "shortTitle": "Fishbone / Ishikawa"
+      },
+      {
+        "key": "charts",
+        "title": "Chart and/or Graphs",
+        "description": "Use data to investigate product defects.",
+        "sourceSlides": [
+          31
+        ],
+        "shortTitle": "Charts & Graphs"
+      }
+    ],
+    "fiveWhysSteps": [
+      {
+        "label": "Problem Statement",
+        "text": "The vehicle will not start"
+      },
+      {
+        "label": "Why 1",
+        "text": "The battery is dead."
+      },
+      {
+        "label": "Why 2",
+        "text": "The alternator is not functioning."
+      },
+      {
+        "label": "Why 3",
+        "text": "The alternator belt has broken."
+      },
+      {
+        "label": "Why 4",
+        "text": "The alternator belt was well beyond its useful service life and not replaced."
+      },
+      {
+        "label": "Why 5",
+        "text": "The vehicle was not maintained according to the recommended maintenance schedule."
+      }
+    ],
+    "paretoNotes": [
+      "The tackle is the one that has the highest score. ",
+      "This one will give you the biggest benefit if you solve it."
+    ],
+    "chartExamples": [
+      {
+        "key": "run",
+        "title": "Run Chart",
+        "heading": "Daily defect rate",
+        "description": "Track defect rate over time to assess a process change.",
+        "interpretation": "Rates fall after Day 5. Verify the cause with process evidence.",
+        "xLabel": "Day",
+        "yLabel": "Defect rate (%)",
+        "data": [
+          7,
+          8,
+          6,
+          9,
+          4,
+          3,
+          2,
+          2
+        ]
+      },
+      {
+        "key": "histogram",
+        "title": "Histogram",
+        "heading": "Variation in component width",
+        "description": "Check the distribution and spread of component measurements.",
+        "interpretation": "Compare with specifications; investigate inconsistent process conditions.",
+        "xLabel": "Component width (mm)",
+        "yLabel": "Parts",
+        "bins": [
+          9.7,
+          9.8,
+          9.9,
+          10.0,
+          10.1,
+          10.2,
+          10.3
+        ],
+        "data": [
+          2,
+          7,
+          18,
+          25,
+          16,
+          6,
+          2
+        ]
+      },
+      {
+        "key": "scatter",
+        "title": "Scatter Diagram",
+        "heading": "Temperature and product defects",
+        "description": "Compare temperature with defect rate to identify possible relationships.",
+        "interpretation": "An upward pattern suggests a hypothesis, not proof of causation.",
+        "xLabel": "Temperature (°C)",
+        "yLabel": "Defect rate (%)",
+        "data": [
+          [
+            20,
+            1.5
+          ],
+          [
+            22,
+            1
+          ],
+          [
+            24,
+            2.4
+          ],
+          [
+            26,
+            2
+          ],
+          [
+            28,
+            3.5
+          ],
+          [
+            30,
+            4.2
+          ],
+          [
+            32,
+            5
+          ],
+          [
+            34,
+            6.2
+          ]
+        ]
+      }
+    ],
+    "originalSourceSlides": [
+      35
+    ]
+  },
+  "defectExercise": {
+    "sourceSlide": 37,
+    "mergedSourceSlides": [
+      37,
+      38
+    ],
+    "title": "Exercise: Analyzing High Product Defect Rates",
+    "objective": "Use Fishbone analysis to identify the root causes of a high defect rate in a product manufactured by a company and suggest improvements.",
+    "scenario": "A company manufactures consumer electronics, and recently, there’s been an increase in defective products, leading to higher return rates and dissatisfied customers. The manager has asked you to investigate the reasons for the high defect rate and propose corrective actions.",
+    "diagramTitle": "Fishbone Diagram: High Product Defect Rate Analysis",
+    "groups": [
+      {
+        "label": "People",
+        "causes": [
+          "Low Experience",
+          "High Turnover",
+          "Inadequate Training"
+        ]
+      },
+      {
+        "label": "Materials",
+        "causes": [
+          "Frequent Supplier Changes",
+          "Inferior Materials"
+        ]
+      },
+      {
+        "label": "Environment",
+        "causes": [
+          "Dust or Humidity Issues",
+          "Uncontrolled Temperature"
+        ]
+      },
+      {
+        "label": "Process",
+        "causes": [
+          "Lack of Standards",
+          "Inconsistent Quality Checks"
+        ]
+      },
+      {
+        "label": "Machines",
+        "causes": [
+          "Outdated Equipment",
+          "Frequent Breakdowns"
+        ]
+      },
+      {
+        "label": "Management",
+        "causes": [
+          "Lack of Oversight",
+          "Limited QA Resources"
+        ]
+      }
+    ]
+  },
+  "valueStreamIntro": {
+    "sourceSlide": 39,
+    "title": "Value Stream Mapping",
+    "definition": "Value Stream Mapping is a great tool that Industrial Engineers use in order to see the process from a “birds eye view”.",
+    "exampleAsset": "1f9885b348f1ed8c82fcaf53bdf83cc0adf7ad40b0893dfaf7f6073d131d1332.jpg"
+  },
+  "valueStreamParts": {
+    "sourceSlide": 41,
+    "mergedSourceSlides": [
+      41,
+      42,
+      43
+    ],
+    "title": "Parts of a Value Stream Map",
+    "steps": [
+      {
+        "title": "Numbering the steps"
+      },
+      {
+        "title": "Name for each step"
+      },
+      {
+        "title": "Put arrows to show the path"
+      },
+      {
+        "title": "Star areas for Problems"
+      },
+      {
+        "title": "Create a list of Solutions for the Stars"
+      }
+    ],
+    "symbolsDescription": "There are many different types of symbols and shapes used to distinguish different parts of a VSM. Here are a few of the most widely used symbols.",
+    "symbolsAsset": "12568ca8a96a2eb446fbb650270d214889fea566ff79d9783dd81fa6bac14d34.png",
+    "exampleAsset": "d84000b305152c9942294550af654d103d4416cad8533574c6991b9594557fc8.png",
+    "symbols": [
+      {
+        "name": "Production Control",
+        "crop": [
+          20,
+          42,
+          90,
+          70
+        ],
+        "description": "Central production scheduling or control department, person or operation."
+      },
+      {
+        "name": "Customer/Supplier",
+        "crop": [
+          20,
+          120,
+          90,
+          70
+        ],
+        "description": "It is the usual starting point for material flow."
+      },
+      {
+        "name": "Inventories",
+        "crop": [
+          20,
+          205,
+          90,
+          43
+        ],
+        "description": ""
+      },
+      {
+        "name": "Shipment",
+        "crop": [
+          20,
+          260,
+          95,
+          103
+        ],
+        "description": ""
+      },
+      {
+        "name": "Electronic Information Flow",
+        "crop": [
+          30,
+          370,
+          90,
+          38
+        ],
+        "description": "Electronic flow such as EDI, Internet, intranets, LANs, WANs."
+      },
+      {
+        "name": "Information Flow",
+        "crop": [
+          50,
+          435,
+          70,
+          30
+        ],
+        "description": ""
+      },
+      {
+        "name": "Material Flow / PUSH Arrow",
+        "crop": [
+          50,
+          485,
+          70,
+          32
+        ],
+        "description": "\"Pushing\" of material from one process to the next process."
+      },
+      {
+        "name": "Manual Info",
+        "crop": [
+          30,
+          535,
+          95,
+          65
+        ],
+        "description": ""
+      },
+      {
+        "name": "Pull Arrow",
+        "crop": [
+          30,
+          625,
+          95,
+          65
+        ],
+        "description": "Pull movement between internal steps."
+      },
+      {
+        "name": "Supermarket",
+        "crop": [
+          45,
+          703,
+          45,
+          73
+        ],
+        "description": ""
+      },
+      {
+        "name": "Safety Stock",
+        "crop": [
+          343,
+          43,
+          40,
+          70
+        ],
+        "description": ""
+      },
+      {
+        "name": "Material Pull",
+        "crop": [
+          333,
+          115,
+          57,
+          53
+        ],
+        "description": ""
+      },
+      {
+        "name": "Dedicated Process",
+        "crop": [
+          315,
+          176,
+          90,
+          93
+        ],
+        "description": "Process, operation, machine or department, through which material flows."
+      },
+      {
+        "name": "Process with Data",
+        "crop": [
+          315,
+          272,
+          90,
+          92
+        ],
+        "description": ""
+      },
+      {
+        "name": "Shared Process",
+        "crop": [
+          315,
+          368,
+          90,
+          91
+        ],
+        "description": ""
+      },
+      {
+        "name": "Data Box",
+        "crop": [
+          315,
+          463,
+          90,
+          72
+        ],
+        "description": "This icon goes under other icons that have significant data required for analyzing and observing the system."
+      },
+      {
+        "name": "Truck shipment/Logistics",
+        "crop": [
+          315,
+          546,
+          90,
+          46
+        ],
+        "description": "Shipment using external transport."
+      },
+      {
+        "name": "Forklift Truck",
+        "crop": [
+          325,
+          607,
+          65,
+          50
+        ],
+        "description": ""
+      },
+      {
+        "name": "Plane",
+        "crop": [
+          315,
+          670,
+          90,
+          43
+        ],
+        "description": ""
+      },
+      {
+        "name": "Ship",
+        "crop": [
+          315,
+          732,
+          90,
+          40
+        ],
+        "description": ""
+      },
+      {
+        "name": "FIFO Line",
+        "crop": [
+          605,
+          53,
+          92,
+          51
+        ],
+        "description": "First-In-First-Out sequence flow."
+      },
+      {
+        "name": "Supermarket Parts",
+        "crop": [
+          615,
+          133,
+          72,
+          47
+        ],
+        "description": ""
+      },
+      {
+        "name": "Workcell",
+        "crop": [
+          615,
+          215,
+          72,
+          51
+        ],
+        "description": ""
+      },
+      {
+        "name": "Kaizen Burst",
+        "crop": [
+          615,
+          300,
+          72,
+          50
+        ],
+        "description": ""
+      },
+      {
+        "name": "Operator",
+        "crop": [
+          650,
+          394,
+          40,
+          33
+        ],
+        "description": ""
+      },
+      {
+        "name": "Production Kanban",
+        "crop": [
+          635,
+          477,
+          52,
+          37
+        ],
+        "description": ""
+      },
+      {
+        "name": "Material Withdrawal Kanban",
+        "crop": [
+          635,
+          561,
+          52,
+          37
+        ],
+        "description": ""
+      },
+      {
+        "name": "Signal Kanban",
+        "crop": [
+          635,
+          641,
+          52,
+          46
+        ],
+        "description": ""
+      },
+      {
+        "name": "Kanban Post",
+        "crop": [
+          641,
+          728,
+          50,
+          47
+        ],
+        "description": ""
+      },
+      {
+        "name": "Sequenced Pull",
+        "crop": [
+          918,
+          58,
+          40,
+          40
+        ],
+        "description": ""
+      },
+      {
+        "name": "Load Levelling",
+        "crop": [
+          865,
+          141,
+          92,
+          42
+        ],
+        "description": ""
+      },
+      {
+        "name": "MRP/ERP",
+        "crop": [
+          914,
+          225,
+          44,
+          52
+        ],
+        "description": "Scheduling using MRP/ERP or other centralized systems."
+      },
+      {
+        "name": "Go-See",
+        "crop": [
+          858,
+          330,
+          100,
+          47
+        ],
+        "description": "Gathering of information through visual means."
+      },
+      {
+        "name": "Timeline",
+        "crop": [
+          853,
+          429,
+          100,
+          60
+        ],
+        "description": ""
+      },
+      {
+        "name": "Timeline Total",
+        "crop": [
+          853,
+          522,
+          165,
+          54
+        ],
+        "description": ""
+      },
+      {
+        "name": "Other Information",
+        "crop": [
+          925,
+          634,
+          93,
+          47
+        ],
+        "description": ""
+      }
+    ]
+  },
+  "valueStreamFollowup": [
+    {
+      "sourceSlide": 44,
+      "kind": "importance",
+      "title": "Importance of a VSM",
+      "benefits": [
+        {
+          "before": "We can see the process from a ",
+          "emphasis": "“birds eye view”",
+          "after": ""
+        },
+        {
+          "before": "Can easily identify areas to ",
+          "emphasis": "improve",
+          "after": "."
+        },
+        {
+          "before": "Can easily see where ",
+          "emphasis": "bottlenecks",
+          "after": " in the process are occurring."
+        },
+        {
+          "before": "Can use the tool to help make ",
+          "emphasis": "improvements",
+          "after": " to the process."
+        }
+      ]
+    },
+    {
+      "sourceSlide": 45,
+      "kind": "activity",
+      "title": "Activity",
+      "instruction": "Think of a process you go through in your life and create a Value Stream Map of it",
+      "examples": [
+        "Getting to school?",
+        "Going for grocery at supermarket?"
+      ],
+      "questions": [
+        "What steps in the process seem to take the longest?",
+        "Can you find any waste in the process by looking at the Value Stream Map?",
+        "What ideas do you have to make this process better?"
+      ],
+      "wasteDefinition": "Remember, waste is any activity that a customer would not be willing to pay for",
+      "wastes": [
+        "Transportation",
+        "Inventory",
+        "Motion",
+        "Waiting",
+        "Over processing",
+        "Overproduction",
+        "Defects"
+      ]
+    }
+  ],
+  "conflictSections": [
+    {
+      "sourceSlide": 46,
+      "kind": "cover",
+      "title": "Conflict Resolution"
+    },
+    {
+      "sourceSlide": 47,
+      "kind": "model",
+      "title": "Thomas-Kilmann Conflict Management Model",
+      "modes": [
+        {
+          "name": "Competing",
+          "outcome": "WIN: LOSE",
+          "phrase": "I'm right, you're wrong"
+        },
+        {
+          "name": "Collaborating",
+          "outcome": "WIN: WIN",
+          "phrase": "Let's work together"
+        },
+        {
+          "name": "Avoiding",
+          "outcome": "LOSE: LOSE",
+          "phrase": "After you, no after you"
+        },
+        {
+          "name": "Accommodating",
+          "outcome": "LOSE: WIN",
+          "phrase": "You're right, I'm wrong"
+        },
+        {
+          "name": "Compromising",
+          "outcome": "WIN - WIN",
+          "phrase": "Let's find the middle ground"
+        }
+      ],
+      "howTitle": "How to Use TKI in 3 Steps",
+      "steps": [
+        {
+          "title": "Understand the Problem",
+          "text": "Ask yourself, \"What’s the fight about? Is it urgent? Do we all need to agree?\""
+        },
+        {
+          "title": "Choose the Right Tool",
+          "choices": [
+            "Emergency? Use Competing.",
+            "Need teamwork? Use Collaborating.",
+            "Short on time? Use Compromising.",
+            "Small issue? Use Avoiding.",
+            "Want to keep a good relationship? Use Accommodating."
+          ]
+        },
+        {
+          "title": "Act and Adjust",
+          "text": "Use the tool and see what happens. If it doesn’t work, try another one!"
+        }
+      ],
+      "problem": "Problem: Two coworkers disagree about which software to use.",
+      "cases": [
+        {
+          "condition": "If the deadline is tomorrow",
+          "style": "Compromising",
+          "quote": "\"Let’s pick one and adjust later\"."
+        },
+        {
+          "condition": "If you need both ideas to succeed",
+          "style": "Collaborating",
+          "quote": "\"Let’s combine the best features of both\"."
+        },
+        {
+          "condition": "If it’s not urgent",
+          "style": "Avoiding",
+          "quote": "\"Let’s talk about it next week\"."
+        }
+      ],
+      "conclusion": "It’s all about picking the best way to handle each situation!"
+    },
+    {
+      "sourceSlide": 50,
+      "kind": "discussion",
+      "title": "Activity",
+      "scenario": "Two team members are fighting about which software to use for a data analysis project. One prefers a tool they know well, while the other wants to try a new, advanced tool that might take longer to learn.",
+      "questions": [
+        "Which style would you choose?",
+        "What’s the risk of using this style?"
+      ]
+    },
+    {
+      "sourceSlide": 51,
+      "kind": "reflection",
+      "title": "Activity",
+      "subtitle": "Reflection Questions for Students",
+      "questions": [
+        "Which style do you naturally gravitate toward?",
+        "When is it appropriate to switch styles?",
+        "How can you ensure the style you choose benefits the team or project?"
+      ]
+    },
+    {
+      "sourceSlide": 52,
+      "kind": "tips",
+      "title": "Tips in conflict management",
+      "tips": [
+        "Conflict is normal, there is tension in all relationships.",
+        "Remember that you're on the same team, not opposing factions.",
+        "Never assume malice, just ignorance/misunderstanding.",
+        "Refuse to escalate. Start a calm baseline and never escalate from there, even if the other party escalates their emotions drastically."
+      ]
+    }
+  ],
+  "persuasion": {
+    "sourceSlide": 53,
+    "mergedSourceSlides": [
+      53,
+      54,
+      55
+    ],
+    "title": "Psychology of persuasion",
+    "principlesTitle": "Robert Cialdini’s Six Principles of Influence",
+    "principles": [
+      {
+        "name": "Reciprocity",
+        "definition": "When we receive something, we feel obliged to give something back."
+      },
+      {
+        "name": "Consistency",
+        "definition": "We feel compelled to be consistent with what we’ve said/done in the past."
+      },
+      {
+        "name": "Social Proof",
+        "definition": "When we’re uncertain how to behave or react, we look to others for answers."
+      },
+      {
+        "name": "Liking",
+        "definition": "We’re more likely to agree to someone’s request if we know and like him/her."
+      },
+      {
+        "name": "Authority",
+        "definition": "We tend to obey figures of authority (people with titles or expertise)."
+      },
+      {
+        "name": "Scarcity",
+        "definition": "We perceive something to be more valuable when it’s less available."
+      }
+    ],
+    "caseTitle": "Case Study: Transforming Business Reporting Through Data Automation",
+    "resistance": [
+      "Employees feared the system might replace their roles.",
+      "Managers were skeptical about the reliability of automation.",
+      "Stakeholders were disengaged, doubting whether the change was worth the effort."
+    ],
+    "activity": "Use the 6 principles of persuasion to navigate the issues",
+    "backgroundParts": [
+      "The current reporting process at company XYZ is time-consuming and error-prone, involving several employees copying data from spreadsheets.",
+      "You as a new business analyst, want to introduce an automated data dashboard system using Power BI to streamline reporting and provide real-time insights. However, the proposal faced resistance:"
+    ]
+  },
+  "rootCauseHub": {
+    "id": "root-cause-intro",
+    "title": "Root Cause Analysis",
+    "items": [
+      {
+        "key": "comparison",
+        "title": "Symptom Approach vs. Root Cause"
+      },
+      {
+        "key": "process",
+        "title": "General process for performing root cause analysis (RCA)"
+      },
+      {
+        "key": "mapping",
+        "title": "Cause Mapping & MECE"
+      },
+      {
+        "key": "tools",
+        "title": "Tools for RCA"
+      },
+      {
+        "key": "exercise",
+        "title": "Exercise"
+      }
+    ]
+  },
+  "valueStreamHub": {
+    "id": "value-stream-hub",
+    "title": "Value Stream Mapping",
+    "backgroundFile": "value-stream-background.svg",
+    "items": [
+      {
+        "key": "definition",
+        "title": "What is it ?"
+      },
+      {
+        "key": "parts",
+        "title": "Parts of a Value Stream Map"
+      },
+      {
+        "key": "importance",
+        "title": "Importance of a VSM"
+      }
+    ]
+  },
+  "conflictHub": {
+    "id": "conflict-hub",
+    "dialogId": "mis311-conflict-hub-details",
+    "sourceSlide": 46,
+    "title": "Conflict Resolution",
+    "backgroundFile": "conflict-background.svg",
+    "items": [
+      {
+        "key": "model",
+        "title": "Thomas-Kilmann Conflict Management Model"
+      },
+      {
+        "key": "how",
+        "title": "How to use TKM"
+      },
+      {
+        "key": "example",
+        "title": "Example"
+      }
+    ]
+  }
+}

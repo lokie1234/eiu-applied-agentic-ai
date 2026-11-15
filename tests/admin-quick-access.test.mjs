@@ -26,10 +26,12 @@ test("Google admin code is inline and auto-submits once at six digits without bu
   const root = createRoot(container);
   const requests = [];
   const { default: Card } = load("components/landing/SignInCard.tsx", {
+    "@/lib/mis311Presentation": load("lib/mis311Presentation.ts", {}, {window}),
     "@/lib/learningLanguage": { useLearningLanguage: () => ({ language: "en", setLanguage() {}, t: text => text }) },
     "./useGlassInteraction": { useGlassInteraction: () => ({}) },
     "./LearnerInformationDialog": { __esModule: true, default: () => null },
-  }, { window, document: window.document, fetch: async (url, options) => { requests.push({ url, options }); return { ok: false, json: async () => ({ message: "Incorrect admin code." }) }; } });
+  }, { window, document: window.document, fetch: async (url, options) => { requests.push({ url, options }); return { ok: requests.length>1, json: async () => ({ success:requests.length>1,message: "Incorrect admin code." }) }; } });
+  const store=load("lib/mis311Presentation.ts",{}, {window});store.saveMis311PresentationState(store.MIS311_MODELLING_SECTION_ID,6,7,{built:true});
   try {
     await act(async () => root.render(React.createElement(Card, { initialLanguageChosen: true, passcode: "", setPasscode() {}, loading: false, onSubmit() { throw Error("Learner login must not handle admin codes"); } })));
     await act(async () => container.querySelectorAll(".choice")[1].click());
@@ -50,11 +52,13 @@ test("Google admin code is inline and auto-submits once at six digits without bu
     assert.equal(requests[0].url, "/api/auth/admin");
     assert.equal(JSON.parse(requests[0].options.body).password, "123456");
     assert.equal(container.querySelector("#admin-quick-error").textContent, "Incorrect admin code.");
+    assert.equal(store.readMis311Presentation(store.MIS311_MODELLING_SECTION_ID)[7].built,true);
     await act(async () => container.querySelector("#admin-quick-access").dispatchEvent(new window.Event("submit", { bubbles: true, cancelable: true })));
     assert.equal(requests.length, 1, "a failed code must not re-submit itself");
     await enter("12345");
     await enter("123457");
     assert.equal(requests.length, 2, "editing the code allows a fresh attempt");
+    assert.equal(Object.keys(store.readMis311Presentation(store.MIS311_MODELLING_SECTION_ID)).length,0);
   } finally { await act(async () => root.unmount()); await window.happyDOM.close(); }
 });
 

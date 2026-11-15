@@ -647,7 +647,7 @@ test("enabled uploaded sections automatically return participants to access when
 });
 
 test("Back to course retains the selected course and clears only slide selection for built-in and uploaded decks", async () => {
-  for (const uploaded of [false,true]) {
+  for (const uploaded of [false,true,"mis311"]) {
     const window=new Window({url:`http://localhost/learn?course=${uploaded?'web':'applied-agentic-ai'}&section=section1&slide=8${uploaded?'&view=file':''}`});
     for(const name of ['window','document','HTMLElement','navigator'])Object.defineProperty(globalThis,name,{configurable:true,value:name==='window'?window:window[name]});
     globalThis.IS_REACT_ACT_ENVIRONMENT=true;
@@ -659,16 +659,19 @@ test("Back to course retains the selected course and clears only slide selection
       '@/lib/auth/types':{APPLIED_AGENTIC_AI_SLUG:'applied-agentic-ai'},'@/lib/supabase/browser':{getSupabaseBrowserClient:()=>null},
       '@/lib/deckLocation':moduleExports('lib/deckLocation.ts'),
     });
+    const stateStore=moduleExports('lib/mis311Presentation.ts');const sectionId=uploaded==='mis311'?stateStore.MIS311_MODELLING_SECTION_ID:'selected-section';
+    if(uploaded==='mis311'){stateStore.saveMis311PresentationState(sectionId,5,6,{stage:4});stateStore.saveMis311PresentationState(sectionId,6,7,{built:true});}
     const course={id:'selected-course',slug:uploaded?'web':'applied-agentic-ai',title:'Selected course',sections:[
-      {id:'selected-section',sectionKey:'section1',title:'First lesson',contentType:uploaded?'tsx':'builtin',position:1},
+      {id:sectionId,sectionKey:'section1',title:'First lesson',contentType:uploaded?'tsx':'builtin',position:1},
       {id:'second-section',sectionKey:'section2',title:'Second lesson',contentType:'pdf',position:2},
     ]};
     const container=window.document.createElement('div');window.document.body.append(container);const root=createRoot(container);
     try{
-      await act(async()=>root.render(React.createElement(Portal,{isAdmin:true,initialProfile:null,initialCourseId:course.id,initialSection:uploaded?null:'section1',initialSectionId:uploaded?'selected-section':undefined,courseFolders:[course]})));
+      await act(async()=>root.render(React.createElement(Portal,{isAdmin:true,initialProfile:null,initialCourseId:course.id,initialSection:uploaded?null:'section1',initialSectionId:uploaded?sectionId:undefined,courseFolders:[course]})));
       assert.ok(container.querySelector('[aria-label="Session controls"]'));
       await act(async()=>container.querySelector('[aria-label="Back to course"]').click());
       assert.equal(container.querySelector('[aria-label="Session controls"]'),null);
+      if(uploaded==='mis311')assert.equal(Object.keys(stateStore.readMis311Presentation(sectionId)).length,0);
       assert.deepEqual([...container.querySelectorAll('.sectionLaunchButton strong')].map(node=>node.textContent),['First lesson','Second lesson']);
       assert.equal(container.querySelector('[id="course-choice-selected-course"]'),null,"course grid is one further navigation step away");
       const url=new URL(window.location.href);assert.equal(url.searchParams.get('course'),course.slug);

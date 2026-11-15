@@ -2,8 +2,8 @@
   "b7bd6b13-c654-412b-badb-12853350e148": {
     "courseId": "86cae0a3-9ada-4e31-b4d4-c83f50cafaf6",
     "path": "course-content/mis311/Week7Session1.js",
-    "revision": "c5cea41a52f85420ca371020600b4bce65682dd101df1fced2a7c61795abb183",
-    "bytes": 448488,
+    "revision": "4d63962ed538bcd8898c8ec5325c8cb5b745feaf555e74a5e56849ce0aab4f66",
+    "bytes": 449158,
     "teachingSlides": 20,
     "learnerSlides": 20,
     "preservesBusinessTemplate": false
@@ -11,10 +11,10 @@
   "2cbb9354-a267-4103-9d14-99662d0e6bb1": {
     "courseId": "86cae0a3-9ada-4e31-b4d4-c83f50cafaf6",
     "path": "course-content/mis311/Week7Session2.js",
-    "revision": "5cb4b76c2912b06de49b02b0992e7c0f5169bf1a7434f7831d14966668729f2d",
-    "bytes": 1340985,
-    "teachingSlides": 33,
-    "learnerSlides": 33,
+    "revision": "2117f5a61269e5a563b87f89d463e139aafb2647ac91d4ae967972baa371fc8b",
+    "bytes": 559637,
+    "teachingSlides": 10,
+    "learnerSlides": 10,
     "preservesBusinessTemplate": false
   }
 }

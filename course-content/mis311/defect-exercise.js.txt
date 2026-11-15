@@ -1,0 +1,117 @@
+function renderDefectExercise(content, exercise) {
+  content.dataset.mis311Exercise = 'true'; content.style.overflow = 'auto';
+  const host=document.defaultView,requestId=host?.eiuLessonRequestId;
+  let ready=!requestId,epoch='';
+  let state={selected:0,symptom:[false,false,false],rootCause:[false,false,false],exerciseStage:0,exerciseGroups:[false,false,false,false,false,false]};
+  const style=document.createElement('style');
+  style.textContent=`
+    [data-mis311-exercise]{display:flex;flex-direction:column;gap:10px;font-family:Arial,sans-serif;color:#17324a;scrollbar-width:thin}
+    .mis311-defect-title{margin:0;font-size:clamp(24px,2.5vw,36px);line-height:1.2;color:#144069;text-align:center;text-wrap:balance}
+    .mis311-defect-story{display:grid;grid-template-columns:1fr 1.8fr;gap:14px}
+    .mis311-defect-story section{min-width:0;padding:10px 14px;border:1px solid #d4e0e8;border-radius:12px;background:#f4f8fa}
+    .mis311-defect-story h2{margin:0 0 5px;color:#144069;font-size:17px;line-height:1.2}
+    .mis311-defect-story p{margin:0;font-size:clamp(15px,1.25vw,18px);line-height:1.4;text-wrap:pretty}
+    .mis311-defect-diagram-title{margin:0;color:#236879;font-size:clamp(22px,2vw,29px);line-height:1.2;text-align:center}
+    .mis311-defect-diagram{flex:1;min-height:280px;position:relative}
+    .mis311-defect-diagram>svg{display:block;width:100%;height:100%;min-height:280px}
+    .mis311-defect-spine{stroke:#144069;stroke-width:4;fill:none;stroke-linecap:round;stroke-linejoin:round}
+    .mis311-defect-branch{stroke:#9ab7c8;stroke-width:2.5;fill:none}
+    .mis311-defect-category{cursor:pointer;outline:none}
+    .mis311-defect-category rect{fill:#eaf2f7;stroke:#8eafc4;stroke-width:1.5}
+    .mis311-defect-category text{font:700 21px Arial,sans-serif;fill:#144069;pointer-events:none}
+    .mis311-defect-category[aria-expanded=true] rect{fill:#eaf5f4;stroke:#3997aa;stroke-width:2}
+    .mis311-defect-category:hover rect,.mis311-defect-category:focus-visible rect{stroke:#b39159;stroke-width:3}
+    .mis311-defect-cause{font:22px Arial,sans-serif;fill:#17324a}
+    .mis311-defect-causes:not([hidden]){animation:mis311-defect-reveal .45s cubic-bezier(.22,1,.36,1) both}
+    .mis311-defect-cause-line{stroke:#b39159;stroke-width:2;fill:none;stroke-linecap:round}
+    .mis311-defect-mobile,.mis311-defect-mobile-axis{display:none}
+    [data-mis311-exercise] [hidden]{display:none!important}
+    @media(max-width:850px),(max-height:560px){
+      [data-mis311-exercise][data-exercise-mode=assembled],[data-mis311-exercise][data-exercise-mode=axis],[data-mis311-exercise][data-exercise-mode=interactive]{display:block;overscroll-behavior:contain}
+      .mis311-defect-title{font-size:25px;margin-bottom:16px}.mis311-defect-story{grid-template-columns:1fr;gap:12px;margin-bottom:18px}
+      .mis311-defect-story section{padding:16px}.mis311-defect-story p{font-size:16px;line-height:1.45}
+      .mis311-defect-diagram-title{font-size:24px;margin:0 0 16px}
+      .mis311-defect-mobile-axis{display:block;width:100%;height:64px;margin-bottom:16px}
+      .mis311-defect-mobile-axis svg{display:block;width:100%;height:100%}
+      .mis311-defect-diagram{display:none}.mis311-defect-mobile{display:grid;gap:12px;padding-bottom:4px}
+      .mis311-defect-mobile-section{border:1px solid #d4e0e8;border-radius:12px;overflow:hidden;background:#f3f8fa}
+      .mis311-defect-mobile-button{display:flex;align-items:center;justify-content:space-between;width:100%;min-height:52px;padding:14px 16px;border:0;background:#eaf2f7;color:#144069;font:700 19px Arial,sans-serif;text-align:left;cursor:pointer}
+      .mis311-defect-mobile-button::after{content:'+';color:#9d7944}.mis311-defect-mobile-button[aria-expanded=true]::after{content:'\u2212'}
+      .mis311-defect-mobile-button:focus-visible{outline:3px solid #b39159;outline-offset:-3px}
+      .mis311-defect-mobile-list{margin:0;padding:16px 20px 16px 36px;font-size:17px;line-height:1.5;display:grid;gap:8px;animation:mis311-defect-reveal .3s ease both}
+    }
+    [data-mis311-exercise][data-exercise-mode=intro]{justify-content:center;cursor:pointer}
+    [data-mis311-exercise][data-exercise-mode=intro] .mis311-defect-title{font-size:clamp(29px,3.2vw,46px);padding:20px}
+    [data-mis311-exercise][data-exercise-mode=objective],[data-mis311-exercise][data-exercise-mode=scenario]{cursor:pointer}
+    [data-mis311-exercise][data-exercise-mode=objective] .mis311-defect-story,[data-mis311-exercise][data-exercise-mode=scenario] .mis311-defect-story{flex:1;min-height:min-content;display:flex;justify-content:center;align-items:center;padding:16px 0;margin:0}
+    [data-mis311-exercise][data-exercise-mode=objective] .mis311-defect-story section,[data-mis311-exercise][data-exercise-mode=scenario] .mis311-defect-story section{width:min(92%,1000px);padding:clamp(24px,3vw,40px);border-radius:20px}
+    [data-mis311-exercise][data-exercise-mode=objective] .mis311-defect-story h2,[data-mis311-exercise][data-exercise-mode=scenario] .mis311-defect-story h2{font-size:clamp(25px,2.5vw,35px);margin-bottom:16px}
+    [data-mis311-exercise][data-exercise-mode=objective] .mis311-defect-story p,[data-mis311-exercise][data-exercise-mode=scenario] .mis311-defect-story p{font-size:clamp(20px,2vw,28px);line-height:1.5}
+    [data-mis311-exercise][data-exercise-mode=assembled],[data-mis311-exercise][data-exercise-mode=axis]{cursor:pointer}
+    .mis311-defect-story section:not([hidden]){animation:mis311-defect-reveal .35s ease both}
+    .mis311-defect-diagram-title:not([hidden]){animation:mis311-defect-reveal .4s ease both}
+    .mis311-defect-branch:not([hidden]),.mis311-defect-category:not([hidden]){animation:mis311-defect-reveal .45s ease both}
+    [data-mis311-exercise]:focus-visible{outline:3px solid #b39159;outline-offset:-3px}
+    @keyframes mis311-defect-reveal{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    @media(prefers-reduced-motion:reduce){[data-mis311-exercise] *{animation:none!important}}
+  `;
+  const title=document.createElement('h1');title.className='mis311-defect-title';title.textContent=exercise.title;
+  const story=document.createElement('div');story.className='mis311-defect-story';
+  [['Objective:',exercise.objective],['Scenario',exercise.scenario]].forEach(([label,text])=>{const section=document.createElement('section');const heading=document.createElement('h2');heading.textContent=label;const paragraph=document.createElement('p');paragraph.textContent=text;section.append(heading,paragraph);story.appendChild(section);});
+  const diagramTitle=document.createElement('h2');diagramTitle.className='mis311-defect-diagram-title';diagramTitle.textContent=exercise.diagramTitle;
+  const diagram=document.createElement('div');diagram.className='mis311-defect-diagram';
+  const ns='http://www.w3.org/2000/svg';
+  const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 1280 420');svg.setAttribute('role','group');svg.setAttribute('aria-label',exercise.diagramTitle);
+  function node(tag,attrs,text){const element=document.createElementNS(ns,tag);Object.entries(attrs).forEach(([name,value])=>element.setAttribute(name,String(value)));if(text!==undefined)element.textContent=text;return element;}
+  const axis=node('g',{'data-defect-axis':'true'});
+  axis.appendChild(node('path',{d:'M25 210H1120m-12-8 12 8-12 8',class:'mis311-defect-spine'}));
+  axis.appendChild(node('rect',{x:1130,y:179,width:140,height:62,rx:12,fill:'#144069'}));
+  const effect=node('text',{x:1200,y:204,'text-anchor':'middle',fill:'#fff','font-size':19,'font-family':'Arial','font-weight':700});effect.append(node('tspan',{x:1200},'High defect'),node('tspan',{x:1200,dy:24},'rate'));axis.appendChild(effect);svg.appendChild(axis);
+  const mobile=document.createElement('div');mobile.className='mis311-defect-mobile';
+  const entries=[];
+  exercise.groups.forEach((item,index)=>{
+    const top=index<3,col=index%3,x=top?30+col*350:180+col*350,y=top?130:258;
+    const center=x+125;
+    const branch=node('path',{d:top?`M${center} ${y+40}L${center+60} 210`:`M${center-60} 210L${center} ${y}`,class:'mis311-defect-branch'});svg.appendChild(branch);
+    const causes=node('g',{id:`mis311-defect-causes-${index}`,class:'mis311-defect-causes',hidden:'true','aria-hidden':'true'});
+    item.causes.forEach((text,j)=>{
+      const textY=top?28+j*32:332+j*32;
+      causes.appendChild(node('path',{d:top?`M${center} ${y}H${x+12}V${textY-6}H${x+23}`:`M${center} ${y+40}H${x+12}V${textY-6}H${x+23}`,class:'mis311-defect-cause-line'}));
+      causes.appendChild(node('text',{x:x+28,y:textY,class:'mis311-defect-cause'},text));
+    });
+    const trigger=node('g',{class:'mis311-defect-category',role:'button',tabindex:0,'aria-label':item.label,'aria-expanded':'false','aria-controls':causes.id,'data-defect-group':index});
+    trigger.append(node('rect',{x,y,width:250,height:40,rx:11}),node('text',{x:center,y:y+27,'text-anchor':'middle'},item.label));
+    svg.append(causes,trigger);
+    const section=document.createElement('section');section.className='mis311-defect-mobile-section';
+    const button=document.createElement('button');button.type='button';button.className='mis311-defect-mobile-button';button.textContent=item.label;button.setAttribute('aria-expanded','false');button.dataset.defectGroup=String(index);
+    const list=document.createElement('ul');list.className='mis311-defect-mobile-list';list.id=`mis311-defect-mobile-causes-${index}`;list.hidden=true;button.setAttribute('aria-controls',list.id);
+    item.causes.forEach(text=>{const item=document.createElement('li');item.textContent=text;list.appendChild(item);});section.append(button,list);mobile.appendChild(section);
+    const open=event=>{event?.stopPropagation();if(!ready||stage()<5||host?.eiuSectionEnded)return;state.exerciseGroups??=[false,false,false,false,false,false];if(state.exerciseGroups[index])return;state.exerciseGroups[index]=true;update();save();};
+    trigger.addEventListener('click',open);trigger.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();open();}});button.addEventListener('click',open);
+    entries.push({trigger,causes,button,list,branch});
+  });
+  diagram.appendChild(svg);
+  const mobileAxis=document.createElement('div');mobileAxis.className='mis311-defect-mobile-axis';
+  mobileAxis.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 64" role="img" aria-label="High defect rate"><path d="M4 32H212m-8-7 8 7-8 7" fill="none" stroke="#144069" stroke-width="3"/><rect x="224" y="5" width="132" height="54" rx="10" fill="#144069"/><text x="290" y="29" text-anchor="middle" fill="white" font-family="Arial" font-size="17" font-weight="700"><tspan x="290">High defect</tspan><tspan x="290" dy="20">rate</tspan></text></svg>';
+  const stage=()=>Math.max(state.exerciseStage||0,state.exerciseGroups?.some(Boolean)?5:0);
+  function update(){
+    const current=stage();content.dataset.exerciseStage=String(current);content.dataset.exerciseMode=['intro','objective','scenario','assembled','axis','interactive'][current];
+    story.hidden=current===0;story.children[0].hidden=current===0||current===2;story.children[1].hidden=current===0||current===1;
+    diagramTitle.hidden=current<4;diagram.hidden=current<4;mobileAxis.hidden=current<4;mobile.hidden=current<5;
+    content.setAttribute('role',current<5?'button':'group');content.tabIndex=current<5?0:-1;content.setAttribute('aria-disabled',String(!ready));
+    entries.forEach(({trigger,causes,button,list,branch},index)=>{const open=current>=5&&Boolean(state.exerciseGroups?.[index]);trigger.toggleAttribute('hidden',current<5);trigger.tabIndex=current>=5?0:-1;branch.toggleAttribute('hidden',current<5);trigger.setAttribute('aria-expanded',String(open));trigger.setAttribute('aria-disabled',String(!ready||open));causes.toggleAttribute('hidden',!open);causes.setAttribute('aria-hidden',String(!open));button.disabled=!ready||current<5;button.setAttribute('aria-expanded',String(open));list.hidden=!open;});
+  }
+  function advance(){
+    if(!ready||stage()>=5||host?.eiuSectionEnded)return;
+    if(stage()>0)[title,...story.children].forEach(node=>node.getAnimations?.().forEach(animation=>animation.cancel()));
+    const current=stage(),anchor=current===0?title:current===2?story.children[1]:null;const before=anchor?.getBoundingClientRect().top;
+    state.exerciseStage=current+1;update();content.scrollTop=0;
+    if(anchor&&typeof anchor.animate==='function'&&!host?.matchMedia('(prefers-reduced-motion:reduce)').matches){const distance=before-anchor.getBoundingClientRect().top;if(distance>0)anchor.animate([{transform:`translateY(${distance}px)`},{transform:'translateY(0)'}],{duration:450,easing:'cubic-bezier(.22,1,.36,1)'});}
+    save();
+  }
+  content.addEventListener('click',advance);
+  content.addEventListener('keydown',event=>{if(event.target===content&&(event.key==='Enter'||event.key===' ')){event.preventDefault();advance();}});
+  function save(){if(requestId&&epoch)host.parent.postMessage({type:'eiu-reveal-save',requestId,epoch,state},'*');}
+  if(requestId){const receive=event=>{const value=event.data;if(event.source!==host.parent||value?.type!=='eiu-reveal-state'||value.requestId!==requestId||host.eiuSectionEnded)return;const groups=value.state?.exerciseGroups;if(typeof value.epoch!=='string'||!value.state||(value.state.exerciseStage!==undefined&&(!Number.isInteger(value.state.exerciseStage)||value.state.exerciseStage<0||value.state.exerciseStage>5))||(groups!==undefined&&(!Array.isArray(groups)||groups.length!==6||!groups.every(item=>typeof item==='boolean'))))return;state=value.state;epoch=value.epoch;ready=true;update();};const refresh=()=>{ready=false;update();};host.addEventListener('eiu-reveal-refresh',refresh);host.addEventListener('message',receive);host.addEventListener('pagehide',()=>{host.removeEventListener('message',receive);host.removeEventListener('eiu-reveal-refresh',refresh);},{once:true});host.parent.postMessage({type:'eiu-reveal-load',requestId},'*');}
+  content.replaceChildren(style,title,story,diagramTitle,diagram,mobileAxis,mobile);update();content.parentElement.setAttribute('role','group');
+}

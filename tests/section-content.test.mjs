@@ -284,6 +284,7 @@ test("Drive replacement preserves the previous Drive file after saving section m
   await api.flushAfter();
   assert.deepEqual(api.state.removed, []);
   assert.equal(api.state.stored.size, 2);
+  assert.ok(api.state.stored.has(previousPath));
   assert.deepEqual(api.state.stored.get(api.state.section.content_path), original);
 });
 
@@ -381,7 +382,6 @@ test("Drive-backed legacy JS is served unchanged without TSX recompilation or St
 });
 
 
-const webAppTitle = "AI-Powered Web App Development & Deployment";
 test("authorized repository lessons avoid a second section lookup without caching permission or bytes", async () => {
   const api = handlers();
   const courseId = "a857595d-def0-4543-9216-a680c6abfe26", id = "47c1183e-a26e-4c5d-9937-88ec5a755a32";
@@ -483,4 +483,15 @@ test("concurrent upload is rejected and the guard is released after invalid inpu
  release(new FormData());
  assert.equal((await first).status, 400);
  assert.equal((await api.upload("%PDF-1.4", "slides.pdf")).status, 200);
+});
+
+
+for(const role of ['learning','teaching'])test(`MIS 311 Section 2 ${role} serves and downloads the audited JS and rejects revoked access`,async()=>{
+  const api=handlers();const courseId='86cae0a3-9ada-4e31-b4d4-c83f50cafaf6',sectionId='2cbb9354-a267-4103-9d14-99662d0e6bb1';
+  api.state.access.isAdmin=role==='teaching';api.state.access.courses=[{id:courseId,isUnlocked:true}];api.state.access.sections=[{id:sectionId,courseId,contentType:'tsx',sourceFilename:'Week7Session2.js'}];
+  api.state.section={...api.state.section,id:sectionId,course_id:courseId,content_type:'tsx',source_filename:'Week7Session2.js',content_path:null};
+  const expected=fs.readFileSync('course-content/mis311/Week7Session2.js','utf8');
+  for(const query of ['','?download=1']){const response=await api.download(query);assert.equal(response.status,200);assert.equal(response.headers.get('x-eiu-content-source'),'project-js');assert.equal(response.headers.get('cache-control'),'private, no-store');assert.equal(await response.text(),expected);}
+  assert.equal(api.state.driveUploads,0);assert.equal(api.state.supabaseUploads,0);
+  api.state.access=null;assert.equal((await api.download()).status,401);
 });

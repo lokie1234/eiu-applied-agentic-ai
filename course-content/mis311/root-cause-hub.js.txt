@@ -1,0 +1,86 @@
+function renderRootCauseHub(content, hub, renderers) {
+  content.dataset.mis311TopicHub=hub.id;if(!renderers)content.dataset.mis311RcaHub='true';
+  const host=document.defaultView;
+  const element=(tag,className,text)=>{const node=document.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;};
+  const style=element('style');style.textContent=`
+    [data-mis311-topic-hub]{font-family:Arial,Helvetica,sans-serif;color:#17324a}
+    .mis311-rca-hub-art{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+    .mis311-rca-hub-title{position:absolute;left:12%;top:50%;width:76%;transform:translateY(-50%);margin:0;text-align:center;color:#144069;font-size:clamp(34px,5.3vw,72px);line-height:1.15;text-wrap:balance;pointer-events:none}
+    .mis311-rca-hub-title:after{content:'';position:absolute;left:50%;top:calc(100% + 12px);transform:translateX(-50%);display:block;width:220px;height:3px;margin:0;background:#b39159;opacity:.65}
+    .mis311-rca-hub-button{position:absolute;z-index:1;min-height:80px;padding:20px 24px;border:1px solid #bfd2df;border-top:3px solid #326d9c;border-radius:20px;background:linear-gradient(125deg,#eff6fa,#fff);box-shadow:0 7px 22px #14406914;color:#144069;font:700 clamp(18px,1.8vw,25px)/1.3 Arial,sans-serif;text-align:center;text-wrap:balance;cursor:pointer}
+    .mis311-rca-hub-button[data-rca-card=comparison]{left:3%;top:8%;width:35%;animation:mis311-hub-drift-a 6.3s ease-in-out -2.1s infinite}
+    .mis311-rca-hub-button[data-rca-card=process]{right:1%;top:68%;width:43%;border-color:#cfbd9a;border-top-color:#b39159;background:linear-gradient(125deg,#fbf6e9,#fff);animation:mis311-hub-drift-b 8.7s ease-in-out -4s infinite}
+    .mis311-rca-hub-button[data-rca-card=mapping]{left:12%;top:73%;width:31%;border-top-color:#3997aa;background:linear-gradient(125deg,#eef8f8,#fff);animation:mis311-hub-drift-c 7.4s ease-in-out -1.8s infinite}
+    .mis311-rca-hub-button[data-rca-card=tools]{right:5%;top:2%;width:26%;animation:mis311-hub-drift-d 5.8s ease-in-out -3.2s infinite}
+    .mis311-rca-hub-button:hover,.mis311-rca-hub-button:focus-visible{animation-play-state:paused;box-shadow:0 0 0 2px #b3915955,0 10px 28px #14406922}.mis311-rca-hub-button:focus-visible,.mis311-rca-hub-close:focus-visible{outline:3px solid #b39159;outline-offset:3px}
+    @keyframes mis311-hub-drift-a{0%,100%{transform:translate(0,0) rotate(-2deg)}45%{transform:translate(8px,-9px) rotate(-1deg)}}
+    @keyframes mis311-hub-drift-b{0%,100%{transform:translate(0,0) rotate(1deg)}55%{transform:translate(-10px,7px) rotate(2deg)}}
+    @keyframes mis311-hub-drift-c{0%,100%{transform:translate(0,0) rotate(-1deg)}40%{transform:translate(6px,-11px) rotate(-2deg)}}
+    @keyframes mis311-hub-drift-d{0%,100%{transform:translate(0,0) rotate(2deg)}60%{transform:translate(-7px,9px) rotate(1deg)}}
+    .mis311-rca-hub-dialog{position:fixed;inset:auto;left:5.6%;top:11.5%;width:88.8%;height:77.4%;max-width:none;max-height:77.4%;margin:0;padding:0;border:1px solid #c7dbe4;border-radius:18px;background:white;color:#17324a;box-shadow:0 18px 60px #102f4c44;overflow:hidden}.mis311-rca-hub-dialog[open]{display:flex;flex-direction:column}.mis311-rca-hub-dialog::backdrop{background:#102c4644}
+    .mis311-rca-hub-close{position:absolute;right:8px;top:8px;z-index:3;width:34px;height:34px;padding:0;border:1px solid #bfd2df;border-radius:10px;background:#f3f7fa;color:#144069;font:25px Arial;cursor:pointer}
+    .mis311-rca-hub-pane{flex:1;min-width:0;min-height:0;width:100%;height:100%}.mis311-rca-hub-content{box-sizing:border-box;width:100%;height:100%;min-width:0;min-height:0;padding:18px}
+    .mis311-rca-hub-pane[hidden]{display:none!important}
+    .mis311-rca-hub-content .mis311-rca-title,.mis311-rca-hub-content .mis311-process-title,.mis311-rca-hub-content .mis311-map-title,.mis311-rca-hub-content .mis311-tools-title,.mis311-rca-hub-content .mis311-vsp-title,.mis311-rca-hub-content .mis311-vsf-title,.mis311-rca-hub-content .mis311-tki-title,.mis311-rca-hub-content .mis311-defect-title{padding-left:30px;padding-right:30px}
+    .mis311-rca-hub-content[data-mis311-process][data-mode=overview]{display:block}.mis311-rca-hub-content[data-mis311-process][data-mode=overview] .mis311-process-flow{flex:none}
+    @media(min-width:1001px) and (min-height:601px){.mis311-rca-hub-content[data-mis311-process][data-mode=overview] .mis311-process-flow{grid-template-rows:repeat(7,minmax(54px,auto));gap:8px}}
+    @media(max-width:700px){.mis311-rca-hub-title{left:2%;width:96%;top:50%;font-size:36px}.mis311-rca-hub-title:after{width:150px;margin-top:0}.mis311-rca-hub-button{font-size:17px;min-height:76px;padding:15px 12px;border-radius:16px}.mis311-rca-hub-button[data-rca-card=comparison]{left:1%;top:3%;width:47%}.mis311-rca-hub-button[data-rca-card=tools]{right:1%;top:12%;width:42%}.mis311-rca-hub-button[data-rca-card=mapping]{left:2%;top:72%;width:43%}.mis311-rca-hub-button[data-rca-card=process]{right:2%;top:65%;width:45%;font-size:16px}.mis311-rca-hub-content{padding:14px}.mis311-rca-hub-dialog{left:4%;width:92%}}
+    @media(max-height:450px){.mis311-rca-hub-title{font-size:34px;top:50%}.mis311-rca-hub-title:after{margin-top:0;width:150px}.mis311-rca-hub-button{font-size:16px;padding:12px;min-height:62px}.mis311-rca-hub-button[data-rca-card=comparison]{top:8%;width:36%}.mis311-rca-hub-button[data-rca-card=tools]{top:6%;width:28%}.mis311-rca-hub-button[data-rca-card=mapping]{top:70%;left:2%;width:36%}.mis311-rca-hub-button[data-rca-card=process]{top:67%;width:48%;font-size:15px}}
+    .mis311-rca-hub-button[data-rca-card=definition]{left:8%;top:11%;width:27%;animation:mis311-hub-drift-a 6.3s ease-in-out -2.1s infinite}
+    .mis311-rca-hub-button[data-rca-card=parts]{right:3%;top:4%;width:41%;animation:mis311-hub-drift-d 7.8s ease-in-out -3.2s infinite}
+    .mis311-rca-hub-button[data-rca-card=importance]{left:28%;top:74%;width:46%;border-top-color:#3997aa;background:linear-gradient(125deg,#eef8f8,#fff);animation:mis311-hub-drift-c 8.4s ease-in-out -1.8s infinite}
+    .mis311-rca-hub-content[data-mis311-vsm-followup=importance] .mis311-vsf-benefits{min-height:0}
+    @media(max-width:700px){.mis311-rca-hub-button[data-rca-card=definition]{left:1%;top:5%;width:43%}.mis311-rca-hub-button[data-rca-card=parts]{right:1%;top:14%;width:49%}.mis311-rca-hub-button[data-rca-card=importance]{left:18%;top:74%;width:72%}}
+    @media(max-height:450px){.mis311-rca-hub-button[data-rca-card=definition]{left:3%;top:7%;width:28%}.mis311-rca-hub-button[data-rca-card=parts]{right:2%;top:5%;width:45%}.mis311-rca-hub-button[data-rca-card=importance]{left:26%;top:73%;width:60%}}
+    .mis311-rca-hub-button[data-rca-card=model]{left:2%;top:7%;width:43%;animation:mis311-hub-drift-a 6.3s ease-in-out -2.1s infinite}
+    .mis311-rca-hub-button[data-rca-card=how]{right:2%;top:12%;width:29%;animation:mis311-hub-drift-d 7.8s ease-in-out -3.2s infinite}
+    .mis311-rca-hub-button[data-rca-card=example]{left:35%;top:74%;width:38%;border-top-color:#3997aa;background:linear-gradient(125deg,#eef8f8,#fff);animation:mis311-hub-drift-c 8.4s ease-in-out -1.8s infinite}
+    @media(max-width:700px){.mis311-rca-hub-button[data-rca-card=model]{left:1%;top:4%;width:59%}.mis311-rca-hub-button[data-rca-card=how]{right:1%;top:24%;width:40%}.mis311-rca-hub-button[data-rca-card=example]{left:28%;top:75%;width:60%}}
+    @media(max-height:450px){.mis311-rca-hub-button[data-rca-card=model]{left:1%;top:8%;width:46%}.mis311-rca-hub-button[data-rca-card=how]{right:2%;top:9%;width:30%}.mis311-rca-hub-button[data-rca-card=example]{left:40%;top:74%;width:43%}}
+    .mis311-rca-hub-primary{flex:1;min-width:0;margin:0;padding:0;border:0;background:transparent;color:inherit;font:inherit;text-align:center;text-wrap:balance;cursor:pointer}.mis311-rca-hub-primary:focus-visible{outline:3px solid #b39159;outline-offset:3px}
+    .mis311-rca-hub-button[data-rca-card=comparison]{display:flex;align-items:center;gap:12px;left:3%;top:6%;width:40%}
+    .mis311-rca-hub-button[data-rca-card=process]{right:2%;top:8%;width:46%}
+    .mis311-rca-hub-button[data-rca-card=mapping]{left:2%;top:74%;width:29%}
+    .mis311-rca-hub-button[data-rca-card=tools]{left:39%;right:auto;top:79%;width:22%}
+    .mis311-rca-hub-button[data-rca-card=exercise]{right:2%;top:70%;width:28%;border-top-color:#3997aa;background:linear-gradient(125deg,#eef8f8,#fff);animation:mis311-hub-drift-b 7.1s ease-in-out -1.6s infinite}
+    .mis311-rca-hub-button:focus-within{animation-play-state:paused;box-shadow:0 0 0 2px #b3915955,0 10px 28px #14406922}
+    .mis311-rca-tree-control{flex-shrink:0;display:grid;place-items:center;width:38px;height:42px;margin:0;padding:3px;border:1px solid #b7cfaa;border-radius:10px;background:#f5faef;cursor:pointer}.mis311-rca-tree-control svg{display:block;width:30px;height:34px}.mis311-rca-tree-control:focus-visible{outline:3px solid #b39159;outline-offset:2px}
+    .mis311-rca-tree-heading{display:flex;align-items:center;justify-content:center;gap:12px;padding-right:24px}.mis311-rca-tree-heading .mis311-rca-title{padding:0}
+    @media(max-width:700px){.mis311-rca-hub-button[data-rca-card=comparison]{left:1%;top:3%;width:44%;gap:8px}.mis311-rca-hub-button[data-rca-card=process]{right:1%;top:10%;width:47%}.mis311-rca-hub-button[data-rca-card=mapping]{left:1%;top:70%;width:31%}.mis311-rca-hub-button[data-rca-card=tools]{left:39%;top:79%;width:25%}.mis311-rca-hub-button[data-rca-card=exercise]{right:1%;top:68%;width:28%}.mis311-rca-hub-button .mis311-rca-tree-control{width:30px;height:36px}.mis311-rca-hub-button .mis311-rca-tree-control svg{width:24px;height:28px}}
+    @media(max-height:450px){.mis311-rca-hub-button[data-rca-card=comparison]{top:5%;width:44%}.mis311-rca-hub-button[data-rca-card=process]{top:7%;width:48%}.mis311-rca-hub-button[data-rca-card=mapping]{top:74%;width:31%}.mis311-rca-hub-button[data-rca-card=tools]{top:70%;width:24%}.mis311-rca-hub-button[data-rca-card=exercise]{top:72%;width:28%}}
+    @media(prefers-reduced-motion:reduce){.mis311-rca-hub-button{animation:none!important}}
+  `;
+  const art=document.createElementNS('http://www.w3.org/2000/svg','svg');art.setAttribute('viewBox','0 0 1200 600');art.setAttribute('class','mis311-rca-hub-art');art.setAttribute('aria-hidden','true');const background=element('div');background.innerHTML=hub.backgroundSvg;const original=background.querySelector('svg');original.querySelector(':scope > text')?.remove();const decoration=original.querySelector(':scope > g');if(decoration&&!renderers){[...decoration.children].slice(-3).forEach(node=>node.remove());}art.append(...original.childNodes);
+  const title=element('h1','mis311-rca-hub-title',hub.title);const dialog=element('dialog','mis311-rca-hub-dialog');dialog.id=hub.dialogId||(renderers?'mis311-vsm-hub-details':'mis311-rca-hub-details');dialog.setAttribute('aria-label',hub.title);
+  const close=element('button','mis311-rca-hub-close','×');close.type='button';close.setAttribute('aria-label',`Return to ${hub.title}`);close.addEventListener('click',()=>dialog.close());dialog.appendChild(close);
+  const panes=new Map();let lastTrigger,treeDialog,treeTrigger;
+  function refreshState(){if(host.eiuLessonRequestId){host.dispatchEvent(new host.CustomEvent('eiu-reveal-refresh'));host.parent.postMessage({type:'eiu-reveal-load',requestId:host.eiuLessonRequestId},'*');}}
+  function treeControl(callback){if(!treeDialog){treeDialog=element('dialog','mis311-rca-hub-dialog');treeDialog.id='mis311-problem-tree-details';treeDialog.setAttribute('aria-label','Problem tree: symptoms and root causes');dialog.appendChild(treeDialog);}const control=element('button','mis311-rca-tree-control');control.type='button';control.dataset.openTree='true';control.setAttribute('aria-label','Open problem tree');control.setAttribute('aria-haspopup','dialog');control.setAttribute('aria-controls','mis311-problem-tree-details');control.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 44" aria-hidden="true"><path d="M20 17v22m0-9-9 9m9-6 9 6" fill="none" stroke="#9d7944" stroke-width="3" stroke-linecap="round"/><path d="M20 3C10-1 2 8 7 16c-6 9 3 16 13 11 10 5 19-2 13-11 5-8-3-17-13-13Z" fill="#76a450" stroke="#547e38" stroke-width="1.5"/></svg>';control.addEventListener('click',callback);return control;}
+  function openTree(){
+    if(host.eiuSectionEnded)return;
+    if(!treeDialog.dataset.initialized){treeDialog.dataset.initialized='true';const back=element('button','mis311-rca-hub-close','\u00d7');back.type='button';back.setAttribute('aria-label','Return to Symptom Approach vs. Root Cause');back.addEventListener('click',()=>treeDialog.close());const slot=element('section','mis311-rca-hub-pane');const child=element('div','mis311-rca-hub-content');child.dataset.mis311Content='true';slot.appendChild(child);treeDialog.append(back,slot);panes.get('comparison').appendChild(treeDialog);renderProblemTree(child);treeDialog.addEventListener('close',()=>treeTrigger?.focus());treeDialog.addEventListener('click',event=>{if(event.target!==treeDialog)return;const r=treeDialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)treeDialog.close();});
+    }else refreshState();
+    treeDialog.showModal();
+  }
+  function closeChildren(){for(const child of dialog.querySelectorAll('dialog[open]'))child.close();}
+  dialog.addEventListener('close',event=>{if(event.target!==dialog)return;closeChildren();lastTrigger?.focus();});dialog.addEventListener('keydown',event=>{if(event.key!=='Escape')return;const nested=[...dialog.querySelectorAll('dialog[open]')].at(-1);if(nested){event.preventDefault();event.stopPropagation();nested.close();}});dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();});
+  host.addEventListener('pagehide',()=>{closeChildren();if(dialog.open)dialog.close();},{once:true});
+  function open(item,trigger){
+    if(host.eiuSectionEnded)return;lastTrigger=trigger;closeChildren();let pane=panes.get(item.key);
+    if(!pane){pane=element('section','mis311-rca-hub-pane');pane.dataset.rcaHubPane=item.key;const child=element('div','mis311-rca-hub-content');child.dataset.mis311Content='true';pane.appendChild(child);dialog.appendChild(pane);panes.set(item.key,pane);
+      if(renderers)renderers[item.key](child);else if(item.key==='comparison'){renderRootCauseComparison(child,hub.comparison);const header=child.querySelector('header');header.classList.add('mis311-rca-tree-heading');treeTrigger=treeControl(openTree);header.appendChild(treeTrigger);}else if(item.key==='process')renderRootCauseProcess(child,hub.process);else if(item.key==='mapping')renderCauseMapping(child,hub.mapping);else if(item.key==='exercise')renderDefectExercise(child,hub.exercise);else renderToolsHub(child,hub.tools);
+    }else if(host.eiuLessonRequestId&&['comparison','process','exercise'].includes(item.key))refreshState();
+    panes.forEach((node,key)=>node.hidden=key!==item.key);dialog.dataset.rcaHubView=item.key;dialog.setAttribute('aria-label',item.title);if(item.key==='definition')dialog.setAttribute('aria-describedby','mis311-vsm-definition');else dialog.removeAttribute('aria-describedby');dialog.showModal();
+  }
+  const buttons=hub.items.map(item=>{const trigger=element('button','mis311-rca-hub-button',item.title);trigger.type='button';trigger.dataset.rcaOpen=item.key;trigger.dataset.rcaCard=item.key;trigger.setAttribute('aria-haspopup','dialog');trigger.setAttribute('aria-controls',dialog.id);trigger.addEventListener('click',()=>open(item,trigger));if(!renderers&&item.key==='comparison'){const card=element('div','mis311-rca-hub-button');card.dataset.rcaCard=item.key;trigger.className='mis311-rca-hub-primary';delete trigger.dataset.rcaCard;card.append(trigger,treeControl(()=>{open(item,trigger);openTree();}));return card;}return trigger;});
+  content.replaceChildren(style,art,title,...buttons,dialog);content.parentElement.setAttribute('role','group');
+}
+
+function renderValueStreamHub(content, hub) {
+  content.dataset.mis311VsmHub='true';
+  renderRootCauseHub(content,hub,{
+    definition:child=>renderValueStreamDefinition(child,hub.definition),
+    parts:child=>renderValueStreamParts(child,hub.parts),
+    importance:child=>renderValueStreamFollowup(child,hub.importance)
+  });
+}

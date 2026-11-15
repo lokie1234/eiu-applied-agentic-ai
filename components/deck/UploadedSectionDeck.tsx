@@ -10,6 +10,9 @@ import { WEB_DEVELOPMENT_SECTION_ID } from "@/lib/webDevelopmentQuiz";
 import { getCompiledSectionMetadata } from "@/lib/compiledSectionMetadata";
 import { useLessonPracticeBridge } from "./useLessonPracticeBridge";
 import { useMis301NotebookBridge } from "./useMis301NotebookBridge";
+import { useLessonRevealBridge } from "./useLessonRevealBridge";
+import { useMis311PresentationBridge } from "./useMis311PresentationBridge";
+import { readMis311Presentation } from "@/lib/mis311Presentation";
 const ShowcaseSlide = dynamic(async () => {
   const { default: Showcase } = await import("@/components/ShowcaseSlide");
   return function LoadedShowcase(props: ComponentProps<typeof Showcase>) { return <div className={styles.nativeContent} data-slide-content-ready="true"><Showcase {...props} /></div>; };
@@ -57,7 +60,7 @@ const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, t
   sectionId: string; isAdmin: boolean; practiceAllowed: boolean; practiceAssignmentKey: string;
   frameRef: RefObject<HTMLIFrameElement | null>;
 }) {
-  const document = useMemo(() => createTsxDocument(code, page, background, templateKey, `${sectionId}:${page}`, isAdmin, practiceAllowed, practiceAssignmentKey), [code, page, background, templateKey, sectionId, isAdmin, practiceAllowed, practiceAssignmentKey]);
+  const document = useMemo(() => createTsxDocument(code, page, background, templateKey, `${sectionId}:${page}`, isAdmin, practiceAllowed, practiceAssignmentKey, readMis311Presentation(sectionId)), [code, page, background, templateKey, sectionId, isAdmin, practiceAllowed, practiceAssignmentKey]);
   return <iframe ref={frameRef} className={styles.tsxFrame} data-request-id={`${sectionId}:${page}`}
     sandbox="allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox"
     title={`${title} · slide ${page}`} srcDoc={document} />;
@@ -72,6 +75,8 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
   const practiceAllowed = sectionId !== MIS301_SECTION_ID || isAdmin || Boolean(practiceAccess?.assignment);
   const practiceAssignmentKey = `${practiceAccess?.practiceSession || ""}:${practiceAccess?.assignment?.drawId || ""}:${practiceAccess?.assignment?.subject || ""}:${practiceAccess?.assignment?.part || ""}`;
   useMis301NotebookBridge(sectionId, iframeRef);
+  useLessonRevealBridge(sectionId, iframeRef);
+  useMis311PresentationBridge(sectionId, iframeRef);
   const contentUrl = `/api/sections/${encodeURIComponent(sectionId)}/content`;
   const [totalSlides, setTotalSlides] = useState(compiledCount ?? slideCount ?? 1);
   const [tsxCode, setTsxCode] = useState("");

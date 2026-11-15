@@ -33,7 +33,7 @@ export function applySlideTemplate(root: HTMLElement, page: number | null, backg
   root.appendChild(number);
 }
 
-export function createTsxDocument(compiledCode: string, pageNumber: number | null, templateImage = "", templateKey = "", requestId = "", isAdmin = false, practiceAllowed = true, practiceAssignmentKey = "") {
+export function createTsxDocument(compiledCode: string, pageNumber: number | null, templateImage = "", templateKey = "", requestId = "", isAdmin = false, practiceAllowed = true, practiceAssignmentKey = "", presentationStates: Record<string, Record<string, boolean | number>> = {}) {
   const encodedCode = JSON.stringify(compiledCode).replace(/</g, "\\u003c");
   // Compiled TSX runs via Function inside an opaque-origin sandbox. Network
   // access stays blocked; allow-downloads supports locally embedded datasets.
@@ -49,6 +49,7 @@ export function createTsxDocument(compiledCode: string, pageNumber: number | nul
     window.eiuLessonTeaching=${JSON.stringify(isAdmin)};
     window.eiuPracticeAllowed=${JSON.stringify(practiceAllowed)};
     window.eiuPracticeAssignmentKey=${JSON.stringify(practiceAssignmentKey)};
+    window.eiuPresentationState={states:${JSON.stringify(presentationStates).replace(/</g, "\\u003c")}};
     const Fragment=Symbol('Fragment');
     const svgTags=new Set(['svg','path','circle','rect','line','polyline','polygon','g','text','defs','linearGradient','stop','foreignObject']);
     const append=(parent,value)=>{if(value==null||value===false||value===true)return;if(Array.isArray(value)){value.forEach(v=>append(parent,v));return;}if(value instanceof Node){parent.appendChild(value);return;}parent.appendChild(document.createTextNode(String(value)));};

@@ -50,7 +50,7 @@ test('Switching templates clears the old image immediately and ignores a late pr
  '@/components/deck/SharedDeckFrame':{__esModule:true,default:props=>props.renderSlide(1,960)},
  '@/components/HairlineLoading':{__esModule:true,default:()=>React.createElement('span',null,'Loading')},
  '@/lib/mis301Practice':{MIS301_SECTION_ID:'mis301'},'@/lib/webDevelopmentQuiz':{WEB_DEVELOPMENT_SECTION_ID:'web'},
- '@/lib/compiledSectionMetadata':{getCompiledSectionMetadata:()=>undefined},'./useLessonPracticeBridge':{useLessonPracticeBridge:()=>null},'./useMis301NotebookBridge':{useMis301NotebookBridge(){}},
+ '@/lib/compiledSectionMetadata':{getCompiledSectionMetadata:()=>undefined},'./useLessonPracticeBridge':{useLessonPracticeBridge:()=>null},'./useMis301NotebookBridge':{useMis301NotebookBridge(){}},'./useLessonRevealBridge':{useLessonRevealBridge(){}},'./useMis311PresentationBridge':{useMis311PresentationBridge(){}},'@/lib/mis311Presentation':{readMis311Presentation:()=>({})},
  '@/lib/tsxDocument':{createTsxDocument:(...args)=>{built.push(args);return '<html><body>Lesson</body></html>';}}
  },{window,fetch:async url=>{if(url.startsWith('/api/templates')){const key=new URL(url,'http://localhost').searchParams.get('id');const pending=deferred();requests.set(key,pending);return pending.promise;}return {ok:true,text:async()=>'exports.default=[];'};}}).default;
  const props={sectionId:'section',contentType:'tsx',slideCount:1,courseTitle:'Course',sectionTitle:'Section',isAdmin:true};
