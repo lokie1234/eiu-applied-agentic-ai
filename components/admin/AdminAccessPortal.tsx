@@ -17,6 +17,7 @@ import SectionFileUpload from "./SectionFileUpload";
 import PcActionIcon from "./PcActionIcon";
 import actionIconStyles from "./DriveActionIcon.module.css";
 import EiuConfirmDialog from "./EiuConfirmDialog";
+import { useLearningLanguage } from '@/lib/learningLanguage';
 
 type LanguageLabel = "vi" | "en" | "vi_en";
 
@@ -38,6 +39,7 @@ export type CourseSystemIcon = {
 };
 
 type CourseMetadata = {
+  sectionLive?: Record<string, boolean>;
   terminableSectionIds?: string[];
   hidden?: boolean;
   templateKey?: string;
@@ -192,6 +194,7 @@ function DraggableScrollArea({
 }
 
 export default function AdminAccessPortal({ adminEmail, initialTab, initialCourseId, initialSectionId, driveEnabled: initialDriveEnabled }: { adminEmail: string; initialTab?: "layouts"; initialCourseId?: string; initialSectionId?: string; driveEnabled?: boolean }) {
+  const {t}=useLearningLanguage();
   const isAdmin = true;
   const [driveEnabled, setDriveEnabled] = useState(initialDriveEnabled ?? true);
   const [tab, setTab] = useState<"passcodes" | "courses" | "layouts">(initialTab ?? "courses");
@@ -1858,6 +1861,12 @@ export default function AdminAccessPortal({ adminEmail, initialTab, initialCours
                                   </DraggableScrollArea>
                                 </div>
                                 <div className={styles.sectionItemRight}>
+                                  {isAdmin && section.content_type === 'tsx' && <label className={styles.liveSetting} onClick={event=>event.stopPropagation()}>
+                                    <input type="checkbox" aria-label={`${t('Enable Live')} · ${section.title}`} checked={selectedCourse.metadata?.sectionLive?.[section.id] !== false}
+                                      disabled={Boolean(processingMessage) || busy.has(`live:${section.id}`)}
+                                      onChange={event=>void mutate({action:'set_section_live',sectionId:section.id,enabled:event.target.checked},`live:${section.id}`,t('Live setting updated.'),t('Updating Live setting…'))}/>
+                                    Live
+                                  </label>}
                                   {isAdmin && <button type="button"
                                     className={`${styles.visibilityToggle} ${selectedCourse.metadata?.terminableSectionIds?.includes(section.id) ? styles.terminationEnabled : styles.visibilityToggleHidden}`}
                                     aria-label={`Enable Terminate section for ${section.title}`}

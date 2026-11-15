@@ -13,7 +13,25 @@ test('Live patches reconstruct reveal, nested popup, SVG and scroll without exec
 test('Live rejects malformed graphs, oversized updates, unsafe attributes and invalid geometry',()=>{
  const {window,capture}=doc(),state=capture(),patch=dom.diffLiveDocument(null,state);assert.throws(()=>protocol.applyLivePatch('',JSON.stringify({...patch,width:-1})));assert.throws(()=>protocol.applyLivePatch('',JSON.stringify({...patch,nodes:[{id:1,tag:'div',children:[1]}],root:1})));assert.throws(()=>protocol.applyLivePatch('',JSON.stringify({...patch,nodes:[{id:1,tag:'div',scroll:[5,0]}],root:1})));assert.throws(()=>protocol.applyLivePatch('', 'x'.repeat(900001)));window.happyDOM.abort();
 });
-function convex(){const rows={livePresentations:[],liveSnapshots:[]};let role='admin',allowed=['section'],n=0;const db={query:table=>{const filters=[];return {withIndex(_,fn){fn({eq(key,value){filters.push([key,value]);return this;}});return this;},async unique(){return rows[table].find(row=>filters.every(([k,v])=>row[k]===v))||null;}};},async insert(table,data){const _id=String(++n);rows[table].push({...data,_id});return _id;},async patch(id,data){for(const table of Object.values(rows)){const row=table.find(row=>row._id===id);if(row)Object.assign(row,data);}},async replace(id,data){for(const table of Object.values(rows)){const i=table.findIndex(row=>row._id===id);if(i>=0)table[i]={...data,_id:id};}},async delete(id){for(const table of Object.values(rows)){const i=table.findIndex(row=>row._id===id);if(i>=0)table.splice(i,1);}}};const functions=loadTS('convex/livePresentation.ts',{'./_generated/server':{query:v=>v,mutation:v=>v},'../lib/livePresentationProtocol':protocol});return {functions,ctx:{db,auth:{getUserIdentity:async()=>({role,sections:JSON.stringify(allowed)})}},role:value=>role=value,scopes:value=>allowed=value,rows};}
+
+test('capture normalizes fractional overscroll and non-finite animation times across courses',()=>{
+ const {window,capture}=doc(),panel=window.document.querySelector('#panel');
+ panel.hidden=false;
+ for(const [key,value]of Object.entries({scrollWidth:200,clientWidth:100,scrollHeight:300,clientHeight:100,scrollLeft:100.25,scrollTop:-.5}))Object.defineProperty(panel,key,{configurable:true,value});
+ panel.getAnimations=()=>[{currentTime:Infinity},{currentTime:-1},{currentTime:42}];
+ const state=capture(),record=state.nodes.find(node=>node.attrs?.id==='panel');
+ assert.deepEqual(Array.from(record.scroll),[1,0]);assert.deepEqual(Array.from(record.animations),[0,0,42]);
+ assert.doesNotThrow(()=>protocol.applyLivePatch('',JSON.stringify(dom.diffLiveDocument(null,state))));window.happyDOM.abort();
+});
+
+test('click deltas omit unchanged large styles while retaining attribute, animation and scroll updates',()=>{
+ const previous={root:1,width:960,height:540,page:1,nodes:[{id:1,tag:'div',attrs:{id:'root',class:'old'},children:[2],scroll:[0,0],animations:[10]},{id:2,tag:'#text',text:'x'.repeat(520000)}]};
+ const next=structuredClone(previous);next.nodes[0].attrs={class:'new',id:'root'};next.nodes[0].scroll=[0,1];next.nodes[0].animations=[100];
+ const patch=dom.diffLiveDocument(previous,next);assert.equal(patch.nodes.length,1);assert.equal(patch.nodes[0].id,1);
+ const merged=JSON.parse(protocol.applyLivePatch(JSON.stringify(previous),JSON.stringify(patch)));assert.equal(merged.nodes[1].text.length,520000);assert.equal(merged.nodes[0].attrs.class,'new');assert.equal(merged.nodes[0].scroll[1],1);
+ assert.equal(dom.diffLiveDocument(next,structuredClone(next)).nodes.length,0);
+});
+function convex(){const rows={livePresentations:[],liveSnapshots:[]};let role='admin',allowed=['section'],liveAllowed,n=0;const db={query:table=>{const filters=[];return {withIndex(_,fn){fn({eq(key,value){filters.push([key,value]);return this;}});return this;},async unique(){return rows[table].find(row=>filters.every(([k,v])=>row[k]===v))||null;}};},async insert(table,data){const _id=String(++n);rows[table].push({...data,_id});return _id;},async patch(id,data){for(const table of Object.values(rows)){const row=table.find(row=>row._id===id);if(row)Object.assign(row,data);}},async replace(id,data){for(const table of Object.values(rows)){const i=table.findIndex(row=>row._id===id);if(i>=0)table[i]={...data,_id:id};}},async delete(id){for(const table of Object.values(rows)){const i=table.findIndex(row=>row._id===id);if(i>=0)table.splice(i,1);}}};const functions=loadTS('convex/livePresentation.ts',{'./_generated/server':{query:v=>v,mutation:v=>v},'../lib/livePresentationProtocol':protocol});return {functions,ctx:{db,auth:{getUserIdentity:async()=>({role,sections:JSON.stringify(allowed),...(liveAllowed===undefined?{}:{liveSections:JSON.stringify(liveAllowed)})})}},role:value=>role=value,scopes:value=>allowed=value,liveScopes:value=>liveAllowed=value,rows};}
 test('Convex enforces admin scope, one controller, stale-epoch rejection, monotonic sequence and rate limits',async()=>{
  const f=convex(),args={sectionId:'section',deviceId:'controller-aaaaaaaa',epoch:'epoch-aaaaaaaaaaaaa'};f.role('learner');await assert.rejects(()=>f.functions.start.handler(f.ctx,args));f.role('admin');f.scopes([]);await assert.rejects(()=>f.functions.view.handler(f.ctx,{sectionId:'section'}));f.scopes(['section']);await f.functions.start.handler(f.ctx,args);await assert.rejects(()=>f.functions.start.handler(f.ctx,{...args,deviceId:'controller-bbbbbbbb'}));const {window,capture}=doc(),patch=JSON.stringify(dom.diffLiveDocument(null,capture()));await f.functions.update.handler(f.ctx,{...args,sequence:1,patch});const snap=await f.functions.snapshot.handler(f.ctx,{sectionId:'section'});assert.equal(snap.revision,1);assert.ok(snap.document.includes('Lesson'));await f.functions.update.handler(f.ctx,{...args,sequence:1,patch});assert.equal(f.rows.livePresentations[0].revision,1);await assert.rejects(()=>f.functions.update.handler(f.ctx,{...args,epoch:'old-epoch-aaaaaaaaa',sequence:2,patch}));for(let i=2;i<25;i++)await f.functions.update.handler(f.ctx,{...args,sequence:i,patch:''});await assert.rejects(()=>f.functions.update.handler(f.ctx,{...args,sequence:26,patch:''}));await f.functions.stop.handler(f.ctx,args);assert.equal((await f.functions.view.handler(f.ctx,{sectionId:'section'})).active,false);assert.equal(f.rows.liveSnapshots.length,0);window.happyDOM.abort();
 });
@@ -33,4 +51,19 @@ test('peer signaling requires section admin access and only the controller can a
  const resumed=await f.functions.start.handler(f.ctx,args);assert.equal(resumed.sequence,0);
  assert.equal((await f.functions.peers.handler(f.ctx,{sectionId:'section'})).peers.length,1);
  await assert.rejects(()=>f.functions.signal.handler(f.ctx,{...offer,epoch:'other-aaaaaaaaaaaa'}));
+});
+
+
+test('Convex denies sections disabled in current Live grants while retaining stop access',async()=>{
+ const f=convex(),args={sectionId:'section',deviceId:'controller-aaaaaaaa',epoch:'epoch-aaaaaaaaaaaaa'};
+ f.liveScopes(['section']);await f.functions.start.handler(f.ctx,args);f.liveScopes([]);
+ await assert.rejects(()=>f.functions.view.handler(f.ctx,{sectionId:'section'}));
+ await assert.rejects(()=>f.functions.update.handler(f.ctx,{...args,sequence:1,patch:''}));
+ await f.functions.stop.handler(f.ctx,args);assert.equal(f.rows.livePresentations[0].active,false);
+});
+
+test('restarting Live cannot reset the public mutation rate window',async()=>{
+ const f=convex(),args={sectionId:'section',deviceId:'controller-aaaaaaaa',epoch:'epoch-aaaaaaaaaaaaa'};
+ for(let i=0;i<25;i++)await f.functions.start.handler(f.ctx,{...args,epoch:`epoch-aaaaaaaaaaa-${i}`});
+ await assert.rejects(()=>f.functions.start.handler(f.ctx,{...args,epoch:'epoch-aaaaaaaaaaa-26'}));
 });

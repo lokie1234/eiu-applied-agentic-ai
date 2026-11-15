@@ -178,6 +178,8 @@
 .inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview) { min-height: 148px; padding: 18px; border-radius: 14px; background: rgba(16, 52, 82, .58); }
 .inlineSections .cards :is(.sectionLaunchButton, .sectionFilePreview):hover { transform: none; border-color: #79e3ff; background: rgba(18, 63, 104, .68); }
 .inlineSections .cards .sectionLaunchButton { --section-artwork-size: 92px; cursor: default; min-height: 206px; padding-bottom: 104px; transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease; }
+.inlineSections .cards .sectionLaunchButton:has([data-live-section]) { padding-bottom: 140px; }
+.inlineSections .cards .sectionLaunchButton:has([data-live-section]) small.sectionSlideBadge { bottom: 56px; }
 .inlineSections .cards .sectionLaunchButton[data-pointer-active]:not([data-disabled="true"]), .inlineSections .cards .sectionLaunchButton:has(:focus-visible) { transform: translateY(-2px); border-color: #e9ca8b; background: rgba(24, 84, 127, .68); box-shadow: inset 0 0 0 1px rgba(233, 202, 139, .15), 0 5px 14px rgba(0, 16, 27, .2); }
 .inlineSections .cards .sectionLaunchButton[data-disabled="true"]:hover { transform: none; border-color: rgba(244, 223, 176, .15); background: #103452; box-shadow: none; }
 .inlineSections .cards .sectionLaunchButton:not([data-disabled="true"]) strong { padding-right: 0; }

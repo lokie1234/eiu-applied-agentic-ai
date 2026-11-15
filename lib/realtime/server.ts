@@ -20,6 +20,7 @@ export function mintRealtimeToken(access: AppUserAccess, now = Date.now()) {
   const body = Buffer.from(JSON.stringify({ iss: "https://eiu-learning.internal", aud: "eiu-interactive", sub: access.authUserId,
     iat: Math.floor(now / 1000), exp: Math.floor(now / 1000) + 120,
     role: access.isAdmin ? "admin" : "learner", sections: JSON.stringify(allowed.map(section => section.id)), teaching: JSON.stringify(allowed.filter(section => section.canFacilitate).map(section => section.id)),
+    liveSections: JSON.stringify(access.isAdmin ? allowed.filter(section => section.contentType === 'tsx' && section.liveEnabled !== false).map(section => section.id) : []),
   })).toString("base64url");
   return `${header}.${body}.${sign("RSA-SHA256", Buffer.from(`${header}.${body}`), privateKey).toString("base64url")}`;
 }

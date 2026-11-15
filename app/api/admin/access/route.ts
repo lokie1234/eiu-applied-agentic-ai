@@ -81,7 +81,15 @@ export async function POST(request: Request) {
     let createdCourseIds: string[] | undefined;
     let createdFolderGroupId: string | undefined;
 
-    if (action === "set_section_termination") {
+    if (action === 'set_section_live') {
+      if (!actor.isAdmin) return NextResponse.json({ message: 'Administrator access required.' }, { status: 403 });
+      if (typeof body.sectionId !== 'string' || typeof body.enabled !== 'boolean') return NextResponse.json({ message: 'Choose a section and Live setting.' }, { status: 400 });
+      const catalog = await getCoursesAndSectionsData();
+      const target = catalog.sections.find(section => section.id === body.sectionId);
+      if (!target) return NextResponse.json({ message: 'Section not found.' }, { status: 404 });
+      if (target.content_type !== 'tsx') return NextResponse.json({ message: 'Live requires a JavaScript section.' }, { status: 400 });
+      await updateCourseMetadata(target.course_id, current => ({ ...current, sectionLive: { ...current.sectionLive, [target.id]: body.enabled } }));
+    } else if (action === "set_section_termination") {
       if (!actor.isAdmin) return NextResponse.json({ message: "Administrator access required." }, { status: 403 });
       if (typeof body.sectionId !== "string" || typeof body.enabled !== "boolean") return NextResponse.json({ message: "Choose a section and termination setting." }, { status: 400 });
       const catalog = await getCoursesAndSectionsData();

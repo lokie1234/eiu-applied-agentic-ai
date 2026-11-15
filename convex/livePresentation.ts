@@ -3,11 +3,12 @@ import { ConvexError, v } from 'convex/values';
 import type { QueryCtx, MutationCtx } from './_generated/server';
 import { applyLivePatch } from '../lib/livePresentationProtocol';
 
-async function authorize(ctx: QueryCtx | MutationCtx, sectionId: string) {
+async function authorize(ctx: QueryCtx | MutationCtx, sectionId: string, enabled = true) {
   const user = await ctx.auth.getUserIdentity();
   let sections: unknown = [];
   try { sections = JSON.parse(String(user?.sections)); } catch { /* Invalid claims deny access. */ }
   if (!user || user.role !== 'admin' || !Array.isArray(sections) || !sections.includes(sectionId)) throw new ConvexError('Administrator section access required.');
+  if(enabled && user.liveSections !== undefined){let live:unknown;try{live=JSON.parse(String(user.liveSections));}catch{/* Invalid claims deny access. */}if(!Array.isArray(live)||!live.includes(sectionId))throw new ConvexError('Live is disabled for this section.');}
   return user;
 }
 const device = (value: string) => { if (!/^[a-zA-Z0-9-]{16,100}$/.test(value)) throw new ConvexError('Invalid device.'); };
@@ -27,8 +28,9 @@ export const start = mutation({ args: { sectionId: v.string(), deviceId: v.strin
   const room = await ctx.db.query('livePresentations').withIndex('room', q => q.eq('sectionId', args.sectionId)).unique(), now = Date.now();
   if(room?.active&&room.owner===args.deviceId&&room.epoch===args.epoch)return {epoch:args.epoch,sequence:room.sequence};
   if (room?.active && room.owner !== args.deviceId && now - room.updatedAt < 30000) throw new ConvexError('Another device is controlling this section. Stop Live there first.');
-  if (room && now - room.rateStart < 1000 && room.rateCount > 20) throw new ConvexError('Please wait before starting Live again.');
-  const value = { sectionId: args.sectionId, owner: args.deviceId, epoch: args.epoch, active: true, revision: 0, sequence: 0, updatedAt: now, patch: '', rateStart: now, rateCount: 1 };
+  const rateCount = room && now-room.rateStart<1000 ? room.rateCount+1 : 1;
+  if(rateCount>25)throw new ConvexError('Please wait before starting Live again.');
+  const value = { sectionId: args.sectionId, owner: args.deviceId, epoch: args.epoch, active: true, revision: 0, sequence: 0, updatedAt: now, patch: '', rateStart: rateCount===1?now:room!.rateStart, rateCount };
   const snapshot = await ctx.db.query('liveSnapshots').withIndex('room', q => q.eq('sectionId', args.sectionId)).unique();
   if(snapshot) await ctx.db.delete(snapshot._id);
   if (room) await ctx.db.replace(room._id, value); else await ctx.db.insert('livePresentations', value);
@@ -50,7 +52,7 @@ export const update = mutation({ args: { sectionId: v.string(), deviceId: v.stri
   return { revision };
 } });
 export const stop = mutation({ args: { sectionId: v.string(), deviceId: v.string(), epoch: v.string() }, handler: async (ctx, args) => {
-  await authorize(ctx, args.sectionId);device(args.deviceId);
+  await authorize(ctx, args.sectionId, false);device(args.deviceId);
   const room = await ctx.db.query('livePresentations').withIndex('room', q => q.eq('sectionId', args.sectionId)).unique();
   if (room?.owner === args.deviceId && room.epoch === args.epoch) {
     await ctx.db.patch(room._id, { active: false, patch: '', peers:[], updatedAt: Date.now() });
@@ -71,7 +73,7 @@ export const signal = mutation({args:{sectionId:v.string(),epoch:v.string(),peer
   const peers=room.peers||[],old=peers.find(peer=>peer.id===args.peerId),now=Date.now();
   const rateCount=now-room.rateStart>=1000?1:room.rateCount+1;
   if(rateCount>25)throw new ConvexError('Live signaling rate limit reached.');
-  if(old&&now-old.updatedAt<100&&args.kind!=='answer')throw new ConvexError('Peer signaling limit reached.');
+  if(old&&now-old.updatedAt<100&&args.kind==='offer')throw new ConvexError('Peer signaling limit reached.');
   if(args.kind==='leave'){await ctx.db.patch(room._id,{peers:peers.filter(peer=>peer.id!==args.peerId),rateCount,rateStart:rateCount===1?now:room.rateStart});return;}
   if(args.kind==='answer'){if(!old)throw new ConvexError('Peer not found.');old.answer=args.sdp||'';old.updatedAt=now;}
   else if(old){old.offer=args.sdp||'';delete old.answer;old.updatedAt=now;}

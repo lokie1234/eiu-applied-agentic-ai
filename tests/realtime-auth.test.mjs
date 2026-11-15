@@ -28,3 +28,9 @@ test("reconciliation accepts only the server bridge credential", () => {
   assert.equal(f.bridgeAuthorized(new Request("https://example.test", { headers: { Authorization: "Bearer test-bridge-extra" } })), false);
   assert.equal(f.bridgeAuthorized(new Request("https://example.test", { headers: { Authorization: "Bearer test-bridge" } })), true);
 });
+
+test('Live JWT scopes exclude disabled sections and all non-admin users',()=>{
+ const f=fixture(),access={authUserId:'admin',isAdmin:true,courses:[{id:'course'}],sections:[{id:'enabled',courseId:'course',contentType:'tsx'},{id:'disabled',courseId:'course',contentType:'tsx',liveEnabled:false},{id:'pdf',courseId:'course',contentType:'pdf'}]};
+ const claims=value=>JSON.parse(Buffer.from(f.mintRealtimeToken(value).split('.')[1],'base64url'));
+ assert.deepEqual(JSON.parse(claims(access).liveSections),['enabled']);assert.deepEqual(JSON.parse(claims({...access,isAdmin:false}).liveSections),[]);
+});

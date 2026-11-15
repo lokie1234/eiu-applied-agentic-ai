@@ -22,6 +22,7 @@ export type CourseAccess = {
 };
 
 export type SectionAccess = {
+  liveEnabled?: boolean;
   terminationEnabled?: boolean;
   hidden?: boolean;
   id: string;

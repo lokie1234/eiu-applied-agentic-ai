@@ -1,13 +1,22 @@
 # Admin Live presentation
 
-On the course section selector, an administrator can enable **Live**, then choose
+On the course section selector, an administrator can click **Live** inside a section card, then choose
 **Điều khiển** on the laptop and **Theo dõi** on the presentation PC for the same
-section. Teaching Access and Learning Access do not expose these controls. The PC
-can enter fullscreen independently. Stop Live before handing control to another
-device; leaving the follower does not stop the presenter.
+section. Teaching Access and Learning Access do not expose these controls. A small
+blinking broadcast icon indicates Live without changing the normal slide layout.
+Click the icon to open session controls, including fullscreen on the PC. Stop Live
+before handing control to another device; leaving the follower does not stop the
+presenter. Reduced-motion preferences disable the blinking animation.
 If an abandoned session blocks control, choose **Kết thúc phiên cũ** in the
 conflict message, then start control again. This is an explicit administrator
 action; opening Live on the PC should normally use **Theo dõi** instead.
+The role menu and Live status follow the existing English/Vietnamese interface
+language switch. In Admin Access, each JavaScript section has a **Live** checkbox.
+Existing sections retain Live until an administrator explicitly disables it.
+The setting is stored in Supabase course metadata, hides the entry button, and
+is enforced by the Supabase transport and scoped Convex tokens. Token refresh
+bounds Convex access revocation to the existing two-minute token lifetime. Stop
+remains available for releasing a previously active session after disabling Live.
 
 ## Transport and state
 
@@ -60,3 +69,11 @@ compiled SVG assets, graph/payload validation, administrator and origin checks,
 exclusive ownership, sequence checks, rate limits and transport failover/recovery.
 Browser verification uses two independently authenticated local Chrome contexts;
 it does not rely on shared cookies or on replaying learner operations.
+The layout regression test keeps the presenter deck as the only viewport child;
+Live controls render through a portal outside the full-height deck layout.
+Cross-course tests include the real Web Development and MIS 301 embedded CSS/font
+text nodes (roughly 480–520 KB), while retaining the 900 KB total document budget.
+Unchanged font/style text is compared directly and omitted from click deltas,
+avoiding repeated large JSON allocations during presentation.
+Capture clamps fractional overscroll and invalid animation timestamps before
+protocol validation. Leaving a course clears its Live selection.

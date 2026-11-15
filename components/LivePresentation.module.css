@@ -1,3 +1,24 @@
-.choice{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;padding:12px;border:1px solid #c9d9e5;border-radius:14px;background:#f7fafc;color:#123f68;font-size:14px}.choice label{display:flex;align-items:center;gap:8px;font-weight:700}.choice input{accent-color:#18547f;width:18px;height:18px}.choice button,.status button{padding:8px 13px;border:1px solid #b39159;border-radius:10px;background:white;color:#123f68;font:600 14px/1.3 Arial;cursor:pointer}.choice button:disabled{opacity:.5;cursor:wait}.choice [role=alert]{color:#9f3030}.status{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 18px;background:#082945;color:white;border-radius:14px;margin-bottom:12px;font-size:14px}.status span:not(.dot):not(.offline){flex:1}.dot,.offline{width:9px;height:9px;border-radius:50%;background:#6bc997}.offline{background:#e9ca8b}.follower{width:100%;height:calc(100vh - 170px);min-height:400px;display:flex;flex-direction:column}.surface{position:relative;flex:1;min-height:0;overflow:hidden;background:#041c31;border-radius:14px}.surface:fullscreen{border-radius:0}.surface iframe{position:absolute;left:50%;top:50%;border:0;transform-origin:center;pointer-events:none}.guard{position:absolute;inset:0;z-index:2}.choice button:focus-visible,.status button:focus-visible{outline:3px solid #2d7fb4;outline-offset:3px}
+
+.choice{position:absolute;left:18px;right:18px;bottom:12px;z-index:5;pointer-events:none;color:#f7f4ed;font:14px/1.4 Arial,sans-serif}
+.choice button,.liveMenu button{padding:8px 13px;border:1px solid #b39159;border-radius:10px;background:#123f68;color:#f7f4ed;font:600 14px/1.3 Arial,sans-serif;cursor:pointer}
+.choice button:disabled{opacity:.5;cursor:wait}
+.choice .liveTrigger{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;pointer-events:auto;border-radius:99px;background:#0c302f;border-color:#66bb9680;color:#cbe8d5}
+.liveMark{width:7px;height:7px;border-radius:50%;background:#6bc997;box-shadow:0 0 8px #6bc99770}
+.choiceMenu{position:absolute;left:0;bottom:42px;display:flex;flex-wrap:wrap;gap:8px;width:min(280px,100%);box-sizing:border-box;padding:12px;border:1px solid #b39159;border-radius:12px;background:#082945;box-shadow:0 8px 24px #0005;pointer-events:auto}
+.choiceMenu p{flex-basis:100%;margin:0;font-size:13px;overflow-wrap:anywhere}
+.choiceMenu [role=alert]{color:#ffe1c9}
+.follower{width:100%;height:100%;min-height:0;display:flex;flex-direction:column}.surface{position:relative;flex:1;min-height:0;overflow:hidden;background:#041c31;border-radius:14px}.surface:fullscreen{border-radius:0}.surface iframe{position:absolute;left:50%;top:50%;border:0;transform-origin:center;pointer-events:none}.guard{position:absolute;inset:0;z-index:2}.choice button:focus-visible,.liveMenu button:focus-visible{outline:3px solid #2d7fb4;outline-offset:3px}
 
 .waiting{position:absolute;inset:0;z-index:3;display:grid;place-items:center;padding:32px;text-align:center;background:#041c31;color:#f7f4ed;font:500 20px/1.5 Arial,sans-serif;pointer-events:none}
+
+.indicator{position:fixed;right:16px;bottom:64px;z-index:50;color:#f7f4ed;font:14px/1.5 Arial,sans-serif}
+.indicator summary{list-style:none;width:34px;height:34px;display:grid;place-items:center;border:1px solid rgba(107,201,151,.45);border-radius:50%;background:#082945e8;box-shadow:0 2px 8px #0003;cursor:pointer;color:#6bc997}
+.indicator summary::-webkit-details-marker{display:none}
+.indicator summary svg{width:20px;height:20px;overflow:visible;animation:livePulse 1.8s ease-in-out infinite}
+.indicator circle{fill:currentColor}.indicator path{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round}
+.indicator summary[data-interrupted]{color:#e9ca8b;border-color:#e9ca8b88}
+.indicator summary:focus-visible{outline:3px solid #e9ca8b;outline-offset:3px}
+.liveMenu{position:absolute;right:0;bottom:44px;width:min(300px,calc(100vw - 32px));padding:14px;display:grid;gap:10px;border:1px solid #b39159;border-radius:12px;background:#082945;box-shadow:0 8px 32px #0005}
+.liveMenu p{margin:0;font-size:13px;overflow-wrap:anywhere}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.35}}
+@media(prefers-reduced-motion:reduce){.indicator summary svg{animation:none}}

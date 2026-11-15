@@ -14,7 +14,7 @@ export function applyLivePatch(previous: string, encoded: string): string {
   for (const id of patch.removed) { if (!Number.isSafeInteger(id)) throw new Error('Invalid node.'); map.delete(id); }
   for (const node of patch.nodes) {
     if (!node || !Number.isSafeInteger(node.id) || node.id < 1 || typeof node.tag !== 'string' || node.tag.length > 50 ||
-        (node.text !== undefined && (typeof node.text !== 'string' || node.text.length > 120000)) ||
+        (node.text !== undefined && (typeof node.text !== 'string' || node.text.length > LIVE_MAX_BYTES)) ||
         (node.children && (!Array.isArray(node.children) || node.children.length > 2500 || node.children.some(id => !Number.isSafeInteger(id)))) ||
         (node.attrs && (typeof node.attrs !== 'object' || Object.keys(node.attrs).length > 80 || Object.entries(node.attrs).some(([key,value]) => key.length > 100 || typeof value !== 'string' || value.length > 2000000))) ||
         (node.scroll && (!Array.isArray(node.scroll) || node.scroll.length !== 2 || node.scroll.some(value => !Number.isFinite(value) || value < 0 || value > 1))) ||

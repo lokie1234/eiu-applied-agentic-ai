@@ -156,6 +156,7 @@ type ReportSectionOption = { value: string; label: string };
 type ReportScopeOption = ReportSectionOption & { courseId: string; courseTitle: string; folderGroupId: string };
 type ReportCourseOption = ReportSectionOption & { folderGroupId: string };
 type CourseFolderSection = {
+  liveEnabled?: boolean;
   terminationEnabled?: boolean;
   canFacilitate?: boolean;
   hidden?: boolean;
@@ -500,11 +501,11 @@ export default function LessonPortal({
     let active=true;
     void Promise.resolve().then(()=>{
       if(!active)return;
-      if(isAdmin){try{const saved=JSON.parse(window.sessionStorage.getItem('eiu-admin-live-selection')||'null');if(saved?.sectionId===initialSectionId&&['control','follow'].includes(saved?.mode)&&typeof saved.epoch==='string'&&typeof saved.deviceId==='string')setLiveSelection(saved);}catch{/* No persisted Live selection. */}}
+      if(isAdmin){try{const saved=JSON.parse(window.sessionStorage.getItem('eiu-admin-live-selection')||'null');const allowed=courseFolders.some(course=>course.sections.some(item=>item.id===saved?.sectionId&&item.contentType==='tsx'&&item.liveEnabled!==false));if(allowed&&saved?.sectionId===initialSectionId&&['control','follow'].includes(saved?.mode)&&typeof saved.epoch==='string'&&typeof saved.deviceId==='string')setLiveSelection(saved);}catch{/* No persisted Live selection. */}}
       setLiveHydrated(true);
     });
     return()=>{active=false;};
-  },[isAdmin,initialSectionId]);
+  },[isAdmin,initialSectionId,courseFolders]);
   useEffect(()=>{if(!liveHydrated)return;try{if(liveSelection)window.sessionStorage.setItem('eiu-admin-live-selection',JSON.stringify(liveSelection));else window.sessionStorage.removeItem('eiu-admin-live-selection');}catch{/* Live still works when browser storage is disabled. */}},[liveSelection,liveHydrated]);
 
   function changeAccessPreview(mode: "learning" | "teaching" | null) {
@@ -570,6 +571,7 @@ export default function LessonPortal({
   });
 
   function closeCourse(restoreFocus = false) {
+    setLiveSelection(null);
     cancelSectionOpening();
     iconTilt.onPointerLeave();
     if (selectedCourseId) restoreCourseFocus.current = { id: selectedCourseId, keyboard: restoreFocus };
@@ -644,6 +646,11 @@ export default function LessonPortal({
 
   const activeLessonSection = activeUploadedSection || selectedCourse?.sections.find(item => item.sectionKey === section);
   const activeSectionId = activeLessonSection?.id;
+  useEffect(()=>{
+    if(!liveSelection)return;
+    const enabled=courseFolders.some(course=>course.sections.some(item=>item.id===liveSelection.sectionId&&item.contentType==='tsx'&&item.liveEnabled!==false));
+    if(!isAdmin||!enabled||liveSelection.sectionId!==activeSectionId){let active=true;void Promise.resolve().then(()=>{if(active)setLiveSelection(null);});return()=>{active=false;};}
+  },[isAdmin,liveSelection,activeSectionId,courseFolders]);
   const canFacilitateCurrent = isAdmin || Boolean(activeLessonSection?.canFacilitate);
   const terminationEnabled = activeLessonSection?.terminationEnabled === true;
   const resetScopes = reportScopes.filter(scope => (resetFolder === "all" || scope.folderGroupId === resetFolder) && (resetCourse === "all" || scope.courseId === resetCourse));
@@ -1145,13 +1152,14 @@ export default function LessonPortal({
                   >
                     <LearningInnovationIcon kind="section" className={styles.sectionClickArtwork} active={openingSection === courseSection.sectionKey} />
                   </button>}
-                </article>
-                {isAdmin && courseSection.contentType === 'tsx' && <LiveSectionControl sectionId={courseSection.id} onSelect={selection => {
+                {isAdmin && courseSection.contentType === 'tsx' && courseSection.liveEnabled !== false && <LiveSectionControl sectionId={courseSection.id} onSelect={selection => {
                   setLiveSelection(selection);
+                  deckOpenRef.current = true;
                   iconTilt.onPointerLeave();
                   rememberDeckSelection(course.id, courseSection.id, true, { course: course.slug, section: courseSection.sectionKey });
                   setAdminSection(null);setActiveUploadedSection(courseSection);
                 }}/ >}
+                </article>
                 {coreSection && courseSection.contentType === "pptx" && (
                   <button type="button" className={styles.sectionFilePreview} disabled={Boolean(openingSection)} onClick={() => { rememberDeckSelection(course.id, courseSection.id, true, { course: course.slug, section: courseSection.sectionKey }); setAdminSection(null); setActiveUploadedSection(courseSection); }}>{t("View file")}</button>
                 )}

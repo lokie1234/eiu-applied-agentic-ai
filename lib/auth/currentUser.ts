@@ -31,6 +31,7 @@ export async function currentUserAccess(signal?: AbortSignal, resolvedSession?: 
     contentPath: section.content_path,
     hidden: Boolean(section.hidden),
     terminationEnabled: resolved.courses.find(course => course.id === section.course_id)?.metadata.terminableSectionIds?.includes(section.id) === true,
+    liveEnabled: section.content_type === 'tsx' && resolved.courses.find(course => course.id === section.course_id)?.metadata.sectionLive?.[section.id] !== false,
     canFacilitate: session.role === "admin" || ("canFacilitate" in section && section.canFacilitate === true),
   }));
   return {

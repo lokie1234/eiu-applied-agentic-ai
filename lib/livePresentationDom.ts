@@ -24,8 +24,11 @@ export function captureLiveDocument(document: Document, page: number, ids: WeakM
     const concealed = el.hasAttribute('hidden') || (el.localName === 'dialog' && !el.hasAttribute('open'));
     const children = concealed ? [] : [...node.childNodes].map(visit).filter((id): id is number => id !== null);
     const html = el as HTMLElement;
-    const scroll: [number,number] = [html.scrollWidth > html.clientWidth ? html.scrollLeft / (html.scrollWidth - html.clientWidth) : 0, html.scrollHeight > html.clientHeight ? html.scrollTop / (html.scrollHeight - html.clientHeight) : 0];
-    const animations = el.getAnimations?.().slice(0,12).map(animation=>Math.max(0,Number(animation.currentTime)||0));
+    // Fractional layout rounding and browser overscroll can exceed scroll bounds.
+    const fraction=(offset:number,extent:number)=>extent>0&&Number.isFinite(offset)?Math.min(1,Math.max(0,offset/extent)):0;
+    const left=html.scrollLeft<0&&document.defaultView?.getComputedStyle(el).direction==='rtl'?-html.scrollLeft:html.scrollLeft;
+    const scroll: [number,number] = [fraction(left,html.scrollWidth-html.clientWidth),fraction(html.scrollTop,html.scrollHeight-html.clientHeight)];
+    const animations = el.getAnimations?.().slice(0,12).map(animation=>{const time=Number(animation.currentTime);return Number.isFinite(time)?Math.max(0,time):0;});
     nodes.push({ id, tag: el.localName, ns: el.namespaceURI || undefined, attrs, children, ...(scroll.some(Boolean) ? { scroll } : {}), ...(animations?.length ? { animations } : {}), ...(el.localName === 'dialog' ? { modal: el.matches(':modal') } : {}) });
     return id;
   };
@@ -35,9 +38,16 @@ export function captureLiveDocument(document: Document, page: number, ids: WeakM
 
 export function diffLiveDocument(previous: LiveDocument | null, next: LiveDocument): LivePatch {
   const reset = !previous || previous.root !== next.root;
-  const old = new Map((reset ? [] : previous.nodes).map(node => [node.id, JSON.stringify(node)]));
+  // Embedded fonts can make a single style node half a megabyte. Compare its
+  // text directly rather than allocating two escaped JSON strings on every click.
+  const old = new Map((reset ? [] : previous.nodes).map(node => [node.id, node]));
+  const equalArray=(a:readonly number[]|undefined,b:readonly number[]|undefined)=>(a?.length||0)===(b?.length||0)&&(a||[]).every((value,index)=>value===b?.[index]);
+  const equal=(a:LiveNode|undefined,b:LiveNode)=>{
+    if(!a||a.tag!==b.tag||a.ns!==b.ns||a.text!==b.text||a.modal!==b.modal||!equalArray(a.children,b.children)||!equalArray(a.scroll,b.scroll)||!equalArray(a.animations,b.animations))return false;
+    const keys=Object.keys(a.attrs||{});return keys.length===Object.keys(b.attrs||{}).length&&keys.every(key=>a.attrs![key]===b.attrs?.[key]);
+  };
   const current = new Set(next.nodes.map(node => node.id));
-  return { root: next.root, page: next.page, width: next.width, height: next.height, reset, nodes: next.nodes.filter(node => old.get(node.id) !== JSON.stringify(node)), removed: reset ? [] : previous.nodes.filter(node => !current.has(node.id)).map(node => node.id) };
+  return { root: next.root, page: next.page, width: next.width, height: next.height, reset, nodes: next.nodes.filter(node => !equal(old.get(node.id),node)), removed: reset ? [] : previous.nodes.filter(node => !current.has(node.id)).map(node => node.id) };
 }
 
 export function renderLiveDocument(document: Document, state: LiveDocument, cache: Map<number, Node>) {
@@ -66,7 +76,7 @@ export function renderLiveDocument(document: Document, state: LiveDocument, cach
       if (record.modal && !dialog.matches(':modal')) { dialog.removeAttribute('open');dialog.showModal(); }
       if (!('open' in attrs) && dialog.open) dialog.close();
     });
-    pending.push(() => { const html=el as HTMLElement; html.scrollLeft=(record.scroll?.[0] || 0)*Math.max(0,html.scrollWidth-html.clientWidth);html.scrollTop=(record.scroll?.[1] || 0)*Math.max(0,html.scrollHeight-html.clientHeight); });
+    pending.push(() => { const html=el as HTMLElement;const direction=record.scroll?.[0]&&document.defaultView?.getComputedStyle(el).direction==='rtl'?-1:1;html.scrollLeft=direction*(record.scroll?.[0] || 0)*Math.max(0,html.scrollWidth-html.clientWidth);html.scrollTop=(record.scroll?.[1] || 0)*Math.max(0,html.scrollHeight-html.clientHeight); });
     if(record.animations)pending.push(()=>{el.getAnimations?.().forEach((animation,i)=>{const time=record.animations?.[i];if(time!==undefined&&Math.abs(Number(animation.currentTime)-time)>120)animation.currentTime=time;});});
     return el;
   };

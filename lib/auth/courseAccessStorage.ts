@@ -43,6 +43,7 @@ export type CourseMetadata = {
   sectionPasscodes?: Record<string, string>; // retained for backward compatibility
   sectionTemplates?: Record<string, string>;
   terminableSectionIds?: string[];
+  sectionLive?: Record<string, boolean>;
   unlocked?: boolean; // When true, course can be accessed without a passcode
   unlockedEmails?: string[]; // Fallback list of emails that unlocked this course
   folderGroupId?: string; // ID of the parent folder (Folder lớn)
@@ -181,6 +182,7 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
         hidden: parsed.hidden === true,
         hiddenSectionIds: Array.isArray(parsed.hiddenSectionIds) ? [...new Set<string>(parsed.hiddenSectionIds.filter((id: unknown): id is string => typeof id === "string"))] : [],
         terminableSectionIds: Array.isArray(parsed.terminableSectionIds) ? [...new Set<string>(parsed.terminableSectionIds.filter((id: unknown): id is string => typeof id === "string"))] : [],
+        sectionLive: Object.fromEntries(Object.entries(parsed.sectionLive ?? {}).filter(([, value]) => typeof value === 'boolean')) as Record<string, boolean>,
         templateKey: typeof parsed.templateKey === "string" ? parsed.templateKey : undefined,
         slideTemplates: Array.isArray(parsed.slideTemplates) ? parsed.slideTemplates : undefined,
         sectionTemplates: Object.fromEntries(Object.entries(parsed.sectionTemplates ?? {}).filter(([, value]) => typeof value === "string").map(([key, value]) => [key, String(value)])),
@@ -221,6 +223,7 @@ export function serializeCourseMetadata(metadata: CourseMetadata): string {
     hidden: Boolean(metadata.hidden),
     hiddenSectionIds: metadata.hiddenSectionIds || [],
     terminableSectionIds: metadata.terminableSectionIds || [],
+    sectionLive: metadata.sectionLive || {},
     ...(metadata.templateKey !== undefined ? { templateKey: metadata.templateKey } : {}),
     ...(metadata.slideTemplates !== undefined ? { slideTemplates: metadata.slideTemplates } : {}),
     summary: metadata.summary || "",

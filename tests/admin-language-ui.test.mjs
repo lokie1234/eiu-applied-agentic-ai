@@ -109,6 +109,17 @@ test("language saves retain the scrolling workspace and report pending, success 
     stable();
     const termination = () => container.querySelector('[aria-label="Enable Terminate section for Lesson"]');
     assert.equal(termination().getAttribute("aria-pressed"), "false");
+    const liveSetting=()=>container.querySelector('input[aria-label="Enable Live · Lesson"]');
+    assert.equal(liveSetting().checked,true);
+    await act(async()=>liveSetting().click());
+    assert.deepEqual(calls.at(-1),{action:'set_section_live',sectionId:'s1',enabled:false});
+    courses[0].metadata.sectionLive={s1:false};
+    await act(async()=>finish({ok:true,json:async()=>catalog()}));
+    assert.equal(liveSetting().checked,false);
+    await act(async()=>liveSetting().click());
+    courses[0].metadata.sectionLive={s1:true};
+    await act(async()=>finish({ok:true,json:async()=>catalog()}));
+    assert.equal(liveSetting().checked,true);
     await act(async () => termination().click());
     assert.deepEqual(calls.at(-1), {action:"set_section_termination",sectionId:"s1",enabled:true});
     courses[0].metadata.terminableSectionIds = ["s1"];

@@ -14,7 +14,7 @@ function load(path, dependencies = {}, globals = {}) {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true,
   } }).outputText;
   vm.runInNewContext(code, { exports, console, AbortController, AbortSignal, ...globals,
-    require: name => dependencies[name] ?? (name.endsWith(".css") ? { default: new Proxy({}, { get: (_, key) => String(key) }), __esModule: true }
+    require: name => name === '@/lib/learningLanguage' ? {useLearningLanguage:()=>({t:value=>value})} : dependencies[name] ?? (name.endsWith(".css") ? { default: new Proxy({}, { get: (_, key) => String(key) }), __esModule: true }
       : name.startsWith("./") ? { __esModule: true, default: () => null } : require(name)),
   });
   return exports;

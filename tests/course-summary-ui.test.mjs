@@ -37,6 +37,7 @@ test("admin can clear a summary and reopen or cancel the editor without restorin
   vm.runInNewContext(code, {
     exports, fetch, window, document: window.document, console, AbortController, AbortSignal,
     require: name => {
+      if (name === '@/lib/learningLanguage') return {useLearningLanguage:()=>({t:value=>value})};
       if (name === "@/lib/learningIdentity") return learningIdentity;
       if (name.endsWith(".css")) return new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) });
       if (name.startsWith("./")) return { __esModule: true, default: () => null };
