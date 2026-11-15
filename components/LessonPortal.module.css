@@ -1819,3 +1819,19 @@
 .innovationPortal .backToCourses:hover { border-color: #c5e9f4; background: linear-gradient(155deg, #24658e, #123f68 65%, #082945); transform: perspective(600px) rotateX(4deg) translateY(-1px); box-shadow: inset 0 1px 0 #dceff570, 0 5px 0 #041c31, 1px 6px 0 #397fa8, 0 8px 12px #010d1b55; }
 .innovationPortal .backToCourses:active { transform: perspective(600px) rotateX(2deg) translateY(2px); box-shadow: inset 0 1px 0 #dceff560, 0 2px 0 #041c31, 1px 3px 0 #397fa8, 0 4px 7px #010d1b55; }
 @media (prefers-reduced-motion: reduce) { .portal :is(.functionTrigger,.languageTrigger), .innovationPortal .backToCourses { transition: none; } }
+@media (max-width: 620px) and (pointer: coarse), (max-width: 960px) and (max-height: 500px) and (pointer: coarse) {
+  .inlineSections .cards .sectionLaunchButton:has([data-live-section]) small.sectionSlideBadge { bottom: 66px; }
+  .lessonShell { grid-template-rows: minmax(0, 1fr) auto; }
+  .actionBar { min-width: 0; max-width: 100vw; box-sizing: border-box; flex-wrap: wrap; gap: 6px; padding: 6px max(8px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left)); }
+  .actionBarIdentity { display: none; }
+  .activeUsersWidget { height: 28px; max-width: 100%; box-sizing: border-box; padding: 0 8px; gap: 6px; }
+  .liveSectionLabel { max-width: min(52vw, 220px); overflow: hidden; text-overflow: ellipsis; }
+  .actionBarButtons { width: 100%; min-width: 0; justify-content: flex-start; gap: 6px; overflow-x: auto; overscroll-behavior-x: contain; scrollbar-width: thin; padding-bottom: 2px; }
+  .actionBarButtons button, .actionBarButtons a, .actionBarButtons .signOutButton { flex: 0 0 auto; min-width: 0; min-height: 44px; height: 44px; padding: 0 12px; font-size: 12px; white-space: nowrap; }
+}
+@media (max-width: 960px) and (max-height: 500px) and (pointer: coarse) {
+  .actionBar { flex-wrap: nowrap; padding-top: 4px; padding-bottom: calc(4px + env(safe-area-inset-bottom)); }
+  .activeUsersWidget { max-width: 25vw; }
+  .liveSectionLabel { max-width: 90px; }
+  .actionBarButtons { flex: 1; width: auto; padding-bottom: 0; }
+}

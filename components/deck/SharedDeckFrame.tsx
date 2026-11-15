@@ -224,8 +224,9 @@ export default function SharedDeckFrame({
       cancelAnimationFrame(frameId);
       frameId = requestAnimationFrame(() => {
         if (!stageRef.current) return;
-        const availableWidth = Math.max(stageRef.current.clientWidth - 18, 280);
-        const availableHeight = Math.max(stageRef.current.clientHeight - 18, 180);
+        const phone=window.matchMedia('(max-width: 620px) and (pointer: coarse), (max-width: 960px) and (max-height: 500px) and (pointer: coarse)').matches;
+        const availableWidth = Math.max(stageRef.current.clientWidth - 18, phone?1:280);
+        const availableHeight = Math.max(stageRef.current.clientHeight - 18, phone?1:180);
         setViewerWidth(Math.max(1, Math.min(availableWidth, availableHeight * aspectRatio, 1920)));
       });
     }

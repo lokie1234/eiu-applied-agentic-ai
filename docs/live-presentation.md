@@ -7,6 +7,10 @@ blinking broadcast icon indicates Live without changing the normal slide layout.
 Click the icon to open session controls, including fullscreen on the PC. Stop Live
 before handing control to another device; leaving the follower does not stop the
 presenter. Reduced-motion preferences disable the blinking animation.
+Smartphone touch screens use larger navigation controls and a contained action
+strip. Their lesson iframe keeps a 1280 × 720 canvas, scaled to the available
+space, so rotating the phone does not broadcast a narrow mobile reflow to the PC
+or replay the lesson. Desktop mouse layouts retain their existing dimensions.
 If an abandoned session blocks control, choose **Kết thúc phiên cũ** in the
 conflict message, then start control again. This is an explicit administrator
 action; opening Live on the PC should normally use **Theo dõi** instead.

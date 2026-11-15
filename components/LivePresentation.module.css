@@ -22,3 +22,14 @@
 .liveMenu p{margin:0;font-size:13px;overflow-wrap:anywhere}
 @keyframes livePulse{0%,100%{opacity:1}50%{opacity:.35}}
 @media(prefers-reduced-motion:reduce){.indicator summary svg{animation:none}}
+@media (max-width: 620px) and (pointer: coarse), (max-width: 960px) and (max-height: 500px) and (pointer: coarse) {
+  .choiceMenu { bottom: 54px; }
+  .indicator { right: max(8px, env(safe-area-inset-right)); bottom: calc(106px + env(safe-area-inset-bottom)); }
+  .indicator summary { width: 44px; height: 44px; }
+  .liveMenu { bottom: 54px; width: min(300px, calc(100vw - 32px)); max-height: calc(100dvh - 180px); box-sizing: border-box; overflow-y: auto; }
+  .liveMenu button, .choiceMenu button, .choice .liveTrigger { min-height: 44px; }
+  .surface:fullscreen .indicator { bottom: max(12px, env(safe-area-inset-bottom)); }
+}
+@media (max-width: 960px) and (max-height: 500px) and (pointer: coarse) {
+  .indicator { bottom: calc(60px + env(safe-area-inset-bottom)); }
+}

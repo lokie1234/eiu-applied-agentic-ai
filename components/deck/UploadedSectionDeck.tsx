@@ -62,6 +62,20 @@ const TsxSlide = memo(function TsxSlide({ code, page, background, templateKey, t
   frameRef: RefObject<HTMLIFrameElement | null>;
 }) {
   const document = useMemo(() => createTsxDocument(code, page, background, templateKey, `${sectionId}:${page}`, isAdmin, practiceAllowed, practiceAssignmentKey, readMis311Presentation(sectionId), isAdmin ? captureLiveDocument.toString() : ''), [code, page, background, templateKey, sectionId, isAdmin, practiceAllowed, practiceAssignmentKey]);
+  useEffect(()=>{
+    const frame=frameRef.current,container=frame?.parentElement;
+    if(!frame||!container||typeof window.matchMedia!=='function')return;
+    const phone=window.matchMedia('(max-width: 620px) and (pointer: coarse), (max-width: 960px) and (max-height: 500px) and (pointer: coarse)');
+    let observer:ResizeObserver|undefined;
+    const measure=()=>{if(phone.matches)frame.style.setProperty('--phone-slide-scale',String(container.clientWidth/1280));};
+    const configure=()=>{
+      observer?.disconnect();observer=undefined;
+      if(phone.matches){measure();if(typeof ResizeObserver!=='undefined'){observer=new ResizeObserver(measure);observer.observe(container);}}
+      else frame.style.removeProperty('--phone-slide-scale');
+    };
+    configure();phone.addEventListener('change',configure);
+    return()=>{observer?.disconnect();phone.removeEventListener('change',configure);frame.style.removeProperty('--phone-slide-scale');};
+  },[frameRef]);
   return <iframe ref={frameRef} className={styles.tsxFrame} data-request-id={`${sectionId}:${page}`}
     sandbox="allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox"
     title={`${title} · slide ${page}`} srcDoc={document} />;

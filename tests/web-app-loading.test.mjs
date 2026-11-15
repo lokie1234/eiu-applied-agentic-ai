@@ -197,3 +197,24 @@ test('pruned Section 2 retains every slide, embedded image and original-layout m
     }finally{await window.happyDOM.close();}
   }
 });
+
+test('smartphone rotation scales one stable slide canvas and desktop removes the phone override',async()=>{
+ const f=await dom(),built=[];let phone=true,width=342,changed,resize;
+ f.window.matchMedia=()=>({get matches(){return phone;},addEventListener(_,listener){changed=listener;},removeEventListener(){}});
+ Object.defineProperty(f.window.HTMLElement.prototype,'clientWidth',{configurable:true,get(){return width;}});
+ const Deck=load('components/deck/UploadedSectionDeck.tsx',{
+  'next/dynamic':{__esModule:true,default:()=>()=>null},
+  '@/components/deck/SharedDeckFrame':{__esModule:true,default:props=>props.renderSlide(1,width)},
+  '@/components/HairlineLoading':{__esModule:true,default:()=>null},
+  '@/lib/webDevelopmentQuiz':{WEB_DEVELOPMENT_SECTION_ID:ids[0]},'@/lib/compiledSectionMetadata':{getCompiledSectionMetadata:()=>undefined},
+  '@/lib/tsxDocument':{createTsxDocument:(...args)=>{built.push(args);return '<html><body>Stable slide</body></html>';}},
+ },{window:f.window,ResizeObserver:class{constructor(callback){resize=callback;}observe(){}disconnect(){}},fetch:async()=>({ok:true,text:async()=>'exports.default=[];'})}).default;
+ try{
+  await act(async()=>f.root.render(React.createElement(Deck,{sectionId:'phone-test',contentType:'tsx',courseTitle:'Course',sectionTitle:'Section',isAdmin:true})));
+  const frame=f.container.querySelector('iframe'),source=frame.srcdoc;
+  assert.ok(frame);assert.equal(Number(frame.style.getPropertyValue('--phone-slide-scale')),342/1280);
+  width=640;await act(async()=>resize());assert.equal(Number(frame.style.getPropertyValue('--phone-slide-scale')),640/1280);
+  assert.equal(frame.srcdoc,source);assert.equal(built.length,1,'orientation does not replay the lesson or lose its reveals');
+  phone=false;await act(async()=>changed());assert.equal(frame.style.getPropertyValue('--phone-slide-scale'),'');assert.equal(built.length,1);
+ }finally{await f.close();}
+});
