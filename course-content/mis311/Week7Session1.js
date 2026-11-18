@@ -177,8 +177,39 @@ function renderOrganizationChart(content, chart) {
   content.parentElement.setAttribute('role', 'group');
 }
 
+// The Windows player wraps lessons in its own template content area. MIS 311
+// already owns that inset, so let its native frame use the whole canvas there.
+// The selector is inactive in the web runtime and when the player template is off.
+if (!document.getElementById('mis311-player-template')) {
+  const style = document.createElement('style');
+  style.id = 'mis311-player-template';
+  style.textContent = `
+    #root.eiu-template > .eiu-content:has(> [data-mis311-frame]) {
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    #root.eiu-template:has(> .eiu-content > [data-mis311-frame]) > .eiu-number {
+      display: none;
+    }
+    @media (min-width: 701px) and (max-height: 640px) {
+      #root.eiu-template [data-mis311-vsm-followup="activity"] { gap: 12px; }
+      #root.eiu-template .mis311-vsf-activity { flex: 1; }
+      #root.eiu-template .mis311-vsf-scenarios { padding: 16px; gap: 12px; }
+      #root.eiu-template .mis311-vsf-scenarios svg { width: 49px; height: 56px; margin: 0; }
+      #root.eiu-template .mis311-vsf-scenario { padding: 12px 14px; }
+      #root.eiu-template .mis311-vsf-questions { gap: 8px; }
+      #root.eiu-template .mis311-vsf-question { padding: 10px 14px; }
+      #root.eiu-template .mis311-vsf-question[data-waste] { gap: 8px; }
+      #root.eiu-template .mis311-vsf-wastes { gap: 5px; }
+      #root.eiu-template .mis311-vsf-wastes li { padding: 4px 8px; }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
 module.exports.slides=pages.map(page=>()=>{
-const root=document.createElement('div');root.className='slide';root.dataset.eiuTemplate='system';
+const root=document.createElement('div');root.className='slide';root.dataset.eiuTemplate='system';root.dataset.mis311Frame='true';
 root.style.cssText='width:100%;height:100%;position:relative;background-size:100% 100%;background-position:center;overflow:hidden';
 root.setAttribute('role','img');root.setAttribute('aria-label',page.label);
 const content=document.createElement('div');content.dataset.mis311Content='true';content.style.cssText='position:absolute;left:5.6%;top:11.5%;width:88.8%;height:77.4%;overflow:hidden';

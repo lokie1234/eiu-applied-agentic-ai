@@ -85,8 +85,9 @@ for (const session of [1, 2]) {
     (process ? fs.readFileSync(path.join(root, 'root-cause-process.js.txt'), 'utf8') + '\n' : '')+
     (comparison ? fs.readFileSync(path.join(root, 'root-cause-comparison.js.txt'), 'utf8') + '\n' : '')+
     (organizationChart ? fs.readFileSync(path.join(root, 'organization-chart.js.txt'), 'utf8') + '\n' : '')+
+    fs.readFileSync(path.join(root, 'player-template.js.txt'), 'utf8') + '\n'+
     `module.exports.slides=pages.map(page=>()=>{\n`+
-    `const root=document.createElement('div');root.className='slide';root.dataset.eiuTemplate='system';\n`+
+    `const root=document.createElement('div');root.className='slide';root.dataset.eiuTemplate='system';root.dataset.mis311Frame='true';\n`+
     `root.style.cssText='width:100%;height:100%;position:relative;background-size:100% 100%;background-position:center;overflow:hidden';\n`+
     `root.setAttribute('role','img');root.setAttribute('aria-label',page.label);\n`+
     `const content=document.createElement('div');content.dataset.mis311Content='true';content.style.cssText='position:absolute;left:5.6%;top:11.5%;width:88.8%;height:77.4%;overflow:hidden';\n`+

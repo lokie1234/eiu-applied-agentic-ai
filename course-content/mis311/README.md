@@ -379,3 +379,20 @@ button remains. STOP freezes the current angle and cancels every subsequent
 name reveal. Already displayed cards remain in their responsive independent
 grid. Reopening retains those cards and the stopped wheel. Settings remain
 inside the wheel and are hidden from Learning Access.
+
+
+## Windows offline player template compatibility
+
+The Windows player 1.2.1 supplies an inset `.eiu-content` wrapper and a page
+number. MIS 311 already owns the same 5.6% / 11.5% / 88.8% / 77.4% content
+frame and number. The generated lesson now marks its native frame and installs
+one scoped stylesheet from `player-template.js.txt`. While the player template
+is active, that stylesheet makes the host wrapper fill the canvas and hides
+only its duplicate number. The assigned player background remains visible;
+web rendering, other lesson types and template-off mode are unaffected.
+At short desktop canvas heights the activity uses tighter gaps/padding so all
+questions and seven waste labels fit without reducing the body font size.
+
+Regenerate both sessions with `node scripts/build-mis311-course.cjs`. The content
+API serves those exact updated bytes; existing offline imports must be replaced
+with the new JS file. No update to the Windows application is required.

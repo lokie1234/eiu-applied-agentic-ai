@@ -140,3 +140,20 @@ fullscreen behavior pass at 1920x1080, 1280x720, 390x844 and 844x390.
 
 Unrelated pre-existing, unregistered offline/Section 1 experimental files are
 kept outside this commit and were not used to generate served lessons.
+
+
+## Windows offline template correction (2026-11-18)
+
+Reproduced the reported double inset and page number with the original Windows
+player 1.2.1 runtime and template. Before the fix, the activity content applied
+77.4% height twice; its scroll overflow was 52px at 1428x804, 74px at 1280x720
+and 135px at 960x540. The generated native-frame adapter now keeps one inset,
+one page number and all seven waste labels. At all three sizes activity
+scroll overflow is zero. The player background and lesson styling remain.
+
+Verified 90 offline page renders across both sessions at those three sizes,
+including cache navigation and nested mapping, VSM and TKI dialogs. There were
+no runtime errors or HTTP requests. Twenty Teaching/Learning web screenshots
+match the pre-fix design. All 552 reviewed tests pass, including three new
+player-template regressions; scoped ESLint, TypeScript and Next production
+build pass. The fixture is the unchanged user-provided Windows runtime.
