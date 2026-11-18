@@ -22,14 +22,16 @@
     {
       "source": "lib/drive/builtin-decks/section1.tsx.txt",
       "runtime": "lib/drive/builtin-decks/section1.js",
-      "sha256": "536b4accb28edce2d3e907af10567776ebaf12d379db430a5ef9153512b8d1a1",
-      "bytes": 904202
+      "sha256": "1e48d9cf31731c045ac39cefc3090e5e46d14a999e90c3d5c06e4334ac8e3735",
+      "bytes": 1611115,
+      "generator": "scripts/generate-builtin-tsx.cjs"
     },
     {
       "source": "lib/drive/builtin-decks/section2.tsx.txt",
       "runtime": "lib/drive/builtin-decks/section2.js",
-      "sha256": "68be4df79906540228253f316f1241bb370acadc823f8c6315e766cdf2661fc5",
-      "bytes": 858920
+      "sha256": "58e8cbca60c895fada1f671857ef0a31bb3113dd73043ef470bac50cd2946eee",
+      "bytes": 490879,
+      "generator": "scripts/generate-builtin-tsx.cjs"
     }
   ]
 }

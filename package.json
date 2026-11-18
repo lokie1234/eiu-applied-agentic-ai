@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "test": "node --test --test-concurrency=2 tests/*.test.mjs",
+    "build:offline": "node scripts/generate-builtin-tsx.cjs",
+    "verify:offline": "node scripts/verify-builtin-offline.cjs",
+    "verify:templates": "node scripts/verify-template-sections.cjs",
     "audit:project": "node scripts/audit-project.cjs",
     "dev": "next dev",
     "build": "next build",
@@ -36,9 +39,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.186.0",
+    "esbuild": "0.27.0",
     "eslint": "^9",
     "eslint-config-next": "16.3.8",
     "happy-dom": "^20.14.5",
+    "playwright": "1.65.1",
     "typescript": "^5"
   },
   "overrides": {

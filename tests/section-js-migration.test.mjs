@@ -5,6 +5,8 @@ import {createHash} from 'node:crypto';
 import vm from 'node:vm';
 import ts from 'typescript';
 import {createRequire} from 'node:module';
+import os from 'node:os';
+import path from 'node:path';
 const require=createRequire(import.meta.url);
 test('immutable migrated snapshots retain their bytes and editable lessons match their compiler sources',async()=>{
  const manifest=JSON.parse(fs.readFileSync('docs/section-js-migration.json','utf8'));
@@ -16,6 +18,15 @@ test('immutable migrated snapshots retain their bytes and editable lessons match
    process:{argv:['node',script],env:{},cwd:()=>process.cwd()},console:{log(){}},Buffer,
   });
  }
+ // Built-in exports are now editable interactive bundles, not DOM snapshots.
+ const outputDir=fs.mkdtempSync(path.join(os.tmpdir(),'eiu-offline-build-'));
+ try {
+  const {buildSection}=require('../scripts/generate-builtin-tsx.cjs');
+  for(const section of [1,2]) {
+   await buildSection(section,{outputDir});
+   generated.set(path.resolve(`lib/drive/builtin-decks/section${section}.js`).replaceAll('\\','/'),fs.readFileSync(path.join(outputDir,`section${section}.js`),'utf8'));
+  }
+ } finally { fs.rmSync(outputDir,{recursive:true,force:true}); }
  assert.equal(manifest.files.length,5);
  for(const file of manifest.files){
   assert.ok(!fs.existsSync(file.source),'old duplicate section removed: '+file.source);

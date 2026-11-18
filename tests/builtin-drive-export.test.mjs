@@ -4,6 +4,7 @@ import fs from "node:fs";
 import vm from "node:vm";
 import { createRequire } from "node:module";
 import ts from "typescript";
+import {Window} from "happy-dom";
 const require = createRequire(import.meta.url);
 const catalogStorage = { getCoursesAndSectionsData: async () => ({ courses: [], sections: [], folderGroups: [] }) };
 function load(file, dependencies) {
@@ -12,21 +13,19 @@ function load(file, dependencies) {
   return exports;
 }
 
-test("both built-in JS decks validate independently and embed all image and font assets", () => {
+test("both built-in JS decks validate as lazy interactive exports with embedded CSS and assets", async () => {
   const { validateInteractiveJs } = load("lib/sectionContent.ts", {});
   for (const [section, count] of [[1, 38], [2, 37]]) {
     const source = fs.readFileSync(`lib/drive/builtin-decks/section${section}.js`, "utf8");
-    const slides = JSON.parse(source.match(/const slides = ([\s\S]*?);\r?\nfunction render/)[1]);
-    assert.equal(slides.length, count);
     validateInteractiveJs(source);
-    const inspect = node => {
-      if (typeof node === "string") return;
-      if (node.tag === "img") assert.match(node.props.src, /^data:/);
-      node.children.forEach(inspect);
-    };
-    slides.forEach(inspect);
-    const css = JSON.parse(source.match(/^const css = (.*);$/m)[1]);
+    const css = JSON.parse(source.match(/^const offlineCss=(.*);$/m)[1]);
     assert.ok(!/url\(["']?(?:https?:|\/)/.test(css), "CSS assets must be embedded for the sandbox");
+    const window = new Window({ settings: { enableJavaScriptEvaluation: true, suppressInsecureJavaScriptEnvironmentWarning: true } });
+    try {
+      window.eval('var module={exports:{}};var exports=module.exports;'+source+';window.offlineSlides=module.exports.default;');
+      assert.equal(window.offlineSlides.length,count);
+      assert.ok(window.offlineSlides.every(slide=>typeof slide==='function'), 'slide factories retain executable React event handlers');
+    } finally { await window.happyDOM.close(); }
     if (section === 2) { assert.match(source, /17\/11\/2026/); assert.match(source, /Skills/); }
   }
 });
