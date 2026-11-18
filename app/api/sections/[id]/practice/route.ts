@@ -33,7 +33,7 @@ export async function GET(request: Request, context: Context) {
   try {
     const scope = await resolve(request, context);
     if (!scope) return NextResponse.json({ message: "You do not have access to this practice." }, { status: 403 });
-    if (!scope.teaching && (!scope.identity?.information.name || !scope.identity.email || scope.identity.email.endsWith("@passcode.eiu"))) return NextResponse.json({ message: "Please sign in again and enter your username and email through Learning Access." }, { status: 403 });
+    if (!scope.teaching && !scope.identity?.information.name) return NextResponse.json({ message: "Please sign in again and enter your name through Learning Access." }, { status: 403 });
     if (!scope.teaching && !scope.assignment) return NextResponse.json({ teaching: false, allowed: false, assignment: null,
       practiceSession: scope.termination?.details.token || "initial", learner: scope.identity ? { subject: scope.identity.sessionId, name: scope.identity.name, email: scope.identity.email } : null, items: [],
     }, { headers: { "Cache-Control": "private, no-store" } });
@@ -59,7 +59,7 @@ export async function POST(request: Request, context: Context) {
   try {
     const scope = await resolve(request, context);
     if (!scope) return NextResponse.json({ message: "You do not have access to this practice." }, { status: 403 });
-    if (scope.teaching || !scope.identity?.information.name || !scope.identity.email || scope.identity.email.endsWith("@passcode.eiu")) return NextResponse.json({ message: "Use Learning Access and complete your username and email to submit answers." }, { status: 403 });
+    if (scope.teaching || !scope.identity?.information.name) return NextResponse.json({ message: "Use Learning Access and enter your name to submit answers." }, { status: 403 });
     const raw = await request.text();
     if (raw.length > 16000) return NextResponse.json({ message: "Your answer is too long." }, { status: 413 });
     let body; try { body = JSON.parse(raw); } catch { return NextResponse.json({ message: "Invalid answer." }, { status: 400 }); }

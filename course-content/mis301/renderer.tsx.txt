@@ -423,6 +423,14 @@ function Notebook(slide) {
   }
   return notebook;
 }
+function AssignmentOverview(){
+  const list=h('ol',{className:'assignment-overview','aria-label':'Practice assignments'});
+  const status=h('p',null,'Use Class Spotlight beside the slide to assign practice parts.');
+  function update(snapshot){if(!snapshot?.teaching)return;const draw=snapshot.draw;list.replaceChildren(...(draw?.names||[]).map((name,index)=>h('li',null,h('strong',null,`Part ${draw.parts?.[index]??index%7+1}`),h('span',null,name))));status.hidden=Boolean(draw?.names?.length);}
+  window.addEventListener('message',event=>{if(event.source===parent&&event.data?.type==='eiu-classroom-state'&&event.data.requestId===window.eiuLessonRequestId)update(event.data.snapshot);});
+  void practiceRequest('load').then(update).catch(()=>{status.textContent='The classroom is reconnecting. Open Class Spotlight to retry.';});
+  return h('div',{className:'assignment-overview-wrap'},status,list);
+}
 function content(slide) {
   if (slide.kind === 'sources') return SourceOverview(slide);
   if (slide.kind === 'structure') return StructureOverview(slide);
@@ -430,7 +438,7 @@ function content(slide) {
   if (slide.kind === 'pandas-workspace') return PandasWorkspace(slide);
   if (slide.kind === 'practice-hub') return PracticeWorkspace();
   if (slide.kind === 'introduction') return h('ol', { className: 'intro-topics' }, slide.topics.map((topic, i) => h('li', null, h('span', { className: 'topic-number', 'aria-hidden': 'true' }, String(i + 1).padStart(2, '0')), h('span', null, topic.split(/(Pandas)/g).map(part => part === 'Pandas' ? h('span', { className: 'pandas-word' }, part) : part)))));
-  if (slide.kind === 'picker') return window.eiuLessonTeaching ? WheelGame() : AssignedWheelQuestion();
+  if (slide.kind === 'picker') return window.eiuLessonTeaching ? window.eiuExternalWheel ? WheelGame() : AssignmentOverview() : AssignedWheelQuestion();
   throw Error('Unsupported MIS 301 slide kind: ' + slide.kind);
 }
 const downloadDockCss = `

@@ -1,3 +1,4 @@
+import {sectionWheelDependency,inactiveLessonDependencies} from './helpers/section-wheel.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -8,12 +9,13 @@ import { createRequire } from 'node:module';
 import { Window } from 'happy-dom';
 const require = createRequire(import.meta.url);
 function load(file, dependencies = {}, globals = {}) {
+  dependencies = {...inactiveLessonDependencies,...dependencies};
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { compilerOptions: {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true,
   } }).outputText;
   vm.runInNewContext(code, { exports, console, URL, Date, AbortController, AbortSignal, ...globals,
-    require: name => name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false } : dependencies[name] ?? (name.endsWith('.css') ? new Proxy({}, { get: (_, key) => key === '__esModule' ? false : String(key) }) : require(name)),
+    require: name => { const wheel=sectionWheelDependency(name);if(wheel)return wheel;return name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false } : dependencies[name] ?? (name.endsWith('.css') ? new Proxy({}, { get: (_, key) => key === '__esModule' ? false : String(key) }) : require(name)); },
   });
   return exports;
 }

@@ -1,5 +1,6 @@
 import { notifyRealtime } from "@/lib/realtime/publish";
 import { notifyClassroom, publishClassroom } from "@/lib/realtime/classroom";
+import { MIS311_SPOTLIGHT_SECTION_ID } from '@/lib/mis311Spotlight';
 import { MIS301_SECTION_ID } from "@/lib/mis301Practice";
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
@@ -51,10 +52,11 @@ async function handlePost(request: Request, context: Context) {
       if (error) throw error;
     }
     let classroomSynced: boolean | undefined;
-    if (scope.section.id === MIS301_SECTION_ID) {
-      try { classroomSynced = (await publishClassroom()) !== false; }
+    if (scope.section.wheelEnabled || [MIS301_SECTION_ID, MIS311_SPOTLIGHT_SECTION_ID].includes(scope.section.id)) {
+      const projectionScope = {sectionId:scope.section.id,courseId:scope.course.id,wheelEnabled:scope.section.wheelEnabled,legacySection:scope.legacy?scope.section.sectionKey:undefined};
+      try { classroomSynced = (await publishClassroom(undefined, projectionScope)) !== false; }
       catch { classroomSynced = false; }
-      if (!classroomSynced) notifyClassroom();
+      if (!classroomSynced) notifyClassroom(projectionScope);
     }
     return NextResponse.json({ success: true, token, sessionStartedAt, classroomSynced });
   } catch {

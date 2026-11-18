@@ -137,15 +137,15 @@
     "phases": [
       {
         "title": "Define",
-        "detail": "Define the problem and gather evidence."
+        "detail": "Set the problem and its impact."
       },
       {
         "title": "Analyze",
-        "detail": "Map contributing issues and investigate root causes."
+        "detail": "Link causes and check evidence."
       },
       {
         "title": "Prevent",
-        "detail": "Recommend, implement and check lasting solutions."
+        "detail": "Fix causes and measure the result."
       }
     ],
     "meceTitle": "MECE",
@@ -154,68 +154,93 @@
         "title": "Mutually Exclusive",
         "tag": "No overlap",
         "bullets": [
-          "Each cause belongs to one group under the chosen classification rule.",
-          "Groups must not overlap or double-count the same cause."
+          "One clear grouping rule.",
+          "Count each item once."
         ]
       },
       {
         "title": "Collectively Exhaustive",
         "tag": "No gaps",
         "bullets": [
-          "Together, the groups cover the full scope of the problem.",
-          "Include every relevant category and check for missing cases."
+          "Cover the whole problem.",
+          "Check for missing groups."
         ]
       }
     ],
-    "definition": "A visual map that links a problem to its causes through cause-and-effect relationships.",
-    "meceDefinition": "Mutually Exclusive + Collectively Exhaustive: organise causes into distinct groups that together cover the full problem scope.",
-    "examples": {
-      "causeMapping": {
-        "title": "Cause Mapping: Late dispatch",
-        "context": "Problem: orders leave the warehouse late.",
-        "chain": [
-          "Late dispatch",
-          "Packing waits",
-          "Labels unavailable"
-        ],
-        "bullets": [
-          "Possible causes: printer offline, or label requests sent late.",
-          "Check: print logs show late requests; the printer was available.",
-          "Act: generate labels at order confirmation, then check dispatch times."
-        ]
-      },
-      "mece": {
-        "title": "MECE: Classify delivery delays",
-        "context": "Classify each late order by where its first delay begins.",
-        "chain": [
-          "Before packing",
-          "During packing",
-          "After packing"
-        ],
-        "bullets": [
-          "No overlap: assign each order to its first delayed stage only.",
-          "No gaps: these three stages cover the complete fulfilment timeline.",
-          "Then investigate and verify the causes within each group."
-        ]
-      },
-      "mutuallyExclusive": {
-        "title": "Mutually Exclusive: No double-counting",
-        "context": "One order is delayed both before packing and during packing.",
-        "bullets": [
-          "Rule: classify by the first stage where a delay begins.",
-          "Assign this order to Before packing only.",
-          "Do not count the same order again under During packing."
-        ]
-      },
-      "collectivelyExhaustive": {
-        "title": "Collectively Exhaustive: No missing group",
-        "context": "The groups Before packing and During packing omit carrier delays.",
-        "bullets": [
-          "Add After packing to include dispatch and delivery delays.",
-          "Before / During / After packing now cover all first-delay positions.",
-          "Check new cases against the groups to detect any missing category."
-        ]
-      }
+    "definition": "Map cause and effect. Verify each link.",
+    "meceDefinition": "Group parts with no overlap and no gaps.",
+    "workedExample": {
+      "title": "A slow coffee",
+      "buttonLabel": "Example",
+      "steps": [
+        {
+          "label": "1. Problem",
+          "title": "One coffee. A 10-minute wait.",
+          "bullets": [
+            "Target: 5 minutes",
+            "Actual: 10 minutes"
+          ]
+        },
+        {
+          "label": "2. MECE",
+          "title": "Where did the 10 minutes go?",
+          "buckets": [
+            {
+              "count": 1,
+              "label": "Take the order",
+              "unit": "min"
+            },
+            {
+              "count": 8,
+              "label": "Make the coffee",
+              "unit": "min"
+            },
+            {
+              "count": 1,
+              "label": "Hand it over",
+              "unit": "min"
+            }
+          ]
+        },
+        {
+          "label": "3. Cause Mapping",
+          "title": "Why did making coffee take 8 minutes?",
+          "chain": [
+            "No opening checklist",
+            "Milk not ready",
+            "6 minutes to fetch milk",
+            "10-minute total wait"
+          ],
+          "bullets": [
+            "Make coffee: 2 minutes",
+            "Fetch milk: 6 minutes"
+          ]
+        },
+        {
+          "label": "4. Solution",
+          "title": "Add a milk check before opening",
+          "buckets": [
+            {
+              "count": 1,
+              "label": "Take the order",
+              "unit": "min"
+            },
+            {
+              "count": 2,
+              "label": "Make the coffee",
+              "unit": "min"
+            },
+            {
+              "count": 1,
+              "label": "Hand it over",
+              "unit": "min"
+            }
+          ],
+          "bullets": [
+            "Total wait: 4 minutes"
+          ]
+        }
+      ]
     }
   },
   "toolsHub": {
@@ -320,7 +345,7 @@
           9.7,
           9.8,
           9.9,
-          10.0,
+          10,
           10.1,
           10.2,
           10.3
@@ -997,7 +1022,7 @@
         "Conflict is normal, there is tension in all relationships.",
         "Remember that you're on the same team, not opposing factions.",
         "Never assume malice, just ignorance/misunderstanding.",
-        "Refuse to escalate. Start a calm baseline and never escalate from there, even if the other party escalates their emotions drastically."
+        "Stay calm and avoid escalation, even when the other person becomes emotional."
       ]
     }
   ],
@@ -1043,6 +1068,29 @@
       "Stakeholders were disengaged, doubting whether the change was worth the effort."
     ],
     "activity": "Use the 6 principles of persuasion to navigate the issues",
+    "suggestedAnswers": [
+      {
+        "situation": "Employees: fear of job loss",
+        "answers": [
+          { "principle": "Reciprocity", "action": "Offer Power BI training and help with their first report." },
+          { "principle": "Liking", "action": "Ask a trusted colleague to build the dashboard with them." }
+        ]
+      },
+      {
+        "situation": "Managers: doubts about reliability",
+        "answers": [
+          { "principle": "Authority", "action": "Have a data specialist check dashboard totals against the spreadsheets." },
+          { "principle": "Social Proof", "action": "Run a pilot and share the team's verified results." }
+        ]
+      },
+      {
+        "situation": "Stakeholders: unsure it is worth the effort",
+        "answers": [
+          { "principle": "Consistency", "action": "Link a small pilot to their goal of faster, more accurate reporting." },
+          { "principle": "Scarcity", "action": "If training places are limited, invite early sign-up for pilot support." }
+        ]
+      }
+    ],
     "backgroundParts": [
       "The current reporting process at company XYZ is time-consuming and error-prone, involving several employees copying data from spreadsheets.",
       "You as a new business analyst, want to introduce an automated data dashboard system using Power BI to streamline reporting and provide real-time insights. However, the proposal faced resistance:"
@@ -1106,7 +1154,7 @@
       },
       {
         "key": "how",
-        "title": "How to use TKM"
+        "title": "How to use TKI"
       },
       {
         "key": "example",

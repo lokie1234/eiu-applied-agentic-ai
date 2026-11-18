@@ -1,3 +1,4 @@
+import {sectionWheelDependency,inactiveLessonDependencies} from './helpers/section-wheel.mjs';
 import assert from "node:assert/strict";
 import test from "node:test";
 import fs from "node:fs";
@@ -9,13 +10,14 @@ import { Window } from "happy-dom";
 
 const require = createRequire(import.meta.url);
 function load(path, dependencies, globals = {}) {
+  dependencies = {...inactiveLessonDependencies,...dependencies};
   const exports = {};
   const source = fs.readFileSync(path, "utf8").replace(/^pdfjs.GlobalWorkerOptions.workerSrc =.*$/m, "");
   const code = ts.transpileModule(source, { compilerOptions: {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true,
   } }).outputText;
   vm.runInNewContext(code, { exports, console, Date, AbortController, AbortSignal, ...globals,
-    require: name => name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false, useCourseRealtime: () => false, watchRealtimeReady: () => () => {}, pulsePresence: async () => false } : name.endsWith(".css") ? new Proxy({}, { get: (_, key) => String(key) }) : dependencies[name] ?? (name === "@/lib/scopedPresence" ? load("lib/scopedPresence.ts", {}) : require(name)),
+    require: name => { const wheel=sectionWheelDependency(name);if(wheel)return wheel;return name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false, useCourseRealtime: () => false, watchRealtimeReady: () => () => {}, pulsePresence: async () => false } : name.endsWith(".css") ? new Proxy({}, { get: (_, key) => String(key) }) : dependencies[name] ?? (name === "@/lib/scopedPresence" ? load("lib/scopedPresence.ts", {}) : require(name)); },
   });
   return exports;
 }

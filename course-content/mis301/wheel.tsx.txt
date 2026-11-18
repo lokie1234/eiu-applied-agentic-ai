@@ -27,6 +27,7 @@ function WheelGame() {
     const rows = Math.ceil(total / columns);
     stage.style.setProperty('--columns', columns); stage.style.setProperty('--rows', rows);
     stage.dataset.columns = String(columns);
+    stage.dataset.many=String(total>40);
     stage.style.setProperty('--name-size', `${columns === 1 ? 2.6 : columns === 2 ? 2 : columns === 3 ? 1.6 : 1.3}vw`);
     questionSlots = Array.from({ length: total }, (_, index) => h('div', { className: 'question-slot', role: 'listitem', hidden: true, style: { gridRow: String(index % rows + 1), gridColumn: String(Math.floor(index / rows) + 1) } }, h('span', { className: 'question-number' }, `Part ${assignedParts[index] ?? (numberingVersion >= 2 ? index % 7 + 1 : index % 5 + 3)}`), h('strong', { className: 'question-name' }, '?')));
     stage.replaceChildren(...questionSlots); stage.scrollTop = 0;
@@ -80,7 +81,8 @@ function WheelGame() {
     if (!n) svg.appendChild(s('circle', { cx: center, cy: center, r, fill: '#123F68' }));
     pool.forEach((member, i) => {
       const step = 360 / n, a = (-90 + i * step) * Math.PI / 180, b = (-90 + (i + 1) * step) * Math.PI / 180;
-      const colors = ['#123F68','#18547F','#276A91','#0e3556'];
+      const colors = ['#082945','#F7F4ED','#123F68','#E9CA8B','#18547F','#2D7FB4','#B39159','#041C31'];
+      const ink = ['#F7F4ED','#041C31','#FBFAF7','#041C31','#FBFAF7','#FBFAF7','#041C31','#F4DFB0'];
       const sector = n === 1 ? s('circle', { cx: center, cy: center, r, fill: colors[0], className: 'sector' }) : s('path', { d: `M200 200 L${center + r * Math.cos(a)} ${center + r * Math.sin(a)} A${r} ${r} 0 ${step > 180 ? 1 : 0} 1 ${center + r * Math.cos(b)} ${center + r * Math.sin(b)} Z`, fill: colors[i % colors.length], stroke: '#ffffff35', 'stroke-width': .6, className: 'sector' });
       const size = n > 30 ? 6.5 : n > 18 ? 8 : 10;
       const angle = -90 + (i + .5) * step;
@@ -93,7 +95,7 @@ function WheelGame() {
       const maxCharacters = Math.max(12, Math.floor(81 / (size * .58)));
       const display = member.username.length > maxCharacters ? member.username.slice(0, maxCharacters - 1) + '…' : member.username;
       const group = s('g', { className: 'wheel-segment' }, s('title', {}, member.username), sector,
-        s('g', { transform: `rotate(${angle} 200 200)` }, plate, s('text', { x: 365, y: 200 + size * .3, 'text-anchor': 'end', 'font-size': size }, display)));
+        s('g', { transform: `rotate(${angle} 200 200)` }, plate, s('text', { x: 365, y: 200 + size * .3, 'text-anchor': 'end', 'font-size': size, style: `fill:${ink[i % ink.length]}` }, display)));
       segments.push(group); svg.appendChild(group);
     });
     disc.replaceChildren(svg); rotate(rotation);
@@ -111,7 +113,7 @@ function WheelGame() {
     const token = ++generation; cancelAnimationFrame(raf); finishMotion?.(); finishMotion = null;
     drawState = state; locked = true; running = true; frozen = [...members];
     renderWheel(); prepareQuestions(state.names.length, state.assignmentVersion || 1, state.parts); controls();
-    const total = state.names.length, targets = [rotation];
+    const total = state.names.length, cycleMs=5000/Math.max(1,total), targets = [rotation];
     for (let index = 0; index < total; index++) {
       const winner = memberIndex(frozen, state, index);
       const angle = winner < 0 ? 0 : -(winner + .5) * 360 / Math.max(1, frozen.length);
@@ -123,13 +125,13 @@ function WheelGame() {
       finishMotion = resolve;
       const frame = now => {
         if (generation !== token) { resolve(); return; }
-        const elapsed = Math.max(0, now - startTime), cycle = Math.min(total, Math.floor(elapsed/2000)), phase = elapsed%2000;
-        const visible = Math.min(total, cycle + (phase >= 1750 ? 1 : 0));
+        const elapsed = Math.max(0, now - startTime), cycle = Math.min(total, Math.floor(elapsed/cycleMs)), phase = (elapsed%cycleMs)/cycleMs;
+        const visible = Math.min(total, cycle + (phase >= .875 ? 1 : 0));
         while (revealed < visible) { markPicked(state, revealed); showName(state.names[revealed], revealed); revealed++; }
         if (cycle === total) { rotate(targets[total]); finishMotion = null; resolve(); return; }
-        if (phase < 1750) {
+        if (phase < .875) {
           machine.classList.add('is-spinning');
-          const t = phase/1750, acceleration = .16;
+          const t = phase/.875, acceleration = .16;
           // Integrate a short acceleration and a long friction-driven coast.
           // Angular velocity is continuous and falls to zero before reveal.
           const ramp = 2*acceleration/Math.PI, coast = (1-acceleration)/4;
@@ -160,7 +162,7 @@ function WheelGame() {
     if (!running) renderWheel();
     if (!pending && !running && snapshot.draw && snapshot.draw.requestId !== drawState?.requestId) {
       const age = Math.max(0, Date.now() - snapshot.draw.createdAt);
-      if (age < snapshot.draw.names.length * 2000) void play(snapshot.draw, performance.now() - age); else saved(snapshot.draw);
+      if (age < 5000) void play(snapshot.draw, performance.now() - age); else saved(snapshot.draw);
     }
     if (!running && drawState) { drawState.names.forEach((_, index) => markPicked(drawState, index)); const last = memberIndex(members, drawState, drawState.names.length - 1); if (last >= 0) rotate(-(last + .5) * 360 / members.length); }
     if (!snapshot.draw && !running && !pending && !resetting) { status.dataset.error = 'false'; status.textContent = members.length ? `${members.length} learners ready · names appear after the wheel stops.` : 'Waiting for learners to sign in to this section.'; }
@@ -184,8 +186,13 @@ function WheelGame() {
     finally { resetting = false; controls(); }
   } }, '↺ Reset');
   const metalId = 'wheel-metal-' + uuid();
-  const rim = s('svg', { viewBox: '-6 -6 412 412', className: 'wheel-rim', 'aria-hidden': 'true' }, s('defs', {}, s('linearGradient', { id: metalId, x1: '0%', y1: '0%', x2: '75%', y2: '100%' }, s('stop', { offset: '0%', 'stop-color': '#A7C4D9' }), s('stop', { offset: '22%', 'stop-color': '#123F68' }), s('stop', { offset: '47%', 'stop-color': '#35658A' }), s('stop', { offset: '70%', 'stop-color': '#041C31' }), s('stop', { offset: '100%', 'stop-color': '#18547F' }))), s('circle', { cx: 200, cy: 200, r: 193, fill: 'none', stroke: '#041C31', 'stroke-width': 24 }), s('circle', { cx: 200, cy: 200, r: 190, fill: 'none', stroke: `url(#${metalId})`, 'stroke-width': 20 }), s('circle', { cx: 200, cy: 200, r: 201, fill: 'none', stroke: '#276A91', 'stroke-width': 1 }), s('circle', { cx: 200, cy: 200, r: 179, fill: 'none', stroke: '#123F68', 'stroke-width': 3 }),
-    ...Array.from({ length: 40 }, (_, i) => { const angle = i * Math.PI * 2 / 40; return s('circle', { cx: 200 + 190 * Math.cos(angle), cy: 200 + 190 * Math.sin(angle), r: 3.3, className: 'wheel-bulb' }); }));
+  // The supplied HTML's fixed gold bezel surrounds the server-driven rotor.
+  const rim = s('svg', { viewBox: '-6 -6 412 412', className: 'wheel-rim', 'aria-hidden': 'true' },
+    s('defs', {}, s('linearGradient', { id: metalId, x1: '0%', y1: '0%', x2: '100%', y2: '100%' }, s('stop', { offset: '0%', 'stop-color': '#F4DFB0' }), s('stop', { offset: '50%', 'stop-color': '#B39159' }), s('stop', { offset: '100%', 'stop-color': '#9D7944' }))),
+    s('circle', { cx: 200, cy: 200, r: 190, fill: 'none', stroke: '#041C31', 'stroke-width': 24 }),
+    s('circle', { cx: 200, cy: 200, r: 194, fill: 'none', stroke: `url(#${metalId})`, 'stroke-width': 5 }),
+    s('circle', { cx: 200, cy: 200, r: 179, fill: 'none', stroke: '#E9CA8B47', 'stroke-width': 1.5 }),
+    s('circle', { cx: 200, cy: 200, r: 39, fill: 'none', stroke: '#E9CA8B73', 'stroke-width': 1.6 }));
   machine.append(disc, rim, pointer, draw);
   renderWheel(); welcome();
   window.addEventListener('pagehide', () => { generation++; cancelAnimationFrame(raf); tickAnimation?.cancel(); finishMotion?.(); }, { once: true });

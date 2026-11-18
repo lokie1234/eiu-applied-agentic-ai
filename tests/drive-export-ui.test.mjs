@@ -43,8 +43,8 @@ test("edited JS uses multipart Drive upload, requires a target and retains the f
     await act(async () => input.dispatchEvent(new window.Event("change", { bubbles: true })));
     await act(async () => button().click());
     assert.equal(saved, 2);
-    assert.match(container.textContent, /Slides continue to use their project source/);
-    assert.doesNotMatch(container.textContent, /This section now uses the new file/);
+    assert.match(container.textContent, /Project lessons keep using their project source/);
+    assert.match(container.textContent, /Interactive JS imported into the project/);
   } finally { await act(async () => root.unmount()); window.happyDOM.abort(); }
 });
 test("folder export reviews names and retries only failed files", async () => {
@@ -79,7 +79,7 @@ test("folder export reviews names and retries only failed files", async () => {
   assert.ok(calls.filter(input => input?.action === "save").every(input => input.destinationId === "destination" && input.groupId === "group"));
   assert.match(container.textContent, /2 document\(s\) saved/);
   const feedback = container.querySelector('[role="status"]');
-  assert.match(feedback.textContent, /Successfully saved to Drive/);
+  assert.match(feedback.textContent, /Completed successfully/);
   assert.match(feedback.textContent, /Course archive/);
   assert.equal(feedback.getAttribute("aria-live"), "polite");
   await act(async () => root.unmount()); window.happyDOM.abort();

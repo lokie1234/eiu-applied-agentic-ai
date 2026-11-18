@@ -20,9 +20,11 @@ function load(path, dependencies = {}) {
       name === "@/lib/auth/adminPassword" ? load("lib/auth/adminPassword.ts", { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin: () => ({ from: () => ({ select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: null }) }) }) }) }) } }) :
       name === "@/lib/auth/types" ? load("lib/auth/types.ts") :
       name === "@/lib/mis301Practice" ? load("lib/mis301Practice.ts") :
+      name === "@/lib/mis311Spotlight" ? load("lib/mis311Spotlight.ts") :
+      name === "@/lib/sectionWheel" ? load("lib/sectionWheel.ts") :
       require(name)
     ),
-    Buffer, console, Date, process, URL, Response
+    Buffer, console, Date, process, URL, Response, AbortSignal, AbortController
   });
   return exports;
 }
@@ -224,6 +226,17 @@ test("hiding a section removes it from folder and course access", () => {
     assert.equal(f.resolve(code).sections.some(section => section.id === "s1"), false);
   f.catalog.courses[0].metadata.hiddenSectionIds = [];
   assert.equal(f.resolve("CT01234").sections[0].id, "s1");
+});
+
+test('only administrators toggle Class Spotlight; per-section flags preserve other course metadata and publish disable immediately',async()=>{
+ const f=fixture(),published=[];let actor={isAdmin:true};
+ const route=load('app/api/admin/access/route.ts',{'next/server':response,'next/cache':{revalidatePath(){}},'@/lib/auth/currentUser':{requireCourseManager:async()=>actor},'@/lib/auth/types':{},'@/lib/supabase/server':{getSupabaseAdmin:()=>({})},'@/lib/auth/courseAccessStorage':f.storage,'@/lib/auth/passcodes':f.codes,'@/lib/realtime/classroom':{publishClassroom:async(_,scope)=>{published.push(scope);return true;},notifyClassroom(){}}});
+ assert.equal((await route.POST(request({action:'set_section_wheel',sectionId:'s1',enabled:true}))).status,200);
+ assert.equal(f.catalog.courses[0].metadata.sectionWheel.s1,true);assert.equal(f.catalog.courses[0].metadata.facilitatorPasscode,'CT01234');
+ assert.equal((await route.POST(request({action:'set_section_wheel',sectionId:'s1',enabled:false}))).status,200);assert.equal(published.at(-1).wheelEnabled,false);
+ assert.equal((await route.POST(request({action:'set_section_wheel',sectionId:'missing',enabled:true}))).status,404);
+ assert.equal((await route.POST(request({action:'set_section_wheel',sectionId:'s1',enabled:'yes'}))).status,400);
+ actor={isAdmin:false};assert.equal((await route.POST(request({action:'set_section_wheel',sectionId:'s1',enabled:true}))).status,403);assert.equal(f.catalog.courses[0].metadata.sectionWheel.s1,false);
 });
 
 test("admin section visibility changes preserve access codes and invalidate the learning page", async () => {

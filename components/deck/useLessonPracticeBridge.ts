@@ -8,7 +8,7 @@ type PracticeContext = { teaching: boolean; learner?: { subject?: string; name: 
 type PracticeAccess = { sectionId: string; teaching: boolean; assignment: ClassroomView['assignment']; practiceSession: string };
 
 // One root connection and fallback for the opaque section frame. Never send credentials.
-export function useLessonPracticeBridge(sectionId: string, frame: RefObject<HTMLIFrameElement | null>) {
+export function useLessonPracticeBridge(sectionId: string, frame: RefObject<HTMLIFrameElement | null>, wheelFrame?:RefObject<HTMLIFrameElement|null>) {
   const [practiceAccess, setPracticeAccess] = useState<PracticeAccess | null>(null);
   useEffect(() => {
     if (sectionId !== MIS301_SECTION_ID) return;
@@ -17,12 +17,12 @@ export function useLessonPracticeBridge(sectionId: string, frame: RefObject<HTML
     let pendingToken: string | null = null, snapshot: ClassroomView | null = null, context: PracticeContext | null = null;
     let refreshing: Promise<void> | undefined;
     let authRefreshSubject = '';
+    const targets=()=>[frame.current,wheelFrame?.current].filter((value):value is HTMLIFrameElement=>Boolean(value));
     let fallback: { data: Record<string, unknown>; time: number } | null = null;
     const currentSnapshot = () => context && snapshot?.ready && snapshot.practiceSession === expectedEpoch && snapshot.teaching === context.teaching
       && (context.teaching || !context.learner?.subject || snapshot.viewerSubject === context.learner.subject) ? snapshot : null;
     const post = (value: Record<string, unknown>) => {
-      const target = frame.current;
-      target?.contentWindow?.postMessage({ ...value, requestId: target.dataset.requestId }, '*');
+      for(const target of targets())target.contentWindow?.postMessage({ ...value, requestId: target.dataset.requestId }, '*');
     };
     function announce() {
       if (!context) return;
@@ -87,13 +87,13 @@ export function useLessonPracticeBridge(sectionId: string, frame: RefObject<HTML
     const timer = window.setInterval(() => { if (!realtimeReady() && !document.hidden) invalidate(); }, 15_000);
     void refreshAccess().catch(() => {});
     const onMessage = async (event: MessageEvent) => {
-      const target = frame.current, payload = event.data;
+      const target = targets().find(target=>target.contentWindow===event.source), payload = event.data;
       if (!target || event.source !== target.contentWindow || payload?.type !== 'eiu-practice-request'
         || payload.requestId !== target.dataset.requestId || typeof payload.token !== 'string' || payload.token.length > 80
         || !['load', 'submit', 'draw', 'resetDraw', 'configureQuestions'].includes(payload.operation)) return;
       const captured = generation;
       const reply = (response: Record<string, unknown>) => {
-        if (controller.signal.aborted || frame.current !== target || target.dataset.requestId !== payload.requestId) return;
+        if (controller.signal.aborted || !targets().includes(target) || target.dataset.requestId !== payload.requestId) return;
         target.contentWindow?.postMessage({ type: 'eiu-practice-response', requestId: payload.requestId, token: payload.token,
           response: captured === generation ? response : { success: false, message: 'This section session has ended. Reopen it to continue.' } }, '*');
       };
@@ -128,6 +128,6 @@ export function useLessonPracticeBridge(sectionId: string, frame: RefObject<HTML
     };
     window.addEventListener('message', onMessage);
     return () => { controller.abort(); generation++; stop(); classroom(); clearInterval(timer); window.removeEventListener('focus', invalidate); window.removeEventListener('eiu-section-terminated', terminate); window.removeEventListener('message', onMessage); };
-  }, [sectionId, frame]);
+  }, [sectionId, frame, wheelFrame]);
   return practiceAccess?.sectionId === sectionId ? practiceAccess : null;
 }

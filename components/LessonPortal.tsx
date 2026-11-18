@@ -1,4 +1,6 @@
 "use client";
+import { SectionWheelContext } from '@/components/deck/SectionWheelContext';
+import { sectionWheelEnabled } from '@/lib/sectionWheel';
 import { useCourseRealtime, realtimeReady, listenInteractive, pulsePresence, watchRealtimeReady } from "@/lib/realtime/client";
 
 import dynamic from "next/dynamic";
@@ -156,6 +158,7 @@ type ReportSectionOption = { value: string; label: string };
 type ReportScopeOption = ReportSectionOption & { courseId: string; courseTitle: string; folderGroupId: string };
 type ReportCourseOption = ReportSectionOption & { folderGroupId: string };
 type CourseFolderSection = {
+  wheelEnabled?: boolean;
   liveEnabled?: boolean;
   terminationEnabled?: boolean;
   canFacilitate?: boolean;
@@ -1716,6 +1719,7 @@ export default function LessonPortal({
         onSignOut={signOut}
         courseTitle={selectedCourse.title}
       >
+        <SectionWheelContext.Provider key={activeSectionId} value={activeSectionId?{sectionId:activeSectionId,enabled:activeLessonSection?.wheelEnabled ?? sectionWheelEnabled(activeSectionId),teaching:canFacilitateCurrent}:null}>
         {isAdmin && liveSelection?.mode === 'control' && <LiveController selection={liveSelection} onStop={()=>setLiveSelection(null)}/>}
         {!liveHydrated && isAdmin && initialSectionId ? <HairlineLoading contained/> : isAdmin && liveSelection?.mode === 'follow' ? <LiveFollower selection={liveSelection} title={activeLessonSection?.title || ''} onStop={()=>{setLiveSelection(null);setActiveUploadedSection(null);rememberDeckSelection(selectedCourse.id,null,false,{course:selectedCourse.slug});}}/> : launchingSection ? sectionOpenError ? (
           <div role="alert" className={styles.sectionOpenError}>
@@ -1752,6 +1756,7 @@ export default function LessonPortal({
             sectionTitle={selectedCourse.sections.find((item) => item.sectionKey === "section1")?.title || "Section 1"}
           />
         )}
+        </SectionWheelContext.Provider>
       </DeckShell>
 
       {isAdmin && activeSectionId && terminationEnabled && showTerminate && (

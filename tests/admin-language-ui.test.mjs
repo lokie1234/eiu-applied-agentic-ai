@@ -1,3 +1,4 @@
+import {sectionWheelDependency} from './helpers/section-wheel.mjs';
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -42,7 +43,7 @@ test("language saves retain the scrolling workspace and report pending, success 
     vm.runInNewContext(code, {
       exports, fetch, window, document: window.document, localStorage: window.localStorage, sessionStorage: window.sessionStorage,
       setTimeout, clearTimeout, console, URL, AbortController, AbortSignal, FormData, File,
-      require: name => {
+      require: name => { const wheel=sectionWheelDependency(name);if(wheel)return wheel;
         if (name === "next/image") return { __esModule: true, default: ({ src, alt }) => React.createElement("img", { src, alt }) };
         if (name === "next/link") return { __esModule: true, default: ({ children, ...props }) => React.createElement("a", props, children) };
         if (name.startsWith(".") || name.startsWith("@/")) {

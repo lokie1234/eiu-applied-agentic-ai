@@ -1,3 +1,4 @@
+import {inactiveLessonDependencies} from './helpers/section-wheel.mjs';
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -6,7 +7,7 @@ import ts from "typescript";
 import ExcelJS from "exceljs";
 import { createRequire } from "node:module";
 const require=createRequire(import.meta.url);
-function load(file,deps={}){const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,require:name=>name==="exceljs"?{default:ExcelJS}:name==="@/lib/realtime/publish"?{notifyRealtime(){}}:name==="@/lib/realtime/server"?{realtimeConfigured:()=>false}:name==="@/lib/realtime/client"?{listenInteractive:()=>()=>{},realtimeReady:()=>false,useRealtimeReady:()=>false}:deps[name]??(name.startsWith('@/lib/')?load(name.slice(2)+'.ts'):require(name)),URL,Response,Date,console,Buffer});return exports;}
+function load(file,deps={}){deps={...inactiveLessonDependencies,...deps};const exports={};vm.runInNewContext(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022}}).outputText,{exports,require:name=>name==="exceljs"?{default:ExcelJS}:name==="@/lib/realtime/publish"?{notifyRealtime(){}}:name==="@/lib/realtime/server"?{realtimeConfigured:()=>false}:name==="@/lib/realtime/client"?{listenInteractive:()=>()=>{},realtimeReady:()=>false,useRealtimeReady:()=>false}:deps[name]??(name.startsWith('@/lib/')?load(name.slice(2)+'.ts'):require(name)),URL,Response,Date,console,Buffer});return exports;}
 const folders=[{id:'f-ai',name:'AI Training',order:1},{id:'f-web',name:'Web Training',order:2}];
 const courses=[{id:'c-ai',slug:'applied-agentic-ai',title:'Applied AI',description:JSON.stringify({folderGroups:folders,folderGroupId:'f-ai'})},{id:'c-web',slug:'web-course',title:'Web Development',description:JSON.stringify({folderGroupId:'f-web'})}];
 const sections=[{id:'s-ai',course_id:'c-ai',section_key:'section1',title:'AI 1'},{id:'s-web',course_id:'c-web',section_key:'web-one',title:'Web 1'},{id:'s-web2',course_id:'c-web',section_key:'web-two',title:'Web 2'}];

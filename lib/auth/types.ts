@@ -22,6 +22,7 @@ export type CourseAccess = {
 };
 
 export type SectionAccess = {
+  wheelEnabled?: boolean;
   liveEnabled?: boolean;
   terminationEnabled?: boolean;
   hidden?: boolean;

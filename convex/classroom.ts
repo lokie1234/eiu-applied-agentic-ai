@@ -1,18 +1,21 @@
 import { queryGeneric, mutationGeneric, internalMutationGeneric, type DataModelFromSchemaDefinition, type QueryBuilder, type MutationBuilder, type GenericQueryCtx } from "convex/server";
 import { ConvexError, v } from "convex/values";
 import schema from "./schema";
-import { MIS301_QUESTION_DEFAULTS, mis301QuestionBank } from "../lib/mis301Practice";
+import { MIS301_SECTION_ID, MIS301_QUESTION_DEFAULTS, mis301QuestionBank } from "../lib/mis301Practice";
 type Model = DataModelFromSchemaDefinition<typeof schema>;
 const query = queryGeneric as QueryBuilder<Model, "public">;
 const mutation = mutationGeneric as MutationBuilder<Model, "public">;
 const internalMutation = internalMutationGeneric as MutationBuilder<Model, "internal">;
 async function authorized(ctx: { auth: GenericQueryCtx<Model>["auth"] }, sectionId: string) {
+  if (sectionId !== MIS301_SECTION_ID) throw new ConvexError('Section access denied.');
   const user = await ctx.auth.getUserIdentity();
   if (!user) throw new ConvexError("Authentication required.");
   let allowed: string[] = [], teachers: string[] = [];
   try { allowed = JSON.parse(String(user.sections)); teachers = JSON.parse(String(user.teaching)); } catch { /* Deny malformed scopes. */ }
   if (!allowed.includes(sectionId)) throw new ConvexError("Section access denied.");
-  return { subject: user.subject, teaching: user.role === "admin" || teachers.includes(sectionId) };
+  let wheelEnabled=user.wheelSections===undefined;
+  try{if(user.wheelSections!==undefined)wheelEnabled=JSON.parse(String(user.wheelSections)).includes(sectionId);}catch{wheelEnabled=false;}
+  return { subject: user.subject, teaching: user.role === "admin" || teachers.includes(sectionId),wheelEnabled };
 }
 export const view = query({ args: { sectionId: v.string() }, handler: async (ctx, { sectionId }) => {
   const user = await authorized(ctx, sectionId);
@@ -31,12 +34,14 @@ export const view = query({ args: { sectionId: v.string() }, handler: async (ctx
 export const draw = mutation({ args: { sectionId: v.string(), count: v.optional(v.number()), requestId: v.string(), excluded: v.array(v.string()), demo: v.optional(v.boolean()) }, handler: async (ctx, args) => {
   const user = await authorized(ctx, args.sectionId);
   if (!user.teaching) throw new ConvexError("Teaching access required.");
+  if(!user.wheelEnabled)throw new ConvexError('Class Spotlight is disabled for this section.');
   if (args.demo) throw new ConvexError("Demo mode has been removed. Reload to use the real classroom.");
-  if (args.count !== undefined && (!Number.isInteger(args.count) || args.count < 1 || args.count > MIS301_QUESTION_DEFAULTS.length)) throw new ConvexError("Choose at most seven learners so each receives a different assignment part.");
+  if (args.count !== undefined && (!Number.isSafeInteger(args.count) || args.count < 1)) throw new ConvexError("Choose a positive whole number of learners.");
   if (!/^[a-f0-9-]{36}$/i.test(args.requestId) || args.excluded.length > 200) throw new ConvexError("Invalid draw settings.");
   const room = await ctx.db.query("classroom").withIndex("room", q => q.eq("sectionId", args.sectionId)).unique();
   if (!room) throw new ConvexError("Classroom is not ready. Please reconnect.");
   const previousDraw = room.draw;
+  if(room.wheelEnabled===false)throw new ConvexError('Class Spotlight is disabled for this section.');
   if (previousDraw?.requestId === args.requestId) return { names: previousDraw.names, subjects: previousDraw.subjects || [], createdAt: previousDraw.createdAt, assignmentVersion: previousDraw.assignmentVersion || 1, parts: previousDraw.parts, requestId: args.requestId };
   if (previousDraw) return { message: "Reset the wheel before starting a new draw." };
   const key = `draw:${user.subject}`, now = Date.now();
@@ -50,11 +55,11 @@ export const draw = mutation({ args: { sectionId: v.string(), count: v.optional(
   const unique = new Map(room.members.map(member => [member.subject, member]));
   const pool = [...unique.values()].filter(member => !args.excluded.includes(member.subject));
   const questions = mis301QuestionBank(room.questionSetup);
-  const selectedCount = Math.min(questions.length, pool.length);
+  const selectedCount = Math.min(room.wheelCount ?? questions.length, pool.length);
   if (!selectedCount) return { message: "Waiting for learners to sign in to this section." };
   const names: string[] = [], subjects: string[] = [];
   for (let i = 0; i < selectedCount; i++) { const selected = pool.splice(Math.floor(Math.random() * pool.length), 1)[0]; names.push(selected.username); subjects.push(selected.subject); }
-  const parts = questions.slice(0, selectedCount).map(question => question.number);
+  const parts = Array.from({length:selectedCount},(_,index)=>questions[index%questions.length].number);
   const selected = { requestId: args.requestId, names, subjects, parts, createdAt: now, assignmentVersion: 3, questions };
   await ctx.db.patch(room._id, { draw: selected });
   return { names, subjects, parts, createdAt: now, assignmentVersion: 3, requestId: args.requestId };
@@ -95,6 +100,7 @@ export const configureQuestions = mutation({ args: { sectionId: v.string(), ques
 } });
 export const replace = internalMutation({ args: {
   sectionId: v.string(), version: v.number(), epoch: v.string(),
+  wheelEnabled: v.optional(v.boolean()),
   members: v.array(v.object({ subject: v.string(), username: v.string() })),
   answers: v.array(v.object({ recordId: v.string(), subject: v.string(), username: v.string(), partId: v.string(), values: v.record(v.string(), v.string()), submittedAt: v.string(), assignmentPart: v.optional(v.number()), questionNumber: v.optional(v.number()), drawId: v.optional(v.string()) })),
 }, handler: async (ctx, args) => {
@@ -102,8 +108,9 @@ export const replace = internalMutation({ args: {
   const room = await ctx.db.query("classroom").withIndex("room", q => q.eq("sectionId", args.sectionId)).unique();
   if (room && room.version >= args.version) return;
   const members = args.members.slice().sort((a, b) => a.subject.localeCompare(b.subject));
-  if (!room) await ctx.db.insert("classroom", { sectionId: args.sectionId, version: args.version, epoch: args.epoch, members });
+  if (!room) await ctx.db.insert("classroom", { sectionId: args.sectionId, version: args.version, epoch: args.epoch, members, wheelEnabled: args.wheelEnabled });
   else await ctx.db.patch(room._id, { version: args.version, epoch: args.epoch,
+    ...(args.wheelEnabled!==undefined?{wheelEnabled:args.wheelEnabled}:{}),
     ...(JSON.stringify(room.members) !== JSON.stringify(members) ? { members } : {}),
     ...(room.epoch !== args.epoch ? { draw: undefined } : {}),
     ...(room.epoch !== args.epoch ? { demoDraw: undefined } : {}),

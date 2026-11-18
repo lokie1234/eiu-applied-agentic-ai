@@ -8,8 +8,9 @@ import { createRequire } from 'node:module';
 import { Window } from 'happy-dom';
 import {practice} from './helpers/mis301-fixture.mjs';
 const require = createRequire(import.meta.url);
+const wheelContext={SectionWheelContext:React.createContext(null)};
 function load(file, dependencies = {}, globals = {}) {
-  const defaults={'@/lib/livePresentationDom':{captureLiveDocument(){}},'@/lib/mis301Practice':practice,'./useLessonPracticeBridge':{useLessonPracticeBridge:()=>null},'./useMis301NotebookBridge':{useMis301NotebookBridge(){}},'./useLessonRevealBridge':{useLessonRevealBridge(){}},'./useMis311PresentationBridge':{useMis311PresentationBridge(){}},'@/lib/mis311Presentation':{readMis311Presentation:()=>({})}};
+  const defaults={'./SectionWheelContext':wheelContext,'@/lib/livePresentationDom':{captureLiveDocument(){}},'@/lib/mis301Practice':practice,'./useLessonPracticeBridge':{useLessonPracticeBridge:()=>null},'./useMis301NotebookBridge':{useMis301NotebookBridge(){}},'./useLessonRevealBridge':{useLessonRevealBridge(){}},'./useMis311PresentationBridge':{useMis311PresentationBridge(){}},'@/lib/mis311Presentation':{readMis311Presentation:()=>({})}};
   const exports = {};
   const source = fs.readFileSync(file,'utf8').replace(/^\s*pdfjs.GlobalWorkerOptions.workerSrc =.*$/m,'');
   const code = ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS,target:ts.ScriptTarget.ES2022,jsx:ts.JsxEmit.ReactJSX,esModuleInterop:true}}).outputText;

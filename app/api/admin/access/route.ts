@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { wheelLegacySection } from '@/lib/sectionWheel';
 import { revalidatePath } from "next/cache";
 import { requireCourseManager } from "@/lib/auth/currentUser";
 import { APPLIED_AGENTIC_AI_SLUG, type CourseSystemIcon } from "@/lib/auth/types";
@@ -81,7 +82,17 @@ export async function POST(request: Request) {
     let createdCourseIds: string[] | undefined;
     let createdFolderGroupId: string | undefined;
 
-    if (action === 'set_section_live') {
+    if (action === 'set_section_wheel') {
+      if (!actor.isAdmin) return NextResponse.json({ message: 'Administrator access required.' }, { status: 403 });
+      if (typeof body.sectionId !== 'string' || typeof body.enabled !== 'boolean') return NextResponse.json({ message: 'Choose a section and Class Spotlight setting.' }, { status: 400 });
+      const catalog = await getCoursesAndSectionsData();
+      const target = catalog.sections.find(section => section.id === body.sectionId);
+      if (!target) return NextResponse.json({ message: 'Section not found.' }, { status: 404 });
+      await updateCourseMetadata(target.course_id, current => ({ ...current, sectionWheel: { ...current.sectionWheel, [target.id]: body.enabled } }));
+      const { publishClassroom, notifyClassroom } = await import('@/lib/realtime/classroom');
+      const scope = { courseId: target.course_id, sectionId: target.id, wheelEnabled:body.enabled,legacySection:wheelLegacySection(catalog.courses.find(course=>course.id===target.course_id)?.slug,target.section_key) };
+      try { await publishClassroom(AbortSignal.timeout(2000), scope); } catch { notifyClassroom(scope); }
+    } else if (action === 'set_section_live') {
       if (!actor.isAdmin) return NextResponse.json({ message: 'Administrator access required.' }, { status: 403 });
       if (typeof body.sectionId !== 'string' || typeof body.enabled !== 'boolean') return NextResponse.json({ message: 'Choose a section and Live setting.' }, { status: 400 });
       const catalog = await getCoursesAndSectionsData();

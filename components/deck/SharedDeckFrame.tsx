@@ -2,7 +2,11 @@
 
 import Image from "next/image";
 import { flushSync } from "react-dom";
-import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import dynamic from 'next/dynamic';
+import { SectionWheelContext } from './SectionWheelContext';
+import { ASSIGNMENT_WHEEL_SECTION_ID } from '@/lib/sectionWheel';
+const SectionSpotlight=dynamic(()=>import('./SectionSpotlight'),{ssr:false});
 import DeckSideAmbient from "@/components/DeckSideAmbient";
 import WorkshopLaunchButton from "@/components/WorkshopLaunchButton";
 import { rememberSlide, restoredSlide } from "@/lib/deckLocation";
@@ -47,6 +51,7 @@ export default function SharedDeckFrame({
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [zoom, setZoom] = useState(1);
   const [viewerWidth, setViewerWidth] = useState(0);
+  const wheelScope=useContext(SectionWheelContext);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const surfaceRef = useRef<HTMLDivElement | null>(null);
   const transitionRef = useRef<{ cancel: () => void } | null>(null);
@@ -158,7 +163,7 @@ export default function SharedDeckFrame({
   }, [goToPage, navigationReady, requestedPage?.key, requestedPage?.page]);
 
   useEffect(() => {
-    if (requestedPage && navigationReady && positionRestored.current) goToPage(requestedPage.page, false);
+    if (requestedPage?.page!==undefined && navigationReady && positionRestored.current) goToPage(requestedPage.page, false);
   }, [requestedPage?.key, requestedPage?.page, goToPage, navigationReady]);
 
   useEffect(() => {
@@ -295,10 +300,11 @@ export default function SharedDeckFrame({
         </nav>
 
         <div className="header-controls">
-          <button type="button" onClick={() => setZoom((value) => Math.max(0.5, +(value - 0.1).toFixed(1)))} title="Zoom out">−</button>
+          {wheelScope?.enabled&&(wheelScope.sectionId!==ASSIGNMENT_WHEEL_SECTION_ID||wheelScope.teaching)&&<SectionSpotlight key={wheelScope.sectionId} sectionId={wheelScope.sectionId} controls={{teaching:wheelScope.teaching,assignment:wheelScope.practice}}/>}
+          <button type="button" className="zoom-step" onClick={() => setZoom((value) => Math.max(0.5, +(value - 0.1).toFixed(1)))} title="Zoom out">−</button>
           <button type="button" className="zoom-label" onClick={() => setZoom(1)} title="Reset zoom">{Math.round(zoom * 100)}%</button>
-          <button type="button" onClick={() => setZoom((value) => Math.min(2, +(value + 0.1).toFixed(1)))} title="Zoom in">+</button>
-          <button type="button" className="fullscreen-button" onClick={toggleFullscreen}><span>⛶</span><span className="fullscreen-label">Fullscreen</span></button>
+          <button type="button" className="zoom-step" onClick={() => setZoom((value) => Math.min(2, +(value + 0.1).toFixed(1)))} title="Zoom in">+</button>
+          <button type="button" className="fullscreen-button" aria-label="Toggle fullscreen" title="Toggle fullscreen" onClick={toggleFullscreen}><span>⛶</span><span className="fullscreen-label">Fullscreen</span></button>
         </div>
       </header>
 

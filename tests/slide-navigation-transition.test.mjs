@@ -1,3 +1,4 @@
+import {sectionWheelDependency} from './helpers/section-wheel.mjs';
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -35,8 +36,8 @@ async function fixture({ restored = 1, reduced = false, supported = true } = {})
   vm.runInNewContext(code, { exports, window, document: window.document, MutationObserver: window.MutationObserver,
     requestAnimationFrame: cb => window.requestAnimationFrame(cb), cancelAnimationFrame: id => window.cancelAnimationFrame(id),
     ResizeObserver: class { observe() {} disconnect() {} },
-    require: name => name === "@/lib/deckLocation" ? { rememberSlide: page => writes.push(page), restoredSlide: () => restored }
-      : ["next/image", "@/components/DeckSideAmbient", "@/components/WorkshopLaunchButton"].includes(name) ? { __esModule: true, default: () => null } : require(name),
+    require: name => { const wheel=sectionWheelDependency(name);if(wheel)return wheel;return name === "@/lib/deckLocation" ? { rememberSlide: page => writes.push(page), restoredSlide: () => restored }
+      : ["next/image", "@/components/DeckSideAmbient", "@/components/WorkshopLaunchButton"].includes(name) ? { __esModule: true, default: () => null } : require(name); },
   });
   const { createRoot } = await import("react-dom/client");
   const container = window.document.createElement("div"), root = createRoot(container);

@@ -1,3 +1,4 @@
+import {sectionWheelDependency} from './helpers/section-wheel.mjs';
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -14,8 +15,8 @@ function load(path, dependencies = {}, globals = {}) {
     module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true,
   } }).outputText;
   vm.runInNewContext(code, { exports, console, AbortController, AbortSignal, ...globals,
-    require: name => name === '@/lib/learningLanguage' ? {useLearningLanguage:()=>({t:value=>value})} : dependencies[name] ?? (name.endsWith(".css") ? { default: new Proxy({}, { get: (_, key) => String(key) }), __esModule: true }
-      : name.startsWith("./") ? { __esModule: true, default: () => null } : require(name)),
+    require: name => { const wheel=sectionWheelDependency(name);if(wheel)return wheel;return name === '@/lib/learningLanguage' ? {useLearningLanguage:()=>({t:value=>value})} : dependencies[name] ?? (name.endsWith(".css") ? { default: new Proxy({}, { get: (_, key) => String(key) }), __esModule: true }
+      : name.startsWith("./") ? { __esModule: true, default: () => null } : require(name)); },
   });
   return exports;
 }

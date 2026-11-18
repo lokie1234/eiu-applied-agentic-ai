@@ -15,7 +15,7 @@ function fixture(options = {}) {
   }).outputText;
   const dependencies = {
     "next/server": { NextResponse: { json: (data, opts = {}) => ({ data, status: opts.status ?? 200, headers: opts.headers }) } },
-    "@/lib/auth/currentUser": { requireAdminAccess: async () => state.admin ? {} : null },
+    "@/lib/auth/currentUser": { requireAdminAccess: async () => state.admin ? {driveEnabled:true} : null },
     "@/lib/sectionSourceFiles": { SECTION_SOURCE_DESTINATIONS: { tsx: folderId } },
     "@/lib/drive/connection": {
       driveConfig: () => ({ redirectUri: "http://localhost:3000/api/admin/drive/callback", clientId: "123-client" }),

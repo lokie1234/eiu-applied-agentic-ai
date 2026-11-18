@@ -1,4 +1,5 @@
 import "server-only";
+import { sectionWheelEnabled } from '@/lib/sectionWheel';
 import { createHash } from "node:crypto";
 import { currentAccessSession } from "./session";
 import { getCoursesAndSectionsData } from "./courseAccessStorage";
@@ -32,6 +33,7 @@ export async function currentUserAccess(signal?: AbortSignal, resolvedSession?: 
     hidden: Boolean(section.hidden),
     terminationEnabled: resolved.courses.find(course => course.id === section.course_id)?.metadata.terminableSectionIds?.includes(section.id) === true,
     liveEnabled: section.content_type === 'tsx' && resolved.courses.find(course => course.id === section.course_id)?.metadata.sectionLive?.[section.id] !== false,
+    wheelEnabled: sectionWheelEnabled(section.id, resolved.courses.find(course => course.id === section.course_id)?.metadata.sectionWheel),
     canFacilitate: session.role === "admin" || ("canFacilitate" in section && section.canFacilitate === true),
   }));
   return {

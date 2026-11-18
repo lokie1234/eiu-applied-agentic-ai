@@ -1,5 +1,5 @@
 import { notifyRealtime } from "@/lib/realtime/publish";
-import { notifyClassroom } from "@/lib/realtime/classroom";
+import { notifyAllWheelClassrooms } from "@/lib/realtime/classroom";
 import { NextResponse } from "next/server";
 import { currentRole } from "@/lib/currentRole";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
@@ -171,6 +171,6 @@ async function handlePost(request: Request) {
 
 export async function POST(...args: Parameters<typeof handlePost>) {
   const response = await handlePost(...args);
-  if (response.ok) { notifyRealtime(); notifyClassroom(); }
+  if (response.ok) { notifyRealtime(); notifyAllWheelClassrooms(); }
   return response;
 }

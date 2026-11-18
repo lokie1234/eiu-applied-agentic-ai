@@ -1,3 +1,4 @@
+import {sectionWheelDependency} from './helpers/section-wheel.mjs';
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -9,7 +10,7 @@ const require = createRequire(import.meta.url);
 function load(path, dependencies, env = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, { exports, require: name => dependencies[name] ?? require(name), process: { env: { PASSCODE_SESSION_SECRET: "test-secret-not-a-production-credential", ...env } }, Buffer, Date, Headers, URL, console });
+  vm.runInNewContext(code, { exports, require: name => { const wheel=sectionWheelDependency(name);if(wheel)return wheel;return dependencies[name] ?? require(name); }, process: { env: { PASSCODE_SESSION_SECRET: "test-secret-not-a-production-credential", ...env } }, Buffer, Date, Headers, URL, console });
   return exports;
 }
 const limiter = (rpc = async () => ({ data: { allowed: true, retry_after: 0 } }), env = {}) => load("lib/security/rateLimit.ts", {

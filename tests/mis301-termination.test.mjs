@@ -46,9 +46,9 @@ test('New rounds assign seven unequal notebook parts to signed subjects, never d
  assert.equal((await f.module.view(f.ctx,{sectionId})).assignment,null);
 });
 
-test('A new draw cannot repeat assignment parts by selecting more than seven learners',async()=>{
+test('Assignment draw count validation rejects non-positive or non-integral values',async()=>{
  const f=classroomFixture();const room=await f.room({members:Array.from({length:50},(_,i)=>({subject:`student-${i}`,username:`Name ${i}`}))});
- for(const count of [8,50,0,-1,1.5])await assert.rejects(f.module.draw(f.ctx,{sectionId,count,excluded:[],requestId:crypto.randomUUID()}),/at most seven/);
+ for(const count of [0,-1,1.5,Infinity])await assert.rejects(f.module.draw(f.ctx,{sectionId,count,excluded:[],requestId:crypto.randomUUID()}),/positive whole/);
  assert.equal(room.draw,undefined);assert.equal(f.tables.limits.length,0);
 });
 

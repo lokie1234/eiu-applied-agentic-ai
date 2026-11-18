@@ -1,3 +1,4 @@
+import {sectionWheelDependency} from './helpers/section-wheel.mjs';
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -16,7 +17,7 @@ vm.runInNewContext(ts.transpileModule(fs.readFileSync("lib/liveRefresh.ts", "utf
 function moduleExports(path, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(path, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx: ts.JsxEmit.ReactJSX, esModuleInterop: true } }).outputText;
-  vm.runInNewContext(code, { exports, process: { env: {} }, console, Date, URL:globalThis.window?.URL,AbortController, AbortSignal, ResizeObserver: globalThis.window?.ResizeObserver, IntersectionObserver: globalThis.window?.IntersectionObserver, MutationObserver: globalThis.window?.MutationObserver, requestAnimationFrame: callback=>globalThis.window.requestAnimationFrame(callback), cancelAnimationFrame: id=>globalThis.window.cancelAnimationFrame(id), crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, navigator:globalThis.window?.navigator,fetch: (...args) => globalThis.fetch(...args), require: name => {
+  vm.runInNewContext(code, { exports, process: { env: {} }, console, Date, URL:globalThis.window?.URL,AbortController, AbortSignal, ResizeObserver: globalThis.window?.ResizeObserver, IntersectionObserver: globalThis.window?.IntersectionObserver, MutationObserver: globalThis.window?.MutationObserver, requestAnimationFrame: callback=>globalThis.window.requestAnimationFrame(callback), cancelAnimationFrame: id=>globalThis.window.cancelAnimationFrame(id), crypto: globalThis.crypto, window: globalThis.window, document: globalThis.document, navigator:globalThis.window?.navigator,fetch: (...args) => globalThis.fetch(...args), require: name => { const wheel=sectionWheelDependency(name);if(wheel)return wheel;
     if (name === "./LearnerInformationDialog") return { __esModule: true, default: component("components/landing/LearnerInformationDialog.tsx") };
     if (name === "./SectionEnergy") return { __esModule: true, default: () => null };
     if (name === "./CourseDiscoveryHeading") return { __esModule: true, default: props => React.createElement("span", {"data-heading-online": props.onlineCount}) };
@@ -967,4 +968,24 @@ test('presence broadcasts refresh within one second under a continuous event bur
     await advance(1000);await act(async()=>status('SUBSCRIBED'));assert.equal(requests.length,3);
     Object.defineProperty(window.document,'visibilityState',{configurable:true,value:'hidden'});await advance(1000);await act(async()=>intervals.get(5000)());assert.equal(requests.length,3);
   }finally{await act(async()=>root.unmount());Date.now=savedNow;globalThis.fetch=savedFetch;await window.happyDOM.close();}
+});
+
+test('Learner Information can submit a name-only form and requires email only when the field is present',async()=>{
+  const window=new Window({url:'http://localhost/'});
+  window.matchMedia=()=>({matches:true,addEventListener(){},removeEventListener(){}});
+  for(const name of ['window','document','HTMLElement','navigator'])Object.defineProperty(globalThis,name,{configurable:true,value:name==='window'?window:window[name]});
+  globalThis.IS_REACT_ACT_ENVIRONMENT=true;
+  const {createRoot}=await import('react-dom/client'),Dialog=component('components/landing/LearnerInformationDialog.tsx');
+  const host=window.document.createElement('div');window.document.body.append(host);const root=createRoot(host);
+  let submitted=0;const name={id:'name',label:'Name',type:'text'},email={id:'email',label:'Email',type:'email'};
+  const render=(fields,information)=>act(async()=>root.render(React.createElement(Dialog,{fields,information,onSubmit:event=>{event.preventDefault();submitted++;},loading:false,error:''})));
+  try{
+    await render([name],{name:'An'});
+    assert.equal(window.document.querySelector('input[type=email]'),null);assert.equal(window.document.querySelector('button[type=submit]').disabled,false);
+    await act(async()=>window.document.querySelector('form').dispatchEvent(new window.Event('submit',{bubbles:true,cancelable:true})));assert.equal(submitted,1);
+    await render([name,email],{name:'An'});assert.equal(window.document.querySelector('button[type=submit]').disabled,true);
+    await render([name,email],{name:'An',email:'bad'});assert.equal(window.document.querySelector('button[type=submit]').disabled,true);
+    await render([name,email],{name:'An',email:'an@example.com'});assert.equal(window.document.querySelector('button[type=submit]').disabled,false);
+    await render([name],{name:'An'});assert.equal(window.document.querySelector('input[type=email]'),null);assert.equal(window.document.querySelector('button[type=submit]').disabled,false);
+  }finally{await act(async()=>root.unmount());await window.happyDOM.close();}
 });

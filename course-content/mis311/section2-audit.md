@@ -102,3 +102,41 @@ fixture. Auth/storage boundaries in route tests are mocked; no live classroom
 session or learner result was created. No deployment was performed. The existing
 Turbopack warning about dynamic filesystem access tracing the project remains;
 the build completes successfully.
+
+
+## Shared toolbar wheel and supplied HTML integration (2026-11-18)
+
+The section uses one shared transparent white-outline toolbar icon. Count settings
+are inside the modal; the supplied EIU HTML is adapted to native SVG without its
+manual roster, local storage or browser winner selection. Authorized signed
+learners populate the idle wheel on demand, and server-selected results drive
+animation and the private ten-second learner notification. MIS 301 retains its
+assignment bridge and reset rules with the matching gold/navy wheel treatment.
+
+Verification: 52 targeted UI/classroom/practice tests pass; TypeScript, scoped
+ESLint and production Next build pass. Chrome checks cover generic and assignment
+modes at 1920x1080, 1280x720, 390x844 and 844x390, including actual fullscreen,
+count settings, spin, close and exit. Learner and disabled-scope launchers are
+absent. Full-suite result: 552 tests, 514 passed, 38 existing failures remain.
+This verifies local source/build behavior, not a Vercel deployment.
+
+
+## Cleanup verification (2026-11-18)
+
+Removed the obsolete inline wheel launcher source, redundant duration state and
+superseded CSS declarations. Shared the single-retry classroom recovery path
+between draw/configuration APIs and consolidated repeated VM bridge dependencies.
+Updated stale test fixtures for existing Drive permissions/project imports and
+inactive lesson bridges without changing product behavior.
+
+The reviewed repository test set passes 549/549 tests across 81 files. Scoped
+ESLint passes with zero errors/warnings on 61 changed source/test files;
+TypeScript and production build pass. Native course regeneration leaves all five
+served JS/manifest files byte-identical. All computed presentation properties
+match the pre-cleanup baseline across eight viewport/group-size configurations.
+Six screenshots are pixel-identical; two have only antialiasing differences of
+at most eight color levels. MIS 301 assignment selection, shared bridge and
+fullscreen behavior pass at 1920x1080, 1280x720, 390x844 and 844x390.
+
+Unrelated pre-existing, unregistered offline/Section 1 experimental files are
+kept outside this commit and were not used to generate served lessons.

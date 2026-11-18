@@ -6,6 +6,8 @@ import { hashPasscode, resolvePasscode, resolveFreeAccess } from "@/lib/auth/pas
 import { ACCESS_SESSION_COOKIE, createAccessSession, sessionCookieOptions } from "@/lib/auth/session";
 import { parseIdentityPolicy, validateIdentityInformation } from "@/lib/learningIdentity";
 import { MIS301_SECTION_ID } from "@/lib/mis301Practice";
+import { MIS311_SPOTLIGHT_SECTION_ID } from '@/lib/mis311Spotlight';
+import { sectionWheelEnabled } from '@/lib/sectionWheel';
 
 export const runtime = "nodejs";
 
@@ -34,10 +36,10 @@ export async function POST(request: Request) {
     }
     const teaching = access.sections.some(section => section.canFacilitate);
     const configuredPolicy = parseIdentityPolicy(catalog.learningIdentityPolicy);
-    const mis301 = access.sections.some(section => section.id === MIS301_SECTION_ID);
-    const policy = mis301 ? { enabled: true, fields: [
-      { id: "name", label: "Username", type: "text" as const }, { id: "email", label: "Email", type: "email" as const },
-      ...configuredPolicy.fields.filter(field => !["name", "email"].includes(field.id)).slice(0, 4),
+    const namedClassroom = access.sections.some(section => [MIS301_SECTION_ID, MIS311_SPOTLIGHT_SECTION_ID].includes(section.id) || sectionWheelEnabled(section.id, access.courses.find(course=>course.id===section.course_id)?.metadata.sectionWheel));
+    const policy = namedClassroom ? { enabled: true, fields: [
+      configuredPolicy.fields.find(field => field.id === 'name') || { id: "name", label: "Username", type: "text" as const },
+      ...(configuredPolicy.enabled ? configuredPolicy.fields.filter(field => field.id !== 'name').slice(0, 5) : []),
     ] } : configuredPolicy;
     let information: Record<string, string> = {};
     if (!teaching && policy.enabled) {

@@ -1,3 +1,4 @@
+import {sectionWheelDependency,inactiveLessonDependencies} from './helpers/section-wheel.mjs';
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -17,6 +18,7 @@ const paths = [
 function fixture(path, read, method) {
   const exports = {}, logs = [];
   const dependencies = {
+    ...inactiveLessonDependencies,
     "next/server": { NextResponse: { json: (body, options = {}) => ({ body, status: options.status ?? 200, headers: options.headers }) } },
     "next/cache": {},
     "@/lib/auth/currentUser": { requireCourseManager: read, requireAdminAccess: read, currentUserAccess: read },
@@ -31,7 +33,7 @@ function fixture(path, read, method) {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText;
   vm.runInNewContext(code, { exports, URL, console: { error: (...args) => logs.push(args) },
-    require: name => name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false } : dependencies[name] ?? require(name),
+    require: name => { const wheel=sectionWheelDependency(name);if(wheel)return wheel;return name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false } : dependencies[name] ?? require(name); },
   });
   return { logs, run: request => (method ? exports[method] : exports.GET ?? exports.POST)(request, { params: Promise.resolve({ id: "section" }) }) };
 }

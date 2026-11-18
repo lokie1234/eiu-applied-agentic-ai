@@ -12,22 +12,91 @@ function renderPersuasion(content, config) {
     .mis311-pers-case-title{margin:0;text-align:center;color:#144069;font-size:clamp(23px,2.2vw,31px);line-height:1.3;text-wrap:balance}.mis311-pers-background{padding:24px;border:1px solid #c7dbe4;border-radius:16px;background:#f0f6fa}.mis311-pers-background h4{margin:0 0 14px;color:#144069;font-size:clamp(21px,2vw,28px)}.mis311-pers-background p{margin:0;font-size:clamp(19px,1.9vw,27px);line-height:1.45;text-wrap:pretty}.mis311-pers-resistance{display:grid;gap:14px;list-style:none;margin:0;padding:0}.mis311-pers-resistance li{padding:14px 18px;border:1px solid #c7dbe4;border-radius:14px;background:#f0f6fa;font-size:clamp(18px,1.7vw,24px);line-height:1.4}.mis311-pers-task{margin:0;padding:14px 18px;border-left:4px solid #b39159;border-radius:0 12px 12px 0;background:#fbf6e9;color:#144069;font-size:clamp(18px,1.7vw,24px);font-weight:700;line-height:1.35;text-wrap:pretty}
     @media(max-width:700px){.mis311-pers-heading{gap:24px}.mis311-pers-dialog{left:4%;width:92%;padding:14px}.mis311-pers-dialog[open]{gap:12px}.mis311-pers-dialog h2{font-size:23px}.mis311-pers-body{gap:12px}.mis311-pers-view{gap:16px}.mis311-pers-principle{padding:22px;gap:20px}.mis311-pers-principle h3{font-size:29px}.mis311-pers-principle p{font-size:23px}.mis311-pers-case-title{font-size:23px}.mis311-pers-background{padding:18px}.mis311-pers-background h4{font-size:22px}.mis311-pers-background p{font-size:19px}.mis311-pers-resistance{gap:12px}.mis311-pers-resistance li{padding:16px;font-size:20px}.mis311-pers-task{font-size:20px}.mis311-pers-pages button{font-size:14px;padding:7px 10px}}
     @media(max-height:520px){.mis311-pers-heading{gap:16px}.mis311-pers-dialog{padding:12px}.mis311-pers-dialog[open]{gap:8px}.mis311-pers-dialog header{padding-bottom:6px}.mis311-pers-dialog h2{font-size:22px}.mis311-pers-body{gap:8px}.mis311-pers-view{justify-content:flex-start;gap:12px}.mis311-pers-principle{padding:18px;gap:12px}.mis311-pers-number{width:38px;height:38px;font-size:23px}.mis311-pers-principle h3{font-size:26px}.mis311-pers-principle p{font-size:20px}.mis311-pers-case-title{font-size:22px}.mis311-pers-background{padding:16px}.mis311-pers-background p{font-size:18px}.mis311-pers-resistance li{font-size:18px}.mis311-pers-task{font-size:18px}}
+    [data-mis311-persuasion]{container-type:size}
+    .mis311-pers-heading{position:absolute;left:8%;top:50%;width:84%;max-width:none;transform:translateY(-50%);gap:clamp(16px,3cqh,30px);pointer-events:none}
+    .mis311-pers-heading h1{font-size:clamp(34px,min(5.8cqw,12cqh),80px)}
+    .mis311-pers-rule{width:clamp(150px,20cqw,280px)}
+    .mis311-pers-actions{display:contents}
+    .mis311-pers-actions .mis311-pers-button{position:absolute;z-index:1;min-height:clamp(70px,16cqh,120px);padding:clamp(16px,2.2cqh,26px) 24px;border:1px solid #bfd2df;border-top:3px solid #326d9c;border-radius:20px;background:linear-gradient(125deg,#eff6fa,#fff);box-shadow:0 7px 22px #14406914;color:#144069;font:700 clamp(20px,min(2.6cqw,5.2cqh),36px)/1.3 Arial,sans-serif;text-align:center;text-wrap:balance}
+    [data-persuasion-open=principles]{left:6%;top:10%;width:38%;animation:mis311-pers-drift-a 6.3s ease-in-out -2.1s infinite}
+    .mis311-pers-actions [data-persuasion-open=case]{right:7%;top:74%;width:32%;border-top-color:#3997aa;background:linear-gradient(125deg,#eef8f8,#fff);animation:mis311-pers-drift-b 8.4s ease-in-out -1.8s infinite}
+    .mis311-pers-actions .mis311-pers-button:hover,.mis311-pers-actions .mis311-pers-button:focus-visible{animation-play-state:paused;box-shadow:0 0 0 2px #b3915955,0 10px 28px #14406922}
+    @keyframes mis311-pers-drift-a{0%,100%{transform:translate(0,0) rotate(-2deg)}45%{transform:translate(8px,-9px) rotate(-1deg)}}
+    @keyframes mis311-pers-drift-b{0%,100%{transform:translate(0,0) rotate(1deg)}40%{transform:translate(6px,-11px) rotate(-1deg)}}
+    .mis311-pers-dialog{box-sizing:border-box;left:5.6%;top:11.5%;width:88.8%;height:77.4%;max-height:77.4%;padding:clamp(16px,2vw,32px);container-type:size}
+    .mis311-pers-dialog[open]{gap:clamp(10px,2cqh,22px)}
+    .mis311-pers-dialog header{flex:none;padding-bottom:clamp(8px,1.5cqh,16px)}
+    .mis311-pers-dialog h2{font-size:clamp(24px,min(3cqw,6cqh),44px)}
+    .mis311-pers-body{gap:clamp(10px,2cqh,24px)}
+    .mis311-pers-pages{flex:none;gap:clamp(8px,1.2cqw,18px)}
+    .mis311-pers-pages button{min-width:clamp(38px,4.4cqw,64px);padding:clamp(7px,1.3cqh,13px) 12px;font-size:clamp(18px,min(2.1cqw,4cqh),30px)}
+    .mis311-pers-view{justify-content:center;gap:clamp(12px,2.5cqh,28px)}
+    .mis311-pers-principle{box-sizing:border-box;width:100%;max-width:none;flex:1;min-height:0;justify-content:center;gap:clamp(14px,3cqh,32px);padding:clamp(20px,3cqw,48px)}
+    .mis311-pers-number{flex:none;width:clamp(42px,9cqh,80px);height:clamp(42px,9cqh,80px);font-size:clamp(24px,4.5cqh,40px)}
+    .mis311-pers-principle h3{font-size:clamp(28px,min(4cqw,7.5cqh),60px)}
+    .mis311-pers-principle p{max-width:34em;font-size:clamp(23px,min(3.1cqw,6cqh),46px);line-height:1.35}
+    .mis311-pers-attribution{font-size:clamp(13px,min(1.5cqw,2.8cqh),21px)}
+    .mis311-pers-case-title{font-size:clamp(24px,min(3.2cqw,6cqh),46px);line-height:1.2}
+    .mis311-pers-background{flex:1;display:flex;flex-direction:column;justify-content:center;gap:clamp(14px,3cqh,30px);padding:clamp(20px,3cqw,48px)}
+    .mis311-pers-background h4{margin:0;font-size:clamp(24px,min(3cqw,5.5cqh),44px)}
+    .mis311-pers-background p{font-size:clamp(22px,min(3cqw,5.7cqh),44px);line-height:1.4}
+    .mis311-pers-resistance{flex:1;min-height:0;grid-template-rows:repeat(3,minmax(0,1fr));gap:clamp(8px,1.5cqh,18px)}
+    .mis311-pers-resistance li{display:flex;align-items:center;padding:clamp(10px,1.6cqh,20px) clamp(16px,2cqw,32px);font-size:clamp(19px,min(2.5cqw,4.5cqh),36px);line-height:1.3}
+    .mis311-pers-task{flex:none;padding:clamp(10px,1.8cqh,20px) clamp(16px,2cqw,32px);font-size:clamp(19px,min(2.5cqw,4.5cqh),36px);line-height:1.3}
+    @media(max-width:700px){.mis311-pers-heading{left:2%;width:96%}.mis311-pers-heading h1{font-size:clamp(30px,7cqw,44px)}.mis311-pers-actions [data-persuasion-open=principles]{left:4%;width:58%;top:9%}.mis311-pers-actions [data-persuasion-open=case]{right:4%;width:50%;top:75%}.mis311-pers-dialog h2{font-size:22px}.mis311-pers-view{justify-content:flex-start}.mis311-pers-principle,.mis311-pers-background,.mis311-pers-resistance{flex:none}.mis311-pers-resistance{grid-template-rows:none}.mis311-pers-principle p,.mis311-pers-background p{font-size:22px}.mis311-pers-resistance li,.mis311-pers-task{font-size:20px}}
+    .mis311-pers-task{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    .mis311-pers-task-text{min-width:0}
+    .mis311-pers-suggest{flex:none;white-space:nowrap;font-size:clamp(16px,min(1.8cqw,3.5cqh),26px);padding:10px 16px;background:#f4dfb0}
+    .mis311-pers-answers{flex:1;min-height:0;overflow:auto;display:grid;grid-template-rows:repeat(3,minmax(0,1fr));gap:clamp(10px,2cqh,24px)}
+    .mis311-pers-answer{min-height:0;display:flex;flex-direction:column;justify-content:center;gap:clamp(8px,1.5cqh,18px);padding:clamp(14px,2cqh,24px) clamp(18px,2cqw,32px);border:1px solid #c7dbe4;border-radius:16px;background:#f0f6fa}
+    .mis311-pers-answer:nth-child(2){background:#f0f8f8;border-color:#bad7dc}.mis311-pers-answer:nth-child(3){background:#fbf6e9;border-color:#ddcba8}
+    .mis311-pers-answer h3{margin:0;color:#144069;font-size:clamp(20px,min(2.5cqw,4.5cqh),36px);line-height:1.2}
+    .mis311-pers-answer p{margin:0;font-size:clamp(18px,min(2.1cqw,3.8cqh),30px);line-height:1.3;text-wrap:pretty}.mis311-pers-answer strong{color:#144069}
+    @media(max-width:700px){.mis311-pers-task{flex-direction:column;align-items:flex-start}.mis311-pers-answers{grid-template-rows:none;display:flex;flex-direction:column}.mis311-pers-answer{flex:none}}
+    [data-mis311-persuasion]:has(>.mis311-pers-dialog[open]) .mis311-pers-actions .mis311-pers-button{animation-play-state:paused}
+    @media(prefers-reduced-motion:reduce){.mis311-pers-actions .mis311-pers-button{animation:none!important}}
   `;
   const ns='http://www.w3.org/2000/svg';const art=document.createElementNS(ns,'svg');art.setAttribute('class','mis311-pers-art');art.setAttribute('viewBox','0 0 1200 600');art.setAttribute('aria-hidden','true');art.innerHTML='<defs><radialGradient id="persuasion-halo"><stop stop-color="#e7f0f4" stop-opacity=".65"/><stop offset="1" stop-color="#e7f0f4" stop-opacity="0"/></radialGradient></defs><ellipse cx="600" cy="300" rx="440" ry="200" fill="url(#persuasion-halo)"/><g fill="none" stroke="#144069" stroke-width="3" opacity=".16"><circle cx="140" cy="115" r="26"/><circle cx="70" cy="215" r="16"/><circle cx="210" cy="215" r="16"/><path d="m125 136-43 65m73-65 43 65M86 215h108"/><circle cx="1050" cy="440" r="26"/><circle cx="980" cy="530" r="16"/><circle cx="1120" cy="530" r="16"/><path d="m1035 461-43 55m73-55 43 55M996 530h108"/></g><g fill="none" stroke="#9d7944" stroke-width="2.5" opacity=".24"><path d="M90 465h150l65-55m-13 0h13v13M1110 130H960l-65 55m13 0h-13v-13M340 80h110m300 460h100" stroke-linecap="round"/><circle cx="90" cy="465" r="7"/><circle cx="1110" cy="130" r="7"/></g>';
-  const heading=element('div','mis311-pers-heading');const title=element('h1','',config.title);const rule=element('div','mis311-pers-rule');rule.setAttribute('aria-hidden','true');const actions=element('div','mis311-pers-actions');heading.append(title,rule,actions);
+  const heading=element('div','mis311-pers-heading');const title=element('h1','',config.title);const rule=element('div','mis311-pers-rule');rule.setAttribute('aria-hidden','true');const actions=element('div','mis311-pers-actions');heading.append(title,rule);
   const dialog=element('dialog','mis311-pers-dialog');dialog.id='mis311-persuasion-details';dialog.setAttribute('aria-labelledby','mis311-persuasion-details-title');const header=element('header');const dialogTitle=element('h2');dialogTitle.id='mis311-persuasion-details-title';const close=button('×',()=>dialog.close(),'mis311-pers-button mis311-pers-close');close.setAttribute('aria-label','Close persuasion details');header.append(dialogTitle,close);const body=element('div','mis311-pers-body');dialog.append(header,body);let trigger;
-  dialog.addEventListener('close',()=>trigger?.focus());dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();});
+  let answersDialog,answersTrigger;
+  function openAnswers(source){
+    if(document.defaultView.eiuSectionEnded||document.defaultView.eiuLessonTeaching!==true)return;
+    answersTrigger=source;
+    if(!answersDialog){
+      answersDialog=element('dialog','mis311-pers-dialog');answersDialog.id='mis311-persuasion-answers';answersDialog.setAttribute('aria-labelledby','mis311-persuasion-answers-title');
+      const answerHeader=element('header');const answerTitle=element('h2','','Suggested answers');answerTitle.id='mis311-persuasion-answers-title';
+      const back=button('\u00d7',()=>answersDialog.close(),'mis311-pers-button mis311-pers-close');back.setAttribute('aria-label','Return to case study');answerHeader.append(answerTitle,back);
+      const list=element('div','mis311-pers-answers');
+      config.suggestedAnswers.forEach(group=>{const card=element('section','mis311-pers-answer');card.appendChild(element('h3','',group.situation));group.answers.forEach(answer=>{const line=element('p');line.append(element('strong','',`${answer.principle}: `),document.createTextNode(answer.action));card.appendChild(line);});list.appendChild(card);});
+      answersDialog.append(answerHeader,list);dialog.appendChild(answersDialog);
+      answersDialog.addEventListener('close',()=>{if(dialog.open&&answersTrigger?.isConnected)answersTrigger.focus();});
+      answersDialog.addEventListener('keydown',event=>{if(event.key==='Escape')event.stopPropagation();});
+      answersDialog.addEventListener('click',event=>{if(event.target!==answersDialog)return;const r=answersDialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)answersDialog.close();});
+    }
+    source.setAttribute('aria-controls',answersDialog.id);if(!answersDialog.open)answersDialog.showModal();
+  }
+  dialog.addEventListener('close',event=>{if(event.target!==dialog)return;if(answersDialog?.open)answersDialog.close();trigger?.focus();});dialog.addEventListener('click',event=>{if(event.target!==dialog)return;const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();});
+  document.defaultView.addEventListener('pagehide',()=>{if(answersDialog?.open)answersDialog.close();if(dialog.open)dialog.close();},{once:true});
+  const resources=new Map();
   function open(kind,source){
-    trigger=source;dialog.dataset.kind=kind;dialogTitle.textContent=kind==='principles'?config.principlesTitle:'Case Study · Activity';body.replaceChildren();const pages=element('nav','mis311-pers-pages');pages.setAttribute('aria-label',kind==='principles'?'Six principles':'Case study pages');const view=element('section','mis311-pers-view');const buttons=[];
+    if(document.defaultView.eiuSectionEnded)return;
+    trigger=source;dialog.dataset.kind=kind;dialogTitle.textContent=kind==='principles'?config.principlesTitle:'Case Study · Activity';
+    const cached=resources.get(kind);if(cached){if(body.firstChild!==cached[0])body.replaceChildren(...cached);if(!dialog.open)dialog.showModal();return;}
+    body.replaceChildren();const pages=element('nav','mis311-pers-pages');pages.setAttribute('aria-label',kind==='principles'?'Six principles':'Case study pages');const view=element('section','mis311-pers-view');const buttons=[],cachedPages=new Map();
     function select(index){
-      view.replaceChildren();view.dataset.persuasionPage=String(index+1);
+      if(view.dataset.persuasionPage===String(index+1))return;
+      view.dataset.persuasionPage=String(index+1);
+      const cached=cachedPages.get(index);if(cached)view.replaceChildren(...cached);else{
+      view.replaceChildren();
       if(kind==='principles'){const item=config.principles[index];const card=element('div','mis311-pers-principle');const number=element('span','mis311-pers-number',String(index+1));number.setAttribute('aria-hidden','true');card.append(number,element('h3','',item.name),element('p','',item.definition));view.append(card,element('p','mis311-pers-attribution','Principles: Robert Cialdini. Source illustration: Readingraphics.'));}
       else if(index<2){view.appendChild(element('h3','mis311-pers-case-title',index===0?config.caseTitle:'Proposed change'));const background=element('section','mis311-pers-background');background.append(element('h4','',index===0?'Background':'Proposal'),element('p','',config.backgroundParts[index]));view.appendChild(background);}
-      else{view.appendChild(element('h3','mis311-pers-case-title','Resistance to the proposal'));const list=element('ul','mis311-pers-resistance');config.resistance.forEach(text=>list.appendChild(element('li','',text)));view.append(list,element('p','mis311-pers-task',config.activity));}
+      else{view.appendChild(element('h3','mis311-pers-case-title','Resistance to the proposal'));const list=element('ul','mis311-pers-resistance');config.resistance.forEach(text=>list.appendChild(element('li','',text)));const task=element('p','mis311-pers-task');task.appendChild(element('span','mis311-pers-task-text',config.activity));if(document.defaultView.eiuLessonTeaching===true){const suggested=button('Suggested answers',()=>openAnswers(suggested),'mis311-pers-button mis311-pers-suggest');suggested.dataset.persuasionAnswers='true';suggested.setAttribute('aria-haspopup','dialog');task.appendChild(suggested);}view.append(list,task);}
+      cachedPages.set(index,[...view.childNodes]);}
       buttons.forEach((button,i)=>{if(index===i)button.setAttribute('aria-current','page');else button.removeAttribute('aria-current');});
     }
-    const count=kind==='principles'?config.principles.length:3;for(let index=0;index<count;index++){const item=button(String(index+1),()=>select(index));item.dataset.persuasionPageButton=String(index+1);item.setAttribute('aria-label',kind==='principles'?config.principles[index].name:['Background','Proposal','Resistance and activity'][index]);buttons.push(item);pages.appendChild(item);}select(0);body.append(pages,view);dialog.showModal();
+    const count=kind==='principles'?config.principles.length:3;for(let index=0;index<count;index++){const item=button(String(index+1),()=>select(index));item.dataset.persuasionPageButton=String(index+1);item.setAttribute('aria-label',kind==='principles'?config.principles[index].name:['Background','Proposal','Resistance and activity'][index]);buttons.push(item);pages.appendChild(item);}select(0);body.append(pages,view);resources.set(kind,[pages,view]);if(!dialog.open)dialog.showModal();
   }
   for(const [key,label] of [['principles','Six Principles  ?'],['case','Case Study  ?']]){const item=button(label,()=>open(key,item));item.dataset.persuasionOpen=key;item.setAttribute('aria-haspopup','dialog');item.setAttribute('aria-controls',dialog.id);actions.appendChild(item);}
-  content.replaceChildren(style,art,heading,dialog);content.parentElement.setAttribute('role','group');
+  content.replaceChildren(style,art,heading,actions,dialog);content.parentElement.setAttribute('role','group');
 }

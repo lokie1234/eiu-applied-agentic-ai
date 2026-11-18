@@ -1,4 +1,5 @@
 import "server-only";
+import { sectionWheelEnabled } from '@/lib/sectionWheel';
 import { createPrivateKey, createPublicKey, sign, timingSafeEqual } from "node:crypto";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 import type { AppUserAccess } from "@/lib/auth/types";
@@ -21,6 +22,7 @@ export function mintRealtimeToken(access: AppUserAccess, now = Date.now()) {
     iat: Math.floor(now / 1000), exp: Math.floor(now / 1000) + 120,
     role: access.isAdmin ? "admin" : "learner", sections: JSON.stringify(allowed.map(section => section.id)), teaching: JSON.stringify(allowed.filter(section => section.canFacilitate).map(section => section.id)),
     liveSections: JSON.stringify(access.isAdmin ? allowed.filter(section => section.contentType === 'tsx' && section.liveEnabled !== false).map(section => section.id) : []),
+    wheelSections: JSON.stringify(allowed.filter(section => section.wheelEnabled ?? sectionWheelEnabled(section.id)).map(section => section.id)),
   })).toString("base64url");
   return `${header}.${body}.${sign("RSA-SHA256", Buffer.from(`${header}.${body}`), privateKey).toString("base64url")}`;
 }

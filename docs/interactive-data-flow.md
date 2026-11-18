@@ -69,6 +69,76 @@ prevents a cached view from saving a stale selected question. Nested dialogs
 close one layer per Escape, and termination closes every layer. No new polling
 or result storage is introduced.
 
+## Shared section Class Spotlight
+
+Admin Access stores each section's enable flag in Supabase course metadata.
+Existing MIS 301 Section 1 and MIS 311 Section 2 default to enabled; an explicit
+false wins. Signed JWT wheel scopes and every public Convex function enforce
+section access independently. The shared deck toolbar shows one transparent,
+white-outline icon to Admin/Teaching, including fullscreen. Settings are inside
+the wheel modal. Each Convex classroom owns its positive integer count, with no
+arbitrary count ceiling; draws clamp to the actual eligible roster. Section IDs
+isolate counts, locks, epochs and rate limits. Active missing projections are
+repaired in bounded batches; no per-slide connection or new polling loop exists.
+
+The supplied EIU HTML's navy/gold SVG is adapted to the shared modal: fixed
+bezel, gold pointer, center Spin trigger and server-driven rotating segments.
+Its standalone sample names, editable roster, localStorage history and random
+winner logic are excluded. Names come from signed Learning identities. The
+roster is fetched on demand when the modal opens; results freeze their animation
+labels. No external font request is needed. MIS 301 retains its existing practice
+bridge and frozen assignments through a second registered iframe, sharing one
+root subscription. Groups larger than seven cycle through Parts 1-7 and still
+require a draw reset before another round. Its whole group reveals within five
+seconds. Generic groups can draw again once the previous spin finishes.
+
+Learning sign-in requires a username for enabled scopes. Email and other fields
+follow Learner Information configuration. Learners receive only their own
+selected notification, which closes after ten seconds without moving the slide.
+
+Supabase `SECTION_OPENED` identities feed the same bounded server-owned roster
+snapshot, deduplicated to the latest signed session per real email when provided,
+or by opaque session ID when email is not collected. Never deduplicate names. Convex additionally
+filters it against unexpired presence. The server route freshly verifies access
+and the termination epoch before each draw; `spotlight:draw` independently checks
+section/slide/teaching scopes, limits requests and serializes concurrent spins.
+One five-second spin selects the configured group of opaque sessions, with repeat draws allowed after
+the previous spin. The native wheel only animates this authoritative result.
+
+Only the selected signed session receives its result through `spotlight:view`.
+Other learners receive neither the roster nor other winners. The congratulation
+dialog opens after the reveal, closes automatically after ten seconds, and never
+navigates or recreates the learner's current slide. Re-selection starts a fresh
+ten-second display; termination closes both modals and rejects late work.
+Seen draw IDs are scoped in session storage to suppress repeats after refresh.
+
+Learner subscriptions read only the classroom projection and bounded current draw
+rows, never heartbeat-dependent presence/counts. Teaching does not subscribe to
+an unused roster. Connected clients verify identity/epoch with a context-only
+HTTP read; disconnected clients retain the full authenticated fallback. Repeated
+focus checks share one pending request. A draw normally makes one mutation;
+only a stale classroom triggers one roster rebuild and one identical retry.
+
+In-flight clicks share one request and preserve the active animation on reopen.
+An ambiguous network failure retains its request ID for retry; a deliberate new
+round gets a new ID. Convex stores retry results separately in `spotlightRequests`
+for two minutes with scheduled internal cleanup, so delayed retries cannot replace
+newer rounds or enlarge every learner's live snapshot. Busy and empty attempts
+still commit rate-limit accounting. Animation responses contain at most twelve
+labels; eligibility and winner selection use the whole active signed roster.
+
+Draws are ephemeral classroom state in bounded `spotlight` rows, fenced by
+the classroom epoch. They are not reportable submissions and do not add workbook
+columns or delete Supabase history. Supabase remains the source of identity and
+reset/termination history. Reconciliation includes both MIS 301 and MIS 311
+rosters. If the realtime connection is unavailable, the authenticated HTTP path
+uses the same Convex authority; during a full Convex outage it retains the
+Supabase roster fallback but does not fabricate a second draw or claim success.
+
+The configured Convex deployment requires matching `EIU_AUTH_JWKS` (a public-key
+data URI), `EIU_REALTIME_BRIDGE_SECRET` and `EIU_APP_ORIGIN`. Deploying these
+functions does not deploy the new Next.js route or UI to Vercel.
+
 ## Excel contract
 
 The MIS 301 question UI now uses one complete Colab-style popup per question.
@@ -82,7 +152,8 @@ draw, never a new identity field.
 
 MIS 301 Section 1 uses `lib/mis301Practice.ts` for the four allowed practice parts
 and report field labels. Learning passcode login for this section always requires
-Username (`information.name`) and Email, even if the global identity form is off.
+Username (`information.name`), even if the global identity form is off. Email is
+required only when included in the enabled Learner Information configuration.
 Teaching sessions never join the learner roster. Existing anonymous sessions must
 sign in again before submitting. The sandbox requests `load`/`submit`/`draw` through the parent
 bridge; the parent checks its actual iframe window and current slide request ID,
@@ -112,7 +183,8 @@ Retain the Supabase fallback and never acknowledge a submission before its durab
 write succeeds. Reset/termination rebuilds the projection and clears obsolete draws.
 
 Class Spotlight is visible only to Admin/Teaching. Its roster contains the latest
-signed learner session per email that actually opened this section within the past
+signed learner session per supplied email (or per session ID when email is not
+collected) that actually opened this section within the past
 24 hours, after termination; this
 deduplication applies only to the game, not Excel's distinct-session rows. The
 teacher chooses 1–50 participants from the complete section roster. An authorized,
@@ -194,7 +266,7 @@ Server-owned MIS301_QUESTION_FIELDS maps each assignment part to existing activi
 IDs, evidence-code fields and scalar answers. Do not conflate assignmentPart 1-7
 with the original questionNumber 1-5; the latter exists only on Parts 3-7.
 
-New version-3 real draws automatically select at most seven unique signed subjects
+New version-3 real draws select the configured number of unique signed subjects, clamped to the eligible pool
 and store an explicit parts array aligned with subjects and usernames. No part is
 assigned twice in a new round. The draw freezes seven bounded
 part configurations, including each part's original task count. Setup rejects
@@ -271,3 +343,38 @@ checkpoint. One bounded fallback loop belongs to the Live follower, never to eac
 slide. Existing result submissions and durable revision notifications remain
 unchanged. See [Admin Live presentation](live-presentation.md) for operation,
 security boundaries and recovery behavior.
+
+
+### Wheel of Name demo and result layout
+
+The user-requested Demo mode contains 40 fixed English sample names in the parent
+widget only. It is an explicit Settings toggle, default off, and never writes a
+classroom draw, changes live count settings, assigns practice parts or sends
+learner notifications. Demo selections are browser previews; real draws remain
+server-owned. Exiting Demo restores the real draw path. The wheel center reads
+SPIN with no EIU BA subtitle. The expanded modal places results on the right
+at desktop widths and below on phones. Group names reveal sequentially at 220ms
+intervals after the five-second spin; timers cancel on replacement/unmount.
+The 1320px wheel ceiling is three times the previous 440px ceiling, bounded by
+available viewport width and height to preserve the deck layout/fullscreen.
+
+
+The wheel overlay now has no outer title/background panel. Wheel of Name remains
+its accessible dialog name; the visible heading and shared Selected names frame
+are removed. Every result, including a single selection, is an independent
+numbered card. Grid columns, spacing, badge and type sizes adapt to the final
+group size; long names wrap. Dense groups scroll inside the result area on small
+screens. Existing sequential spin timing and frozen results are preserved.
+Demo Settings cancels pending live settings requests and saves locally even when
+the settings API is unavailable; late responses cannot replace demo settings.
+The deployed scoped spotlight:settings query was verified with a read-only
+teacher token after updating Convex; this does not deploy the web application.
+
+
+The standalone Spin again button is removed. The center button toggles SPIN / STOP.
+STOP freezes the currently rendered SVG angle and cancels both the active spin
+timer and every queued name-reveal timer. Only names already displayed remain;
+STOP before the first reveal leaves the list empty. A late draw response cannot
+restart the animation or add names. Reopening retains the stopped angle/cards;
+a new explicit SPIN starts another round. STOP affects local presentation; it
+never replaces an authoritative server draw with a browser-selected winner.

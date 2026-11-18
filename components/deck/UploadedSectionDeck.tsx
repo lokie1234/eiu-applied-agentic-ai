@@ -1,6 +1,7 @@
 "use client";
 
-import { memo, type ComponentProps, type ReactNode, type RefObject, useEffect, useMemo, useRef, useState } from "react";
+import { memo, type ComponentProps, type ReactNode, type RefObject, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { SectionWheelContext } from './SectionWheelContext';
 import dynamic from "next/dynamic";
 import SharedDeckFrame from "@/components/deck/SharedDeckFrame";
 import HairlineLoading from "@/components/HairlineLoading";
@@ -86,7 +87,8 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
   const compiledCount = compiled ? isAdmin ? compiled.teachingSlides : compiled.learnerSlides : undefined;
   const needsTemplate = Boolean(templateKey && !(templateKey === "eiu-business-v1" && compiled?.preservesBusinessTemplate));
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const practiceAccess = useLessonPracticeBridge(sectionId, iframeRef);
+  const wheelFrame=useRef<HTMLIFrameElement>(null),wheelScope=useContext(SectionWheelContext);
+  const practiceAccess = useLessonPracticeBridge(sectionId, iframeRef, wheelFrame);
   const practiceAllowed = sectionId !== MIS301_SECTION_ID || isAdmin || Boolean(practiceAccess?.assignment);
   const practiceAssignmentKey = `${practiceAccess?.practiceSession || ""}:${practiceAccess?.assignment?.drawId || ""}:${practiceAccess?.assignment?.subject || ""}:${practiceAccess?.assignment?.part || ""}`;
   useMis301NotebookBridge(sectionId, iframeRef);
@@ -177,7 +179,7 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
     return <UploadedPdfDeck contentUrl={contentUrl} slideCount={slideCount} courseTitle={courseTitle} sectionTitle={sectionTitle} templateImage={templateImage} />;
   }
 
-  return (
+  return (<SectionWheelContext.Provider value={wheelScope?{...wheelScope,practice:sectionId===MIS301_SECTION_ID?{code:tsxCode,templateKey,background:useTemplate?templateImage:'',frame:wheelFrame,assignmentKey:practiceAssignmentKey}:undefined}:null}>
     <SharedDeckFrame
       courseTitle={courseTitle}
       sectionTitle={sectionTitle}
@@ -208,5 +210,5 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
         );
       }}
     />
-  );
+  </SectionWheelContext.Provider>);
 }

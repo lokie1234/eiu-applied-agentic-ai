@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { ConvexClient } from "convex/browser";
 import { makeFunctionReference } from "convex/server";
+import type { SpotlightView } from '@/lib/mis311Spotlight';
 
 type Scope = { id: string; sectionKey: string; courseId: string; courseSlug?: string };
 let client: ConvexClient | null = null;
@@ -92,6 +93,18 @@ export function watchClassroom(sectionId: string, callback: (value: ClassroomVie
     if (!client || !ready) return;
     owner = client;
     stop = client.onUpdate(makeFunctionReference<"query", { sectionId: string }, ClassroomView>("classroom:view"), { sectionId }, callback, () => {});
+  };
+  const unwatch = watchRealtimeReady(attach); attach();
+  return () => { unwatch(); stop?.(); };
+}
+export function watchSpotlight(sectionId: string, callback: (value: SpotlightView) => void) {
+  let stop: (() => void) | undefined, owner: ConvexClient | null = null;
+  const attach = () => {
+    if (owner === client && stop && ready) return;
+    stop?.(); stop = undefined; owner = null;
+    if (!client || !ready) return;
+    owner = client;
+    stop = client.onUpdate(makeFunctionReference<'query', { sectionId: string }, SpotlightView>('spotlight:view'), { sectionId }, callback, () => {});
   };
   const unwatch = watchRealtimeReady(attach); attach();
   return () => { unwatch(); stop?.(); };

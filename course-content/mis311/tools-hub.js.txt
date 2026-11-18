@@ -112,23 +112,34 @@ function renderToolsHub(content, hub) {
       }
       return svg;
     }
+    const chartViews=new Map();
     function select(example){
-      view.replaceChildren();view.dataset.activeChart=example.key;
+      if(view.dataset.activeChart===example.key)return;
+      view.dataset.activeChart=example.key;
+      const cached=chartViews.get(example.key);
+      if(cached)view.replaceChildren(...cached);
+      else{
+      view.replaceChildren();
       const heading=element('div','mis311-rca-chart-header');heading.append(element('h3','',example.heading),element('span','mis311-rca-chart-badge','Illustrative data'));
       const layout=element('div','mis311-rca-chart-layout');const notes=element('div','mis311-rca-chart-notes');notes.append(element('p','',example.description),element('p','',example.interpretation));layout.append(chartSvg(example),notes);view.append(heading,layout);
+      chartViews.set(example.key,[...view.childNodes]);
+      }
       buttons.forEach(({button,key})=>button.setAttribute('aria-pressed',String(key===example.key)));
     }
     hub.chartExamples.forEach(example=>{const button=action(example.title,()=>select(example),'mis311-tools-tab');button.dataset.chartKey=example.key;buttons.push({button,key:example.key});tabs.appendChild(button);});
     select(hub.chartExamples[0]);gallery.append(tabs,view);return gallery;
   }
   const primary=makeDialog('mis311-tool-details','Close tool');
-  let lastTrigger;
+  let lastTrigger;const toolViews=new Map();
   primary.dialog.addEventListener('close',()=>lastTrigger?.focus());
   const title=element('h1','mis311-tools-title',hub.title);const grid=element('div','mis311-tools-grid');
   hub.cards.forEach(card=>{
     const button=action('',()=>openTool(card,button),'mis311-tool-card');button.dataset.toolKey=card.key;button.setAttribute('aria-haspopup','dialog');button.setAttribute('aria-controls',primary.dialog.id);button.append(element('strong','',card.shortTitle||card.title),element('span','',card.description));grid.appendChild(button);
   });
   function openTool(card,trigger){
+    if(document.defaultView.eiuSectionEnded)return;
+    const cached=toolViews.get(card.key);
+    if(cached){lastTrigger=trigger;primary.dialog.dataset.tool=card.key;primary.title.textContent=card.title;if(primary.body.firstChild!==cached.body[0])primary.body.replaceChildren(...cached.body);if(primary.footer.firstChild!==cached.footer[0]&&(primary.footer.firstChild||cached.footer.length))primary.footer.replaceChildren(...cached.footer);if(!primary.dialog.open)primary.dialog.showModal();return;}
     lastTrigger=trigger;primary.dialog.dataset.tool=card.key;primary.title.textContent=card.title;primary.body.replaceChildren();primary.footer.replaceChildren();
     if(card.key==='fiveWhys'){
       const steps=element('ol','mis311-why-grid');const cards=hub.fiveWhysSteps.map((step,index)=>{const node=element('li','mis311-why-card');node.dataset.whyIndex=String(index);node.append(element('h3','',step.label),element('p','',step.text));steps.appendChild(node);return node;});
@@ -140,12 +151,13 @@ function renderToolsHub(content, hub) {
     }else if(card.key==='pareto'){
       const layout=element('div','mis311-pareto-layout');layout.appendChild(paretoFigure('Cause of Injuries On Site - Pareto Chart'));const notes=element('ul','mis311-pareto-notes');hub.paretoNotes.forEach(text=>notes.appendChild(element('li','',text)));layout.appendChild(notes);primary.body.appendChild(layout);
     }else if(card.key==='fishbone'){
-      const tabs=element('div','mis311-tools-tabs');const view=element('div','mis311-tools-body');view.style.flex='1';const buttons=[];const select=sourceSlide=>{view.replaceChildren(fishbone(sourceSlide));buttons.forEach(({button,id})=>button.setAttribute('aria-pressed',String(sourceSlide===id)));};
+      const tabs=element('div','mis311-tools-tabs');const view=element('div','mis311-tools-body');view.style.flex='1';const buttons=[],figures=new Map();const select=sourceSlide=>{if(view.dataset.fishboneSource===String(sourceSlide))return;let figure=figures.get(sourceSlide);if(!figure){figure=fishbone(sourceSlide);figures.set(sourceSlide,figure);}view.replaceChildren(figure);view.dataset.fishboneSource=String(sourceSlide);buttons.forEach(({button,id})=>button.setAttribute('aria-pressed',String(sourceSlide===id)));};
       card.sourceSlides.forEach((sourceSlide,index)=>{const tab=action(index===0?'Structure':'Brainstorm',()=>select(sourceSlide),'mis311-tools-tab');tab.dataset.fishboneSource=String(sourceSlide);buttons.push({button:tab,id:sourceSlide});tabs.appendChild(tab);});select(card.sourceSlides[0]);primary.body.append(tabs,view);
     }else{
       primary.body.appendChild(chartGallery());
     }
-    primary.dialog.showModal();
+    toolViews.set(card.key,{body:[...primary.body.childNodes],footer:[...primary.footer.childNodes]});
+    if(!primary.dialog.open)primary.dialog.showModal();
   }
   content.replaceChildren(style,title,grid,primary.dialog);content.parentElement.setAttribute('role','group');
 }

@@ -1,4 +1,4 @@
-import { queryGeneric, mutationGeneric, internalMutationGeneric, internalActionGeneric, makeFunctionReference, type GenericMutationCtx, type DataModelFromSchemaDefinition, type GenericQueryCtx, type QueryBuilder, type MutationBuilder, type ActionBuilder } from "convex/server";
+import { queryGeneric, mutationGeneric, internalQueryGeneric, internalMutationGeneric, internalActionGeneric, makeFunctionReference, type GenericMutationCtx, type DataModelFromSchemaDefinition, type GenericQueryCtx, type QueryBuilder, type MutationBuilder, type ActionBuilder } from "convex/server";
 import schema from "./schema";
 import { ConvexError, v } from "convex/values";
 
@@ -8,6 +8,7 @@ const query = queryGeneric as QueryBuilder<DataModel, "public">;
 const mutation = mutationGeneric as MutationBuilder<DataModel, "public">;
 const internalMutation = internalMutationGeneric as MutationBuilder<DataModel, "internal">;
 const internalAction = internalActionGeneric as ActionBuilder<DataModel, "internal">;
+const internalQuery = internalQueryGeneric as QueryBuilder<DataModel,'internal'>;
 type Identity = { subject: string; role: unknown; sections: unknown; teaching: unknown };
 function scopes(identity: Identity) { try { return JSON.parse(String(identity.sections)) as string[]; } catch { return []; } }
 function teaching(identity: Identity) { try { return JSON.parse(String(identity.teaching)) as string[]; } catch { return []; } }
@@ -76,14 +77,21 @@ export const publish = internalMutation({ args: { rows: v.array(v.object({ secti
     else if (row.revision > old.revision) await ctx.db.patch(old._id, { revision: row.revision });
   }
 } });
+export const activeWheelSections=internalQuery({args:{},handler:async ctx=>{
+  const active=await ctx.db.query('counts').withIndex('active',q=>q.gt('online',0)).take(500);
+  const missing=await Promise.all(active.map(async row=>{const room=await ctx.db.query('classroom').withIndex('room',q=>q.eq('sectionId',row.sectionId)).unique();return !room||room.wheelEnabled===false||row.subjects.some(subject=>!room.members.some(member=>member.subject===subject))?row.sectionId:null;}));
+  return missing.filter(id=>id!==null);
+}});
 export const reconcile = internalAction({ args: {}, handler: async ctx => {
   const origin = process.env.EIU_APP_ORIGIN, secret = process.env.EIU_REALTIME_BRIDGE_SECRET;
   if (!origin || !secret) return;
-  const response = await fetch(`${origin}/api/realtime/sync`, { headers: { Authorization: `Bearer ${secret}` }, signal: AbortSignal.timeout(8000) });
+  const sections=await ctx.runQuery(makeFunctionReference<'query'>('realtime:activeWheelSections'),{});
+  const response = await fetch(`${origin}/api/realtime/sync?sections=${encodeURIComponent(JSON.stringify(sections))}`, { headers: { Authorization: `Bearer ${secret}` }, signal: AbortSignal.timeout(8000) });
   if (!response.ok) throw new Error("Realtime reconciliation unavailable.");
   const data = await response.json();
   await ctx.runMutation(makeFunctionReference<"mutation">("realtime:publish"), { rows: data.rows });
   if (data.classroom) await ctx.runMutation(makeFunctionReference<"mutation">("classroom:replace"), data.classroom);
+  for (const room of data.classrooms || []) await ctx.runMutation(makeFunctionReference<'mutation'>('classroom:replace'), room);
 } });
 export const cleanup = internalMutation({ args: {}, handler: async ctx => {
   const rows = await ctx.db.query("limits").take(1000);

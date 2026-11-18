@@ -53,10 +53,10 @@ test("failed folder operations are released so retry can recover", async () => {
   assert.equal(await f.api.webFolder(f.client, "parent", "group"), "web-folder");
 });
 test("legacy TSX exports compiled JS with custom safe names", async () => {
+  const { compileTsx } = load("lib/sectionContent.ts", {});
   const f = fixture();
   await f.api.exportDocument(f.client, { sectionId: "section", folderId: "parent", name: "Custom slides" });
   assert.deepEqual(f.state.downloads, ["course/section/original.tsx"]);
-  const { compileTsx } = load("lib/sectionContent.ts", {});
   assert.equal(Buffer.from(f.state.uploads[0].body).toString(), compileTsx(f.state.original));
   assert.equal(f.state.uploads[0].name, "Custom slides.js");
   assert.equal(f.state.uploads[0].folderId, "parent");
@@ -112,7 +112,6 @@ test("Pandas exports recover the exact bundled TSX and publish a Drive source", 
   const plan = await f.api.exportPlan("group");
   assert.equal(plan[0].unavailable, undefined);
   await f.api.exportDocument(f.client, { sectionId: f.state.section.id, folderId: "target" });
-  const { compileTsx } = load("lib/sectionContent.ts", {});
   assert.equal(Buffer.from(f.state.uploads[0].body).toString(), fs.readFileSync("course-content/mis301/PandasPracticePart2.js", "utf8"));
   assert.equal(f.state.downloads.length, 0);
   assert.equal(f.state.published.content_path, "drive:uploaded-file-123");
@@ -169,7 +168,7 @@ test("folder exports nest course folders and validate built-in membership before
   let catalogReads = 0;
   const route = load("app/api/admin/drive/export/route.ts", {
     "next/cache": { revalidatePath() {} }, "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200 }) } },
-    "@/lib/auth/currentUser": { requireAdminAccess: async () => true },
+    "@/lib/auth/currentUser": { requireAdminAccess: async () => ({driveEnabled:true}) },
     "@/lib/auth/courseAccessStorage": { getCoursesAndSectionsData: async () => { catalogReads++; return catalog; } },
     "@/lib/drive/connection": { driveConfig: () => ({ redirectUri: "https://example.com/api/admin/drive/callback" }), authorizedDriveClient: async () => ({}) },
     "@/lib/drive/destinations": { selectedDestination: async () => ({ folder_id: "target" }), verifyDriveFolder: async () => {} },

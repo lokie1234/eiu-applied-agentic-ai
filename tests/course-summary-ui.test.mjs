@@ -1,3 +1,4 @@
+import {sectionWheelDependency} from './helpers/section-wheel.mjs';
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import vm from "node:vm";
@@ -36,7 +37,7 @@ test("admin can clear a summary and reopen or cancel the editor without restorin
   }).outputText;
   vm.runInNewContext(code, {
     exports, fetch, window, document: window.document, console, AbortController, AbortSignal,
-    require: name => {
+    require: name => { const wheel=sectionWheelDependency(name);if(wheel)return wheel;
       if (name === '@/lib/learningLanguage') return {useLearningLanguage:()=>({t:value=>value})};
       if (name === "@/lib/learningIdentity") return learningIdentity;
       if (name.endsWith(".css")) return new Proxy({}, { get: (_, key) => key === "__esModule" ? false : String(key) });

@@ -104,9 +104,11 @@ function renderDefectExercise(content, exercise) {
   function advance(){
     if(!ready||stage()>=5||host?.eiuSectionEnded)return;
     if(stage()>0)[title,...story.children].forEach(node=>node.getAnimations?.().forEach(animation=>animation.cancel()));
-    const current=stage(),anchor=current===0?title:current===2?story.children[1]:null;const before=anchor?.getBoundingClientRect().top;
+    const current=stage(),anchor=current===0?title:current===2?story.children[1]:null;
+    const animate=anchor&&typeof anchor.animate==='function'&&!host?.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    const before=animate?anchor.getBoundingClientRect().top:0;
     state.exerciseStage=current+1;update();content.scrollTop=0;
-    if(anchor&&typeof anchor.animate==='function'&&!host?.matchMedia('(prefers-reduced-motion:reduce)').matches){const distance=before-anchor.getBoundingClientRect().top;if(distance>0)anchor.animate([{transform:`translateY(${distance}px)`},{transform:'translateY(0)'}],{duration:450,easing:'cubic-bezier(.22,1,.36,1)'});}
+    if(animate){const distance=before-anchor.getBoundingClientRect().top;if(distance>0)anchor.animate([{transform:`translateY(${distance}px)`},{transform:'translateY(0)'}],{duration:450,easing:'cubic-bezier(.22,1,.36,1)'});}
     save();
   }
   content.addEventListener('click',advance);

@@ -45,7 +45,6 @@ test("saving built-in slides checks the course, exports compiled JS and leaves t
   assert.equal(await api.saveBuiltinSection({}, { sectionId: "s1", folderId: "destination123" }), "file123");
   assert.equal(uploads[0].folderId, "destination123");
   assert.equal(uploads[0].name, "Section 1 — From Prompt to Web App.js");
-  const { compileTsx } = load("lib/sectionContent.ts", {});
   assert.equal(Buffer.from(uploads[0].body).toString(), fs.readFileSync("lib/drive/builtin-decks/section1.js", "utf8"));
   section.position = 3; section.title = "Tên mới trên web";
   await api.saveBuiltinSection({}, { sectionId: "s1", folderId: "destination123" });
@@ -59,7 +58,7 @@ test("the built-in save endpoint uses the verified destination and returns its D
   const saves = [];
   const route = load("app/api/admin/drive/export/route.ts", {
     "next/server": { NextResponse: { json: (data, options = {}) => ({ data, status: options.status ?? 200 }) } },
-    "@/lib/auth/currentUser": { requireAdminAccess: async () => ({ email: "admin@example.test" }) },
+    "@/lib/auth/currentUser": { requireAdminAccess: async () => ({ email: "admin@example.test", driveEnabled:true }) },
     "@/lib/drive/connection": { driveConfig: () => ({ redirectUri: "https://example.test/api/admin/drive/callback" }), authorizedDriveClient: async () => ({}) },
     "@/lib/drive/destinations": { selectedDestination: async id => { assert.equal(id, "d1"); return { folder_id: "folder123" }; }, verifyDriveFolder: async (_client, folder) => assert.equal(folder, "folder123") },
     "@/lib/drive/export": {},

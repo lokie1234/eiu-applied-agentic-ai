@@ -588,8 +588,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
     display: none;
   }
 
-  .header-controls button:nth-child(1),
-  .header-controls button:nth-child(3) {
+  .header-controls > .zoom-step {
     display: none;
   }
 }
@@ -711,8 +710,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
     font-size: 9px;
   }
 
-  .header-controls button:nth-child(1),
-  .header-controls button:nth-child(3) {
+  .header-controls > .zoom-step {
     display: none;
   }
 
@@ -779,10 +777,13 @@ html[data-eiu-slide-transition="backward"] { --eiu-slide-out: 12px; --eiu-slide-
   .header-slide-divider, .header-slide-total { font-size: 12px; }
   .header-controls { grid-area: tools; justify-self: end; }
   .header-controls button { min-width: 44px; width: 44px; height: 44px; }
-  .header-controls button:nth-child(1), .header-controls button:nth-child(3), .zoom-label { display: none; }
+  .header-controls > .zoom-step, .zoom-label { display: none; }
   .slide-stage { min-width: 0; min-height: 0; padding: 4px; }
 }
 @media (max-width: 960px) and (max-height: 500px) and (pointer: coarse) {
-  .deck-header { min-height: 56px; grid-template-columns: 64px minmax(0, 1fr) 44px; grid-template-areas: "brand navigation tools"; padding-top: 4px; padding-bottom: 4px; }
+  .deck-header { min-height: 56px; grid-template-columns: 64px minmax(0, 1fr) auto; grid-template-areas: "brand navigation tools"; padding-top: 4px; padding-bottom: 4px; }
   .header-logo-window { width: 60px; height: 26px; }
+}
+@media (max-width:520px) and (max-height:500px) and (pointer:coarse){
+  .deck-header{min-height:104px;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"brand tools" "navigation navigation";}
 }

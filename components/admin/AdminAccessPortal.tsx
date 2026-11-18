@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { sectionWheelEnabled } from '@/lib/sectionWheel';
 import PasscodeManager from "./PasscodeManager";
 import type { AccessCodes } from "@/lib/auth/passcodes";
 import { DEFAULT_IDENTITY_POLICY, type LearningIdentityPolicy } from "@/lib/learningIdentity";
@@ -40,6 +41,7 @@ export type CourseSystemIcon = {
 
 type CourseMetadata = {
   sectionLive?: Record<string, boolean>;
+  sectionWheel?: Record<string, boolean>;
   terminableSectionIds?: string[];
   hidden?: boolean;
   templateKey?: string;
@@ -1861,6 +1863,12 @@ export default function AdminAccessPortal({ adminEmail, initialTab, initialCours
                                   </DraggableScrollArea>
                                 </div>
                                 <div className={styles.sectionItemRight}>
+                                  {isAdmin && <label className={styles.liveSetting} onClick={event=>event.stopPropagation()}>
+                                    <input type="checkbox" aria-label={`Enable Class Spotlight · ${section.title}`} checked={sectionWheelEnabled(section.id, selectedCourse.metadata?.sectionWheel)}
+                                      disabled={Boolean(processingMessage) || busy.has(`wheel:${section.id}`)}
+                                      onChange={event=>void mutate({action:'set_section_wheel',sectionId:section.id,enabled:event.target.checked},`wheel:${section.id}`,'Class Spotlight setting updated.','Updating Class Spotlight…')}/>
+                                    Class Spotlight
+                                  </label>}
                                   {isAdmin && section.content_type === 'tsx' && <label className={styles.liveSetting} onClick={event=>event.stopPropagation()}>
                                     <input type="checkbox" aria-label={`${t('Enable Live')} · ${section.title}`} checked={selectedCourse.metadata?.sectionLive?.[section.id] !== false}
                                       disabled={Boolean(processingMessage) || busy.has(`live:${section.id}`)}

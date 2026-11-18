@@ -24,13 +24,13 @@
         "MIS 311 – Introduction to Business Analytics"
       ],
       "contentBounds": [
-        20.0,
-        56.0,
-        952.0,
-        516.0
+        20,
+        56,
+        952,
+        516
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 5,
       "illustrations": 0
     },
@@ -47,13 +47,13 @@
         "Learning Outcomes "
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 10,
       "illustrations": 0
     },
@@ -67,13 +67,13 @@
         "Root Cause Analysis "
       ],
       "contentBounds": [
-        20.0,
-        56.0,
-        952.0,
-        516.0
+        20,
+        56,
+        952,
+        516
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 1,
       "illustrations": 0
     },
@@ -85,13 +85,13 @@
       "sourceText": "26\n",
       "sourceTextRuns": [],
       "contentBounds": [
-        -4.0,
+        -4,
         38.87298583984375,
-        952.0,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 0,
       "illustrations": 1
     },
@@ -112,13 +112,13 @@
         "Observe the recommended solutions/changes to ensure effectiveness of eliminating the problem."
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 17,
       "illustrations": 0
     },
@@ -130,13 +130,13 @@
       "sourceText": "28\n",
       "sourceTextRuns": [],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 0,
       "illustrations": 1
     },
@@ -148,13 +148,13 @@
       "sourceText": "",
       "sourceTextRuns": [],
       "contentBounds": [
-        -4.0,
+        -4,
         -4.00018310546875,
         964.0016479492188,
         543.9998168945312
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 0,
       "illustrations": 1
     },
@@ -174,13 +174,13 @@
         "MECE technique for Root Cause Analysis "
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 13,
       "illustrations": 1
     },
@@ -198,13 +198,13 @@
         "Chart and/or Graphs "
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 10,
       "illustrations": 1
     },
@@ -219,13 +219,13 @@
         "(Cause and Effect)"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 9,
       "illustrations": 0
     },
@@ -239,13 +239,13 @@
         "Brainstorm of possible cause"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 14,
       "illustrations": 0
     },
@@ -259,13 +259,13 @@
         "5 Whys"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 1,
       "illustrations": 2
     },
@@ -281,13 +281,13 @@
         "This one will give you the biggest benefit if you solve it."
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 7,
       "illustrations": 2
     },
@@ -295,7 +295,7 @@
       "number": 14,
       "sourceSlide": 36,
       "file": "page-14.svg",
-      "text": "7 Best Practices to remember\n1.\nYour root cause analysis is only as good as the info you collect.\n2.\nYour knowledge (or lack of it) can get in the way of a good root cause analysis.\n3.\nYou have to understand what happened before you can understand why it happened.\n4.\nInterviews are not about asking questions.\n5.\nYou can’t solve all human performance problems with discipline, training, and \nprocedures.\n6.\nOften people can’t see effective corrective actions even if they can find the root cause.\n7.\nAll investigations do not need to be equal (but some steps can’t be skipped.\n",
+      "text": "7 Best Practices to remember\n1 Your root cause analysis is only as good as the info you collect.\n2 Your knowledge (or lack of it) can get in the way of a good root cause analysis.\n3 You have to understand what happened before you can understand why it happened.\n4 Interviews are not about asking questions.\n5 You can’t solve all human performance problems with discipline, training, and procedures.\n6 Often people can’t see effective corrective actions even if they can find the root cause.\n7 All investigations do not need to be equal (but some steps can’t be skipped).\n",
       "sourceText": "7 Best Practices to remember\n36\n1.\nYour root cause analysis is only as good as the info you collect.\n2.\nYour knowledge (or lack of it) can get in the way of a good root cause analysis.\n3.\nYou have to understand what happened before you can understand why it happened.\n4.\nInterviews are not about asking questions.\n5.\nYou can’t solve all human performance problems with discipline, training, and \nprocedures.\n6.\nOften people can’t see effective corrective actions even if they can find the root cause.\n7.\nAll investigations do not need to be equal (but some steps can’t be skipped.\n",
       "sourceTextRuns": [
         "7 Best Practices to remember",
@@ -308,14 +308,14 @@
         "All investigations do not need to be equal (but some steps can’t be skipped."
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
-        534.0350952148438
+        0,
+        0,
+        1100,
+        540
       ],
-      "width": 960.0,
-      "height": 540.0,
-      "textSpans": 16,
+      "width": 1100,
+      "height": 540,
+      "textSpans": 15,
       "illustrations": 0
     },
     {
@@ -332,13 +332,13 @@
         "Exercise: Analyzing High Product Defect Rates"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 9,
       "illustrations": 0
     },
@@ -352,13 +352,13 @@
         "Exercise: Analyzing High Product Defect Rates"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 1,
       "illustrations": 1
     },
@@ -372,13 +372,13 @@
         "Value Stream Mapping"
       ],
       "contentBounds": [
-        20.0,
-        56.0,
-        952.0,
-        516.0
+        20,
+        56,
+        952,
+        516
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 1,
       "illustrations": 0
     },
@@ -399,13 +399,13 @@
         "and can identify areas of improvement where they can help!  "
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 12,
       "illustrations": 1
     },
@@ -431,13 +431,13 @@
         "Engineers see the stars and then think of ways to go around them and come up with solutions to help them reach their goal, the buried treasure!"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 25,
       "illustrations": 0
     },
@@ -452,13 +452,13 @@
         "There are many different types of symbols and shaped used to distinguish different parts of a VSM. Here are a few of the most widely used symbols."
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.3765869140625
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 13,
       "illustrations": 1
     },
@@ -472,13 +472,13 @@
         "Example - Value Stream Map "
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 4,
       "illustrations": 1
     },
@@ -503,13 +503,13 @@
         "Can use the tool to help make improvements to the process."
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 17,
       "illustrations": 0
     },
@@ -533,13 +533,13 @@
         "Going for grocery at supermarket?"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 20,
       "illustrations": 2
     },
@@ -553,13 +553,13 @@
         "Conflict Resolution"
       ],
       "contentBounds": [
-        20.0,
-        56.0,
-        952.0,
-        516.0
+        20,
+        56,
+        952,
+        516
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 1,
       "illustrations": 0
     },
@@ -571,13 +571,13 @@
       "sourceText": "47\n",
       "sourceTextRuns": [],
       "contentBounds": [
-        -4.0,
+        -4,
         44.509979248046875,
-        952.0,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 0,
       "illustrations": 1
     },
@@ -616,13 +616,13 @@
         " in 3 Steps"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 35,
       "illustrations": 0
     },
@@ -648,13 +648,13 @@
         "Example"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 23,
       "illustrations": 0
     },
@@ -674,13 +674,13 @@
         "Activity"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 12,
       "illustrations": 2
     },
@@ -698,13 +698,13 @@
         "Activity"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 9,
       "illustrations": 2
     },
@@ -722,13 +722,13 @@
         "Refuse to escalate. Start a calm baseline and never escalate from there, even if the other party escalates their emotions drastically. "
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 10,
       "illustrations": 0
     },
@@ -742,13 +742,13 @@
         "Psychology of persuasion"
       ],
       "contentBounds": [
-        20.0,
-        56.0,
-        952.0,
-        516.0
+        20,
+        56,
+        952,
+        516
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 1,
       "illustrations": 0
     },
@@ -763,13 +763,13 @@
         "Six Principles of Influence"
       ],
       "contentBounds": [
-        -4.0,
+        -4,
         38.7449951171875,
-        952.0,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 3,
       "illustrations": 1
     },
@@ -790,13 +790,13 @@
         "Activity"
       ],
       "contentBounds": [
-        -4.0,
-        56.0,
-        952.0,
+        -4,
+        56,
+        952,
         534.0350952148438
       ],
-      "width": 960.0,
-      "height": 540.0,
+      "width": 960,
+      "height": 540,
       "textSpans": 21,
       "illustrations": 2
     }

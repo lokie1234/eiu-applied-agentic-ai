@@ -112,16 +112,22 @@ the content frame. Step 7 balances its final sentence across lines. A soft
 highlight advances from step 1 to 7 every two seconds, repeating on a 14-second
 CSS cycle; reduced-motion preference disables the effect.
 The process resource is titled General process for performing root cause analysis (RCA).
-The Cause Mapping resource combines source slides 29-30 into Cause Mapping & MECE with two distinct
-content panels. Cause Mapping explains its causal-map purpose and three phases.
-MECE expands both terms and explains No overlap / No gaps. Four question-mark
-buttons open short examples for Cause Mapping, MECE, Mutually Exclusive and
-Collectively Exhaustive. Native dialogs preserve keyboard focus and support
-Escape/backdrop dismissal. Examples are local illustrations with no submissions.
-The subtitle, step-reference annotations and closing note are removed. This corrects the old mutually
-exclusive wording. It distinguishes organising possible causes from verifying
-them with evidence. The former standalone MECE slide is hidden, and Tools for
-RCA is available in the same hub. Edit `causeMapping` and `cause-mapping.js.txt`.
+The Cause Mapping resource combines source slides 29-30 into Cause Mapping & MECE.
+MECE and Cause Mapping retain their definitions and distinct panels. One simple
+coffee example replaces the warehouse case: a 10-minute wait is split into
+order (1 minute), making (8 minutes) and handover (1 minute). A missing opening
+checklist leaves milk unprepared; fetching milk adds 6 minutes to 2 minutes of
+making coffee. Adding a milk check before opening brings the example to
+1 + 2 + 1 = 4 minutes. Four accessible tabs show Problem, MECE, Cause Mapping
+and Solution. Slides contain the case facts and diagrams only; explanatory
+subtitles, caution notes, context paragraphs and teaching commentary are omitted.
+Typography scales against the content container's width and height. Overview
+panels fill two balanced columns; example headings, time cards, causal nodes and
+the two timing facts use the available space. Desktop/landscape views retain
+the columns down to 960x540; narrow screens stack content with readable type.
+The native dialog retains keyboard navigation, nested Escape and focus return.
+No learner submissions, identities, storage or network calls are added. Edit
+causeMapping in session2/presentation.json and cause-mapping.js.txt, then regenerate.
 
 Edit `rootCauseProcess` in the presentation config and `root-cause-process.js.txt`.
 
@@ -217,7 +223,7 @@ axis and the existing readable group lists.
 
 Displayed slide 4 (source 39) is a centered Value Stream Mapping topic cover,
 matching slide 2's navy title, gold rule and transparent vector backdrop inside
-the assigned template. Its What is it ? button opens a title-free popup with the definition at the top and
+the assigned template. Its What is it ? button opens a title-free popup with the definition in the left column and
 a corner close button above
 a large SVG viewport containing the exact original aerial illustration of four
 homes and four cars. The source JPEG is preserved, with native vector rings
@@ -317,11 +323,59 @@ Edit `valueStreamHub`, `value-stream-background.svg` and the shared hub renderer
 
 
 Slide 6 is a Conflict Resolution hub with three independently floating
-buttons: Thomas-Kilmann Conflict Management Model, How to use TKM, and Example.
+buttons: Thomas-Kilmann Conflict Management Model, How to use TKI, and Example.
 It preserves the existing speech-bubble background and uses the shared topic
 shell. The model is a native SVG resource with all original mode/axis content;
 How to use and Example reuse the original three-page mechanisms directly inside
 the hub instead of opening from model-footer buttons. Each resource is cached,
 including its selected page. Source 47 is omitted from standalone navigation,
 so the section now contains 10 slides. Reveal state remains scoped to slide 2.
+
+The official Thomas-Kilmann Conflict Mode Instrument abbreviation, TKI, is used
+consistently in the navigation and instructions. Both three-page resources size
+their typography, cards and navigation against the available content container,
+with verified fit at 960x540, 1280x720 and 1920x1080. The separate Example
+resource retains the software-choice case; no extra worked example is added.
+Its problem statement replaces the generic Example heading. Both resources use
+a left-aligned header with the three page buttons on the right, reserving the
+corner close button. The problem is not repeated inside the example body.
 Edit `conflictHub`, `conflict-background.svg` and `conflict-resolution.js.txt`.
+
+Section 2 uses the shared deck toolbar Class Spotlight icon, outside slide content.
+Only Admin/Teaching see its transparent white-outline launcher. Settings live
+inside the modal and configure the number selected for this section without an
+arbitrary numeric ceiling. The supplied EIU HTML wheel design is rendered as
+native SVG with gold bezel, pointer and center Spin trigger. All names and results
+come from authorized APIs and Convex atomic draws. An explicit 40-name Demo
+mode is local-only and never writes live selections or learner notifications. Selected learners receive a ten-second
+congratulations dialog without losing their current slide. Fullscreen and mobile
+use the same controls. See docs/interactive-data-flow.md for ownership and auth.
+
+Section 2 slide 9 places its four conflict tips in full-width numbered rows,
+with one line per tip at desktop presentation sizes. The final tip is shortened
+to retain its calm/no-escalation meaning without shrinking the type. Narrow
+screens wrap naturally. Slide 10 places Six
+Principles and Case Study as independent floating controls around the centered
+title, matching slide 6's rounded navy/teal cards and gentle drift. Hover/focus
+pauses the movement; reduced motion disables it. Its principle and case dialogs
+scale titles, body text, page buttons and spacing inside the assigned EIU frame.
+All six principles and three case pages remain available. Edit
+`conflict-resolution.js.txt` and `persuasion.js.txt`, then regenerate the section.
+
+Slide 8 scales its reflection heading, questions and numbered markers to fill
+the three-row layout. Slide 10's Resistance page includes Suggested answers in
+the existing activity bar for Admin/Teaching only. Learning Access renders neither
+the answer button nor answer dialog. It opens a cached nested dialog: Reciprocity/Liking
+for employees, Authority/Social Proof for managers, Consistency/Scarcity for
+stakeholders. Scarcity is conditional on real limited training capacity.
+Closing the answer dialog returns to the same resistance page and button;
+Escape closes one layer. This is local presentation content without submissions,
+new storage or network calls. Answer copy lives in `persuasion.suggestedAnswers`
+in `session2/presentation.json`.
+
+The shared toolbar wheel remains available while the Case Study is open.
+Its center button switches between SPIN and STOP; no separate Spin again
+button remains. STOP freezes the current angle and cancels every subsequent
+name reveal. Already displayed cards remain in their responsive independent
+grid. Reopening retains those cards and the stopped wheel. Settings remain
+inside the wheel and are hidden from Learning Access.

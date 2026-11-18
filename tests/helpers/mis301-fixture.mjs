@@ -3,10 +3,11 @@ import vm from 'node:vm';
 import ts from 'typescript';
 import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
+const sectionWheelContext={SectionWheelContext:require('react').createContext(null)};
 export function loadTS(file, deps = {}, globals = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(file, 'utf8'), { fileName:file, compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022, jsx:ts.JsxEmit.ReactJSX, esModuleInterop:true } }).outputText;
-  vm.runInNewContext(code, { exports, require: name => name in deps ? deps[name] : name === 'server-only' ? {} : require(name), console, Date, Math, TextEncoder, crypto:globalThis.crypto, Buffer, URL, Request, Response, AbortController, AbortSignal, setTimeout, clearTimeout, structuredClone, ...globals }, { filename:file });
+  vm.runInNewContext(code, { exports, require: name => name in deps ? deps[name] : name==='./SectionWheelContext'||name==='@/components/deck/SectionWheelContext'?sectionWheelContext:name === 'server-only' ? {} : name === '@/lib/mis311Spotlight' ? loadTS('lib/mis311Spotlight.ts') : name==='@/lib/tsxDocument'?loadTS('lib/tsxDocument.ts'):name==='@/lib/sectionWheel'||name==='../lib/sectionWheel'?loadTS('lib/sectionWheel.ts'):require(name), console, Date, Math, TextEncoder, crypto:globalThis.crypto, Buffer, URL, Request, Response, AbortController, AbortSignal, setTimeout, clearTimeout, structuredClone, ...globals }, { filename:file });
   return exports;
 }
 export const practice = loadTS('lib/mis301Practice.ts');

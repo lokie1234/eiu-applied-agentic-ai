@@ -67,9 +67,9 @@ function fixture() {
   } };
   const api = load("app/api/admin/sections/[id]/drive/route.ts", {
     "next/server": { NextResponse: { json: (body, options = {}) => ({ body, status: options.status ?? 200 }) } },
-    "next/cache": { revalidatePath() {} }, "@/lib/auth/currentUser": { canManageSection: async () => state.admin },
+    "next/cache": { revalidatePath() {} }, "@/lib/auth/currentUser": { requireAdminAccess: async()=>state.admin?{driveEnabled:true}:null, canManageSection: async () => state.admin },
     "@/lib/supabase/server": { getSupabaseAdmin: () => db }, "@/lib/sectionContent": content,
-    "@/lib/localSectionContent": { localSectionSourcePath: () => state.project ? "registered.tsx" : null },
+    "@/lib/localSectionContent": { localSectionSourcePath: () => state.project ? "registered.tsx" : null, saveLocalSectionSource: async (courseId,sectionId,bytes)=>{assert.equal(courseId,"c1");assert.equal(sectionId,"s1");assert.deepEqual(Buffer.from(bytes),state.bytes);return "course-content/imported/c1/s1.js";} },
     "@/lib/drive/sectionContent": { readDriveFile: async () => { state.reads++; return { id: "selected-drive-123", name: state.name, bytes: state.bytes }; } },
   });
   const submit = (body, origin = "https://example.test") => api.POST(new Request("https://example.test/api/admin/sections/s1/drive", { method: "POST", headers: { "content-type": "application/json", origin }, body: JSON.stringify({ fileId: "selected-drive-123", ...body }) }), { params: Promise.resolve({ id: "s1" }) });
@@ -81,7 +81,7 @@ test("Drive import previews without writes, then connects exact JS only after co
   assert.equal(preview.status, 200); assert.equal(preview.body.file.name, "lesson.js"); assert.equal(f.state.writes.length, 0);
   assert.equal((await f.submit({ action: "connect", revision: preview.body.file.revision })).status, 200);
   assert.equal(f.state.writes[0].source_filename, "lesson.js");
-  assert.equal(f.state.writes[0].content_path, "drive:selected-drive-123");
+  assert.equal(f.state.writes[0].content_path, "course-content/imported/c1/s1.js");
   assert.equal(f.state.writes[0].original_content_path, null);
 });
 test("Drive import rejects revoked access, cross-origin, TSX and changed files", async () => {
@@ -127,7 +127,7 @@ test("Drive import UI previews, confirms, prevents duplicate clicks and cancels 
     await act(async () => { button("Connect to section").click(); button("Connect to section").click(); });
     assert.equal(calls.length, 2); assert.equal(calls[1].body.revision, "hash");
     await act(async () => calls[1].resolve({ ok: true, json: async () => ({ success: true }) }));
-    assert.equal(saves, 1); assert.match(container.textContent, /is connected/);
+    assert.equal(saves, 1); assert.match(container.textContent, /imported into the project/);
     await act(async () => container.querySelector('button[title="Upload from Drive"]').click());
     await act(async () => { setter.call(input, "another-drive-123"); input.dispatchEvent(new window.Event("input", { bubbles: true })); });
     await act(async () => button("Check file").click());
@@ -142,5 +142,5 @@ test("registered project lessons can preview and connect an explicit Drive repla
   const preview = await f.submit({ action: "preview" });
   assert.equal(preview.status, 200); assert.equal(f.state.writes.length, 0);
   assert.equal((await f.submit({ action: "connect", revision: preview.body.file.revision })).status, 200);
-  assert.equal(f.state.writes[0].content_path, "drive:override:selected-drive-123");
+  assert.equal(f.state.writes[0].content_path, "course-content/imported/c1/s1.js");
 });

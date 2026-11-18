@@ -7,6 +7,7 @@ test('Section entry publishes names immediately and schedules existing reconcili
  const tasks=[],requests=[];
  const query={select(){return this;},eq(){return this;},contains(){return this;},gte(){return this;},lte(){return this;},order(){return this;},async limit(){return {data:[],error:null};}};
  const classroom=loadTS('lib/realtime/classroom.ts',{
+ '@/lib/auth/courseAccessStorage':{getCoursesAndSectionsData:async()=>({courses:[],sections:[]})},
  '@/lib/mis301Practice':practice,
  'next/server':{after:task=>tasks.push(task)},'@/lib/supabase/server':{getSupabaseAdmin:()=>({from:()=>query})},
  '@/lib/sectionTermination':{readSectionTermination:async()=>null},'./server':{realtimeConfigured:()=>true}

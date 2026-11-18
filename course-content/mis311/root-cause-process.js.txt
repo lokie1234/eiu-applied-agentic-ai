@@ -115,11 +115,12 @@ function renderRootCauseProcess(content, process) {
     if (!ready || step() === 8 || host?.eiuSectionEnded) return;
     const wasIntro = step() === 0;
     if(!wasIntro)title.getAnimations?.().forEach(animation=>animation.cancel());
-    const before = title.getBoundingClientRect().top;
+    const animate = wasIntro && typeof title.animate === 'function' && !host?.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    const before = animate ? title.getBoundingClientRect().top : 0;
     state.processStep = step() + 1;
     update();
     content.scrollTop = 0;
-    if (wasIntro && typeof title.animate === 'function' && !host?.matchMedia('(prefers-reduced-motion:reduce)').matches) {
+    if (animate) {
       const distance = before - title.getBoundingClientRect().top;
       if (distance > 0) title.animate([{transform:`translateY(${distance}px)`},{transform:'translateY(0)'}], {duration:450,easing:'cubic-bezier(.22,1,.36,1)'});
     }

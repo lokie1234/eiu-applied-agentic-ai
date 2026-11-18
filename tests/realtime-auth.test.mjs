@@ -5,11 +5,12 @@ import vm from "node:vm";
 import ts from "typescript";
 import { createRequire } from "node:module";
 import { generateKeyPairSync, verify } from "node:crypto";
+import {loadTS} from './helpers/mis301-fixture.mjs';
 const require = createRequire(import.meta.url);
 const keys = generateKeyPairSync("rsa", { modulusLength: 2048 });
 function fixture() {
   const exports = {}, env = { REALTIME_PROVIDER: "convex", CONVEX_JWT_PRIVATE_KEY: keys.privateKey.export({ type: "pkcs8", format: "pem" }), CONVEX_SITE_URL: "https://example.convex.site", REALTIME_BRIDGE_SECRET: "test-bridge" };
-  vm.runInNewContext(ts.transpileModule(fs.readFileSync("lib/realtime/server.ts", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, Buffer, Date, process: { env }, require: name => name === "server-only" || name === "@/lib/supabase/server" ? {} : require(name) });
+  vm.runInNewContext(ts.transpileModule(fs.readFileSync("lib/realtime/server.ts", "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, { exports, Buffer, Date, process: { env }, require: name => name === "server-only" || name === "@/lib/supabase/server" ? {} : name==='@/lib/sectionWheel'?loadTS('lib/sectionWheel.ts'):require(name) });
   return exports;
 }
 test("Convex token is short-lived, excludes secrets and hidden sections and preserves teaching scope", () => {
@@ -33,4 +34,11 @@ test('Live JWT scopes exclude disabled sections and all non-admin users',()=>{
  const f=fixture(),access={authUserId:'admin',isAdmin:true,courses:[{id:'course'}],sections:[{id:'enabled',courseId:'course',contentType:'tsx'},{id:'disabled',courseId:'course',contentType:'tsx',liveEnabled:false},{id:'pdf',courseId:'course',contentType:'pdf'}]};
  const claims=value=>JSON.parse(Buffer.from(f.mintRealtimeToken(value).split('.')[1],'base64url'));
  assert.deepEqual(JSON.parse(claims(access).liveSections),['enabled']);assert.deepEqual(JSON.parse(claims({...access,isAdmin:false}).liveSections),[]);
+});
+
+test('wheel JWT scopes include only enabled accessible sections for both teaching and learning identities',()=>{
+ const f=fixture(),access={authUserId:'person',isAdmin:false,courses:[{id:'course'}],sections:[{id:'enabled',courseId:'course',wheelEnabled:true},{id:'disabled',courseId:'course',wheelEnabled:false},{id:'hidden',courseId:'course',wheelEnabled:true,hidden:true}]};
+ const token=f.mintRealtimeToken(access),claims=JSON.parse(Buffer.from(token.split('.')[1],'base64url'));
+ assert.deepEqual(JSON.parse(claims.wheelSections),['enabled']);
+ assert.ok(!JSON.stringify(claims).includes('username'));
 });

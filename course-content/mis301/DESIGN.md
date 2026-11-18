@@ -30,27 +30,25 @@ for reports and reset. A server-only bridge sends bounded, rebuildable snapshots
 without emails. The teaching view subscribes directly to `classroom:view`; retain
 the scoped Supabase read fallback when the live classroom is unavailable.
 
-The wheel minigame is inserted before the first Practice slide (teaching slide 6) and has
-`adminOnly: true` (the runtime includes it for Admin/Teaching). Choose the whole
-configured group of at most seven learners without replacement in one backend call. Each learner receives a different part. Class Spotlight uses real
-Learning Access username/email identities: only usernames reach the game. The
-Convex mutation chooses a group atomically and enforces
-teaching scope plus rate limits. Never choose winners in the iframe or accept a
-manually supplied roster. Render all current members on one native SVG wheel with
-lit name plates, rim bulbs and pointer ticks that slow with the wheel. Reserve the
-whole usable slide frame for the wheel and an open ground scene; retain the EIU
-template's branding. Use the central Draw button and Reset, with no group-size input. The server automatically selects one real learner per available assignment part, up to seven or the number of eligible learners.
-The server chooses the whole group once. Each two-second cycle spins for 1.75
-seconds, stops at that learner, reveals their Question row, then starts the next
-spin after a 0.25-second hold. Keep cycling until the selected group is complete.
-Use integrated acceleration followed by a long friction coast, plus a spring
-pointer whose deflection follows angular speed. Keep the metallic rim and warm
-bulbs without wheel shadows.
+Class Spotlight opens from the shared Admin/Teaching toolbar icon, outside the
+slide content. Teaching slide 6 summarizes frozen assignments; the modal keeps
+the existing practice bridge, signed identities, question setup and draw/reset
+rules. Settings inside the modal configure a positive group count with no
+arbitrary upper ceiling. The atomic backend clamps it to the eligible roster.
+Above seven selections, Parts 1-7 repeat in order. Email is collected only when
+enabled; email-free learners use their signed session ID. Never choose winners
+in the iframe or accept manually supplied names.
+
+Adapt the supplied EIU HTML design: navy/cream/gold segments, a fixed gold bezel,
+gold pointer and central Draw button. Retain EIU frame branding in the modal
+iframe. The whole group is selected once and revealed sequentially in five
+seconds; reset is required before another round. Preserve the easing and pointer
+motion while respecting reduced motion.
 Names form an adaptive grid read top-to-bottom within each column: name 1 maps to Question 1, and so on. Each
 row sweeps strongly from right to left with a short settling motion. No welcome
 copy, instructional captions or normal status text is shown; keep errors visible
 and use only real signed-in learners; do not include Demo controls. Automatically set one to five columns, row count, spacing and type size for
-up to seven newly selected names without scrolling; preserve display of older larger draws. Keep full names in accessible labels and titles,
+the configured group; scroll very large groups while preserving existing draws. Keep full names in accessible labels and titles,
 showing full learner-entered usernames in the result cards without truncation. Respect reduced
 motion while keeping timing and resume the shared timeline from creation time.
 Do not bundle or render robots, WebGL or character animations for this slide.

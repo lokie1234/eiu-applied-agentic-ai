@@ -2,18 +2,17 @@ function renderValueStreamDefinition(content, config) {
   content.dataset.mis311ValueStream = 'true';
   const node = (tag, className, text) => { const item=document.createElement(tag);if(className)item.className=className;if(text!==undefined)item.textContent=text;return item; };
   const style=node('style');style.textContent=`
-    [data-mis311-value-stream]{display:flex;flex-direction:column;font-family:Arial,Helvetica,sans-serif;color:#17324a}
-    .mis311-vsm-body{flex:1;min-height:0;display:flex;flex-direction:column;gap:20px;overflow:auto}
-    .mis311-vsm-copy{padding-right:56px;flex-shrink:0;font-size:clamp(20px,2vw,28px);line-height:1.4;text-wrap:pretty}.mis311-vsm-copy p{margin:0}
+    [data-mis311-value-stream]{container-type:size;display:flex;flex-direction:column;font-family:Arial,Helvetica,sans-serif;color:#17324a}
+    .mis311-vsm-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(220px,30%) minmax(0,1fr);align-items:stretch;gap:clamp(20px,2cqw,36px);padding-top:28px;overflow:auto}
+    .mis311-vsm-copy{min-width:0;align-self:center;padding:clamp(12px,1.5cqw,24px) 0;font-size:clamp(20px,min(2.5cqw,5.7cqh),40px);line-height:1.45;text-wrap:pretty}.mis311-vsm-copy p{margin:0}
     .mis311-vsm-copy strong{color:#9d7944}
-    .mis311-vsm-example{flex:1;min-width:0;min-height:0;margin:0;padding:0;border:0;border-radius:12px;background:transparent;cursor:pointer;color:inherit}
+    .mis311-vsm-example{display:block;width:100%;height:100%;min-width:0;min-height:0;margin:0;padding:0;border:0;border-radius:12px;background:transparent;cursor:pointer;color:inherit}
     .mis311-vsm-example:focus-visible{outline:3px solid #2d7fb4;outline-offset:3px}
     .mis311-vsm-example svg{display:block;width:100%;height:100%}
     .mis311-vsm-car-ring{stroke:#ad3b25;stroke-width:2;fill:none;stroke-linecap:round;stroke-dasharray:290;animation:mis311-vsm-circle .65s ease-out both}
     .mis311-vsm-car-ring[hidden]{display:none}
     @keyframes mis311-vsm-circle{from{stroke-dashoffset:290}to{stroke-dashoffset:0}}
-    @media(max-width:700px){.mis311-vsm-body{gap:20px}.mis311-vsm-copy{font-size:19px}.mis311-vsm-example{min-height:190px}}
-    @media(max-height:520px){.mis311-vsm-body{gap:10px}.mis311-vsm-copy{font-size:16px}.mis311-vsm-example{min-height:0}}
+    @media(max-width:700px){.mis311-vsm-body{grid-template-columns:1fr;grid-template-rows:auto minmax(220px,1fr);gap:16px}.mis311-vsm-copy{font-size:20px;padding:0 32px 0 0}.mis311-vsm-example{min-height:220px}}
     @media(prefers-reduced-motion:reduce){.mis311-vsm-car-ring{animation:none}}
   `;
   const body=node('div','mis311-vsm-body');const copy=node('div','mis311-vsm-copy');const definition=node('p');definition.id='mis311-vsm-definition';const phrase='“birds eye view”';const [before,after]=config.definition.split(phrase);definition.append(document.createTextNode(before),node('strong','',phrase),document.createTextNode(after));copy.append(definition);

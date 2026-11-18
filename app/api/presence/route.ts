@@ -1,5 +1,7 @@
 import { syncClassroomEntry } from "@/lib/realtime/classroom";
+import { wheelLegacySection } from '@/lib/sectionWheel';
 import { MIS301_SECTION_ID } from "@/lib/mis301Practice";
+import { MIS311_SPOTLIGHT_SECTION_ID } from '@/lib/mis311Spotlight';
 import { realtimeConfigured } from "@/lib/realtime/server";
 import { NextResponse } from "next/server";
 import { currentRole, teachingSections } from "@/lib/currentRole";
@@ -123,7 +125,7 @@ export async function POST(request: Request) {
         };
         // Live presence must not wait for the durable entry-history lookup.
         await Promise.all([savePresence(), saveEntry()]);
-        if (action === "enter" && scope.id === MIS301_SECTION_ID) await syncClassroomEntry();
+        if (action === "enter" && (scope.wheelEnabled || [MIS301_SECTION_ID, MIS311_SPOTLIGHT_SECTION_ID].includes(scope.id))) await syncClassroomEntry(scope.id, scope.courseId, scope.wheelEnabled,wheelLegacySection(access.courses.find(course=>course.id===scope.courseId)?.slug,scope.sectionKey));
       }
       return NextResponse.json({success:true},{headers:{"Cache-Control":"no-store"}});
     }

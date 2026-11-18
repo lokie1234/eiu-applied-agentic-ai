@@ -135,7 +135,7 @@ for (const [session, count] of [[1, 20], [2, 10]]) {
       const normalized = value => value.replace(/\s/g, '');
       assert.equal(normalized(text), normalized(page.text), `slide ${index + 1} preserves all extracted text in order`);
       for (const run of page.sourceTextRuns) {
-        const unicode = run.replaceAll('\uf0e0', '→').replaceAll('\u00ad', '');
+        const unicode = run.replaceAll('\uf0e0', '→').replaceAll('\u00ad', '').replace(/skipped\.$/, page.sourceSlide === 36 ? 'skipped).' : 'skipped.');
         assert.ok(normalized(text).includes(normalized(unicode)), `source slide ${page.sourceSlide} retains original PPTX text: ${run}`);
       }
       for (const image of element.querySelectorAll('image')) {
@@ -363,49 +363,81 @@ test('the RCA topic hub retains the system template and four full-title resource
 });
 
 
-test('slide 6 separates Cause Mapping and MECE and provides four concise technique examples', () => {
-  const window=new Window();const lesson={exports:{}};
-  vm.runInNewContext(fs.readFileSync(`${root}/Week7Session2.js`,'utf8'),{module:lesson,document:window.document});
-  const slide=formerSection2Slide(lesson.exports.slides,5);
-  assert.equal(slide.querySelector('h1').textContent,'Cause Mapping & MECE');
-  assert.deepEqual([...slide.querySelectorAll('.mis311-map-phase h3')].map(node=>node.textContent),['Define','Analyze','Prevent']);
-  assert.equal(slide.querySelector('[data-mece] h2').textContent,'MECE');
-  assert.deepEqual([...slide.querySelectorAll('.mis311-map-tag')].map(node=>node.textContent),['No overlap','No gaps']);
-  assert.equal(slide.querySelectorAll('.mis311-map-group li').length,4);
-  assert.equal(slide.querySelector('.mis311-map-conclusion,.mis311-map-subtitle,.mis311-map-scope'),null);
-  assert.equal(slide.querySelectorAll('.mis311-map-layout>.mis311-map-section').length,2);
-  assert.match(slide.querySelector('[data-mece] .mis311-map-definition').textContent,/Mutually Exclusive \+ Collectively Exhaustive/);
-  assert.ok(!slide.textContent.includes('or have similarities'));
-  assert.equal(slide.querySelectorAll('img,image,svg').length,0);
-  assert.match(formerSection2Slide(lesson.exports.slides,6).textContent,/Tools for RCA/);
-  assert.equal(lesson.exports.slides.length,10);
-  const config=JSON.parse(fs.readFileSync(`${root}/session2/presentation.json`,'utf8'));
-  assert.deepEqual(config.causeMapping.mergedSourceSlides,[29,30]);
-  assert.ok(config.hiddenSourceSlides.includes(30));
+test('Section 2 slide 3 frames all seven practices and closes the final parenthesis', () => {
+  const window=new Window(),lesson={exports:{}};
+  vm.runInNewContext(fs.readFileSync(root+'/Week7Session2.js','utf8'),{module:lesson,document:window.document});
+  const slide=lesson.exports.slides[2]();
+  const cards=[...slide.querySelectorAll('[data-best-practice]')];
+  assert.equal(cards.length,7);
+  for(const [index,card] of cards.entries()){
+    assert.ok(card.querySelector('rect'));
+    assert.equal(card.querySelector('text').textContent,String(index+1));
+  }
+  assert.match(cards[6].textContent,/equal \(but some steps can’t be skipped\)\./);
+  assert.equal(slide.querySelector('[data-mis311-page]').textContent,'3');
   window.happyDOM.abort();
 });
 
-
-test('each slide 6 question mark opens its own example and closes back to the trigger', () => {
+test('RCA uses one simple coffee example with consistent timings and no explanatory annotations', () => {
   const window=new Window();const lesson={exports:{}};
-  vm.runInNewContext(fs.readFileSync(`${root}/Week7Session2.js`,'utf8'),{module:lesson,document:window.document});
-  const slide=formerSection2Slide(lesson.exports.slides,5);window.document.body.append(slide);
-  const buttons=[...slide.querySelectorAll('button[data-example-kind]')];
-  const dialog=slide.querySelector('dialog');
-  assert.equal(buttons.length,4);assert.equal(dialog.open,false);
-  const expected={causeMapping:'Cause Mapping: Late dispatch',mece:'MECE: Classify delivery delays',mutuallyExclusive:'Mutually Exclusive: No double-counting',collectivelyExhaustive:'Collectively Exhaustive: No missing group'};
-  for(const button of buttons){
-    assert.equal(button.textContent,'?');assert.equal(button.getAttribute('aria-haspopup'),'dialog');
-    button.click();assert.equal(dialog.open,true);
-    assert.equal(dialog.querySelector('h2').textContent,expected[button.dataset.exampleKind]);
-    assert.equal(dialog.querySelectorAll('.mis311-map-example-list>li').length,3);
-    if(button.dataset.exampleKind==='causeMapping')assert.equal(dialog.querySelectorAll('.mis311-map-example-chain li').length,3);
-    if(button.dataset.exampleKind==='mece')assert.match(dialog.textContent,/first delay begins/);
-    if(button.dataset.exampleKind==='mutuallyExclusive')assert.match(dialog.textContent,/Do not count the same order again/);
-    if(button.dataset.exampleKind==='collectivelyExhaustive')assert.match(dialog.textContent,/omit carrier delays/);
-    dialog.querySelector('button').click();assert.equal(dialog.open,false);
-    assert.equal(window.document.activeElement,button);
+  vm.runInNewContext(fs.readFileSync(root+'/Week7Session2.js','utf8'),{module:lesson,document:window.document});
+  const slide=formerSection2Slide(lesson.exports.slides,5);
+  assert.equal(slide.querySelector('h1').textContent,'Cause Mapping & MECE');
+  assert.deepEqual([...slide.querySelectorAll('.mis311-map-layout h2')].map(node=>node.textContent),['MECE','Cause Mapping']);
+  assert.equal(slide.querySelector('.mis311-map-subtitle,.mis311-map-scope,.mis311-map-context'),null);
+  assert.deepEqual([...slide.querySelectorAll('.mis311-map-phase h3')].map(node=>node.textContent),['Define','Analyze','Prevent']);
+  assert.deepEqual([...slide.querySelectorAll('.mis311-map-tag')].map(node=>node.textContent),['No overlap','No gaps']);
+  const config=JSON.parse(fs.readFileSync(root+'/session2/presentation.json','utf8'));
+  const example=config.causeMapping.workedExample;
+  assert.equal(example.title,'A slow coffee');
+  assert.equal(example.context,undefined);
+  assert.ok(example.steps.every(step=>!step.intro));
+  const buckets=example.steps[1].buckets;
+  assert.deepEqual(buckets.map(bucket=>bucket.count),[1,8,1]);
+  assert.equal(buckets.reduce((sum,bucket)=>sum+bucket.count,0),10);
+  assert.match(example.steps[2].chain.join(' '),/No opening checklist.*Milk not ready.*6 minutes.*10-minute/);
+  assert.deepEqual(example.steps[2].bullets,['Make coffee: 2 minutes','Fetch milk: 6 minutes']);
+  assert.deepEqual(example.steps[3].buckets.map(bucket=>bucket.count),[1,2,1]);
+  assert.equal(example.steps[3].buckets.reduce((sum,bucket)=>sum+bucket.count,0),4);
+  assert.match(example.steps[3].title,/milk check before opening/);
+  assert.ok(!slide.textContent.includes('Late dispatch'));
+  assert.deepEqual(config.causeMapping.mergedSourceSlides,[29,30]);
+  assert.ok(config.hiddenSourceSlides.includes(30));assert.equal(lesson.exports.slides.length,10);
+  window.happyDOM.abort();
+});
+
+test('one RCA worked example supports four accessible steps, nested Escape, focus return and termination', () => {
+  const window=new Window();const lesson={exports:{}};
+  vm.runInNewContext(fs.readFileSync(root+'/Week7Session2.js','utf8'),{module:lesson,document:window.document});
+  const rootSlide=lesson.exports.slides[1]();window.document.body.append(rootSlide);
+  const hubTrigger=rootSlide.querySelector('[data-rca-open=mapping]');hubTrigger.click();
+  const slide=rootSlide.querySelector('[data-rca-hub-pane=mapping]');
+  const trigger=slide.querySelector('[data-example-kind]'),dialog=slide.querySelector('dialog');
+  assert.equal(slide.querySelectorAll('[data-example-kind]').length,1);
+  trigger.click();assert.equal(dialog.open,true);
+  const tabs=[...dialog.querySelectorAll('[role=tab]')],panels=[...dialog.querySelectorAll('[role=tabpanel]')];
+  assert.equal(tabs.length,4);
+  for(let i=0;i<tabs.length;i++){
+    tabs[i].click();assert.equal(tabs[i].getAttribute('aria-selected'),'true');
+    assert.equal(panels.filter(panel=>!panel.hidden).length,1);assert.equal(panels[i].hidden,false);
+    assert.equal(window.document.getElementById(tabs[i].getAttribute('aria-controls')),panels[i]);
   }
+  tabs[3].dispatchEvent(new window.KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));
+  assert.equal(window.document.activeElement,tabs[0]);assert.equal(panels[0].hidden,false);
+  tabs[0].dispatchEvent(new window.KeyboardEvent('keydown',{key:'End',bubbles:true,cancelable:true}));
+  assert.equal(window.document.activeElement,tabs[3]);
+  tabs[3].dispatchEvent(new window.KeyboardEvent('keydown',{key:'Home',bubbles:true,cancelable:true}));
+  tabs[0].dispatchEvent(new window.KeyboardEvent('keydown',{key:'ArrowLeft',bubbles:true,cancelable:true}));
+  assert.equal(window.document.activeElement,tabs[3]);
+  tabs[2].click();assert.equal(dialog.querySelectorAll('.mis311-map-causal>li').length,4);
+  assert.equal(dialog.querySelector('.mis311-map-and'),null);
+  assert.match(panels[2].textContent,/Milk not ready/);
+  dialog.querySelector('.mis311-map-close').click();assert.equal(dialog.open,false);assert.equal(window.document.activeElement,trigger);
+  trigger.click();dialog.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true,cancelable:true}));
+  assert.equal(dialog.open,false);assert.equal(rootSlide.querySelector('.mis311-rca-hub-dialog').open,true);
+  assert.equal(window.document.activeElement,trigger);
+  trigger.click();window.eiuSectionEnded=true;window.dispatchEvent(new window.Event('pagehide'));
+  assert.equal(rootSlide.querySelectorAll('dialog[open]').length,0);trigger.click();assert.equal(dialog.open,false);
   window.happyDOM.abort();
 });
 
@@ -527,7 +559,7 @@ test('slide 9 stages the title, Objective, Scenario, axis and categories over fi
 });
 
 
-test('slide 10 shows a full-width definition and circles four cars outside their SVG bodies', () => {
+test('slide 4 groups the VSM definition before the enlarged example and preserves car annotations', () => {
   const window=new Window();const lesson={exports:{}};
   vm.runInNewContext(fs.readFileSync(`${root}/Week7Session2.js`,'utf8'),{module:lesson,document:window.document});
   const slide=formerSection2Slide(lesson.exports.slides,9);window.document.body.append(slide);
@@ -537,6 +569,7 @@ test('slide 10 shows a full-width definition and circles four cars outside their
   const config=JSON.parse(fs.readFileSync(`${root}/session2/presentation.json`,'utf8')).valueStreamIntro;
   const paragraphs=[...dialog.querySelectorAll('.mis311-vsm-copy p')].map(p=>p.textContent);
   assert.deepEqual(paragraphs,[config.definition]);
+  assert.deepEqual([...dialog.querySelector('.mis311-vsm-body').children].map(node=>node.className),['mis311-vsm-copy','mis311-vsm-example']);
   assert.equal(dialog.querySelector('header,h2'),null);
   assert.equal(dialog.getAttribute('aria-describedby'),dialog.querySelector('.mis311-vsm-copy p').id);
   assert.equal(dialog.querySelector('strong').textContent,'\u201cbirds eye view\u201d');
@@ -639,11 +672,19 @@ test('the conflict hub keeps every instruction and example in separate paged res
   const config=JSON.parse(fs.readFileSync(`${root}/session2/presentation.json`,'utf8')).conflictSections[1],dialog=slide.querySelector('dialog');
   for(const kind of ['steps','example']){
     const key=kind==='steps'?'how':'example',trigger=slide.querySelector(`[data-rca-open=${key}]`);trigger.click();assert.equal(dialog.open,true);
-    const pane=slide.querySelector(`[data-rca-hub-pane=${key}]`);assert.equal(pane.querySelector('h1').textContent,kind==='steps'?config.howTitle:'Example');
+    const pane=slide.querySelector(`[data-rca-hub-pane=${key}]`);assert.equal(pane.querySelector('h1').textContent,kind==='steps'?config.howTitle:config.problem);
+    const header=pane.querySelector('.mis311-tki-resource-header');
+    assert.equal(header.firstElementChild,pane.querySelector('h1'));
+    assert.equal(header.lastElementChild,pane.querySelector('.mis311-tki-pages'));
+    if(kind==='steps'){
+      assert.equal(trigger.textContent,'How to use TKI');
+      assert.equal(pane.querySelector('h1').textContent,'How to Use TKI in 3 Steps');
+      assert.equal(pane.querySelector('[data-tki-worked-step]'),null);
+    }
     const tabs=[...pane.querySelectorAll('[data-tki-page-button]')];assert.equal(tabs.length,3);
     for(const [index,tab] of tabs.entries()){tab.click();assert.equal(tab.getAttribute('aria-current'),'step');
       if(kind==='steps'){assert.equal(pane.querySelector('h3').textContent,config.steps[index].title);if(index===1)assert.deepEqual([...pane.querySelectorAll('.mis311-tki-choices li')].map(item=>item.textContent),config.steps[index].choices);else assert.equal(pane.querySelector('.mis311-tki-step-text').textContent,config.steps[index].text);}
-      else{assert.equal(pane.querySelector('.mis311-tki-problem').textContent,config.problem);assert.equal(pane.querySelector('h3').textContent,config.cases[index].condition);assert.equal(pane.querySelector('strong').textContent,`Use ${config.cases[index].style}`);assert.equal(pane.querySelector('.mis311-tki-case p').textContent,config.cases[index].quote);assert.equal(pane.querySelector('.mis311-tki-conclusion').textContent,config.conclusion);}
+      else{assert.equal(pane.querySelector('.mis311-tki-problem').textContent,config.problem);assert.equal(pane.querySelectorAll('.mis311-tki-problem').length,1);assert.equal(pane.querySelector('.mis311-tki-detail-view .mis311-tki-problem'),null);assert.equal(pane.querySelector('h3').textContent,config.cases[index].condition);assert.equal(pane.querySelector('strong').textContent,`Use ${config.cases[index].style}`);assert.equal(pane.querySelector('.mis311-tki-case p').textContent,config.cases[index].quote);assert.equal(pane.querySelector('.mis311-tki-conclusion').textContent,config.conclusion);}
     }
     dialog.querySelector('[aria-label="Return to Conflict Resolution"]').click();assert.equal(dialog.open,false);assert.equal(window.document.activeElement,trigger);
   }
@@ -665,6 +706,45 @@ test('former slides 18-19 retain the scenario, discussion and reflection after t
 });
 
 
+test('suggested answers cover six principles across three resistance groups and return to the same case page', () => {
+  const window=new Window(),lesson={exports:{}};
+  window.eiuLessonTeaching=true;
+  vm.runInNewContext(fs.readFileSync(`${root}/Week7Session2.js`,'utf8'),{module:lesson,document:window.document});
+  const slide=lesson.exports.slides[9]();window.document.body.append(slide);
+  slide.querySelector('[data-persuasion-open=case]').click();
+  const parent=slide.querySelector('#mis311-persuasion-details');
+  assert.equal(parent.querySelector('[data-persuasion-answers]'),null);
+  parent.querySelector('[data-persuasion-page-button="3"]').click();
+  const trigger=parent.querySelector('[data-persuasion-answers]');trigger.click();
+  const answers=parent.querySelector('#mis311-persuasion-answers');assert.equal(answers.open,true);
+  assert.equal(answers.querySelectorAll('.mis311-pers-answer').length,3);
+  assert.deepEqual([...answers.querySelectorAll('strong')].map(n=>n.textContent.replace(': ','')).sort(),['Authority','Consistency','Liking','Reciprocity','Scarcity','Social Proof'].sort());
+  assert.match(answers.textContent,/If training places are limited/);
+  answers.querySelector('[aria-label="Return to case study"]').click();
+  assert.equal(answers.open,false);assert.equal(parent.open,true);assert.equal(window.document.activeElement,trigger);
+  assert.equal(parent.querySelector('.mis311-pers-view').dataset.persuasionPage,'3');
+  trigger.click();assert.equal(parent.querySelectorAll('#mis311-persuasion-answers').length,1);
+  parent.close();assert.equal(answers.open,false);
+  slide.querySelector('[data-persuasion-open=case]').click();parent.querySelector('[data-persuasion-page-button="3"]').click();
+  window.eiuSectionEnded=true;parent.querySelector('[data-persuasion-answers]').click();assert.equal(answers.open,false);
+  window.happyDOM.abort();
+});
+
+test('Learning Access never renders suggested answers; only the explicit Admin/Teaching flag enables them', () => {
+  for(const teaching of [undefined,false,true]){
+    const window=new Window(),lesson={exports:{}};window.eiuLessonTeaching=teaching;
+    vm.runInNewContext(fs.readFileSync(`${root}/Week7Session2.js`,'utf8'),{module:lesson,document:window.document});
+    const slide=lesson.exports.slides[9]();window.document.body.append(slide);
+    slide.querySelector('[data-persuasion-open=case]').click();slide.querySelector('[data-persuasion-page-button="3"]').click();
+    assert.equal(slide.querySelectorAll('.mis311-pers-resistance li').length,3);
+    const trigger=slide.querySelector('[data-persuasion-answers]');assert.equal(Boolean(trigger),teaching===true);
+    if(trigger){window.eiuLessonTeaching=false;trigger.click();assert.equal(slide.querySelector('#mis311-persuasion-answers'),null,'an old teaching button cannot open answers after role removal');}
+    assert.equal(slide.querySelector('.mis311-pers-answer'),null);
+    assert.ok(!slide.textContent.includes('Offer Power BI training'));
+    window.happyDOM.abort();
+  }
+});
+
 test('slide 18 keeps all four conflict tips and slide 19 merges the six principles and complete case study', () => {
   const window=new Window();const lesson={exports:{}};
   vm.runInNewContext(fs.readFileSync(`${root}/Week7Session2.js`,'utf8'),{module:lesson,document:window.document});
@@ -677,7 +757,7 @@ test('slide 18 keeps all four conflict tips and slide 19 merges the six principl
     for(const [index,page] of pages.entries()){page.click();assert.equal(page.getAttribute('aria-current'),'page');
       if(kind==='principles'){assert.equal(dialog.querySelector('h3').textContent,config.principles[index].name);assert.equal(dialog.querySelector('.mis311-pers-principle p').textContent,config.principles[index].definition);}
       else if(index<2){if(index===0)assert.equal(dialog.querySelector('h3').textContent,config.caseTitle);assert.equal(dialog.querySelector('.mis311-pers-background p').textContent,config.backgroundParts[index]);}
-      else{assert.deepEqual([...dialog.querySelectorAll('.mis311-pers-resistance li')].map(node=>node.textContent),config.resistance);assert.equal(dialog.querySelector('.mis311-pers-task').textContent,config.activity);}
+      else{assert.deepEqual([...dialog.querySelectorAll('.mis311-pers-resistance li')].map(node=>node.textContent),config.resistance);assert.equal(dialog.querySelector('.mis311-pers-task-text').textContent,config.activity);}
     }
     dialog.querySelector('[aria-label="Close persuasion details"]').click();assert.equal(dialog.open,false);assert.equal(window.document.activeElement,trigger);
   }

@@ -2,6 +2,7 @@
 .mis[data-layout=picker] .frame{gap:0}
 .mis[data-layout=picker] .body{display:block;height:100%}
 .mis .wheel-arena{height:100%;width:100%;position:relative;overflow:visible}
+.mis .assignment-overview-wrap{width:100%;height:100%;display:flex;flex-direction:column;justify-content:center;gap:1.5vw;overflow:auto}.mis .assignment-overview-wrap>p{font-size:2.3vw;text-align:center;color:#17324A}.mis .assignment-overview{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(20vw,1fr));gap:1vw;overflow:auto}.mis .assignment-overview li{display:flex;align-items:center;gap:1vw;padding:1.2vw;border:1px solid #bfd2df;border-radius:1vw;background:#f0f6fa;font-size:1.8vw;overflow-wrap:anywhere}.mis .assignment-overview strong{color:#9d7944;white-space:nowrap}
 .mis .wheel-bay{position:absolute;left:0;top:calc(50% + 1.5vw);transform:translateY(-50%);width:39vw;height:39vw;display:grid;place-items:center;overflow:visible}
 .mis .wheel-machine{width:37.5vw;height:37.5vw;position:relative;isolation:isolate;overflow:visible;background:none;border:0;box-shadow:none;}
 .mis .wheel-machine:before{content:'';position:absolute;inset:.5vw;border-radius:50%;background:#041C31;box-shadow:none;z-index:-1}
@@ -39,6 +40,7 @@
 .mis .wheel-setting input{width:5vw;font:700 1.25vw Inter,Arial,sans-serif;border:1px solid #cbd6df;border-radius:.5vw;padding:.6vw;color:#17324A;background:white}
 .mis .wheel-setting p{font-size:.9vw;line-height:1.5;color:#687987}
 .mis .question-stage{position:absolute;left:40.5vw;right:0;top:0;bottom:0;display:grid;grid-template-columns:repeat(var(--columns,1),minmax(0,1fr));grid-template-rows:repeat(var(--rows,1),minmax(0,1fr));grid-auto-flow:column;gap:.65vw;min-height:0;padding:.4vw;overflow:visible}
+.mis .question-stage[data-many=true]{grid-template-rows:repeat(var(--rows,1),minmax(4.2vw,1fr));overflow:auto;scrollbar-width:thin}
 .mis .question-slot{position:relative;min-width:0;min-height:0;display:flex;flex-direction:column;justify-content:center;gap:.35vw;padding:.7vw 1vw;border:1px solid #d9c69f;border-radius:.8vw;background:linear-gradient(115deg,#F7F4ED,#fff);transform-origin:80% 50%}
 .mis .question-number{font-size:calc(var(--name-size,1.8vw)*1.2);line-height:1.15;font-weight:900;letter-spacing:-.025em;color:#9D7944;white-space:nowrap}
 .mis .question-name{font-size:var(--name-size,1.8vw);line-height:1.22;font-weight:850;letter-spacing:-.025em;color:#082945;text-wrap:balance;overflow-wrap:anywhere}
@@ -61,3 +63,5 @@
 .mis .wheel-status:not([data-error=true]){position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
 .mis .wheel-setting[hidden],.mis .question-slot[hidden]{display:none}
+
+.mis .wheel-segment .name-plate{fill:none;stroke:none}.mis .wheel-machine:after{display:none}
