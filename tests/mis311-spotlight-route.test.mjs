@@ -11,6 +11,9 @@ function fixture(options={}){
     'convex/browser':{ConvexHttpClient:class{setAuth(){}async query(name){queries++;if(!enabled)throw Error('offline');return name==='spotlight:settings'?{count:options.count||1}:snapshot;}async mutation(name,args){calls.push(args);if(stale>0){stale--;return {code:'STALE_CLASSROOM',message:'Session changed'};}if(business)return business;if(name==='spotlight:configure')return {count:args.count};return {requestId:args.requestId,subject:'real-session',username:'Real learner',revealAt:5000,members:[{id:'real-session',username:'Real learner'}]};}}},
     'convex/server':{makeFunctionReference:n=>n},'@/lib/auth/currentUser':{currentUserAccess:async()=>access()},
     '@/lib/sectionTermination':{readSectionTermination:async()=>({details:{token:'epoch'}})},'@/lib/realtime/server':{mintRealtimeToken:()=>'',realtimeConfigured:()=>true},
+    '@/lib/security/wheelResetPassword':{verifyWheelResetPassword:async password=>password==='valid-test'},
+    '@/lib/security/rateLimit':{consumeRateLimit:async()=>({allowed:!options.rateLimited,retry_after:120})},
+    '@/lib/resetSectionWheel':{resetSectionWheel:async args=>{calls.push({reset:args});return {success:true,resetAt:Date.now(),count:1};}},
     '@/lib/realtime/classroom':{spotlightScope:{courseId,sectionId},publishClassroom:async()=>{calls.push('roster');},classroomSnapshot:async()=>({members:[{subject:'real-session',username:'Real learner'}]})},'@/lib/mis311Spotlight':common,
   },{process:{env:{NEXT_PUBLIC_CONVEX_URL:'https://example.convex.cloud'}}});
   const context={params:Promise.resolve({id:targetId})};
@@ -65,6 +68,18 @@ test('teaching prepare synchronizes the scoped classroom before returning its ro
  assert.equal(response.status,200);assert.deepEqual(f.calls,['roster']);assert.equal(f.queries(),1);assert.equal((await response.json()).snapshot.ready,true);
  f.role('learner');await f.route.GET(new Request('http://localhost/spotlight?prepare=1'),f.context);assert.deepEqual(f.calls,['roster']);
 });
+
+test('wheel reset checks teaching, origin, rate, password and epoch before passing the checkbox to its scoped reset',async()=>{
+ const f=fixture(),body={password:'valid-test',epoch:'epoch',requestId:crypto.randomUUID(),clearNames:true};
+ const reset=(value=body,headers={})=>f.route.DELETE(new Request('http://localhost/spotlight',{method:'DELETE',headers,body:JSON.stringify(value)}),f.context);
+ f.role('learner');assert.equal((await reset()).status,403);f.role('teacher');
+ assert.equal((await reset(body,{origin:'https://other.test'})).status,403);
+ assert.equal((await reset({...body,password:'wrong'})).status,401);
+ assert.equal((await reset({...body,clearNames:'yes'})).status,400);
+ assert.equal((await reset({...body,epoch:'old'})).status,409);assert.equal(f.calls.length,0);
+ assert.equal((await reset()).status,200);assert.equal(f.calls[0].reset.clearNames,true);assert.equal(f.calls[0].reset.sectionId,sectionId);assert.equal(f.calls[0].reset.password,undefined);
+ const limited=fixture({rateLimited:true});assert.equal((await limited.route.DELETE(new Request('http://localhost/spotlight',{method:'DELETE',body:JSON.stringify(body)}),limited.context)).status,429);assert.equal(limited.calls.length,0);
+});
 test('a named classroom requires a name but does not force email when the global form is disabled',async()=>{
   const policy=loadTS('lib/learningIdentity.ts');
   const scope={sections:[{id:sectionId,course_id:courseId,section_key:'mis311-week7-session2'}],courses:[{id:courseId}]};
@@ -104,15 +119,15 @@ test('a named learner without a collected email can access the spotlight API',as
 });
 test('the shared MIS 311 roster reads only existing entry identities and never practice-answer storage',async()=>{
   const calls=[],rows=[{details:{sessionId:'new-session',email:'AN@example.com',information:{name:'An'}}},{details:{sessionId:'old-session',email:'an@example.com',information:{name:'An'}}},{details:{sessionId:'anonymous',email:'anonymous@passcode.eiu',name:'Anonymous'}}];
-  const query={select(){return this;},eq(){return this;},contains(_,scope){calls.push(scope);return this;},gte(){return this;},lte(){return this;},order(){return this;},async limit(){return {data:rows,error:null};}};
+  const query={select(){return this;},eq(){return this;},contains(_,scope){calls.push(scope);return this;},gte(){return this;},lte(){return this;},order(){return this;},limit(){return this;},async maybeSingle(){return {data:null,error:null};},then(resolve){return Promise.resolve({data:rows,error:null}).then(resolve);}};
   let reads=0;
   const projection=loadTS('lib/realtime/classroom.ts',{'@/lib/auth/courseAccessStorage':{getCoursesAndSectionsData:async()=>({courses:[],sections:[]})},'next/server':{after(){}},'@/lib/supabase/server':{getSupabaseAdmin:()=>({from(){reads++;return query;}})},'@/lib/mis301Practice':{MIS301_SECTION_ID:'mis301',MIS301_COURSE_ID:'course301',mis301Part:()=>false},'@/lib/sectionTermination':{readSectionTermination:async()=>null},'./server':{realtimeConfigured:()=>true},'@/lib/mis311Spotlight':common});
   const snapshot=await projection.classroomSnapshot(undefined,projection.spotlightScope);
-  assert.equal(reads,1);assert.equal(calls[0].sectionId,sectionId);assert.deepEqual(Array.from(snapshot.members,m=>m.subject),['new-session','old-session'],'shared email must not merge two signed sessions');assert.deepEqual(Array.from(snapshot.answers),[]);
+  assert.equal(reads,2);assert.equal(calls[0].sectionId,sectionId);assert.deepEqual(Array.from(snapshot.members,m=>m.subject),['new-session','old-session'],'shared email must not merge two signed sessions');assert.deepEqual(Array.from(snapshot.answers),[]);
 });
 test('name-only learners stay eligible in both rosters without merging distinct sessions by their name',async()=>{
   const rows=[{details:{sessionId:'one',email:'one@passcode.eiu',information:{name:'An'}}},{details:{sessionId:'one',email:'one@passcode.eiu',information:{name:'An'}}},{details:{sessionId:'two',information:{name:'An'}}},{details:{sessionId:'anonymous',email:'anonymous@passcode.eiu',name:'Learner anonymous'}}];
-  const projection=loadTS('lib/realtime/classroom.ts',{'@/lib/auth/courseAccessStorage':{getCoursesAndSectionsData:async()=>({courses:[],sections:[]})},'next/server':{after(){}},'@/lib/supabase/server':{getSupabaseAdmin:()=>({from(){let action;return {select(){return this;},eq(_,value){action=value;return this;},contains(){return this;},gte(){return this;},lte(){return this;},order(){return this;},async limit(){return {data:action==='SECTION_OPENED'?rows:[],error:null};}};}})},'@/lib/mis301Practice':{MIS301_SECTION_ID:'mis301',MIS301_COURSE_ID:'course301',mis301Part:()=>false},'@/lib/sectionTermination':{readSectionTermination:async()=>null},'./server':{realtimeConfigured:()=>true},'@/lib/mis311Spotlight':common});
+  const projection=loadTS('lib/realtime/classroom.ts',{'@/lib/auth/courseAccessStorage':{getCoursesAndSectionsData:async()=>({courses:[],sections:[]})},'next/server':{after(){}},'@/lib/supabase/server':{getSupabaseAdmin:()=>({from(){let action;return {select(){return this;},eq(_,value){action=value;return this;},contains(){return this;},gte(){return this;},lte(){return this;},order(){return this;},limit(){return this;},async maybeSingle(){return {data:null,error:null};},then(resolve){return Promise.resolve({data:action==='SECTION_OPENED'?rows:[],error:null}).then(resolve);}};}})},'@/lib/mis301Practice':{MIS301_SECTION_ID:'mis301',MIS301_COURSE_ID:'course301',mis301Part:()=>false},'@/lib/sectionTermination':{readSectionTermination:async()=>null},'./server':{realtimeConfigured:()=>true},'@/lib/mis311Spotlight':common});
   for(const scope of [undefined,projection.spotlightScope]){
     const snapshot=await projection.classroomSnapshot(undefined,scope);
     assert.deepEqual(Array.from(snapshot.members,m=>m.subject),['one','two']);assert.equal(snapshot.members[0].username,snapshot.members[1].username);

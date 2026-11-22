@@ -14,9 +14,15 @@ type ClassroomScope={courseId:string;sectionId:string;wheelEnabled?:boolean;lega
 
 export async function classroomSnapshot(signal?: AbortSignal, scope:ClassroomScope = practiceScope) {
   const version = Date.now(), db = getSupabaseAdmin(signal);
-  const [termination, wheelEnabled] = await Promise.all([readSectionTermination(scope.courseId, scope.sectionId, signal, scope.legacySection), scope.wheelEnabled!==undefined ? Promise.resolve(scope.wheelEnabled) : getCoursesAndSectionsData(signal).then(catalog=>sectionWheelEnabled(scope.sectionId,catalog.courses.find(course=>course.id===scope.courseId)?.metadata.sectionWheel))]);
+  const [termination, wheelEnabled, reset] = await Promise.all([
+    readSectionTermination(scope.courseId, scope.sectionId, signal, scope.legacySection),
+    scope.wheelEnabled!==undefined ? Promise.resolve(scope.wheelEnabled) : getCoursesAndSectionsData(signal).then(catalog=>sectionWheelEnabled(scope.sectionId,catalog.courses.find(course=>course.id===scope.courseId)?.metadata.sectionWheel)),
+    db.from('access_audit_logs').select('details').eq('action','WHEEL_RESET').contains('details',{courseId:scope.courseId,sectionId:scope.sectionId,clearNames:true}).order('id',{ascending:false}).limit(1).maybeSingle(),
+  ]);
   const epoch = termination?.details.token || "initial";
-  const since = new Date(Math.max(version - 86400_000, termination ? Date.parse(termination.created_at) : 0)).toISOString();
+  if(reset.error)throw reset.error;
+  const clearedAt=reset.data?.details?.epoch===epoch?Number(reset.data.details.requestedAt)||0:0;
+  const since = new Date(Math.max(version - 86400_000, termination ? Date.parse(termination.created_at) : 0,clearedAt)).toISOString();
   const cutoff = new Date(version).toISOString();
   const [entries, answers] = await Promise.all([
     db.from("access_audit_logs").select("id,details,created_at").eq("action", "SECTION_OPENED")

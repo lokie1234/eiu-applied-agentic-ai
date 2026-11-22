@@ -21,4 +21,12 @@ http.route({ path: "/classroom/answer", method: "POST", handler: httpAction(asyn
   await ctx.runMutation(makeFunctionReference<"mutation">("classroom:answer"), await request.json());
   return Response.json({ success: true });
 }) });
+http.route({path:'/classroom/wheel-reset',method:'POST',handler:httpAction(async(ctx,request)=>{
+  const secret=process.env.EIU_REALTIME_BRIDGE_SECRET;
+  if(!secret||request.headers.get('authorization')!==`Bearer ${secret}`)return new Response('Forbidden',{status:403});
+  const raw=await request.text();if(raw.length>1024)return new Response('Invalid request',{status:400});
+  let payload;try{payload=JSON.parse(raw);}catch{return new Response('Invalid request',{status:400});}
+  const result=await ctx.runMutation(makeFunctionReference<'mutation'>('spotlight:resetWheel'),payload);
+  return Response.json(result);
+})});
 export default http;

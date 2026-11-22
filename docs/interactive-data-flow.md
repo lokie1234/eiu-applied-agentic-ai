@@ -114,7 +114,7 @@ The supplied EIU HTML's navy/gold SVG is adapted to the shared modal: fixed
 bezel, gold pointer, center Spin trigger and server-driven rotating segments.
 Its standalone sample names, editable roster, localStorage history and random
 winner logic are excluded. Names come from signed Learning identities. The
-roster is fetched on demand when the modal opens; results freeze their animation
+roster is prepared on section entry and updated live; results freeze their animation
 labels. No external font request is needed. MIS 301 retains its existing practice
 bridge and frozen assignments through a second registered iframe, sharing one
 root subscription. Groups larger than seven cycle through Parts 1-7 and still
@@ -126,8 +126,7 @@ follow Learner Information configuration. Learners receive only their own
 selected notification, which closes after ten seconds without moving the slide.
 
 Supabase `SECTION_OPENED` identities feed the same bounded server-owned roster
-snapshot, deduplicated to the latest signed session per real email when provided,
-or by opaque session ID when email is not collected. Never deduplicate names. Convex additionally
+snapshot, deduplicated by opaque signed session ID. Never deduplicate names or email. Convex additionally
 filters it against unexpired presence. The server route freshly verifies access
 and the termination epoch before each draw; `spotlight:draw` independently checks
 section/slide/teaching scopes, limits requests and serializes concurrent spins.
@@ -149,9 +148,9 @@ ten-second display; termination closes both modals and rejects late work.
 Seen draw IDs are scoped in session storage to suppress repeats after refresh.
 
 Learner subscriptions read only the classroom projection and bounded current draw
-rows, never heartbeat-dependent presence/counts. Teaching does not subscribe to
-an unused roster. Connected clients verify identity/epoch with a context-only
-HTTP read; disconnected clients retain the full authenticated fallback. Repeated
+rows, never heartbeat-dependent presence/counts. Teaching keeps one scoped live
+roster subscription. Connected learners verify identity/epoch with a context-only
+HTTP read; teaching prepares the full snapshot and disconnected clients retain the authenticated fallback. Repeated
 focus checks share one pending request. A draw normally makes one mutation;
 only a stale classroom triggers one roster rebuild and one identical retry.
 
@@ -170,6 +169,34 @@ reset/termination history. Reconciliation includes both MIS 301 and MIS 311
 rosters. If the realtime connection is unavailable, the authenticated HTTP path
 uses the same Convex authority; during a full Convex outage it retains the
 Supabase roster fallback but does not fabricate a second draw or claim success.
+
+### Password-confirmed wheel reset
+
+Generic wheel settings includes **Reset data**, with an unchecked **Also clear all
+current names** option. The native assignment wheel retains its existing practice
+reset contract. The generic reset requires Teaching/Admin access, same-origin
+requests, the confirmation password and five attempts per minute. The server-only
+salted password verifier can be overridden with `WHEEL_RESET_PASSWORD`; no password
+is embedded in client code or stored in audit details.
+
+`DELETE /api/sections/[id]/spotlight` persists a scoped `WHEEL_RESET` intent in
+Supabase before calling the secret-authenticated `/classroom/wheel-reset` bridge.
+Only its internal Convex mutation clears this section's current draws and retry
+records, selected targets and custom group size. It preserves the shared identity,
+report and presence stores. With the checkbox selected it also clears the actual
+classroom member array. Its durable intent's `requestedAt` becomes the roster
+cutoff: only subsequent `SECTION_OPENED` entries can restore a cleared name.
+Heartbeat or reconciliation cannot restore older entry records. No learner
+report history or account is deleted by the names option.
+
+Reset IDs survive ambiguous transport failures and are replay-safe. The internal
+mutation rejects a stale epoch, preserves a newer reset and advances `resetAt`.
+Old draw/configure requests are fenced by this generation. Every subscribed
+viewer cancels old animations, requests and notifications when reset advances;
+late pre-reset snapshots cannot revive names or results. An audit or bridge
+failure remains retryable and never reports successful reset. A completed retry
+does not delete a later draw. The confirmation dialog clears its password after
+submission/cancellation and supports keyboard focus and Escape.
 
 The configured Convex deployment requires matching `EIU_AUTH_JWKS` (a public-key
 data URI), `EIU_REALTIME_BRIDGE_SECRET` and `EIU_APP_ORIGIN`. Deploying these

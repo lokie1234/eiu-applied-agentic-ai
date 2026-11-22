@@ -5,7 +5,7 @@ import {loadTS,practice} from './helpers/mis301-fixture.mjs';
 test('Section entry publishes names immediately and schedules existing reconciliation on failure',async()=>{
  for(const fail of [false,true]){
  const tasks=[],requests=[];
- const query={select(){return this;},eq(){return this;},contains(){return this;},gte(){return this;},lte(){return this;},order(){return this;},async limit(){return {data:[],error:null};}};
+ const query={select(){return this;},eq(){return this;},contains(){return this;},gte(){return this;},lte(){return this;},order(){return this;},limit(){return this;},async maybeSingle(){return {data:null,error:null};},then(resolve){return Promise.resolve({data:[],error:null}).then(resolve);}};
  const classroom=loadTS('lib/realtime/classroom.ts',{
  '@/lib/auth/courseAccessStorage':{getCoursesAndSectionsData:async()=>({courses:[],sections:[]})},
  '@/lib/mis301Practice':practice,

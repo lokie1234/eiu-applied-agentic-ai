@@ -89,6 +89,16 @@ test('opening waits for the existing preparation and reconnect recovers without 
  }finally{await f.close();}
 });
 
+test('a classroom reset clears the wheel and cancels late draw responses and stale roster updates',async()=>{
+ const pending=deferred(),f=await fixture(true,[],{controls:true,post:()=>pending.promise});try{
+  const doc=f.window.document;await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();await act(async()=>doc.querySelector('[aria-label="Spin wheel"]').click());await f.flush();
+  const resetAt=Date.now();await act(async()=>f.watch({...f.snapshot,resetAt,revision:resetAt*2,count:1,draws:[],members:[]}));await f.flush();
+  assert.equal(doc.querySelectorAll('.nameText').length,0);assert.equal(doc.querySelector('[aria-label="Spin wheel"]').disabled,true);assert.equal(doc.querySelector('.wheel'),null);
+  await act(async()=>pending.resolve(Response.json({draw:{requestId:crypto.randomUUID(),subject:'learner',username:'An',slide:0,createdAt:Date.now(),revealAt:Date.now()+1667},members:f.snapshot.members})));await f.flush();
+  await act(async()=>f.watch({...f.snapshot,revision:resetAt*2+100}));await f.flush();assert.equal(doc.querySelectorAll('.nameText').length,0);assert.equal([...doc.querySelectorAll('svg title')].some(node=>node.textContent==='An'),false,'old generation cannot restore names');
+ }finally{await f.close();}
+});
+
 test('settings remove demo and support enabling, saving, reopening and disabling multiple target names',async()=>{
  const f=await fixture(true,[],{controls:true});try{
   const doc=f.window.document;await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();const shell=doc.querySelector('.wheelWrap');const names=[...doc.querySelectorAll('.wheelSvg title')].map(n=>n.textContent);

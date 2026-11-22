@@ -34,10 +34,11 @@ export const view = query({ args: { sectionId: v.string() }, handler: async (ctx
     return self?[{requestId:row.requestId,slide:row.slide,...self,createdAt:row.createdAt,revealAt:spotlightRevealAt(row,(row.targets || [self]).findIndex(target=>target.subject===self.subject))}]:[];
   });
   return { ready: Boolean(room)&&enabled, enabled, count:room?.wheelCount ?? (sectionId===ASSIGNMENT_WHEEL_SECTION_ID?7:1), teaching: user.teaching, viewerSubject: user.subject, epoch: room?.epoch || '',
-    revision: (room?.version || 0) + Math.max(0, ...rows.map(row => row.createdAt)), draws,
+    resetAt: room?.wheelResetAt || 0,
+    revision: (room?.version || 0) + Math.max(0, room?.wheelResetAt || 0, ...rows.map(row => row.createdAt)), draws,
     members: user.teaching ? (room?.members || []).filter(member => active.has(member.subject)).map(member => ({ id: member.subject, username: member.username })) : [] };
 } });
-export const draw = mutation({ args: { sectionId: v.string(), slide: v.number(), requestId: v.string(), epoch: v.string() }, handler: async (ctx, args) => {
+export const draw = mutation({ args: { sectionId: v.string(), slide: v.number(), requestId: v.string(), epoch: v.string(), resetAt:v.optional(v.number()) }, handler: async (ctx, args) => {
   const user = await authorize(ctx, args.sectionId);
   if (!user.teaching) throw new ConvexError('Teaching access required.');
   if (args.sectionId===ASSIGNMENT_WHEEL_SECTION_ID)throw new ConvexError('Use the assignment wheel for this section.');
@@ -45,6 +46,7 @@ export const draw = mutation({ args: { sectionId: v.string(), slide: v.number(),
   const room = await ctx.db.query('classroom').withIndex('room', q => q.eq('sectionId', args.sectionId)).unique();
   if (!room || args.epoch !== room.epoch) return { code: 'STALE_CLASSROOM', message: 'The section session changed. Reopen the slide.' };
   if(room.wheelEnabled===false)throw new ConvexError('Class Spotlight is disabled for this section.');
+  if((args.resetAt||0)!==(room.wheelResetAt||0))return {code:'WHEEL_RESET',message:'The wheel was reset. Reopen it before drawing again.'};
   const now = Date.now();
   const replay = await ctx.db.query('spotlightRequests').withIndex('request', q => q.eq('sectionId', args.sectionId).eq('requestId', args.requestId)).unique();
   if (replay && replay.epoch === room.epoch && replay.expiresAt > now) {
@@ -84,11 +86,12 @@ export const draw = mutation({ args: { sectionId: v.string(), slide: v.number(),
   const start = Math.max(0, index - 5);
   return { ...result(selected), members: members.slice(start, start + 12).map(member => ({ id: member.subject, username: member.username })) };
 } });
-export const configure = mutation({args:{sectionId:v.string(),epoch:v.string(),count:v.number(),targetSubjects:v.optional(v.array(v.string()))},handler:async(ctx,args)=>{
+export const configure = mutation({args:{sectionId:v.string(),epoch:v.string(),count:v.number(),targetSubjects:v.optional(v.array(v.string())),resetAt:v.optional(v.number())},handler:async(ctx,args)=>{
   const user=await authorize(ctx,args.sectionId);if(!user.teaching)throw new ConvexError('Teaching access required.');
   if(!validWheelCount(args.count))throw new ConvexError('Choose a positive whole number of learners.');
   const room=await ctx.db.query('classroom').withIndex('room',q=>q.eq('sectionId',args.sectionId)).unique();
   if(!room||room.epoch!==args.epoch)return {code:'STALE_CLASSROOM',message:'The section session changed.'};
+  if((args.resetAt||0)!==(room.wheelResetAt||0))return {code:'WHEEL_RESET',message:'The wheel was reset. Reopen settings.'};
   if(room.wheelEnabled===false)throw new ConvexError('Class Spotlight is disabled for this section.');
   const key=`spotlight-config:${args.sectionId}:${user.subject}`,now=Date.now();
   const limit=await ctx.db.query('limits').withIndex('person',q=>q.eq('subject',key)).unique();
@@ -112,3 +115,19 @@ export const expireRequest = internalMutation({ args: { id: v.id('spotlightReque
   const request = await ctx.db.get(id);
   if (request && request.expiresAt <= Date.now()) await ctx.db.delete(id);
 } });
+
+// Only the authenticated server bridge can invoke this mutation. No public
+// teaching token can bypass the server's password and durable reset audit.
+export const resetWheel = internalMutation({args:{sectionId:v.string(),epoch:v.string(),requestId:v.string(),sequence:v.string(),requestedAt:v.number(),clearNames:v.boolean()},handler:async(ctx,args)=>{
+  if(!/^[a-f0-9-]{36}$/i.test(args.requestId)||!/^\d{1,20}$/.test(args.sequence)||!Number.isFinite(args.requestedAt)||args.requestedAt>Date.now()+60000)throw new ConvexError('Invalid reset request.');
+  const room=await ctx.db.query('classroom').withIndex('room',q=>q.eq('sectionId',args.sectionId)).unique();
+  if(!room||room.epoch!==args.epoch)return {success:false,message:'The section session changed. Reopen the wheel.'};
+  if(room.wheelEnabled===false)throw new ConvexError('Class Spotlight is disabled for this section.');
+  if(room.wheelResetId===args.requestId||BigInt(room.wheelResetSequence||'0')>=BigInt(args.sequence))return {success:true,resetAt:room.wheelResetAt,count:room.wheelCount};
+  const draws=await ctx.db.query('spotlight').withIndex('room',q=>q.eq('sectionId',args.sectionId)).take(5);
+  const requests=await ctx.db.query('spotlightRequests').withIndex('request',q=>q.eq('sectionId',args.sectionId)).collect();
+  for(const row of [...draws,...requests])await ctx.db.delete(row._id);
+  const resetAt=Math.max(Date.now(),(room.wheelResetAt||0)+1),count=args.sectionId===ASSIGNMENT_WHEEL_SECTION_ID?7:1;
+  await ctx.db.patch(room._id,{wheelResetAt:resetAt,wheelResetId:args.requestId,wheelResetSequence:args.sequence,version:Math.max(room.version,resetAt),wheelTargets:[],wheelCount:count,draw:undefined,demoDraw:undefined,...(args.clearNames?{members:[]}:{})});
+  return {success:true,resetAt,count};
+}});

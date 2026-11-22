@@ -6,6 +6,9 @@ import { mintRealtimeToken, realtimeConfigured } from '@/lib/realtime/server';
 import { classroomSnapshot, publishClassroom } from '@/lib/realtime/classroom';
 import { MIS311_SPOTLIGHT_SECTION_ID, spotlightSlide, type SpotlightView } from '@/lib/mis311Spotlight';
 import { ASSIGNMENT_WHEEL_SECTION_ID, sectionWheelEnabled, validWheelCount, wheelLegacySection } from '@/lib/sectionWheel';
+import { verifyWheelResetPassword } from '@/lib/security/wheelResetPassword';
+import { consumeRateLimit } from '@/lib/security/rateLimit';
+import { resetSectionWheel } from '@/lib/resetSectionWheel';
 type Context = { params: Promise<{ id: string }> };
 const headers = { 'Cache-Control': 'private, no-store' };
 async function resolve(request: Request, context: Context) {
@@ -71,7 +74,8 @@ export async function POST(request: Request, context: Context) {
     if (scope.sectionId===ASSIGNMENT_WHEEL_SECTION_ID || !(body.slide===0 || scope.sectionId===MIS311_SPOTLIGHT_SECTION_ID&&spotlightSlide(body.slide)) || typeof body.requestId !== 'string' || !/^[a-f0-9-]{36}$/i.test(body.requestId)) return Response.json({ message: 'Invalid draw settings.' }, { status: 400, headers });
     if (body.epoch !== scope.epoch) return Response.json({ message: 'The section session changed. Reopen the slide.' }, { status: 409, headers });
     const client = connection(scope.access, request.signal);
-    const args = { sectionId: scope.sectionId, slide: body.slide, requestId: body.requestId, epoch: scope.epoch };
+    if(body.resetAt!==undefined&&(!Number.isSafeInteger(body.resetAt)||body.resetAt<0))return Response.json({message:'Invalid draw settings.'},{status:400,headers});
+    const args = { sectionId: scope.sectionId, slide: body.slide, requestId: body.requestId, epoch: scope.epoch,...(body.resetAt!==undefined?{resetAt:body.resetAt}:{}) };
     const mutate = () => client.mutation(makeFunctionReference<'mutation'>('spotlight:draw'), args);
     const draw = await withClassroomRetry(mutate, scope, request.signal);
     if (draw.retryAfter) return Response.json({ message: `Please wait ${draw.retryAfter} seconds.`, retryAfter: draw.retryAfter }, { status: 429, headers });
@@ -89,11 +93,33 @@ export async function PUT(request:Request, context:Context){
     if(!body||!validWheelCount(body.count))return Response.json({message:'Choose a positive whole number of learners.'},{status:400,headers});
     if(body.targetSubjects!==undefined&&(!Array.isArray(body.targetSubjects)||body.targetSubjects.length>1200||new Set(body.targetSubjects).size!==body.targetSubjects.length||body.targetSubjects.some((id:unknown)=>typeof id!=='string'||!id||id.length>200)))return Response.json({message:'Choose existing learner names.'},{status:400,headers});
     if(body.epoch!==scope.epoch)return Response.json({message:'The section session changed. Reopen settings.'},{status:409,headers});
-    const client=connection(scope.access,request.signal),args={sectionId:scope.sectionId,epoch:scope.epoch,count:body.count,...(body.targetSubjects!==undefined?{targetSubjects:body.targetSubjects}:{})};
+    if(body.resetAt!==undefined&&(!Number.isSafeInteger(body.resetAt)||body.resetAt<0))return Response.json({message:'Invalid settings.'},{status:400,headers});
+    const client=connection(scope.access,request.signal),args={sectionId:scope.sectionId,epoch:scope.epoch,count:body.count,...(body.targetSubjects!==undefined?{targetSubjects:body.targetSubjects}:{}),...(body.resetAt!==undefined?{resetAt:body.resetAt}:{})};
     const configure=()=>client.mutation(makeFunctionReference<'mutation'>('spotlight:configure'),args);
     const result=await withClassroomRetry(configure,scope,request.signal);
     if(result.retryAfter)return Response.json({message:'Please wait before saving again.'},{status:429,headers});
     if(result.message)return Response.json({message:result.message},{status:409,headers});
     return Response.json({count:result.count},{headers});
   }catch{return Response.json({message:'Unable to save wheel settings.'},{status:503,headers});}
+}
+
+export async function DELETE(request:Request,context:Context){
+  try{
+    const origin=request.headers.get('origin');
+    if((origin&&origin!==new URL(request.url).origin)||request.headers.get('sec-fetch-site')==='cross-site')return Response.json({message:'Invalid request origin.'},{status:403,headers});
+    const scope=await resolve(request,context);
+    if(!scope?.teaching)return Response.json({message:'Teaching access required.'},{status:403,headers});
+    if(scope.sectionId===ASSIGNMENT_WHEEL_SECTION_ID)return Response.json({message:'Use the practice assignment reset for this wheel.'},{status:400,headers});
+    const limit=await consumeRateLimit(`wheel-reset:${scope.access.authUserId}`,{group:'wheel-reset',limit:5,networkLimit:100},request.headers,request.signal);
+    if(!limit.allowed)return Response.json({message:'Too many reset attempts. Please try again shortly.'},{status:429,headers:{...headers,'Retry-After':String(limit.retry_after)}});
+    const reader=request.body?.getReader();if(!reader)return Response.json({message:'Enter the confirmation password.'},{status:400,headers});
+    const chunks:Uint8Array[]=[];let size=0;
+    try{while(true){const part=await reader.read();if(part.done)break;size+=part.value.length;if(size>1024){await reader.cancel();return Response.json({message:'Invalid reset request.'},{status:400,headers});}chunks.push(part.value);}}finally{reader.releaseLock();}
+    let body;try{body=JSON.parse(Buffer.concat(chunks).toString('utf8'));}catch{return Response.json({message:'Invalid reset request.'},{status:400,headers});}
+    if(!body||typeof body!=='object'||typeof body.clearNames!=='boolean'||!(/^[a-f0-9-]{36}$/i.test(body.requestId||'')))return Response.json({message:'Invalid reset request.'},{status:400,headers});
+    if(!await verifyWheelResetPassword(body.password))return Response.json({message:'Incorrect confirmation password.'},{status:401,headers});
+    if(body.epoch!==scope.epoch)return Response.json({message:'The section session changed. Reopen the wheel.'},{status:409,headers});
+    const result=await resetSectionWheel({courseId:scope.projection.courseId,sectionId:scope.sectionId,epoch:scope.epoch,actorSubject:scope.access.authUserId,requestId:body.requestId,clearNames:body.clearNames});
+    return Response.json(result,{headers});
+  }catch{return Response.json({message:'Unable to finish resetting the wheel. Please retry.'},{status:503,headers});}
 }

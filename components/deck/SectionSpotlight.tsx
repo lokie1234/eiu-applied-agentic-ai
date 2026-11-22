@@ -116,6 +116,13 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
   const wheelDialog = useRef<HTMLDialogElement>(null), noticeDialog = useRef<HTMLDialogElement>(null);
   const settingsDialog=useRef<HTMLDialogElement>(null),settingsRequest=useRef<AbortController|null>(null);
   const [settingsOpen,setSettingsOpen]=useState(false),[settingsCount,setSettingsCount]=useState('1'),[settingsBusy,setSettingsBusy]=useState(false),[settingsLoaded,setSettingsLoaded]=useState(false),[settingsError,setSettingsError]=useState('');
+  const [resetOpen,setResetOpen]=useState(false),[resetPassword,setResetPassword]=useState(''),[resetNames,setResetNames]=useState(false),[resetBusy,setResetBusy]=useState(false),[resetError,setResetError]=useState('');
+  const resetDialog=useRef<HTMLDialogElement>(null),resetInput=useRef<HTMLInputElement>(null),resetRequest=useRef<AbortController|null>(null),resetAttempt=useRef<{requestId:string;epoch:string;clearNames:boolean}|null>(null);
+  const clearWheelDraw=useCallback(()=>{
+    request.current?.abort();request.current=null;attempt.current=null;activeDraw.current=null;spinning.current=false;stopAnimation.current?.();
+    setDraw(null);setNotice(null);setRevealed(false);setRevealedCount(0);setSpinIndex(0);setIsSpinning(false);setFrozenTransform(null);setBusy(false);setError('');
+    settingsRequest.current?.abort();settingsRequest.current=null;setSettingsBusy(false);setTargetSubjects([]);setTargetEnabled(false);
+  },[]);
   const dismissNotice = useCallback(() => setNotice(null), []);
   useEffect(() => {
     const controller = new AbortController();ended.current = false;
@@ -124,13 +131,16 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
       request.current?.abort();request.current = null;activeDraw.current = null;spinning.current = false;attempt.current = null;
       context.current = null;latest.current = null;setSnapshot(null);setNotice(null);setSlide(null);setDraw(null);setRevealed(false);setRevealedCount(0);setSpinIndex(0);setIsSpinning(false);stopRequested.current=false;setWheelMembers([]);setBusy(false);setError('');
       settingsRequest.current?.abort();setSettingsOpen(false);setSettingsBusy(false);setTargetOpen(false);setTargetEnabled(false);setTargetSubjects([]);setSettingsMembers([]);
+      resetRequest.current?.abort();resetRequest.current=null;resetAttempt.current=null;setResetOpen(false);setResetPassword('');setResetBusy(false);setResetError('');
       stopLive?.();stopLive=null;
     };
     const install = (value: SpotlightView) => {
       const verified = context.current;
       if (controller.signal.aborted || ended.current || !verified || value.epoch !== verified.epoch || value.viewerSubject !== verified.subject || value.teaching !== verified.teaching) return;
+      if((value.resetAt||0)<(latest.current?.resetAt||0))return;
       if (latest.current?.epoch === value.epoch && (value.revision ?? 0) < (latest.current.revision ?? 0)) return;
       if(value.enabled===false){clear();setAvailable(false);return;}
+      if((value.resetAt||0)>(latest.current?.resetAt||0)){clearWheelDraw();setSettingsCount(String(value.count||1));setSettingsMembers(value.members);}
       latest.current = value;setSnapshot(value);
       if(value.teaching&&!request.current&&!spinning.current&&!activeDraw.current)setWheelMembers(value.members);
     };
@@ -180,8 +190,8 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
       ended.current = true;controller.abort();stopLive?.();stopLive = null;clear();
     };
     if(!assignmentMode){window.addEventListener('focus', refresh);void refresh();}window.addEventListener('eiu-section-terminated', terminate);
-    return () => { ended.current = true;controller.abort();request.current?.abort();settingsRequest.current?.abort();request.current = null;stopLive?.();readiness();context.current = null;latest.current = null;refreshAccess.current = () => Promise.resolve();window.removeEventListener('focus', refresh);window.removeEventListener('eiu-section-terminated', terminate); };
-  }, [sectionId, controls?.teaching]);
+    return () => { ended.current = true;controller.abort();request.current?.abort();settingsRequest.current?.abort();resetRequest.current?.abort();request.current = null;stopLive?.();readiness();context.current = null;latest.current = null;refreshAccess.current = () => Promise.resolve();window.removeEventListener('focus', refresh);window.removeEventListener('eiu-section-terminated', terminate); };
+  }, [sectionId, controls?.teaching,clearWheelDraw]);
   const spin = useCallback(async (page: number) => {
     if (ended.current || (context.current && !context.current.teaching)) return;
     if (!context.current) { setSlide(page);setBusy(true);await refreshAccess.current(); }
@@ -200,7 +210,7 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
     if (wheelDialog.current) wheelDialog.current.scrollTop = 0;
     try {
       const response = await fetch(`/api/sections/${sectionId}/spotlight`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ slide: page, requestId: currentAttempt.requestId, epoch: verified.epoch }), signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]) });
+        body: JSON.stringify({ slide: page, requestId: currentAttempt.requestId, epoch: verified.epoch,resetAt:latest.current?.resetAt||0 }), signal: AbortSignal.any([controller.signal, AbortSignal.timeout(15000)]) });
       const data = await response.json();
       if (controller.signal.aborted || ended.current) return;
       if (!response.ok) { if (response.status < 500) attempt.current = null;throw Error(data.message || 'Unable to draw.'); }
@@ -274,6 +284,24 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
     if (!notice && noticeDialog.current?.open) noticeDialog.current.close();
   }, [notice]);
   useEffect(()=>{if(settingsOpen&&!settingsDialog.current?.open)settingsDialog.current?.showModal();if(!settingsOpen&&settingsDialog.current?.open)settingsDialog.current.close();},[settingsOpen]);
+  useEffect(()=>{if(resetOpen&&!resetDialog.current?.open){resetDialog.current?.showModal();resetInput.current?.focus();}if(!resetOpen&&resetDialog.current?.open)resetDialog.current.close();},[resetOpen]);
+  const confirmReset=async()=>{
+    if(ended.current||resetRequest.current||!context.current?.teaching||!resetPassword)return;
+    const verified=context.current,controller=new AbortController();resetRequest.current=controller;setResetBusy(true);setResetError('');
+    if(!resetAttempt.current||resetAttempt.current.epoch!==verified.epoch||resetAttempt.current.clearNames!==resetNames)resetAttempt.current={requestId:crypto.randomUUID(),epoch:verified.epoch,clearNames:resetNames};
+    try{
+      const response=await fetch(`/api/sections/${sectionId}/spotlight`,{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({...resetAttempt.current,password:resetPassword}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(20000)])});const data=await response.json();
+      if(controller.signal.aborted||ended.current||context.current?.epoch!==verified.epoch)return;
+      if(!response.ok){if(response.status<500)resetAttempt.current=null;throw Error(data.message||'Unable to reset the wheel.');}
+      if(data.success!==true||!Number.isFinite(data.resetAt)||!validWheelCount(data.count))throw Error('The classroom did not confirm this reset.');
+      clearWheelDraw();setSettingsCount(String(data.count));setResetOpen(false);setSettingsOpen(false);resetAttempt.current=null;
+      // The response confirms the mutation. Retain its generation so a delayed
+      // pre-reset snapshot cannot revive a cancelled result before refresh.
+      if(latest.current){latest.current={...latest.current,resetAt:data.resetAt,count:data.count,draws:[],members:resetNames?[]:latest.current.members};setSnapshot(latest.current);setWheelMembers(latest.current.members);}
+      setError('Wheel data reset.');await refreshAccess.current();
+    }catch(reason){if(!controller.signal.aborted&&!ended.current)setResetError(reason instanceof Error?reason.message:'Unable to reset the wheel. Please retry.');}
+    finally{if(resetRequest.current===controller){resetRequest.current=null;setResetBusy(false);setResetPassword('');}}
+  };
   const loadLiveSettings=async()=>{
     if(ended.current||settingsRequest.current)return;
     setSettingsBusy(true);setSettingsLoaded(false);setSettingsError('');
@@ -291,7 +319,7 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
     const count=Number(settingsCount);if(!validWheelCount(count)||settingsRequest.current||ended.current||!controls?.teaching)return;
     if(!settingsLoaded||(targetEnabled&&!targetSubjects.length))return;
     const controller=new AbortController();settingsRequest.current=controller;setSettingsBusy(true);setSettingsError('');
-    try{await refreshAccess.current();if(controller.signal.aborted||ended.current)return;const verified=context.current;if(!verified?.teaching)throw Error('Teaching access required.');const response=await fetch(`/api/sections/${sectionId}/spotlight`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({count:targetEnabled?targetSubjects.length:count,epoch:verified.epoch,targetSubjects:targetEnabled?targetSubjects:[]}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(15000)])});const data=await response.json();if(controller.signal.aborted||ended.current)return;if(!response.ok)throw Error(data.message||'Unable to save settings.');setSettingsOpen(false);}
+    try{await refreshAccess.current();if(controller.signal.aborted||ended.current)return;const verified=context.current;if(!verified?.teaching)throw Error('Teaching access required.');const response=await fetch(`/api/sections/${sectionId}/spotlight`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({count:targetEnabled?targetSubjects.length:count,epoch:verified.epoch,targetSubjects:targetEnabled?targetSubjects:[],resetAt:latest.current?.resetAt||0}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(15000)])});const data=await response.json();if(controller.signal.aborted||ended.current)return;if(!response.ok)throw Error(data.message||'Unable to save settings.');setSettingsOpen(false);}
     catch(reason){if(!controller.signal.aborted)setSettingsError(reason instanceof Error?reason.message:'Unable to save settings.');}
     finally{if(settingsRequest.current===controller){settingsRequest.current=null;setSettingsBusy(false);}}
   };
@@ -339,6 +367,18 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
       {sectionId===ASSIGNMENT_WHEEL_SECTION_ID&&<p>Practice parts repeat in order when more than seven learners are selected. Reset the completed draw before changing the group size.</p>}
       {settingsError&&<p role="alert">{settingsError}</p>}
       <button type="button" className={styles.spin} disabled={settingsBusy||!settingsLoaded||!validWheelCount(Number(settingsCount))||(targetEnabled&&!targetSubjects.length)} onClick={()=>void saveSettings()}>{settingsBusy?'Please wait…':'Save'}</button>
+      {sectionId!==ASSIGNMENT_WHEEL_SECTION_ID&&<button type="button" className={styles.resetTrigger} disabled={settingsBusy||resetBusy} onClick={()=>{setResetPassword('');setResetNames(false);setResetError('');setResetOpen(true);}}>Reset data</button>}
+    </dialog>
+    <dialog ref={resetDialog} className={`${styles.dialog} ${styles.resetDialog}`} aria-labelledby="wheel-reset-title" onCancel={event=>{event.preventDefault();if(!resetBusy){setResetOpen(false);setResetPassword('');resetAttempt.current=null;}}} onKeyDown={event=>event.stopPropagation()}>
+      <header className={styles.header}><h2 id="wheel-reset-title">Reset wheel data</h2><button type="button" className={styles.close} aria-label="Close reset confirmation" disabled={resetBusy} onClick={()=>{setResetOpen(false);setResetPassword('');resetAttempt.current=null;}}>×</button></header>
+      <p>Clear this section’s draw results and selected targets. Learners per draw returns to 1.</p>
+      <form onSubmit={event=>{event.preventDefault();void confirmReset();}}>
+        <label className={styles.resetNames}><input type="checkbox" checked={resetNames} disabled={resetBusy} onChange={event=>setResetNames(event.target.checked)}/><span>Also clear all current names</span></label>
+        {resetNames&&<p>Learners will appear again after they re-enter this section.</p>}
+        <label className={styles.resetPassword}>Confirmation password<input ref={resetInput} type="password" autoComplete="current-password" value={resetPassword} maxLength={200} disabled={resetBusy} onChange={event=>setResetPassword(event.target.value)}/></label>
+        {resetError&&<p role="alert">{resetError}</p>}
+        <button type="submit" className={styles.resetTrigger} disabled={resetBusy||!resetPassword}>{resetBusy?'Resetting…':'Confirm reset'}</button>
+      </form>
     </dialog>
   </>, document.body)}</>;
 }

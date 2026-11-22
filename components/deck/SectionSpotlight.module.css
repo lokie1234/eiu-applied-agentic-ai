@@ -93,6 +93,16 @@
 .settings [role=alert] {
   color: #a33424;
 }
+.resetTrigger{border:1px solid #ab5948;border-radius:12px;padding:12px 22px;background:#fff6f0;color:#8b3024;font:600 19px Arial;cursor:pointer;margin-top:14px}
+.resetTrigger:disabled{opacity:.55;cursor:default}
+.resetDialog{width:min(620px,92vw);color:#17324a}
+.resetDialog p{font-size:19px;line-height:1.45;margin:18px 0}
+.resetDialog form{display:flex;flex-direction:column;align-items:stretch;gap:18px}
+.resetNames{display:flex;align-items:center;gap:12px;font-size:20px;cursor:pointer}
+.resetNames input{width:22px;height:22px;flex:none;accent-color:#144069}
+.resetPassword{display:flex;flex-direction:column;gap:10px;font-size:20px}
+.resetPassword input{width:100%;min-height:46px;padding:10px 14px;border:1px solid #bfd2df;border-radius:10px;font:22px Arial;color:#17324a;background:white}
+.resetDialog [role=alert]{color:#a33424}
 .assignment {
   width: min(1280px,96vw);
   padding: 16px;

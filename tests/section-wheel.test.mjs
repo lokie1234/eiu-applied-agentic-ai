@@ -112,6 +112,20 @@ test('target mode validates membership and presence, rejects stale targets and c
  f.advance(2100);await f.functions.configure(f.ctx,{sectionId:a,epoch:`epoch:${a}`,count:2,targetSubjects:[]});const normal=await f.draw();assert.equal(normal.targets.length,2);assert.ok(normal.targets.every(t=>t.subject!=='session-0'));
 });
 
+test('password-guarded bridge reset is atomic, section scoped, replay safe and fences old draws/settings',async()=>{
+ const f=fixture(),room=await f.prepare(a,3);await f.prepare(b,2);await f.draw(a);await f.draw(b);
+ room.wheelCount=3;room.wheelTargets=['session-0'];const names=room.members.map(member=>member.subject),before=await f.functions.view(f.ctx,{sectionId:a});
+ const args={sectionId:a,epoch:room.epoch,requestId:crypto.randomUUID(),sequence:'1',requestedAt:1,clearNames:false};
+ const result=await f.functions.resetWheel(f.ctx,args);assert.equal(result.success,true);assert.equal(room.wheelCount,1);assert.deepEqual(room.wheelTargets,[]);assert.deepEqual(room.members.map(member=>member.subject),names);
+ assert.equal(f.tables.spotlight.filter(row=>row.sectionId===a).length,0);assert.equal(f.tables.spotlightRequests.filter(row=>row.sectionId===a).length,0);assert.equal(f.tables.spotlight.filter(row=>row.sectionId===b).length,1);
+ const after=await f.functions.view(f.ctx,{sectionId:a});assert.ok(after.revision>=before.revision);assert.equal(after.resetAt,result.resetAt);
+ assert.equal((await f.draw(a)).code,'WHEEL_RESET');assert.equal((await f.configure(a,2)).code,'WHEEL_RESET');
+ const fresh={sectionId:a,epoch:room.epoch,requestId:crypto.randomUUID(),slide:0,resetAt:result.resetAt};assert.ok((await f.functions.draw(f.ctx,fresh)).subject);
+ await f.functions.resetWheel(f.ctx,args);assert.equal(f.tables.spotlight.filter(row=>row.sectionId===a).length,1,'retry cannot delete a later draw');
+ f.advance(2);await f.functions.resetWheel(f.ctx,{...args,requestId:crypto.randomUUID(),sequence:'2',requestedAt:result.resetAt+1,clearNames:true});assert.equal(room.members.length,0);
+ await f.module.replace(f.ctx,{sectionId:a,version:room.version-1,epoch:room.epoch,members:names.map(subject=>({subject,username:'old'})),answers:[]});assert.equal(room.members.length,0,'an old projection cannot revive cleared names');
+});
+
 test('assignment wheel honors the same target set and retains server-assigned practice parts',async()=>{
  const f=fixture(),id=practice.MIS301_SECTION_ID;await f.prepare(id,5);await f.functions.configure(f.ctx,{sectionId:id,epoch:`epoch:${id}`,count:1,targetSubjects:['session-1','session-4']});
  const result=await f.module.draw(f.ctx,{sectionId:id,requestId:crypto.randomUUID(),excluded:[]});assert.deepEqual(Array.from(result.subjects).sort(),['session-1','session-4']);assert.deepEqual(Array.from(result.parts),[1,2]);

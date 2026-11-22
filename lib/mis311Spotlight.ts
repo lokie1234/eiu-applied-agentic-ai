@@ -15,4 +15,4 @@ export function spotlightSlide(value: unknown): value is number {
 }
 export type SpotlightDraw = { requestId: string; slide: number; subject: string; username: string; targets?:Array<{subject:string;username:string}>; createdAt: number; revealAt: number };
 export type SpotlightView = { ready: boolean; teaching: boolean; epoch: string; viewerSubject: string;
-  revision?: number; enabled?:boolean; count?:number; members: Array<{ id: string; username: string }>; draws: SpotlightDraw[] };
+  revision?: number; resetAt?:number; enabled?:boolean; count?:number; members: Array<{ id: string; username: string }>; draws: SpotlightDraw[] };
