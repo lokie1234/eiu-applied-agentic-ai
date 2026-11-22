@@ -115,14 +115,12 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
   const refreshAccess = useRef<() => Promise<void>>(() => Promise.resolve());
   const wheelDialog = useRef<HTMLDialogElement>(null), noticeDialog = useRef<HTMLDialogElement>(null);
   const settingsDialog=useRef<HTMLDialogElement>(null),settingsRequest=useRef<AbortController|null>(null);
-  const rosterRequest = useRef<AbortController | null>(null);
   const [settingsOpen,setSettingsOpen]=useState(false),[settingsCount,setSettingsCount]=useState('1'),[settingsBusy,setSettingsBusy]=useState(false),[settingsLoaded,setSettingsLoaded]=useState(false),[settingsError,setSettingsError]=useState('');
   const dismissNotice = useCallback(() => setNotice(null), []);
   useEffect(() => {
     const controller = new AbortController();ended.current = false;
     let pending: Promise<void> | null = null, live: SpotlightView | null = null, stopLive: (() => void) | null = null, refreshedEpoch = '';
     const clear = () => {
-      rosterRequest.current?.abort();rosterRequest.current = null;
       request.current?.abort();request.current = null;activeDraw.current = null;spinning.current = false;attempt.current = null;
       context.current = null;latest.current = null;setSnapshot(null);setNotice(null);setSlide(null);setDraw(null);setRevealed(false);setRevealedCount(0);setSpinIndex(0);setIsSpinning(false);stopRequested.current=false;setWheelMembers([]);setBusy(false);setError('');
       settingsRequest.current?.abort();setSettingsOpen(false);setSettingsBusy(false);setTargetOpen(false);setTargetEnabled(false);setTargetSubjects([]);setSettingsMembers([]);
@@ -134,14 +132,15 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
       if (latest.current?.epoch === value.epoch && (value.revision ?? 0) < (latest.current.revision ?? 0)) return;
       if(value.enabled===false){clear();setAvailable(false);return;}
       latest.current = value;setSnapshot(value);
+      if(value.teaching&&!request.current&&!spinning.current&&!activeDraw.current)setWheelMembers(value.members);
     };
     function refresh(): Promise<void> {
       if (controller.signal.aborted || ended.current) return Promise.resolve();
       if (pending) return pending;
-      const full = !realtimeReady();
+      const full = !realtimeReady() || controls?.teaching === true;
       pending = (async () => {
         try {
-          const response = await fetch(`/api/sections/${sectionId}/spotlight${full ? '' : '?context=1'}`, { cache: 'no-store', signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]) });
+          const response = await fetch(`/api/sections/${sectionId}/spotlight${controls?.teaching ? '?prepare=1' : full ? '' : '?context=1'}`, { cache: 'no-store', signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]) });
           if (controller.signal.aborted || ended.current) return;
           if (!response.ok) { clear();if(response.status===403)setAvailable(false);return; }
           const data = await response.json();
@@ -159,8 +158,7 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
           }
           if (data.snapshot) install(data.snapshot);
           if (live) install(live);
-          if (verified.teaching) { stopLive?.();stopLive = null; }
-          else if (!stopLive) stopLive = watchSpotlight(sectionId, value => {
+          if (!stopLive) stopLive = watchSpotlight(sectionId, value => {
             if (controller.signal.aborted || ended.current) return;
             live = value;install(value);
             if (value.ready && value.viewerSubject === context.current?.subject && value.epoch !== context.current.epoch && refreshedEpoch !== value.epoch) {
@@ -176,14 +174,14 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
     // MIS 301 already owns one verified classroom bridge. Its toolbar only
     // needs an additional context lookup when the count is actually saved.
     const assignmentMode=sectionId===ASSIGNMENT_WHEEL_SECTION_ID;
-    const readiness = assignmentMode?()=>{}:watchRealtimeReady(() => { if (!realtimeReady() || !context.current) void refresh(); });
+    const readiness = assignmentMode?()=>{}:watchRealtimeReady(() => { if (!realtimeReady() || !context.current || !latest.current?.ready) void refresh(); });
     const terminate = (event: Event) => {
       if ((event as CustomEvent).detail?.sectionId !== sectionId) return;
       ended.current = true;controller.abort();stopLive?.();stopLive = null;clear();
     };
     if(!assignmentMode){window.addEventListener('focus', refresh);void refresh();}window.addEventListener('eiu-section-terminated', terminate);
-    return () => { ended.current = true;controller.abort();request.current?.abort();rosterRequest.current?.abort();settingsRequest.current?.abort();request.current = null;stopLive?.();readiness();context.current = null;latest.current = null;refreshAccess.current = () => Promise.resolve();window.removeEventListener('focus', refresh);window.removeEventListener('eiu-section-terminated', terminate); };
-  }, [sectionId]);
+    return () => { ended.current = true;controller.abort();request.current?.abort();settingsRequest.current?.abort();request.current = null;stopLive?.();readiness();context.current = null;latest.current = null;refreshAccess.current = () => Promise.resolve();window.removeEventListener('focus', refresh);window.removeEventListener('eiu-section-terminated', terminate); };
+  }, [sectionId, controls?.teaching]);
   const spin = useCallback(async (page: number) => {
     if (ended.current || (context.current && !context.current.teaching)) return;
     if (!context.current) { setSlide(page);setBusy(true);await refreshAccess.current(); }
@@ -192,6 +190,8 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
     if (!verified?.teaching) { setBusy(false);setSlide(null);return; }
     if (request.current) { setSlide(attempt.current?.slide ?? page);return; }
     if (spinning.current && activeDraw.current) {setSlide(activeDraw.current.slide);return;}
+    if (!latest.current?.ready || !latest.current.members.length) {setBusy(false);setError('Waiting for eligible learners to join this section.');return;}
+    setWheelMembers(latest.current.members);
 
     const controller = new AbortController();request.current = controller;
     if (!attempt.current || attempt.current.slide !== page || attempt.current.epoch !== verified.epoch || attempt.current.createdAt < Date.now() - 110000) attempt.current = { requestId: crypto.randomUUID(), slide: page, epoch: verified.epoch, createdAt: Date.now() };
@@ -298,17 +298,13 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
   const openWheel = async () => {
     if (ended.current) return;
     setSlide(activeDraw.current?.slide ?? 0);
-    if (sectionId === ASSIGNMENT_WHEEL_SECTION_ID || activeDraw.current || rosterRequest.current) return;
-    const controller = new AbortController();rosterRequest.current = controller;
-    try {
-      const response = await fetch(`/api/sections/${sectionId}/spotlight`, { cache: 'no-store', signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]) });
-      const data = await response.json(), verified = context.current;
-      if (!response.ok || controller.signal.aborted || ended.current || activeDraw.current || !verified?.teaching) return;
-      if (data.snapshot?.epoch === verified.epoch && data.snapshot.viewerSubject === verified.subject && data.snapshot.teaching) setWheelMembers(data.snapshot.members || []);
-    } catch { /* A spin independently refreshes the authorized roster. */ }
-    finally { if (rosterRequest.current === controller) rosterRequest.current = null; }
+    if (sectionId === ASSIGNMENT_WHEEL_SECTION_ID || activeDraw.current || request.current) return;
+    activeDraw.current=null;setDraw(null);setRevealed(false);setRevealedCount(0);setFrozenTransform(null);setError('');
+    const value=latest.current;
+    if(value?.ready&&value.teaching){setWheelMembers(value.members);return;}
+    await refreshAccess.current();
   };
-  const close = () => { rosterRequest.current?.abort();rosterRequest.current = null;setSlide(null);frame?.current?.contentWindow?.postMessage({ type: 'eiu-spotlight-closed', requestId: frame.current.dataset.requestId }, '*'); };
+  const close = () => { setSlide(null);frame?.current?.contentWindow?.postMessage({ type: 'eiu-spotlight-closed', requestId: frame.current.dataset.requestId }, '*'); };
   const drawTargets = useMemo(() => draw?.targets || (draw ? [{ subject: draw.subject, username: draw.username }] : []), [draw]);
   const countTier = useMemo(() => {
     const total = draw ? drawTargets.length : (Number(settingsCount) || 1);
@@ -319,13 +315,13 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
     return 'dense';
   }, [draw, drawTargets.length, settingsCount]);
   if (typeof document === 'undefined') return null;
-  const launcher=controls?.teaching&&available!==false?<div className={styles.launcher} onKeyDown={event=>event.stopPropagation()}><button type="button" aria-label="Open Class Spotlight" title="Wheel of Name" disabled={sectionId===ASSIGNMENT_WHEEL_SECTION_ID&&!controls.assignment?.code} onClick={()=>void openWheel()}><WheelIcon/></button></div>:null;
+  const launcher=controls?.teaching&&available!==false?<div className={styles.launcher} onKeyDown={event=>event.stopPropagation()}><button type="button" aria-label="Open Class Spotlight" title={sectionId!==ASSIGNMENT_WHEEL_SECTION_ID&&!snapshot?.ready?'Preparing classroom…':'Wheel of Name'} disabled={sectionId===ASSIGNMENT_WHEEL_SECTION_ID?!controls.assignment?.code:!snapshot?.ready} onClick={()=>void openWheel()}><WheelIcon/></button></div>:null;
   return <>{launcher}{createPortal(<>
     <dialog ref={wheelDialog} className={`${styles.dialog} ${styles.wheelCard} ${sectionId===ASSIGNMENT_WHEEL_SECTION_ID?styles.assignment:styles.floating}`} aria-labelledby="spotlight-title" onCancel={close} onKeyDown={event => event.stopPropagation()}>
       <header className={styles.header}><h2 id="spotlight-title">Wheel of Name</h2><div className={styles.dialogActions}>{controls?.teaching&&<button type="button" className={styles.close} aria-label="Class Spotlight settings" title="Learners per draw" disabled={busy||isSpinning} onClick={()=>void openSettings()}><SettingsIcon/></button>}<button type="button" className={styles.close} onClick={close} aria-label="Close wheel">×</button></div></header>
       {sectionId===ASSIGNMENT_WHEEL_SECTION_ID ? slide!==null&&controls?.assignment&&<AssignmentWheelFrame sectionId={sectionId} {...controls.assignment}/> : <div className={styles.wheelLayout}>
-      <div className={styles.wheelStage}><Wheel members={wheelMembers} draw={draw} duration={spinDuration} spinIndex={spinIndex} isSpinning={isSpinning} disabled={busy&&!isSpinning} frozenTransform={frozenTransform} onStop={stop} onSpin={() => slide !== null && void spin(slide)} />
-      {!draw && <p className={styles.status} role="status">{busy ? 'Connecting to the classroom...' : error || 'Ready to select learners'}</p>}
+      <div className={styles.wheelStage}><Wheel members={wheelMembers} draw={draw} duration={spinDuration} spinIndex={spinIndex} isSpinning={isSpinning} disabled={!isSpinning&&(busy||!snapshot?.ready||!wheelMembers.length)} frozenTransform={frozenTransform} onStop={stop} onSpin={() => slide !== null && void spin(slide)} />
+      {!draw && <p className={styles.status} role="status">{error || (!snapshot?.ready ? 'Preparing classroom…' : !wheelMembers.length ? 'Waiting for learners to join this section.' : `${wheelMembers.length} learners ready`)}</p>}
       {draw && isSpinning && <p className={styles.status} role="status">{`Spinning (${spinIndex + 1}/${draw.targets?.length || 1})…`}</p>}
       </div><section className={styles.resultsPanel} aria-label="Selected names">
       <div className={styles.result} aria-live="polite">{!draw ? '' : !revealed && revealedCount === 0 ? 'Spinning…' : <ol className={styles.targets} data-tier={countTier}>{drawTargets.slice(0,revealedCount).map((target,index)=><li className={`${styles.nameCard} ${styles.nameReveal}`} key={target.subject}><span className={styles.nameBadge}>{index+1}</span><span className={styles.nameText} title={target.username}>{target.username}</span></li>)}</ol>}</div>

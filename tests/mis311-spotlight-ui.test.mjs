@@ -62,6 +62,33 @@ test('Learning Access has no toolbar wheel or settings controls',async()=>{
   const f=await fixture(false,[],{controls:true});try{assert.equal(f.window.document.querySelector('[aria-label="Open Class Spotlight"]'),null);assert.equal(f.window.document.querySelector('[aria-label="Class Spotlight settings"]'),null);}finally{await f.close();}
 });
 
+test('teacher prepares before opening, receives King/Son/Long live and freezes names only during a spin',async()=>{
+ const f=await fixture(true,[],{controls:true});try{
+  const doc=f.window.document,labels=()=>[...doc.querySelectorAll('.wheelSvg title')].map(node=>node.textContent);
+  assert.ok(f.requests.some(request=>request.url.endsWith('?prepare=1')),'prepare starts on section entry');
+  const roster=[{id:'king',username:'king'},{id:'son',username:'son'},{id:'long',username:'long'}];
+  await act(async()=>f.watch({...f.snapshot,revision:11,members:roster}));await f.flush();
+  const reads=f.requests.length;await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();
+  assert.deepEqual(labels(),['king','son','long']);assert.equal(f.requests.length,reads,'opening uses the already connected roster');assert.doesNotMatch(doc.querySelector('[role=status]').textContent,/Connecting|Preparing/);
+  await act(async()=>f.watch({...f.snapshot,revision:12,members:roster.slice(1)}));await f.flush();assert.deepEqual(labels(),['son','long'],'idle roster removes departed sessions');
+  await act(async()=>f.watch({...f.snapshot,revision:13,members:roster}));await f.flush();
+  await act(async()=>doc.querySelector('[aria-label="Spin wheel"]').click());await f.flush();const spinningNames=labels();
+  await act(async()=>f.watch({...f.snapshot,revision:14,members:roster.slice(1)}));await f.flush();assert.deepEqual(labels(),spinningNames,'updates cannot change the current spin sectors');
+  assert.equal(f.subscriptions(),1);assert.equal(f.requests.filter(request=>request.method==='POST').length,1);
+ }finally{await f.close();}
+});
+
+test('opening waits for the existing preparation and reconnect recovers without duplicate subscriptions',async()=>{
+ const pending=deferred();let initial=true;
+ const f=await fixture(true,[],{controls:true,get:()=>{if(initial){initial=false;return pending.promise;}}});try{
+  const doc=f.window.document,launcher=doc.querySelector('[aria-label="Open Class Spotlight"]');assert.equal(launcher.disabled,true);
+  await act(async()=>launcher.click());assert.equal(doc.querySelector('[aria-labelledby=spotlight-title]').open,false);assert.equal(f.requests.length,1);
+  await act(async()=>pending.resolve(Response.json({epoch:'epoch',snapshot:f.snapshot})));await f.flush();assert.equal(launcher.disabled,false);assert.equal(f.subscriptions(),1);
+  await act(async()=>f.watch({...f.snapshot,ready:false,revision:11}));await f.flush();assert.equal(launcher.disabled,true);
+  f.snapshot.revision=12;await act(async()=>f.ready(true));await f.flush();assert.equal(launcher.disabled,false);assert.equal(f.subscriptions(),1);
+ }finally{await f.close();}
+});
+
 test('settings remove demo and support enabling, saving, reopening and disabling multiple target names',async()=>{
  const f=await fixture(true,[],{controls:true});try{
   const doc=f.window.document;await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();const shell=doc.querySelector('.wheelWrap');const names=[...doc.querySelectorAll('.wheelSvg title')].map(n=>n.textContent);
@@ -187,7 +214,7 @@ test('rapid clicks and reopening an in-progress spin do not create overlapping r
   try{
     f.frame.dataset.requestId=`${sectionId}:5`;const message={type:'eiu-spotlight-open',requestId:`${sectionId}:5`,slide:5};
     await act(async()=>{for(let i=0;i<30;i++)f.message(message);});await f.flush();
-    assert.equal(f.requests.filter(r=>r.method==='POST').length,1);assert.equal(f.subscriptions(),0,'teacher UI does not subscribe to an unused live roster');
+    assert.equal(f.requests.filter(r=>r.method==='POST').length,1);assert.equal(f.subscriptions(),1,'teacher retains one live roster subscription');
     await act(async()=>f.window.document.querySelector('[aria-label="Close wheel"]').click());
     await act(async()=>f.message(message));await f.flush();assert.equal(f.window.document.querySelector('.dialog').open,true);
     await act(async()=>finish());await f.flush();

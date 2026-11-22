@@ -59,6 +59,12 @@ test('context checks do not fetch a redundant Convex snapshot',async()=>{
   const f=fixture();const response=await f.route.GET(new Request('http://localhost/spotlight?context=1'),f.context);const data=await response.json();
   assert.equal(data.teaching,true);assert.equal(data.viewerSubject,'teacher');assert.equal(data.snapshot,undefined);assert.equal(f.queries(),0);
 });
+
+test('teaching prepare synchronizes the scoped classroom before returning its roster; learners cannot trigger it',async()=>{
+ const f=fixture();const response=await f.route.GET(new Request('http://localhost/spotlight?prepare=1'),f.context);
+ assert.equal(response.status,200);assert.deepEqual(f.calls,['roster']);assert.equal(f.queries(),1);assert.equal((await response.json()).snapshot.ready,true);
+ f.role('learner');await f.route.GET(new Request('http://localhost/spotlight?prepare=1'),f.context);assert.deepEqual(f.calls,['roster']);
+});
 test('a named classroom requires a name but does not force email when the global form is disabled',async()=>{
   const policy=loadTS('lib/learningIdentity.ts');
   const scope={sections:[{id:sectionId,course_id:courseId,section_key:'mis311-week7-session2'}],courses:[{id:courseId}]};
@@ -102,7 +108,7 @@ test('the shared MIS 311 roster reads only existing entry identities and never p
   let reads=0;
   const projection=loadTS('lib/realtime/classroom.ts',{'@/lib/auth/courseAccessStorage':{getCoursesAndSectionsData:async()=>({courses:[],sections:[]})},'next/server':{after(){}},'@/lib/supabase/server':{getSupabaseAdmin:()=>({from(){reads++;return query;}})},'@/lib/mis301Practice':{MIS301_SECTION_ID:'mis301',MIS301_COURSE_ID:'course301',mis301Part:()=>false},'@/lib/sectionTermination':{readSectionTermination:async()=>null},'./server':{realtimeConfigured:()=>true},'@/lib/mis311Spotlight':common});
   const snapshot=await projection.classroomSnapshot(undefined,projection.spotlightScope);
-  assert.equal(reads,1);assert.equal(calls[0].sectionId,sectionId);assert.equal(snapshot.members.length,1);assert.equal(snapshot.members[0].subject,'new-session');assert.deepEqual(Array.from(snapshot.answers),[]);
+  assert.equal(reads,1);assert.equal(calls[0].sectionId,sectionId);assert.deepEqual(Array.from(snapshot.members,m=>m.subject),['new-session','old-session'],'shared email must not merge two signed sessions');assert.deepEqual(Array.from(snapshot.answers),[]);
 });
 test('name-only learners stay eligible in both rosters without merging distinct sessions by their name',async()=>{
   const rows=[{details:{sessionId:'one',email:'one@passcode.eiu',information:{name:'An'}}},{details:{sessionId:'one',email:'one@passcode.eiu',information:{name:'An'}}},{details:{sessionId:'two',information:{name:'An'}}},{details:{sessionId:'anonymous',email:'anonymous@passcode.eiu',name:'Learner anonymous'}}];

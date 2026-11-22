@@ -35,7 +35,8 @@ export async function classroomSnapshot(signal?: AbortSignal, scope:ClassroomSco
     const email = String(identity.email || "").trim().toLowerCase();
     const realEmail = Boolean(email && !email.endsWith('@passcode.eiu'));
     const username = String(identity.information?.name || identity.information?.username || (realEmail ? identity.name : '') || '').trim();
-    const key = realEmail ? `email:${email}` : `session:${identity.sessionId}`;
+    // Signed sessions are distinct learners even when an email is shared.
+    const key = `session:${identity.sessionId}`;
     if (!username || !identity.sessionId || identities.has(key)) continue;
     identities.add(key); members.push({ subject: String(identity.sessionId), username: username.slice(0, 200) });
   }

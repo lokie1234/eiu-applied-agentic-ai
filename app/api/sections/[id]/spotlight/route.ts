@@ -44,7 +44,11 @@ export async function GET(request: Request, context: Context) {
     }
     if (new URL(request.url).searchParams.get('context') === '1') return Response.json({ epoch: scope.epoch, viewerSubject: scope.access.authUserId, teaching: scope.teaching }, { headers });
     let snapshot: SpotlightView;
-    try { snapshot = await connection(scope.access, request.signal).query(makeFunctionReference<'query', { sectionId: string }, SpotlightView>('spotlight:view'), { sectionId: scope.sectionId }); }
+    try {
+      // Prepare the scoped projection on section entry, before opening the wheel.
+      if (scope.teaching && new URL(request.url).searchParams.get('prepare') === '1') await publishClassroom(request.signal, scope.projection);
+      snapshot = await connection(scope.access, request.signal).query(makeFunctionReference<'query', { sectionId: string }, SpotlightView>('spotlight:view'), { sectionId: scope.sectionId });
+    }
     catch {
       // Existing Supabase identities remain readable during a realtime outage.
       // Selection never falls back to a second random authority.

@@ -90,6 +90,16 @@ already-loaded names in their existing sectors during a spin. Append missing
 server-selected identities rather than replacing the full roster with the short
 server animation subset. Settings lock through the complete group reveal.
 
+Teaching prepares its scoped classroom projection on section entry through
+`spotlight?prepare=1` and keeps one `watchSpotlight` subscription on the root
+realtime client. The launcher becomes available once the verified snapshot is
+ready; opening it reads the cached roster without another request. Idle joins
+and leaves update the names immediately. A running draw retains its sectors;
+the next spin uses the newest authorized roster. Completed results survive
+closing/reopening. Failed preparation can recover on realtime reconnection or
+window focus, with no new polling loop. Learners cannot trigger preparation.
+Projection entries deduplicate by signed session ID, never shared email or name.
+
 Admin Access stores each section's enable flag in Supabase course metadata.
 Existing MIS 301 Section 1 and MIS 311 Section 2 default to enabled; an explicit
 false wins. Signed JWT wheel scopes and every public Convex function enforce
