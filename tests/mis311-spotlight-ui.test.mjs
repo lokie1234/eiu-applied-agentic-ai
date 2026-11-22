@@ -120,6 +120,7 @@ test('a delayed draw response shortens the admin animation to the shared learner
     await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();
     await act(async()=>doc.querySelector('[aria-label="Spin wheel"]').click());await f.flush();
     const body=JSON.parse(f.requests.find(r=>r.method==='POST').body);
+    assert.equal(doc.querySelector('.wheel'),null,'no preliminary animation while the authorized result is pending');assert.equal(doc.querySelector('.hubTrigger').disabled,true);assert.match(doc.querySelector('[role=status]').textContent,/Selecting learners/);
     f.advance(600);
     await act(async()=>pending.resolve(Response.json({draw:{...body,subject:'learner',username:'An',createdAt:f.now,revealAt:f.now+1667},members:f.snapshot.members})));await f.flush();
     assert.equal(doc.querySelector('.wheel').style.animationDuration,'1067ms');
@@ -388,19 +389,21 @@ test('the center STOP freezes the wheel and cancels every remaining name reveal'
   assert.equal(f.requests.filter(r=>r.method==='POST').length,2);
  }finally{await f.close();}
 });
-test('STOP during an in-flight draw waits for the same server result and never cancels or repeats the mutation',async()=>{
+test('a pending draw stays stationary and disabled, then starts only its authorized spin',async()=>{
  const pending=deferred();let finish;
  const f=await fixture(true,[],{controls:true,post:(_,normal)=>{finish=()=>pending.resolve(normal());return pending.promise;}});
  try{
   const doc=f.window.document;
   await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();
   await act(async()=>doc.querySelector('[aria-label="Spin wheel"]').click());await f.flush();
-  await act(async()=>doc.querySelector('[aria-label="Stop wheel"]').click());await f.flush();
+  assert.equal(doc.querySelector('[aria-label="Stop wheel"]'),null);assert.equal(doc.querySelector('.wheel'),null);
+  await act(async()=>doc.querySelector('[aria-label="Spin wheel"]').click());await f.flush();
   assert.equal(doc.querySelector('.hubTrigger').disabled,true);
   assert.equal(f.requests.filter(r=>r.method==='POST').length,1);
   await act(async()=>finish());await f.flush();
-  assert.equal(doc.querySelector('.nameText'),null,'a late server response cannot reveal a name after STOP');assert.equal(doc.querySelector('.wheel'),null);
+  assert.equal(doc.querySelector('.nameText'),null);assert.ok(doc.querySelector('.wheel'),'the real result starts the only animation');
   assert.equal(doc.querySelector('.hubTrigger').disabled,false);
   assert.equal(f.requests.filter(r=>r.method==='POST').length,1);
+  await act(async()=>doc.querySelector('[aria-label="Stop wheel"]').click());await f.flush();assert.equal(doc.querySelector('.wheel'),null,'STOP still freezes the authorized spin');
  }finally{pending.resolve(Response.json({}));await f.close();}
 });

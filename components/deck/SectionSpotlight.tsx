@@ -55,7 +55,7 @@ function Wheel({ members, draw, duration, spinIndex, isSpinning, onSpin, onStop,
 
   const activeIndex = Math.min(spinIndex, rotations.length - 1);
   const fromTurn = activeIndex === 0 ? 0 : rotations[activeIndex - 1];
-  const toTurn = draw?rotations[activeIndex]:2160;
+  const toTurn = rotations[activeIndex];
 
   const themes = [['#082945','#F7F4ED'],['#F7F4ED','#041C31'],['#123F68','#FBFAF7'],['#E9CA8B','#041C31'],['#18547F','#FBFAF7'],['#2D7FB4','#FBFAF7'],['#B39159','#041C31'],['#041C31','#F4DFB0']];
   const point = (degrees: number, radius: number) => { const rad = (degrees - 90) * Math.PI / 180; return [250 + Math.cos(rad) * radius, 250 + Math.sin(rad) * radius]; };
@@ -206,7 +206,7 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
     const controller = new AbortController();request.current = controller;
     if (!attempt.current || attempt.current.slide !== page || attempt.current.epoch !== verified.epoch || attempt.current.createdAt < Date.now() - 110000) attempt.current = { requestId: crypto.randomUUID(), slide: page, epoch: verified.epoch, createdAt: Date.now() };
     const currentAttempt = attempt.current;
-    setSlide(page);setDraw(null);setRevealed(false);setRevealedCount(0);setSpinIndex(0);stopRequested.current=false;setFrozenTransform(null);setIsSpinning(true);setBusy(true);setError('');
+    setSlide(page);setDraw(null);setRevealed(false);setRevealedCount(0);setSpinIndex(0);stopRequested.current=false;setFrozenTransform(null);setIsSpinning(false);setBusy(true);setError('');
     if (wheelDialog.current) wheelDialog.current.scrollTop = 0;
     try {
       const response = await fetch(`/api/sections/${sectionId}/spotlight`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -215,7 +215,8 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
       if (controller.signal.aborted || ended.current) return;
       if (!response.ok) { if (response.status < 500) attempt.current = null;throw Error(data.message || 'Unable to draw.'); }
       if (context.current?.epoch !== verified.epoch) return;
-      attempt.current = null;activeDraw.current = data.draw;spinning.current = true;setIsSpinning(!stopRequested.current);
+      const remaining=Math.max(0,spotlightRevealAt(data.draw)-Date.now());
+      attempt.current = null;activeDraw.current = data.draw;spinning.current = true;setSpinDuration(remaining);setIsSpinning(!stopRequested.current&&remaining>0);
       setWheelMembers(previous=>previous.length?previous:(data.members||[]));setSpinIndex(0);setDraw(data.draw);
     } catch (reason) { if (!controller.signal.aborted) {spinning.current=false;setIsSpinning(false);setError(reason instanceof Error ? reason.message : 'Unable to draw.');} }
     finally { if (request.current === controller) { request.current = null;setBusy(false); } }
@@ -249,7 +250,7 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
       if(!valid())return;
       setSpinIndex(index);
       const delay=Math.max(0,spotlightRevealAt(draw,index)-Date.now());
-      setSpinDuration(delay);
+      setSpinDuration(delay);setIsSpinning(delay>0);
       spinTimer=window.setTimeout(()=>{
         if(!valid())return;
         shown=index+1;setRevealed(true);setRevealedCount(shown);
@@ -349,7 +350,7 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
       <header className={styles.header}><h2 id="spotlight-title">Wheel of Name</h2><div className={styles.dialogActions}>{controls?.teaching&&<button type="button" className={styles.close} aria-label="Class Spotlight settings" title="Learners per draw" disabled={busy||isSpinning} onClick={()=>void openSettings()}><SettingsIcon/></button>}<button type="button" className={styles.close} onClick={close} aria-label="Close wheel">×</button></div></header>
       {sectionId===ASSIGNMENT_WHEEL_SECTION_ID ? slide!==null&&controls?.assignment&&<AssignmentWheelFrame sectionId={sectionId} {...controls.assignment}/> : <div className={styles.wheelLayout}>
       <div className={styles.wheelStage}><Wheel members={wheelMembers} draw={draw} duration={spinDuration} spinIndex={spinIndex} isSpinning={isSpinning} disabled={!isSpinning&&(busy||!snapshot?.ready||!wheelMembers.length)} frozenTransform={frozenTransform} onStop={stop} onSpin={() => slide !== null && void spin(slide)} />
-      {!draw && <p className={styles.status} role="status">{error || (!snapshot?.ready ? 'Preparing classroom…' : !wheelMembers.length ? 'Waiting for learners to join this section.' : `${wheelMembers.length} learners ready`)}</p>}
+      {!draw && <p className={styles.status} role="status">{error || (busy?'Selecting learners…':!snapshot?.ready ? 'Preparing classroom…' : !wheelMembers.length ? 'Waiting for learners to join this section.' : `${wheelMembers.length} learners ready`)}</p>}
       {draw && isSpinning && <p className={styles.status} role="status">{`Spinning (${spinIndex + 1}/${draw.targets?.length || 1})…`}</p>}
       </div><section className={styles.resultsPanel} aria-label="Selected names">
       <div className={styles.result} aria-live="polite">{!draw ? '' : !revealed && revealedCount === 0 ? 'Spinning…' : <ol className={styles.targets} data-tier={countTier}>{drawTargets.slice(0,revealedCount).map((target,index)=><li className={`${styles.nameCard} ${styles.nameReveal}`} key={target.subject}><span className={styles.nameBadge}>{index+1}</span><span className={styles.nameText} title={target.username}>{target.username}</span></li>)}</ol>}</div>

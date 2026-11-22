@@ -139,6 +139,9 @@ another full spin after a slow response. The spin/settings lock lasts through th
 final name. Large groups retain their draw/retry state until at least ten seconds
 after the last reveal. Other learners never receive the group or its order.
 The MIS 301 assignment wheel retains its own practice animation/reset contract.
+While the draw request is pending, the generic wheel stays stationary and shows
+Selecting learners. Only a confirmed server draw starts the animation, once per
+selected name. A response past its reveal deadline catches up without a flash spin.
 
 Only the selected signed session receives its result through `spotlight:view`.
 Other learners receive neither the roster nor other winners. The congratulation
