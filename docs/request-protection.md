@@ -1,5 +1,14 @@
 # Request protection on Vercel / Supabase Free
 
+Opening `/` with active authorized access redirects to `/learn` instead of showing
+the sign-in form. This reuses the existing 12-hour signed HttpOnly session; it does
+not renew its expiry, create a new learner identity/login row, or start an extra
+heartbeat. Missing, expired or revoked access stays on the landing page. The home
+route uses the full access resolver rather than trusting cookie presence, avoiding
+a `/` ↔ `/learn` loop after a passcode or session is revoked. Database outages
+remain errors and do not delete a valid browser session. Explicit sign-out and
+existing admin session-version revocation continue to invalidate access.
+
 Apply `supabase/migrations/202610280001_request_rate_limits.sql` in Supabase SQL Editor **before deploying this code**. It creates one RLS-protected table and a server-only RPC; it does not modify lesson or learner records. No extra paid service is required. `SUPABASE_SECRET_KEY` (or the existing service-role key), `NEXT_PUBLIC_SUPABASE_URL`, and `PASSCODE_SESSION_SECRET` must be configured on Vercel. Use the same stable signing secret across instances.
 
 The limiter runs in `proxy.ts`, before application/database-heavy route work. Missing migration or database failure returns `503` and fails closed. Check the migration and RPC permissions if all protected requests return `503`; do not deploy first and leave the migration for later. Authorization still runs independently inside every protected route.
