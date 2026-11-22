@@ -1,0 +1,1447 @@
+{
+  "courseId": "a0ab05b2-ef8e-4cba-a85f-6ef213871c1a",
+  "verifiedOn": "2026-11-20",
+  "templateKey": "eiu-business-v1",
+  "sections": [
+    {
+      "id": "cc16c754-a9c6-4967-bfa9-c45f615e0f4e",
+      "sectionKey": "advanced-business-analytics-advanced-business-analytics-muxx8w13",
+      "title": "Week 8 - Session 1",
+      "file": "Week8Session1.js",
+      "slides": [
+        {
+          "kind": "cover",
+          "title": "Advanced Business Analytics",
+          "lead": "A clear task, useful context and a way to check the answer",
+          "label": "MIS 311 · Week 8"
+        },
+        {
+          "kind": "split-overview",
+          "title": "AI model and Plugins",
+          "items": [
+            {
+              "label": "A short history",
+              "content": {
+                "kind": "history",
+                "title": "A short history of AI",
+                "items": [
+                  {
+                    "label": "OpenAI",
+                    "icon": "openai",
+                    "family": "GPT / ChatGPT",
+                    "content": {
+                      "kind": "history-detail",
+                      "title": "OpenAI · A short history",
+                      "icon": "openai",
+                      "company": "OpenAI",
+                      "family": "GPT · ChatGPT",
+                      "updated": "21 November 2026",
+                      "events": [
+                        {
+                          "date": "2015",
+                          "title": "A research lab begins",
+                          "text": "OpenAI is introduced as an AI research organization.",
+                          "url": "https://openai.com/index/introducing-openai/"
+                        },
+                        {
+                          "date": "2018–2020",
+                          "title": "The GPT foundations",
+                          "text": "GPT-1, GPT-2 and GPT-3 scale generative language models.",
+                          "url": "https://openai.com/index/language-models-are-few-shot-learners/"
+                        },
+                        {
+                          "date": "2022–2023",
+                          "title": "From models to a product",
+                          "text": "ChatGPT launches in November 2022; GPT-4 follows in March 2023.",
+                          "url": "https://openai.com/index/chatgpt/"
+                        },
+                        {
+                          "date": "17 Nov 2026",
+                          "title": "GPT-6.2 Astra and Sol",
+                          "text": "New models arrive in ChatGPT Work, Codex and the API.",
+                          "url": "https://learn.chatgpt.com/docs/whats-new/gpt-62-astra-sol"
+                        }
+                      ],
+                      "marketTitle": "IPO filing: timing undecided",
+                      "marketText": "8 Jun 2026: confidential S-1 submitted. That announcement leaves the IPO timing undecided.",
+                      "marketUrl": "https://openai.com/index/openai-submits-confidential-s-1/"
+                    },
+                    "group": "online"
+                  },
+                  {
+                    "label": "Google AI",
+                    "icon": "gemini",
+                    "family": "Gemini",
+                    "content": {
+                      "kind": "history-detail",
+                      "title": "Google AI · A short history",
+                      "icon": "gemini",
+                      "company": "Google AI",
+                      "family": "Gemini · Google DeepMind",
+                      "updated": "21 November 2026",
+                      "events": [
+                        {
+                          "date": "2017",
+                          "title": "The Transformer",
+                          "text": "Google researchers introduce the attention-based architecture.",
+                          "url": "https://research.google/blog/transformer-a-novel-neural-network-architecture-for-language-understanding/"
+                        },
+                        {
+                          "date": "2023",
+                          "title": "Bard and Gemini",
+                          "text": "Bard opens to users; the Gemini model family arrives in December.",
+                          "url": "https://blog.google/technology/ai/google-gemini-ai/"
+                        },
+                        {
+                          "date": "8 Feb 2024",
+                          "title": "Bard becomes Gemini",
+                          "text": "The assistant takes the Gemini name, with a new mobile app.",
+                          "url": "https://blog.google/products/gemini/bard-gemini-advanced-app/"
+                        },
+                        {
+                          "date": "Nov 2026",
+                          "title": "The Gemini 4 family",
+                          "text": "Hydrogen arrives on 12 Nov; Neon follows on 18 Nov.",
+                          "url": "https://deepmind.google/models/model-cards/"
+                        }
+                      ],
+                      "marketTitle": "Nasdaq · GOOG / GOOGL",
+                      "marketText": "Google IPO: 19 Aug 2004. Alphabet becomes the listed parent in October 2015; Gemini has no separate ticker.",
+                      "marketUrl": "https://www.sec.gov/Archives/edgar/data/1652044/000165204416000012/goog10-k2015.htm"
+                    },
+                    "group": "online"
+                  },
+                  {
+                    "label": "Claude",
+                    "icon": "claude",
+                    "family": "Anthropic",
+                    "content": {
+                      "kind": "history-detail",
+                      "title": "Claude · A short history",
+                      "icon": "claude",
+                      "company": "Claude",
+                      "family": "Claude · Anthropic",
+                      "updated": "21 November 2026",
+                      "events": [
+                        {
+                          "date": "2021",
+                          "title": "Anthropic is founded",
+                          "text": "The company is incorporated as a public benefit corporation.",
+                          "url": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
+                        },
+                        {
+                          "date": "14 Mar 2023",
+                          "title": "Claude is introduced",
+                          "text": "An AI assistant becomes available through chat and an API.",
+                          "url": "https://www.anthropic.com/news/introducing-claude"
+                        },
+                        {
+                          "date": "2024–2025",
+                          "title": "Models and coding tools",
+                          "text": "Claude 3 is followed by Claude 4 and general access to Claude Code.",
+                          "url": "https://www.anthropic.com/news/claude-4"
+                        },
+                        {
+                          "date": "9 Nov 2026",
+                          "title": "Fable 5.2 and Mythos 5.2",
+                          "text": "Anthropic introduces new models for complex technical work.",
+                          "url": "https://www.anthropic.com/claude-fable-and-mythos-5-2"
+                        }
+                      ],
+                      "marketTitle": "Nasdaq · ANT",
+                      "marketText": "19 Nov 2026: Anthropic shares begin trading. The IPO closes on 20 Nov; the listed company makes Claude.",
+                      "marketUrl": "https://www.anthropic.com/news/ipo-close"
+                    },
+                    "group": "online"
+                  },
+                  {
+                    "label": "Llama",
+                    "icon": "llama",
+                    "family": "Meta",
+                    "group": "local",
+                    "content": {
+                      "kind": "history-detail",
+                      "title": "Llama · A short history",
+                      "icon": "llama",
+                      "company": "Llama",
+                      "family": "Meta · Open weights",
+                      "updated": "21 November 2026",
+                      "events": [
+                        {
+                          "date": "24 Feb 2023",
+                          "title": "LLaMA begins",
+                          "text": "Meta releases a foundation-model family for researchers.",
+                          "url": "https://ai.meta.com/blog/large-language-model-llama-meta-ai/"
+                        },
+                        {
+                          "date": "18 Jul 2023",
+                          "title": "Llama 2",
+                          "text": "Pretrained and chat models arrive in sizes from 7B to 70B.",
+                          "url": "https://ai.meta.com/blog/llama-2"
+                        },
+                        {
+                          "date": "25 Sep 2024",
+                          "title": "Llama 3.2 goes on-device",
+                          "text": "The 1B and 3B text models target edge and mobile use.",
+                          "url": "https://ai.meta.com/blog/llama-3-2-connect-2024-vision-edge-mobile-devices/"
+                        },
+                        {
+                          "date": "5 Apr 2025",
+                          "title": "Llama 4 adds multimodality",
+                          "text": "Scout and Maverick use mixture-of-experts architectures.",
+                          "url": "https://ai.meta.com/blog/llama-4-multimodal-intelligence/"
+                        }
+                      ],
+                      "marketTitle": "Local example: Llama 3.2 1B / 3B",
+                      "marketText": "Download weights and use a compatible local runtime. Memory needs depend on model size and quantization; the Llama license applies.",
+                      "marketUrl": "https://huggingface.co/meta-llama/Llama-3.2-3B-Instruct",
+                      "deployment": "local"
+                    }
+                  },
+                  {
+                    "label": "Qwen",
+                    "icon": "qwen",
+                    "family": "Alibaba",
+                    "group": "local",
+                    "content": {
+                      "kind": "history-detail",
+                      "title": "Qwen · A short history",
+                      "icon": "qwen",
+                      "company": "Qwen",
+                      "family": "Alibaba · Open weights",
+                      "updated": "21 November 2026",
+                      "events": [
+                        {
+                          "date": "2023",
+                          "title": "Qwen opens its first models",
+                          "text": "Alibaba publishes the Qwen language-model family.",
+                          "url": "https://github.com/QwenLM/Qwen"
+                        },
+                        {
+                          "date": "19 Sep 2024",
+                          "title": "Qwen2.5 expands the range",
+                          "text": "General, coding and mathematics models span multiple sizes.",
+                          "url": "https://qwenlm.github.io/blog/qwen2.5/"
+                        },
+                        {
+                          "date": "29 Apr 2025",
+                          "title": "Qwen3 adds hybrid thinking",
+                          "text": "Thinking and non-thinking modes share one model family.",
+                          "url": "https://qwenlm.github.io/blog/qwen3/"
+                        },
+                        {
+                          "date": "14 Aug 2026",
+                          "title": "Qwen3.8-27B is available",
+                          "text": "Downloadable weights extend the Qwen3.5 and 3.6 lineage.",
+                          "url": "https://github.com/QwenLM/Qwen3.8"
+                        }
+                      ],
+                      "marketTitle": "Local example: Qwen3 0.6B / 4B",
+                      "marketText": "Choose a downloadable checkpoint and compatible runtime. RAM/VRAM requirements vary; a hosted Qwen service is a separate option.",
+                      "marketUrl": "https://qwenlm.github.io/blog/qwen3/",
+                      "deployment": "local"
+                    }
+                  },
+                  {
+                    "label": "DeepSeek",
+                    "icon": "deepseek",
+                    "family": "R1 / V4",
+                    "group": "local",
+                    "content": {
+                      "kind": "history-detail",
+                      "title": "DeepSeek · A short history",
+                      "icon": "deepseek",
+                      "company": "DeepSeek",
+                      "family": "DeepSeek · Open weights",
+                      "updated": "21 November 2026",
+                      "events": [
+                        {
+                          "date": "2023",
+                          "title": "DeepSeek LLM",
+                          "text": "The team releases 7B and 67B base and chat models.",
+                          "url": "https://github.com/deepseek-ai/DeepSeek-LLM"
+                        },
+                        {
+                          "date": "26 Dec 2024",
+                          "title": "DeepSeek-V3",
+                          "text": "A large mixture-of-experts model becomes available.",
+                          "url": "https://api-docs.deepseek.com/updates/"
+                        },
+                        {
+                          "date": "Jan 2025",
+                          "title": "R1 and smaller distillations",
+                          "text": "Reasoning models include distilled Qwen and Llama variants.",
+                          "url": "https://github.com/deepseek-ai/DeepSeek-R1"
+                        },
+                        {
+                          "date": "Sep–Oct 2026",
+                          "title": "V4.1-Flash and the 1017 update",
+                          "text": "Downloadable checkpoints include local-inference instructions.",
+                          "url": "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash-1017"
+                        }
+                      ],
+                      "marketTitle": "Local example: R1-Distill-Qwen-1.5B",
+                      "marketText": "Use a small distilled checkpoint for modest hardware. Full V4.1-Flash needs substantial memory; hosted chat is a separate service.",
+                      "marketUrl": "https://github.com/deepseek-ai/DeepSeek-R1",
+                      "deployment": "local"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Plugins",
+              "content": {
+                "kind": "plugins",
+                "title": "Plugins",
+                "intro": "Connect AI to tools, data and reusable workflows.",
+                "platforms": [
+                  {
+                    "name": "ChatGPT",
+                    "icon": "chatgpt",
+                    "term": "Plugins + connected apps",
+                    "examples": [
+                      [
+                        "Google Drive",
+                        "Find and reference documents."
+                      ],
+                      [
+                        "Slack",
+                        "Find team messages."
+                      ],
+                      [
+                        "Canva",
+                        "Create and edit designs."
+                      ]
+                    ],
+                    "url": "https://openai.com/business/plugins/",
+                    "exampleIcons": [
+                      "drive",
+                      "slack",
+                      "canva"
+                    ]
+                  },
+                  {
+                    "name": "Gemini",
+                    "icon": "gemini",
+                    "term": "Connected Apps",
+                    "examples": [
+                      [
+                        "Gmail",
+                        "Find and summarize emails."
+                      ],
+                      [
+                        "Google Drive",
+                        "Search your stored files."
+                      ],
+                      [
+                        "Google Calendar",
+                        "Check or create events."
+                      ]
+                    ],
+                    "url": "https://support.google.com/gemini/answer/13695044",
+                    "exampleIcons": [
+                      "gmail",
+                      "drive",
+                      "calendar"
+                    ]
+                  },
+                  {
+                    "name": "Claude",
+                    "icon": "claude",
+                    "term": "Plugins + MCP connectors",
+                    "examples": [
+                      [
+                        "Sales plugin",
+                        "Research accounts and plan calls."
+                      ],
+                      [
+                        "Google Drive connector",
+                        "Search and reference files."
+                      ],
+                      [
+                        "Slack connector",
+                        "Use supported messaging tools."
+                      ]
+                    ],
+                    "url": "https://support.claude.com/en/articles/11176164-use-connectors-to-extend-claude-s-capabilities",
+                    "pluginUrl": "https://claude.com/plugins/sales",
+                    "exampleIcons": [
+                      "claude",
+                      "drive",
+                      "slack"
+                    ]
+                  }
+                ],
+                "scope": "Availability depends on your plan, permissions and workspace settings."
+              }
+            }
+          ],
+          "titleLines": [
+            "AI assistants",
+            "and models"
+          ]
+        },
+        {
+          "kind": "hub",
+          "title": "Prompt",
+          "items": [
+            {
+              "label": "Prompt components",
+              "content": {
+                "kind": "annotated-prompt",
+                "title": "Good Prompt",
+                "paragraphs": [
+                  {
+                    "className": "sampleOpening",
+                    "runs": [
+                      [
+                        "\"As a ",
+                        false
+                      ],
+                      [
+                        "customer service manager",
+                        true
+                      ],
+                      [
+                        " at a mid-sized e-commerce company, you’re",
+                        false
+                      ]
+                    ]
+                  },
+                  {
+                    "className": "sampleTask",
+                    "runs": [
+                      [
+                        "looking to ",
+                        false
+                      ],
+                      [
+                        "improve customer service",
+                        true
+                      ],
+                      [
+                        ".",
+                        false
+                      ]
+                    ]
+                  },
+                  {
+                    "className": "sampleContext",
+                    "runs": [
+                      [
+                        "Your goal is to ",
+                        false
+                      ],
+                      [
+                        "reduce",
+                        true
+                      ],
+                      [
+                        " response times and ",
+                        false
+                      ],
+                      [
+                        "increase",
+                        true
+                      ],
+                      [
+                        " customer satisfaction.",
+                        false
+                      ]
+                    ]
+                  },
+                  {
+                    "className": "sampleFormat",
+                    "runs": [
+                      [
+                        "Please provide a ",
+                        false
+                      ],
+                      [
+                        "step-by-step strategy",
+                        true
+                      ],
+                      [
+                        ", including tools or methods you would use,",
+                        false
+                      ]
+                    ]
+                  },
+                  {
+                    "className": "sampleExample",
+                    "runs": [
+                      [
+                        "and give an example of how this could be implemented in the first month.",
+                        false
+                      ]
+                    ]
+                  },
+                  {
+                    "className": "sampleConstraint",
+                    "runs": [
+                      [
+                        "Focus on solutions",
+                        true
+                      ],
+                      [
+                        " that can be implemented without additional budget.”",
+                        false
+                      ]
+                    ]
+                  }
+                ],
+                "annotations": [
+                  {
+                    "component": "Persona",
+                    "x": 380,
+                    "y": 0,
+                    "line": [
+                      412,
+                      28,
+                      220,
+                      59
+                    ]
+                  },
+                  {
+                    "component": "Task",
+                    "x": 650,
+                    "y": 90,
+                    "line": [
+                      650,
+                      105,
+                      420,
+                      99
+                    ]
+                  },
+                  {
+                    "component": "Context",
+                    "x": 930,
+                    "y": 143,
+                    "line": [
+                      930,
+                      158,
+                      825,
+                      151
+                    ]
+                  },
+                  {
+                    "component": "Format",
+                    "x": 470,
+                    "y": 172,
+                    "line": [
+                      470,
+                      192,
+                      360,
+                      212
+                    ]
+                  },
+                  {
+                    "component": "Tone",
+                    "x": 640,
+                    "y": 326,
+                    "line": [
+                      720,
+                      341,
+                      750,
+                      341
+                    ]
+                  }
+                ],
+                "tone": "(professional, concise business tone)"
+              }
+            },
+            {
+              "label": "Bad prompt vs Good prompt",
+              "content": {
+                "kind": "leave-compare",
+                "title": "Bad prompt vs Good prompt",
+                "bad": "Make me an app to manage leave requests. Use Apps Script, save the data to Google Sheets and deploy it as a web app. Make it look nice and let the manager approve requests. Give me the code and tell me how to run it.",
+                "badUrl": "https://script.google.com/macros/s/AKfycbzywv0i1CW8eAgphqDg9bsPLxZjYPUZx8SlJHnjEuOU3kSN-CF1dJBALp1GM-PNf7w8/exec",
+                "goodUrl": "https://script.google.com/macros/s/AKfycbzLVGtKi66AFWM2bYUtBV-JOJHiCR8vSlOpnH5SqcgMgJW_pOzC7nbtlBoT60vABp2gXA/exec",
+                "pages": [
+                  {
+                    "title": "1. Roles and interface",
+                    "paragraphs": [
+                      "Act as an Apps Script developer. Build a leave-management web app for employees, managers and HR, backed by Google Sheets.",
+                      "Create a form for leave type, dates and reason. Employees see their own requests and status; managers see requests awaiting their decision. Use a responsive interface with loading and error states."
+                    ]
+                  },
+                  {
+                    "title": "2. Sheet structure",
+                    "paragraphs": [
+                      "Provide a Requests sheet: request ID, employee, manager, start/end dates, leave type, reason, status, submission time, reviewer, decision time and decision note.",
+                      "Keep employee-to-manager assignments and leave balances separately. Include sample rows. Validate required fields, date order, available balance and overlapping active requests on the server."
+                    ]
+                  },
+                  {
+                    "title": "3. Approval flow",
+                    "paragraphs": [
+                      "New requests start as Pending. Only the assigned manager can approve or reject them. Rejection requires a reason. Employees can cancel their own Pending requests.",
+                      "Prevent duplicate or conflicting decisions. Save the decision and its audit record before notifying the employee. Refresh the displayed status only after the save succeeds."
+                    ]
+                  },
+                  {
+                    "title": "4. Identity and access",
+                    "paragraphs": [
+                      "Verify identity and roles on the server; never trust browser-supplied email or role. Employees cannot view others’ requests or approve their own leave.",
+                      "Explain deployment identity and audience settings. Verify that this configuration supports user identification and permissions; ask for clarification if it cannot."
+                    ]
+                  },
+                  {
+                    "title": "5. Deliver and verify",
+                    "paragraphs": [
+                      "Return complete Code.gs, Index.html, sheet schema, sample data, setup instructions and web-app deployment steps.",
+                      "Test submission, approval, rejection, cancellation, invalid dates, overlap, unauthorized access and duplicate decisions. Check the saved rows in Sheets. Failed writes must show an error rather than success. Explain how to reproduce each test."
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "definition": "A prompt is an instruction or question you give AI to guide its response."
+        },
+        {
+          "kind": "hub",
+          "title": "Best Use cases",
+          "caution": {
+            "kind": "ai-caution",
+            "title": "Caution",
+            "warning": "Never use AI answers carelessly. Verify them before sending or acting.",
+            "check": "Check names, facts, dates and tone. Remove AI commentary before sending.",
+            "subject": "Subject: Request for feedback on my research proposal",
+            "salutation": "Dear Dr. Nguyen,",
+            "paragraphs": [
+              "I am writing to request feedback on my Business Analytics research proposal. I have attached the draft, including my research question and proposed data sources.",
+              "Could we meet next week? I am available on Tuesday or Thursday afternoon and can adjust to your schedule. Thank you for your time and guidance."
+            ],
+            "closing": "Best wishes,",
+            "signature": "Minh Anh Tran\nStudent ID: BA2026001",
+            "leftover": "This is your Academic mail to send to Mr. Nguyen."
+          },
+          "items": [
+            {
+              "label": "For students",
+              "content": {
+                "kind": "use-cases",
+                "title": "For students",
+                "layout": "students",
+                "items": [
+                  {
+                    "icon": "document",
+                    "title": "Summarize & paraphrase",
+                    "text": "Condense texts; retain meaning and cite sources."
+                  },
+                  {
+                    "icon": "idea",
+                    "title": "Generate essay ideas",
+                    "text": "Explore ideas; develop your own argument."
+                  },
+                  {
+                    "icon": "check",
+                    "title": "Check spelling & grammar",
+                    "text": "Improve clarity, grammar and spelling."
+                  },
+                  {
+                    "icon": "mail",
+                    "title": "Write academic emails",
+                    "text": "Draft a clear, professional email."
+                  },
+                  {
+                    "icon": "quiz",
+                    "title": "Practice for tests",
+                    "text": "Generate questions from your notes and check the answers."
+                  },
+                  {
+                    "icon": "code",
+                    "title": "Coding",
+                    "text": "Explain code, debug errors and test a small working example."
+                  },
+                  {
+                    "icon": "chart",
+                    "title": "Analyze data",
+                    "text": "Explore patterns, write analysis code and verify calculations."
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Other tasks",
+              "content": {
+                "kind": "use-cases",
+                "title": "Other tasks",
+                "layout": "other",
+                "items": [
+                  {
+                    "icon": "travel",
+                    "title": "Travel planning",
+                    "text": "Draft an itinerary; confirm current prices, routes and bookings."
+                  },
+                  {
+                    "icon": "fitness",
+                    "title": "Workout scheduling",
+                    "text": "Organize a general routine around your goals and availability."
+                  },
+                  {
+                    "icon": "meal",
+                    "title": "Meal planning",
+                    "text": "Suggest menus; verify portions, calories and nutrition values."
+                  },
+                  {
+                    "icon": "reflection",
+                    "title": "Reflection & conflict",
+                    "text": "Organize thoughts and rehearse a conversation; not a substitute for professional care."
+                  },
+                  {
+                    "icon": "learn",
+                    "title": "Learn new things",
+                    "text": "Create lesson plans and quizzes; check facts against reliable sources."
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "kind": "showcase",
+          "title": "In-class practice",
+          "lead": "Spend 15 minutes using suitable prompt components to finish a task you previously did manually.",
+          "items": [
+            "Choose one task you usually do manually.",
+            "Use suitable prompt components.",
+            "Run, check and revise the AI output.",
+            "Share the result as a link or image."
+          ],
+          "practice": {
+            "title": "In-class practice",
+            "minutes": 15,
+            "goal": "Use a well-structured prompt to finish a familiar manual task.",
+            "steps": [
+              "Choose one task you usually do manually.",
+              "Use suitable prompt components.",
+              "Run, check and revise the AI output.",
+              "Share the result as a link or image."
+            ],
+            "deliverable": "",
+            "allowImages": true,
+            "allowDelete": true
+          }
+        },
+        {
+          "kind": "ai-tool",
+          "title": "Tools with AI",
+          "tool": "Canva",
+          "icon": "canva",
+          "category": "Design & visual content",
+          "url": "https://www.canva.com/",
+          "sourceUrl": "https://www.canva.com/magic-design/",
+          "description": "Create a poster or social graphic from a brief, then edit and export it in your browser.",
+          "interfaceAlt": "Official Canva Magic Design preview showing a prompt, design suggestions and brand controls.",
+          "browserBased": true,
+          "quickProduct": "Poster or social graphic"
+        },
+        {
+          "kind": "ai-tool",
+          "title": "Tools with AI",
+          "tool": "Gamma",
+          "icon": "gamma",
+          "category": "Presentations & documents",
+          "url": "https://gamma.app/",
+          "sourceUrl": "https://help.gamma.app/en/articles/7838093-how-do-i-create-a-new-presentation-document-or-webpage-in-gamma",
+          "description": "Turn a short idea into a presentation in your browser, then edit the cards and share or export the deck.",
+          "interfaceAlt": "Gamma creation interface from the official help center.",
+          "browserBased": true,
+          "quickProduct": "Short presentation"
+        },
+        {
+          "kind": "ai-tool",
+          "title": "Tools with AI",
+          "browserBased": true,
+          "tool": "Adobe Express",
+          "icon": "adobe",
+          "category": "Posters & social designs",
+          "url": "https://express.adobe.com/",
+          "sourceUrl": "https://www.adobe.com/express/create/ai/template-generator",
+          "description": "Describe a flyer, poster or invitation. Generate an editable design, customize it and download the result on the web.",
+          "interfaceAlt": "Official Adobe Express preview showing a text prompt and an AI-generated editable poster.",
+          "quickProduct": "Flyer, poster or invitation"
+        },
+        {
+          "kind": "ai-tool",
+          "title": "Tools with AI",
+          "browserBased": true,
+          "tool": "Suno",
+          "icon": "suno",
+          "category": "Music & audio",
+          "url": "https://suno.com/create",
+          "sourceUrl": "https://help.suno.com/en/articles/2462273",
+          "description": "Describe a theme and music style to generate a song in your browser. Listen, refine it and share the song link.",
+          "interfaceAlt": "Official Suno web interface for AI music creation.",
+          "quickProduct": "A song or instrumental"
+        },
+        {
+          "kind": "ai-tool",
+          "title": "Tools with AI",
+          "browserBased": true,
+          "tool": "Lovable",
+          "icon": "lovable",
+          "category": "Websites & small apps",
+          "url": "https://lovable.dev/",
+          "sourceUrl": "https://docs.lovable.dev/introduction/getting-started",
+          "description": "Describe a simple landing page or small app, refine its browser preview and publish a link. Start with a small, self-contained idea.",
+          "interfaceAlt": "Official Lovable quick-start workspace with the prompt composer used to start a web project.",
+          "quickProduct": "Landing page or small app"
+        },
+        {
+          "kind": "showcase",
+          "title": "In-class practice",
+          "lead": "Spend 15 minutes creating any product with one of these tools, or another tool that integrates AI.",
+          "items": [
+            "Choose an AI tool you know or one introduced here.",
+            "Create a product of your choice.",
+            "Check the result and improve one detail.",
+            "Share the result as a link or image."
+          ],
+          "practice": {
+            "title": "In-class practice",
+            "minutes": 15,
+            "goal": "Create any product using an AI-integrated tool.",
+            "steps": [
+              "Choose an AI tool you know or one introduced here.",
+              "Create a product of your choice.",
+              "Check the result and improve one detail.",
+              "Share the result as a link or image."
+            ],
+            "deliverable": "",
+            "allowImages": true,
+            "activityId": "ai-tools-product",
+            "allowDelete": true
+          }
+        }
+      ],
+      "objectives": [
+        [
+          "11.1",
+          "Use an AI assistant to complete a bounded business task"
+        ],
+        [
+          "11.2",
+          "Distinguish a model, an application and a configured assistant"
+        ],
+        [
+          "11.3",
+          "Write, test and revise a prompt against explicit criteria"
+        ],
+        [
+          "11.4",
+          "Recognize errors, missing evidence and limits before using an output"
+        ]
+      ]
+    },
+    {
+      "id": "961a0a16-0dc0-486e-a501-d965a3f3c7ce",
+      "sectionKey": "mis311-week8-session2",
+      "title": "Week 8 - Session 2",
+      "file": "Week8Session2.js",
+      "slides": [
+        {
+          "kind": "cover",
+          "title": "Advanced Business Analytics",
+          "lead": "A clear task, useful context and a way to check the answer",
+          "label": "MIS 311 · Week 8"
+        },
+        {
+          "kind": "hub",
+          "title": "AI use in numbers",
+          "items": [
+            {
+              "label": "Business use and benefits",
+              "content": {
+                "kind": "evidence",
+                "title": "Business use and benefits",
+                "views": [
+                  {
+                    "label": "Business tasks",
+                    "title": "Where businesses use or plan to use AI",
+                    "subtitle": "UK businesses using or planning AI, 2026 (%)",
+                    "rows": [
+                      [
+                        "Administration and support",
+                        82
+                      ],
+                      [
+                        "Creative and content work",
+                        75
+                      ],
+                      [
+                        "Data and analytics",
+                        63
+                      ],
+                      [
+                        "Research and development",
+                        52
+                      ]
+                    ],
+                    "source": {
+                      "title": "UK government: AI adoption research 2026",
+                      "url": "https://assets.publishing.service.gov.uk/media/6ae202189bca21f1c5036e99/artificial-intelligence-adoption-research-report-2026.pdf",
+                      "detail": "October 2026. Figure 14. 1,460 businesses using or planning AI. Multiple responses. Includes planned use"
+                    }
+                  },
+                  {
+                    "label": "Usage frequency",
+                    "title": "How often AI adopters use AI",
+                    "subtitle": "UK AI adopters, 2026 (%)",
+                    "rows": [
+                      [
+                        "Constantly",
+                        57
+                      ],
+                      [
+                        "At least weekly",
+                        27
+                      ],
+                      [
+                        "Every couple of weeks",
+                        4
+                      ],
+                      [
+                        "Every month",
+                        4
+                      ]
+                    ],
+                    "source": {
+                      "title": "UK government: AI adoption research 2026",
+                      "url": "https://assets.publishing.service.gov.uk/media/6ae202189bca21f1c5036e99/artificial-intelligence-adoption-research-report-2026.pdf",
+                      "detail": "October 2026. Figure 15. 1,224 AI adopters. Separate frequency categories. Less frequent use and unknown responses omitted. Rounded values"
+                    }
+                  },
+                  {
+                    "label": "Reported benefits",
+                    "title": "Benefits businesses report from AI",
+                    "subtitle": "UK AI adopters, 2026 (%)",
+                    "rows": [
+                      [
+                        "Higher productivity",
+                        71
+                      ],
+                      [
+                        "Improved or flexible processes",
+                        60
+                      ],
+                      [
+                        "Lower operating costs",
+                        31
+                      ],
+                      [
+                        "New or improved products",
+                        30
+                      ],
+                      [
+                        "Regulatory compliance",
+                        28
+                      ]
+                    ],
+                    "source": {
+                      "title": "UK government: AI adoption research 2026",
+                      "url": "https://assets.publishing.service.gov.uk/media/6ae202189bca21f1c5036e99/artificial-intelligence-adoption-research-report-2026.pdf",
+                      "detail": "October 2026. Figure 19. 1,224 AI adopters. Multiple responses. Self-reported benefits, without a causal comparison group"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "label": "API spending and consumer use",
+              "content": {
+                "kind": "evidence",
+                "title": "API spending and consumer use",
+                "views": [
+                  {
+                    "label": "API spending",
+                    "title": "Where enterprise API spending goes",
+                    "subtitle": "Estimated production LLM API spending share, 2026 (%)",
+                    "rows": [
+                      [
+                        "Anthropic",
+                        55,
+                        "claude"
+                      ],
+                      [
+                        "OpenAI",
+                        31,
+                        "openai"
+                      ],
+                      [
+                        "Google",
+                        9,
+                        "gemini"
+                      ],
+                      [
+                        "Other providers",
+                        5
+                      ]
+                    ],
+                    "source": {
+                      "title": "Menlo Ventures: State of Enterprise AI 2026",
+                      "url": "https://menlovc.com/perspective/2026-the-state-of-enterprise-ai/",
+                      "detail": "3 November 2026. Nearly 400 US enterprise decision-makers surveyed in September. Production API workloads weighted by AI spend. Provider estimates, separate from consumer product use. Menlo invests in Anthropic."
+                    }
+                  },
+                  {
+                    "label": "Assistant reach",
+                    "title": "Which assistants AI users have tried",
+                    "subtitle": "US AI users, past six months, July 2026 (%)",
+                    "rows": [
+                      [
+                        "ChatGPT",
+                        60,
+                        "chatgpt"
+                      ],
+                      [
+                        "Gemini",
+                        58,
+                        "gemini"
+                      ],
+                      [
+                        "Claude",
+                        20,
+                        "claude"
+                      ]
+                    ],
+                    "source": {
+                      "title": "Menlo Ventures: State of Consumer AI 2026",
+                      "url": "https://menlovc.com/perspective/2026-the-state-of-consumer-ai/",
+                      "detail": "Morning Consult, July 2026. Weighted survey of 5,067 US adults. Brand reach is among AI users, with multiple products possible. Menlo invests in Anthropic."
+                    },
+                    "caption": "People can use several assistants, so these percentages overlap."
+                  },
+                  {
+                    "label": "AI-assisted activities",
+                    "title": "Where people use AI while creating",
+                    "subtitle": "US adults who perform each activity, July 2026 (%)",
+                    "rows": [
+                      [
+                        "Writing",
+                        61
+                      ],
+                      [
+                        "Coding projects",
+                        58
+                      ],
+                      [
+                        "School or work assignments",
+                        56
+                      ],
+                      [
+                        "Creating images",
+                        53
+                      ],
+                      [
+                        "Building presentations",
+                        52
+                      ]
+                    ],
+                    "source": {
+                      "title": "Menlo Ventures: State of Consumer AI 2026",
+                      "url": "https://menlovc.com/perspective/2026-the-state-of-consumer-ai/",
+                      "detail": "July 2026 Morning Consult survey, 5,067 US adults. Each percentage uses people who perform that activity as its base. Covers AI tools generally. Menlo invests in Anthropic."
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "label": "How each assistant is used",
+              "content": {
+                "kind": "evidence",
+                "title": "How each assistant is used",
+                "views": [
+                  {
+                    "label": "Gemini",
+                    "title": "Gemini: everyday life and learning",
+                    "subtitle": "Global conversational activity mix, April 2026 (%)",
+                    "rows": [
+                      [
+                        "Socializing, relaxing and leisure",
+                        26.4
+                      ],
+                      [
+                        "Education",
+                        20.7
+                      ],
+                      [
+                        "Work and work-related activity",
+                        13.5
+                      ],
+                      [
+                        "Household activities",
+                        11
+                      ]
+                    ],
+                    "source": {
+                      "title": "Google / Google DeepMind: ATLAS",
+                      "url": "https://arxiv.org/html/2608.00038v1",
+                      "detail": "July 2026 paper, Figure 10. Global conversational Gemini surfaces, April 2026. Activity taxonomy differs from OpenAI and Anthropic. The full study spans approximately 15 million interactions across Gemini App, AI Mode and API."
+                    },
+                    "icon": "gemini"
+                  },
+                  {
+                    "label": "ChatGPT",
+                    "title": "ChatGPT: guidance and writing",
+                    "subtitle": "Global individual message topics, September 2026 (%)",
+                    "rows": [
+                      [
+                        "Practical guidance",
+                        28.1
+                      ],
+                      [
+                        "Writing",
+                        21.4
+                      ],
+                      [
+                        "Seeking information",
+                        20.2
+                      ],
+                      [
+                        "Self-expression",
+                        8.9
+                      ],
+                      [
+                        "Multimedia",
+                        8.8
+                      ]
+                    ],
+                    "source": {
+                      "title": "OpenAI Signals v3.0",
+                      "url": "https://openai.com/signals/data-download/",
+                      "detail": "26 October 2026 release. September 2026 global individual ChatGPT messages, Free/Go/Plus/Pro. Excludes Enterprise and Codex. Topic CSV: share_of_messages_by_topic_month.csv. OpenAI et al. (2026), CC BY 4.0."
+                    },
+                    "icon": "chatgpt"
+                  },
+                  {
+                    "label": "Claude",
+                    "title": "Claude: technical work and education",
+                    "subtitle": "Claude.ai occupational task mix, November 2025 (%)",
+                    "rows": [
+                      [
+                        "Computer and mathematical tasks",
+                        36
+                      ],
+                      [
+                        "Educational instruction",
+                        16
+                      ],
+                      [
+                        "Arts, design and entertainment",
+                        11
+                      ],
+                      [
+                        "Office and administrative tasks",
+                        8
+                      ]
+                    ],
+                    "source": {
+                      "title": "Anthropic Economic Index: Economic primitives",
+                      "url": "https://www.anthropic.com/research/anthropic-economic-index-january-2026-report",
+                      "detail": "15 January 2026 report, Chapter 2 occupational distribution. November 2025 Claude.ai sample, Free/Pro/Max, classified using economic primitives. Rounded shares differ from Chapter 1 task-assignment estimates."
+                    },
+                    "icon": "claude"
+                  }
+                ],
+                "caveat": "Separate studies, dates and categories. Compare usage patterns; these figures do not rank model quality."
+              }
+            }
+          ]
+        },
+        {
+          "kind": "hub",
+          "title": "Google Apps Script",
+          "tools": [
+            "apps-script"
+          ],
+          "layout": "apps-script",
+          "definitionTitle": "What is Google Apps Script?",
+          "definition": "Google Apps Script (GAS) is Google’s browser-based JavaScript platform for automating Google Workspace and building web apps.",
+          "items": [
+            {
+              "label": "How can non-IT users use it?",
+              "content": {
+                "kind": "gas-flow",
+                "title": "From a need to a web app",
+                "steps": [
+                  [
+                    "Know your need",
+                    "Describe who will use the app, what they need to do and the expected result."
+                  ],
+                  [
+                    "Write a prompt",
+                    "Give AI the workflow, data fields, rules and desired interface. Ask for code and setup steps."
+                  ],
+                  [
+                    "Let AI write the code",
+                    "Ask for complete Code.gs and HTML files. Review the instructions and use sample data."
+                  ],
+                  [
+                    "Copy, paste and deploy",
+                    "Paste and test the files. Deploy as a Web app, choose access and check its /exec link."
+                  ]
+                ]
+              }
+            },
+            {
+              "label": "Try?",
+              "content": {
+                "kind": "try-code",
+                "title": "Try it in Apps Script",
+                "tools": [
+                  "apps-script"
+                ],
+                "files": [
+                  "Code.gs",
+                  "Index.html",
+                  "Register.html",
+                  "Demo.html"
+                ],
+                "url": "https://script.google.com/",
+                "showIntro": false
+              }
+            }
+          ]
+        },
+        {
+          "kind": "showcase",
+          "title": "In-class practice",
+          "lead": "Spend 15 minutes using this flow to deploy a web app that meets your own needs.",
+          "items": [
+            "Choose a small need and define what the web app should do.",
+            "Write a clear prompt and ask AI for the code and setup steps.",
+            "Paste the files into Apps Script, test with sample data and deploy.",
+            "Check viewer access, then share the /exec link or a screenshot."
+          ],
+          "practice": {
+            "title": "In-class practice",
+            "minutes": 15,
+            "goal": "Use the need → prompt → AI code → Apps Script flow to deploy a web app for your own needs.",
+            "steps": [
+              "Choose a small need and define what the web app should do.",
+              "Write a clear prompt and ask AI for the code and setup steps.",
+              "Paste the files into Apps Script, test with sample data and deploy.",
+              "Check viewer access, then share the /exec link or a screenshot."
+            ],
+            "deliverable": "",
+            "allowImages": true,
+            "allowDelete": true,
+            "activityId": "gas-webapp",
+            "hint": "Create a web app on google appscript and take the googlesheet as the database, this web app is about....... (your demand)."
+          }
+        },
+        {
+          "kind": "hub",
+          "title": "Visualization",
+          "layout": "visualization",
+          "items": [
+            {
+              "label": "Try",
+              "content": {
+                "kind": "try-code",
+                "title": "Try the sales dashboard",
+                "tools": [
+                  "apps-script"
+                ],
+                "fileSet": "sales-dashboard",
+                "files": [
+                  "Code.gs",
+                  "Index.html"
+                ],
+                "download": "sales-data",
+                "showIntro": false,
+                "limitations": {
+                  "kind": "discussion-question",
+                  "title": "What are the limitations?"
+                },
+                "url": "https://script.google.com/"
+              }
+            }
+          ]
+        },
+        {
+          "kind": "hub",
+          "title": "Custom AI",
+          "layout": "custom-ai",
+          "items": [
+            {
+              "label": "Gemini",
+              "content": {
+                "kind": "skill-setup",
+                "title": "Gemini · Add a skill",
+                "tools": [
+                  "gemini"
+                ],
+                "steps": [
+                  "Open Customize > Skills. If your account still uses Gems, open its instructions instead.",
+                  "Choose Create > Upload. Add SKILL.md, or a folder/ZIP containing it, then review the instructions.",
+                  "Create and activate the skill. Select it with / or @, or let Gemini use it when relevant."
+                ],
+                "sourceReferences": [
+                  {
+                    "label": "Google: create skills",
+                    "url": "https://support.google.com/gemini/answer/17094296"
+                  },
+                  {
+                    "label": "Gems transition",
+                    "url": "https://support.google.com/gemini/answer/18560919"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "ChatGPT",
+              "content": {
+                "kind": "skill-setup",
+                "title": "ChatGPT · Add a skill",
+                "tools": [
+                  "chatgpt"
+                ],
+                "steps": [
+                  "Open Plugins > Skills in an eligible workspace.",
+                  "Choose Create > Upload from your computer, or create a skill in chat.",
+                  "Install the skill and test a matching task. ChatGPT can use relevant skills automatically."
+                ],
+                "sourceReferences": [
+                  {
+                    "label": "OpenAI: skills in ChatGPT",
+                    "url": "https://help.openai.com/en/articles/20001066-skills-in-chatgpt"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Claude",
+              "content": {
+                "kind": "skill-setup",
+                "title": "Claude · Add a skill",
+                "tools": [
+                  "claude"
+                ],
+                "steps": [
+                  "Enable code execution and file creation in Settings.",
+                  "Open Customize > Skills > + > Create skill > Upload a skill. Upload the ZIP containing your skill folder.",
+                  "Turn the skill on and test a matching task. Claude uses relevant skills automatically."
+                ],
+                "sourceReferences": [
+                  {
+                    "label": "Anthropic: use skills",
+                    "url": "https://support.claude.com/en/articles/12512180-use-skills-in-claude"
+                  },
+                  {
+                    "label": "Create custom skills",
+                    "url": "https://support.claude.com/en/articles/12512198-how-to-create-custom-skills"
+                  }
+                ]
+              }
+            },
+            {
+              "label": "Try?",
+              "content": {
+                "kind": "skill-demo",
+                "title": "Calorie & Meal Planner",
+                "intro": "A custom AI app for calorie tracking and meal suggestions tailored to your needs.",
+                "features": [
+                  [
+                    "Your calorie goals",
+                    "Track calories for weight loss, weight gain or maintenance."
+                  ],
+                  [
+                    "Meal suggestions",
+                    "Suggest a menu that fits your goals and food preferences."
+                  ],
+                  [
+                    "Google Maps & location",
+                    "Use location and Google Maps, when available, to suggest nearby food options."
+                  ]
+                ],
+                "download": "calorie-planner"
+              }
+            }
+          ]
+        }
+      ],
+      "objectives": [
+        [
+          "11.1",
+          "Use an AI assistant to complete a bounded business task"
+        ],
+        [
+          "11.2",
+          "Distinguish a model, an application and a configured assistant"
+        ],
+        [
+          "11.3",
+          "Write, test and revise a prompt against explicit criteria"
+        ],
+        [
+          "11.4",
+          "Recognize errors, missing evidence and limits before using an output"
+        ]
+      ]
+    }
+  ],
+  "sources": {
+    "prompt": {
+      "title": "OpenAI · Prompt engineering",
+      "url": "https://developers.openai.com/api/docs/guides/prompt-engineering",
+      "detail": "Clear instructions, supplied context, examples and output requirements. Classroom examples and review rubrics are authored for this course."
+    },
+    "models": {
+      "title": "OpenAI · Model release notes",
+      "url": "https://help.openai.com/en/articles/9624314-model-release-notes",
+      "detail": "17 November 2026: GPT-6.2 Astra and Sol. These are model examples, not a universal ranking. Reviewed 20 November 2026."
+    },
+    "gpts": {
+      "title": "OpenAI · GPTs in ChatGPT",
+      "url": "https://help.openai.com/en/articles/8554407-gpts-in-chatgpt",
+      "detail": "Custom GPT definitions, creation availability and transition to plugins. Check the notice for the relevant plan or workspace. Reviewed 20 November 2026."
+    },
+    "uk": {
+      "title": "UK government · AI adoption research 2026",
+      "url": "https://assets.publishing.service.gov.uk/media/6ae202189bca21f1c5036e99/artificial-intelligence-adoption-research-report-2026.pdf",
+      "detail": "Published October 2026, Figure 14, PDF page 41. Tasks using OR planning AI. Unweighted base 1,460 businesses; multiple responses. Survey responses are not production-conversion rates. Values: administrative/support 82%, creative/content 75%, data/analytics 63%, R&D 52%."
+    },
+    "menlo": {
+      "title": "Menlo Ventures · State of Enterprise AI 2026",
+      "url": "https://menlovc.com/perspective/2026-the-state-of-enterprise-ai/",
+      "detail": "3 November 2026. Nearly 400 US enterprise decision-makers, fieldwork 8–26 September. Production API workloads weighted by AI spend: Anthropic 55%, OpenAI 31%, Google 9%, other 5%. Estimates, not adoption percentages. Menlo invests in Anthropic."
+    },
+    "webapps": {
+      "title": "Google · Apps Script web apps",
+      "url": "https://developers.google.com/apps-script/guides/web",
+      "detail": "doGet, deployment, execution identity and audience permissions. The /dev URL is for editors; share a deployed /exec URL. Access choices depend on account and administrator policy."
+    },
+    "communication": {
+      "title": "Google · HTML service communication",
+      "url": "https://developers.google.com/apps-script/guides/html/communication",
+      "detail": "google.script.run calls server functions asynchronously. Use success and failure handlers and return supported primitive data, objects or arrays rather than Date values."
+    },
+    "consumer": {
+      "title": "Menlo Ventures: State of Consumer AI 2026",
+      "url": "https://menlovc.com/perspective/2026-the-state-of-consumer-ai/",
+      "detail": "Morning Consult, July 2026. Weighted survey of 5,067 US adults. Brand reach is among AI users, with multiple products possible. Menlo invests in Anthropic."
+    },
+    "signals": {
+      "title": "OpenAI Signals v3.0",
+      "url": "https://openai.com/signals/data-download/",
+      "detail": "26 October 2026 release. September 2026 global individual ChatGPT messages, Free/Go/Plus/Pro. Excludes Enterprise and Codex. Topic CSV: share_of_messages_by_topic_month.csv. OpenAI et al. (2026), CC BY 4.0."
+    },
+    "atlas": {
+      "title": "Google / Google DeepMind: ATLAS",
+      "url": "https://arxiv.org/html/2608.00038v1",
+      "detail": "July 2026 paper, Figure 10. Global conversational Gemini surfaces, April 2026. Activity taxonomy differs from OpenAI and Anthropic. The full study spans approximately 15 million interactions across Gemini App, AI Mode and API."
+    },
+    "anthropic": {
+      "title": "Anthropic Economic Index: Economic primitives",
+      "url": "https://www.anthropic.com/research/anthropic-economic-index-january-2026-report",
+      "detail": "15 January 2026 report, Chapter 2 occupational distribution. November 2025 Claude.ai sample, Free/Pro/Max, classified using economic primitives. Rounded shares differ from Chapter 1 task-assignment estimates."
+    }
+  }
+}

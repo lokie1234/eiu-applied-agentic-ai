@@ -203,7 +203,7 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
             practiceAllowed={compiled && sectionId === MIS301_SECTION_ID && pageNumber < 6 ? false : practiceAllowed}
             practiceAssignmentKey={compiled && sectionId === MIS301_SECTION_ID && pageNumber < 6 ? "" : practiceAssignmentKey} templateKey={templateKey} title={sectionTitle} />
           </div>}
-          {showcase && <ShowcaseSlide scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} guide={compiled?.showcaseGuide} />}
+          {showcase && <ShowcaseSlide key={`${sectionId}:${pageNumber}`} scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} guide={compiled?.showcaseGuide} practice={compiled?.showcasePractices?.[String(pageNumber)] || compiled?.showcasePractice} templateImage={useTemplate ? templateImage : ""} pageNumber={pageNumber} />}
           {showcase && sectionId === WEB_DEVELOPMENT_SECTION_ID && <QuizPrefetch />}
           {quiz && <QuizSlide key={sectionId} scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} />}
           </SlideSurface>

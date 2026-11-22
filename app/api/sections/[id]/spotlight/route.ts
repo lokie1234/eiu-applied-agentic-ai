@@ -38,8 +38,9 @@ export async function GET(request: Request, context: Context) {
     if (!scope) return Response.json({ message: 'Sign in to Learning with your name, or use Teaching Access.' }, { status: 403, headers });
     if(new URL(request.url).searchParams.get('settings')==='1'){
       if(!scope.teaching)return Response.json({message:'Teaching access required.'},{status:403,headers});
-      const settings=await connection(scope.access,request.signal).query(makeFunctionReference<'query',{sectionId:string},{count:number}>('spotlight:settings'),{sectionId:scope.sectionId});
-      return Response.json({epoch:scope.epoch,count:settings.count},{headers});
+      const settings=await connection(scope.access,request.signal).query(makeFunctionReference<'query',{sectionId:string},{count:number;targetSubjects?:string[]}>('spotlight:settings'),{sectionId:scope.sectionId});
+      const roster=await classroomSnapshot(request.signal,scope.projection);
+      return Response.json({epoch:scope.epoch,count:settings.count,targetSubjects:settings.targetSubjects||[],members:roster.members.map(member=>({id:member.subject,username:member.username}))},{headers});
     }
     if (new URL(request.url).searchParams.get('context') === '1') return Response.json({ epoch: scope.epoch, viewerSubject: scope.access.authUserId, teaching: scope.teaching }, { headers });
     let snapshot: SpotlightView;
@@ -79,11 +80,12 @@ export async function PUT(request:Request, context:Context){
   try{
     const scope=await resolve(request,context);
     if(!scope?.teaching)return Response.json({message:'Teaching access required.'},{status:403,headers});
-    const raw=await request.text();if(raw.length>1000)return Response.json({message:'Invalid settings.'},{status:400,headers});
+    const raw=await request.text();if(raw.length>100000)return Response.json({message:'Invalid settings.'},{status:400,headers});
     let body;try{body=JSON.parse(raw);}catch{return Response.json({message:'Invalid settings.'},{status:400,headers});}
     if(!body||!validWheelCount(body.count))return Response.json({message:'Choose a positive whole number of learners.'},{status:400,headers});
+    if(body.targetSubjects!==undefined&&(!Array.isArray(body.targetSubjects)||body.targetSubjects.length>1200||new Set(body.targetSubjects).size!==body.targetSubjects.length||body.targetSubjects.some((id:unknown)=>typeof id!=='string'||!id||id.length>200)))return Response.json({message:'Choose existing learner names.'},{status:400,headers});
     if(body.epoch!==scope.epoch)return Response.json({message:'The section session changed. Reopen settings.'},{status:409,headers});
-    const client=connection(scope.access,request.signal),args={sectionId:scope.sectionId,epoch:scope.epoch,count:body.count};
+    const client=connection(scope.access,request.signal),args={sectionId:scope.sectionId,epoch:scope.epoch,count:body.count,...(body.targetSubjects!==undefined?{targetSubjects:body.targetSubjects}:{})};
     const configure=()=>client.mutation(makeFunctionReference<'mutation'>('spotlight:configure'),args);
     const result=await withClassroomRetry(configure,scope,request.signal);
     if(result.retryAfter)return Response.json({message:'Please wait before saving again.'},{status:429,headers});

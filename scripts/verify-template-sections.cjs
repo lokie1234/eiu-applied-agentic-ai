@@ -60,7 +60,14 @@ async function main() {
         assert.deepEqual(requests,[],`${section.id}: undeclared online asset request`);
         report.push({id:section.id,width,height,fullscreen:width===1920,slides:total,onlineOnlyMarkers:nativePages,errors,requests});
         console.log(`${section.id} ${width}x${height}: ${total} slides fit one frame; no outer scrolling or network requests`);
-      } finally { await context.close(); }
+      } finally {
+        // Release the native fullscreen window before closing this context;
+        // otherwise Chrome can leave the next context's request pending.
+        for (const page of context.pages()) await page.evaluate(async () => {
+          if (document.fullscreenElement) await document.exitFullscreen();
+        }).catch(() => {});
+        await context.close();
+      }
     }
     fs.writeFileSync(path.join(out,'report.json'),JSON.stringify(report,null,2)+'\n');
     console.log(`Verified ${report.reduce((n,r)=>n+r.slides,0)} page renders across ${sections.length} sections.`);

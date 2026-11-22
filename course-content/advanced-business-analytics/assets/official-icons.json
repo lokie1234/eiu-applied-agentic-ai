@@ -1,0 +1,129 @@
+{
+  "sheets": {
+    "path": "sheets.svg",
+    "mime": "image/svg+xml",
+    "source": "https://www.gstatic.com/images/branding/productlogos/sheets_2026q3/v1/web/192px.svg",
+    "sha256": "3dd989706d03cf9ed780beb45af592bb46aa777edcc18543ea0764463ec936d2",
+    "verifiedOn": "2026-11-20"
+  },
+  "apps-script": {
+    "path": "apps-script.png",
+    "mime": "image/png",
+    "source": "https://www.gstatic.com/images/branding/product/2x/apps_script_48dp.png",
+    "sha256": "cb5a62d5df16c594004bfb2d36a5834f7ddf2bc074a3ec3ee897d9ef149d654d",
+    "verifiedOn": "2026-11-20"
+  },
+  "chatgpt": {
+    "path": "chatgpt.svg",
+    "mime": "image/svg+xml",
+    "source": "https://chatgpt.com/cdn/assets/favicon.6a33781f61.svg",
+    "sha256": "2021463df9935dda89cef407aa564bced9d83b4f9b6ae8945d649e56676624f0",
+    "verifiedOn": "2026-11-20"
+  },
+  "openai": {
+    "path": "openai.svg",
+    "mime": "image/svg+xml",
+    "source": "https://cdn.openai.com/brand/OpenAI-Logos-2025.zip",
+    "archiveMember": "OpenAI-logos(new)/SVGs/OpenAI-black-monoblossom.svg",
+    "sha256": "7be72f1fea831d3ba81a545cee79b7e0ae69449d5d7837c9571ccbfb4aa1e00b",
+    "verifiedOn": "2026-11-20"
+  },
+  "gemini": {
+    "path": "gemini.svg",
+    "mime": "image/svg+xml",
+    "source": "https://www.gstatic.com/lamda/images/gemini_sparkle_aurora_33f86dc0c0257da337c63.svg",
+    "sha256": "f56df33f86dc0c0257da337c63bf7ad68c0a1b27b796ec707e147984351bccb3",
+    "verifiedOn": "2026-11-21"
+  },
+  "claude": {
+    "path": "claude.svg",
+    "mime": "image/svg+xml",
+    "source": "https://claude.com/icon.svg",
+    "sha256": "b150888bc7257af83e3b85d3c2be4294f88986026f8168f6c12fc1fde6697350",
+    "verifiedOn": "2026-11-21"
+  },
+  "llama": {
+    "path": "llama.svg",
+    "mime": "image/svg+xml",
+    "source": "https://static.xx.fbcdn.net/rsrc.php/yf/r/-7pQO6hUGK_.svg",
+    "sha256": "9c354dc7d40f7862df2dfb34df05ae08c3e956d55a450379803d6cac6878a63e",
+    "verifiedOn": "2026-11-21"
+  },
+  "qwen": {
+    "path": "qwen.png",
+    "mime": "image/png",
+    "source": "https://img.alicdn.com/imgextra/i4/O1CN01OXv3EM1FN8t9W4P79_!!6000000000474-2-tps-80-80.png",
+    "sha256": "cd9390bc4209c319121d111f3a1f535b3c7dd909b8f860d41acc9744138d58df",
+    "verifiedOn": "2026-11-21"
+  },
+  "deepseek": {
+    "path": "deepseek.ico",
+    "mime": "image/x-icon",
+    "source": "https://www.deepseek.com/favicon.ico",
+    "sha256": "30a4420e6e4dcb17fd7de560c5004346c2bc8cd971d2d5f5ee15326603e51321",
+    "verifiedOn": "2026-11-21"
+  },
+  "drive": {
+    "path": "drive.png",
+    "mime": "image/png",
+    "source": "https://www.gstatic.com/images/branding/product/2x/drive_2020q4_48dp.png",
+    "sha256": "72ea8d2de5e0568158cf48029cb9121564ab20c275465a65453776baf1160ebd",
+    "verifiedOn": "2026-11-21"
+  },
+  "gmail": {
+    "path": "gmail.png",
+    "mime": "image/png",
+    "source": "https://www.gstatic.com/images/branding/product/2x/gmail_2020q4_48dp.png",
+    "sha256": "a5cf5c35082aa506518402699c5c5bbc2416742904c60a8cdd81731a2b080bad",
+    "verifiedOn": "2026-11-21"
+  },
+  "calendar": {
+    "path": "calendar.png",
+    "mime": "image/png",
+    "source": "https://www.gstatic.com/images/branding/product/2x/calendar_2020q4_48dp.png",
+    "sha256": "c2a7600e39f41146589f8ff9111d6f756f94d0af6f83ec98ab6768c985bf7d3b",
+    "verifiedOn": "2026-11-21"
+  },
+  "slack": {
+    "path": "slack.png",
+    "mime": "image/png",
+    "source": "https://a.slack-edge.com/9cc0056/img/icons/favicon-32.png",
+    "sha256": "ca3872d0fb85ff9858bcbdc529d6e1db32c029c681c6e723e4f2ecb1c7defea6",
+    "verifiedOn": "2026-11-21"
+  },
+  "canva": {
+    "path": "canva.ico",
+    "mime": "image/x-icon",
+    "source": "https://static.canva.com/static/images/favicon.ico",
+    "sha256": "ec2fbad47e598fe06c7a2b825224b3b1b8d8221f3002e6370e627d459ff0634a",
+    "verifiedOn": "2026-11-21"
+  },
+  "gamma": {
+    "path": "gamma.svg",
+    "mime": "image/svg+xml",
+    "source": "https://static.gamma.app/favicons/favicon_dark.svg",
+    "sha256": "6edef4fd4baabd01413aedbb821a9184f7b00a682d10ffa233e104f018bc22c8",
+    "verifiedOn": "2026-11-21"
+  },
+  "adobe": {
+    "path": "adobe.svg",
+    "mime": "image/svg+xml",
+    "source": "https://helpx.adobe.com/content/dam/help/mnemonics/cc_express.svg",
+    "sha256": "bd4fcde704c11294bee9c9091535294aae0b034b446a9e5182a6e5f5a3d2c81d",
+    "verifiedOn": "2026-11-22"
+  },
+  "suno": {
+    "path": "suno.png",
+    "mime": "image/png",
+    "source": "https://cdn-o.suno.com/favicon-192x192.png",
+    "sha256": "19460509f185b94a3bea2cd102cde0de40ee8638a4527e649467741c526cdc5b",
+    "verifiedOn": "2026-11-22"
+  },
+  "lovable": {
+    "path": "lovable.png",
+    "mime": "image/png",
+    "source": "https://docs.lovable.dev/mintlify-assets/_mintlify/favicons/lovable-f9060f1e/AU_uVgnksniw8mje/_generated/favicon/android-chrome-192x192.png",
+    "sha256": "3ddad9dc9ef650381413c0749d46b2dca8eea4e39e40220ec309c38829d1cc7d",
+    "verifiedOn": "2026-11-22"
+  }
+}

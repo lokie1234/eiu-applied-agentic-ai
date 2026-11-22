@@ -1,0 +1,44 @@
+{
+  "gamma": {
+    "path": "gamma-interface.webp",
+    "mime": "image/webp",
+    "source": "https://downloads.intercomcdn.com/i/o/ihnzqaok/1476252502/6740d84676ef0a0048448aaa115a/Clipboard-20250408-144030-344.gif",
+    "page": "https://help.gamma.app/en/articles/7838093-how-do-i-create-a-new-presentation-document-or-webpage-in-gamma",
+    "sourceSha256": "5a9f4b0057a6eb0123a859d4c900f846d47ed3e905d84094079e2a697b20f7cf",
+    "sha256": "cac8897705a996ad9aec7cffe3d89ec7452129ff152b23e9c4f82556101ae7d5",
+    "frame": 10,
+    "verifiedOn": "2026-11-21"
+  },
+  "canva": {
+    "path": "canva-interface.webp",
+    "mime": "image/webp",
+    "source": "https://content-management-files.canva.com/4387efb5-9e32-4daf-ab5a-9cc90ca1176b/magic-design_promo-showcase_05_2x.png",
+    "sourceSha256": "36893540b49f7777d4efc0e5eb664a5419b2f75667d1002b85bfc0e41164fbd5",
+    "sha256": "a2fcb979dd8a60d7e38a2057e5f2d0ecd8aeec1a62e0bd53484b97263c0f6448",
+    "verifiedOn": "2026-11-21"
+  },
+  "adobe": {
+    "path": "adobe-interface.webp",
+    "mime": "image/webp",
+    "source": "https://www.adobe.com/express/create/ai/media_151a68fd3c679c4f7e69e47a11a5330bad32a8620.png?format=png&width=1500",
+    "sourceSha256": "912ec60fd55ed8bd2bb92cc3731a62224392528e1e26143bcb6ae9c4c61f9433",
+    "sha256": "00689b6eecb1e484695801d5e179c17e91f4d09a1c036d8d21a35121f10e7e8a",
+    "verifiedOn": "2026-11-22"
+  },
+  "suno": {
+    "path": "suno-interface.webp",
+    "mime": "image/webp",
+    "source": "https://suno.com/",
+    "capture": "Public web homepage composer, 1440x1000 viewport; crop x280 y270 width880 height480; no sign-in or generation.",
+    "sha256": "050dd3202e362b797942f43e2034f0e07bb0c59d0c9531cd1b3f79d87fcfee83",
+    "verifiedOn": "2026-11-22"
+  },
+  "lovable": {
+    "path": "lovable-interface.webp",
+    "mime": "image/webp",
+    "source": "https://docs.lovable.dev/images/quick-start-walkthrough-poster.jpg",
+    "sourceSha256": "86348125c3ed62182c9062899d3dcb3efebead9111a5411f6d5e5187b50915a6",
+    "sha256": "d247831d816f747fb4f102a836692279fcf16a67de41c801e38c4b0a6bc6204d",
+    "verifiedOn": "2026-11-22"
+  }
+}

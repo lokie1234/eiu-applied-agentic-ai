@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+  <meta
+    name="description"
+    content="Đăng ký khóa học Applied Agentic AI for Business tại EIU."
+  >
+  <meta name="theme-color" content="#082945">
+
+  <title>Đăng ký khóa học</title>
+
+  <style>
+    :root {
+      --navy-950: #041c31;
+      --navy-900: #082945;
+      --navy-800: #123f68;
+      --navy-700: #18547f;
+      --gold-700: #9d7944;
+      --gold-600: #b39159;
+      --gold-300: #e9ca8b;
+      --gold-200: #f4dfb0;
+      --white: #ffffff;
+      --cream: #f7f4ed;
+      --cream-soft: #fbfaf7;
+      --text: #17324a;
+      --muted: #687987;
+      --border: #ddd7cd;
+      --success: #168357;
+      --warning: #a76d13;
+      --error: #c63a3a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body,
+    button,
+    input {
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+    }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      padding: 28px;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      background:
+        radial-gradient(
+          circle at 88% 10%,
+          rgba(244, 223, 176, 0.24),
+          transparent 28%
+        ),
+        radial-gradient(
+          circle at 8% 92%,
+          rgba(45, 127, 180, 0.28),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          var(--navy-950),
+          var(--navy-900) 55%,
+          var(--navy-700)
+        );
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .register-shell {
+      width: min(1050px, 100%);
+      display: grid;
+      grid-template-columns:
+        minmax(320px, 0.88fr)
+        minmax(430px, 1.12fr);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 28px;
+      background: var(--white);
+      box-shadow: 0 42px 100px rgba(0, 0, 0, 0.34);
+    }
+
+    /* COURSE PANEL */
+
+    .course-panel {
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      padding: 37px;
+      color: var(--white);
+      background:
+        radial-gradient(
+          circle at 88% 14%,
+          rgba(244, 223, 176, 0.17),
+          transparent 28%
+        ),
+        linear-gradient(
+          145deg,
+          var(--navy-950),
+          var(--navy-800)
+        );
+    }
+
+    .course-panel::before {
+      content: "";
+      position: absolute;
+      top: -130px;
+      right: -130px;
+      width: 330px;
+      height: 330px;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 50%;
+      box-shadow:
+        0 0 0 55px rgba(255, 255, 255, 0.021),
+        0 0 0 110px rgba(255, 255, 255, 0.012);
+    }
+
+    .logo-box {
+      position: relative;
+      z-index: 2;
+      width: fit-content;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 70px;
+      padding: 10px 14px;
+      overflow: hidden;
+      border-radius: 17px;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 17px 40px rgba(0, 0, 0, 0.22);
+    }
+
+    .official-logo {
+      display: block;
+      width: 154px;
+      height: auto;
+      object-fit: contain;
+    }
+
+    .course-content {
+      position: relative;
+      z-index: 2;
+      margin-top: 45px;
+    }
+
+    .course-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 8px 12px;
+      color: var(--gold-200);
+      border: 1px solid rgba(244, 223, 176, 0.40);
+      border-radius: 999px;
+      background: rgba(179, 145, 89, 0.12);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+    }
+
+    .course-content h1 {
+      margin: 20px 0 11px;
+      font-size: clamp(32px, 4vw, 46px);
+      line-height: 1.15;
+      letter-spacing: -1.5px;
+    }
+
+    .course-content > p {
+      margin: 0;
+      color: rgba(255, 255, 255, 0.72);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .course-features {
+      display: grid;
+      gap: 11px;
+      margin-top: 28px;
+    }
+
+    .course-feature {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: rgba(255, 255, 255, 0.83);
+      font-size: 13px;
+    }
+
+    .feature-check {
+      width: 24px;
+      height: 24px;
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      color: var(--navy-900);
+      border-radius: 8px;
+      background: var(--gold-200);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .price-summary {
+      position: relative;
+      z-index: 2;
+      margin-top: auto;
+      padding-top: 35px;
+    }
+
+    .price-box {
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.075);
+    }
+
+    .price-box small {
+      display: block;
+      color: rgba(255, 255, 255, 0.66);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .current-price {
+      display: block;
+      margin-top: 7px;
+      color: var(--gold-200);
+      font-size: 28px;
+      line-height: 1.2;
+    }
+
+    .price-description {
+      display: block;
+      margin-top: 6px;
+      color: rgba(255, 255, 255, 0.65);
+      font-size: 11px;
+    }
+
+    .price-box.eiu-active {
+      border-color: rgba(244, 223, 176, 0.55);
+      background: rgba(179, 145, 89, 0.17);
+      animation: priceHighlight 0.55s ease;
+    }
+
+    @keyframes priceHighlight {
+      0% { transform: scale(0.96); }
+      60% { transform: scale(1.025); }
+      100% { transform: scale(1); }
+    }
+
+    /* FORM PANEL */
+
+    .form-panel {
+      padding: 42px 44px;
+      background: var(--white);
+    }
+
+    .form-heading {
+      margin-bottom: 25px;
+    }
+
+    .form-heading h2 {
+      margin: 0 0 8px;
+      color: var(--navy-950);
+      font-size: 30px;
+      line-height: 1.3;
+      letter-spacing: -0.8px;
+    }
+
+    .form-heading p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--navy-950);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .required {
+      color: var(--error);
+    }
+
+    input {
+      width: 100%;
+      height: 55px;
+      padding: 0 16px;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 13px;
+      outline: none;
+      background: var(--cream-soft);
+      font-size: 15px;
+      transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease;
+    }
+
+    input:hover {
+      background: var(--white);
+    }
+
+    input:focus {
+      border-color: var(--navy-800);
+      background: var(--white);
+      box-shadow: 0 0 0 4px rgba(18, 63, 104, 0.10);
+    }
+
+    input.invalid {
+      border-color: var(--error);
+      box-shadow: 0 0 0 4px rgba(198, 58, 58, 0.08);
+    }
+
+    input.valid {
+      border-color: var(--success);
+    }
+
+    input::placeholder {
+      color: #9ba5ad;
+    }
+
+    .field-help {
+      min-height: 18px;
+      margin: 6px 2px 0;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.5;
+    }
+
+    .field-help.error {
+      color: var(--error);
+      font-weight: 650;
+    }
+
+    .field-help.success {
+      color: var(--success);
+      font-weight: 750;
+    }
+
+    .honeypot {
+      position: absolute;
+      left: -10000px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* SUBMIT BUTTON */
+
+    .submit-button {
+      position: relative;
+      width: 100%;
+      min-height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 8px;
+      padding: 15px 24px;
+      overflow: hidden;
+      color: var(--navy-950);
+      border: 0;
+      border-radius: 999px;
+      background:
+        linear-gradient(
+          135deg,
+          var(--gold-200),
+          var(--gold-600)
+        );
+      box-shadow: 0 17px 38px rgba(179, 145, 89, 0.39);
+      font-size: 16px;
+      font-weight: 900;
+      cursor: pointer;
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        opacity 0.2s ease;
+    }
+
+    .submit-button::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -45%;
+      width: 38%;
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.55),
+          transparent
+        );
+      transform: skewX(-18deg);
+      animation: buttonShine 3.2s ease-in-out infinite;
+    }
+
+    .submit-button:hover:not(:disabled) {
+      transform: translateY(-3px);
+      box-shadow: 0 22px 46px rgba(179, 145, 89, 0.49);
+    }
+
+    .submit-button:disabled {
+      opacity: 0.70;
+      cursor: wait;
+    }
+
+    .button-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .button-arrow {
+      display: inline-block;
+      font-size: 20px;
+      animation: arrowMoving 1.15s ease-in-out infinite;
+    }
+
+    @keyframes buttonShine {
+      0%, 40% { left: -45%; }
+      70%, 100% { left: 125%; }
+    }
+
+    @keyframes arrowMoving {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(6px); }
+    }
+
+    .spinner {
+      width: 19px;
+      height: 19px;
+      display: none;
+      border: 2px solid rgba(8, 41, 69, 0.22);
+      border-top-color: var(--navy-950);
+      border-radius: 50%;
+      animation: spinnerRotation 0.72s linear infinite;
+    }
+
+    .submit-button.loading .spinner {
+      display: block;
+    }
+
+    .submit-button.loading .button-arrow {
+      display: none;
+    }
+
+    @keyframes spinnerRotation {
+      to { transform: rotate(360deg); }
+    }
+
+    .processing-note {
+      display: none;
+      margin: 13px 0 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 11px;
+    }
+
+    .processing-note.visible {
+      display: block;
+    }
+
+    /* MESSAGES */
+
+    .message {
+      display: none;
+      margin-bottom: 20px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .message.visible {
+      display: block;
+    }
+
+    .message.error {
+      color: #982929;
+      border: 1px solid #efc3c3;
+      background: #fff0f0;
+    }
+
+    .message.warning {
+      color: #78500f;
+      border: 1px solid #ebd19e;
+      background: #fff7e9;
+    }
+
+    .message-title {
+      display: block;
+      margin-bottom: 3px;
+      font-weight: 900;
+    }
+
+    .privacy-note {
+      margin: 17px 0 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+
+    .back-row {
+      margin-top: 17px;
+      text-align: center;
+    }
+
+    .back-link {
+      color: var(--navy-800);
+      font-size: 13px;
+      font-weight: 750;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    /* SUCCESS PANEL */
+
+    .success-panel {
+      display: none;
+      min-height: 500px;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .success-panel.visible {
+      display: flex;
+    }
+
+    .success-content {
+      max-width: 440px;
+    }
+
+    .success-icon {
+      width: 78px;
+      height: 78px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 20px;
+      color: var(--white);
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 15px 35px rgba(22, 131, 87, 0.27);
+      font-size: 35px;
+      font-weight: 900;
+    }
+
+    .success-panel h2 {
+      margin: 0 0 10px;
+      color: var(--navy-950);
+      font-size: 29px;
+      line-height: 1.3;
+    }
+
+    .success-panel p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .success-email {
+      margin-top: 17px;
+      padding: 13px 15px;
+      border: 1px solid #dbe7df;
+      border-radius: 13px;
+      color: #176747;
+      background: #eefaf4;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    .success-email.warning {
+      color: #78500f;
+      border-color: #ebd19e;
+      background: #fff7e9;
+    }
+
+    .success-discount {
+      display: none;
+      margin-top: 14px;
+      padding: 15px;
+      color: #71500f;
+      border: 1px solid #ecd49c;
+      border-radius: 14px;
+      background: #fff7e4;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .success-discount.visible {
+      display: block;
+    }
+
+    .success-back-link {
+      display: inline-block;
+      margin-top: 25px;
+      color: var(--navy-800);
+      font-size: 13px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .success-back-link:hover {
+      text-decoration: underline;
+    }
+
+    /* EIU DISCOUNT POPUP */
+
+    .discount-overlay {
+      position: fixed;
+      z-index: 3000;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      opacity: 0;
+      visibility: hidden;
+      background: rgba(3, 22, 36, 0.70);
+      backdrop-filter: blur(7px);
+      transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+    }
+
+    .discount-overlay.visible {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .discount-popup {
+      position: relative;
+      width: min(440px, 100%);
+      overflow: hidden;
+      padding: 33px 28px 30px;
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.62);
+      border-radius: 25px;
+      background: var(--white);
+      box-shadow: 0 35px 85px rgba(0, 0, 0, 0.37);
+      text-align: center;
+      transform: translateY(18px) scale(0.94);
+      transition: transform 0.27s ease;
+    }
+
+    .discount-overlay.visible .discount-popup {
+      transform: translateY(0) scale(1);
+    }
+
+    .confetti {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .confetti span {
+      position: absolute;
+      top: -20px;
+      width: 8px;
+      height: 15px;
+      border-radius: 3px;
+      background: var(--gold-600);
+      animation: confettiFall 2.6s linear infinite;
+    }
+
+    .confetti span:nth-child(1) { left: 8%; animation-delay: 0.1s; }
+    .confetti span:nth-child(2) { left: 20%; background: var(--navy-700); animation-delay: 0.8s; }
+    .confetti span:nth-child(3) { left: 36%; background: #e56868; animation-delay: 0.3s; }
+    .confetti span:nth-child(4) { left: 52%; background: #45a678; animation-delay: 1.1s; }
+    .confetti span:nth-child(5) { left: 68%; background: var(--gold-300); animation-delay: 0.55s; }
+    .confetti span:nth-child(6) { left: 82%; background: #2d7fb4; animation-delay: 1.4s; }
+    .confetti span:nth-child(7) { left: 92%; background: #e56868; animation-delay: 0.25s; }
+
+    @keyframes confettiFall {
+      0% { opacity: 0; transform: translateY(-15px) rotate(0); }
+      15% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(330px) rotate(540deg); }
+    }
+
+    .discount-icon {
+      position: relative;
+      z-index: 2;
+      width: 82px;
+      height: 82px;
+      display: grid;
+      place-items: center;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      background:
+        linear-gradient(
+          145deg,
+          #fff2c8,
+          var(--gold-300)
+        );
+      box-shadow: 0 15px 33px rgba(179, 145, 89, 0.29);
+      font-size: 39px;
+      animation: happyBounce 1.1s ease-in-out infinite;
+    }
+
+    @keyframes happyBounce {
+      0%, 100% { transform: translateY(0) rotate(-2deg); }
+      50% { transform: translateY(-7px) rotate(2deg); }
+    }
+
+    .discount-popup h2 {
+      position: relative;
+      z-index: 2;
+      margin: 0 0 10px;
+      color: var(--navy-950);
+      font-size: 28px;
+      line-height: 1.3;
+    }
+
+    .discount-popup p {
+      position: relative;
+      z-index: 2;
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .discount-price {
+      position: relative;
+      z-index: 2;
+      margin-top: 18px;
+      padding: 14px;
+      border: 1px solid #ecd49c;
+      border-radius: 14px;
+      color: #71500f;
+      background: #fff7e4;
+      font-weight: 900;
+    }
+
+    .popup-note {
+      position: relative;
+      z-index: 2;
+      display: block;
+      margin-top: 14px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    @media (max-width: 850px) {
+      body {
+        padding: 18px;
+      }
+
+      .register-shell {
+        grid-template-columns: 1fr;
+        max-width: 640px;
+      }
+
+      .course-panel {
+        min-height: auto;
+      }
+
+      .price-summary {
+        margin-top: 30px;
+        padding-top: 0;
+      }
+    }
+
+    @media (max-width: 580px) {
+      body {
+        display: block;
+        padding: 10px;
+      }
+
+      .register-shell {
+        border-radius: 21px;
+      }
+
+      .course-panel {
+        padding: 25px 22px 27px;
+      }
+
+      .logo-box {
+        min-height: 60px;
+        padding: 7px 10px;
+        border-radius: 13px;
+      }
+
+      .official-logo {
+        width: 130px;
+      }
+
+      .course-content {
+        margin-top: 29px;
+      }
+
+      .course-content h1 {
+        font-size: 33px;
+      }
+
+      .course-features {
+        margin-top: 21px;
+      }
+
+      .form-panel {
+        padding: 30px 22px 32px;
+      }
+
+      .form-heading h2 {
+        font-size: 26px;
+      }
+
+      .success-panel {
+        min-height: 440px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="register-shell">
+
+    <section class="course-panel">
+      <a
+        class="logo-box"
+        href="<?= appUrl ?>"
+        aria-label="Quay lại trang khóa học"
+      >
+        <img
+          class="official-logo"
+          src="<?!= logoUrl ?>"
+          width="219"
+          height="79"
+          alt="Eastern International University"
+          decoding="async"
+          fetchpriority="high"
+        >
+      </a>
+
+      <div class="course-content">
+        <div class="course-label">✦ Khóa học thực hành</div>
+
+        <h1>Applied Agentic AI for Business</h1>
+
+        <p>
+          Tự xây dựng Business Web App bằng AI,
+          Google Sheets và Google Apps Script
+          trong một ngày học thực hành.
+        </p>
+
+        <div class="course-features">
+          <div class="course-feature">
+            <span class="feature-check">✓</span>
+            <span>1 ngày · 2 phiên · 8 giờ</span>
+          </div>
+
+          <div class="course-feature">
+            <span class="feature-check">✓</span>
+            <span>Không yêu cầu kinh nghiệm lập trình</span>
+          </div>
+
+          <div class="course-feature">
+            <span class="feature-check">✓</span>
+            <span>Có tea break và bữa trưa</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="price-summary">
+        <div id="priceBox" class="price-box">
+          <small id="priceAudience">Học viên ngoài EIU</small>
+          <strong id="currentPrice" class="current-price">
+            1.000.000 đồng
+          </strong>
+          <span id="priceDescription" class="price-description">
+            Nhập email EIU để nhận ưu đãi 50%
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <section class="form-panel">
+      <div id="formArea">
+        <div class="form-heading">
+          <h2>Đăng ký khóa học</h2>
+          <p>
+            Vui lòng cung cấp chính xác thông tin liên hệ.
+            Email xác nhận sẽ được gửi ngay sau khi đăng ký thành công.
+          </p>
+        </div>
+
+        <div
+          id="message"
+          class="message"
+          role="alert"
+          aria-live="polite"
+        ></div>
+
+        <form id="registrationForm" novalidate>
+          <div class="field">
+            <label for="fullName">
+              Họ và tên
+              <span class="required">*</span>
+            </label>
+
+            <input
+              id="fullName"
+              name="fullName"
+              type="text"
+              maxlength="100"
+              autocomplete="name"
+              placeholder="Nguyễn Văn A"
+              required
+            >
+
+            <div id="fullNameHelp" class="field-help">
+              Nhập đầy đủ họ và tên của bạn.
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="phone">
+              Số điện thoại Việt Nam
+              <span class="required">*</span>
+            </label>
+
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              maxlength="18"
+              autocomplete="tel"
+              inputmode="tel"
+              placeholder="0901 234 567 hoặc +84 901 234 567"
+              required
+            >
+
+            <div id="phoneHelp" class="field-help">
+              Chấp nhận đầu số 03, 05, 07, 08 hoặc 09.
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email">
+              Email
+              <span class="required">*</span>
+            </label>
+
+            <input
+              id="email"
+              name="email"
+              type="email"
+              maxlength="150"
+              autocomplete="email"
+              inputmode="email"
+              placeholder="email@example.com"
+              required
+            >
+
+            <div id="emailHelp" class="field-help">
+              Sinh viên dùng email @eiu.edu.vn để nhận ưu đãi 50%.
+            </div>
+          </div>
+
+          <div class="honeypot" aria-hidden="true">
+            <label for="website">Website</label>
+            <input
+              id="website"
+              name="website"
+              type="text"
+              tabindex="-1"
+              autocomplete="off"
+            >
+          </div>
+
+          <button
+            id="submitButton"
+            class="submit-button"
+            type="submit"
+          >
+            <span class="button-content">
+              <span class="spinner"></span>
+              <span id="buttonText">Hoàn tất đăng ký</span>
+              <span class="button-arrow" aria-hidden="true">→</span>
+            </span>
+          </button>
+
+          <div
+            id="processingNote"
+            class="processing-note"
+            aria-live="polite"
+          >
+            Hệ thống đang lưu thông tin và gửi email xác nhận…
+          </div>
+
+          <p class="privacy-note">
+            Thông tin chỉ được sử dụng để liên hệ
+            và cung cấp nội dung liên quan đến khóa học.
+          </p>
+
+          <div class="back-row">
+            <a class="back-link" href="<?= appUrl ?>">
+              ← Quay lại trang khóa học
+            </a>
+          </div>
+        </form>
+      </div>
+
+      <div
+        id="successPanel"
+        class="success-panel"
+        aria-live="polite"
+      >
+        <div class="success-content">
+          <div class="success-icon">✓</div>
+
+          <h2>Đăng ký thành công</h2>
+
+          <p id="successMessage">
+            Thông tin của bạn đã được ghi nhận.
+            Ban tổ chức sẽ liên hệ trong thời gian sớm nhất.
+          </p>
+
+          <div id="successEmail" class="success-email">
+            Email xác nhận đã được gửi đến địa chỉ bạn cung cấp.
+          </div>
+
+          <div id="successDiscount" class="success-discount">
+            🎉 Ưu đãi sinh viên EIU:
+            học phí của bạn là 500.000 đồng.
+          </div>
+
+          <a class="success-back-link" href="<?= appUrl ?>">
+            ← Quay lại trang khóa học
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div
+    id="discountOverlay"
+    class="discount-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="discountTitle"
+    aria-describedby="discountDescription"
+  >
+    <div class="discount-popup">
+      <div class="confetti" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <div class="discount-icon" aria-hidden="true">🎉</div>
+
+      <h2 id="discountTitle">Chúc mừng bạn!</h2>
+
+      <p id="discountDescription">
+        Hệ thống đã nhận diện email EIU.
+        Bạn được áp dụng ưu đãi giảm 50%
+        dành cho sinh viên EIU.
+      </p>
+
+      <div class="discount-price">
+        Học phí ưu đãi: 500.000 đồng
+      </div>
+
+      <span class="popup-note">
+        Popup sẽ tự đóng sau vài giây.
+        Bạn cũng có thể nhấp ra ngoài để đóng.
+      </span>
+    </div>
+  </div>
+
+  <script>
+    'use strict';
+
+    const registrationForm =
+      document.getElementById('registrationForm');
+
+    const formArea =
+      document.getElementById('formArea');
+
+    const fullNameInput =
+      document.getElementById('fullName');
+
+    const phoneInput =
+      document.getElementById('phone');
+
+    const emailInput =
+      document.getElementById('email');
+
+    const websiteInput =
+      document.getElementById('website');
+
+    const fullNameHelp =
+      document.getElementById('fullNameHelp');
+
+    const phoneHelp =
+      document.getElementById('phoneHelp');
+
+    const emailHelp =
+      document.getElementById('emailHelp');
+
+    const submitButton =
+      document.getElementById('submitButton');
+
+    const buttonText =
+      document.getElementById('buttonText');
+
+    const messageBox =
+      document.getElementById('message');
+
+    const processingNote =
+      document.getElementById('processingNote');
+
+    const successPanel =
+      document.getElementById('successPanel');
+
+    const successMessage =
+      document.getElementById('successMessage');
+
+    const successEmail =
+      document.getElementById('successEmail');
+
+    const successDiscount =
+      document.getElementById('successDiscount');
+
+    const discountOverlay =
+      document.getElementById('discountOverlay');
+
+    const priceBox =
+      document.getElementById('priceBox');
+
+    const priceAudience =
+      document.getElementById('priceAudience');
+
+    const currentPrice =
+      document.getElementById('currentPrice');
+
+    const priceDescription =
+      document.getElementById('priceDescription');
+
+    let isSubmitting = false;
+    let progressTimer = null;
+    let popupTimer = null;
+    let discountPopupShown = false;
+
+    fullNameInput.addEventListener(
+      'input',
+      function () {
+        fullNameInput.value =
+          fullNameInput.value
+            .replace(/\s{2,}/g, ' ');
+
+        clearFieldState(
+          fullNameInput,
+          fullNameHelp,
+          'Nhập đầy đủ họ và tên của bạn.'
+        );
+      }
+    );
+
+    fullNameInput.addEventListener(
+      'blur',
+      validateFullName
+    );
+
+    phoneInput.addEventListener(
+      'input',
+      function () {
+        phoneInput.value =
+          phoneInput.value
+            .replace(/[^\d+\s().-]/g, '')
+            .slice(0, 18);
+
+        clearFieldState(
+          phoneInput,
+          phoneHelp,
+          'Chấp nhận đầu số 03, 05, 07, 08 hoặc 09.'
+        );
+      }
+    );
+
+    phoneInput.addEventListener(
+      'blur',
+      function () {
+        validatePhone(true);
+      }
+    );
+
+    emailInput.addEventListener(
+      'input',
+      function () {
+        clearFieldState(
+          emailInput,
+          emailHelp,
+          'Sinh viên dùng email @eiu.edu.vn để nhận ưu đãi 50%.'
+        );
+
+        updateEiuDiscount(false);
+      }
+    );
+
+    emailInput.addEventListener(
+      'blur',
+      function () {
+        validateEmail();
+        updateEiuDiscount(true);
+      }
+    );
+
+    registrationForm.addEventListener(
+      'submit',
+      function (event) {
+        event.preventDefault();
+
+        if (isSubmitting) {
+          return;
+        }
+
+        hideMessage();
+
+        const isNameValid =
+          validateFullName();
+
+        const isPhoneValid =
+          validatePhone(true);
+
+        const isEmailValid =
+          validateEmail();
+
+        if (
+          !isNameValid ||
+          !isPhoneValid ||
+          !isEmailValid
+        ) {
+          showMessage(
+            'Thông tin chưa hợp lệ',
+            'Vui lòng kiểm tra lại các trường được đánh dấu.',
+            'error'
+          );
+
+          focusFirstInvalidField();
+          return;
+        }
+
+        const formData = {
+          fullName:
+            fullNameInput.value.trim(),
+
+          phone:
+            normalizeVietnamPhone(
+              phoneInput.value
+            ),
+
+          email:
+            emailInput.value
+              .trim()
+              .toLowerCase(),
+
+          website:
+            websiteInput.value.trim()
+        };
+
+        setLoading(true);
+
+        google.script.run
+          .withSuccessHandler(
+            handleRegistrationResponse
+          )
+          .withFailureHandler(
+            handleRegistrationFailure
+          )
+          .saveRegistration(formData);
+      }
+    );
+
+    function handleRegistrationResponse(
+      response
+    ) {
+      setLoading(false);
+
+      if (
+        response &&
+        response.duplicate === true
+      ) {
+        showMessage(
+          'Thông tin đã được đăng ký',
+          response.message ||
+            'Bạn không cần gửi lại biểu mẫu.',
+          'warning'
+        );
+
+        return;
+      }
+
+      if (
+        response &&
+        response.busy === true
+      ) {
+        showMessage(
+          'Hệ thống đang bận',
+          response.message ||
+            'Vui lòng thử lại sau vài giây.',
+          'warning'
+        );
+
+        return;
+      }
+
+      if (
+        !response ||
+        response.success !== true
+      ) {
+        showMessage(
+          'Chưa thể hoàn tất đăng ký',
+          'Vui lòng kiểm tra thông tin và thử lại.',
+          'error'
+        );
+
+        return;
+      }
+
+      registrationForm.reset();
+      formArea.style.display = 'none';
+      successPanel.classList.add('visible');
+
+      successMessage.textContent =
+        response.message ||
+        'Thông tin của bạn đã được ghi nhận. ' +
+        'Ban tổ chức sẽ liên hệ trong thời gian sớm nhất.';
+
+      successEmail.classList.toggle(
+        'warning',
+        response.emailSent !== true
+      );
+
+      successEmail.textContent =
+        response.emailSent === true
+          ? 'Email xác nhận đã được gửi đến địa chỉ bạn cung cấp.'
+          : 'Đăng ký đã được lưu, nhưng email xác nhận chưa thể gửi. ' +
+            'Ban tổ chức sẽ liên hệ lại với bạn.';
+
+      successDiscount.classList.toggle(
+        'visible',
+        response.isEiu === true
+      );
+
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+
+    function handleRegistrationFailure(
+      error
+    ) {
+      setLoading(false);
+
+      const errorMessage =
+        error && error.message
+          ? error.message
+          : 'Đã xảy ra lỗi kết nối. Vui lòng thử lại.';
+
+      showMessage(
+        'Không thể gửi đăng ký',
+        errorMessage,
+        'error'
+      );
+    }
+
+    function validateFullName() {
+      const value =
+        fullNameInput.value
+          .replace(/\s+/g, ' ')
+          .trim();
+
+      fullNameInput.value = value;
+
+      const isValid =
+        value.length >= 2 &&
+        value.length <= 100 &&
+        /[A-Za-zÀ-ỹ]/.test(value);
+
+      if (!isValid) {
+        setFieldError(
+          fullNameInput,
+          fullNameHelp,
+          'Vui lòng nhập họ và tên hợp lệ.'
+        );
+
+        return false;
+      }
+
+      setFieldSuccess(
+        fullNameInput,
+        fullNameHelp,
+        'Thông tin họ tên hợp lệ.'
+      );
+
+      return true;
+    }
+
+    function validatePhone(
+      formatWhenValid
+    ) {
+      const normalizedPhone =
+        normalizeVietnamPhone(
+          phoneInput.value
+        );
+
+      const isValid =
+        /^0(?:3|5|7|8|9)\d{8}$/
+          .test(normalizedPhone);
+
+      if (!isValid) {
+        setFieldError(
+          phoneInput,
+          phoneHelp,
+          'Số điện thoại phải có 10 chữ số và bắt đầu bằng 03, 05, 07, 08 hoặc 09.'
+        );
+
+        return false;
+      }
+
+      if (formatWhenValid) {
+        phoneInput.value =
+          formatVietnamPhone(
+            normalizedPhone
+          );
+      }
+
+      setFieldSuccess(
+        phoneInput,
+        phoneHelp,
+        'Số điện thoại hợp lệ.'
+      );
+
+      return true;
+    }
+
+    function normalizeVietnamPhone(
+      value
+    ) {
+      let digits =
+        String(value || '')
+          .replace(/\D/g, '');
+
+      if (
+        digits.indexOf('84') === 0 &&
+        digits.length === 11
+      ) {
+        digits =
+          '0' + digits.substring(2);
+      }
+
+      return digits;
+    }
+
+    function formatVietnamPhone(
+      phone
+    ) {
+      if (!/^0\d{9}$/.test(phone)) {
+        return phone;
+      }
+
+      return (
+        phone.substring(0, 4) +
+        ' ' +
+        phone.substring(4, 7) +
+        ' ' +
+        phone.substring(7)
+      );
+    }
+
+    function validateEmail() {
+      const email =
+        emailInput.value
+          .trim()
+          .toLowerCase();
+
+      emailInput.value = email;
+
+      const isValid =
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/
+          .test(email);
+
+      if (!isValid) {
+        setFieldError(
+          emailInput,
+          emailHelp,
+          'Vui lòng nhập địa chỉ email hợp lệ.'
+        );
+
+        updateEiuDiscount(false);
+        return false;
+      }
+
+      if (isEiuEmail(email)) {
+        setFieldSuccess(
+          emailInput,
+          emailHelp,
+          '🎉 Email EIU hợp lệ — bạn được giảm 50% học phí.'
+        );
+      } else {
+        setFieldSuccess(
+          emailInput,
+          emailHelp,
+          'Địa chỉ email hợp lệ.'
+        );
+      }
+
+      return true;
+    }
+
+    function isEiuEmail(
+      email
+    ) {
+      return /@eiu\.edu\.vn$/i
+        .test(
+          String(email || '').trim()
+        );
+    }
+
+    function updateEiuDiscount(
+      allowPopup
+    ) {
+      const email =
+        emailInput.value
+          .trim()
+          .toLowerCase();
+
+      const isValidEmail =
+        /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)+$/
+          .test(email);
+
+      const isEiu =
+        isValidEmail &&
+        isEiuEmail(email);
+
+      priceBox.classList.toggle(
+        'eiu-active',
+        isEiu
+      );
+
+      if (isEiu) {
+        priceAudience.textContent =
+          'Ưu đãi sinh viên EIU';
+
+        currentPrice.textContent =
+          '500.000 đồng';
+
+        priceDescription.textContent =
+          'Đã áp dụng ưu đãi giảm 50%';
+      } else {
+        priceAudience.textContent =
+          'Học viên ngoài EIU';
+
+        currentPrice.textContent =
+          '1.000.000 đồng';
+
+        priceDescription.textContent =
+          'Nhập email EIU để nhận ưu đãi 50%';
+      }
+
+      if (
+        isEiu &&
+        allowPopup &&
+        !discountPopupShown
+      ) {
+        discountPopupShown = true;
+        showDiscountPopup();
+      }
+    }
+
+    function showDiscountPopup() {
+      clearTimeout(popupTimer);
+      discountOverlay.classList.add('visible');
+      document.body.style.overflow = 'hidden';
+
+      popupTimer =
+        setTimeout(
+          hideDiscountPopup,
+          5200
+        );
+    }
+
+    function hideDiscountPopup() {
+      clearTimeout(popupTimer);
+      discountOverlay.classList.remove('visible');
+      document.body.style.overflow = '';
+    }
+
+    discountOverlay.addEventListener(
+      'click',
+      function (event) {
+        if (event.target === discountOverlay) {
+          hideDiscountPopup();
+        }
+      }
+    );
+
+    document.addEventListener(
+      'keydown',
+      function (event) {
+        if (
+          event.key === 'Escape' &&
+          discountOverlay.classList.contains('visible')
+        ) {
+          hideDiscountPopup();
+        }
+      }
+    );
+
+    function setLoading(
+      loading
+    ) {
+      isSubmitting = loading;
+      submitButton.disabled = loading;
+
+      submitButton.classList.toggle(
+        'loading',
+        loading
+      );
+
+      processingNote.classList.toggle(
+        'visible',
+        loading
+      );
+
+      buttonText.textContent =
+        loading
+          ? 'Đang xử lý…'
+          : 'Hoàn tất đăng ký';
+
+      clearTimeout(progressTimer);
+
+      if (loading) {
+        progressTimer =
+          setTimeout(
+            function () {
+              processingNote.textContent =
+                'Đang lưu dữ liệu và gửi email xác nhận. ' +
+                'Vui lòng giữ nguyên trang…';
+            },
+            3500
+          );
+      } else {
+        processingNote.textContent =
+          'Hệ thống đang lưu thông tin và gửi email xác nhận…';
+      }
+    }
+
+    function showMessage(
+      title,
+      text,
+      type
+    ) {
+      messageBox.textContent = '';
+
+      const titleElement =
+        document.createElement('span');
+
+      titleElement.className =
+        'message-title';
+
+      titleElement.textContent = title;
+
+      messageBox.appendChild(titleElement);
+      messageBox.appendChild(
+        document.createTextNode(text)
+      );
+
+      messageBox.className =
+        'message visible ' + type;
+
+      messageBox.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center'
+      });
+    }
+
+    function hideMessage() {
+      messageBox.textContent = '';
+      messageBox.className = 'message';
+    }
+
+    function setFieldError(
+      input,
+      helpElement,
+      text
+    ) {
+      input.classList.remove('valid');
+      input.classList.add('invalid');
+      input.setAttribute('aria-invalid', 'true');
+      helpElement.className = 'field-help error';
+      helpElement.textContent = text;
+    }
+
+    function setFieldSuccess(
+      input,
+      helpElement,
+      text
+    ) {
+      input.classList.remove('invalid');
+      input.classList.add('valid');
+      input.setAttribute('aria-invalid', 'false');
+      helpElement.className = 'field-help success';
+      helpElement.textContent = text;
+    }
+
+    function clearFieldState(
+      input,
+      helpElement,
+      defaultText
+    ) {
+      input.classList.remove('invalid', 'valid');
+      input.removeAttribute('aria-invalid');
+      helpElement.className = 'field-help';
+      helpElement.textContent = defaultText;
+    }
+
+    function focusFirstInvalidField() {
+      const invalidField =
+        registrationForm.querySelector('.invalid');
+
+      if (invalidField) {
+        invalidField.focus();
+      }
+    }
+  </script>
+
+</body>
+</html>

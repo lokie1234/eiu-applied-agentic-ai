@@ -25,6 +25,13 @@ test('generic enabled sections use their own scope and settings have no arbitrar
   f.role('learner');assert.equal((await f.route.GET(new Request('http://localhost/spotlight?settings=1'),f.context)).status,403);assert.equal((await f.route.PUT(new Request('http://localhost/spotlight',{method:'PUT',body:JSON.stringify({count:2,epoch:'epoch'})}),f.context)).status,403);
   const disabled=fixture({sectionId:id,wheelEnabled:false});assert.equal((await disabled.post({slide:0,epoch:'epoch',requestId:crypto.randomUUID()})).status,403);assert.equal(disabled.calls.length,0);
 });
+
+test('target settings only accept bounded session IDs from teaching and pass them to the authorized mutation',async()=>{
+ const f=fixture(),save=targetSubjects=>f.route.PUT(new Request('http://localhost/spotlight',{method:'PUT',body:JSON.stringify({count:3,epoch:'epoch',targetSubjects})}),f.context);
+ for(const bad of ['name',['same','same'],[null],['a'.repeat(201)],Array.from({length:1201},(_,i)=>String(i))])assert.equal((await save(bad)).status,400);
+ assert.equal(f.calls.length,0);assert.equal((await save(['session-a','session-b'])).status,200);assert.deepEqual(Array.from(f.calls[0].targetSubjects),['session-a','session-b']);
+ f.role('learner');assert.equal((await save(['session-a'])).status,403);assert.equal((await f.route.GET(new Request('http://localhost/spotlight?settings=1'),f.context)).status,403);
+});
 test('the API checks access and scope and starts a ready classroom draw without rebuilding or rereading its roster',async()=>{
   const f=fixture(),body={slide:5,epoch:'epoch',requestId:crypto.randomUUID(),subject:'forged',username:'Forged'};
   f.role('learner');assert.equal((await f.post(body)).status,403);assert.equal(f.calls.length,0);

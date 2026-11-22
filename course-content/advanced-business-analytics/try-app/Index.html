@@ -1,0 +1,3020 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <base target="_top">
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, viewport-fit=cover"
+  >
+
+  <meta
+    name="description"
+    content="Khóa học Applied Agentic AI for Business tại EIU. Xây dựng Business Web App bằng AI, Google Sheets và Google Apps Script."
+  >
+
+  <meta
+    name="theme-color"
+    content="#082945"
+  >
+
+  <title>
+    Applied Agentic AI for Business
+  </title>
+
+  <style>
+    :root {
+      --navy-950: #041c31;
+      --navy-900: #082945;
+      --navy-800: #123f68;
+      --navy-700: #18547f;
+      --blue: #2d7fb4;
+
+      --gold-700: #9d7944;
+      --gold-600: #b39159;
+      --gold-300: #e9ca8b;
+      --gold-200: #f4dfb0;
+
+      --white: #ffffff;
+      --cream: #f7f4ed;
+      --cream-soft: #fbfaf7;
+
+      --text: #17324a;
+      --muted: #697a89;
+      --border: #e4ded4;
+      --success: #168357;
+
+      --shadow-sm:
+        0 14px 35px
+        rgba(8, 41, 69, 0.10);
+
+      --shadow-lg:
+        0 30px 75px
+        rgba(4, 28, 49, 0.18);
+
+      --container:
+        min(
+          1160px,
+          calc(100% - 40px)
+        );
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body,
+    button,
+    input {
+      font-family:
+        Inter,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+    }
+
+    body {
+      min-width: 320px;
+
+      margin: 0;
+
+      color: var(--text);
+      background: var(--white);
+
+      font-size: 16px;
+      line-height: 1.65;
+
+      -webkit-font-smoothing:
+        antialiased;
+
+      text-rendering:
+        optimizeLegibility;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    .container {
+      width: var(--container);
+      margin: 0 auto;
+    }
+
+    .section {
+      padding: 90px 0;
+
+      content-visibility: auto;
+
+      contain-intrinsic-size:
+        700px;
+    }
+
+    .section-heading {
+      max-width: 760px;
+
+      margin:
+        0 auto 46px;
+
+      text-align: center;
+    }
+
+    .section-label {
+      display: inline-flex;
+      align-items: center;
+
+      gap: 8px;
+
+      margin-bottom: 12px;
+
+      color: var(--gold-700);
+
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.3px;
+
+      text-transform: uppercase;
+    }
+
+    .section-label::before {
+      content: "";
+
+      width: 24px;
+      height: 2px;
+
+      border-radius: 999px;
+
+      background: currentColor;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      overflow-wrap: break-word;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+
+      color: var(--navy-950);
+
+      font-size:
+        clamp(
+          31px,
+          4vw,
+          46px
+        );
+
+      line-height: 1.2;
+      letter-spacing: -1.3px;
+    }
+
+    .section-heading p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    /* NAVIGATION */
+
+    .navbar {
+      position: absolute;
+      z-index: 20;
+
+      top: 0;
+      right: 0;
+      left: 0;
+
+      padding: 18px 0;
+    }
+
+    .navbar-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo-box {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      min-height: 70px;
+
+      padding: 10px 15px;
+
+      overflow: hidden;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.72);
+
+      border-radius: 18px;
+
+      background:
+        rgba(255, 255, 255, 0.98);
+
+      box-shadow:
+        0 18px 45px
+        rgba(0, 0, 0, 0.19);
+    }
+
+    .official-logo {
+      display: block;
+
+      width: 166px;
+      height: auto;
+
+      object-fit: contain;
+    }
+
+    /* HERO */
+
+    .hero {
+      position: relative;
+
+      min-height: 790px;
+
+      display: flex;
+      align-items: center;
+
+      overflow: hidden;
+
+      padding:
+        190px 0 110px;
+
+      color: var(--white);
+
+      background:
+        radial-gradient(
+          circle at 86% 14%,
+          rgba(244, 223, 176, 0.24),
+          transparent 27%
+        ),
+
+        radial-gradient(
+          circle at 13% 91%,
+          rgba(45, 127, 180, 0.30),
+          transparent 30%
+        ),
+
+        linear-gradient(
+          135deg,
+          var(--navy-950),
+          var(--navy-900) 48%,
+          var(--navy-700)
+        );
+    }
+
+    .hero::before {
+      content: "";
+
+      position: absolute;
+
+      top: -260px;
+      right: -215px;
+
+      width: 650px;
+      height: 650px;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.07);
+
+      border-radius: 50%;
+
+      box-shadow:
+        0 0 0 90px
+        rgba(255, 255, 255, 0.025),
+
+        0 0 0 180px
+        rgba(255, 255, 255, 0.014);
+    }
+
+    .hero-grid {
+      position: relative;
+      z-index: 3;
+
+      display: grid;
+
+      grid-template-columns:
+        minmax(0, 1.08fr)
+        minmax(390px, 0.92fr);
+
+      gap: 64px;
+      align-items: center;
+    }
+
+    .hero-content {
+      max-width: 740px;
+    }
+
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+
+      gap: 9px;
+
+      padding: 9px 15px;
+
+      color: var(--gold-200);
+
+      border:
+        1px solid
+        rgba(244, 223, 176, 0.42);
+
+      border-radius: 999px;
+
+      background:
+        rgba(179, 145, 89, 0.13);
+
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 1.1px;
+
+      text-transform: uppercase;
+    }
+
+    .hero-tag::before {
+      content: "✦";
+
+      color: var(--gold-300);
+      font-size: 14px;
+    }
+
+    h1 {
+      margin: 25px 0 24px;
+
+      font-size:
+        clamp(
+          44px,
+          5.2vw,
+          72px
+        );
+
+      line-height: 1.08;
+      letter-spacing: -2.6px;
+      font-weight: 850;
+    }
+
+    h1 span {
+      color: var(--gold-200);
+    }
+
+    .hero-description {
+      max-width: 710px;
+
+      margin: 0;
+
+      color:
+        rgba(255, 255, 255, 0.80);
+
+      font-size: 18px;
+    }
+
+    .hero-description strong {
+      color: var(--white);
+    }
+
+    .hero-notes {
+      display: flex;
+      flex-wrap: wrap;
+
+      gap: 12px;
+
+      margin-top: 31px;
+    }
+
+    .hero-note {
+      display: inline-flex;
+      align-items: center;
+
+      gap: 7px;
+
+      padding: 9px 12px;
+
+      color:
+        rgba(255, 255, 255, 0.84);
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.13);
+
+      border-radius: 11px;
+
+      background:
+        rgba(255, 255, 255, 0.07);
+
+      font-size: 12px;
+      font-weight: 650;
+    }
+
+    .hero-note::before {
+      content: "✓";
+
+      color: var(--gold-200);
+      font-weight: 900;
+    }
+
+    /* WEB APP MOCKUP */
+
+    .app-scene {
+      position: relative;
+
+      width: 100%;
+      max-width: 535px;
+
+      margin-left: auto;
+
+      perspective: 1300px;
+    }
+
+    .app-scene::before {
+      content: "";
+
+      position: absolute;
+
+      inset:
+        5% -10% -9% 8%;
+
+      z-index: -1;
+
+      border-radius: 50%;
+
+      background:
+        rgba(240, 211, 154, 0.20);
+
+      filter: blur(55px);
+    }
+
+    .app-window {
+      overflow: hidden;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.55);
+
+      border-radius: 25px;
+
+      background: var(--white);
+
+      box-shadow:
+        0 42px 90px
+        rgba(0, 0, 0, 0.44);
+
+      transform:
+        rotateY(-5deg)
+        rotateX(2deg);
+
+      animation:
+        appFloating
+        5.2s ease-in-out infinite;
+    }
+
+    .browser-bar {
+      height: 48px;
+
+      display: flex;
+      align-items: center;
+
+      gap: 7px;
+
+      padding: 0 17px;
+
+      border-bottom:
+        1px solid #e9e3da;
+
+      background: #f3f1ec;
+    }
+
+    .browser-dot {
+      width: 10px;
+      height: 10px;
+
+      border-radius: 50%;
+
+      background:
+        var(--gold-600);
+    }
+
+    .browser-dot:nth-child(2) {
+      background: var(--blue);
+    }
+
+    .browser-dot:nth-child(3) {
+      background: #c5c1b9;
+    }
+
+    .address-bar {
+      flex: 1;
+
+      height: 24px;
+
+      margin-left: 9px;
+
+      border:
+        1px solid #ebe6de;
+
+      border-radius: 999px;
+
+      background: var(--white);
+    }
+
+    .app-body {
+      min-height: 425px;
+
+      display: grid;
+
+      grid-template-columns:
+        124px 1fr;
+    }
+
+    .app-sidebar {
+      padding: 23px 13px;
+
+      color: var(--white);
+
+      background:
+        linear-gradient(
+          180deg,
+          var(--navy-950),
+          var(--navy-800)
+        );
+    }
+
+    .app-brand {
+      display: flex;
+      align-items: center;
+
+      gap: 7px;
+
+      margin-bottom: 26px;
+
+      font-size: 11px;
+      font-weight: 850;
+    }
+
+    .brand-symbol {
+      width: 24px;
+      height: 24px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 8px;
+
+      color: var(--navy-900);
+      background: var(--gold-200);
+    }
+
+    .app-menu {
+      margin-bottom: 8px;
+      padding: 10px 9px;
+
+      color:
+        rgba(255, 255, 255, 0.59);
+
+      border-radius: 9px;
+
+      font-size: 9px;
+      font-weight: 650;
+    }
+
+    .app-menu.active {
+      color: var(--white);
+
+      background:
+        rgba(255, 255, 255, 0.13);
+    }
+
+    .app-main {
+      padding: 22px;
+      background: #faf9f6;
+    }
+
+    .app-title-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      margin-bottom: 18px;
+    }
+
+    .app-title-row h3 {
+      margin: 0;
+
+      color: var(--navy-950);
+
+      font-size: 17px;
+    }
+
+    .app-avatar {
+      width: 33px;
+      height: 33px;
+
+      display: grid;
+      place-items: center;
+
+      color: var(--navy-900);
+
+      border-radius: 50%;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--gold-200),
+          var(--gold-600)
+        );
+
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .app-stats {
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 9px;
+    }
+
+    .stat-card {
+      padding: 12px;
+
+      border:
+        1px solid #e8e2d9;
+
+      border-radius: 13px;
+
+      background: var(--white);
+
+      box-shadow:
+        0 6px 18px
+        rgba(8, 41, 69, 0.04);
+    }
+
+    .stat-card strong {
+      display: block;
+
+      color: var(--navy-800);
+
+      font-size: 20px;
+      line-height: 1.2;
+    }
+
+    .stat-card span {
+      color: #788793;
+      font-size: 8px;
+    }
+
+    .chart-panel {
+      margin-top: 14px;
+      padding: 15px;
+
+      border:
+        1px solid #e8e2d9;
+
+      border-radius: 14px;
+
+      background: var(--white);
+    }
+
+    .panel-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      color: var(--navy-950);
+
+      font-size: 10px;
+      font-weight: 800;
+    }
+
+    .chart {
+      height: 100px;
+
+      display: flex;
+      align-items: flex-end;
+
+      gap: 8px;
+
+      margin-top: 15px;
+    }
+
+    .chart-column {
+      flex: 1;
+      min-width: 10px;
+
+      border-radius:
+        6px 6px 2px 2px;
+
+      background:
+        linear-gradient(
+          180deg,
+          var(--gold-200),
+          var(--gold-600)
+        );
+
+      animation:
+        chartGrow
+        1.2s ease both;
+
+      transform-origin: bottom;
+    }
+
+    .chart-column:nth-child(1) {
+      height: 34%;
+    }
+
+    .chart-column:nth-child(2) {
+      height: 55%;
+      animation-delay: 0.08s;
+    }
+
+    .chart-column:nth-child(3) {
+      height: 44%;
+      animation-delay: 0.16s;
+    }
+
+    .chart-column:nth-child(4) {
+      height: 81%;
+      animation-delay: 0.24s;
+    }
+
+    .chart-column:nth-child(5) {
+      height: 67%;
+      animation-delay: 0.32s;
+    }
+
+    .chart-column:nth-child(6) {
+      height: 94%;
+      animation-delay: 0.40s;
+    }
+
+    .workflow {
+      display: grid;
+
+      gap: 8px;
+
+      margin-top: 13px;
+    }
+
+    .workflow-row {
+      display: flex;
+      align-items: center;
+
+      gap: 9px;
+
+      padding: 8px 10px;
+
+      border:
+        1px solid #ebe5dc;
+
+      border-radius: 10px;
+
+      background: var(--white);
+    }
+
+    .workflow-icon {
+      width: 25px;
+      height: 25px;
+
+      display: grid;
+      place-items: center;
+
+      flex: 0 0 auto;
+
+      border-radius: 8px;
+
+      color: var(--navy-900);
+      background: #f2e7cc;
+
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    .workflow-line {
+      flex: 1;
+
+      height: 6px;
+
+      border-radius: 999px;
+
+      background: #ece9e3;
+    }
+
+    .workflow-status {
+      width: 41px;
+      height: 17px;
+
+      display: grid;
+      place-items: center;
+
+      border-radius: 999px;
+
+      color: #13734d;
+      background: #dff5eb;
+
+      font-size: 6px;
+      font-weight: 800;
+    }
+
+    .success-toast {
+      position: absolute;
+
+      right: -26px;
+      bottom: 37px;
+
+      width: 205px;
+
+      padding: 14px;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.72);
+
+      border-radius: 15px;
+
+      background:
+        rgba(255, 255, 255, 0.97);
+
+      box-shadow:
+        0 18px 42px
+        rgba(0, 0, 0, 0.23);
+
+      animation:
+        toastFloating
+        3.4s ease-in-out infinite;
+    }
+
+    .toast-icon {
+      float: left;
+
+      width: 31px;
+      height: 31px;
+
+      display: grid;
+      place-items: center;
+
+      margin-right: 10px;
+
+      color: var(--white);
+
+      border-radius: 50%;
+
+      background: var(--success);
+
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .success-toast strong {
+      display: block;
+
+      color: var(--navy-800);
+
+      font-size: 10px;
+    }
+
+    .success-toast span {
+      display: block;
+
+      margin-top: 2px;
+
+      color: #73818d;
+
+      font-size: 8px;
+    }
+
+    @keyframes appFloating {
+      0%,
+      100% {
+        transform:
+          translateY(0)
+          rotateY(-5deg)
+          rotateX(2deg);
+      }
+
+      50% {
+        transform:
+          translateY(-13px)
+          rotateY(-3deg)
+          rotateX(1deg);
+      }
+    }
+
+    @keyframes toastFloating {
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-7px);
+      }
+    }
+
+    @keyframes chartGrow {
+      from {
+        transform: scaleY(0);
+      }
+
+      to {
+        transform: scaleY(1);
+      }
+    }
+
+    /* DEMO APPS */
+
+    .demo-apps-section {
+      position: relative;
+
+      padding:
+        66px 0 74px;
+
+      overflow: hidden;
+
+      background:
+        linear-gradient(
+          180deg,
+          #ffffff,
+          #f7f4ed
+        );
+    }
+
+    .demo-apps-heading {
+      max-width: 740px;
+
+      margin:
+        0 auto 31px;
+
+      text-align: center;
+    }
+
+    .demo-apps-heading span {
+      display: inline-flex;
+
+      margin-bottom: 9px;
+
+      color: var(--gold-700);
+
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+
+      text-transform: uppercase;
+    }
+
+    .demo-apps-heading h2 {
+      margin-bottom: 8px;
+    }
+
+    .demo-apps-heading p {
+      margin: 0;
+
+      color: var(--muted);
+
+      font-size: 14px;
+    }
+
+    .demo-app-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(4, 1fr);
+
+      gap: 17px;
+    }
+
+    .demo-app-card {
+      position: relative;
+
+      overflow: hidden;
+
+      min-height: 202px;
+
+      padding:
+        23px 20px 47px;
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 20px;
+
+      color: var(--text);
+      background: var(--white);
+
+      box-shadow: var(--shadow-sm);
+
+      animation:
+        demoCardFloating
+        3.4s ease-in-out infinite;
+
+      transition:
+        transform 0.24s ease,
+        box-shadow 0.24s ease,
+        border-color 0.24s ease;
+    }
+
+    .demo-app-card:nth-child(2) {
+      animation-delay: 0.35s;
+    }
+
+    .demo-app-card:nth-child(3) {
+      animation-delay: 0.70s;
+    }
+
+    .demo-app-card:nth-child(4) {
+      animation-delay: 1.05s;
+    }
+
+    .demo-app-card:hover {
+      transform:
+        translateY(-8px)
+        scale(1.02);
+
+      border-color:
+        rgba(179, 145, 89, 0.55);
+
+      box-shadow:
+        0 24px 50px
+        rgba(8, 41, 69, 0.16);
+    }
+
+    .demo-app-card::after {
+      content: "";
+
+      position: absolute;
+
+      right: -43px;
+      bottom: -48px;
+
+      width: 120px;
+      height: 120px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(244, 223, 176, 0.27);
+    }
+
+    .demo-card-icon {
+      position: relative;
+      z-index: 2;
+
+      width: 56px;
+      height: 56px;
+
+      display: grid;
+      place-items: center;
+
+      margin-bottom: 18px;
+
+      color: var(--navy-900);
+
+      border-radius: 17px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #fff2ce,
+          #e9ca8b
+        );
+
+      font-size: 25px;
+
+      animation:
+        demoIconMoving
+        2.3s ease-in-out infinite;
+    }
+
+    .demo-app-card:nth-child(2)
+    .demo-card-icon {
+      animation-delay: 0.25s;
+    }
+
+    .demo-app-card:nth-child(3)
+    .demo-card-icon {
+      animation-delay: 0.50s;
+    }
+
+    .demo-app-card:nth-child(4)
+    .demo-card-icon {
+      animation-delay: 0.75s;
+    }
+
+    .demo-app-card h3 {
+      position: relative;
+      z-index: 2;
+
+      margin: 0 0 7px;
+
+      color: var(--navy-950);
+
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .demo-app-card p {
+      position: relative;
+      z-index: 2;
+
+      margin: 0;
+
+      color: var(--muted);
+
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .demo-card-arrow {
+      position: absolute;
+      z-index: 3;
+
+      right: 18px;
+      bottom: 16px;
+
+      color: var(--gold-700);
+
+      font-size: 19px;
+      font-weight: 900;
+
+      animation:
+        demoArrowMoving
+        1.3s ease-in-out infinite;
+    }
+
+    @keyframes demoCardFloating {
+      0%,
+      100% {
+        translate: 0 0;
+      }
+
+      50% {
+        translate: 0 -5px;
+      }
+    }
+
+    @keyframes demoIconMoving {
+      0%,
+      100% {
+        transform:
+          translateY(0)
+          rotate(-2deg);
+      }
+
+      50% {
+        transform:
+          translateY(-6px)
+          rotate(3deg);
+      }
+    }
+
+    @keyframes demoArrowMoving {
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      50% {
+        transform: translateX(6px);
+      }
+    }
+
+    /* BENEFITS */
+
+    .results-section {
+      background:
+        linear-gradient(
+          180deg,
+          var(--cream-soft),
+          var(--cream)
+        );
+    }
+
+    .benefit-grid {
+      display: grid;
+
+      grid-template-columns:
+        repeat(3, 1fr);
+
+      gap: 22px;
+    }
+
+    .benefit-card {
+      position: relative;
+
+      overflow: hidden;
+
+      min-height: 250px;
+
+      padding: 29px 26px;
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 22px;
+
+      background: var(--white);
+
+      box-shadow: var(--shadow-sm);
+
+      transition:
+        transform 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .benefit-card::after {
+      content: "";
+
+      position: absolute;
+
+      right: -46px;
+      bottom: -46px;
+
+      width: 115px;
+      height: 115px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(240, 211, 154, 0.21);
+    }
+
+    .benefit-card:hover {
+      transform:
+        translateY(-7px);
+
+      box-shadow:
+        var(--shadow-lg);
+    }
+
+    .benefit-icon {
+      width: 54px;
+      height: 54px;
+
+      display: grid;
+      place-items: center;
+
+      margin-bottom: 20px;
+
+      color: var(--navy-800);
+
+      border-radius: 16px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #f8ecd0,
+          var(--gold-200)
+        );
+
+      font-size: 23px;
+    }
+
+    .benefit-number {
+      position: absolute;
+
+      top: 20px;
+      right: 23px;
+
+      color:
+        rgba(18, 63, 104, 0.14);
+
+      font-size: 37px;
+      font-weight: 900;
+    }
+
+    .benefit-card h3 {
+      position: relative;
+      z-index: 2;
+
+      margin: 0 0 9px;
+
+      color: var(--navy-950);
+
+      font-size: 19px;
+    }
+
+    .benefit-card p {
+      position: relative;
+      z-index: 2;
+
+      margin: 0;
+
+      color: var(--muted);
+
+      font-size: 14px;
+    }
+
+    /* EXPERIENCE */
+
+    .experience-section {
+      position: relative;
+
+      overflow: hidden;
+
+      color: var(--white);
+
+      background:
+        radial-gradient(
+          circle at 82% 15%,
+          rgba(244, 223, 176, 0.16),
+          transparent 29%
+        ),
+
+        linear-gradient(
+          135deg,
+          var(--navy-950),
+          var(--navy-800)
+        );
+    }
+
+    .experience-grid {
+      position: relative;
+      z-index: 2;
+
+      display: grid;
+
+      grid-template-columns:
+        0.95fr 1.05fr;
+
+      gap: 48px;
+      align-items: center;
+    }
+
+    .experience-copy h2 {
+      color: var(--white);
+    }
+
+    .experience-copy > p {
+      margin: 0;
+
+      color:
+        rgba(255, 255, 255, 0.72);
+    }
+
+    .price-grid {
+      display: grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      gap: 14px;
+
+      margin-top: 28px;
+    }
+
+    .price-card {
+      padding: 22px;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.13);
+
+      border-radius: 18px;
+
+      background:
+        rgba(255, 255, 255, 0.075);
+    }
+
+    .price-card.highlight {
+      border-color:
+        rgba(244, 223, 176, 0.50);
+
+      background:
+        rgba(179, 145, 89, 0.16);
+    }
+
+    .price-card small {
+      display: block;
+
+      color:
+        rgba(255, 255, 255, 0.68);
+
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .price-card strong {
+      display: block;
+
+      margin-top: 8px;
+
+      color: var(--gold-200);
+
+      font-size: 27px;
+      line-height: 1.2;
+    }
+
+    .price-card span {
+      display: block;
+
+      margin-top: 7px;
+
+      color:
+        rgba(255, 255, 255, 0.63);
+
+      font-size: 11px;
+    }
+
+    .hospitality-card {
+      display: grid;
+
+      grid-template-columns:
+        180px 1fr;
+
+      gap: 25px;
+      align-items: center;
+
+      padding: 30px;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.15);
+
+      border-radius: 25px;
+
+      background:
+        rgba(255, 255, 255, 0.085);
+
+      box-shadow:
+        0 30px 65px
+        rgba(0, 0, 0, 0.17);
+    }
+
+    .refreshment-visual {
+      position: relative;
+
+      width: 180px;
+      height: 180px;
+
+      overflow: hidden;
+
+      border-radius: 28px;
+
+      background:
+        radial-gradient(
+          circle at 35% 30%,
+          rgba(255, 255, 255, 0.18),
+          transparent 32%
+        ),
+
+        linear-gradient(
+          145deg,
+          rgba(255, 255, 255, 0.12),
+          rgba(255, 255, 255, 0.035)
+        );
+    }
+
+    .table-surface {
+      position: absolute;
+
+      right: 18px;
+      bottom: 23px;
+      left: 18px;
+
+      height: 13px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(240, 211, 154, 0.56);
+    }
+
+    .tea-cup {
+      position: absolute;
+
+      left: 31px;
+      bottom: 42px;
+
+      width: 64px;
+      height: 50px;
+
+      border-radius:
+        8px 8px 20px 20px;
+
+      background:
+        linear-gradient(
+          145deg,
+          #ffffff,
+          #ebe5db
+        );
+
+      box-shadow:
+        0 13px 26px
+        rgba(0, 0, 0, 0.21);
+
+      animation:
+        drinkFloating
+        3.1s ease-in-out infinite;
+    }
+
+    .tea-cup::after {
+      content: "";
+
+      position: absolute;
+
+      top: 8px;
+      right: -21px;
+
+      width: 23px;
+      height: 25px;
+
+      border:
+        7px solid #f2ede6;
+
+      border-left: 0;
+
+      border-radius:
+        0 17px 17px 0;
+    }
+
+    .steam {
+      position: absolute;
+
+      bottom: 99px;
+
+      width: 9px;
+      height: 40px;
+
+      border-left:
+        3px solid
+        rgba(255, 255, 255, 0.76);
+
+      border-radius: 50%;
+
+      animation:
+        steamRising
+        2.3s ease-in-out infinite;
+    }
+
+    .steam-one {
+      left: 48px;
+    }
+
+    .steam-two {
+      left: 68px;
+
+      animation-delay:
+        0.6s;
+    }
+
+    .lunch-box {
+      position: absolute;
+
+      right: 23px;
+      bottom: 38px;
+
+      width: 67px;
+      height: 55px;
+
+      border-radius: 12px;
+
+      background:
+        linear-gradient(
+          145deg,
+          var(--gold-200),
+          var(--gold-600)
+        );
+
+      box-shadow:
+        0 14px 28px
+        rgba(0, 0, 0, 0.21);
+
+      animation:
+        foodFloating
+        3.1s ease-in-out infinite;
+
+      animation-delay:
+        0.3s;
+    }
+
+    .lunch-box::before {
+      content: "";
+
+      position: absolute;
+
+      top: 10px;
+      right: 8px;
+      left: 8px;
+
+      height: 4px;
+
+      border-radius: 999px;
+
+      background:
+        rgba(8, 41, 69, 0.35);
+    }
+
+    .lunch-box::after {
+      content: "✦";
+
+      position: absolute;
+      inset: 0;
+
+      display: grid;
+      place-items: center;
+
+      padding-top: 9px;
+
+      color: var(--navy-900);
+
+      font-size: 21px;
+    }
+
+    .hospitality-card h3 {
+      margin: 0 0 9px;
+
+      font-size: 22px;
+      line-height: 1.35;
+    }
+
+    .hospitality-card p {
+      margin: 0;
+
+      color:
+        rgba(255, 255, 255, 0.70);
+
+      font-size: 13px;
+    }
+
+    .included-badge {
+      display: inline-flex;
+
+      margin-top: 16px;
+      padding: 8px 12px;
+
+      color: var(--navy-950);
+
+      border-radius: 999px;
+
+      background:
+        var(--gold-200);
+
+      font-size: 10px;
+      font-weight: 850;
+    }
+
+    @keyframes steamRising {
+      0% {
+        opacity: 0;
+
+        transform:
+          translateY(9px)
+          scale(0.8);
+      }
+
+      45% {
+        opacity: 0.85;
+      }
+
+      100% {
+        opacity: 0;
+
+        transform:
+          translateY(-19px)
+          translateX(5px)
+          scale(1.15);
+      }
+    }
+
+    @keyframes drinkFloating {
+      0%,
+      100% {
+        transform:
+          translateY(0);
+      }
+
+      50% {
+        transform:
+          translateY(-5px);
+      }
+    }
+
+    @keyframes foodFloating {
+      0%,
+      100% {
+        transform:
+          translateY(0)
+          rotate(0);
+      }
+
+      50% {
+        transform:
+          translateY(-6px)
+          rotate(2deg);
+      }
+    }
+
+    /* PROGRAM */
+
+    .program-grid {
+      display: grid;
+
+      grid-template-columns:
+        1fr 1fr;
+
+      gap: 23px;
+    }
+
+    .session-card {
+      overflow: hidden;
+
+      border:
+        1px solid var(--border);
+
+      border-radius: 23px;
+
+      background: var(--white);
+
+      box-shadow: var(--shadow-sm);
+    }
+
+    .session-header {
+      position: relative;
+
+      overflow: hidden;
+
+      padding: 26px;
+
+      color: var(--white);
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--navy-950),
+          var(--navy-800)
+        );
+    }
+
+    .session-header::after {
+      content: "";
+
+      position: absolute;
+
+      top: -75px;
+      right: -70px;
+
+      width: 180px;
+      height: 180px;
+
+      border:
+        1px solid
+        rgba(255, 255, 255, 0.08);
+
+      border-radius: 50%;
+
+      box-shadow:
+        0 0 0 35px
+        rgba(255, 255, 255, 0.018);
+    }
+
+    .session-header small {
+      position: relative;
+      z-index: 2;
+
+      color: var(--gold-200);
+
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 1px;
+
+      text-transform: uppercase;
+    }
+
+    .session-header h3 {
+      position: relative;
+      z-index: 2;
+
+      margin: 8px 0 0;
+
+      font-size: 21px;
+      line-height: 1.4;
+    }
+
+    .session-body {
+      padding: 25px;
+    }
+
+    .session-item {
+      position: relative;
+
+      margin: 0;
+
+      padding:
+        12px 0 12px 31px;
+
+      color: var(--muted);
+
+      border-bottom:
+        1px solid var(--border);
+
+      font-size: 14px;
+    }
+
+    .session-item:last-child {
+      border-bottom: 0;
+    }
+
+    .session-item::before {
+      content: "✓";
+
+      position: absolute;
+
+      top: 12px;
+      left: 0;
+
+      width: 20px;
+      height: 20px;
+
+      display: grid;
+      place-items: center;
+
+      color: var(--white);
+
+      border-radius: 7px;
+
+      background:
+        var(--gold-600);
+
+      font-size: 10px;
+      font-weight: 900;
+    }
+
+    /* FINAL */
+
+    .final-section {
+      padding:
+        82px 0 105px;
+
+      color: var(--white);
+
+      text-align: center;
+
+      background:
+        radial-gradient(
+          circle at 50% 0,
+          rgba(244, 223, 176, 0.17),
+          transparent 35%
+        ),
+
+        linear-gradient(
+          135deg,
+          var(--navy-950),
+          var(--navy-700)
+        );
+    }
+
+    .final-section h2 {
+      max-width: 760px;
+
+      margin:
+        0 auto 15px;
+
+      color: var(--white);
+    }
+
+    .final-section p {
+      max-width: 650px;
+
+      margin: 0 auto;
+
+      color:
+        rgba(255, 255, 255, 0.74);
+    }
+
+    footer {
+      padding: 27px 20px;
+
+      color:
+        rgba(255, 255, 255, 0.59);
+
+      background: #031624;
+
+      text-align: center;
+
+      font-size: 12px;
+    }
+
+    /* ONE FLOATING REGISTER BUTTON */
+
+    .floating-register {
+      position: fixed;
+      z-index: 1000;
+
+      right:
+        max(
+          20px,
+          env(safe-area-inset-right)
+        );
+
+      bottom:
+        max(
+          25px,
+          calc(
+            env(safe-area-inset-bottom) +
+            16px
+          )
+        );
+
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      gap: 11px;
+
+      min-width: 205px;
+      min-height: 64px;
+
+      padding: 16px 28px;
+
+      color: var(--navy-950);
+
+      border:
+        2px solid
+        rgba(255, 255, 255, 0.68);
+
+      border-radius: 999px;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--gold-200),
+          var(--gold-600)
+        );
+
+      box-shadow:
+        0 18px 45px
+        rgba(4, 28, 49, 0.34),
+
+        0 0 0 0
+        rgba(244, 223, 176, 0.48);
+
+      font-size: 16px;
+      font-weight: 900;
+
+      cursor: pointer;
+
+      animation:
+        registerFloating
+        2.2s ease-in-out infinite,
+
+        registerPulse
+        2.7s ease-out infinite;
+
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+    }
+
+    .floating-register:hover {
+      transform:
+        translateY(-5px)
+        scale(1.035);
+
+      box-shadow:
+        0 24px 52px
+        rgba(4, 28, 49, 0.42),
+
+        0 0 34px
+        rgba(244, 223, 176, 0.32);
+    }
+
+    .floating-register:focus-visible {
+      outline:
+        4px solid
+        rgba(255, 255, 255, 0.75);
+
+      outline-offset: 4px;
+    }
+
+    .register-arrow {
+      display: inline-block;
+
+      font-size: 22px;
+      line-height: 1;
+
+      animation:
+        arrowMoving
+        1.15s ease-in-out infinite;
+    }
+
+    @keyframes registerFloating {
+      0%,
+      100% {
+        translate: 0 0;
+      }
+
+      50% {
+        translate: 0 -8px;
+      }
+    }
+
+    @keyframes registerPulse {
+      0% {
+        box-shadow:
+          0 18px 45px
+          rgba(4, 28, 49, 0.34),
+
+          0 0 0 0
+          rgba(244, 223, 176, 0.48);
+      }
+
+      72%,
+      100% {
+        box-shadow:
+          0 18px 45px
+          rgba(4, 28, 49, 0.34),
+
+          0 0 0 18px
+          rgba(244, 223, 176, 0);
+      }
+    }
+
+    @keyframes arrowMoving {
+      0%,
+      100% {
+        transform:
+          translateX(0);
+      }
+
+      50% {
+        transform:
+          translateX(6px);
+      }
+    }
+
+    /* RESPONSIVE */
+
+    @media (max-width: 1020px) {
+      .hero-grid,
+      .experience-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-content {
+        max-width: 850px;
+      }
+
+      .app-scene {
+        max-width: 620px;
+
+        margin:
+          35px auto 0;
+      }
+
+      .hospitality-card {
+        max-width: 760px;
+
+        margin: 0 auto;
+      }
+    }
+
+    @media (max-width: 950px) {
+      .demo-app-grid {
+        grid-template-columns:
+          1fr 1fr;
+      }
+    }
+
+    @media (max-width: 800px) {
+      .benefit-grid,
+      .program-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 650px) {
+      :root {
+        --container:
+          min(
+            100% - 26px,
+            1160px
+          );
+      }
+
+      .navbar {
+        padding: 12px 0;
+      }
+
+      .logo-box {
+        min-height: 58px;
+
+        padding: 7px 10px;
+
+        border-radius: 13px;
+      }
+
+      .official-logo {
+        width: 130px;
+      }
+
+      .hero {
+        min-height: auto;
+
+        padding:
+          135px 0 77px;
+      }
+
+      h1 {
+        font-size: 40px;
+
+        letter-spacing: -1.7px;
+      }
+
+      .hero-description {
+        font-size: 16px;
+      }
+
+      .hero-notes {
+        display: grid;
+
+        grid-template-columns:
+          1fr;
+      }
+
+      .hero-note {
+        width: fit-content;
+      }
+
+      .app-window {
+        transform: none;
+        animation: none;
+      }
+
+      .app-body {
+        min-height: 350px;
+
+        grid-template-columns:
+          87px 1fr;
+      }
+
+      .app-sidebar {
+        padding: 17px 7px;
+      }
+
+      .app-brand {
+        font-size: 7px;
+      }
+
+      .brand-symbol {
+        width: 20px;
+        height: 20px;
+      }
+
+      .app-menu {
+        padding: 8px 6px;
+
+        font-size: 7px;
+      }
+
+      .app-main {
+        padding: 13px;
+      }
+
+      .app-title-row h3 {
+        font-size: 13px;
+      }
+
+      .stat-card {
+        padding: 8px 5px;
+      }
+
+      .stat-card strong {
+        font-size: 15px;
+      }
+
+      .stat-card span {
+        font-size: 6px;
+      }
+
+      .success-toast {
+        right: 7px;
+        bottom: 15px;
+
+        width: 180px;
+      }
+
+      .demo-apps-section {
+        padding:
+          52px 0 60px;
+      }
+
+      .demo-app-grid {
+        grid-template-columns:
+          1fr;
+      }
+
+      .demo-app-card {
+        min-height: 170px;
+      }
+
+      .section {
+        padding: 69px 0;
+      }
+
+      .price-grid {
+        grid-template-columns:
+          1fr;
+      }
+
+      .hospitality-card {
+        grid-template-columns:
+          1fr;
+
+        padding: 25px;
+
+        text-align: center;
+      }
+
+      .refreshment-visual {
+        margin: 0 auto;
+      }
+
+      .floating-register {
+        right:
+          max(
+            13px,
+            env(safe-area-inset-right)
+          );
+
+        bottom:
+          max(
+            13px,
+            calc(
+              env(safe-area-inset-bottom) +
+              8px
+            )
+          );
+
+        left:
+          max(
+            13px,
+            env(safe-area-inset-left)
+          );
+
+        width: auto;
+        min-height: 59px;
+
+        padding: 14px 23px;
+
+        font-size: 16px;
+      }
+
+      .final-section {
+        padding-bottom: 125px;
+      }
+
+      footer {
+        padding-bottom: 92px;
+      }
+    }
+
+    @media (
+      prefers-reduced-motion: reduce
+    ) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration:
+          0.01ms !important;
+
+        animation-iteration-count:
+          1 !important;
+
+        scroll-behavior:
+          auto !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <nav class="navbar">
+    <div class="container navbar-inner">
+
+      <a
+        class="logo-box"
+        href="<?= appUrl ?>"
+        aria-label="Trang chủ EIU"
+      >
+        <img
+          class="official-logo"
+          src="<?!= logoUrl ?>"
+          width="219"
+          height="79"
+          alt="Eastern International University"
+          decoding="async"
+          fetchpriority="high"
+        >
+      </a>
+
+    </div>
+  </nav>
+
+  <main>
+
+    <section class="hero">
+      <div class="container hero-grid">
+
+        <div class="hero-content">
+
+          <div class="hero-tag">
+            Khóa học thực hành trong một ngày
+          </div>
+
+          <h1>
+            Biến quy trình thủ công thành
+            <span>
+              Business Web App bằng AI.
+            </span>
+          </h1>
+
+          <p class="hero-description">
+            Tự xây dựng ứng dụng có biểu mẫu,
+            quy trình, dữ liệu và dashboard bằng
+            <strong>
+              AI, Google Sheets và Google Apps Script
+            </strong>
+            — không yêu cầu kinh nghiệm lập trình.
+          </p>
+
+          <div class="hero-notes">
+
+            <div class="hero-note">
+              1 ngày · 2 phiên · 6 giờ
+            </div>
+
+            <div class="hero-note">
+              Học trực tiếp qua thực hành
+            </div>
+
+            <div class="hero-note">
+              Hoàn thiện ứng dụng thực tế
+            </div>
+
+          </div>
+
+        </div>
+
+        <div
+          class="app-scene"
+          aria-label="Minh họa Business Web App"
+        >
+
+          <div class="app-window">
+
+            <div class="browser-bar">
+              <i class="browser-dot"></i>
+              <i class="browser-dot"></i>
+              <i class="browser-dot"></i>
+
+              <div class="address-bar"></div>
+            </div>
+
+            <div class="app-body">
+
+              <aside class="app-sidebar">
+
+                <div class="app-brand">
+                  <span class="brand-symbol">
+                    AI
+                  </span>
+
+                  <span>
+                    WEB APP
+                  </span>
+                </div>
+
+                <div class="app-menu active">
+                  Dashboard
+                </div>
+
+                <div class="app-menu">
+                  Biểu mẫu
+                </div>
+
+                <div class="app-menu">
+                  Phê duyệt
+                </div>
+
+                <div class="app-menu">
+                  Báo cáo
+                </div>
+
+                <div class="app-menu">
+                  Cài đặt
+                </div>
+
+              </aside>
+
+              <section class="app-main">
+
+                <div class="app-title-row">
+
+                  <h3>
+                    Business Dashboard
+                  </h3>
+
+                  <div class="app-avatar">
+                    EIU
+                  </div>
+
+                </div>
+
+                <div class="app-stats">
+
+                  <article class="stat-card">
+                    <strong>128</strong>
+                    <span>Tổng yêu cầu</span>
+                  </article>
+
+                  <article class="stat-card">
+                    <strong>96</strong>
+                    <span>Đã phê duyệt</span>
+                  </article>
+
+                  <article class="stat-card">
+                    <strong>32</strong>
+                    <span>Đang xử lý</span>
+                  </article>
+
+                </div>
+
+                <div class="chart-panel">
+
+                  <div class="panel-heading">
+                    <span>Báo cáo theo tháng</span>
+                    <span>2026</span>
+                  </div>
+
+                  <div class="chart">
+                    <div class="chart-column"></div>
+                    <div class="chart-column"></div>
+                    <div class="chart-column"></div>
+                    <div class="chart-column"></div>
+                    <div class="chart-column"></div>
+                    <div class="chart-column"></div>
+                  </div>
+
+                </div>
+
+                <div class="workflow">
+
+                  <div class="workflow-row">
+                    <span class="workflow-icon">
+                      01
+                    </span>
+
+                    <span class="workflow-line"></span>
+
+                    <span class="workflow-status">
+                      Xong
+                    </span>
+                  </div>
+
+                  <div class="workflow-row">
+                    <span class="workflow-icon">
+                      02
+                    </span>
+
+                    <span class="workflow-line"></span>
+
+                    <span class="workflow-status">
+                      Xong
+                    </span>
+                  </div>
+
+                </div>
+
+              </section>
+
+            </div>
+          </div>
+
+          <div class="success-toast">
+
+            <div class="toast-icon">
+              ✓
+            </div>
+
+            <strong>
+              Phê duyệt thành công
+            </strong>
+
+            <span>
+              Dữ liệu đã cập nhật vào Google Sheets
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section
+      class="demo-apps-section"
+      aria-labelledby="demoAppsTitle"
+    >
+      <div class="container">
+
+        <div class="demo-apps-heading">
+
+          <span>
+            Demo Web App
+          </span>
+
+          <h2 id="demoAppsTitle">
+            Bạn có thể xây dựng những gì ?
+          </h2>
+
+          <p>
+            Chọn một mô hình để xem giao diện
+            minh họa chuyển động.
+          </p>
+
+        </div>
+
+        <div class="demo-app-grid">
+
+          <a
+            class="demo-app-card"
+            href="<?= appUrl ?>?page=demo&type=leave"
+            aria-label="Xem Demo quản lý nghỉ phép"
+          >
+
+            <div
+              class="demo-card-icon"
+              aria-hidden="true"
+            >
+              🗓
+            </div>
+
+            <h3>
+              Quản lý nghỉ phép
+            </h3>
+
+            <p>
+              Đăng ký nghỉ, phê duyệt và theo dõi
+              số ngày phép còn lại.
+            </p>
+
+            <span
+              class="demo-card-arrow"
+              aria-hidden="true"
+            >
+              →
+            </span>
+
+          </a>
+
+          <a
+            class="demo-app-card"
+            href="<?= appUrl ?>?page=demo&type=time"
+            aria-label="Xem Demo quản lý thời gian làm việc"
+          >
+
+            <div
+              class="demo-card-icon"
+              aria-hidden="true"
+            >
+              ◷
+            </div>
+
+            <h3>
+              Quản lý thời gian làm việc
+            </h3>
+
+            <p>
+              Theo dõi giờ làm, tiến độ
+              và hiệu suất trong từng ngày.
+            </p>
+
+            <span
+              class="demo-card-arrow"
+              aria-hidden="true"
+            >
+              →
+            </span>
+
+          </a>
+
+          <a
+            class="demo-app-card"
+            href="<?= appUrl ?>?page=demo&type=meeting"
+            aria-label="Xem Demo quản lý cuộc họp"
+          >
+
+            <div
+              class="demo-card-icon"
+              aria-hidden="true"
+            >
+              ◉
+            </div>
+
+            <h3>
+              Quản lý cuộc họp
+            </h3>
+
+            <p>
+              Sắp xếp lịch họp, thành phần tham dự
+              và nội dung theo dõi.
+            </p>
+
+            <span
+              class="demo-card-arrow"
+              aria-hidden="true"
+            >
+              →
+            </span>
+
+          </a>
+
+          <a
+            class="demo-app-card"
+            href="<?= appUrl ?>?page=demo&type=overtime"
+            aria-label="Xem Demo quản lý tăng ca"
+          >
+
+            <div
+              class="demo-card-icon"
+              aria-hidden="true"
+            >
+              ◔
+            </div>
+
+            <h3>
+              Quản lý tăng ca
+            </h3>
+
+            <p>
+              Tổng hợp giờ tăng ca, trạng thái phê duyệt
+              và báo cáo theo kỳ.
+            </p>
+
+            <span
+              class="demo-card-arrow"
+              aria-hidden="true"
+            >
+              →
+            </span>
+
+          </a>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section results-section">
+      <div class="container">
+
+        <div class="section-heading">
+
+          <div class="section-label">
+            Kết quả sau khóa học
+          </div>
+
+          <h2>
+            Tạo ứng dụng thực tế
+          </h2>
+
+          <p>
+            Học viên trực tiếp xây dựng và triển khai
+            Business Web App phục vụ công việc thực tế.
+          </p>
+
+        </div>
+
+        <div class="benefit-grid">
+
+          <article class="benefit-card">
+
+            <span class="benefit-number">
+              01
+            </span>
+
+            <div class="benefit-icon">
+              ✦
+            </div>
+
+            <h3>
+              Tạo Web App bằng AI
+            </h3>
+
+            <p>
+              Chuyển bài toán nghiệp vụ thành yêu cầu rõ ràng,
+              sau đó dùng AI hỗ trợ xây dựng giao diện,
+              chức năng và luồng xử lý.
+            </p>
+
+          </article>
+
+          <article class="benefit-card">
+
+            <span class="benefit-number">
+              02
+            </span>
+
+            <div class="benefit-icon">
+              ▦
+            </div>
+
+            <h3>
+              Kết nối Google Sheets
+            </h3>
+
+            <p>
+              Dùng Google Sheets làm cơ sở dữ liệu,
+              lưu biểu mẫu và tự động cập nhật thông tin
+              từ ứng dụng.
+            </p>
+
+          </article>
+
+          <article class="benefit-card">
+
+            <span class="benefit-number">
+              03
+            </span>
+
+            <div class="benefit-icon">
+              ↗
+            </div>
+
+            <h3>
+              Triển khai bằng URL
+            </h3>
+
+            <p>
+              Xuất bản ứng dụng bằng Google Apps Script
+              và chia sẻ trên cả máy tính lẫn điện thoại.
+            </p>
+
+          </article>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section experience-section">
+      <div class="container experience-grid">
+
+        <div class="experience-copy">
+
+          <div
+            class="section-label"
+            style="color: var(--gold-200);"
+          >
+            Mức phí tham dự
+          </div>
+
+          <h2>
+            Một ngày học thực hành,
+            trọn vẹn từ kiến thức đến trải nghiệm
+          </h2>
+
+          <p>
+            Mức phí phù hợp cho cả học viên bên ngoài
+            và sinh viên EIU, đồng thời đã bao gồm
+            các tiện ích phục vụ trong suốt ngày học.
+          </p>
+
+          <div class="price-grid">
+
+            <article class="price-card">
+
+              <small>
+                Học viên ngoài EIU
+              </small>
+
+              <strong>
+                1.000.000 đồng
+              </strong>
+
+              <span>
+                Mức phí tham dự tiêu chuẩn
+              </span>
+
+            </article>
+
+            <article class="price-card highlight">
+
+              <small>
+                Sinh viên EIU
+              </small>
+
+              <strong>
+                500.000 đồng
+              </strong>
+
+              <span>
+                Giảm 50% khi đăng ký bằng email EIU
+              </span>
+
+            </article>
+
+          </div>
+
+        </div>
+
+        <article class="hospitality-card">
+
+          <div class="refreshment-visual">
+
+            <div class="steam steam-one"></div>
+            <div class="steam steam-two"></div>
+
+            <div class="tea-cup"></div>
+            <div class="lunch-box"></div>
+            <div class="table-surface"></div>
+
+          </div>
+
+          <div>
+
+            <h3>
+              Tea break và bữa trưa
+              đã được chuẩn bị
+            </h3>
+
+            <p>
+              Khoảng nghỉ giữa buổi và bữa trưa
+              giúp học viên duy trì năng lượng,
+              trao đổi với giảng viên và kết nối
+              cùng lớp học.
+            </p>
+
+            <div class="included-badge">
+              Đã bao gồm trong phí tham dự
+            </div>
+
+          </div>
+
+        </article>
+
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+
+        <div class="section-heading">
+
+          <div class="section-label">
+            Chương trình học
+          </div>
+
+          <h2>
+            1 ngày · 2 phiên · 6 giờ
+          </h2>
+
+          <p>
+            Nội dung cô đọng, tập trung vào thực hành
+            và sản phẩm đầu ra.
+          </p>
+
+        </div>
+
+        <div class="program-grid">
+
+          <article class="session-card">
+
+            <div class="session-header">
+
+              <small>
+                Phiên 1 · 3 giờ
+              </small>
+
+              <h3>
+                Xây dựng Business Web App đầu tiên
+              </h3>
+
+            </div>
+
+            <div class="session-body">
+
+              <p class="session-item">
+                Phân tích bài toán và yêu cầu nghiệp vụ
+              </p>
+
+              <p class="session-item">
+                Thiết kế ứng dụng với sự hỗ trợ của AI
+              </p>
+
+              <p class="session-item">
+                Kết nối Google Sheets và Apps Script
+              </p>
+
+              <p class="session-item">
+                Triển khai Web App thực tế
+              </p>
+
+            </div>
+
+          </article>
+
+          <article class="session-card">
+
+            <div class="session-header">
+
+              <small>
+                Phiên 2 · 3 giờ
+              </small>
+
+              <h3>
+                Tạo AI Framework có thể tái sử dụng
+              </h3>
+
+            </div>
+
+            <div class="session-body">
+
+              <p class="session-item">
+                Hiểu vì sao Requirement quan trọng hơn Prompt
+              </p>
+
+              <p class="session-item">
+                Chuẩn hóa giao diện và quy trình
+              </p>
+
+              <p class="session-item">
+                Tạo AI Skill sinh Business Web App
+              </p>
+
+              <p class="session-item">
+                Workshop theo bài toán của học viên
+              </p>
+
+            </div>
+
+          </article>
+
+        </div>
+
+      </div>
+    </section>
+
+    <section class="final-section">
+      <div class="container">
+
+        <h2>
+          Sẵn sàng tự xây công cụ
+          cho công việc của bạn?
+        </h2>
+
+        <p>
+          Hoàn thiện Business Web App đầu tiên
+          chỉ trong một ngày học thực hành.
+        </p>
+
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    © 2026 Eastern International University ·
+    Applied Agentic AI for Business
+  </footer>
+
+  <a
+    class="floating-register"
+    href="<?= appUrl ?>?page=register"
+    aria-label="Đăng ký khóa học Applied Agentic AI for Business"
+  >
+    <span>
+      Đăng ký ngay
+    </span>
+
+    <span
+      class="register-arrow"
+      aria-hidden="true"
+    >
+      →
+    </span>
+  </a>
+
+</body>
+</html>

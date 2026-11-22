@@ -33,7 +33,7 @@ test('spotlight authorizes its actual section and selects only active signed ses
   f.identity();for(const slide of [4,6,9,5.5])await assert.rejects(f.functions.draw(f.ctx,{sectionId,slide,epoch:'epoch',requestId:crypto.randomUUID()}),/Invalid/);
   assert.equal((await f.functions.draw(f.ctx,{sectionId,slide:5,epoch:'old',requestId:crypto.randomUUID()})).code,'STALE_CLASSROOM');
   const draw=await f.functions.draw(f.ctx,{sectionId,slide:5,epoch:'epoch',requestId:crypto.randomUUID()});
-  assert.ok(['one','two'].includes(draw.subject));assert.equal(draw.username,'Same name');assert.equal(draw.revealAt-draw.createdAt,5000);
+  assert.ok(['one','two'].includes(draw.subject));assert.equal(draw.username,'Same name');assert.equal(draw.revealAt-draw.createdAt,common.SPOTLIGHT_SPIN_MS);
   f.identity(draw.subject,'learner');assert.equal((await f.functions.view(f.ctx,{sectionId})).draws.length,1);
   f.identity(draw.subject==='one'?'two':'one','learner');assert.equal((await f.functions.view(f.ctx,{sectionId})).draws.length,0,'matching names never receive another session’s selection');
 });

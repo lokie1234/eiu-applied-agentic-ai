@@ -2,25 +2,24 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, type CSSProperties, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
 import { watchSpotlight, watchRealtimeReady, realtimeReady } from '@/lib/realtime/client';
-import { spotlightSlide, type SpotlightDraw, type SpotlightView } from '@/lib/mis311Spotlight';
+import { SPOTLIGHT_SPIN_MS, SPOTLIGHT_PAUSE_MS, spotlightRevealAt, spotlightSlide, type SpotlightDraw, type SpotlightView } from '@/lib/mis311Spotlight';
 import { ASSIGNMENT_WHEEL_SECTION_ID, validWheelCount } from '@/lib/sectionWheel';
 import { createTsxDocument } from '@/lib/tsxDocument';
 import type { SectionWheelScope } from './SectionWheelContext';
 import styles from './SectionSpotlight.module.css';
 
-const DEMO_MEMBERS = ['Alex Carter','Amelia Brooks','Andrew Foster','Anna Mitchell','Benjamin Reed','Charlotte Hayes','Chloe Bennett','Daniel Parker','David Morgan','Ella Collins','Emily Walker','Emma Davis','Ethan Cooper','Eva Richardson','Grace Wilson','Hannah Lewis','Henry Adams','Isabella Clark','Jack Turner','James Anderson','Jessica Martin','Joshua Scott','Julia Edwards','Liam Thompson','Lily Roberts','Lucas Wright','Lucy Campbell','Mason Phillips','Matthew Evans','Mia Stewart','Michael Harris','Noah Robinson','Oliver King','Olivia Taylor','Oscar Young','Ruby Nelson','Samuel Green','Sophia Hall','Thomas Baker','William Allen'].map((username, index) => ({id:`demo-${index+1}`,username}));
-const SPIN_MS = 1667;
+const SPIN_MS = SPOTLIGHT_SPIN_MS;
 
 // Adapted from the supplied EIU HTML. Convex alone chooses the winner;
 // the SVG only animates the authorized result and never maintains a local roster.
-function Wheel({ members, draw, duration, spinIndex, isSpinning, onSpin, onStop, frozenTransform, disabled, demo }: { members: SpotlightView['members']; draw: SpotlightDraw | null; duration: number; spinIndex: number; isSpinning: boolean; onSpin: () => void; onStop: (transform: string) => void; frozenTransform: string | null; disabled: boolean; demo: boolean }) {
+function Wheel({ members, draw, duration, spinIndex, isSpinning, onSpin, onStop, frozenTransform, disabled }: { members: SpotlightView['members']; draw: SpotlightDraw | null; duration: number; spinIndex: number; isSpinning: boolean; onSpin: () => void; onStop: (transform: string) => void; frozenTransform: string | null; disabled: boolean }) {
   const id = useId().replace(/:/g, '');
   const rotor = useRef<SVGGElement>(null);
-  const [frozenRoster] = useState(members);
-  const roster = draw ? frozenRoster : members;
+  // The parent retains this roster while a draw is active; results only append
+  // missing target identities below, preserving the existing sector order.
+  const roster=members;
   const names = useMemo(() => {
-    const winner = draw ? roster.findIndex(member => member.id === draw.subject) : -1;
-    const list = demo ? [...roster] : roster.slice(Math.max(0, winner - 5), Math.max(0, winner - 5) + 12);
+    const list=[...roster];
     if (draw?.targets) {
       for (const target of draw.targets) {
         if (!list.some(member => member.id === target.subject)) list.push({ id: target.subject, username: target.username });
@@ -29,7 +28,7 @@ function Wheel({ members, draw, duration, spinIndex, isSpinning, onSpin, onStop,
       list.push({ id: draw.subject, username: draw.username });
     }
     return list;
-  }, [draw, demo, roster]);
+  }, [draw, roster]);
   const count = names.length || 8, angle = 360 / count;
 
   const targets = useMemo(() => draw?.targets?.length ? draw.targets : (draw ? [{ subject: draw.subject, username: draw.username }] : []), [draw]);
@@ -56,7 +55,7 @@ function Wheel({ members, draw, duration, spinIndex, isSpinning, onSpin, onStop,
 
   const activeIndex = Math.min(spinIndex, rotations.length - 1);
   const fromTurn = activeIndex === 0 ? 0 : rotations[activeIndex - 1];
-  const toTurn = rotations[activeIndex];
+  const toTurn = draw?rotations[activeIndex]:2160;
 
   const themes = [['#082945','#F7F4ED'],['#F7F4ED','#041C31'],['#123F68','#FBFAF7'],['#E9CA8B','#041C31'],['#18547F','#FBFAF7'],['#2D7FB4','#FBFAF7'],['#B39159','#041C31'],['#041C31','#F4DFB0']];
   const point = (degrees: number, radius: number) => { const rad = (degrees - 90) * Math.PI / 180; return [250 + Math.cos(rad) * radius, 250 + Math.sin(rad) * radius]; };
@@ -96,7 +95,7 @@ function AssignmentWheelFrame({sectionId,code,background,templateKey,assignmentK
   return <iframe ref={frameRef} title="Practice assignment wheel" data-request-id={`${sectionId}:6`} srcDoc={document} sandbox="allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox" className={styles.assignmentFrame}/>;
 }
 export default function SectionSpotlight({ sectionId, frame, controls }: { sectionId: string; frame?: RefObject<HTMLIFrameElement | null>; controls?:Controls }) {
-  const [demo,setDemo]=useState(false),[demoCount,setDemoCount]=useState(1),[settingsDemo,setSettingsDemo]=useState(false);
+  const [targetOpen,setTargetOpen]=useState(false),[targetEnabled,setTargetEnabled]=useState(false),[targetSubjects,setTargetSubjects]=useState<string[]>([]),[settingsMembers,setSettingsMembers]=useState<SpotlightView['members']>([]);
   const [snapshot, setSnapshot] = useState<SpotlightView | null>(null);
   const [available,setAvailable]=useState<boolean|null>(null);
   const context = useRef<{ epoch: string; subject: string; teaching: boolean } | null>(null);
@@ -105,6 +104,7 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
   const [revealedCount,setRevealedCount] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [spinIndex, setSpinIndex] = useState(0);
+  const [spinDuration, setSpinDuration] = useState(SPIN_MS);
   const [isSpinning, setIsSpinning] = useState(false);
   const [frozenTransform,setFrozenTransform]=useState<string|null>(null);
   const stopRequested=useRef(false),stopAnimation=useRef<(()=>void)|null>(null);
@@ -125,7 +125,7 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
       rosterRequest.current?.abort();rosterRequest.current = null;
       request.current?.abort();request.current = null;activeDraw.current = null;spinning.current = false;attempt.current = null;
       context.current = null;latest.current = null;setSnapshot(null);setNotice(null);setSlide(null);setDraw(null);setRevealed(false);setRevealedCount(0);setSpinIndex(0);setIsSpinning(false);stopRequested.current=false;setWheelMembers([]);setBusy(false);setError('');
-      settingsRequest.current?.abort();setSettingsOpen(false);setSettingsBusy(false);
+      settingsRequest.current?.abort();setSettingsOpen(false);setSettingsBusy(false);setTargetOpen(false);setTargetEnabled(false);setTargetSubjects([]);setSettingsMembers([]);
       stopLive?.();stopLive=null;
     };
     const install = (value: SpotlightView) => {
@@ -185,16 +185,6 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
     return () => { ended.current = true;controller.abort();request.current?.abort();rosterRequest.current?.abort();settingsRequest.current?.abort();request.current = null;stopLive?.();readiness();context.current = null;latest.current = null;refreshAccess.current = () => Promise.resolve();window.removeEventListener('focus', refresh);window.removeEventListener('eiu-section-terminated', terminate); };
   }, [sectionId]);
   const spin = useCallback(async (page: number) => {
-    if (demo) {
-      if (ended.current || !controls?.teaching || spinning.current || request.current) return;
-      const pool = [...DEMO_MEMBERS];
-      // Sample data stays in this parent preview; no classroom mutation or notification.
-      for(let i=pool.length-1;i>0;i--){const j=crypto.getRandomValues(new Uint32Array(1))[0]%(i+1);[pool[i],pool[j]]=[pool[j],pool[i]];}
-      const targets=pool.slice(0,Math.min(demoCount,pool.length)).map(member=>({subject:member.id,username:member.username}));
-      const now=Date.now(), selected=targets[0];
-      const result:SpotlightDraw={requestId:crypto.randomUUID(),slide:page,...selected,targets,createdAt:now,revealAt:now+SPIN_MS};
-      stopRequested.current=false;setFrozenTransform(null);activeDraw.current=result;spinning.current=true;setIsSpinning(true);setSpinIndex(0);setDraw(result);setRevealed(false);setRevealedCount(0);setSlide(page);setError('');return;
-    }
     if (ended.current || (context.current && !context.current.teaching)) return;
     if (!context.current) { setSlide(page);setBusy(true);await refreshAccess.current(); }
     const verified = context.current;
@@ -216,10 +206,10 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
       if (!response.ok) { if (response.status < 500) attempt.current = null;throw Error(data.message || 'Unable to draw.'); }
       if (context.current?.epoch !== verified.epoch) return;
       attempt.current = null;activeDraw.current = data.draw;spinning.current = true;setIsSpinning(!stopRequested.current);
-      setWheelMembers(data.members || []);setSpinIndex(0);setDraw(data.draw);
+      setWheelMembers(previous=>previous.length?previous:(data.members||[]));setSpinIndex(0);setDraw(data.draw);
     } catch (reason) { if (!controller.signal.aborted) {spinning.current=false;setIsSpinning(false);setError(reason instanceof Error ? reason.message : 'Unable to draw.');} }
     finally { if (request.current === controller) { request.current = null;setBusy(false); } }
-  }, [sectionId, demo, demoCount, controls?.teaching]);
+  }, [sectionId]);
   useEffect(() => {
     if(!frame)return;
     const open = (event: MessageEvent) => {
@@ -248,11 +238,12 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
     const runSpin=(index:number)=>{
       if(!valid())return;
       setSpinIndex(index);
-      const delay=index===0?Math.min(SPIN_MS,Math.max(0,draw.revealAt-Date.now())||SPIN_MS):SPIN_MS;
+      const delay=Math.max(0,spotlightRevealAt(draw,index)-Date.now());
+      setSpinDuration(delay);
       spinTimer=window.setTimeout(()=>{
         if(!valid())return;
         shown=index+1;setRevealed(true);setRevealedCount(shown);
-        if(shown<total)nextTimer=window.setTimeout(()=>runSpin(index+1),200);else finish();
+        if(shown<total)nextTimer=window.setTimeout(()=>runSpin(index+1),Math.min(SPOTLIGHT_PAUSE_MS,Math.max(0,spotlightRevealAt(draw,index+1)-Date.now())));else finish();
       },delay);
     };
     stopAnimation.current=halt;
@@ -262,7 +253,7 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
   useEffect(() => {
     const verified = context.current;
     if (!snapshot || snapshot.teaching || !verified || snapshot.viewerSubject !== verified.subject || snapshot.epoch !== verified.epoch || ended.current) return;
-    const selected = snapshot.draws.filter(row => row.subject === verified.subject && !seen.current.has(row.requestId) && row.createdAt > Date.now() - 120000).sort((a, b) => b.createdAt - a.createdAt)[0];
+    const selected = snapshot.draws.filter(row => row.subject === verified.subject && !seen.current.has(row.requestId) && row.revealAt > Date.now() - 120000).sort((a, b) => b.createdAt - a.createdAt)[0];
     if (!selected) return;
     const timer = window.setTimeout(() => {
       if (ended.current || context.current?.epoch !== verified.epoch || context.current?.subject !== verified.subject) return;
@@ -287,39 +278,27 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
     if(ended.current||settingsRequest.current)return;
     setSettingsBusy(true);setSettingsLoaded(false);setSettingsError('');
     const controller=new AbortController();settingsRequest.current=controller;
-    try{const response=await fetch(`/api/sections/${sectionId}/spotlight?settings=1`,{cache:'no-store',signal:AbortSignal.any([controller.signal,AbortSignal.timeout(10000)])});const data=await response.json();if(controller.signal.aborted||ended.current)return;if(!response.ok||!validWheelCount(data.count))throw Error(data.message||'Unable to load settings.');setSettingsCount(String(data.count));setSettingsLoaded(true);}
+    try{const response=await fetch(`/api/sections/${sectionId}/spotlight?settings=1`,{cache:'no-store',signal:AbortSignal.any([controller.signal,AbortSignal.timeout(10000)])});const data=await response.json();if(controller.signal.aborted||ended.current)return;if(!response.ok||!validWheelCount(data.count))throw Error(data.message||'Unable to load settings.');setSettingsCount(String(data.count));setSettingsMembers(data.members||wheelMembers);setTargetSubjects(data.targetSubjects||[]);setTargetEnabled(Boolean(data.targetSubjects?.length));setSettingsLoaded(true);}
     catch(reason){if(!controller.signal.aborted)setSettingsError(reason instanceof Error?reason.message:'Unable to load settings.');}
     finally{if(settingsRequest.current===controller){settingsRequest.current=null;setSettingsBusy(false);}}
   };
   const openSettings=async()=>{
     if(ended.current||settingsRequest.current)return;
-    setSettingsDemo(demo);setSettingsOpen(true);setSettingsError('');
-    if(demo){setSettingsCount(String(demoCount));setSettingsBusy(false);return;}
+    setTargetOpen(false);setSettingsOpen(true);setSettingsError('');
     await loadLiveSettings();
-  };
-  const changeSettingsDemo=(enabled:boolean)=>{
-    settingsRequest.current?.abort();settingsRequest.current=null;
-    setSettingsDemo(enabled);setSettingsBusy(false);setSettingsError('');
-    if(enabled){if(!settingsLoaded)setSettingsCount(String(demoCount));setSettingsLoaded(false);}
-    else if(!demo)void loadLiveSettings();
   };
   const saveSettings=async()=>{
     const count=Number(settingsCount);if(!validWheelCount(count)||settingsRequest.current||ended.current||!controls?.teaching)return;
-    if(!settingsDemo&&!demo&&!settingsLoaded)return;
-    if(settingsDemo || demo){
-      rosterRequest.current?.abort();rosterRequest.current=null;
-      activeDraw.current=null;spinning.current=false;stopRequested.current=false;setIsSpinning(false);setDraw(null);setRevealed(false);setRevealedCount(0);setSpinIndex(0);setError('');
-      setDemo(settingsDemo);if(settingsDemo)setDemoCount(count);setSettingsOpen(false);return;
-    }
+    if(!settingsLoaded||(targetEnabled&&!targetSubjects.length))return;
     const controller=new AbortController();settingsRequest.current=controller;setSettingsBusy(true);setSettingsError('');
-    try{await refreshAccess.current();if(controller.signal.aborted||ended.current)return;const verified=context.current;if(!verified?.teaching)throw Error('Teaching access required.');const response=await fetch(`/api/sections/${sectionId}/spotlight`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({count,epoch:verified.epoch}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(15000)])});const data=await response.json();if(controller.signal.aborted||ended.current)return;if(!response.ok)throw Error(data.message||'Unable to save settings.');setSettingsOpen(false);}
+    try{await refreshAccess.current();if(controller.signal.aborted||ended.current)return;const verified=context.current;if(!verified?.teaching)throw Error('Teaching access required.');const response=await fetch(`/api/sections/${sectionId}/spotlight`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({count:targetEnabled?targetSubjects.length:count,epoch:verified.epoch,targetSubjects:targetEnabled?targetSubjects:[]}),signal:AbortSignal.any([controller.signal,AbortSignal.timeout(15000)])});const data=await response.json();if(controller.signal.aborted||ended.current)return;if(!response.ok)throw Error(data.message||'Unable to save settings.');setSettingsOpen(false);}
     catch(reason){if(!controller.signal.aborted)setSettingsError(reason instanceof Error?reason.message:'Unable to save settings.');}
     finally{if(settingsRequest.current===controller){settingsRequest.current=null;setSettingsBusy(false);}}
   };
   const openWheel = async () => {
     if (ended.current) return;
     setSlide(activeDraw.current?.slide ?? 0);
-    if (demo || sectionId === ASSIGNMENT_WHEEL_SECTION_ID || activeDraw.current || rosterRequest.current) return;
+    if (sectionId === ASSIGNMENT_WHEEL_SECTION_ID || activeDraw.current || rosterRequest.current) return;
     const controller = new AbortController();rosterRequest.current = controller;
     try {
       const response = await fetch(`/api/sections/${sectionId}/spotlight`, { cache: 'no-store', signal: AbortSignal.any([controller.signal, AbortSignal.timeout(10000)]) });
@@ -332,23 +311,22 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
   const close = () => { rosterRequest.current?.abort();rosterRequest.current = null;setSlide(null);frame?.current?.contentWindow?.postMessage({ type: 'eiu-spotlight-closed', requestId: frame.current.dataset.requestId }, '*'); };
   const drawTargets = useMemo(() => draw?.targets || (draw ? [{ subject: draw.subject, username: draw.username }] : []), [draw]);
   const countTier = useMemo(() => {
-    const total = draw ? drawTargets.length : (demo ? demoCount : Number(settingsCount) || 1);
+    const total = draw ? drawTargets.length : (Number(settingsCount) || 1);
     if (total <= 4) return 'few';
     if (total <= 12) return 'medium';
     if (total <= 24) return 'normal';
     if (total <= 40) return 'compact';
     return 'dense';
-  }, [draw, drawTargets.length, demo, demoCount, settingsCount]);
+  }, [draw, drawTargets.length, settingsCount]);
   if (typeof document === 'undefined') return null;
   const launcher=controls?.teaching&&available!==false?<div className={styles.launcher} onKeyDown={event=>event.stopPropagation()}><button type="button" aria-label="Open Class Spotlight" title="Wheel of Name" disabled={sectionId===ASSIGNMENT_WHEEL_SECTION_ID&&!controls.assignment?.code} onClick={()=>void openWheel()}><WheelIcon/></button></div>:null;
   return <>{launcher}{createPortal(<>
-    <dialog ref={wheelDialog} className={`${styles.dialog} ${styles.wheelCard} ${sectionId===ASSIGNMENT_WHEEL_SECTION_ID&&!demo?styles.assignment:styles.floating}`} aria-labelledby="spotlight-title" onCancel={close} onKeyDown={event => event.stopPropagation()}>
+    <dialog ref={wheelDialog} className={`${styles.dialog} ${styles.wheelCard} ${sectionId===ASSIGNMENT_WHEEL_SECTION_ID?styles.assignment:styles.floating}`} aria-labelledby="spotlight-title" onCancel={close} onKeyDown={event => event.stopPropagation()}>
       <header className={styles.header}><h2 id="spotlight-title">Wheel of Name</h2><div className={styles.dialogActions}>{controls?.teaching&&<button type="button" className={styles.close} aria-label="Class Spotlight settings" title="Learners per draw" disabled={busy||isSpinning} onClick={()=>void openSettings()}><SettingsIcon/></button>}<button type="button" className={styles.close} onClick={close} aria-label="Close wheel">×</button></div></header>
-      {sectionId===ASSIGNMENT_WHEEL_SECTION_ID&&!demo ? slide!==null&&controls?.assignment&&<AssignmentWheelFrame sectionId={sectionId} {...controls.assignment}/> : <div className={styles.wheelLayout}>
-      <div className={styles.wheelStage}><Wheel key={draw?.requestId || 'ready'} members={demo?DEMO_MEMBERS:wheelMembers} demo={demo} draw={draw} duration={SPIN_MS} spinIndex={spinIndex} isSpinning={isSpinning} disabled={busy&&!isSpinning} frozenTransform={frozenTransform} onStop={stop} onSpin={() => slide !== null && void spin(slide)} />
+      {sectionId===ASSIGNMENT_WHEEL_SECTION_ID ? slide!==null&&controls?.assignment&&<AssignmentWheelFrame sectionId={sectionId} {...controls.assignment}/> : <div className={styles.wheelLayout}>
+      <div className={styles.wheelStage}><Wheel members={wheelMembers} draw={draw} duration={spinDuration} spinIndex={spinIndex} isSpinning={isSpinning} disabled={busy&&!isSpinning} frozenTransform={frozenTransform} onStop={stop} onSpin={() => slide !== null && void spin(slide)} />
       {!draw && <p className={styles.status} role="status">{busy ? 'Connecting to the classroom...' : error || 'Ready to select learners'}</p>}
       {draw && isSpinning && <p className={styles.status} role="status">{`Spinning (${spinIndex + 1}/${draw.targets?.length || 1})…`}</p>}
-      {demo&&<p className={styles.status}>Demo mode - 40 sample names</p>}
       </div><section className={styles.resultsPanel} aria-label="Selected names">
       <div className={styles.result} aria-live="polite">{!draw ? '' : !revealed && revealedCount === 0 ? 'Spinning…' : <ol className={styles.targets} data-tier={countTier}>{drawTargets.slice(0,revealedCount).map((target,index)=><li className={`${styles.nameCard} ${styles.nameReveal}`} key={target.subject}><span className={styles.nameBadge}>{index+1}</span><span className={styles.nameText} title={target.username}>{target.username}</span></li>)}</ol>}</div>
       </section></div>}
@@ -358,14 +336,13 @@ export default function SectionSpotlight({ sectionId, frame, controls }: { secti
       <span className={styles.star} aria-hidden="true">✦</span><h2 id="spotlight-congrat">Congrat!!!!!</h2><p className={styles.name}>{notice?.username}</p><p>Please answer the question</p>
     </dialog>
     <dialog ref={settingsDialog} className={`${styles.dialog} ${styles.settings}`} aria-labelledby="spotlight-settings-title" onCancel={()=>setSettingsOpen(false)} onKeyDown={event=>event.stopPropagation()}>
-      <header className={styles.header}><h2 id="spotlight-settings-title">Wheel settings</h2><button type="button" className={styles.close} aria-label="Close wheel settings" onClick={()=>setSettingsOpen(false)}>×</button></header>
-      <label className={styles.demoToggle}><span>Demo mode - 40 sample names</span><input type="checkbox" checked={settingsDemo} disabled={settingsBusy&&settingsLoaded} onChange={event=>changeSettingsDemo(event.target.checked)}/></label>
-      {settingsDemo&&<p>Sample names only. No learner notifications or saved assignments.</p>}
-      <label>{settingsDemo?'Demo names per draw':'Learners per draw'}<input type="number" min="1" step="1" value={settingsCount} disabled={settingsBusy} onChange={event=>setSettingsCount(event.target.value)}/></label>
+      <header className={styles.header}><h2 id="spotlight-settings-title">Wheel settings</h2><button type="button" className={styles.targetTrigger} aria-label="Target selection" aria-expanded={targetOpen} disabled={settingsBusy||!settingsLoaded} onClick={()=>setTargetOpen(open=>!open)}>!</button><button type="button" className={styles.close} aria-label="Close wheel settings" onClick={()=>setSettingsOpen(false)}>×</button></header>
+      <label>Learners per draw<input type="number" min="1" step="1" value={settingsCount} disabled={settingsBusy||targetEnabled} onChange={event=>setSettingsCount(event.target.value)}/></label>
+      {targetOpen&&<section className={styles.targetSettings} aria-label="Target names"><label><span>Use selected names</span><input type="checkbox" checked={targetEnabled} disabled={settingsBusy} onChange={event=>setTargetEnabled(event.target.checked)}/></label><div className={styles.targetNames}>{settingsMembers.map(member=><label key={member.id}><input type="checkbox" checked={targetSubjects.includes(member.id)} disabled={settingsBusy||!targetEnabled} onChange={event=>setTargetSubjects(ids=>event.target.checked?[...ids,member.id]:ids.filter(id=>id!==member.id))}/><span>{member.username}</span></label>)}</div>{!settingsMembers.length&&<p>No eligible names yet. Ask learners to open this section, then reopen settings.</p>}<p>{targetEnabled?targetSubjects.length+' names selected. All selected names are drawn, in a shuffled order.':'Target selection is off. Draws use the eligible class roster.'}</p></section>}
       <p>The draw selects up to this many eligible learners without repeating a person.</p>
       {sectionId===ASSIGNMENT_WHEEL_SECTION_ID&&<p>Practice parts repeat in order when more than seven learners are selected. Reset the completed draw before changing the group size.</p>}
-      {settingsError&&!settingsDemo&&<p role="alert">{settingsError}</p>}
-      <button type="button" className={styles.spin} disabled={settingsBusy||(!settingsLoaded&&!settingsDemo&&!demo)||!validWheelCount(Number(settingsCount))} onClick={()=>void saveSettings()}>{settingsBusy?'Please wait…':'Save'}</button>
+      {settingsError&&<p role="alert">{settingsError}</p>}
+      <button type="button" className={styles.spin} disabled={settingsBusy||!settingsLoaded||!validWheelCount(Number(settingsCount))||(targetEnabled&&!targetSubjects.length)} onClick={()=>void saveSettings()}>{settingsBusy?'Please wait…':'Save'}</button>
     </dialog>
   </>, document.body)}</>;
 }

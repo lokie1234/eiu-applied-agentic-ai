@@ -53,9 +53,12 @@ export const draw = mutation({ args: { sectionId: v.string(), count: v.optional(
   else await ctx.db.insert("limits", { subject: key, count, start: now, blockedUntil });
   if (blockedUntil) return { retryAfter: 120 };
   const unique = new Map(room.members.map(member => [member.subject, member]));
-  const pool = [...unique.values()].filter(member => !args.excluded.includes(member.subject));
+  const eligible=[...unique.values()].filter(member=>!args.excluded.includes(member.subject));
+  const preferred=room.wheelTargets||[];
+  if(preferred.some(id=>!eligible.some(member=>member.subject===id)))return {message:'A selected learner is no longer eligible. Update target names in wheel settings.'};
+  const pool = preferred.length?preferred.map(id=>eligible.find(member=>member.subject===id)!):eligible;
   const questions = mis301QuestionBank(room.questionSetup);
-  const selectedCount = Math.min(room.wheelCount ?? questions.length, pool.length);
+  const selectedCount = Math.min(preferred.length||(room.wheelCount ?? questions.length), pool.length);
   if (!selectedCount) return { message: "Waiting for learners to sign in to this section." };
   const names: string[] = [], subjects: string[] = [];
   for (let i = 0; i < selectedCount; i++) { const selected = pool.splice(Math.floor(Math.random() * pool.length), 1)[0]; names.push(selected.username); subjects.push(selected.subject); }
@@ -112,7 +115,7 @@ export const replace = internalMutation({ args: {
   else await ctx.db.patch(room._id, { version: args.version, epoch: args.epoch,
     ...(args.wheelEnabled!==undefined?{wheelEnabled:args.wheelEnabled}:{}),
     ...(JSON.stringify(room.members) !== JSON.stringify(members) ? { members } : {}),
-    ...(room.epoch !== args.epoch ? { draw: undefined } : {}),
+    ...(room.epoch !== args.epoch ? { draw: undefined,wheelTargets:[] } : {}),
     ...(room.epoch !== args.epoch ? { demoDraw: undefined } : {}),
   });
   const previous = await ctx.db.query("practiceAnswers").withIndex("room", q => q.eq("sectionId", args.sectionId)).take(201);

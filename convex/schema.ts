@@ -14,7 +14,7 @@ const schema = defineSchema({
   spotlight: defineTable({ sectionId: v.string(), slide: v.number(), epoch: v.string(), requestId: v.string(), subject: v.string(), username: v.string(), targets:v.optional(v.array(target)), createdAt: v.number(), revealAt: v.number() }).index('room', ['sectionId', 'slide']),
   spotlightRequests: defineTable({ sectionId: v.string(), epoch: v.string(), requestId: v.string(), slide: v.number(), subject: v.string(), username: v.string(), targets:v.optional(v.array(target)), createdAt: v.number(), revealAt: v.number(), expiresAt: v.number() }).index('request', ['sectionId', 'requestId']),
   classroom: defineTable({ sectionId: v.string(), version: v.number(), epoch: v.string(),
-    wheelEnabled:v.optional(v.boolean()),wheelCount:v.optional(v.number()),
+    wheelEnabled:v.optional(v.boolean()),wheelCount:v.optional(v.number()),wheelTargets:v.optional(v.array(v.string())),
     questionSetup: v.optional(v.array(question)),
     members: v.array(v.object({ subject: v.string(), username: v.string() })),
     draw: v.optional(v.object({ requestId: v.string(), names: v.array(v.string()), parts: v.optional(v.array(v.number())), subjects: v.optional(v.array(v.string())), createdAt: v.number(), assignmentVersion: v.optional(v.number()), questions: v.optional(v.array(question)) })),

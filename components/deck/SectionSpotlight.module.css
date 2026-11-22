@@ -83,6 +83,13 @@
   font-size: 18px;
   line-height: 1.5;
 }
+.targetTrigger{margin-left:auto;width:36px;height:36px;border:1px solid #b39159;border-radius:50%;background:#f4dfb0;color:#123f68;font-size:24px;font-weight:900;cursor:pointer}
+.targetSettings{border:1px solid #cfbd9a;border-radius:14px;padding:14px 18px;background:#fff}
+.targetSettings>label{font-size:19px;margin:8px 0 14px}
+.targetSettings input[type=checkbox]{width:20px;height:20px;flex:none;accent-color:#18547f}
+.targetNames{max-height:260px;overflow:auto;display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
+.targetNames label{display:flex;justify-content:flex-start;align-items:center;gap:10px;font-size:17px;font-weight:500;margin:0;padding:8px;border-radius:8px;background:#f1f6fa;min-width:0;overflow-wrap:anywhere}
+.wheel{will-change:transform;backface-visibility:hidden}
 .settings [role=alert] {
   color: #a33424;
 }
@@ -280,14 +287,6 @@
 }
 .wheelCard .targets {
   max-height: 22dvh;
-}
-.demoToggle input {
-  height: 22px;
-  flex-shrink: 0;
-  accent-color: #144069;
-}
-.demoToggle span {
-  font-size: 18px;
 }
 .wheelLayout {
   display: grid;
@@ -582,7 +581,4 @@
 }
 .floating::backdrop {
   background: #041c31bf;
-}
-.demoToggle input {
-  width: 22px !important;
 }

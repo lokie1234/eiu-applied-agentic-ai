@@ -71,6 +71,25 @@ or result storage is introduced.
 
 ## Shared section Class Spotlight
 
+The wheel has no sample-name/demo mode. Settings includes a teaching-only `!`
+button for target selection. A toggle activates one or multiple existing signed
+learner sessions. Saving stores subject IDs in the scoped Convex classroom
+`wheelTargets` and sets the count to the number selected. Disabling sends an empty
+target list. No typed identities are accepted; identical names remain distinct.
+The authenticated settings route returns the existing Supabase roster. Convex
+independently checks teaching scope, epoch, duplicates, membership, generic-wheel
+presence, rate limits and spin locks. Generic draws reject unavailable targets
+without substituting anyone. Selected sessions are drawn once each in shuffled
+order. Assignment wheels retain their existing part mapping and reset rule.
+A new epoch clears targets. Learners cannot query target settings and still see
+only their own result. Configuration stays ephemeral in Convex; Supabase remains
+the durable identity/report store. There is no additional polling or connection.
+
+For smoother loading, keep the wheel mounted across draw responses and retain
+already-loaded names in their existing sectors during a spin. Append missing
+server-selected identities rather than replacing the full roster with the short
+server animation subset. Settings lock through the complete group reveal.
+
 Admin Access stores each section's enable flag in Supabase course metadata.
 Existing MIS 301 Section 1 and MIS 311 Section 2 default to enabled; an explicit
 false wins. Signed JWT wheel scopes and every public Convex function enforce
@@ -102,8 +121,15 @@ or by opaque session ID when email is not collected. Never deduplicate names. Co
 filters it against unexpired presence. The server route freshly verifies access
 and the termination epoch before each draw; `spotlight:draw` independently checks
 section/slide/teaching scopes, limits requests and serializes concurrent spins.
-One five-second spin selects the configured group of opaque sessions, with repeat draws allowed after
-the previous spin. The native wheel only animates this authoritative result.
+The server selects the configured group of opaque sessions atomically. The shared
+wheel reveals one name every 1,667 ms with a 200 ms pause between spins. Convex's
+`revealAt` is the first name's deadline; `spotlightRevealAt` derives subsequent
+deadlines for both Admin animation and each selected learner's private response.
+Admin shortens delayed animations to those absolute deadlines instead of adding
+another full spin after a slow response. The spin/settings lock lasts through the
+final name. Large groups retain their draw/retry state until at least ten seconds
+after the last reveal. Other learners never receive the group or its order.
+The MIS 301 assignment wheel retains its own practice animation/reset contract.
 
 Only the selected signed session receives its result through `spotlight:view`.
 Other learners receive neither the roster nor other winners. The congratulation
@@ -378,3 +404,97 @@ STOP before the first reveal leaves the list empty. A late draw response cannot
 restart the animation or add names. Reopening retains the stopped angle/cards;
 a new explicit SPIN starts another round. STOP affects local presentation; it
 never replaces an authoritative server draw with a browser-selected winner.
+
+### Scoped showcase images (Advanced Business Analytics practice)
+
+Advanced Business Analytics Section 2 (`961a0a16-0dc0-486e-a501-d965a3f3c7ce`)
+also binds page 4 to the shared 15-minute practice via `showcasePractices["4"]`,
+activity `gas-webapp`. It uses the same signed identity, Supabase activity payload,
+private image/paste flow, root revision subscription, report columns and scoped
+teacher/admin permanent Delete. Page 6 is now a local Custom AI / Skills lesson,
+with no showcase binding or legacy guide. Existing untagged visualization records
+remain in Supabase and reports. Tagged practices must not populate `showcasePractice`:
+that field remains the fallback for a section's untagged practice, when present.
+This avoids applying a new activity's scope or controls to a legacy board. The
+countdown remains browser-local; offline exports provide task instructions and
+direct users to Learning for authenticated submissions.
+
+Section `cc16c754-a9c6-4967-bfa9-c45f615e0f4e`, course
+`a0ab05b2-ef8e-4cba-a85f-6ef213871c1a`, uses the existing native
+`ShowcaseSlide`, signed Learning identity, `SHOWCASE_SUBMITTED` audit record,
+report assembler and root revision/realtime flow. Its compiled metadata enables
+the 15-minute practice and optional images; other showcases retain their existing
+link-only behavior. No second identity, result table, realtime client or polling
+loop is introduced. Reports continue to consume `details.url`, including image
+links and repeated submissions, in their existing two worksheets.
+
+Multipart uploads are bounded while streaming (4 MB plus bounded form overhead),
+limited by the signed learner subject, and accepted only after section access,
+role and same-origin checks. PNG/JPEG/WebP inputs must decode as a single image,
+at most 16 megapixels; Sharp rotates, resizes to at most 2000 pixels per edge,
+strips metadata and re-encodes to WebP, capped at 1 MB. SVG and arbitrary uploaded
+bytes are never served. `scripts/init-showcase-images.cjs` provisions/verifies the
+private WebP-only bucket `learner-showcase-images`; object paths contain validated
+course/section/image UUIDs, never user filenames. Failed durable saves remove the
+new object and never publish a success notification.
+
+An image URL points back to the authenticated section showcase route, not a public
+bucket or expiring signed URL. Each open checks section access and the surviving
+durable audit row, returns `private, no-store`, and never exposes a bucket listing.
+The class board loads links only, not thumbnails. Terminate clears the current
+board but preserves report links; a late upload from the previous classroom epoch
+is rejected. An authorized Reset first deletes scoped audit rows (immediately
+revoking image access), then removes only their image objects. Storage cleanup
+failure is logged; any orphan stays private and inaccessible through the route.
+Other showcases retain presenter Hide as a local board filter, not a history deletion.
+Uploads and the live board are online-only; downloadable lessons retain the task
+instructions and explicitly direct learners to Learning for submission.
+
+The same section now binds native practice pages 5 and 11 through the compiled
+`showcasePractices` map. Page 5 retains the existing untagged submissions; page 11
+uses the server-allowlisted query `activity=ai-tools-product`, persisted as
+`details.showcaseActivity`. The server rejects unknown activity IDs, filters each
+board by its activity and classroom epoch, and still writes one signed
+`SHOWCASE_SUBMITTED` record. Images retain section-authorized stable links and
+existing Reset/report behavior. No client-provided activity/identity fields can
+override the resolved scope. Reports keep both practices in the existing repeated
+submission columns; no extra sheets or result stores are created.
+
+The presenter countdown is local UI state, keyed by section and practice in the
+existing session slide storage. It uses an absolute deadline, stops at zero,
+cleans up intervals/listeners on unmount, and restores paused progress on revisit.
+It is rendered only for the existing admin/section-teaching capability. Learners
+receive neither the countdown button nor its interval. The timer never writes a
+learner result, shared clock, presence event or report row.
+
+The practice form accepts user-initiated clipboard image paste as well as the
+file chooser. Paste reads only the event's binary image files, never HTML or
+remote image URLs, and requests no clipboard permission. A supported image
+switches the form to Image mode; it remains local until Share result. PNG/JPEG/
+WebP and the 4 MB limit are checked in the client and again by the existing
+server decode/re-encode pipeline. Text/link paste continues normally, paste
+does not replace an in-flight submission, and failed saves retain the selected
+image for retry. No new upload endpoint or result store is introduced.
+
+At the user's explicit request, ABA Section 1 practice pages 5 and 11 enable
+`allowDelete`. Their presenter Delete action permanently removes one selected
+`SHOWCASE_SUBMITTED` record, its private image if present, and consequently its
+future report result. It never deletes login identity, quiz records, another
+practice or another course. Learners have no Delete control, and the server
+independently requires an active admin or that exact section's teaching grant.
+The existing scoped endpoint handles DELETE with a bounded JSON `{id}` body,
+same-origin validation, server-allowlisted practice, complete course/section/
+activity/action filters on both read and delete, and a shared 30/minute deletion
+budget. Client-provided URLs or identity fields cannot choose the storage path.
+
+After the presenter confirms the selected learner's work, storage cleanup runs
+before deleting its audit source. A failure returns an error and leaves the
+record available for an explicit retry; if database deletion fails after image
+cleanup, retrying removal of the already absent object is safe. No success is
+reported until the audit deletion succeeds. Once authorized cleanup starts,
+server work finishes even if the client navigates away. The existing database
+DELETE trigger advances the showcase revision; only then does the route notify
+the root realtime flow. The UI retains the row on error, blocks duplicate
+requests and ignores stale list responses. These practices ignore old local
+Hide filters so surviving Supabase submissions remain manageable. Older
+downloaded Excel files cannot be changed by a subsequent deletion.

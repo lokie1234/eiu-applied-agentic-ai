@@ -6,7 +6,7 @@ import {Window} from 'happy-dom';
 import {loadTS,tick,deferred} from './helpers/mis301-fixture.mjs';
 const require=createRequire(import.meta.url),common=loadTS('lib/mis311Spotlight.ts'),sectionId=common.MIS311_SPOTLIGHT_SECTION_ID;
 async function fixture(teaching=false,draws=[],options={}){
-  const now=Date.now(),Clock=class extends Date{static now(){return now;}};let settingCount=options.count||1;
+  let now=Date.now();const Clock=class extends Date{static now(){return now;}};let settingCount=options.count||1,targetSubjects=[];
   const window=new Window({url:'http://localhost/learn'});
   for(const name of ['window','document','navigator','HTMLElement'])Object.defineProperty(globalThis,name,{configurable:true,value:name==='window'?window:window[name]});
   globalThis.IS_REACT_ACT_ENVIRONMENT=true;
@@ -14,18 +14,18 @@ async function fixture(teaching=false,draws=[],options={}){
   const host=window.document.createElement('div'),frame=window.document.createElement('iframe');frame.dataset.requestId=`${sectionId}:7`;window.document.body.append(frame,host);
   const frameRef={current:frame},timers=new Map(),requests=[];let timerId=1000000,watch,ready,subscriptions=0,connected=true;
   const originalSet=window.setTimeout.bind(window),originalClear=window.clearTimeout.bind(window);
-  window.setTimeout=(fn,delay,...args)=>{if(delay>=1000){const id=++timerId;timers.set(id,{fn,delay});return id;}return originalSet(fn,delay,...args);};
+  window.setTimeout=(fn,delay,...args)=>{if(delay>=1000){const id=++timerId;timers.set(id,{fn,delay});return id;}return originalSet(()=>{now+=delay;fn(...args);},delay);};
   window.clearTimeout=id=>{if(timers.has(id))timers.delete(id);else originalClear(id);};
   const snapshot={ready:true,teaching,epoch:'epoch',revision:10,viewerSubject:teaching?'teacher':'learner',members:teaching?[{id:'learner',username:'An'},{id:'other',username:'Binh'}]:[],draws};
   const fetch=async(url,options={})=>{
     requests.push({url,...options});
-    if(options.method==='PUT'){settingCount=JSON.parse(options.body).count;return Response.json({count:settingCount});}
+    if(options.method==='PUT'){settingCount=JSON.parse(options.body).count;targetSubjects=JSON.parse(options.body).targetSubjects||[];return Response.json({count:settingCount});}
     if(options.method==='POST'){
       const normal=()=>Response.json({draw:{requestId:JSON.parse(options.body).requestId,subject:'learner',username:'An',slide:JSON.parse(options.body).slide,createdAt:now,revealAt:now+1667},members:snapshot.members});
       return postHandler?postHandler(JSON.parse(options.body),normal):normal();
     }
     if(getHandler){const intercepted=getHandler(requests.filter(r=>r.method!=='POST').length);if(intercepted)return intercepted;}
-    if(url.includes('settings=1'))return Response.json({epoch:'epoch',count:settingCount});
+    if(url.includes('settings=1'))return Response.json({epoch:'epoch',count:settingCount,targetSubjects,members:snapshot.members});
     return url.includes('context=1')?Response.json({epoch:'epoch',viewerSubject:snapshot.viewerSubject,teaching}):Response.json({epoch:'epoch',snapshot});
   };
   let postHandler=options.post,getHandler=options.get;
@@ -37,7 +37,8 @@ async function fixture(teaching=false,draws=[],options={}){
   const flush=async()=>{await act(async()=>{await tick();await new Promise(resolve=>setTimeout(resolve,15));});};
   await act(async()=>{const element=React.createElement(Component,{sectionId,frame:frameRef,controls:options.controls?{teaching}:undefined});root.render(options.strict?React.createElement(React.StrictMode,null,element):element);});await flush();
   return {window,root,frame,snapshot,requests,timers,flush,now,watch:value=>watch?.(value),subscriptions:()=>subscriptions,ready:value=>{connected=value;ready();},
-    async fire(delay){const item=[...timers].find(([,item])=>Math.abs(item.delay-delay)<100);assert.ok(item,`timer near ${delay}ms exists`);timers.delete(item[0]);await act(async()=>item[1].fn());await flush();},
+    advance(ms){now+=ms;},
+    async fire(delay){const item=[...timers].find(([,item])=>Math.abs(item.delay-delay)<100);assert.ok(item,`timer near ${delay}ms exists`);timers.delete(item[0]);now+=item[1].delay;await act(async()=>item[1].fn());await flush();},
     message(payload,source=frame.contentWindow){window.dispatchEvent(new window.MessageEvent('message',{source,data:payload}));},
     async close(){await act(async()=>root.unmount());window.happyDOM.abort();}
   };
@@ -59,6 +60,57 @@ test('toolbar controls choose the section-wide scope and settings allow counts a
 
 test('Learning Access has no toolbar wheel or settings controls',async()=>{
   const f=await fixture(false,[],{controls:true});try{assert.equal(f.window.document.querySelector('[aria-label="Open Class Spotlight"]'),null);assert.equal(f.window.document.querySelector('[aria-label="Class Spotlight settings"]'),null);}finally{await f.close();}
+});
+
+test('settings remove demo and support enabling, saving, reopening and disabling multiple target names',async()=>{
+ const f=await fixture(true,[],{controls:true});try{
+  const doc=f.window.document;await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();const shell=doc.querySelector('.wheelWrap');const names=[...doc.querySelectorAll('.wheelSvg title')].map(n=>n.textContent);
+  await act(async()=>doc.querySelector('[aria-label="Class Spotlight settings"]').click());await f.flush();const settings=doc.querySelector('[aria-labelledby=spotlight-settings-title]');assert.doesNotMatch(settings.textContent,/Demo|sample names/);
+  await act(async()=>settings.querySelector('[aria-label="Target selection"]').click());const area=settings.querySelector('[aria-label="Target names"]');await act(async()=>area.querySelector('input').click());assert.equal(settings.querySelector('.spin').disabled,true);
+  for(const input of area.querySelectorAll('.targetNames input'))await act(async()=>input.click());assert.equal(settings.querySelector('.spin').disabled,false);
+  await act(async()=>settings.querySelector('.spin').click());await f.flush();const body=JSON.parse(f.requests.find(r=>r.method==='PUT').body);assert.deepEqual(body.targetSubjects,['learner','other']);assert.equal(body.count,2);
+  await act(async()=>doc.querySelector('[aria-label="Class Spotlight settings"]').click());await f.flush();await act(async()=>settings.querySelector('[aria-label="Target selection"]').click());assert.equal(settings.querySelectorAll('.targetNames input:checked').length,2);
+  await act(async()=>settings.querySelector('.targetSettings>label input').click());await act(async()=>settings.querySelector('.spin').click());await f.flush();assert.deepEqual(JSON.parse(f.requests.filter(r=>r.method==='PUT').at(-1).body).targetSubjects,[]);
+  await act(async()=>doc.querySelector('[aria-label="Spin wheel"]').click());await f.flush();assert.equal(doc.querySelector('.wheelWrap'),shell,'the wheel shell is not remounted when a server result arrives');assert.deepEqual([...doc.querySelectorAll('.wheelSvg title')].map(n=>n.textContent),names,'loaded names stay in the same sectors');
+ }finally{await f.close();}
+});
+
+test('a delayed draw response shortens the admin animation to the shared learner deadline',async()=>{
+  const pending=deferred();
+  const f=await fixture(true,[],{controls:true,post:()=>pending.promise});
+  try{
+    const doc=f.window.document;
+    await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();
+    await act(async()=>doc.querySelector('[aria-label="Spin wheel"]').click());await f.flush();
+    const body=JSON.parse(f.requests.find(r=>r.method==='POST').body);
+    f.advance(600);
+    await act(async()=>pending.resolve(Response.json({draw:{...body,subject:'learner',username:'An',createdAt:f.now,revealAt:f.now+1667},members:f.snapshot.members})));await f.flush();
+    assert.equal(doc.querySelector('.wheel').style.animationDuration,'1067ms');
+    await f.fire(1067);
+    assert.equal(doc.querySelector('.nameText').textContent,'An');
+  }finally{await f.close();}
+});
+
+test('an already revealed draw catches up immediately instead of adding another spin',async()=>{
+  const f=await fixture(true,[],{controls:true,post:(body)=>Response.json({draw:{...body,subject:'learner',username:'An',createdAt:Date.now()-10000,revealAt:Date.now()-3000},members:[]})});
+  try{
+    const doc=f.window.document;
+    await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();
+    await act(async()=>doc.querySelector('[aria-label="Spin wheel"]').click());await f.flush();
+    assert.equal(doc.querySelector('.nameText').textContent,'An');
+    assert.equal([...f.timers.values()].some(t=>t.delay===1667),false);
+  }finally{await f.close();}
+});
+
+test('a selected learner opens at their scheduled reveal without an extra five-second wait',async()=>{
+  const f=await fixture();
+  try{
+    const selected={requestId:crypto.randomUUID(),slide:0,subject:'learner',username:'An',createdAt:f.now,revealAt:f.now+1667};
+    await act(async()=>f.watch({...f.snapshot,draws:[selected]}));await f.flush();
+    assert.equal(f.window.document.querySelector('.congrat').open,false);
+    await f.fire(1667);
+    assert.equal(f.window.document.querySelector('.congrat').open,true);
+  }finally{await f.close();}
 });
 test('only the selected signed session sees congratulations, which closes after ten seconds without moving its slide',async()=>{
   const selection={requestId:crypto.randomUUID(),slide:5,subject:'learner',username:'An',createdAt:Date.now(),revealAt:Date.now()-1};
@@ -208,70 +260,13 @@ test('the supplied SVG design uses the server winner, a stationary gold bezel an
   }finally{await f.close();}
 });
 
-test('40-name demo is isolated from real draws and uses the English wheel surface',async()=>{
- const f=await fixture(true,[],{controls:true,count:2});
- try{
-  const doc=f.window.document;
-  await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();
-  assert.equal(doc.querySelector('#spotlight-title').textContent,'Wheel of Name');
-  assert.ok(doc.querySelector('[aria-labelledby=spotlight-title]').classList.contains('floating'));
-  assert.equal(doc.querySelector('.resultsPanel h3'),null,'independent name cards have no shared visible panel heading');
-  assert.doesNotMatch(doc.querySelector('.wheelSvg').textContent,/QUAY|EIU BA/);
-  await act(async()=>doc.querySelector('[aria-label="Class Spotlight settings"]').click());await f.flush();
-  const settings=doc.querySelector('[aria-labelledby=spotlight-settings-title]');
-  await act(async()=>settings.querySelector('input[type=checkbox]').click());await f.flush();
-  await act(async()=>settings.querySelector('.spin').click());await f.flush();
-  assert.equal(doc.querySelectorAll('.wheelSvg title').length,40);
-  assert.equal(new Set([...doc.querySelectorAll('.wheelSvg title')].map(n=>n.textContent)).size,40);
-  await act(async()=>doc.querySelector('[aria-label="Spin wheel"]').click());await f.flush();
-  assert.equal(f.requests.filter(r=>r.method==='POST'||r.method==='PUT').length,0);
-  assert.equal(doc.querySelectorAll('.targets li').length,0);
-  await f.fire(1667);
-  assert.equal(doc.querySelectorAll('.targets li').length,1,'the first result appears when the wheel stops');
-  await act(async()=>new Promise(resolve=>setTimeout(resolve,260)));await f.flush();
-  await f.fire(1667);
-  assert.equal(doc.querySelectorAll('.targets li').length,2,'the remaining names appear sequentially with each spin');
-  assert.equal(doc.querySelector('.congrat').open,false);
-  await act(async()=>doc.querySelector('[aria-label="Class Spotlight settings"]').click());await f.flush();
-  await act(async()=>settings.querySelector('input[type=checkbox]').click());await f.flush();
-  await act(async()=>settings.querySelector('.spin').click());await f.flush();
-  assert.equal(f.requests.filter(r=>r.method==='PUT').length,0,'demo counts never overwrite live classroom settings');
-  await act(async()=>doc.querySelector('.hubTrigger').click());await f.flush();
-  assert.equal(f.requests.filter(r=>r.method==='POST').length,1,'leaving demo restores the real draw API');
- }finally{await f.close();}
-});
-
-for(const pending of [false,true])test(`demo can save and spin while live settings ${pending?'remain pending':'fail verification'}`,async()=>{
- const slow=deferred();
- const f=await fixture(true,[],{controls:true,get:count=>count>=3?(pending?slow.promise:Response.json({message:'Unable to verify this classroom.'},{status:503})):undefined});
- try{
-  const doc=f.window.document;
-  await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();
-  await act(async()=>doc.querySelector('[aria-label="Class Spotlight settings"]').click());await f.flush();
-  const settings=doc.querySelector('[aria-labelledby=spotlight-settings-title]'),toggle=settings.querySelector('input[type=checkbox]');
-  if(!pending){assert.match(settings.querySelector('[role=alert]').textContent,/Unable to verify/);assert.equal(settings.querySelector('.spin').disabled,true);}
-  assert.equal(toggle.disabled,false);
-  await act(async()=>toggle.click());await f.flush();
-  assert.equal(settings.querySelector('[role=alert]'),null);
-  assert.equal(settings.querySelector('.spin').disabled,false);
-  await act(async()=>settings.querySelector('.spin').click());await f.flush();
-  assert.equal(settings.open,false);assert.equal(doc.querySelectorAll('.wheelSvg title').length,40);
-  if(pending){await act(async()=>slow.resolve(Response.json({message:'Late verification error'},{status:503})));await f.flush();assert.equal(settings.querySelector('[role=alert]'),null);}
-  await act(async()=>doc.querySelector('[aria-label="Spin wheel"]').click());await f.flush();await f.fire(1667);
-  assert.ok(doc.querySelector('.result').textContent);
-  assert.equal(f.requests.filter(r=>r.method==='POST'||r.method==='PUT').length,0);
- }finally{slow.resolve(Response.json({}));await f.close();}
-});
-
 test('multi-spin sequentially selects one learner per spin with flexible adaptive layout tiers',async()=>{
- const f=await fixture(true,[],{controls:true,count:3});
+ const f=await fixture(true,[],{controls:true,count:3,post:async(body,normal)=>Response.json({draw:{...(await normal().json()).draw,targets:[{subject:'learner',username:'An'},{subject:'other',username:'Binh'},{subject:'third',username:'Chi'}]},members:[{id:'learner',username:'An'},{id:'other',username:'Binh'},{id:'third',username:'Chi'}]})});
  try{
   const doc=f.window.document;
   await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();
-  // Switch to demo mode with 3 names
   await act(async()=>doc.querySelector('[aria-label="Class Spotlight settings"]').click());await f.flush();
   const settings=doc.querySelector('[aria-labelledby=spotlight-settings-title]');
-  await act(async()=>settings.querySelector('input[type=checkbox]').click());await f.flush();
   const input=settings.querySelector('input[type=number]');
   input.value='3';
   await act(async()=>input.dispatchEvent(new f.window.Event('change')));await f.flush();
@@ -309,7 +304,7 @@ test('multi-spin sequentially selects one learner per spin with flexible adaptiv
   const stationaryRotor=doc.querySelector('.wheelSvg .wheelStationary');
   assert.ok(stationaryRotor,'wheel rotor remains mounted with wheelStationary class after spin finishes');
   assert.equal(doc.querySelector('.wheelSvg .wheel'),null,'wheel rotor is no longer in spinning animation state');
-  assert.equal(stationaryRotor.querySelectorAll('title').length,40,'all 40 names remain intact on the wheel after spinning completes');
+  assert.equal(stationaryRotor.querySelectorAll('title').length,3,'all 40 names remain intact on the wheel after spinning completes');
 
   // Closing and reopening popup does NOT spin the wheel again
   await act(async()=>doc.querySelector('[aria-label="Close wheel"]').click());await f.flush();
@@ -320,7 +315,7 @@ test('multi-spin sequentially selects one learner per spin with flexible adaptiv
   assert.equal(doc.querySelector('.wheelSvg .wheel'),null,'wheel is stationary on reopen without re-spinning');
   const reopenedRotor=doc.querySelector('.wheelSvg .wheelStationary');
   assert.ok(reopenedRotor,'wheel rotor remains mounted with wheelStationary on reopen');
-  assert.equal(reopenedRotor.querySelectorAll('title').length,40,'names on wheel stay intact on reopen');
+  assert.equal(reopenedRotor.querySelectorAll('title').length,3,'names on wheel stay intact on reopen');
   assert.equal(doc.querySelectorAll('.targets li').length,3,'results remain fully displayed on reopen');
   assert.equal(doc.querySelector('.hubTrigger').getAttribute('aria-label'),'Spin wheel');
   assert.equal(doc.querySelector('.wheelLayout .spin'),null,'no separate Spin again button');
@@ -329,13 +324,12 @@ test('multi-spin sequentially selects one learner per spin with flexible adaptiv
 });
 
 test('the center STOP freezes the wheel and cancels every remaining name reveal',async()=>{
- const f=await fixture(true,[],{controls:true,count:3});
+ const f=await fixture(true,[],{controls:true,count:3,post:async(body,normal)=>Response.json({draw:{...(await normal().json()).draw,targets:[{subject:'learner',username:'An'},{subject:'other',username:'Binh'},{subject:'third',username:'Chi'}]},members:[{id:'learner',username:'An'},{id:'other',username:'Binh'},{id:'third',username:'Chi'}]})});
  try{
   const doc=f.window.document;
   await act(async()=>doc.querySelector('[aria-label="Open Class Spotlight"]').click());await f.flush();
   await act(async()=>doc.querySelector('[aria-label="Class Spotlight settings"]').click());await f.flush();
   const settings=doc.querySelector('[aria-labelledby=spotlight-settings-title]');
-  await act(async()=>settings.querySelector('input[type=checkbox]').click());await f.flush();
   await act(async()=>settings.querySelector('.spin').click());await f.flush();
   await act(async()=>doc.querySelector('[aria-label="Spin wheel"]').click());await f.flush();
   const before=[...doc.querySelectorAll('.wheelSvg title')].map(n=>n.textContent);
@@ -354,7 +348,7 @@ test('the center STOP freezes the wheel and cancels every remaining name reveal'
   await act(async()=>new Promise(r=>setTimeout(r,500)));await f.flush();
   assert.equal(doc.querySelectorAll('.targets li').length,1,'STOP during a later spin preserves only previously revealed cards');
   assert.deepEqual([...doc.querySelectorAll('.wheelSvg title')].map(n=>n.textContent),before);
-  assert.equal(f.requests.filter(r=>r.method==='POST').length,0);
+  assert.equal(f.requests.filter(r=>r.method==='POST').length,2);
  }finally{await f.close();}
 });
 test('STOP during an in-flight draw waits for the same server result and never cancels or repeats the mutation',async()=>{

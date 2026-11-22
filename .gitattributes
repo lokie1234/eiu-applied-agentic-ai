@@ -1,5 +1,5 @@
 # Self-contained lesson files are downloadable byte-preserving artifacts.
-course-content/**/*.js -text
+course-content/**/*.js -text whitespace=cr-at-eol
 lib/drive/builtin-decks/*.js -text
 
 # Preserve the original classroom downloads across Windows/Linux checkouts.
@@ -11,3 +11,9 @@ public/branding/apps/*.svg text eol=lf
 public/downloads/*.txt text eol=lf
 public/downloads/dynamic-sheet-dashboard/SKILL.md text eol=lf
 assets/emergency/SKILL.md text eol=lf
+
+# ABA attachments and verified official marks retain their original SHA-256 bytes.
+course-content/advanced-business-analytics/try-app/*.gs -text whitespace=cr-at-eol
+course-content/advanced-business-analytics/try-app/*.html -text whitespace=cr-at-eol
+course-content/advanced-business-analytics/skill-examples/**/*.md -text
+course-content/advanced-business-analytics/assets/* -text

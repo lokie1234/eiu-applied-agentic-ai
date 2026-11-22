@@ -66,7 +66,21 @@ export async function resetScopedLearningData(db: Database, scope: Awaited<Retur
     else loginUpdates.push({ id: row.id, details: { ...details, scopes: remaining, sectionKeys: [...new Set(remaining.map(item => String(item.section || "")))] } });
   }
   const check = async (query: PromiseLike<{ error: { message: string } | null }>) => { const {error} = await query; if(error)throw error; };
-  for (let i=0;i<deleteIds.length;i+=200) await check(db.from("access_audit_logs").delete().in("id",deleteIds.slice(i,i+200)));
+  for (let i=0;i<deleteIds.length;i+=200) {
+    const batch=deleteIds.slice(i,i+200);
+    await check(db.from("access_audit_logs").delete().in("id",batch));
+    const attachments=activity.filter(row=>batch.includes(row.id)&&row.action==="SHOWCASE_SUBMITTED")
+      .map(row=>(row.details||{}) as Row).filter(details=>[details.courseId,details.sectionId,details.imageId].every(value=>typeof value==="string"&&/^[a-f0-9-]{36}$/i.test(value)));
+    if(attachments.length){
+      // Only remove attachments after their explicitly reset records are gone.
+      // Storage cleanup failure must never delete another scope or restore data.
+      try {
+        const {SHOWCASE_IMAGE_BUCKET,showcaseImagePath}=await import("./showcaseImage");
+        const removed=await db.storage.from(SHOWCASE_IMAGE_BUCKET).remove(attachments.map(details=>showcaseImagePath(String(details.courseId),String(details.sectionId),String(details.imageId))));
+        if(removed.error)console.error("Reset completed; private showcase image cleanup failed.");
+      } catch { console.error("Reset completed; private showcase image cleanup failed."); }
+    }
+  }
   for (const login of loginUpdates) await check(db.from("access_audit_logs").update({details:login.details}).eq("id",login.id));
   // These physical tables predate scoped courses and belong only to Applied AI.
   if (scope.legacySections.length) {

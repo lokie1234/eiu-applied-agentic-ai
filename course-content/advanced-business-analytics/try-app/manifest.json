@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Code.gs",
+    "sha256": "c102f39d3bc8ddfcd96692b167cafe733521b6eee383bb11f24a015fb9eef306",
+    "source": "User-provided text file 1"
+  },
+  {
+    "name": "Index.html",
+    "sha256": "259b3434c075c94bbfae4e31af630106152e9984c1246211e8fc36ab4cb88d6e",
+    "source": "User-provided text file 2"
+  },
+  {
+    "name": "Register.html",
+    "sha256": "fa8f6b380c00b0b64fbdd43ca8f1c692e7f4f2d167e59fa53227e2b442b2cb5b",
+    "source": "User-provided text file 3"
+  },
+  {
+    "name": "Demo.html",
+    "sha256": "c13b35c83befb2a49a473da8bc49ee1d92e3f9ab8bd240a86366f9db052c733f",
+    "source": "User-provided text file 4"
+  }
+]

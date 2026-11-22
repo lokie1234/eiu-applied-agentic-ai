@@ -1,0 +1,101 @@
+{
+  "cc16c754-a9c6-4967-bfa9-c45f615e0f4e": {
+    "courseId": "a0ab05b2-ef8e-4cba-a85f-6ef213871c1a",
+    "path": "course-content/advanced-business-analytics/Week8Session1.js",
+    "revision": "8c7405d0f6a1e6944268f521311a389d640caa445ea9224b5ba0aae75ccd57c1",
+    "bytes": 1179080,
+    "teachingSlides": 11,
+    "learnerSlides": 11,
+    "preservesBusinessTemplate": false,
+    "nativeSlides": {
+      "teaching": {
+        "5": "showcase",
+        "11": "showcase"
+      },
+      "learner": {
+        "5": "showcase",
+        "11": "showcase"
+      }
+    },
+    "showcasePractice": {
+      "title": "In-class practice",
+      "minutes": 15,
+      "goal": "Use a well-structured prompt to finish a familiar manual task.",
+      "steps": [
+        "Choose one task you usually do manually.",
+        "Use suitable prompt components.",
+        "Run, check and revise the AI output.",
+        "Share the result as a link or image."
+      ],
+      "deliverable": "",
+      "allowImages": true,
+      "allowDelete": true
+    },
+    "showcasePractices": {
+      "5": {
+        "title": "In-class practice",
+        "minutes": 15,
+        "goal": "Use a well-structured prompt to finish a familiar manual task.",
+        "steps": [
+          "Choose one task you usually do manually.",
+          "Use suitable prompt components.",
+          "Run, check and revise the AI output.",
+          "Share the result as a link or image."
+        ],
+        "deliverable": "",
+        "allowImages": true,
+        "allowDelete": true
+      },
+      "11": {
+        "title": "In-class practice",
+        "minutes": 15,
+        "goal": "Create any product using an AI-integrated tool.",
+        "steps": [
+          "Choose an AI tool you know or one introduced here.",
+          "Create a product of your choice.",
+          "Check the result and improve one detail.",
+          "Share the result as a link or image."
+        ],
+        "deliverable": "",
+        "allowImages": true,
+        "activityId": "ai-tools-product",
+        "allowDelete": true
+      }
+    }
+  },
+  "961a0a16-0dc0-486e-a501-d965a3f3c7ce": {
+    "courseId": "a0ab05b2-ef8e-4cba-a85f-6ef213871c1a",
+    "path": "course-content/advanced-business-analytics/Week8Session2.js",
+    "revision": "5ef184b4312edbc90275986a7d0413569a39ea55ee59582a7f7a23b178528d72",
+    "bytes": 443564,
+    "teachingSlides": 6,
+    "learnerSlides": 6,
+    "preservesBusinessTemplate": false,
+    "nativeSlides": {
+      "teaching": {
+        "4": "showcase"
+      },
+      "learner": {
+        "4": "showcase"
+      }
+    },
+    "showcasePractices": {
+      "4": {
+        "title": "In-class practice",
+        "minutes": 15,
+        "goal": "Use the need → prompt → AI code → Apps Script flow to deploy a web app for your own needs.",
+        "steps": [
+          "Choose a small need and define what the web app should do.",
+          "Write a clear prompt and ask AI for the code and setup steps.",
+          "Paste the files into Apps Script, test with sample data and deploy.",
+          "Check viewer access, then share the /exec link or a screenshot."
+        ],
+        "deliverable": "",
+        "allowImages": true,
+        "allowDelete": true,
+        "activityId": "gas-webapp",
+        "hint": "Create a web app on google appscript and take the googlesheet as the database, this web app is about....... (your demand)."
+      }
+    }
+  }
+}

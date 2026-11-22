@@ -11,8 +11,8 @@ test('registered courses with large embedded CSS and fonts fit the Live protocol
   const source=new Window(),document=source.document;document.body.innerHTML='<div id="root"></div>';
   try{
    const code=runtime.createTsxDocument(fs.readFileSync(entry.path,'utf8'),1,'','','',true).match(/<script>([\s\S]*?)<\/script>/)[1];
-   vm.runInNewContext(code,{window:source,document,Node:source.Node,URL:source.URL,parent:{postMessage(){}},setTimeout:source.setTimeout.bind(source),clearTimeout:source.clearTimeout.bind(source)});
-   assert.equal(document.querySelector('#error'),null,entry.path);
+   vm.runInNewContext(code,{window:source,document,Node:source.Node,URL:source.URL,HTMLElement:source.HTMLElement,customElements:source.customElements,ResizeObserver:source.ResizeObserver,parent:{postMessage(){}},setTimeout:source.setTimeout.bind(source),clearTimeout:source.clearTimeout.bind(source)});
+   assert.equal(document.querySelector('#error')?.textContent,undefined,entry.path);
    Object.defineProperty(document.documentElement,'clientWidth',{value:960});Object.defineProperty(document.documentElement,'clientHeight',{value:540});
    let id=0;const state=dom.captureLiveDocument(document,1,new WeakMap(),()=>++id);
    const encoded=protocol.applyLivePatch('',JSON.stringify({...state,reset:true,removed:[]}));

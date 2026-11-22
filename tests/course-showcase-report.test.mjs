@@ -11,28 +11,28 @@ const require = createRequire(import.meta.url);
 function load(file, dependencies = {}) {
   const exports = {};
   const code = ts.transpileModule(fs.readFileSync(file, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
-  vm.runInNewContext(code, { exports, require: name => name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false } : dependencies[name] ?? ((name.startsWith("@/lib/report") || name === "@/lib/courseHierarchy") ? load(name.replace("@/", "") + ".ts", dependencies) : require(name)), URL, Response, console, Buffer, Date });
+  vm.runInNewContext(code, { exports, require: name => name === "@/lib/realtime/publish" ? { notifyRealtime() {} } : name === "@/lib/realtime/server" ? { realtimeConfigured: () => false } : name === "@/lib/realtime/client" ? { listenInteractive: () => () => {}, realtimeReady: () => false, useRealtimeReady: () => false } : dependencies[name] ?? ((name.startsWith("@/lib/report") || name === "@/lib/courseHierarchy") ? load(name.replace("@/", "") + ".ts", dependencies) : require(name)), URL, Request, File, Response, console, Buffer, Date });
   return exports;
 }
 const courses = [{ id: "c-ai", slug: "applied-agentic-ai", title: "Applied Agentic AI" }, { id: "c-web", slug: "web-development", title: "AI-Powered Web Development" }];
 const sections = [{ id: "s-ai", course_id: "c-ai", section_key: "section1", title: "Section 1 · AI" }, { id: "s-web", course_id: "c-web", section_key: "section1", title: "Section 1 · Web" }];
 const identity = { sessionId: "session-one", name: "Alice", email: "alice@example.test", information: { department: "IT" }, fields: [{ id: "department", label: "Department" }] };
 function database(tables) {
-  return { from(table) { const filters = []; let inserted;
-    const q = { select() { return q; }, in(k,values) { filters.push(row=>values.includes(row[k]));return q; }, eq(k,v) { filters.push(row=>row[k]===v); return q; }, contains(k,v) { filters.push(row=>Object.entries(v).every(([key,value])=>row[k]?.[key]===value)); return q; },
+  return { from(table) { const filters = []; let inserted,deleting=false;
+    const q = { select() { return q; }, delete(){deleting=true;return q;}, is(k,v){filters.push(row=>(k==='details->>showcaseActivity'?row.details?.showcaseActivity??null:row[k]??null)===v);return q;}, in(k,values) { filters.push(row=>values.includes(row[k]));return q; }, eq(k,v) { filters.push(row=>k==='id'?String(row[k])===String(v):row[k]===v); return q; }, contains(k,v) { filters.push(row=>Object.entries(v).every(([key,value])=>row[k]?.[key]===value)); return q; },
       gte(k,v) { filters.push(row=>row[k]>=v); return q; }, lte(k,v) { filters.push(row=>row[k]<=v); return q; }, order() { return q; }, limit() { return q; },
       gt(k,v) { filters.push(row=>row[k]>v); return q; },
       insert(row) { inserted={...row,id:77,created_at:"2026-10-21T06:00:00Z"};(tables[table] ||= []).push(inserted);return q; },
       single:async()=>({data:inserted}),range:async()=>({data:(tables[table]||[]).filter(row=>filters.every(f=>f(row)))}),
-      maybeSingle:async()=>({data:(tables[table]||[]).filter(row=>filters.every(f=>f(row))).at(-1)||null}),
+      maybeSingle:async()=>{const data=(tables[table]||[]).filter(row=>filters.every(f=>f(row))).at(-1)||null;if(deleting)tables[table]=(tables[table]||[]).filter(row=>!filters.every(f=>f(row)));return{data};},
       then(resolve,reject) { return Promise.resolve({data:(tables[table]||[]).filter(row=>filters.every(f=>f(row)))}).then(resolve,reject); },
     };return q;
   } };
 }
-function endpoint(tables, access) {
+function endpoint(tables, access, metadata) {
   return load("app/api/sections/[id]/showcase/route.ts", { "next/server": { NextResponse: { json: (data, options={}) => ({ data, status: options.status || 200 }) } },
     "@/lib/sectionTermination": load("lib/sectionTermination.ts", { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin:()=>database(tables) } }),
-    "@/lib/auth/currentUser": { currentUserAccess: async()=>access }, "@/lib/supabase/server": { getSupabaseAdmin:()=>database(tables) } });
+    "@/lib/security/rateLimit": {consumeRateLimit:async()=>({allowed:true,retry_after:0})}, "@/lib/compiledSectionMetadata": { getCompiledSectionMetadata:()=>metadata }, "@/lib/showcaseImage": load("lib/showcaseImage.ts", {"server-only":{}}), "@/lib/auth/currentUser": { currentUserAccess: async()=>access }, "@/lib/supabase/server": { getSupabaseAdmin:()=>database(tables) } });
 }
 const context = id => ({ params: Promise.resolve({ id }) });
 const request = body => new Request("http://localhost/api/sections/s-web/showcase",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
@@ -96,6 +96,33 @@ test("report keeps identical section keys and learner sessions separate across c
   assert.ok(legacy);assert.equal(legacy.getCell(aiStats.getRow(5).values.indexOf("B\u00e0i chia s\u1ebb")).value,"https://script.google.com/macros/s/old/exec");
   assert.equal((await report.GET(new Request("http://localhost/api/admin/report?courseId=c-ai&sectionId=s-web"))).status,400);
   const options=await (await report.GET(new Request("http://localhost/api/admin/report?mode=sections"))).json();assert.equal(options.courses.length,2);assert.equal(options.courseSections.length,2);
+});
+
+test("image URLs and repeated showcases use existing report columns and exactly two worksheets",async()=>{
+  const scope={courseId:"c-web",sectionId:"s-web",section:"section1",submissionStorage:"audit"};
+  const first="https://lesson.test/api/sections/s-web/showcase?image=first",second="https://lesson.test/api/sections/s-web/showcase?image=second";
+  const tables={courses,course_sections:sections,access_audit_logs:[
+    {id:1,action:"PASSCODE_LOGIN",created_at:"2026-11-21T01:00:00Z",details:{...identity,scopes:[scope]}},
+    ...[first,second].map((url,i)=>({id:i+2,action:"SHOWCASE_SUBMITTED",created_at:`2026-11-21T02:0${i}:00Z`,details:{...identity,...scope,url,imageId:String(i)}})),
+  ]};
+  const report=load("app/api/admin/report/route.ts",{exceljs:{default:ExcelJS},"@/lib/currentRole":{currentRole:async()=>"admin"},"@/lib/supabase/server":{getSupabaseAdmin:()=>database(tables)}});
+  const response=await report.GET(new Request("http://localhost/api/admin/report?courseId=c-web&sectionId=s-web"));assert.equal(response.status,200);
+  const book=new ExcelJS.Workbook();await book.xlsx.load(Buffer.from(await response.arrayBuffer()));assert.equal(book.worksheets.length,2);
+  const stats=book.getWorksheet("Th\u1ed1ng k\u00ea");assert.equal(stats.rowCount,6);const values=stats.getRow(6).values;assert.ok(values.includes(first));assert.ok(values.includes(second));
+});
+
+test("permanent showcase deletion removes its next Excel result without erasing login identity or another practice",async()=>{
+ const scope={courseId:'c-web',sectionId:'s-web',section:'section1',submissionStorage:'audit'},removed='https://example.test/deleted',kept='https://example.test/other-practice';
+ const tables={courses,course_sections:sections,access_audit_logs:[
+  {id:1,action:'PASSCODE_LOGIN',created_at:'2026-11-22T01:00:00Z',details:{...identity,scopes:[scope]}},
+  {id:2,course_id:'c-web',action:'SHOWCASE_SUBMITTED',created_at:'2026-11-22T02:00:00Z',details:{...identity,...scope,url:removed}},
+  {id:3,course_id:'c-web',action:'SHOWCASE_SUBMITTED',created_at:'2026-11-22T03:00:00Z',details:{...identity,...scope,url:kept,showcaseActivity:'ai-tools-product'}},
+ ]};
+ const report=load('app/api/admin/report/route.ts',{exceljs:{default:ExcelJS},'@/lib/currentRole':{currentRole:async()=> 'admin'},'@/lib/supabase/server':{getSupabaseAdmin:()=>database(tables)}});
+ const values=async()=>{const response=await report.GET(new Request('http://localhost/api/admin/report?courseId=c-web&sectionId=s-web'));const book=new ExcelJS.Workbook();await book.xlsx.load(Buffer.from(await response.arrayBuffer()));assert.equal(book.worksheets.length,2);const stats=book.getWorksheet('Th\u1ed1ng k\u00ea');assert.equal(stats.rowCount,6);return stats.getRow(6).values;};
+ assert.ok((await values()).includes(removed));const teacher=access();teacher.sections[0].canFacilitate=true;const api=endpoint(tables,teacher,{showcasePractice:{allowDelete:true}});
+ const response=await api.DELETE(new Request('http://localhost/api/sections/s-web/showcase',{method:'DELETE',headers:{origin:'http://localhost'},body:JSON.stringify({id:'2'})}),context('s-web'));assert.equal(response.status,200);
+ const remaining=await values();assert.ok(!remaining.includes(removed));assert.ok(remaining.includes(kept));assert.ok(remaining.includes('Alice'));assert.deepEqual(tables.access_audit_logs.map(row=>row.id),[1,3]);
 });
 
 test("compiled learner slide 28 requests the native submission board only for its own page and retains the content binding",async()=>{

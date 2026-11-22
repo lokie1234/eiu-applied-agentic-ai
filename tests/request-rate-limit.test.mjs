@@ -43,6 +43,14 @@ test("reload and login budgets stay separate from polling, prefetch, assets and 
   assert.equal(requestPolicy("/api/arbitrary-path-one", "POST", html).group, requestPolicy("/api/arbitrary-path-two", "POST", html).group);
 });
 
+test("scoped showcase deletion has one bounded budget without widening other writes",()=>{
+ const {requestPolicy}=limiter(),headers=new Headers(),id='cc16c754-a9c6-4967-bfa9-c45f615e0f4e';
+ assert.equal(requestPolicy(`/api/sections/${id}/showcase`,'DELETE',headers).limit,30);
+ assert.equal(requestPolicy(`/api/sections/${id}/showcase`,'POST',headers).limit,5);
+ assert.equal(requestPolicy('/api/sections/arbitrary/showcase','DELETE',headers).group,'writes');
+ assert.equal(requestPolicy(`/api/sections/${id}/showcase`,'DELETE',headers).group,requestPolicy('/api/sections/961a0a16-0dc0-486e-a501-d965a3f3c7ce/showcase','DELETE',headers).group);
+});
+
 test("50 learners on one Vercel IP have independent five-request buckets and a generous network guard", () => {
   const f = limiter(undefined, { VERCEL: "1" });
   const policy = f.requestPolicy("/learn", "GET", new Headers({ accept: "text/html" }));
