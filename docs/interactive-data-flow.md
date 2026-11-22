@@ -28,6 +28,20 @@ Convex `signals` enforces section grants; `online` exposes only the admin/teachi
 
 ## Frontend and new sections
 
+Admin-only gears on the course chooser edit folder, course and section names and
+descriptions through `PATCH /api/admin/catalog`. The server checks the actual
+administrator session, origin, target existence and bounded plain-text fields.
+Course title/summary save together with an optimistic metadata comparison.
+Section display names and descriptions share one `sectionDetails[id]` metadata
+entry on their existing parent course, so both fields save atomically without
+changing section IDs, section keys, lesson bytes or access/template settings.
+Catalog loading, signed access and report labels resolve these display fields;
+the existing admin section rename also synchronizes an existing override.
+Folder edits reuse the shared master registry and report failed child writes.
+The client mounts its native dialog only on demand, retains failed drafts and
+refreshes the existing catalog after confirmed success. Teaching, Learning and
+admin access previews have no editing controls; direct non-admin writes fail.
+
 1. Bind the actual Supabase `courseId` and `sectionId` in `course-content/sources.json` and the existing native lesson runtime. `section1` alone is not a global ID.
 2. Use the existing `QuizSlide` / `ShowcaseSlide` and scoped `/api/sections/[id]/...` endpoints. Preserve all legacy adapters used by Applied Agentic AI. Do not bake keys, learner identity or cross-course IDs into generated lesson JS.
 3. Root `LessonPortal` owns the authenticated Convex client, scoped signal subscriptions and live counts. Shared slides listen through `listenInteractive(sectionId, topic, refresh)`; no extra WebSocket or polling loop per slide. `interactiveSectionId()` resolves legacy keys only within Applied Agentic AI.

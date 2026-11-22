@@ -6,6 +6,7 @@ export type CourseSystemIcon = {
 };
 
 export type CourseAccess = {
+  folderGroupDescription?: string;
   id: string;
   slug: string;
   title: string;
@@ -22,6 +23,7 @@ export type CourseAccess = {
 };
 
 export type SectionAccess = {
+  description?: string;
   wheelEnabled?: boolean;
   liveEnabled?: boolean;
   terminationEnabled?: boolean;

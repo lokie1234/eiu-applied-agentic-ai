@@ -11,10 +11,11 @@ export function reportScope(row: Row, courses: Row[], sections: Row[]): Row {
   const courseId = explicitCourse || String(matchedSection?.course_id || legacyCourse?.id || "applied-agentic-ai");
   const course = courses.find(course => course.id === courseId);
   const section = matchedSection || sections.find(section => section.course_id === courseId && section.section_key === sectionKey);
+  const catalogDetails=course?.sectionDetails as Record<string,{title?:string}>|undefined;
   return { ...row, courseId, courseTitle: String(row.courseTitle || course?.title || (courseId === "applied-agentic-ai" ? "Applied Agentic AI" : courseId)),
     folderGroupId: String(course?.folderGroupId || row.folderGroupId || "fg-ai-agentic"), folderGroupName: String(course?.folderGroupName || row.folderGroupName || "Chương Trình AI & Agentic"),
     sectionId: explicitSection || String(section?.id || `${courseId}:${sectionKey}`), section: sectionKey || String(section?.section_key || ""),
-    sectionTitle: String(row.sectionTitle || section?.title || sectionKey.replace(/^section(\d+)$/i, "Section $1")) };
+    sectionTitle: String(catalogDetails?.[String(section?.id||explicitSection)]?.title || row.sectionTitle || section?.title || sectionKey.replace(/^section(\d+)$/i, "Section $1")) };
 }
 
 export function scopedReportActivity(activity: Row[], courses: Row[], sections: Row[]): Row[] {

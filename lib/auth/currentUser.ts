@@ -25,7 +25,7 @@ export async function currentUserAccess(signal?: AbortSignal, resolvedSession?: 
   }
   const sections = resolved.sections.filter(section => section.status === "active").map(section => ({
     id: section.id, courseId: section.course_id, sectionKey: section.section_key,
-    title: section.title, position: section.position, contentType: section.content_type,
+    title: section.title, description:section.description, position: section.position, contentType: section.content_type,
     sourceFilename: section.source_filename, slideCount: section.slide_count,
     contentRevision: section.content_path ? createHash("sha256").update(section.content_path).digest("hex").slice(0, 16) : null,
     uploadedContent: section.content_path?.startsWith("drive:override:") === true || section.content_path?.startsWith("local:") === true,
@@ -46,6 +46,7 @@ export async function currentUserAccess(signal?: AbortSignal, resolvedSession?: 
     driveEnabled: session.role === "admin" ? session.authMethod === "google" : false,
     courses: resolved.courses.filter(course => course.status === "active").map(course => ({
       id: course.id, slug: course.slug, title: course.title, description: course.metadata.summary,
+      folderGroupDescription:catalog.folderGroups.find(folder=>folder.id===course.folderGroupId)?.description||'',
       languageLabel: course.language_label, isUnlocked: true,
       folderGroupId: course.folderGroupId, folderGroupName: course.folderGroupName, folderOrder: course.folderOrder,
       systemIcons: course.systemIcons, sectionTemplates: course.metadata.sectionTemplates,

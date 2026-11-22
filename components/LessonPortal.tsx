@@ -23,6 +23,7 @@ import CourseDiscoveryHeading from "./CourseDiscoveryHeading";
 import HairlineLoading from "./HairlineLoading";
 import CourseToolRow from "./CourseToolRow";
 import SectionEnergy from "./SectionEnergy";
+import CatalogEditButton from './CatalogEditButton';
 import type { LiveSelection } from './LivePresentation';
 const LiveSectionControl = dynamic(() => import('./LivePresentation').then(module => module.LiveSectionControl), { ssr: false });
 const LiveController = dynamic(() => import('./LivePresentation').then(module => module.LiveController), { ssr: false });
@@ -158,6 +159,7 @@ type ReportSectionOption = { value: string; label: string };
 type ReportScopeOption = ReportSectionOption & { courseId: string; courseTitle: string; folderGroupId: string };
 type ReportCourseOption = ReportSectionOption & { folderGroupId: string };
 type CourseFolderSection = {
+  description?: string;
   wheelEnabled?: boolean;
   liveEnabled?: boolean;
   terminationEnabled?: boolean;
@@ -184,6 +186,7 @@ type CourseFolder = {
   isUnlocked?: boolean;
   folderGroupId?: string;
   folderGroupName?: string;
+  folderGroupDescription?: string;
   folderOrder?: number;
   systemIcons?: Array<{ id: string; name: string; url: string }>;
   sections: CourseFolderSection[];
@@ -1093,7 +1096,7 @@ export default function LessonPortal({
         onKeyDown={event => { if (event.key === "Escape") { event.stopPropagation(); closeCourse(true); } }}>
         <div className={styles.inlineSectionsHeader}>
           <div>
-            <h2 className={styles.illustratedTitle}><LearningAccent /><span>{course.title}</span></h2>
+            <div className={styles.catalogTitleRow}><h2 className={styles.illustratedTitle}><LearningAccent /><span>{course.title}</span></h2>{isAdmin&&<CatalogEditButton kind="course" id={course.id} title={course.title} description={course.description||''}/>}</div>
             {course.description && <p>{course.description}</p>}
           </div>
           <button type="button" className={styles.backToCourses} onClick={event => closeCourse(event.detail === 0)} aria-label={t("Back to courses")}>
@@ -1130,6 +1133,8 @@ export default function LessonPortal({
                   {canOpen && <SectionEnergy />}
                   <span data-energy-exclude>{t("SECTION")} {courseSection.position}</span>
                   <strong data-energy-exclude className={styles.illustratedTitle}><LearningAccent kind="page" /><span>{courseSection.title}</span></strong>
+                  {isAdmin&&<div className={styles.sectionCatalogEdit}><CatalogEditButton kind="section" id={courseSection.id} title={courseSection.title} description={courseSection.description}/></div>}
+                  {courseSection.description&&<p className={styles.sectionDescription}>{courseSection.description}</p>}
                   {canOpen && <div className={styles.sectionEnergySpace} aria-hidden="true" />}
                   <small data-energy-exclude className={canOpen ? styles.sectionSlideBadge : undefined} aria-live="polite" aria-atomic="true">
                     {canOpen ? <>
@@ -1323,7 +1328,8 @@ export default function LessonPortal({
               }}>
               <div className={styles.folderShelf} role="group" aria-label={t("Course folders")}>
                 {paginatedFolders.map(group => (
-                  <button type="button" key={group.id}
+                  <div key={group.id} className={styles.folderChoiceWrap}>
+                  <button type="button"
                     data-icon-surface="folder"
                     className={`${styles.folderChoice} ${!isSearchingCourses && openFolder?.id === group.id ? styles.folderChoiceSelected : ""}`}
                     aria-pressed={!isSearchingCourses && openFolder?.id === group.id} aria-controls="course-folder-content"
@@ -1338,6 +1344,8 @@ export default function LessonPortal({
                       <span className={styles.folderCourseCount}>{group.courses.length} {group.courses.length === 1 ? t("course") : t("courses")}</span>
                     </span>
                   </button>
+                  {isAdmin&&<div className={styles.folderCatalogEdit}><CatalogEditButton kind="folder" id={group.id} title={group.name} description={group.courses[0]?.folderGroupDescription}/></div>}
+                  </div>
                 ))}
               </div>
               {folderTotalPages > 1 && (
@@ -1403,6 +1411,7 @@ export default function LessonPortal({
                           </svg>)}
                           <div className={styles.courseCardHeader}>
                             <h3 className={`${styles.courseTitle} ${styles.illustratedTitle}`} id={`course-title-${course.id}`}><LearningAccent /><span className={styles.courseNameText}>{course.title}</span></h3>
+                            {isAdmin&&<CatalogEditButton kind="course" id={course.id} title={course.title} description={course.description||''}/ >}
                             {(isAdmin || course.sections.some(item=>item.canFacilitate)) && <span className={styles.courseLearners}><i className={styles.liveDot} aria-hidden="true" />{presenceCounts.byCourse?.[course.id] ?? 0} {t("online", "trực tuyến")}</span>}
                           </div>
                           <div className={styles.courseCardMain}>

@@ -424,10 +424,11 @@ export async function POST(request: Request) {
         .from("course_sections")
         .update({ title })
         .eq("id", sectionId)
-        .select("id")
+        .select("id,course_id")
         .maybeSingle();
       if (error) throw error;
       if (!section) return NextResponse.json({ success: false, message: "Section not found." }, { status: 404 });
+      if(section.course_id)await updateCourseMetadata(section.course_id,current=>current.sectionDetails?.[sectionId]?{...current,sectionDetails:{...current.sectionDetails,[sectionId]:{...current.sectionDetails[sectionId],title}}}:current);
       revalidatePath("/learn");
     } else if (action === "delete_section") {
       const sectionId = String(body.sectionId ?? "");

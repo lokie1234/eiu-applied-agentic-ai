@@ -17,7 +17,7 @@ export function courseHierarchy(rawCourses: Row[]) {
   const courses = rawCourses.map(course => {
     const meta = metadata(course);
     const folder = folders.find(folder => folder.id === (course.folderGroupId || meta.folderGroupId)) || fallback;
-    return { ...course, folderGroupId: folder.id, folderGroupName: folder.name };
+    return { ...course, folderGroupId: folder.id, folderGroupName: folder.name,...(meta.sectionDetails?{sectionDetails:meta.sectionDetails}:{}) };
   });
   return { folders, courses };
 }

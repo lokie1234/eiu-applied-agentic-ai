@@ -95,6 +95,12 @@
 .folderChoiceSelected, .folderChoiceSelected:hover { border-color: #e9ca8b; background: rgba(24, 84, 127, .62); box-shadow: inset 4px 0 #e9ca8b; }
 .folderSelectedMark { position: absolute; top: 9px; right: 8px; display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: #e9ca8b; color: #082945; font-size: 12px; font-weight: 800; }
 .folderChoice:focus-visible { outline: 2px solid #e9ca8b; outline-offset: 1px; }
+.folderChoiceWrap{position:relative;min-height:0;min-width:0;display:grid}.folderChoiceWrap>.folderChoice{width:100%;height:100%}
+.folderCatalogEdit{position:absolute;left:8px;top:8px;z-index:4}
+.sectionCatalogEdit{position:absolute;top:10px;right:10px;z-index:5}
+.inlineSections .cards .sectionLaunchButton:has(.sectionCatalogEdit) .cardLiveUsers{right:48px}
+.sectionDescription{font-size:15px;line-height:1.4;white-space:pre-line;overflow-wrap:anywhere;margin:8px 0;color:#b5cbe0;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.catalogTitleRow{display:flex;align-items:center;gap:12px}
 .folderArtwork { position: relative; display: block; width: 136px; height: min(104px, 100%); min-height: 0; justify-self: center; align-self: center; pointer-events: none; overflow: hidden; }
 .folderChoiceText { min-width: 0; display: flex; align-items: center; justify-content: center; padding-bottom: 28px; }
 .folderMetaRow { position: absolute; right: 10px; bottom: 6px; display: flex; align-items: center; justify-content: flex-end; gap: 6px; max-width: calc(100% - 20px); }

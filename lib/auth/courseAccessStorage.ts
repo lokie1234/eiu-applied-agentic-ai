@@ -42,6 +42,7 @@ export type CourseMetadata = {
   sectionAccessCodes?: Record<string, AccessCodes>;
   sectionPasscodes?: Record<string, string>; // retained for backward compatibility
   sectionTemplates?: Record<string, string>;
+  sectionDetails?: Record<string,{title:string;description:string}>;
   terminableSectionIds?: string[];
   sectionLive?: Record<string, boolean>;
   sectionWheel?: Record<string, boolean>;
@@ -71,6 +72,7 @@ export type CourseWithDetails = {
 };
 
 type SectionWithPasscode = {
+  description?: string;
   hidden?: boolean;
   id: string;
   course_id: string;
@@ -185,6 +187,7 @@ export function parseCourseMetadata(raw: string | null | undefined, defaultSumma
         terminableSectionIds: Array.isArray(parsed.terminableSectionIds) ? [...new Set<string>(parsed.terminableSectionIds.filter((id: unknown): id is string => typeof id === "string"))] : [],
         sectionLive: Object.fromEntries(Object.entries(parsed.sectionLive ?? {}).filter(([, value]) => typeof value === 'boolean')) as Record<string, boolean>,
         sectionWheel: Object.fromEntries(Object.entries(parsed.sectionWheel ?? {}).filter(([, value]) => typeof value === 'boolean')) as Record<string, boolean>,
+        sectionDetails: Object.fromEntries(Object.entries(parsed.sectionDetails ?? {}).filter(([,value])=>value&&typeof value==='object'&&typeof (value as {title?:unknown}).title==='string'&&typeof (value as {description?:unknown}).description==='string')) as CourseMetadata['sectionDetails'],
         templateKey: typeof parsed.templateKey === "string" ? parsed.templateKey : undefined,
         slideTemplates: Array.isArray(parsed.slideTemplates) ? parsed.slideTemplates : undefined,
         sectionTemplates: Object.fromEntries(Object.entries(parsed.sectionTemplates ?? {}).filter(([, value]) => typeof value === "string").map(([key, value]) => [key, String(value)])),
@@ -236,6 +239,7 @@ export function serializeCourseMetadata(metadata: CourseMetadata): string {
     sectionAccessCodes: metadata.sectionAccessCodes || {},
     sectionPasscodes: metadata.sectionPasscodes || {},
     sectionTemplates: metadata.sectionTemplates || {},
+    ...(metadata.sectionDetails?{sectionDetails:metadata.sectionDetails}:{}),
     unlocked: Boolean(metadata.unlocked),
     ...(metadata.unlockedEmails && metadata.unlockedEmails.length > 0 ? { unlockedEmails: metadata.unlockedEmails } : {}),
     folderGroupId: metadata.folderGroupId || "",
@@ -322,7 +326,8 @@ export async function getCoursesAndSectionsData(signal?: AbortSignal) {
       hidden: Boolean(parentCourse?.metadata.hiddenSectionIds?.includes(String(section.id))),
       course_id: String(section.course_id),
       section_key: String(section.section_key),
-      title: String(section.title),
+      title: parentCourse?.metadata.sectionDetails?.[String(section.id)]?.title ?? String(section.title),
+      description: parentCourse?.metadata.sectionDetails?.[String(section.id)]?.description ?? '',
       position: Number(section.position),
       status: section.status,
       passcode: code,
@@ -458,9 +463,10 @@ export async function updateFolderGroup(id: string, name: string, description?: 
 
   // Also update courses that reference this folder group
   const supabase = getSupabaseAdmin();
-  const { data: courses } = await supabase.from("courses").select("id, description").neq("status", "archived");
+  const { data: courses,error:courseReadError } = await supabase.from("courses").select("id, description").neq("status", "archived");
+  if(courseReadError)throw courseReadError;
   if (courses && courses.length > 0) {
-    await Promise.all(
+    const results=await Promise.all(
       courses.map((c) => {
         const meta = parseCourseMetadata(c.description);
         if (meta.folderGroupId === id) {
@@ -473,6 +479,7 @@ export async function updateFolderGroup(id: string, name: string, description?: 
         return Promise.resolve();
       })
     );
+    for(const result of results)if(result?.error)throw result.error;
   }
 
   return updatedGroups;
