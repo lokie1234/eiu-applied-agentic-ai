@@ -24,6 +24,8 @@ import HairlineLoading from "./HairlineLoading";
 import CourseToolRow from "./CourseToolRow";
 import SectionEnergy from "./SectionEnergy";
 import CatalogEditButton from './CatalogEditButton';
+import PasscodeSimulation from './PasscodeSimulation';
+import type {PasscodeSimulation as SimulationPreview} from '@/lib/passcodeSimulationTypes';
 import type { LiveSelection } from './LivePresentation';
 const LiveSectionControl = dynamic(() => import('./LivePresentation').then(module => module.LiveSectionControl), { ssr: false });
 const LiveController = dynamic(() => import('./LivePresentation').then(module => module.LiveController), { ssr: false });
@@ -109,11 +111,9 @@ function LearningAccent({ kind = "book" }: { kind?: "library" | "collection" | "
   return <LearningInnovationIcon kind={kind === "collection" || kind === "library" ? "folder" : kind === "page" ? "section" : "course"} className={styles.learningAccent} compact />;
 }
 
-function ActionIcon({ kind }: { kind: "access" | "learning" | "teaching" | "report" | "reset" | "signout" }) {
+function ActionIcon({ kind }: { kind: "access" | "report" | "reset" | "signout" }) {
   return <svg className={styles.actionIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
     {kind === "access" ? <><path d="m10 3-.6 2.2-2 .9-2-.7-2 3.4 1.6 1.5v2.4l-1.6 1.5 2 3.4 2-.7 2 .9L10 21h4l.6-2.2 2-.9 2 .7 2-3.4-1.6-1.5v-2.4l1.6-1.5-2-3.4-2 .7-2-.9L14 3Z" /><circle cx="12" cy="12" r="3" /></>
-      : kind === "learning" ? <><path d="M12 6C9 3.5 5 3.5 2 5v14c3-1.5 7-1.5 10 1 3-2.5 7-2.5 10-1V5c-3-1.5-7-1.5-10 1Z" fill="currentColor" fillOpacity=".14" /><path d="M12 6v14M5 8l4 1M5 12l4 1m6-4 4-1m-4 5 4-1" /></>
-      : kind === "teaching" ? <><path d="M8 3h14v12H11M15 7h4m-6 4h6M15 15v5m-3 1 3-1 3 1" /><circle cx="5" cy="9" r="2.5" fill="currentColor" fillOpacity=".2" /><path d="M1 21v-4a4 4 0 0 1 4-4h2l5-5M5 17v4" /></>
       : kind === "report" ? <><path d="M10 3h11v18H10Z" fill="#21a366" stroke="#107c41" /><path d="M14 7h4m-4 5h4m-4 5h4" stroke="#fff" strokeWidth="1.2" /><path d="M2 6h11v12H2Z" fill="#107c41" stroke="#107c41" /><path d="m5 9 5 6m0-6-5 6" stroke="#fff" /></>
       : kind === "reset" ? <><path d="M4 10a8 8 0 1 1 1.5 7M4 4v6h6" /><path d="M12 8v5l3 2" /></>
       : <><path d="M10 4H4v16h6m4-13 5 5-5 5m-6-5h11" /></>}
@@ -433,14 +433,15 @@ export default function LessonPortal({
   // Preview changes presentation only; the administrator session stays intact.
   // Keep session-bound polling independent of this local mode.
   const [accessPreview, setAccessPreview] = useState<"learning" | "teaching" | null>(null);
+  const [passcodePreview,setPasscodePreview]=useState<SimulationPreview|null>(null);
   const previewMode = sessionIsAdmin ? accessPreview : null;
   const isAdmin = sessionIsAdmin && previewMode === null;
   const canFacilitate = previewMode ? previewMode === "teaching" : sessionCanFacilitate;
-  const courseFolders = useMemo(() => !previewMode ? sessionCourseFolders : sessionCourseFolders
-    .filter(course => !course.hidden)
-    .map(course => ({ ...course, sections: course.sections.filter(item => !item.hidden)
-      .map(item => ({ ...item, canFacilitate: previewMode === "teaching" })) }))
-    .filter(course => course.sections.length > 0), [sessionCourseFolders, previewMode]);
+  const courseFolders = useMemo(() => {
+    if(!previewMode)return sessionCourseFolders;
+    const allowed=new Map(passcodePreview?.sections.map(section=>[section.id,section.canFacilitate])||[]);
+    return sessionCourseFolders.filter(course=>!course.hidden).map(course=>({...course,sections:course.sections.filter(item=>!item.hidden&&allowed.has(item.id)).map(item=>({...item,canFacilitate:allowed.get(item.id)===true}))})).filter(course=>course.sections.length>0);
+  }, [sessionCourseFolders, previewMode,passcodePreview]);
   const [catalogRefreshing, startCatalogRefresh] = useTransition();
   const catalogRefreshInFlight = useRef(false);
   const deckOpenRef = useRef(false);
@@ -514,8 +515,8 @@ export default function LessonPortal({
   },[isAdmin,initialSectionId,courseFolders]);
   useEffect(()=>{if(!liveHydrated)return;try{if(liveSelection)window.sessionStorage.setItem('eiu-admin-live-selection',JSON.stringify(liveSelection));else window.sessionStorage.removeItem('eiu-admin-live-selection');}catch{/* Live still works when browser storage is disabled. */}},[liveSelection,liveHydrated]);
 
-  function changeAccessPreview(mode: "learning" | "teaching" | null) {
-    if (!sessionIsAdmin || mode === previewMode) return;
+  function changeAccessPreview(mode: "learning" | "teaching" | null,preview:SimulationPreview|null=null) {
+    if (!sessionIsAdmin || mode === previewMode&&preview?.credentialId===passcodePreview?.credentialId) return;
     setLiveSelection(null);
     cancelSectionOpening();
     iconTilt.onPointerLeave();
@@ -526,7 +527,9 @@ export default function LessonPortal({
     setShowResetModal(false);
     setShowTerminate(false);
     rememberDeckSelection();
+    setPasscodePreview(preview);
     setAccessPreview(mode);
+    setSearchQuery('');
   }
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -1217,8 +1220,7 @@ export default function LessonPortal({
 
           <div className={styles.mastheadActions}>
           {sessionIsAdmin && <div className={styles.accessModes}>
-            <button type="button" className={styles.accessModeButton} data-access-preview="learning" aria-pressed={previewMode === "learning"} onClick={() => changeAccessPreview("learning")}><ActionIcon kind="learning" />{t("Learning Access", "Learning Access")}</button>
-            <button type="button" className={styles.accessModeButton} data-access-preview="teaching" aria-pressed={previewMode === "teaching"} onClick={() => changeAccessPreview("teaching")}><ActionIcon kind="teaching" />{t("Teaching Access", "Teaching Access")}</button>
+            <PasscodeSimulation onSelect={preview=>changeAccessPreview(preview.mode==='facilitator'?'teaching':'learning',preview)}/>
           </div>}
           <FunctionDropdown languagePicker>
             {(["vi", "en"] as const).map(code => <button key={code} type="button" className={styles.languageOption} data-language-option={code} aria-pressed={language === code} onClick={() => setLanguage(code)}>
@@ -1264,7 +1266,7 @@ export default function LessonPortal({
           </div>
 
           {previewMode && <div className={styles.accessPreviewBar} data-access-preview-mode={previewMode}>
-            <span role="status">{t("Preview", "Xem thử")} · {previewMode === "learning" ? "Learning Access" : "Teaching Access"}</span>
+            <span role="status">Passcode simulation · {passcodePreview?.label} · {previewMode === "learning" ? "Learning" : "Teaching"}</span>
             <button type="button" className={styles.functionTrigger} onClick={() => changeAccessPreview(null)}>{t("Back to admin", "Quay lại admin")}</button>
           </div>}
 
@@ -1699,7 +1701,7 @@ export default function LessonPortal({
         currentSectionId={activeSectionId}
         currentCourseId={selectedCourse.id}
         currentSectionTitle={activeLessonSection?.title}
-        statusNotice={previewMode ? `${t("Preview", "Xem thử")} · ${previewMode === "learning" ? "Learning Access" : "Teaching Access"}` : isAdmin ? terminateNotice : undefined}
+        statusNotice={previewMode ? `Passcode simulation · ${passcodePreview?.label} · ${previewMode === "learning" ? "Learning" : "Teaching"}` : isAdmin ? terminateNotice : undefined}
         onExitPreview={previewMode ? () => changeAccessPreview(null) : undefined}
         onChooseSection={() => {
           setLiveSelection(null);

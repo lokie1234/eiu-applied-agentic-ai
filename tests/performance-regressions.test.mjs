@@ -12,6 +12,7 @@ const require = createRequire(import.meta.url);
 function load(path, dependencies, globals = {}) {
   dependencies = {...inactiveLessonDependencies,...dependencies};
   dependencies['./CatalogEditButton'] ??= {__esModule:true,default:()=>null};
+  dependencies['./PasscodeSimulation'] ??= {__esModule:true,default:()=>null};
   const exports = {};
   const source = fs.readFileSync(path, "utf8").replace(/^pdfjs.GlobalWorkerOptions.workerSrc =.*$/m, "");
   const code = ts.transpileModule(source, { compilerOptions: {

@@ -42,6 +42,21 @@ The client mounts its native dialog only on demand, retains failed drafts and
 refreshes the existing catalog after confirmed success. Teaching, Learning and
 admin access previews have no editing controls; direct non-admin writes fail.
 
+Admin's course chooser has one **Passcode simulation** control in place of the
+generic Learning/Teaching previews. Its admin-only list reads existing global,
+folder, course and section credentials through `catalogCredentials`. Scope labels,
+Learning/Teaching roles and active content counts come from the real
+`resolvePasscode` resolver, including hidden content and ambiguous-code rejection.
+Selecting an entry resolves the latest catalog again on the server and sends only
+its allowed section IDs and roles to the preview. The client intersects that list
+with its current catalog, hides admin editing controls, and retains an explicit
+return-to-admin action. The actual admin session is unchanged; simulation sets no
+authentication cookie, creates no learner identity/login, attendance or report
+rows, and does not submit a learning result. Credentials are fetched only when
+opening the native dialog, never sent to learners/teachers, use no-store responses
+and are cleared from local dialog state on close. Switching between codes resets
+the open lesson and search while preserving the underlying administrator session.
+
 1. Bind the actual Supabase `courseId` and `sectionId` in `course-content/sources.json` and the existing native lesson runtime. `section1` alone is not a global ID.
 2. Use the existing `QuizSlide` / `ShowcaseSlide` and scoped `/api/sections/[id]/...` endpoints. Preserve all legacy adapters used by Applied Agentic AI. Do not bake keys, learner identity or cross-course IDs into generated lesson JS.
 3. Root `LessonPortal` owns the authenticated Convex client, scoped signal subscriptions and live counts. Shared slides listen through `listenInteractive(sectionId, topic, refresh)`; no extra WebSocket or polling loop per slide. `interactiveSectionId()` resolves legacy keys only within Applied Agentic AI.

@@ -523,6 +523,10 @@ test("admin can preview learning and teaching decks and return without restartin
   const router = { refresh() { refreshes++; } };
   globalThis.fetch = async (url, options) => {
     requests.push({ url, options });
+    if(url==='/api/admin/passcode-simulation'){
+      if(options?.method==='POST'){const mode=JSON.parse(options.body).credentialId.endsWith('teaching')?'facilitator':'learner';return {ok:true,json:async()=>({success:true,preview:{credentialId:'global:'+mode,label:'Global · All courses',mode,sections:[{id:'s',canFacilitate:mode==='facilitator'}]}})};}
+      return {ok:true,json:async()=>({success:true,credentials:['learning','teaching'].map((mode,i)=>({id:'global:'+mode,code:'00000'+i,kind:'global',label:'All courses',mode:mode==='teaching'?'facilitator':'learner',available:true,courseCount:1,sectionCount:1}))})};
+    }
     return { ok: true, json: async () => ({ success: true, counts: { section1: 0, section2: 0, total: 0 } }) };
   };
   const Portal = component("components/LessonPortal.tsx", {
@@ -540,10 +544,9 @@ test("admin can preview learning and teaching decks and return without restartin
   const container = window.document.createElement("div"), root = createRoot(container);
   const render = isAdmin => root.render(React.createElement(Portal, { isAdmin, initialProfile: { name: "Admin" }, initialCourseId: "c", initialSection: null, courseFolders: [course] }));
   const chooseMode = async mode => {
-    const button = container.querySelector(`[data-access-preview="${mode}"]`);
-    assert.ok(button, 'access modes are available with the functions menu closed');
-    assert.equal(button.closest('.functionDropdown'), null, 'access modes sit outside the functions menu');
-    await act(async () => button.click());
+    const button=container.querySelector('[data-passcode-simulation]');assert.ok(button);assert.equal(button.closest('.functionDropdown'),null);
+    await act(async()=>button.click());
+    const choice=[...container.querySelectorAll('dialog button')].find(button=>button.getAttribute('aria-label')?.startsWith('Simulate '+(mode==='learning'?'000000':'000001')));assert.ok(choice);await act(async()=>choice.click());
   };
   const back = () => [...container.querySelectorAll('button')].find(button => button.textContent === 'Back to admin');
   try {
@@ -568,11 +571,11 @@ test("admin can preview learning and teaching decks and return without restartin
     await chooseMode('teaching');
     await act(async () => back().click());
     assert.equal(requests.filter(request => request.url.startsWith('/api/presence')).length, 1, 'mode changes keep the existing presence subscription');
-    assert.equal(requests.filter(request => request.options?.method === 'POST').length, 0, 'preview never logs in, signs out or records a learner presence');
+    assert.equal(requests.filter(request => request.options?.method === 'POST'&&request.url!=='/api/admin/passcode-simulation').length, 0, 'preview never logs in, signs out or records a learner presence');
     assert.equal(refreshes, 0, 'mode changes do not refresh the server catalog');
     await act(async () => render(false));
     await act(async () => container.querySelector('#course-functions-trigger').click());
-    assert.equal(container.querySelector('[data-access-preview]'), null, 'learners never receive preview controls');
+    assert.equal(container.querySelector('[data-passcode-simulation]'), null, 'learners never receive preview controls');
   } finally { await act(async () => root.unmount()); globalThis.fetch = previousFetch; await window.happyDOM.close(); }
 });
 
@@ -810,7 +813,7 @@ test("admin learner badges and Folder → Course → Section export apply beyond
     const trigger=container.querySelector('[aria-controls="course-functions"]');
     assert.equal(trigger.getAttribute('aria-expanded'),'false');assert.equal(container.querySelector('#course-functions'),null);
     await act(async()=>trigger.click());assert.equal(container.querySelectorAll('#course-functions a,#course-functions button').length,4);
-    assert.equal(container.querySelectorAll('[data-access-preview]').length,2, 'access modes remain available outside the menu');
+    assert.equal(container.querySelectorAll('[data-passcode-simulation]').length,1, 'passcode simulation remains available outside the menu');
     await act(async()=>window.document.dispatchEvent(new window.KeyboardEvent('keydown',{key:'Escape',bubbles:true})));
     assert.equal(trigger.getAttribute('aria-expanded'),'false');assert.equal(window.document.activeElement,trigger);
     await act(async()=>trigger.click());await act(async()=>window.document.body.dispatchEvent(new window.PointerEvent('pointerdown',{bubbles:true})));
