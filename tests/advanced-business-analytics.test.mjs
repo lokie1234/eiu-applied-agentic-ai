@@ -44,19 +44,18 @@ test('slides 6–10 use five official AI-tool interfaces and slide 11 binds a se
 
 test('updated charts preserve units, populations, dates and primary source links',()=>{
  const charts=topics(input.sections[1].slides).filter(s=>s.kind==='evidence');
- assert.equal(charts.length,3);
- const [business,markets,usage]=charts.map(s=>s.views);
+ assert.equal(charts.length,2);
+ const [business,usage]=charts.map(s=>s.views);const spending=topics(input.sections[1].slides).find(s=>s.kind==='spending');const markets=[spending.market];assert.equal(spending.title,'Spending on AI');assert.equal(spending.providers.length,3);assert.equal(spending.overview.length,2);assert.doesNotMatch(JSON.stringify(spending),/Assistant reach|AI-assisted activities/);
  assert.deepEqual(business[0].rows.map(r=>r[1]),[82,75,63,52]);assert.match(business[0].source.detail,/1,460/);assert.match(business[0].title,/plan/);
- assert.deepEqual(business[1].rows.map(r=>r[1]),[57,27,4,4]);assert.match(business[1].source.detail,/1,224/);
- assert.deepEqual(business[2].rows.map(r=>r[1]),[71,60,31,30,28]);assert.match(business[2].source.detail,/19/);
+ assert.deepEqual(business.map(v=>v.label),['Business tasks','Reported benefits']);
+ assert.deepEqual(business[1].rows.map(r=>r[1]),[71,60,31,30,28]);assert.match(business[1].source.detail,/19/);
  assert.deepEqual(markets[0].rows.map(r=>r[1]),[55,31,9,5]);assert.equal(markets[0].rows.reduce((sum,r)=>sum+r[1],0),100);assert.match(markets[0].subtitle,/spending/);
- assert.deepEqual(markets[1].rows.map(r=>r[1]),[60,58,20]);assert.match(markets[1].caption,/overlap/);
- assert.deepEqual(markets[1].rows.map(r=>r[2]),['chatgpt','gemini','claude']);
+
  assert.deepEqual(usage.map(v=>v.icon),['gemini','chatgpt','claude']);
  assert.deepEqual(usage[0].rows.map(r=>r[1]),[26.4,20.7,13.5,11]);
  assert.deepEqual(usage[1].rows.map(r=>r[1]),[28.1,21.4,20.2,8.9,8.8]);assert.match(usage[1].source.detail,/September 2026/);
  assert.deepEqual(usage[2].rows.map(r=>r[1]),[36,16,11,8]);assert.match(usage[2].source.detail,/Chapter 2/);
- assert.match(charts[2].caveat,/Separate studies, dates and categories/);
+ assert.match(charts[1].caveat,/Separate studies, dates and categories/);
  for(const chart of charts)for(const view of chart.views){assert.equal(new URL(view.source.url).protocol,'https:');assert.ok(view.source.detail);for(const [,v] of view.rows)assert.ok(v>=0&&v<=100);}
  assert.doesNotMatch(JSON.stringify(input.sections[1]),/[\u00c2\u00c3\ufffd]/);
  assert.equal(input.sections[1].slides[0].subtitle,undefined);assert.equal(input.sections[1].slides[0].downloads,undefined);
@@ -65,11 +64,11 @@ test('updated charts preserve units, populations, dates and primary source links
 });
 
 test('related material is grouped behind topic buttons without duplicate section footers or lost learning content',()=>{
- assert.deepEqual(input.sections.map(s=>s.slides.length),[11,6]);
+ assert.deepEqual(input.sections.map(s=>s.slides.length),[11,5]);
  const first=topics(input.sections[0].slides),second=topics(input.sections[1].slides);
  for(const kind of ['annotated-prompt','leave-compare','showcase','ai-tool'])assert.ok(first.some(s=>s.kind===kind));
  for(const kind of ['gas-flow','showcase','try-code'])assert.ok(second.some(s=>s.kind===kind));
- assert.equal(second.filter(s=>s.kind==='evidence').length,3);
+ assert.equal(second.filter(s=>s.kind==='evidence').length,2);
  assert.equal(input.sections[0].objectives.length,4);assert.equal(input.sections[1].objectives.length,4);
  const renderer=fs.readFileSync(`${folder}/renderer.js.txt`,'utf8');
  assert.doesNotMatch(renderer,/MIS 311 · Advanced Business Analytics ·/);
@@ -80,11 +79,11 @@ test('related material is grouped behind topic buttons without duplicate section
 
 test('Section 2 removes data preparation and replaces the old Apps Script menu with a definition and one non-IT flow',()=>{
  const section=input.sections[1],gas=section.slides[2],practice=section.slides[3];
- assert.equal(section.slides.length,6);assert.ok(!section.slides.some(s=>s.title==='Data preparation'));
- assert.equal(gas.title,'Google Apps Script');assert.deepEqual(gas.tools,['apps-script']);assert.deepEqual(gas.items.map(i=>i.label),['How can non-IT users use it?','Try?']);assert.equal(gas.definitionTitle,'What is Google Apps Script?');assert.ok(gas.definition.length<150);
+ assert.equal(section.slides.length,5);assert.ok(!section.slides.some(s=>s.title==='Data preparation'));
+ assert.equal(gas.title,'Google Apps Script');assert.deepEqual(gas.tools,['apps-script']);assert.deepEqual(gas.items.map(i=>i.label),['How can non-IT users use it?','Try?','Visualization?????']);assert.equal(gas.definitionTitle,'What is Google Apps Script?');assert.ok(gas.definition.length<150);
  const flow=gas.items[0].content;assert.equal(flow.kind,'gas-flow');assert.equal(flow.steps.length,4);assert.match(JSON.stringify(flow.steps),/need|prompt|Code.gs|Deploy|\/exec/);
  for(const old of ['The app architecture','Interactive preview','Write the prompt','Starter files','Setup and deployment'])assert.ok(!gas.items.some(item=>item.label===old));
- assert.equal(practice.kind,'showcase');assert.equal(practice.practice.minutes,15);assert.equal(practice.practice.activityId,'gas-webapp');assert.ok(practice.practice.allowImages&&practice.practice.allowDelete);assert.equal(practice.practice.steps.length,4);assert.match(practice.practice.steps[3],/\/exec/);
+ assert.equal(practice.kind,'showcase');assert.equal(practice.practice.minutes,30);assert.equal(practice.practice.activityId,'gas-webapp');assert.ok(practice.practice.allowImages&&practice.practice.allowDelete);assert.equal(practice.practice.steps.length,4);assert.match(practice.practice.steps[3],/\/exec/);
  assert.equal(practice.practice.hint,'Create a web app on google appscript and take the googlesheet as the database, this web app is about....... (your demand).');
  assert.ok(input.sections[0].slides.filter(s=>s.practice).every(s=>!s.practice.hint));
  // The generated page map, rather than a section-wide fallback, selects this practice.
@@ -105,9 +104,9 @@ test('Try embeds the four original attachment files in order and treats their co
  const renderer=fs.readFileSync(`${folder}/renderer.js.txt`,'utf8');assert.match(renderer,/copy\(files\[name\]/);assert.doesNotMatch(renderer,/innerHTML\s*=\s*course\.(?:tryFiles|salesDashboardFiles)/);
 });
 
-test('Visualization has only Try and embeds the exact slide 41 Emergency files and Sales workbook',()=>{
- const slide=input.sections[1].slides[4];assert.equal(slide.title,'Visualization');assert.deepEqual(slide.items.map(i=>i.label),['Try']);
- const content=slide.items[0].content;assert.equal(content.fileSet,'sales-dashboard');assert.deepEqual(content.files,['Code.gs','Index.html']);assert.equal(content.download,'sales-data');
+test('GAS directly opens Visualization with the exact slide 41 Emergency files and Sales workbook',()=>{
+ const gas=input.sections[1].slides[2];assert.equal(input.sections[1].slides.some(slide=>slide.title==='Visualization'),false);
+ const content=gas.items.find(item=>item.label==='Visualization?????').content;assert.equal(content.fileSet,'sales-dashboard');assert.deepEqual(content.files,['Code.gs','Index.html']);assert.equal(content.download,'sales-data');
  assert.equal(content.showIntro,false);assert.equal(content.url,'https://script.google.com/');assert.deepEqual(content.limitations,{kind:'discussion-question',title:'What are the limitations?'});
  const compiled=JSON.parse(fs.readFileSync(`${folder}/Week8Session2.js`,'utf8').match(/^const course=(.*);$/m)[1]);
  const original=JSON.parse(fs.readFileSync('components/section1/salesDashboardEmergencyData.ts','utf8').match(/export const SALES_DASHBOARD_FILES = (\[[\s\S]*\]) as const;/)[1]);
@@ -117,7 +116,7 @@ test('Visualization has only Try and embeds the exact slide 41 Emergency files a
 });
 
 test('Custom AI keeps three concise setup guides without outside descriptions, examples or source captions',()=>{
- const slide=input.sections[1].slides[5];assert.equal(slide.title,'Custom AI');assert.equal(slide.kind,'hub');assert.equal(slide.layout,'custom-ai');assert.equal(slide.summary,undefined);
+ const slide=input.sections[1].slides[4];assert.equal(slide.title,'SKILL');assert.equal(slide.definitionTitle,'What is a skill?');assert.equal(slide.definition,'A skill gives AI reusable instructions for a specific task.');assert.equal(slide.kind,'hub');assert.equal(slide.layout,'custom-ai');assert.equal(slide.summary,undefined);
  assert.deepEqual(slide.items.map(i=>i.label),['Gemini','ChatGPT','Claude','Try?']);
  assert.deepEqual(slide.items.slice(0,3).map(i=>i.content.tools[0]),['gemini','chatgpt','claude']);
  for(const {content} of slide.items.slice(0,3)){assert.equal(content.kind,'skill-setup');assert.equal(content.steps.length,3);assert.equal(content.example,undefined);assert.equal(content.availability,undefined);assert.equal(content.sources,undefined);for(const source of content.sourceReferences){assert.equal(new URL(source.url).protocol,'https:');assert.match(new URL(source.url).hostname,/^(support\.google\.com|help\.openai\.com|support\.claude\.com)$/);}}
@@ -125,16 +124,27 @@ test('Custom AI keeps three concise setup guides without outside descriptions, e
  assert.equal(input.sections[1].slides.some(s=>s.title==='Share your visualization'),false);
 });
 
-test('Custom AI Try embeds the supplied calorie-planner SKILL.md as an exact local download',()=>{
- const demo=input.sections[1].slides[5].items[3].content;assert.equal(demo.kind,'skill-demo');assert.equal(demo.features.length,3);assert.match(JSON.stringify(demo.features),/calorie|Google Maps|location/);
- const asset=JSON.parse(fs.readFileSync(`${folder}/skill-examples/calorie-planner/manifest.json`,'utf8')),bytes=fs.readFileSync(`${folder}/skill-examples/calorie-planner/SKILL.md`);assert.equal(createHash('sha256').update(bytes).digest('hex'),asset.sha256);
- const section=JSON.parse(fs.readFileSync(`${folder}/Week8Session2.js`,'utf8').match(/^const course=(.*);$/m)[1]);assert.equal(section.skillDemoFile.name,'SKILL.md');assert.deepEqual(Buffer.from(section.skillDemoFile.data,'base64'),bytes);
- const first=JSON.parse(fs.readFileSync(`${folder}/Week8Session1.js`,'utf8').match(/^const course=(.*);$/m)[1]);assert.equal(first.skillDemoFile,undefined);
+test('Try keeps three distinct skill examples and exact offline download bytes',()=>{
+ const menu=input.sections[1].slides[4].items[3].content;
+ assert.equal(menu.kind,'hub');assert.deepEqual(menu.items.map(i=>i.label),['Calorie & Meal Planner','Visualization Automation','Light 3D game']);
+ const section=JSON.parse(fs.readFileSync(folder+'/Week8Session2.js','utf8').match(/^const course=(.*);$/m)[1]);
+ for(const {content:demo} of menu.items){
+  assert.equal(demo.kind,'skill-demo');assert.equal(demo.features.length,3);
+  const base=folder+'/skill-examples/'+demo.download,asset=JSON.parse(fs.readFileSync(base+'/manifest.json','utf8')),bytes=fs.readFileSync(base+'/SKILL.md');
+  assert.equal(createHash('sha256').update(bytes).digest('hex'),asset.sha256);
+  assert.equal(section.skillDemoFiles[demo.download].name,'SKILL.md');assert.deepEqual(Buffer.from(section.skillDemoFiles[demo.download].data,'base64'),bytes);
+ }
+ assert.match(JSON.stringify(menu.items[0].content.features),/calorie|Google Maps|location/);
+ assert.match(JSON.stringify(menu.items[1].content.features),/Excel or CSV|charts|third-party/);
+ assert.match(JSON.stringify(menu.items[2].content.features),/3D world|game controls|ShareMyHTML/);
+ assert.equal(new Set(Object.values(section.skillDemoFiles).map(f=>f.data)).size,3);
+ assert.notEqual(section.skillDemoFiles['calorie-planner'].data,section.skillDemoFiles['visualization-automation'].data);
+ const first=JSON.parse(fs.readFileSync(folder+'/Week8Session1.js','utf8').match(/^const course=(.*);$/m)[1]);assert.equal(first.skillDemoFiles,undefined);
 });
 
 test('official tool marks keep verified source bytes and only referenced marks are embedded',()=>{
  const assets=JSON.parse(fs.readFileSync(`${folder}/assets/official-icons.json`,'utf8'));
- assert.deepEqual(Object.keys(assets).sort(),['adobe','apps-script','calendar','canva','chatgpt','claude','deepseek','drive','gamma','gemini','gmail','llama','lovable','openai','qwen','sheets','slack','suno']);
+ assert.deepEqual(Object.keys(assets).sort(),['adobe','apps-script','calendar','canva','chatgpt','claude','deepseek','docs','drive','forms','gamma','gemini','gmail','llama','lovable','meet','openai','qwen','sheets','slack','slides','suno']);
  for(const asset of Object.values(assets)){
   const bytes=fs.readFileSync(`${folder}/assets/${asset.path}`);
   assert.equal(createHash('sha256').update(bytes).digest('hex'),asset.sha256);
@@ -197,3 +207,20 @@ test('Best Use cases keeps both reference groups and a complete caution email wi
  assert.match(JSON.stringify(slide.items[0]),/Coding|Analyze data/);
  assert.match(slide.caution.subject,/Subject:/);assert.match(slide.caution.salutation,/Dear/);assert.equal(slide.caution.closing,'Best wishes,');assert.match(slide.caution.leftover,/This is your Academic mail to send to Mr/);
 });
+
+
+test('Risks preserves four statements with a fictional chat and three everyday visual stories',()=>{
+ const risks=topics(input.sections[1].slides).find(slide=>slide.risks).risks;
+ assert.equal(risks.title,'Risks');assert.equal(risks.items.length,4);assert.equal(risks.cases.length,4);
+ assert.deepEqual(risks.items.map(text=>text.split(':')[0]),['Accuracy and bias','Privacy','Originality','Over-reliance']);
+ const chat=risks.cases[0];assert.equal(chat.kind,'chat');assert.equal(chat.fictional,true);assert.deepEqual(chat.messages.map(message=>message.role),['User','AI','User','AI']);assert.ok(chat.messages[0].attachment);assert.match(chat.messages[3].text,/poisonous.*pray for your family/);assert.deepEqual(risks.cases.slice(1).map(example=>example.scene),['privacy','originality','reliance']);for(const example of risks.cases.slice(1)){assert.equal(example.kind,'scene');assert.equal(example.fictional,true);assert.equal(example.captions.length,4);assert.ok(example.captions.every(text=>text.length<65));assert.equal(example.source,undefined);}
+});
+
+
+test('GAS definition contains a native Google ecosystem with nine icon descriptions',()=>{
+ const gas=input.sections[1].slides[2];assert.equal(gas.ecosystem.title,'Google ecosystem');assert.equal(gas.ecosystem.tools.length,9);assert.ok(gas.ecosystem.tools.some(tool=>tool.name==='Google Workspace'));assert.ok(gas.ecosystem.tools.some(tool=>tool.name==='Google Calendar'));for(const tool of gas.ecosystem.tools){assert.ok(tool.icon||tool.icons?.length);assert.ok(tool.function.length<85);}
+});
+
+test('privacy uses a fun ID-card post and over-reliance replaces subscription costs',()=>{const risks=topics(input.sections[1].slides).find(slide=>slide.risks).risks;assert.equal(risks.cases[1].title,'The ID card post');assert.match(risks.cases[1].captions.at(-1),/public/);assert.equal(risks.cases[3].scene,'reliance');assert.doesNotMatch(JSON.stringify(risks),/passport|Hidden costs|subscription/i);const renderer=fs.readFileSync(folder+'/renderer.js.txt','utf8');assert.equal(renderer.includes("el('span','riskChatFiction'"),false);});
+
+test('the 30-minute practice is bound to the served slide-4 metadata',()=>{const section=input.sections[1];assert.match(section.slides[3].lead,/30 minutes/);assert.equal(manifest[section.id].showcasePractices['4'].minutes,30);assert.equal(section.slides[3].practice.activityId,'gas-webapp');});

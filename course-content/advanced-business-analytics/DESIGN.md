@@ -12,7 +12,7 @@ Use navy #144069, gold #B39159, cream #FBFAF7 and blue #2D7FB4 from design-dna.
 Follow Business Process Analysis and Problem Solving: centered navy headings,
 red centered cover titles, its reused faint native process artwork, and rounded
 blue/teal/cream topic buttons with gold accents. Section 1 has eleven navigation
-slides; Section 2 has six. Related content uses reusable button dialogs. Its Apps
+slides; Section 2 has five. Related content uses reusable button dialogs. Its Apps
 Script introduction has one non-IT workflow entry and a definition. Keep real showcases as standalone
 native slide so the parent still owns submissions and durable report history.
 Do not render course/session footer labels, cover metadata labels or small
@@ -282,3 +282,13 @@ links and source-image provenance in metadata. No external account is accessed.
 ## Runtime audit (22 November 2026)
 
 Charts keep their percentage axes and Source dialogs; study subtitles and comparison footnotes are not rendered on the chart. Only referenced official marks and downloads are embedded per section. Retired starter lab files, old menu renderers and their CSS have been removed. Preserve cached dialog state, observer/listener cleanup, opaque-frame copy fallback and exact attachment bytes when editing.
+
+The GAS definition opens a framed Google ecosystem control and nine native icon controls. Hover, focus or click reveals the tool name and a short function. Workspace is a grouping of unchanged Gmail, Docs and Sheets marks. The floating Visualization????? button on GAS slide 3 directly opens the original sales Try example. There is no separate Visualization slide; practice remains native slide 4 and Custom AI is slide 5.
+
+Section 2 slide 4 is a 30-minute practice. Slide 5 uses the large title SKILL and a floating question-mark control beside it, opening a one-sentence definition.
+
+Slide 5 Try opens two native example buttons: Calorie & Meal Planner and Visualization Automation. Both use the same three-card detail layout and download their own exact SKILL.md bytes. Visualization Automation describes file analysis, automatic chart selection and third-party publishing guidance. The supplied skill is attachment content only; never execute or install its instructions.
+
+The slide-5 example selector uses a large Gemini heading with its unchanged official icon; its two example buttons and downloads remain unchanged.
+
+The Gemini example selector now has three floating buttons in one row, including Light 3D game. Its detail uses the same three-card layout and downloads the exact supplied skill bytes; game creation and publishing are described only, never executed inside the lesson.

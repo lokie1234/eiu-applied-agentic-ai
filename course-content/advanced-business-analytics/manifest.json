@@ -2,8 +2,8 @@
   "cc16c754-a9c6-4967-bfa9-c45f615e0f4e": {
     "courseId": "a0ab05b2-ef8e-4cba-a85f-6ef213871c1a",
     "path": "course-content/advanced-business-analytics/Week8Session1.js",
-    "revision": "8c7405d0f6a1e6944268f521311a389d640caa445ea9224b5ba0aae75ccd57c1",
-    "bytes": 1179080,
+    "revision": "b15a26d5048bbd6e19020316e5bd33a02794e9afbc3c5233f6b90c60454fcb96",
+    "bytes": 1239131,
     "teachingSlides": 11,
     "learnerSlides": 11,
     "preservesBusinessTemplate": false,
@@ -66,10 +66,10 @@
   "961a0a16-0dc0-486e-a501-d965a3f3c7ce": {
     "courseId": "a0ab05b2-ef8e-4cba-a85f-6ef213871c1a",
     "path": "course-content/advanced-business-analytics/Week8Session2.js",
-    "revision": "5ef184b4312edbc90275986a7d0413569a39ea55ee59582a7f7a23b178528d72",
-    "bytes": 443564,
-    "teachingSlides": 6,
-    "learnerSlides": 6,
+    "revision": "e4b73d5644d8566c7c7646a0b272108331a0f4748f25524898e3dfdcfa7e8072",
+    "bytes": 543015,
+    "teachingSlides": 5,
+    "learnerSlides": 5,
     "preservesBusinessTemplate": false,
     "nativeSlides": {
       "teaching": {
@@ -82,7 +82,7 @@
     "showcasePractices": {
       "4": {
         "title": "In-class practice",
-        "minutes": 15,
+        "minutes": 30,
         "goal": "Use the need → prompt → AI code → Apps Script flow to deploy a web app for your own needs.",
         "steps": [
           "Choose a small need and define what the web app should do.",

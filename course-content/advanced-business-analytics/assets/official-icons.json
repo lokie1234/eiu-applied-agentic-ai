@@ -125,5 +125,33 @@
     "source": "https://docs.lovable.dev/mintlify-assets/_mintlify/favicons/lovable-f9060f1e/AU_uVgnksniw8mje/_generated/favicon/android-chrome-192x192.png",
     "sha256": "3ddad9dc9ef650381413c0749d46b2dca8eea4e39e40220ec309c38829d1cc7d",
     "verifiedOn": "2026-11-22"
+  },
+  "docs": {
+    "path": "docs.svg",
+    "mime": "image/svg+xml",
+    "source": "https://www.gstatic.com/images/branding/productlogos/docs_2026/v2/web/192px.svg",
+    "sha256": "ce8a250ed67fa813f00e2f2be6fcf515b284dbd0c7fa29aab254b1ba8310258c",
+    "verifiedOn": "2026-11-25"
+  },
+  "slides": {
+    "path": "slides.svg",
+    "mime": "image/svg+xml",
+    "source": "https://www.gstatic.com/images/branding/productlogos/slides_2026/v2/web/192px.svg",
+    "sha256": "3ad971447ab6fc537eb8bb5eae651a0473b137ee70acbbb073a231b84235c0e6",
+    "verifiedOn": "2026-11-25"
+  },
+  "meet": {
+    "path": "meet.svg",
+    "mime": "image/svg+xml",
+    "source": "https://www.gstatic.com/images/branding/productlogos/meet_2026/v2/web/192px.svg",
+    "sha256": "ae2e86aa009fd7e1952082bff7d4fa9eca8f45ff46d0298800d53c5d6bdcb3b4",
+    "verifiedOn": "2026-11-25"
+  },
+  "forms": {
+    "path": "forms.svg",
+    "mime": "image/svg+xml",
+    "source": "https://www.gstatic.com/images/branding/productlogos/forms_2026q3/v1/web/192px.svg",
+    "sha256": "eb133dc96a1d21f7472d84ac24d2cc814c7605e6577f4d589984881836f0c2f3",
+    "verifiedOn": "2026-11-25"
   }
 }

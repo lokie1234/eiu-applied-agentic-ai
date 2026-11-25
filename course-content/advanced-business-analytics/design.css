@@ -352,3 +352,341 @@
 .aba-canvas .skillSetup>.skillSetupSteps p{font-size:26px;line-height:1.4}
 .aba-canvas .topicHub.customAIHub .hubTitle{top:32%}
 .aba-canvas .topicHub.customAIHub .hubButton[data-slot="3"]{left:auto;right:5%;top:4%;bottom:auto;width:22%;min-height:76px;font-size:27px}
+
+/* Task details and the benefits/risk title share the existing native dialog stack. */
+.aba-canvas .evidence .evidenceTaskButton{width:100%;padding:9px 12px;text-align:left;border:1px solid #c5d9e5;border-left:3px solid #b39159;border-radius:13px;background:linear-gradient(110deg,#f4f8fb,#fff);color:#17324a;box-shadow:0 3px 7px #14406910;transition:background .14s,box-shadow .14s,transform .14s;cursor:pointer}
+.aba-canvas .evidence .evidenceTaskButton:hover{background:#e9f3f8;box-shadow:0 5px 12px #14406924;transform:translateY(-2px)}
+.aba-canvas .evidence .evidenceTaskButton:active{transform:translateY(1px);box-shadow:inset 0 2px 6px #14406925}
+.aba-canvas .evidenceTaskButton:focus-visible,.aba-canvas .evidenceRiskTrigger:focus-visible{outline:3px solid #b39159;outline-offset:3px}
+.aba-canvas .evidenceTask ul,.aba-canvas .evidenceRisk ul{display:grid;gap:16px;padding-left:28px;font-size:24px;line-height:1.4;margin:0}
+.aba-canvas .evidenceRisk h2{color:#b32632}
+.aba-canvas .evidenceRiskTrigger{display:inline-grid;vertical-align:baseline;font:inherit;letter-spacing:inherit;line-height:inherit;background:transparent;border:0;border-bottom:2px dotted #b39159;border-radius:0;padding:0;color:inherit;cursor:pointer;box-shadow:none}
+.aba-canvas .evidenceRiskTrigger span{grid-area:1/1;transition:opacity .12s,transform .12s}
+.aba-canvas .riskWord{color:#b32632;opacity:0;transform:translateY(6px)}
+.aba-canvas .evidenceRiskTrigger:hover,.aba-canvas .evidenceRiskTrigger:focus-visible{background:transparent}
+.aba-canvas .evidenceRiskTrigger:hover .benefitsWord,.aba-canvas .evidenceRiskTrigger:focus-visible .benefitsWord{opacity:0;transform:translateY(-6px)}
+.aba-canvas .evidenceRiskTrigger:hover .riskWord,.aba-canvas .evidenceRiskTrigger:focus-visible .riskWord{opacity:1;transform:translateY(0)}
+@media(prefers-reduced-motion:reduce){.aba-canvas .evidenceRiskTrigger span,.aba-canvas .evidence .evidenceTaskButton{transition:none;transform:none}}
+
+/* Framed headings and spacious work cards; provenance stays in editable sources. */
+.aba-canvas .evidenceTask,.aba-canvas .evidenceRisk{justify-content:flex-start;padding:28px;gap:24px;background:linear-gradient(145deg,#fff,#f5f8fb)}
+.aba-canvas .evidenceTask>.evidenceSourceHeading,.aba-canvas .evidenceRisk>.evidenceSourceHeading{min-height:94px;padding:18px 22px;border:1px solid #b39159;border-left:5px solid #b39159;border-radius:18px;background:linear-gradient(110deg,#f7f4ed,#fff);flex:none}
+.aba-canvas .evidenceTask .evidenceSourceHeading h2,.aba-canvas .evidenceRisk .evidenceSourceHeading h2{font-size:32px;line-height:1.2;max-width:850px}
+.aba-canvas .evidenceTask>ul,.aba-canvas .evidenceRisk>ul{flex:1;min-height:0;list-style:none;padding:0;counter-reset:work;gap:18px}
+.aba-canvas .evidenceTask>ul{grid-template-rows:repeat(3,minmax(0,1fr))}
+.aba-canvas .evidenceTask>ul>li,.aba-canvas .evidenceRisk>ul>li{margin:0;border:1px solid #c7dbe4;border-radius:18px;background:#fff;box-shadow:0 4px 12px #14406908;padding:20px 24px;display:flex;align-items:center;gap:22px;font-size:25px;line-height:1.35}
+.aba-canvas .evidenceTask>ul>li:before{counter-increment:work;content:'0' counter(work);flex:none;width:52px;height:52px;display:grid;place-items:center;border-radius:14px;background:#144069;color:#fff;font-size:24px;font-weight:700}
+.aba-canvas .evidenceRisk>ul{grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr))}
+.aba-canvas .evidenceRisk>ul>li{border-top:3px solid #b32632;background:linear-gradient(145deg,#fff,#fff7f6);align-items:flex-start;padding:24px}
+.aba-canvas .slideHeader:has(.evidenceRiskTrigger){border:1px solid #b39159;border-left:5px solid #b39159;border-radius:18px;padding:14px 66px;background:linear-gradient(110deg,#f7f4ed,#fff)}
+.aba-canvas .slideHeader:has(.evidenceRiskTrigger):after{display:none}
+
+/* Spending: begin with the payment model, then compare providers on equal units. */
+.aba-canvas .slideHeader:has(+.body>.spending){padding:13px 66px;border:1px solid #b39159;border-left:5px solid #b39159;border-radius:18px;background:linear-gradient(110deg,#f7f4ed,#fff)}
+.aba-canvas .slideHeader:has(+.body>.spending):after{display:none}
+.aba-canvas .spending{display:flex;flex-direction:column;height:100%;gap:18px;min-height:0}
+.aba-canvas .spendingToolbar{display:flex;align-items:center;gap:12px;flex:none}
+.aba-canvas .spendingTabs{display:flex;gap:8px;flex:1;min-width:0}
+.aba-canvas .spendingTabs button{padding:9px 12px;border-radius:14px;font-size:20px;line-height:1.2;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.aba-canvas .spendingTabs button[aria-pressed=true]{background:#144069;color:white;box-shadow:inset 0 -3px #b39159}
+.aba-canvas .spendingTabs .officialToolIcon{width:23px;height:23px;flex:none}
+.aba-canvas .spendingStage{flex:1;min-height:0;display:flex;flex-direction:column}
+.aba-canvas .spendingStage>.evidence{flex:1}
+.aba-canvas .spendingColumns{display:grid;grid-template-columns:1fr 1fr;gap:20px;flex:1;min-height:0}
+.aba-canvas .spendingCard{border:1px solid #c7dbe4;border-top:4px solid #2d7fb4;border-radius:20px;background:linear-gradient(145deg,#f0f7fb,#fff);padding:18px;display:flex;flex-direction:column;gap:12px;min-height:0;min-width:0}
+.aba-canvas .spendingCard:nth-child(2){border-top-color:#b39159;background:linear-gradient(145deg,#fbf6e9,#fff)}
+.aba-canvas .spendingCard>h2{font-size:26px;line-height:1.2}
+.aba-canvas .spendingOverview .spendingCard{padding:28px;gap:24px}
+.aba-canvas .spendingOverview .spendingCard>h2{padding-bottom:18px;border-bottom:1px solid #b39159;font-size:32px}
+.aba-canvas .spendingOverview ul{margin:0;padding-left:24px;display:grid;gap:24px;font-size:25px;line-height:1.4}
+.aba-canvas .spendingChoice{margin-top:auto;color:#144069;font-size:23px;line-height:1.3}
+.aba-canvas .spendingModels{display:grid;gap:12px}
+.aba-canvas .spendingModel{display:grid;grid-template-columns:1fr auto;gap:6px;padding:14px;border:1px solid #c7dbe4;border-radius:14px;background:#fff}
+.aba-canvas .spendingModel h3,.aba-canvas .spendingPlan h3{font-size:22px;line-height:1.2}
+.aba-canvas .spendingModel p{grid-column:1/-1;font-size:21px;line-height:1.25}
+.aba-canvas .spendingRate{font-size:24px;line-height:1.2;color:#144069;white-space:nowrap}
+.aba-canvas .spendingOptions{align-self:flex-start;font-size:21px;padding:8px 16px;line-height:1.2}
+.aba-canvas .spendingPlans{display:grid;gap:8px}
+.aba-canvas .spendingPlan{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;padding-bottom:7px;border-bottom:1px solid #e1d7c5}
+.aba-canvas .spendingPlanPrice{font-size:23px;line-height:1.2;text-align:right;color:#144069;white-space:nowrap}
+.aba-canvas .spendingPlan p{grid-column:1/-1;font-size:20px;line-height:1.2}
+.aba-canvas .spendingDetails{justify-content:center;padding:30px;gap:24px}
+.aba-canvas .spendingDetailHeading{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px;border:1px solid #b39159;border-radius:16px;background:#fbf6e9}
+.aba-canvas .spendingDetails p,.aba-canvas .spendingDetails li{font-size:23px;line-height:1.4}
+.aba-canvas .spendingDetails ul{display:grid;gap:24px;padding-left:26px}
+.aba-canvas .spendingLinks{display:flex;flex-wrap:wrap;gap:12px 24px;font-size:22px;line-height:1.3}
+
+.aba-canvas .spendingCard{padding:14px;gap:8px}
+.aba-canvas .spendingOverview .spendingCard{padding:24px;gap:18px}
+.aba-canvas .spendingOverview ul{gap:16px;font-size:24px;line-height:1.35}
+.aba-canvas .spendingOverview li{margin:0}
+.aba-canvas .spendingModel{padding:8px 12px;gap:4px}
+.aba-canvas .spendingModels{gap:8px}
+.aba-canvas .spendingPlan{gap:1px 10px;padding-bottom:4px}
+.aba-canvas .spendingPlans{gap:5px}
+.aba-canvas .spendingPlan h3{font-size:21px;line-height:1.15}
+.aba-canvas .spendingPlan p{line-height:1.1}
+.aba-canvas .spendingPlanPrice{font-size:22px;line-height:1.15}
+.aba-canvas .slideHeader:has(+.body>.spending){padding-top:8px;padding-bottom:8px}
+
+.aba-canvas .spendingCreditsButton{margin-top:auto}
+
+.aba-canvas .evidenceMarket .evidencePlot{gap:12px}
+.aba-canvas .evidenceMarket .evidenceSummary{flex-direction:row;align-items:center;justify-content:space-between;gap:12px;border:1px solid #b39159;border-left:4px solid #b39159;border-radius:14px;padding:10px 14px;background:#fbfaf7}
+.aba-canvas .evidenceMarket .evidenceSummary h2{font-size:25px}
+.aba-canvas .evidenceMarket .evidenceSourceButton{font-size:21px;padding:8px 18px;flex:none}
+.aba-canvas .marketDetail{display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid #c7dbe4;border-radius:14px;padding:10px 16px;background:#f0f7fb;flex:none;min-height:69px}
+.aba-canvas .marketDetail h3{font-size:25px}
+.aba-canvas .marketMetrics{display:flex;gap:30px}
+.aba-canvas .marketMetric{display:flex;align-items:center;gap:10px;font-size:20px;line-height:1.2}
+.aba-canvas .marketMetric strong{font-size:25px;color:#144069;white-space:nowrap}
+.aba-canvas .evidence .marketProvider{padding:6px 12px;grid-template-columns:330px minmax(0,1fr) 78px;min-height:38px}
+.aba-canvas .evidence .marketProvider[aria-pressed=true]{background:#e5f1f7;color:#144069;border-color:#2d7fb4;box-shadow:inset 3px 0 #b39159}
+.aba-canvas .evidenceMarket .evidencePlot>.chart{padding:0;gap:6px;justify-content:space-between}
+.aba-canvas .evidenceMarket .axis{padding-left:358px}
+
+/* Price cards: framed category headings, explicit price cells, no annotation rows. */
+.aba-canvas .spendingColumns:not(.spendingOverview)>.spendingCard{padding:14px;gap:12px;background:#f6f9fc}
+.aba-canvas .spendingColumns:not(.spendingOverview)>.spendingCard:nth-child(2){background:#fbf9f4}
+.aba-canvas .spendingColumns:not(.spendingOverview)>.spendingCard>h2{font-size:28px;line-height:1.2;padding:10px 16px;border:1px solid #b39159;border-left:4px solid #b39159;border-radius:14px;background:#fff}
+.aba-canvas .spendingModels{flex:1;grid-template-rows:repeat(2,minmax(0,1fr));gap:12px;min-height:0}
+.aba-canvas .spendingModel{grid-template-columns:minmax(0,1fr) 162px;grid-template-rows:auto auto;align-content:center;gap:6px 14px;padding:12px 14px;border-radius:16px}
+.aba-canvas .spendingModel h3{grid-column:1;grid-row:1;font-size:24px;line-height:1.2}
+.aba-canvas .spendingModel p{grid-column:1;grid-row:2;font-size:22px;line-height:1.3}
+.aba-canvas .spendingRate{grid-column:2;grid-row:1/3;display:grid;gap:6px;font-size:22px}
+.aba-canvas .spendingRateCell{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:7px 10px;border-radius:9px;background:#edf5fa;line-height:1.2}
+.aba-canvas .spendingRateCell span{font-size:20px;font-weight:400}
+.aba-canvas .spendingRateCell strong{font-size:24px}
+.aba-canvas .spendingPlans{flex:1;min-height:0;grid-template-rows:repeat(3,minmax(0,1fr));gap:10px}
+.aba-canvas .spendingPlan{padding:10px 14px;border:1px solid #ded3bc;border-radius:14px;background:#fff;align-content:center;gap:4px 12px}
+.aba-canvas .spendingPlan h3{font-size:24px;line-height:1.2}
+.aba-canvas .spendingPlanPrice{font-size:25px;line-height:1.2}
+.aba-canvas .spendingPlan p{font-size:22px;line-height:1.25}
+.aba-canvas .spendingColumns:not(.spendingOverview) .spendingOptions{font-size:22px;padding:8px 16px;line-height:1.2;margin-top:0;flex:none}
+
+/* One aligned plotting area, with the selected currency total beside it. */
+.aba-canvas .evidenceMarket .evidencePlot{display:grid;grid-template-columns:minmax(0,1fr) 220px;grid-template-rows:auto minmax(0,1fr);gap:14px}
+.aba-canvas .evidenceMarket .evidenceSummary{grid-column:1/-1}
+.aba-canvas .evidenceMarket .marketDetail{grid-column:2;grid-row:2;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:20px;min-height:0;padding:24px 18px;border:1px solid #b39159;border-radius:18px;background:linear-gradient(145deg,#fbf6e9,#fff)}
+.aba-canvas .marketDetail h3{font-size:25px;line-height:1.2}
+.aba-canvas .marketCurrency{font-size:36px;line-height:1.2;color:#144069;white-space:nowrap}
+.aba-canvas .evidenceMarket .evidencePlot>.chart{grid-column:1;grid-row:2;border:1px solid #c7dbe4;border-radius:18px;padding:12px;background:#fff;gap:6px;justify-content:space-between}
+.aba-canvas .evidence .marketProvider{grid-template-columns:220px minmax(0,1fr) 65px;gap:14px;min-height:46px;padding:8px 12px;border:0;border-radius:10px;background:transparent;box-shadow:none;transform:none}
+.aba-canvas .evidence .marketProvider:hover,.aba-canvas .evidence .marketProvider:active{transform:none;box-shadow:none;background:#f0f7fb}
+.aba-canvas .evidence .marketProvider[aria-pressed=true]{background:#e5f1f7;box-shadow:none}
+.aba-canvas .evidenceMarket .marketProvider .track{height:20px;border:0;border-radius:8px}
+.aba-canvas .evidenceMarket .marketProvider .bar{border-radius:8px}
+.aba-canvas .evidenceMarket .marketProvider .barName{font-size:22px;line-height:1.25}
+.aba-canvas .evidenceMarket .marketProvider strong{font-size:24px;line-height:1.2}
+.aba-canvas .evidenceMarket .axis{padding-left:246px;padding-right:91px;font-size:18px}
+
+.aba-canvas .spendingColumns:not(.spendingOverview)>.spendingCard{padding:12px;gap:8px}
+.aba-canvas .spendingColumns:not(.spendingOverview)>.spendingCard>h2{font-size:26px;padding:4px 14px}
+.aba-canvas .spendingModels{gap:8px}
+.aba-canvas .spendingModel{padding:8px 12px}
+.aba-canvas .spendingRate{gap:4px}
+.aba-canvas .spendingRateCell{padding:4px 10px}
+.aba-canvas .spendingPlans{gap:6px}
+.aba-canvas .spendingPlan{padding:6px 12px;gap:2px 12px}
+.aba-canvas .spendingColumns:not(.spendingOverview) .spendingOptions{font-size:22px;padding:6px 16px}
+
+/* Risk examples stay inside the same native dialog and template bounds. */
+.aba-canvas .evidenceRisk>ul>li{flex-direction:column;justify-content:space-between;gap:12px;padding:20px 22px}
+.aba-canvas .riskItemText{font-size:25px;line-height:1.35}
+.aba-canvas .riskCaseTrigger{align-self:flex-end;flex:none;width:46px;height:46px;display:grid;place-items:center;padding:0;border:1px solid #b32632;border-radius:13px;background:#fff0ed;color:#b32632;font-size:34px;font-weight:800;line-height:1;box-shadow:0 3px 8px #b3263218;transition:transform .16s,background .16s}
+.aba-canvas .riskCaseTrigger:hover,.aba-canvas .riskCaseTrigger:focus-visible{background:#b32632;color:white;transform:translateY(-2px)}
+.aba-canvas .riskCaseTrigger:active{transform:scale(.94)}
+.aba-canvas .riskCase{padding:28px;gap:24px;background:linear-gradient(145deg,#fff,#f5f8fb)}
+.aba-canvas .riskCaseHeading{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 22px;border:1px solid #b39159;border-left:5px solid #b39159;border-radius:18px;background:linear-gradient(110deg,#f7f4ed,#fff);min-height:94px;flex:none}
+.aba-canvas .riskCaseHeading h2{font-size:30px;line-height:1.2;color:#b32632}
+.aba-canvas .riskCaseActions{display:flex;align-items:center;gap:16px;flex:none;font-size:22px}
+.aba-canvas .riskCaseSteps{flex:1;min-height:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.aba-canvas .riskCaseStep{display:flex;flex-direction:column;gap:20px;padding:22px;border:1px solid #c7dbe4;border-top:4px solid #2d7fb4;border-radius:18px;background:#fff;min-width:0}
+.aba-canvas .riskCaseStep:last-child{border-top-color:#b32632;background:#fff8f6}
+.aba-canvas .riskCaseNumber{display:grid;place-items:center;width:48px;height:48px;border-radius:13px;background:#144069;color:white;font-size:24px;line-height:1;flex:none}
+.aba-canvas .riskCaseStep h3{font-size:25px;line-height:1.2}
+.aba-canvas .riskCaseStep p{font-size:24px;line-height:1.4}
+@media(prefers-reduced-motion:reduce){.aba-canvas .riskCaseTrigger{transition:none;transform:none}}
+
+/* Click-driven fictional chat; history remains in its own message viewport. */
+.aba-canvas .riskChat{padding:22px;gap:14px}
+.aba-canvas .riskChat>.riskCaseHeading{min-height:64px;padding:10px 18px}
+.aba-canvas .riskChatFiction{font-size:19px;color:#9d7944;border:1px solid #d9c59f;border-radius:10px;background:#fbf6e9;padding:6px 12px}
+.aba-canvas .riskChatLog{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:10px;padding:8px 12px;scrollbar-width:thin;border:1px solid #d8e3ea;border-radius:16px;background:#f4f7fa}
+.aba-canvas .riskChatMessage{display:flex;align-items:center;gap:14px;max-width:88%;padding:10px 16px;border:1px solid #c7dbe4;border-radius:17px;flex:none;box-shadow:0 3px 9px #14406908}
+.aba-canvas .riskChatUser{align-self:flex-end;background:#144069;color:white;border-bottom-right-radius:4px}
+.aba-canvas .riskChatAI{align-self:flex-start;background:#fff;color:#17324a;border-bottom-left-radius:4px}
+.aba-canvas .riskChatCopy{min-width:0;display:flex;flex-direction:column;gap:3px}
+.aba-canvas .riskChatRole{font-size:18px;line-height:1.15;color:inherit;opacity:.8}
+.aba-canvas .riskChatMessage p{font-size:23px;line-height:1.35;color:inherit}
+.aba-canvas .riskChatAttachment{width:74px;height:54px;flex:none}
+.aba-canvas .riskChatAttachment svg{display:block;width:100%;height:100%}
+.aba-canvas .riskChatControls{display:flex;justify-content:space-between;gap:16px;flex:none}
+.aba-canvas .riskChatControls button{font-size:22px;line-height:1.2;padding:8px 22px}
+.aba-canvas .riskChatControls button:last-child{background:#144069;color:white}
+.aba-canvas .riskChatControls button:disabled{opacity:.45;cursor:default}
+
+.aba-canvas .riskChatCopy{display:block}
+.aba-canvas .riskChatRole{display:inline;margin-right:10px}
+.aba-canvas .riskChatMessage p{display:inline}
+
+/* ChatGPT-style conversation: click anywhere except Close to reveal a message. */
+.aba-canvas .riskChat{padding:0;gap:0;background:#fff;border:1px solid #dedede;border-radius:18px;color:#222}
+.aba-canvas .riskChat>.riskCaseHeading{border:0;border-bottom:1px solid #eee;border-radius:0;background:#fff;min-height:62px;padding:12px 22px}
+.aba-canvas .riskChat .chatGPTTitle{display:flex;align-items:center;gap:12px;font-size:27px;color:#222;font-weight:600}
+.aba-canvas .chatGPTTitle .officialToolIcon{width:30px;height:30px}
+.aba-canvas .riskChat .riskCaseActions button{width:36px;height:36px;border:0;background:#fff;padding:0;font-size:29px;color:#444;border-radius:50%}
+.aba-canvas .riskChat .riskCaseActions button:hover{background:#eee}
+.aba-canvas .riskChatFiction{font-size:17px;color:#777;border:1px solid #ddd;background:#fff;padding:5px 10px;border-radius:8px}
+.aba-canvas .riskChatLog{border:0;border-radius:0;background:#fff;padding:14px 38px;gap:14px;cursor:pointer}
+.aba-canvas .riskChatWelcome{margin:auto;font-size:34px;line-height:1.2;font-weight:600;color:#222}
+.aba-canvas .riskChatMessage{max-width:92%;padding:8px 14px;border:0;box-shadow:none;gap:12px;border-radius:20px;align-items:flex-start}
+.aba-canvas .riskChatUser{max-width:82%;background:#efefef;color:#222;border-radius:20px;align-items:center}
+.aba-canvas .riskChatAI{background:#fff;color:#222;padding-left:0}
+.aba-canvas .riskChatAI>.officialToolIcon{width:27px;height:27px;flex:none;margin-top:2px}
+.aba-canvas .riskChatMessage p{font-size:24px;line-height:1.4}
+.aba-canvas .riskChatAttachment{width:78px;height:57px}
+.aba-canvas .riskChatComposer{display:flex;align-items:center;gap:16px;margin:8px 76px 18px;padding:12px 18px;border-radius:24px;background:#f3f3f3;color:#777;font-size:22px;line-height:1.2;flex:none;cursor:pointer}
+.aba-canvas .chatComposerPlus{font-size:29px;color:#333}
+.aba-canvas .chatComposerSend{margin-left:auto;width:30px;height:30px;border-radius:50%;background:#222;color:white;text-align:center;font-size:25px;line-height:1.1}
+.aba-canvas .riskChat[data-complete=true] .riskChatLog,.aba-canvas .riskChat[data-complete=true] .riskChatComposer{cursor:default}
+
+.aba-canvas .riskChatLog:focus-visible{outline:2px solid #cbd5df;outline-offset:-3px}
+
+/* Everyday risk stories use objects, motion and one short caption per step. */
+.aba-canvas .riskScene{padding:22px;gap:14px;background:linear-gradient(145deg,#fff,#f4f8fb)}
+.aba-canvas .riskScene>.riskCaseHeading{min-height:70px;padding:10px 18px}
+.aba-canvas .riskSceneWorld{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;flex:1;min-height:0;cursor:pointer}
+.aba-canvas .riskSceneWorld:focus-visible{outline:2px solid #2d7fb4;outline-offset:3px;border-radius:18px}
+.aba-canvas .sceneStation{min-width:0;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;border:1px solid #c7dbe4;border-radius:20px;background:#fff;padding:18px;text-align:center;position:relative}
+.aba-canvas .sceneStation>h3{font-size:25px;line-height:1.2;color:#144069}
+.aba-canvas .riskSceneArt{width:100px;height:100px;flex:none}
+.aba-canvas .riskSceneArt svg{display:block;width:100%;height:100%}
+.aba-canvas .riskScene [data-revealed=false]{visibility:hidden;pointer-events:none}
+.aba-canvas .riskSceneCaption{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:55px;padding:12px 20px;border:1px solid #b39159;border-left:5px solid #b39159;border-radius:15px;background:#fbf6e9;flex:none}
+.aba-canvas .riskSceneCaption p{font-size:27px;line-height:1.2;color:#144069;font-weight:600}
+.aba-canvas .sceneProgress{display:flex;gap:8px;flex:none}
+.aba-canvas .sceneProgress span{width:10px;height:10px;border-radius:50%;background:#ddd4c3}
+.aba-canvas .sceneProgress span[data-active=true]{background:#b39159}
+.aba-canvas .scenePhone{width:165px;height:230px;padding:10px;border:5px solid #17324a;border-radius:25px;background:#17324a;flex:none}
+.aba-canvas .scenePhoneScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;height:100%;border-radius:12px;background:#f1f6fa;padding:12px}
+.aba-canvas .scenePhoneScreen>p{font-size:22px;line-height:1.2}
+.aba-canvas .scenePassport{display:flex;flex-direction:column;align-items:center;gap:4px}
+.aba-canvas .scenePassport .riskSceneArt{width:78px;height:92px}
+.aba-canvas .scenePassport strong{font-size:18px;line-height:1.2}
+.aba-canvas .sceneUploaded{border:1px solid #b39159;border-radius:14px;background:#fbf6e9;padding:8px}
+.aba-canvas .sceneUploaded .riskSceneArt{width:72px;height:84px}
+.aba-canvas .scenePrivateFields{display:grid;gap:16px;width:100%;text-align:left}
+.aba-canvas .scenePrivateFields>div{display:flex;flex-direction:column;gap:4px;padding:10px 14px;border:1px solid #e4a8ad;border-radius:12px;background:#fff4f3}
+.aba-canvas .scenePrivateFields span{font-size:20px;line-height:1.2;color:#687987}
+.aba-canvas .scenePrivateFields strong{font-size:25px;line-height:1.2;color:#b32632}
+.aba-canvas .sceneLogo{display:flex;flex-direction:column;align-items:center;gap:8px}
+.aba-canvas .sceneLogo .riskSceneArt{width:94px;height:94px}
+.aba-canvas .sceneLogo strong,.aba-canvas .sceneBag strong{font-size:22px;line-height:1.2;color:#144069}
+.aba-canvas .scenePrompt{font-size:22px;line-height:1.25;color:#687987}
+.aba-canvas .sceneBag{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;width:200px;height:215px;border:3px solid #b39159;border-radius:8px 8px 22px 22px;background:#fbf6e9;position:relative;margin-top:15px}
+.aba-canvas .sceneBag:before{content:'';position:absolute;width:70px;height:35px;border:4px solid #b39159;border-bottom:0;border-radius:30px 30px 0 0;top:-35px}
+.aba-canvas .sceneBag .riskSceneArt{width:88px;height:88px}
+.aba-canvas .sceneComplaint{padding:12px 16px;background:#fff0ed;border:1px solid #b32632;border-radius:15px;color:#b32632;font-size:25px;line-height:1.2;font-weight:700}
+.aba-canvas .scene-originality[data-stage='3'] .sceneLogo{outline:3px solid #b32632;outline-offset:8px;border-radius:12px}
+.aba-canvas .scene-costs .riskSceneWorld{display:flex;flex-direction:column;gap:18px}
+.aba-canvas .sceneSubscriptions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;flex:1;min-height:0}
+.aba-canvas .sceneSubscription{border:1px solid #c7dbe4;border-top:4px solid #348ca5;border-radius:20px;background:#fff;padding:18px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.aba-canvas .sceneSubscription .riskSceneArt{width:62px;height:62px}
+.aba-canvas .sceneSubscription h3{font-size:26px;line-height:1.2}
+.aba-canvas .scenePrice{font-size:40px;line-height:1.2;color:#144069}
+.aba-canvas .sceneRenew{font-size:20px;line-height:1.2;padding:5px 14px;border-radius:16px;background:#e5f1f7;color:#144069}
+.aba-canvas .sceneWallet{display:flex;align-items:center;gap:22px;padding:14px 28px;border:1px solid #b39159;border-radius:18px;background:#fbf6e9;flex:none;min-height:80px}
+.aba-canvas .sceneWallet>.riskSceneArt{width:58px;height:58px}
+.aba-canvas .sceneWallet>span{font-size:26px;line-height:1.2}
+.aba-canvas .sceneBalance{font-size:43px;line-height:1.2;color:#144069}
+.aba-canvas .sceneBill{margin-left:auto;color:#b32632;font-size:36px;line-height:1.2}
+.aba-canvas .scene-costs[data-stage='3'] .sceneBalance{color:#b32632}
+
+.aba-canvas .sceneBag{margin-top:30px}
+.aba-canvas .scenePrivateFields{gap:12px}
+.aba-canvas .sceneSubscription{gap:8px}
+
+/* GAS definition and the native Google ecosystem icon explorer. */
+.aba-canvas .gasDefinition{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;padding:20px 50px}
+.aba-canvas .gasDefinition .promptDefinitionText{height:auto;padding:0;font-size:34px;line-height:1.4;text-align:center}
+.aba-canvas .ecosystemLauncher{display:flex;align-items:center;justify-content:center;gap:24px;min-width:500px;min-height:96px;padding:18px 28px;border:2px solid #b39159;border-radius:20px;background:linear-gradient(120deg,#fbf6e9,#fff);box-shadow:0 8px 24px #14406914;font-size:29px;line-height:1.2}
+.aba-canvas .ecosystemLauncher:hover{background:#f5ecd9;transform:translateY(-2px)}
+.aba-canvas .ecosystemLauncherIcons{display:flex;gap:10px}
+.aba-canvas .ecosystemLauncherIcons .officialToolIcon{width:40px;height:40px}
+.aba-canvas .googleEcosystem{padding:24px;gap:16px;background:linear-gradient(145deg,#fff,#f4f8fb)}
+.aba-canvas .ecosystemHeading{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:14px 20px;border:1px solid #b39159;border-left:5px solid #b39159;border-radius:16px;background:#fbfaf7;flex:none;min-height:72px}
+.aba-canvas .ecosystemHeading h2{font-size:32px;line-height:1.2}
+.aba-canvas .ecosystemGrid{flex:1;min-height:0;width:760px;max-width:100%;align-self:center;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-template-rows:repeat(3,minmax(0,1fr));gap:12px}
+.aba-canvas .ecosystemTool{display:flex;align-items:center;justify-content:center;padding:10px;border:1px solid #c7dbe4;border-radius:20px;background:#fff;box-shadow:0 4px 14px #14406908;transition:transform .16s,box-shadow .16s,background .16s}
+.aba-canvas .ecosystemTool>.officialToolIcon{width:62px;height:62px}
+.aba-canvas .ecosystemTool:hover,.aba-canvas .ecosystemTool:focus-visible{transform:translateY(-3px);box-shadow:0 6px 20px #14406924}
+.aba-canvas .ecosystemTool[aria-pressed=true]{background:#eef6fa;border-color:#b39159;box-shadow:inset 0 -3px #b39159}
+.aba-canvas .ecosystemSuite{display:block;position:relative;width:68px;height:68px}
+.aba-canvas .ecosystemSuite>.officialToolIcon{position:absolute;width:32px;height:32px}
+.aba-canvas .ecosystemSuite>.officialToolIcon:nth-child(1){left:0;top:0}
+.aba-canvas .ecosystemSuite>.officialToolIcon:nth-child(2){right:0;top:0}
+.aba-canvas .ecosystemSuite>.officialToolIcon:nth-child(3){left:18px;bottom:0}
+.aba-canvas .ecosystemDetail{display:flex;align-items:center;justify-content:space-between;gap:26px;min-height:76px;padding:16px 22px;border:1px solid #c7dbe4;border-left:5px solid #b39159;border-radius:16px;background:#fff;flex:none}
+.aba-canvas .ecosystemDetail h3{font-size:27px;line-height:1.2;min-width:260px}
+.aba-canvas .ecosystemDetail p{font-size:24px;line-height:1.3;max-width:700px}
+.aba-canvas .topicHub.appsScriptHub .hubButton[data-slot='2']{left:auto;right:4%;top:5%;bottom:auto;width:30%;min-height:86px;border-color:#b39159;background:linear-gradient(125deg,#fbf5e9,#fff)}
+@media(prefers-reduced-motion:reduce){.aba-canvas .ecosystemTool{transition:none;transform:none}}
+
+.aba-canvas .gasDefinition .promptDefinitionText{display:block}
+
+.aba-canvas .topicHub.appsScriptHub .promptHelp{left:auto;right:0;top:calc(38% - 36px)}
+
+/* Privacy: a playful ID edit becomes a public social post. */
+.aba-canvas .sceneIdentity{display:flex;flex-direction:column;align-items:center;gap:4px}
+.aba-canvas .sceneIdentity>.riskSceneArt{width:118px;height:85px}
+.aba-canvas .sceneIdentity>strong{font-size:22px;line-height:1.2}
+.aba-canvas .scene-privacy .sceneStation:nth-child(2)>.riskSceneArt{width:78px;height:78px}
+.aba-canvas .sceneEditStack{position:relative;width:215px;height:146px;max-width:100%;flex:none}
+.aba-canvas .sceneIDUpload,.aba-canvas .sceneIDEdited{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;background:#fff;border-radius:16px}
+.aba-canvas .sceneIDUpload>.riskSceneArt,.aba-canvas .sceneIDEdited>.riskSceneArt{width:142px;height:103px}
+.aba-canvas .sceneIDEdited>span{font-size:22px;line-height:1.2;color:#144069}
+.aba-canvas .sceneSocialPost{width:260px;max-width:100%;display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid #c7dbe4;border-radius:15px;background:#fff;text-align:left}
+.aba-canvas .scenePostHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:22px;line-height:1.2}
+.aba-canvas .scenePostHeader>span{padding:4px 9px;border-radius:12px;background:#fff0ed;color:#b32632;font-size:18px;line-height:1.2}
+.aba-canvas .sceneSocialPost>.riskSceneArt{width:150px;height:104px;align-self:center}
+.aba-canvas .scenePostDetails{display:grid;gap:7px}
+.aba-canvas .scenePostDetails>div{display:flex;align-items:center;justify-content:space-between;gap:9px;padding:6px 8px;border:1px solid #e4a8ad;border-radius:8px;background:#fff4f3}
+.aba-canvas .scenePostDetails span{font-size:18px;line-height:1.2;color:#687987}
+.aba-canvas .scenePostDetails strong{font-size:21px;line-height:1.2;color:#b32632;white-space:nowrap}
+.aba-canvas .scenePostReactions{font-size:17px;line-height:1.2;color:#687987;white-space:nowrap}
+/* Over-reliance: the completed homework cannot answer a fresh question. */
+.aba-canvas .sceneHomework{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;width:240px;min-height:230px;padding:18px;border:2px solid #c7dbe4;border-radius:14px;background:repeating-linear-gradient(#fff 0 34px,#edf3f7 34px 35px)}
+.aba-canvas .sceneEquation{font-size:29px;line-height:1.25;color:#144069;white-space:nowrap}
+.aba-canvas .sceneSubmitted{display:flex;flex-direction:column;align-items:center;gap:8px}
+.aba-canvas .sceneDoneMark{font-size:50px;line-height:1;color:#24845a}
+.aba-canvas .sceneSubmitted>strong:last-child{font-size:21px;line-height:1.2;color:#24845a}
+.aba-canvas .scene-reliance .sceneStation:nth-child(2)>.riskSceneArt{width:70px;height:70px}
+.aba-canvas .sceneMathSteps{display:grid;gap:14px;font-size:30px;line-height:1.2;color:#144069}
+.aba-canvas .sceneMathSteps>strong:last-child{padding:10px 24px;border:2px solid #348ca5;border-radius:12px;background:#eaf6f8}
+.aba-canvas .sceneClassTest{width:248px;max-width:100%;display:flex;flex-direction:column;align-items:center;gap:18px}
+.aba-canvas .sceneChalkboard{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;padding:16px 10px;border:6px solid #b39159;border-radius:10px;background:#173f3b;color:white}
+.aba-canvas .sceneChalkboard strong{font-size:26px;line-height:1.2;white-space:nowrap}
+.aba-canvas .sceneChalkboard span{font-size:32px;line-height:1.2}
+.aba-canvas .sceneStudent{display:flex;align-items:flex-start;justify-content:center;gap:16px;width:100%}
+.aba-canvas .sceneStudent>.riskSceneArt{width:104px;height:104px}
+.aba-canvas .sceneBlankAnswer{padding:4px 18px;border:2px solid #b32632;border-radius:18px;color:#b32632;background:#fff0ed;font-size:46px;line-height:1}
+
+.aba-canvas .topicHub.customAIHub .hubTitle{width:320px;font-size:72px}
+.aba-canvas .topicHub.customAIHub .promptHelp{left:calc(50% + 190px);top:calc(32% - 39px)}
+
+.aba-canvas .topicHub.skillExamplesHub .hubTitle{top:24%;font-size:76px;width:75%}
+.aba-canvas .topicHub.skillExamplesHub .hubButton{top:55%;bottom:auto;width:41%;min-height:120px;padding:24px;font-size:30px;line-height:1.25}
+.aba-canvas .topicHub.skillExamplesHub .hubButton[data-slot="0"]{left:5%;right:auto;top:55%;bottom:auto;width:41%}
+.aba-canvas .topicHub.skillExamplesHub .hubButton[data-slot="1"]{left:auto;right:5%;top:60%;bottom:auto;width:41%}
+
+.aba-canvas .topicHub.skillExamplesHub .headingIcons .officialToolIcon{width:72px;height:72px}
+
+.aba-canvas .topicHub.skillExamplesHub[data-count="3"] .hubButton{font-size:28px;padding:22px 18px}
+.aba-canvas .topicHub.skillExamplesHub[data-count="3"] .hubButton[data-slot="0"]{left:3%;right:auto;top:55%;bottom:auto;width:28%}
+.aba-canvas .topicHub.skillExamplesHub[data-count="3"] .hubButton[data-slot="1"]{left:35%;right:auto;top:59%;bottom:auto;width:32%}
+.aba-canvas .topicHub.skillExamplesHub[data-count="3"] .hubButton[data-slot="2"]{left:71%;right:auto;top:54%;bottom:auto;width:26%}
+
+.aba-canvas .skillExamplesHub .hubButton .skillTopicIcon{position:absolute;left:14px;top:12px;width:30px;height:30px;flex:none;color:#326d9c;opacity:.8}
+.aba-canvas .skillExamplesHub .hubButton[data-slot="1"] .skillTopicIcon{color:#328ca0}
+.aba-canvas .skillExamplesHub .hubButton[data-slot="2"] .skillTopicIcon{color:#9d7944}

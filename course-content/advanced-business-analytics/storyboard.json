@@ -822,19 +822,19 @@
       "objectives": [
         [
           "11.1",
-          "Use an AI assistant to complete a bounded business task"
+          "Gain hands-on experience using advanced analytics platforms"
         ],
         [
           "11.2",
-          "Distinguish a model, an application and a configured assistant"
+          "Gain insight into the core features and capabilities of advanced analytics tools for improving business operations across industries"
         ],
         [
           "11.3",
-          "Write, test and revise a prompt against explicit criteria"
+          "Develop the capability to rapidly adapt analytics approaches to dynamic business environments and emerging trends."
         ],
         [
           "11.4",
-          "Recognize errors, missing evidence and limits before using an output"
+          "Assess scenarios where advanced analytics and automation can enhance efficiency and reduce human error in business workflows."
         ]
       ]
     },
@@ -886,35 +886,41 @@
                       "title": "UK government: AI adoption research 2026",
                       "url": "https://assets.publishing.service.gov.uk/media/6ae202189bca21f1c5036e99/artificial-intelligence-adoption-research-report-2026.pdf",
                       "detail": "October 2026. Figure 14. 1,460 businesses using or planning AI. Multiple responses. Includes planned use"
-                    }
-                  },
-                  {
-                    "label": "Usage frequency",
-                    "title": "How often AI adopters use AI",
-                    "subtitle": "UK AI adopters, 2026 (%)",
-                    "rows": [
-                      [
-                        "Constantly",
-                        57
-                      ],
-                      [
-                        "At least weekly",
-                        27
-                      ],
-                      [
-                        "Every couple of weeks",
-                        4
-                      ],
-                      [
-                        "Every month",
-                        4
-                      ]
-                    ],
-                    "source": {
-                      "title": "UK government: AI adoption research 2026",
-                      "url": "https://assets.publishing.service.gov.uk/media/6ae202189bca21f1c5036e99/artificial-intelligence-adoption-research-report-2026.pdf",
-                      "detail": "October 2026. Figure 15. 1,224 AI adopters. Separate frequency categories. Less frequent use and unknown responses omitted. Rounded values"
-                    }
+                    },
+                    "rowDetails": [
+                      {
+                        "items": [
+                          "Draft emails and summarise documents.",
+                          "Reformat documents and improve grammar.",
+                          "Check driver schedules for rota conflicts."
+                        ],
+                        "reference": "Report PDF pp. 76, 96: routine work and coach-company case study."
+                      },
+                      {
+                        "items": [
+                          "Write product SEO descriptions and email subject lines.",
+                          "Create social captions and poster image concepts.",
+                          "Restore images and caption social videos."
+                        ],
+                        "reference": "Report PDF pp. 99, 106: retailer and charity case studies."
+                      },
+                      {
+                        "items": [
+                          "Count dietary preferences in event spreadsheets.",
+                          "Reformat guest lists.",
+                          "Explore demand forecasting (planned use)."
+                        ],
+                        "reference": "Report PDF pp. 101, 109: retailer plans and event-venue use."
+                      },
+                      {
+                        "items": [
+                          "Explore visual ideas and early prototypes.",
+                          "Generate software tests and review code.",
+                          "Explore bug-fixing automation (planned use)."
+                        ],
+                        "reference": "Report PDF pp. 102-103: creative-agency case study."
+                      }
+                    ]
                   },
                   {
                     "label": "Reported benefits",
@@ -948,105 +954,320 @@
                       "detail": "October 2026. Figure 19. 1,224 AI adopters. Multiple responses. Self-reported benefits, without a causal comparison group"
                     }
                   }
-                ]
+                ],
+                "risks": {
+                  "title": "Risks",
+                  "items": [
+                    "Accuracy and bias: unreliable outputs can mislead decisions.",
+                    "Privacy: personal details can leave your control.",
+                    "Originality: AI-made work may copy someone else.",
+                    "Over-reliance: copying AI answers can skip the learning."
+                  ],
+                  "reference": "Report PDF pp. 51-52, Figure 22: adoption barriers; not incident rates.",
+                  "cases": [
+                    {
+                      "kind": "chat",
+                      "title": "ChatGPT",
+                      "fictional": true,
+                      "messages": [
+                        {
+                          "role": "User",
+                          "attachment": "mushroom-photo.jpg",
+                          "text": "I found this mushroom. How should I cook it for dinner?"
+                        },
+                        {
+                          "role": "AI",
+                          "text": "Chef mode: ON. Clean it, slice it thin, saute until golden, season, and serve. Family dinner: sorted."
+                        },
+                        {
+                          "role": "User",
+                          "text": "I did exactly what you said and served it to my family. Now they are all in the ER."
+                        },
+                        {
+                          "role": "AI",
+                          "text": "Oh. Tiny detail I forgot: that mushroom is poisonous. You should probably pray for your family."
+                        }
+                      ],
+                      "icon": "chatgpt"
+                    },
+                    {
+                      "kind": "scene",
+                      "scene": "privacy",
+                      "title": "The ID card post",
+                      "fictional": true,
+                      "captions": [
+                        "An ID card. A funny social post?",
+                        "Upload the ID photo to AI.",
+                        "Fun filter added. Personal details still there.",
+                        "Posted for fun. ID details shared in public."
+                      ]
+                    },
+                    {
+                      "kind": "scene",
+                      "scene": "originality",
+                      "title": "The copycat logo",
+                      "fictional": true,
+                      "captions": [
+                        "A new bakery needs a logo.",
+                        "AI makes a familiar-looking design.",
+                        "It goes straight onto the shopping bags.",
+                        "AI-made does not mean original."
+                      ]
+                    },
+                    {
+                      "kind": "scene",
+                      "scene": "reliance",
+                      "title": "The copy-paste homework",
+                      "fictional": true,
+                      "captions": [
+                        "A homework question.",
+                        "AI solves every step.",
+                        "Copy, paste, submit.",
+                        "A similar question. No idea where to start."
+                      ]
+                    }
+                  ]
+                }
               }
             },
             {
-              "label": "API spending and consumer use",
+              "label": "Spending on AI",
               "content": {
-                "kind": "evidence",
-                "title": "API spending and consumer use",
-                "views": [
+                "kind": "spending",
+                "title": "Spending on AI",
+                "checked": "25 November 2026",
+                "overview": [
                   {
-                    "label": "API spending",
-                    "title": "Where enterprise API spending goes",
-                    "subtitle": "Estimated production LLM API spending share, 2026 (%)",
-                    "rows": [
-                      [
-                        "Anthropic",
-                        55,
-                        "claude"
-                      ],
-                      [
-                        "OpenAI",
-                        31,
-                        "openai"
-                      ],
-                      [
-                        "Google",
-                        9,
-                        "gemini"
-                      ],
-                      [
-                        "Other providers",
-                        5
-                      ]
-                    ],
-                    "source": {
-                      "title": "Menlo Ventures: State of Enterprise AI 2026",
-                      "url": "https://menlovc.com/perspective/2026-the-state-of-enterprise-ai/",
-                      "detail": "3 November 2026. Nearly 400 US enterprise decision-makers surveyed in September. Production API workloads weighted by AI spend. Provider estimates, separate from consumer product use. Menlo invests in Anthropic."
-                    }
+                    "title": "Pay for API",
+                    "bullets": [
+                      "Connect AI to your own app or workflow.",
+                      "Pay for text pieces (tokens) sent and received.",
+                      "Choose a model and delivery mode; tools can cost extra."
+                    ]
                   },
                   {
-                    "label": "Assistant reach",
-                    "title": "Which assistants AI users have tried",
-                    "subtitle": "US AI users, past six months, July 2026 (%)",
-                    "rows": [
-                      [
-                        "ChatGPT",
-                        60,
-                        "chatgpt"
-                      ],
-                      [
-                        "Gemini",
-                        58,
-                        "gemini"
-                      ],
-                      [
-                        "Claude",
-                        20,
-                        "claude"
-                      ]
+                    "title": "Pay for Subscription",
+                    "bullets": [
+                      "Use the ready-made AI app.",
+                      "Pay a monthly fee for a plan with usage limits.",
+                      "Some plans include API credits; check what you can claim."
+                    ]
+                  }
+                ],
+                "market": {
+                  "label": "API spending",
+                  "title": "Estimated annual API spending",
+                  "subtitle": "Estimated production LLM API spending share, 2026 (%)",
+                  "rows": [
+                    [
+                      "Anthropic",
+                      55,
+                      "claude"
                     ],
-                    "source": {
-                      "title": "Menlo Ventures: State of Consumer AI 2026",
-                      "url": "https://menlovc.com/perspective/2026-the-state-of-consumer-ai/",
-                      "detail": "Morning Consult, July 2026. Weighted survey of 5,067 US adults. Brand reach is among AI users, with multiple products possible. Menlo invests in Anthropic."
+                    [
+                      "OpenAI",
+                      31,
+                      "openai"
+                    ],
+                    [
+                      "Google",
+                      9,
+                      "gemini"
+                    ],
+                    [
+                      "Other providers",
+                      5
+                    ]
+                  ],
+                  "source": {
+                    "title": "Menlo Ventures: State of Enterprise AI 2026",
+                    "url": "https://menlovc.com/perspective/2026-the-state-of-enterprise-ai/",
+                    "detail": "2026 estimates. Menlo reports $122.7B captured by the three frontier labs, including $40.0B in first-party apps. Inferred API total: ($122.7B - $40.0B) / 95% = approximately $87.1B. Provider totals multiply that estimate by 55%, 31%, 9% and the 5% remainder. These are calculated annual estimates, not provider-reported revenue. Survey: nearly 400 US enterprise decision-makers; Menlo invests in Anthropic."
+                  },
+                  "comparisons": [
+                    {
+                      "current": 55,
+                      "estimatedBillions": 47.87894736842105
                     },
-                    "caption": "People can use several assistants, so these percentages overlap."
-                  },
+                    {
+                      "current": 31,
+                      "estimatedBillions": 26.986315789473682
+                    },
+                    {
+                      "current": 9,
+                      "estimatedBillions": 7.834736842105263
+                    },
+                    {
+                      "current": 5,
+                      "estimatedBillions": 4.352631578947369
+                    }
+                  ],
+                  "estimatedTotalBillions": 87.05263157894737
+                },
+                "providers": [
                   {
-                    "label": "AI-assisted activities",
-                    "title": "Where people use AI while creating",
-                    "subtitle": "US adults who perform each activity, July 2026 (%)",
-                    "rows": [
+                    "name": "OpenAI",
+                    "icon": "openai",
+                    "api": [
                       [
-                        "Writing",
-                        61
+                        "GPT-6.2 Sol",
+                        "General work",
+                        2,
+                        10
                       ],
                       [
-                        "Coding projects",
-                        58
-                      ],
-                      [
-                        "School or work assignments",
-                        56
-                      ],
-                      [
-                        "Creating images",
-                        53
-                      ],
-                      [
-                        "Building presentations",
-                        52
+                        "GPT-6.2 Astra",
+                        "Complex work",
+                        8,
+                        40
                       ]
                     ],
-                    "source": {
-                      "title": "Menlo Ventures: State of Consumer AI 2026",
-                      "url": "https://menlovc.com/perspective/2026-the-state-of-consumer-ai/",
-                      "detail": "July 2026 Morning Consult survey, 5,067 US adults. Each percentage uses people who perform that activity as its base. Covers AI tools generally. Menlo invests in Anthropic."
-                    }
+                    "plans": [
+                      [
+                        "Go",
+                        "$8",
+                        "More everyday access"
+                      ],
+                      [
+                        "Plus",
+                        "$20",
+                        "Advanced tools"
+                      ],
+                      [
+                        "Pro",
+                        "$100 / $200 / $500",
+                        "Higher usage tiers"
+                      ]
+                    ],
+                    "apiOptions": [
+                      "Standard: normal on-demand requests.",
+                      "Batch: lower rates for work that can wait.",
+                      "Prompt caching: lower input rates for reused content."
+                    ],
+                    "credit": "Eligible Pro: claim $100 / $200 / $500 in API credits monthly.",
+                    "example": "GPT-6.2 Sol: 1M input + 0.2M output = $4.",
+                    "sources": [
+                      [
+                        "API rates",
+                        "https://developers.openai.com/api/docs/pricing"
+                      ],
+                      [
+                        "Subscription plans",
+                        "https://learn.chatgpt.com/docs/pricing"
+                      ],
+                      [
+                        "API credit eligibility",
+                        "https://developers.openai.com/api/docs/guides/chatgpt-api-credits"
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "Claude",
+                    "icon": "claude",
+                    "api": [
+                      [
+                        "Sonnet 5.5",
+                        "Coding and agents",
+                        2,
+                        10
+                      ],
+                      [
+                        "Opus 5.5",
+                        "Complex work",
+                        4,
+                        20
+                      ]
+                    ],
+                    "plans": [
+                      [
+                        "Pro",
+                        "$20",
+                        "Everyday work + Claude Code"
+                      ],
+                      [
+                        "Max",
+                        "$100",
+                        "5x Pro usage"
+                      ],
+                      [
+                        "Ultra",
+                        "$200",
+                        "10x Pro weekly usage"
+                      ]
+                    ],
+                    "apiOptions": [
+                      "Standard: normal on-demand requests.",
+                      "Batch: discounted asynchronous processing.",
+                      "Prompt caching: separate write and read charges."
+                    ],
+                    "credit": "Max / Ultra include $100 / $200 in monthly API credits; terms apply.",
+                    "example": "Sonnet 5.5: 1M input + 0.2M output = $4.",
+                    "sources": [
+                      [
+                        "API and subscription plans",
+                        "https://claude.com/pricing"
+                      ],
+                      [
+                        "API billing options",
+                        "https://platform.claude.com/docs/en/about-claude/pricing"
+                      ]
+                    ]
+                  },
+                  {
+                    "name": "Gemini",
+                    "icon": "gemini",
+                    "api": [
+                      [
+                        "Gemini 4 Hydrogen",
+                        "Everyday tasks",
+                        1.5,
+                        7.5
+                      ],
+                      [
+                        "Gemini 4 Neon",
+                        "Complex work",
+                        3,
+                        15
+                      ]
+                    ],
+                    "plans": [
+                      [
+                        "AI Plus",
+                        "$4.99",
+                        "2x Free usage"
+                      ],
+                      [
+                        "AI Pro",
+                        "$19.99",
+                        "4x Free usage"
+                      ],
+                      [
+                        "AI Ultra",
+                        "$99.99 / $199.99",
+                        "5x / 20x Pro usage"
+                      ]
+                    ],
+                    "apiOptions": [
+                      "Free tier: selected models, with lower limits.",
+                      "Paid Standard: pay by usage; Batch can lower rates.",
+                      "Caching and search tools have separate pricing."
+                    ],
+                    "credit": "Pro / Ultra: $10 / $40-$100 monthly Cloud credits; claim terms apply.",
+                    "example": "Gemini 4 Hydrogen: 1M input + 0.2M output = $3.",
+                    "sources": [
+                      [
+                        "API rates",
+                        "https://aistudio.google.com/docs/pricing"
+                      ],
+                      [
+                        "Subscription plans",
+                        "https://gemini.google/subscriptions/"
+                      ],
+                      [
+                        "Cloud credit benefits",
+                        "https://one.google.com/about/google-ai-plans/?gl=US&hl=en"
+                      ]
+                    ]
                   }
                 ]
               }
@@ -1206,43 +1427,9 @@
                 "url": "https://script.google.com/",
                 "showIntro": false
               }
-            }
-          ]
-        },
-        {
-          "kind": "showcase",
-          "title": "In-class practice",
-          "lead": "Spend 15 minutes using this flow to deploy a web app that meets your own needs.",
-          "items": [
-            "Choose a small need and define what the web app should do.",
-            "Write a clear prompt and ask AI for the code and setup steps.",
-            "Paste the files into Apps Script, test with sample data and deploy.",
-            "Check viewer access, then share the /exec link or a screenshot."
-          ],
-          "practice": {
-            "title": "In-class practice",
-            "minutes": 15,
-            "goal": "Use the need → prompt → AI code → Apps Script flow to deploy a web app for your own needs.",
-            "steps": [
-              "Choose a small need and define what the web app should do.",
-              "Write a clear prompt and ask AI for the code and setup steps.",
-              "Paste the files into Apps Script, test with sample data and deploy.",
-              "Check viewer access, then share the /exec link or a screenshot."
-            ],
-            "deliverable": "",
-            "allowImages": true,
-            "allowDelete": true,
-            "activityId": "gas-webapp",
-            "hint": "Create a web app on google appscript and take the googlesheet as the database, this web app is about....... (your demand)."
-          }
-        },
-        {
-          "kind": "hub",
-          "title": "Visualization",
-          "layout": "visualization",
-          "items": [
+            },
             {
-              "label": "Try",
+              "label": "Visualization?????",
               "content": {
                 "kind": "try-code",
                 "title": "Try the sales dashboard",
@@ -1263,11 +1450,96 @@
                 "url": "https://script.google.com/"
               }
             }
-          ]
+          ],
+          "ecosystem": {
+            "title": "Google ecosystem",
+            "tools": [
+              {
+                "name": "Google Workspace",
+                "icons": [
+                  "gmail",
+                  "docs",
+                  "sheets"
+                ],
+                "function": "A suite of connected apps for work and collaboration."
+              },
+              {
+                "name": "Gmail",
+                "icon": "gmail",
+                "function": "Send emails and organize messages."
+              },
+              {
+                "name": "Google Calendar",
+                "icon": "calendar",
+                "function": "Create events, schedules and reminders."
+              },
+              {
+                "name": "Google Drive",
+                "icon": "drive",
+                "function": "Store files and organize folders."
+              },
+              {
+                "name": "Google Sheets",
+                "icon": "sheets",
+                "function": "Read, update and analyze spreadsheet data."
+              },
+              {
+                "name": "Google Docs",
+                "icon": "docs",
+                "function": "Create and edit text documents."
+              },
+              {
+                "name": "Google Slides",
+                "icon": "slides",
+                "function": "Build and update presentations."
+              },
+              {
+                "name": "Google Forms",
+                "icon": "forms",
+                "function": "Collect answers through forms and surveys."
+              },
+              {
+                "name": "Google Meet",
+                "icon": "meet",
+                "function": "Host video meetings; schedule them through Calendar."
+              }
+            ],
+            "sources": [
+              "https://developers.google.com/apps-script/overview",
+              "https://developers.google.com/workspace/products"
+            ]
+          }
+        },
+        {
+          "kind": "showcase",
+          "title": "In-class practice",
+          "lead": "Spend 30 minutes using this flow to deploy a web app that meets your own needs.",
+          "items": [
+            "Choose a small need and define what the web app should do.",
+            "Write a clear prompt and ask AI for the code and setup steps.",
+            "Paste the files into Apps Script, test with sample data and deploy.",
+            "Check viewer access, then share the /exec link or a screenshot."
+          ],
+          "practice": {
+            "title": "In-class practice",
+            "minutes": 30,
+            "goal": "Use the need → prompt → AI code → Apps Script flow to deploy a web app for your own needs.",
+            "steps": [
+              "Choose a small need and define what the web app should do.",
+              "Write a clear prompt and ask AI for the code and setup steps.",
+              "Paste the files into Apps Script, test with sample data and deploy.",
+              "Check viewer access, then share the /exec link or a screenshot."
+            ],
+            "deliverable": "",
+            "allowImages": true,
+            "allowDelete": true,
+            "activityId": "gas-webapp",
+            "hint": "Create a web app on google appscript and take the googlesheet as the database, this web app is about....... (your demand)."
+          }
         },
         {
           "kind": "hub",
-          "title": "Custom AI",
+          "title": "SKILL",
           "layout": "custom-ai",
           "items": [
             {
@@ -1344,45 +1616,109 @@
             {
               "label": "Try?",
               "content": {
-                "kind": "skill-demo",
-                "title": "Calorie & Meal Planner",
-                "intro": "A custom AI app for calorie tracking and meal suggestions tailored to your needs.",
-                "features": [
-                  [
-                    "Your calorie goals",
-                    "Track calories for weight loss, weight gain or maintenance."
-                  ],
-                  [
-                    "Meal suggestions",
-                    "Suggest a menu that fits your goals and food preferences."
-                  ],
-                  [
-                    "Google Maps & location",
-                    "Use location and Google Maps, when available, to suggest nearby food options."
-                  ]
+                "kind": "hub",
+                "layout": "skill-examples",
+                "title": "Gemini",
+                "items": [
+                  {
+                    "label": "Calorie & Meal Planner",
+                    "content": {
+                      "kind": "skill-demo",
+                      "title": "Calorie & Meal Planner",
+                      "intro": "A custom AI app for calorie tracking and meal suggestions tailored to your needs.",
+                      "features": [
+                        [
+                          "Your calorie goals",
+                          "Track calories for weight loss, weight gain or maintenance."
+                        ],
+                        [
+                          "Meal suggestions",
+                          "Suggest a menu that fits your goals and food preferences."
+                        ],
+                        [
+                          "Google Maps & location",
+                          "Use location and Google Maps, when available, to suggest nearby food options."
+                        ]
+                      ],
+                      "download": "calorie-planner"
+                    },
+                    "topicIcon": "meal"
+                  },
+                  {
+                    "label": "Visualization Automation",
+                    "content": {
+                      "kind": "skill-demo",
+                      "title": "Visualization Automation",
+                      "intro": "Turn a data file into a shareable interactive dashboard.",
+                      "features": [
+                        [
+                          "Analyze your data",
+                          "Automatically inspect and analyze Excel or CSV files."
+                        ],
+                        [
+                          "Choose the right visuals",
+                          "Automatically select charts that fit your data."
+                        ],
+                        [
+                          "Deploy & share",
+                          "Get immediate publishing steps using a third-party service."
+                        ]
+                      ],
+                      "download": "visualization-automation"
+                    },
+                    "topicIcon": "chart"
+                  },
+                  {
+                    "label": "Light 3D game",
+                    "content": {
+                      "kind": "skill-demo",
+                      "title": "Light 3D game",
+                      "intro": "Create a lightweight 3D game that runs in a browser.",
+                      "features": [
+                        [
+                          "Build your game",
+                          "Create a 3D world with animated characters."
+                        ],
+                        [
+                          "Play & interact",
+                          "Add movement, actions and simple game controls."
+                        ],
+                        [
+                          "Deploy & share",
+                          "Download one HTML file and get steps to share it via ShareMyHTML."
+                        ]
+                      ],
+                      "download": "light-3d-game"
+                    },
+                    "topicIcon": "game"
+                  }
                 ],
-                "download": "calorie-planner"
+                "tools": [
+                  "gemini"
+                ]
               }
             }
-          ]
+          ],
+          "definitionTitle": "What is a skill?",
+          "definition": "A skill gives AI reusable instructions for a specific task."
         }
       ],
       "objectives": [
         [
           "11.1",
-          "Use an AI assistant to complete a bounded business task"
+          "Gain hands-on experience using advanced analytics platforms"
         ],
         [
           "11.2",
-          "Distinguish a model, an application and a configured assistant"
+          "Gain insight into the core features and capabilities of advanced analytics tools for improving business operations across industries"
         ],
         [
           "11.3",
-          "Write, test and revise a prompt against explicit criteria"
+          "Develop the capability to rapidly adapt analytics approaches to dynamic business environments and emerging trends."
         ],
         [
           "11.4",
-          "Recognize errors, missing evidence and limits before using an output"
+          "Assess scenarios where advanced analytics and automation can enhance efficiency and reduce human error in business workflows."
         ]
       ]
     }

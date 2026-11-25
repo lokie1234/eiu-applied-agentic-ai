@@ -12,6 +12,7 @@ import { getCompiledSectionMetadata } from "@/lib/compiledSectionMetadata";
 import { useLessonPracticeBridge } from "./useLessonPracticeBridge";
 import { useMis301NotebookBridge } from "./useMis301NotebookBridge";
 import { useLessonRevealBridge } from "./useLessonRevealBridge";
+import { useRiskChatBridge } from "./useRiskChatBridge";
 import { useMis311PresentationBridge } from "./useMis311PresentationBridge";
 import { readMis311Presentation } from "@/lib/mis311Presentation";
 import { captureLiveDocument } from '@/lib/livePresentationDom';
@@ -93,6 +94,7 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
   const practiceAssignmentKey = `${practiceAccess?.practiceSession || ""}:${practiceAccess?.assignment?.drawId || ""}:${practiceAccess?.assignment?.subject || ""}:${practiceAccess?.assignment?.part || ""}`;
   useMis301NotebookBridge(sectionId, iframeRef);
   useLessonRevealBridge(sectionId, iframeRef);
+  useRiskChatBridge(sectionId, iframeRef);
   useMis311PresentationBridge(sectionId, iframeRef);
   const contentUrl = `/api/sections/${encodeURIComponent(sectionId)}/content`;
   const [totalSlides, setTotalSlides] = useState(compiledCount ?? slideCount ?? 1);
