@@ -1,0 +1,2 @@
+import IdeaSubmissionView from '../../../components/IdeaSubmissionView';
+export default function Submission(){return <IdeaSubmissionView offline/>;}

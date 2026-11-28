@@ -1,10 +1,34 @@
 "use client";
 
 import { useLayoutEffect, type RefObject } from 'react';
-import { getRevealSession, saveRevealState, syncRevealTermination, MIS311_RCA_SECTION_ID } from '@/lib/lessonRevealState';
+import { getRevealSession, saveRevealState, syncRevealTermination, resetLessonRevealState, MIS311_RCA_SECTION_ID, MANAGER_SECTION_ID } from '@/lib/lessonRevealState';
 
 export function useLessonRevealBridge(sectionId: string, frame: RefObject<HTMLIFrameElement | null>) {
   useLayoutEffect(() => {
+    if (sectionId === MANAGER_SECTION_ID) {
+      // Reuse the existing presentation store; no identity/results or server writes.
+      resetLessonRevealState(sectionId);
+      let ended = false;
+      const receive = (event: MessageEvent) => {
+        const target = frame.current, message = event.data;
+        if (ended || !target || event.source !== target.contentWindow || !message ||
+            message.type !== 'eiu-orientation-load' || message.requestId !== target.dataset.requestId ||
+            message.requestId !== `${sectionId}:3`) return;
+        const session = getRevealSession(sectionId), play = session.state.orientationPlayed !== true;
+        // Claim at first display so interrupted or recreated slides never replay.
+        saveRevealState(sectionId, session.epoch, { ...session.state, orientationPlayed: true });
+        target.contentWindow?.postMessage({ type: 'eiu-orientation-state', requestId: message.requestId, play }, '*');
+      };
+      const terminate = (event: Event) => {
+        if ((event as CustomEvent<{ sectionId?: string }>).detail?.sectionId !== sectionId) return;
+        ended = true;
+        frame.current?.contentWindow?.postMessage({ type: 'eiu-section-terminated', requestId: frame.current.dataset.requestId }, '*');
+        resetLessonRevealState(sectionId);
+      };
+      window.addEventListener('message', receive);
+      window.addEventListener('eiu-section-terminated', terminate);
+      return () => { ended = true; window.removeEventListener('message', receive); window.removeEventListener('eiu-section-terminated', terminate); resetLessonRevealState(sectionId); };
+    }
     if (sectionId !== MIS311_RCA_SECTION_ID) return;
     let ended = false;
     const controller = new AbortController();

@@ -30,9 +30,15 @@ async function buildSection(section, options = {}) {
         import Html from './components/section1/SectionOneHtmlSlide';
         import Models from './components/section1/SectionOneSlide14';
         import {buildSectionOneDeckItems} from './lib/builtinDeckItems';
+        ${options.coverSource ? `import Cover from ${JSON.stringify(path.resolve(options.coverSource).replaceAll('\\','/'))};` : ''}
+        ${options.orientationSource ? `import Orientation from ${JSON.stringify(path.resolve(options.orientationSource).replaceAll('\\','/'))};` : ''}
+        ${options.ideasSource ? `import Ideas from ${JSON.stringify(path.resolve(options.ideasSource).replaceAll('\\','/'))};` : ''}
+        ${options.submissionSource ? `import Submission from ${JSON.stringify(path.resolve(options.submissionSource).replaceAll('\\','/'))};` : ''}
         import {createOfflineSlides} from ${JSON.stringify(path.join(root,'course-content/applied-agentic-ai/offline/runtime').replaceAll('\\','/'))};
         const items=buildSectionOneDeckItems(false).filter(item=>item.kind!=='quiz'&&item.kind!=='showcase'&&!(item.kind==='html'&&['slide4','idea-results'].includes(item.slide)));
-        export default createOfflineSlides(items.map(item=>()=>item.kind==='native'?<Native page={item.pdfPage} scale={1}/>:item.kind==='slide14'?<Models scale={1}/>:<Html kind={item.slide} scale={1} isAdmin={false}/>));
+        const renderers=items.map(item=>()=>item.kind==='native'?${options.coverSource ? 'item.pdfPage===1?<Cover/>:' : ''}${options.ideasSource ? 'item.pdfPage===5?<Ideas/>:' : ''}<Native page={item.pdfPage} scale={1}/>:item.kind==='slide14'?<Models scale={1}/>:${options.orientationSource ? "item.slide==='slide3'?<Orientation/>:" : ''}<Html kind={item.slide} scale={1} isAdmin={false}/>);
+        ${options.submissionSource ? 'renderers.splice(4,0,()=> <Submission/>);' : ''}
+        export default createOfflineSlides(renderers);
       ` : `
         import Content from './components/section2/SectionTwoSlide';
         import {sectionTwoDeckItems} from './lib/builtinDeckItems';
@@ -51,7 +57,7 @@ async function buildSection(section, options = {}) {
       build.onResolve({filter:/^@\/lib\/slideStorage$/},()=>({path:path.join(root,'course-content/applied-agentic-ai/offline/slideStorage.ts')}));
       build.onResolve({filter:/^eiu:emergency$/},()=>({path:'emergency',namespace:'embedded'}));
       build.onLoad({filter:/.*/,namespace:'embedded'},()=>({contents:`export default ${JSON.stringify({bytes:fs.readFileSync(path.join(sourceRoot,'assets/emergency',emergencyName)).toString('base64'),mime:mime[path.extname(emergencyName)]||'application/octet-stream'})}`,loader:'js'}));
-      build.onLoad({filter:/\.(tsx?|css)$/},args=>{
+      build.onLoad({filter:/\.(?:tsx?|css|tsx\.txt)$/},args=>{
         if(args.path.includes(path.sep+'node_modules'+path.sep)) return;
         if(args.path.startsWith(path.join(root,'course-content/applied-agentic-ai/offline')+path.sep)) return;
         if(args.path.endsWith('.css')) {
@@ -78,7 +84,8 @@ async function buildSection(section, options = {}) {
           source=source.replace(/\bfetch\(/g,'offlineEmergencyFetch(').replaceAll('/api/emergency-download','eiu:emergency');needsFetch=true;
         }
         source=source.replace(/href="(\/downloads\/[^\"]+)" download(?=\s|>)/g,(_,url)=>`href="${url}" download="${path.basename(url)}"`);
-        const parsed=ts.createSourceFile(args.path,source,ts.ScriptTarget.Latest,true);
+        const isTsx = args.path.endsWith('.tsx') || args.path.endsWith('.tsx.txt');
+        const parsed=ts.createSourceFile(args.path,source,ts.ScriptTarget.Latest,true,isTsx?ts.ScriptKind.TSX:ts.ScriptKind.TS);
         const transformed=ts.transform(parsed,[context=>{
           const visit=node=>{
             // The existing Windows sandbox omits allow-forms. Keep native form
@@ -101,7 +108,7 @@ async function buildSection(section, options = {}) {
         const helpers=[needsCopy?'offlineCopy':null,needsFetch?'offlineEmergencyFetch':null].filter(Boolean);
         if(helpers.length) contents=`import {${helpers.join(',')}} from ${JSON.stringify(path.join(root,'course-content/applied-agentic-ai/offline/browser').replaceAll('\\','/'))};\n`+contents;
         if(needsForm) contents=`import OfflineForm from ${JSON.stringify(path.join(root,'course-content/applied-agentic-ai/offline/Form').replaceAll('\\','/'))};\n`+contents;
-        return {contents,loader:args.path.endsWith('.tsx')?'tsx':'ts',resolveDir:path.dirname(args.path)};
+        return {contents,loader:isTsx?'tsx':'ts',resolveDir:path.dirname(args.path)};
       });
     }}],
   });

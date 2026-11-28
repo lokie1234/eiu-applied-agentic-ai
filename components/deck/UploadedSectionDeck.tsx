@@ -24,6 +24,10 @@ const QuizSlide = dynamic(async () => {
   const { default: Quiz } = await import("@/components/QuizSlide");
   return function LoadedQuiz(props: ComponentProps<typeof Quiz>) { return <div className={styles.nativeContent} data-slide-content-ready="true"><Quiz {...props} /></div>; };
 }, { loading: () => <HairlineLoading contained /> });
+const IdeaSubmissionSlide = dynamic(async () => {
+  const { default: Ideas } = await import("@/components/IdeaSubmissionSlide");
+  return function LoadedIdeas(props: ComponentProps<typeof Ideas>) { return <div className={styles.nativeContent} data-slide-content-ready="true"><Ideas {...props} /></div>; };
+}, { loading: () => <HairlineLoading contained /> });
 const PptxSectionDeck = dynamic(() => import("./PptxSectionDeck"), { ssr: false, loading: () => <HairlineLoading contained /> });
 const UploadedPdfDeck = dynamic(() => import("./UploadedPdfDeck"), { ssr: false, loading: () => <HairlineLoading contained /> });
 
@@ -103,6 +107,7 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
   const [slideCountReady, setSlideCountReady] = useState(compiledCount !== undefined);
   const [showcasePage, setShowcasePage] = useState<number | null>(null);
   const [quizPage, setQuizPage] = useState<number | null>(null);
+  const [ideasPage, setIdeasPage] = useState<number | null>(null);
   const [loadedTemplate, setLoadedTemplate] = useState<{ key: string; image: string; error: string }>({ key: "", image: "", error: "" });
   const templateMatches = needsTemplate && loadedTemplate.key === templateKey;
   const templateImage = templateMatches ? loadedTemplate.image : "";
@@ -161,6 +166,7 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
       if (payload?.type === "eiu-slide-interaction" && Number.isSafeInteger(payload.page) && payload.requestId === `${sectionId}:${payload.page}`) {
         setResolvedRequest(payload.requestId);
         setShowcasePage(payload.interaction === "showcase" ? Number(payload.page) : null);
+        setIdeasPage(payload.interaction === "ideas" ? Number(payload.page) : null);
         setQuizPage(payload.interaction === "quiz" && sectionId === WEB_DEVELOPMENT_SECTION_ID ? Number(payload.page) : null);
       }
       if (payload?.type === "eiu-tsx-ready" && Number.isSafeInteger(payload.slides) && Number(payload.slides) > 0) {
@@ -196,11 +202,12 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
         const native = compiled?.nativeSlides?.[isAdmin ? "teaching" : "learner"]?.[String(pageNumber)];
         const showcase = native === "showcase" || (!native && showcasePage === pageNumber);
         const quiz = native === "quiz" || (!native && quizPage === pageNumber);
+        const ideas = ideasPage === pageNumber;
         const ready = Boolean(native || resolvedRequest === `${sectionId}:${pageNumber}`);
         if ((!tsxCode && !native) || (useTemplate && !templateImage)) return <HairlineLoading contained />;
         return (
-          <SlideSurface key={`${sectionId}:${pageNumber}`} ready={ready} native={showcase || quiz} onError={setError}>
-          {!native && <div className={showcase || quiz ? styles.inactiveSource : styles.sourceLayer} aria-hidden={showcase || quiz || undefined}>
+          <SlideSurface key={`${sectionId}:${pageNumber}`} ready={ready} native={showcase || quiz || ideas} onError={setError}>
+          {!native && <div className={showcase || quiz || ideas ? styles.inactiveSource : styles.sourceLayer} aria-hidden={showcase || quiz || ideas || undefined}>
           <TsxSlide isAdmin={isAdmin} frameRef={iframeRef} sectionId={sectionId} code={tsxCode} page={pageNumber} background={useTemplate ? templateImage : ""}
             practiceAllowed={compiled && sectionId === MIS301_SECTION_ID && pageNumber < 6 ? false : practiceAllowed}
             practiceAssignmentKey={compiled && sectionId === MIS301_SECTION_ID && pageNumber < 6 ? "" : practiceAssignmentKey} templateKey={templateKey} title={sectionTitle} />
@@ -208,6 +215,7 @@ export default function UploadedSectionDeck({ sectionId, uploadedContent, conten
           {showcase && <ShowcaseSlide key={`${sectionId}:${pageNumber}`} scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} sectionTitle={sectionTitle} guide={compiled?.showcaseGuide} practice={compiled?.showcasePractices?.[String(pageNumber)] || compiled?.showcasePractice} templateImage={useTemplate ? templateImage : ""} pageNumber={pageNumber} />}
           {showcase && sectionId === WEB_DEVELOPMENT_SECTION_ID && <QuizPrefetch />}
           {quiz && <QuizSlide key={sectionId} scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} courseTitle={courseTitle} />}
+          {ideas && <IdeaSubmissionSlide key={`${sectionId}:${pageNumber}`} scale={renderWidth / 960} isAdmin={isAdmin} sectionId={sectionId} />}
           </SlideSurface>
         );
       }}

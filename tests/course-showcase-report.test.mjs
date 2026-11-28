@@ -29,8 +29,8 @@ function database(tables) {
     };return q;
   } };
 }
-function endpoint(tables, access, metadata) {
-  return load("app/api/sections/[id]/showcase/route.ts", { "next/server": { NextResponse: { json: (data, options={}) => ({ data, status: options.status || 200 }) } },
+function endpoint(tables, access, metadata, kind = "showcase") {
+  return load(`app/api/sections/[id]/${kind}/route.ts`, { "next/server": { NextResponse: { json: (data, options={}) => ({ data, status: options.status || 200 }) } },
     "@/lib/sectionTermination": load("lib/sectionTermination.ts", { "server-only": {}, "@/lib/supabase/server": { getSupabaseAdmin:()=>database(tables) } }),
     "@/lib/security/rateLimit": {consumeRateLimit:async()=>({allowed:true,retry_after:0})}, "@/lib/compiledSectionMetadata": { getCompiledSectionMetadata:()=>metadata }, "@/lib/showcaseImage": load("lib/showcaseImage.ts", {"server-only":{}}), "@/lib/auth/currentUser": { currentUserAccess: async()=>access }, "@/lib/supabase/server": { getSupabaseAdmin:()=>database(tables) } });
 }
@@ -138,4 +138,32 @@ test("retired final slides and their private renderer and logo assets are remove
   assert.equal(fs.existsSync(base+'repo-icons'),false);
   const retired=/git-intro-(?:ai-workflow|skill-defaults|repo-showcase)|effective-vibe-coding|Repo (?:Penpot|Excalidraw|shadcn-ui|n8n)|function (?:skillDefaults|skillInstall|aiWorkflow|repoShowcase)/i;
   for(const file of ['storyboard.json','renderer.tsx.txt','Section1.js','Section2.js','assets.json'])assert.doesNotMatch(fs.readFileSync(base+file,'utf8'),retired,file);
+});
+
+test("scoped ideas use the existing Excel result columns and signed session without a second identity",async()=>{
+ const scope={courseId:'c-web',sectionId:'s-web',section:'section1',submissionStorage:'audit'};
+ const tables={courses,course_sections:sections,access_audit_logs:[
+  {id:1,action:'PASSCODE_LOGIN',created_at:'2026-11-22T01:00:00Z',details:{...identity,scopes:[scope]}},
+  {id:2,action:'IDEA_SUBMITTED',created_at:'2026-11-22T02:00:00Z',details:{...identity,...scope,idea:'Improve approval time'}},
+  {id:3,action:'IDEA_SUBMITTED',created_at:'2026-11-22T03:00:00Z',details:{...identity,...scope,idea:'Track team workload'}},
+  {id:4,action:'IDEA_SUBMITTED',created_at:'2026-11-22T03:00:00Z',details:{...identity,...scope,courseId:'c-ai',sectionId:'s-ai',idea:'Foreign idea'}},
+ ]};
+ const report=load('app/api/admin/report/route.ts',{exceljs:{default:ExcelJS},'@/lib/currentRole':{currentRole:async()=> 'admin'},'@/lib/supabase/server':{getSupabaseAdmin:()=>database(tables)}});
+ const response=await report.GET(new Request('http://localhost/api/admin/report?courseId=c-web&sectionId=s-web'));assert.equal(response.status,200);
+ const book=new ExcelJS.Workbook();await book.xlsx.load(Buffer.from(await response.arrayBuffer()));assert.equal(book.worksheets.length,2);
+ const stats=book.getWorksheet('Th\u1ed1ng k\u00ea');assert.equal(stats.rowCount,6);const values=stats.getRow(6).values;assert.ok(values.includes('Alice'));assert.ok(values.includes('Improve approval time'));assert.ok(values.includes('Track team workload'));assert.ok(!values.includes('Foreign idea'));
+});
+
+test('permanent idea deletion removes the Supabase-owned result from the next workbook while preserving login and foreign ideas',async()=>{
+ const scope={courseId:'c-web',sectionId:'s-web',section:'section1',submissionStorage:'audit'};
+ const tables={courses,course_sections:sections,access_audit_logs:[
+  {id:1,action:'PASSCODE_LOGIN',created_at:'2026-11-22T01:00:00Z',details:{...identity,scopes:[scope]}},
+  {id:2,course_id:'c-web',action:'IDEA_SUBMITTED',created_at:'2026-11-22T02:00:00Z',details:{...identity,...scope,idea:'Remove from report'}},
+  {id:3,course_id:'c-ai',action:'IDEA_SUBMITTED',created_at:'2026-11-22T03:00:00Z',details:{...identity,...scope,courseId:'c-ai',sectionId:'s-ai',idea:'Keep foreign idea'}},
+ ]};
+ const report=load('app/api/admin/report/route.ts',{exceljs:{default:ExcelJS},'@/lib/currentRole':{currentRole:async()=> 'admin'},'@/lib/supabase/server':{getSupabaseAdmin:()=>database(tables)}});
+ const values=async()=>{const response=await report.GET(new Request('http://localhost/api/admin/report?courseId=c-web&sectionId=s-web'));assert.equal(response.status,200);const book=new ExcelJS.Workbook();await book.xlsx.load(Buffer.from(await response.arrayBuffer()));assert.equal(book.worksheets.length,2);const stats=book.getWorksheet('Th\u1ed1ng k\u00ea');assert.equal(stats.rowCount,6);return stats.getRow(6).values;};
+ assert.ok((await values()).includes('Remove from report'));const admin=access();admin.isAdmin=true;
+ const api=endpoint(tables,admin,undefined,'ideas');const result=await api.DELETE(new Request('http://localhost/api/sections/s-web/ideas',{method:'DELETE',headers:{origin:'http://localhost'},body:JSON.stringify({id:'2'})}),context('s-web'));assert.equal(result.status,200);
+ const after=await values();assert.ok(after.includes('Alice'));assert.ok(!after.includes('Remove from report'));assert.deepEqual(tables.access_audit_logs.map(row=>row.id),[1,3]);
 });

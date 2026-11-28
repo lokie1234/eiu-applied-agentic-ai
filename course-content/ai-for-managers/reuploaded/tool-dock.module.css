@@ -1,0 +1,16 @@
+.deck{position:relative;display:flex;align-items:center;justify-content:space-around;width:440px;height:100px;margin-top:28px;padding:12px 14px;isolation:isolate;border:1px solid #b8cee329;border-radius:24px;background:linear-gradient(145deg,#ffffff0c,#123f6829);box-shadow:inset 0 1px 0 #ffffff09,0 12px 28px #00132212;box-sizing:border-box;overflow:visible}
+.tool{position:relative;display:grid;place-items:center;width:70px;height:70px;outline:none;cursor:default;perspective:400px}
+.circle{display:grid;place-items:center;width:60px;height:60px;background:#fff;border:1px solid #e8edf1;border-radius:50%;box-sizing:border-box;box-shadow:0 5px 12px #0016263d,inset 0 1px 0 #fff;transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s ease}
+.icon{display:block;width:40px;height:40px;object-fit:contain;transform:translateY(0);transition:filter .3s ease;will-change:transform}
+.tool:hover .circle,.tool:focus-visible .circle{transform:translateY(-5px);box-shadow:0 10px 18px #00162650,0 0 0 3px #e9ca8b26}
+.tool:hover .icon,.tool:focus-visible .icon{animation:float .9s ease-in-out infinite alternate}
+.tool:nth-child(even):hover .icon,.tool:nth-child(even):focus-visible .icon{animation-name:sway}
+.tool:focus-visible .circle{outline:2px solid #e9ca8b;outline-offset:4px}
+.tooltip{position:absolute;top:calc(100% + 10px);left:50%;min-width:130px;max-width:180px;padding:11px 14px;box-sizing:border-box;border-radius:12px;background:#fbfaf7;border:1px solid #dbd7cd;box-shadow:0 12px 26px #00132240;z-index:8;display:flex;flex-direction:column;gap:4px;white-space:nowrap;opacity:0;visibility:hidden;transform:translate(-50%,6px);transition:opacity .2s ease,transform .2s ease,visibility .2s;pointer-events:none;text-align:left}
+.tooltip:before{content:'';position:absolute;top:-5px;left:calc(50% - 5px);width:8px;height:8px;background:#fbfaf7;border-left:1px solid #dbd7cd;border-top:1px solid #dbd7cd;transform:rotate(45deg)}
+.tooltip small{font:750 8px/1.3 'Segoe UI',sans-serif;letter-spacing:1.1px;color:#9d7944}
+.tooltip strong{font:750 13px/1.3 'Segoe UI',sans-serif;color:#082945}
+.tool:hover .tooltip,.tool:focus-visible .tooltip{opacity:1;visibility:visible;transform:translate(-50%,0)}
+@keyframes float{from{transform:translateY(-1px) rotate(-5deg) scale(1.02)}to{transform:translateY(-3px) rotate(5deg) scale(1.07)}}
+@keyframes sway{from{transform:rotateY(-15deg) rotate(-4deg) scale(1.03)}to{transform:rotateY(15deg) rotate(4deg) scale(1.07)}}
+@media(prefers-reduced-motion:reduce){.icon,.circle,.tooltip{animation:none!important;transition:none!important}.tool:hover .circle,.tool:focus-visible .circle{transform:none}}

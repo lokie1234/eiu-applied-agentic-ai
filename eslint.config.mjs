@@ -18,6 +18,7 @@ const eslintConfig = defineConfig([
     "scripts/**",
     // Generated React/React DOM exports; lint their editable course sources.
     "lib/drive/builtin-decks/*.js",
+    "course-content/ai-for-managers/reuploaded/section1.js",
   ]),
 ]);
 

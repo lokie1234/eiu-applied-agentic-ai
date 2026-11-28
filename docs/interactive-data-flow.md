@@ -80,6 +80,15 @@ progress. Explicit sign-out clears it through the existing localStorage clear;
 termination closes the frame, clears this presentation progress and rejects
 subsequent saves. Identical snapshots skip redundant storage writes. No learner identity, report data, database storage or polling is added.
 
+Manager Section 1 (`98694749-2879-46e2-82bd-03fd27f23c5e`) reuses the same local
+reveal store and root `useLessonRevealBridge` for slide 3's one-time animation.
+Only its active iframe and exact `sectionId:3` request can claim the run; the
+parent saves the monotonic `orientationPlayed` boolean before replying. Back
+navigation and iframe recreation display the completed composition, including
+an interrupted first run. A new lesson visit or termination clears this visual
+state. The downloaded player keeps the same claim in its current JS module,
+including cache eviction. No identity, results, server writes or polling are added.
+
 MIS 311 Section 2's comparison reveal progress is local presentation state, not a
 submission. `useLessonRevealBridge` owns its scoped parent-session storage; the
 opaque iframe uses validated messages for the active section and slide. It stores
@@ -567,3 +576,9 @@ the root realtime flow. The UI retains the row on error, blocks duplicate
 requests and ignores stale list responses. These practices ignore old local
 Hide filters so surviving Supabase submissions remain manageable. Older
 downloaded Excel files cannot be changed by a subsequent deletion.
+
+## Scoped Manager ideas
+
+Manager Section 1 slide 5 declares `data-eiu-ideas`; the authorized uploaded-section host detects the marker only from its active iframe and exact request ID and mounts the shared native idea form/teacher board. `/api/sections/[id]/ideas` resolves the actual course, section and signed learner identity. One Supabase `access_audit_logs` IDEA_SUBMITTED record with `submissionStorage: audit` owns each result; the existing transactional ideas revision mapping and notifyRealtime publish only after commit. The report route includes these scoped ideas alongside legacy ideas; existing scoped reset handles their audit rows. Termination hides earlier board entries without deleting history. Teachers subscribe through the root listenInteractive client; manual refresh and window focus read Supabase when realtime is unavailable, without new polling or clients. The download supports only local drafts and text downloads; authenticated submission stays on the website.
+
+Manager idea cards read the existing signed login name from each durable submission; they never collect another identity. GET /api/sections/[id]/ideas returns names and a server-owned canDelete capability only to administrators and that section's facilitators. It returns up to 1000 current scoped ideas; the native board renders at most twelve bounded cards per group. DELETE requires a real administrator, same origin, a bounded numeric ID and a rate limit; the single atomic Supabase delete also constrains action, course_id, courseId, sectionId and submissionStorage. Missing, foreign, legacy or failed rows never acknowledge success. The existing DELETE revision trigger and notifyRealtime invalidate the board; the existing report query naturally omits the deleted record while preserving learner login and other results. Teaching/learner sessions cannot delete, even if the UI is forged. No new identity/result table, polling, realtime client or soft-delete shadow store is added.

@@ -145,7 +145,7 @@ export async function GET(request: Request) {
       const reference = activity.find(event => event.action === action && String((event.details as Row).recordId || "") === String(row.id));
       return reference ? { ...row, ...(reference.details as Row), id: row.id } : row;
     }));
-    const ideas = linkIdentity(ideaRows, "IDEA_SUBMITTED"), quiz = [...linkIdentity(quizRows, "QUIZ_COMPLETED"), ...audited("QUIZ_COMPLETED", "completed_at")],
+    const ideas = [...linkIdentity(ideaRows, "IDEA_SUBMITTED"), ...audited("IDEA_SUBMITTED", "submitted_at")], quiz = [...linkIdentity(quizRows, "QUIZ_COMPLETED"), ...audited("QUIZ_COMPLETED", "completed_at")],
       feedback = [...linkIdentity(feedbackRows, "FEEDBACK_SUBMITTED"), ...audited("FEEDBACK_SUBMITTED", "submitted_at")];
     const submissions: Row[] = activity.filter(row => row.action === "SHOWCASE_SUBMITTED" && (row.details as Row).submissionStorage === "audit")
       .map(row => ({ ...(row.details as Row), id: row.id, shared_at: row.created_at }));

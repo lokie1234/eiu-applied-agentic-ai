@@ -12,6 +12,10 @@ function browserOptions() {
 }
 
 async function createOfflinePlayer(page, code, template) {
+  // Initialize a real document before attaching an opaque srcdoc. Chromium 159
+  // can crash its SiteInstance when the parent is the initial empty document.
+  // This is test-harness setup; the Windows player runtime remains unchanged.
+  if (page.url() === 'about:blank') await page.goto('data:text/html,<title>Offline lesson QA</title>');
   const runtime = {};
   vm.runInNewContext(fs.readFileSync('tests/fixtures/windows-player-1.2.1-runtime.js.txt', 'utf8'), runtime);
   if (template === undefined) template = 'data:image/png;base64,' + fs.readFileSync('public/templates/eiu-business-v1/background.png').toString('base64');

@@ -1,0 +1,68 @@
+// Cover-only override for the user's re-uploaded original Section 1.
+// Keep the original CSS, EIU logo, layout and ambient animation.
+import Image from 'next/image';
+import styles from '../../../components/section1/SectionOneNativeSlide.module.css';
+import team from './team.module.css';
+import dock from './tool-dock.module.css';
+import toolIcons from './tool-icons.json';
+
+function Person({manager=false}: {manager?:boolean}) {
+  return <g fill="none" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round">
+    <circle cy="-8" r={manager?8:6.5} />
+    <path d={manager?'M-16 18v-5a16 13 0 0 1 32 0v5':'M-13 15v-4a13 11 0 0 1 26 0v4'} />
+    {manager&&<path className={team.tie} d="M-3 4 0 8 3 4M0 8v9" />}
+  </g>;
+}
+
+export default function ManagerCover() {
+  return <section className={`${styles.root} ${styles.heroSlide}`}>
+    <div className={styles.ambient} aria-hidden="true">
+      <div className={styles.grid} />
+      <div className={styles.glowA} />
+      <div className={styles.glowB} />
+      <svg viewBox="0 0 960 540" preserveAspectRatio="none">
+        <path className={styles.traceOne} d="M-60 438 C155 322 279 470 476 303 C630 174 786 246 1020 76" />
+        <path className={styles.traceTwo} d="M-40 126 C160 46 252 184 420 118 C622 40 760 178 1010 124" />
+      </svg>
+      <i className={styles.nodeA} /><i className={styles.nodeB} /><i className={styles.nodeC} />
+    </div>
+    <div className={styles.content}>
+      <Image className={styles.coverLogo} src="/branding/eiu-logo-uploaded.png" alt="EIU - Eastern International University" width={180} height={50} sizes="180px" />
+      <div className={styles.heroCopy}>
+        <span className={styles.heroKicker}>EIU · APPLIED AGENTIC AI</span>
+        <h1 className={team.heading}>Applied Agentic AI<br /><em>for Managers</em></h1>
+        <div className={dock.deck} data-cover-tools role="group" aria-label="Công cụ thực hành">
+          {(['apps-script','sheets','gemini','chatgpt','claude'] as const).map(key=><span className={dock.tool} key={key} tabIndex={0} role="img" aria-label={toolIcons[key].label} aria-describedby={`cover-tooltip-${key}`} data-cover-tool={key}>
+            <span className={dock.circle} data-tool-circle><img className={dock.icon} src={toolIcons[key].src} alt="" aria-hidden="true" width={40} height={40}/></span>
+            <span className={dock.tooltip} role="tooltip" id={`cover-tooltip-${key}`}><small>{key==='apps-script'||key==='sheets'?'GOOGLE WORKSPACE':'AI ASSISTANT'}</small><strong>{toolIcons[key].label}</strong></span>
+          </span>)}
+        </div>
+      </div>
+      <div className={team.scene} role="img" aria-label="Manager phối hợp và giao việc cho ba nhân viên" data-manager-team>
+        <svg viewBox="0 0 280 280" aria-hidden="true">
+          <circle className={team.halo} cx="140" cy="70" r="54" />
+          <g className={team.connections}>
+            <path d="M140 108V130Q140 145 120 145H60Q40 145 40 165V180" />
+            <path d="M140 108V205" />
+            <path d="M140 108V130Q140 145 160 145H220Q240 145 240 165V180" />
+          </g>
+          <g className={team.signals} data-team-signals>
+            <path d="M140 108V130Q140 145 120 145H60Q40 145 40 165V180" />
+            <path d="M140 108V205" />
+            <path d="M140 108V130Q140 145 160 145H220Q240 145 240 165V180" />
+          </g>
+          <g transform="translate(140 70)" data-team-manager><g className={team.manager}>
+            <circle className={team.managerDisc} r="35" /><Person manager />
+          </g></g>
+          <text className={team.label} x="140" y="17">MANAGER</text>
+          {[[40,210],[140,235],[240,210]].map(([x,y],i)=><g key={x} transform={`translate(${x} ${y})`} data-team-employee>
+            <g className={team.employee} style={{animationDelay:`${i*.8}s`}}>
+              <circle className={team.employeeDisc} r="27" /><Person />
+              <g className={team.done} data-team-complete style={{animationDelay:`${i*.8}s`}}><circle cx="21" cy="-21" r="9" /><path d="m17-21 3 3 5-6" /></g>
+            </g>
+          </g>)}
+        </svg>
+      </div>
+    </div>
+  </section>;
+}

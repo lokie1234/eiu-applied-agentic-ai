@@ -1,0 +1,58 @@
+import {useEffect,useLayoutEffect,useRef,useState,type CSSProperties} from 'react';
+import styles from '../../../components/section1/SectionOneHtmlSlide.module.css';
+import layout from './orientation.module.css';
+// Local fallback for the standalone player's module, including cache eviction.
+let orientationPlayed=false;
+
+export default function Orientation() {
+  const root=useRef<HTMLElement>(null);
+  const started=useRef(false);
+  const [phase,setPhase]=useState<'pending'|'playing'|'complete'>('pending');
+  useEffect(()=>{
+    let active=true,timeout:ReturnType<typeof setTimeout>|undefined,observer:MutationObserver|undefined;
+    const host=window as Window & {eiuLessonRequestId?:string};
+    const requestId=host.eiuLessonRequestId;
+    const start=(play:boolean)=>{if(!active)return;orientationPlayed=true;setPhase(play?'playing':'complete');};
+    const receive=(event:MessageEvent)=>{if(event.source===parent&&event.data?.type==='eiu-orientation-state'&&event.data.requestId===requestId&&typeof event.data.play==='boolean'){clearTimeout(timeout);start(event.data.play);}};
+    const connect=()=>{
+      if(!root.current?.isConnected)return;
+      observer?.disconnect();
+      if(requestId){window.addEventListener('message',receive);parent.postMessage({type:'eiu-orientation-load',requestId},'*');timeout=setTimeout(()=>start(!orientationPlayed),800);}
+      else start(!orientationPlayed);
+    };
+    if(root.current?.isConnected)connect();else{observer=new MutationObserver(connect);observer.observe(document.documentElement,{childList:true,subtree:true});}
+    return()=>{active=false;observer?.disconnect();clearTimeout(timeout);window.removeEventListener('message',receive);};
+  },[]);
+  useLayoutEffect(()=>{
+    if(phase!=='playing'||!root.current)return;
+    if(started.current){setPhase('complete');return;}
+    started.current=true;
+    let active=true;
+    const animations=root.current.getAnimations({subtree:true});
+    void Promise.all(animations.map(animation=>animation.finished.catch(()=>{}))).then(()=>{if(active)setPhase('complete');});
+    return()=>{active=false;for(const animation of animations)animation.cancel();};
+  },[phase]);
+  const languages=['HTML','CSS','JavaScript','SQL','Framework'];
+  return <section ref={root} className={`${styles.root} ${phase==='playing'?layout.playing:layout.settled} ${phase==='pending'?layout.pending:''}`} data-manager-orientation data-orientation-phase={phase}>
+    <div className={styles.ambient} aria-hidden="true">
+      <div className={styles.grid}/><div className={styles.glow}/>
+      <svg viewBox="0 0 960 540" preserveAspectRatio="none"><path d="M-45 430 C155 318 300 455 474 298 C640 150 770 235 1010 85"/></svg>
+      <i className={styles.nodeOne}/><i className={styles.nodeTwo}/><i className={styles.nodeThree}/>
+    </div>
+    <header className={styles.heading}><span>ĐỊNH HƯỚNG KHÓA HỌC</span><h1>Đây <em>KHÔNG</em> phải khóa học lập trình</h1></header>
+    <div className={styles.comparison}>
+      <article className={styles.codeCard}>
+        <span className={styles.cardLabel}>KHÔNG PHẢI TRỌNG TÂM</span>
+        <div className={styles.languageGrid}>{languages.map((language,index)=><div key={language} data-orientation-reveal style={{'--delay':`${index*70}ms`} as CSSProperties}><i/><strong>{language}</strong></div>)}</div>
+        <div className={styles.crossMark} data-orientation-cross aria-hidden="true"><span/><span/></div>
+      </article>
+      <div className={styles.comparisonArrow} aria-hidden="true"><span/><i>→</i></div>
+      <article className={`${styles.aiCard} ${layout.goal}`} data-practical-goal>
+        <span className={styles.cardLabel}>MỤC TIÊU THỰC TẾ</span>
+        <div className={`${styles.aiVisual} ${layout.visual}`} aria-hidden="true"><span>AI</span>{[35,155,275].map((angle,index)=><i key={angle} data-orientation-orbit style={{'--angle':`${angle}deg`,'--orbit-delay':`${index*.2}s`} as CSSProperties}/>)}</div>
+        <p className={layout.need}>Hiểu được nhu cầu thực tế</p>
+        <h2>Thiết kế sản phẩm cùng AI</h2>
+      </article>
+    </div>
+  </section>;
+}

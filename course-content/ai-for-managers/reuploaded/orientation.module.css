@@ -1,0 +1,12 @@
+.goal{padding:40px 24px 12px;gap:8px}
+.goal .visual{flex-shrink:0;transform:scale(.8)}
+.goal .need{position:relative;z-index:2;margin:0;color:#f7f4ed;font-size:28px;font-weight:700;line-height:1.16;text-align:center}
+.goal h2{margin:0;font-size:28px;font-weight:700;line-height:1.16}
+.pending{visibility:hidden}
+.playing *,.playing *:before,.playing *:after{animation-iteration-count:1!important;animation-duration:1.4s!important}
+.playing [data-orientation-orbit]{animation:oneOrbit 2.2s ease-in-out var(--orbit-delay) 1 both!important}
+.settled *,.settled *:before,.settled *:after{animation:none!important;transition:none!important}
+.settled [data-orientation-reveal],.settled [data-orientation-cross]{opacity:1;transform:none}
+.settled [data-orientation-orbit]{transform:rotate(var(--angle)) translateX(76px) rotate(calc(0deg - var(--angle)))}
+@keyframes oneOrbit{from{transform:rotate(calc(var(--angle) - 360deg)) translateX(76px) rotate(calc(360deg - var(--angle)))}to{transform:rotate(var(--angle)) translateX(76px) rotate(calc(0deg - var(--angle)))}}
+@media(prefers-reduced-motion:reduce){.playing *,.playing *:before,.playing *:after{animation:none!important}.playing [data-orientation-reveal],.playing [data-orientation-cross]{opacity:1;transform:none}}
